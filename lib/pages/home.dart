@@ -5,9 +5,16 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Firebase initialized.'),
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: FilledButton(
+            onPressed: () {
+              print('Sign In button pressed.');
+            },
+            child: const Text('Sign In'),
+          ),
+        ),
       ),
     );
   }

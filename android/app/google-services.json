@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "466457538668",
+    "project_id": "talktive3-58486",
+    "storage_bucket": "talktive3-58486.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466457538668:android:0a83323b2975233101e849",
+        "android_client_info": {
+          "package_name": "app.talktive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGu44ShjvI_LUsJqgONu8uYC14ABgKcv4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -12,6 +12,16 @@ class _HomeState extends State<Home> {
   User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        currentUser = user;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -24,11 +34,8 @@ class _HomeState extends State<Home> {
 
   Widget buildSignInButton() {
     return FilledButton(
-      onPressed: () async {
-        await FirebaseAuth.instance.signInAnonymously();
-        setState(() {
-          currentUser = FirebaseAuth.instance.currentUser;
-        });
+      onPressed: () {
+        FirebaseAuth.instance.signInAnonymously();
       },
       child: const Text('Sign In'),
     );
@@ -41,11 +48,8 @@ class _HomeState extends State<Home> {
         Image.network('https://i.pravatar.cc/150?u=${currentUser!.uid}'),
         const SizedBox(height: 25),
         FilledButton(
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-            setState(() {
-              currentUser = FirebaseAuth.instance.currentUser;
-            });
+          onPressed: () {
+            FirebaseAuth.instance.signOut();
           },
           child: const Text('Sign Out'),
         ),

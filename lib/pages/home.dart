@@ -1,43 +1,25 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatefulWidget {
+class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  User? currentUser = FirebaseAuth.instance.currentUser;
-  StreamSubscription? subscription;
-
-  @override
-  void initState() {
-    super.initState();
-    subscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      setState(() {
-        currentUser = user;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    subscription?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: currentUser == null ? buildSignInButton() : buildUserProfile(),
-        ),
-      ),
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        final currentUser = snapshot.data;
+        return Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: currentUser == null
+                  ? buildSignInButton()
+                  : buildUserProfile(currentUser),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -50,7 +32,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget buildUserProfile() {
+  Widget buildUserProfile(User? currentUser) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

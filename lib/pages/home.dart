@@ -44,10 +44,8 @@ class _HomeState extends State<Home> {
         ),
         const SizedBox(height: 25),
         FilledButton(
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-          },
-          child: const Text('Sign Out'),
+          onPressed: () {},
+          child: const Text('Chat'),
         ),
       ],
     );

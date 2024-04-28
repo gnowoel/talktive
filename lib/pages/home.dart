@@ -35,6 +35,21 @@ class _HomeState extends State<Home> {
   }
 
   Widget buildUserProfile() {
-    return Image.network('https://i.pravatar.cc/150?u=${currentUser!.uid}');
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.network('https://i.pravatar.cc/150?u=${currentUser!.uid}'),
+        const SizedBox(height: 25),
+        FilledButton(
+          onPressed: () async {
+            await FirebaseAuth.instance.signOut();
+            setState(() {
+              currentUser = FirebaseAuth.instance.currentUser;
+            });
+          },
+          child: const Text('Sign Out'),
+        ),
+      ],
+    );
   }
 }

@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'empty.dart';
+import 'user.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -23,49 +26,6 @@ class _HomeState extends State<Home> {
         final currentUser = snapshot.data;
         return currentUser == null ? const EmptyPage() : const UserPage();
       },
-    );
-  }
-}
-
-class EmptyPage extends StatelessWidget {
-  const EmptyPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-    );
-  }
-}
-
-class UserPage extends StatelessWidget {
-  const UserPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                '\u{1f44c}',
-                style: TextStyle(fontSize: 64),
-              ),
-              const SizedBox(height: 25),
-              FilledButton(
-                onPressed: () {},
-                child: const Text('Chat'),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

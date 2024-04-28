@@ -9,20 +9,32 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  User? currentUser = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: FilledButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signInAnonymously();
-              print(FirebaseAuth.instance.currentUser!.uid);
-            },
-            child: const Text('Sign In'),
-          ),
+          child: currentUser == null ? buildSignInButton() : buildUserProfile(),
         ),
       ),
     );
+  }
+
+  Widget buildSignInButton() {
+    return FilledButton(
+      onPressed: () async {
+        await FirebaseAuth.instance.signInAnonymously();
+        setState(() {
+          currentUser = FirebaseAuth.instance.currentUser;
+        });
+      },
+      child: const Text('Sign In'),
+    );
+  }
+
+  Widget buildUserProfile() {
+    return Image.network('https://i.pravatar.cc/150?u=${currentUser!.uid}');
   }
 }

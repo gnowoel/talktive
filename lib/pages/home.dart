@@ -21,16 +21,23 @@ class _HomeState extends State<Home> {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         final currentUser = snapshot.data;
-        return Scaffold(
-          body: SafeArea(
-            child: Center(
-              child: currentUser == null
-                  ? const CircularProgressIndicator()
-                  : const UserPage(),
-            ),
-          ),
-        );
+        return currentUser == null ? const EmptyPage() : const UserPage();
       },
+    );
+  }
+}
+
+class EmptyPage extends StatelessWidget {
+  const EmptyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
     );
   }
 }
@@ -40,19 +47,25 @@ class UserPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          '\u{1f44c}',
-          style: TextStyle(fontSize: 64),
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '\u{1f44c}',
+                style: TextStyle(fontSize: 64),
+              ),
+              const SizedBox(height: 25),
+              FilledButton(
+                onPressed: () {},
+                child: const Text('Chat'),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 25),
-        FilledButton(
-          onPressed: () {},
-          child: const Text('Chat'),
-        ),
-      ],
+      ),
     );
   }
 }

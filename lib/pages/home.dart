@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -10,15 +12,22 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   User? currentUser = FirebaseAuth.instance.currentUser;
+  StreamSubscription? subscription;
 
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+    subscription = FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
         currentUser = user;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    subscription?.cancel();
+    super.dispose();
   }
 
   @override

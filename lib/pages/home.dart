@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -9,8 +10,9 @@ class Home extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: FilledButton(
-            onPressed: () {
-              print('Sign In button pressed.');
+            onPressed: () async {
+              await FirebaseAuth.instance.signInAnonymously();
+              print(FirebaseAuth.instance.currentUser!.uid);
             },
             child: const Text('Sign In'),
           ),

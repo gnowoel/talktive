@@ -23,8 +23,7 @@ class _HomeState extends State<Home> {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        final currentUser = snapshot.data;
-        return currentUser == null ? const EmptyPage() : const UserPage();
+        return snapshot.hasData ? const UserPage() : const EmptyPage();
       },
     );
   }

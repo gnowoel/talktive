@@ -26,15 +26,20 @@ class _HomeState extends State<Home> {
             child: Center(
               child: currentUser == null
                   ? const CircularProgressIndicator()
-                  : buildUserProfile(),
+                  : const UserPage(),
             ),
           ),
         );
       },
     );
   }
+}
 
-  Widget buildUserProfile() {
+class UserPage extends StatelessWidget {
+  const UserPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

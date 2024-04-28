@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
             child: Center(
               child: currentUser == null
                   ? const CircularProgressIndicator()
-                  : buildUserProfile(currentUser),
+                  : buildUserProfile(),
             ),
           ),
         );
@@ -34,11 +34,14 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget buildUserProfile(User? currentUser) {
+  Widget buildUserProfile() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.network('https://i.pravatar.cc/150?u=${currentUser!.uid}'),
+        const Text(
+          '\u{1f44c}',
+          style: TextStyle(fontSize: 64),
+        ),
         const SizedBox(height: 25),
         FilledButton(
           onPressed: () {

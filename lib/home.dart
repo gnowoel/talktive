@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'empty.dart';
-import 'user.dart';
+import 'pages/empty.dart';
+import 'pages/user.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

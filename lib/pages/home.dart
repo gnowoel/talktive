@@ -1,8 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.signInAnonymously();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,21 +25,12 @@ class Home extends StatelessWidget {
           body: SafeArea(
             child: Center(
               child: currentUser == null
-                  ? buildSignInButton()
+                  ? const CircularProgressIndicator()
                   : buildUserProfile(currentUser),
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget buildSignInButton() {
-    return FilledButton(
-      onPressed: () {
-        FirebaseAuth.instance.signInAnonymously();
-      },
-      child: const Text('Sign In'),
     );
   }
 

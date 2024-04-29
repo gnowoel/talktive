@@ -10,10 +10,25 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  late Avatar avatar;
+
+  void _callback() => setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    avatar = Avatar();
+    avatar.addListener(_callback);
+  }
+
+  @override
+  void dispose() {
+    avatar.removeListener(_callback);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final avatar = Avatar();
-
     return Scaffold(
       body: SafeArea(
         child: Center(

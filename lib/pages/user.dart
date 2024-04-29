@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/avatar.dart';
+import 'chat.dart';
 
 class UserPage extends StatelessWidget {
   const UserPage({super.key});
@@ -28,7 +29,14 @@ class UserPage extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
               ),
               FilledButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChatPage(),
+                    ),
+                  );
+                },
                 child: const Text('Chat'),
               ),
             ],

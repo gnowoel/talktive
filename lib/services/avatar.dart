@@ -7,6 +7,8 @@ class AvatarService {
 
   AvatarService._();
 
+  factory AvatarService() => _instance;
+
   static final AvatarService _instance = AvatarService._();
 
   static const _allEmojis = UnicodeEmojis.allEmojis;
@@ -15,5 +17,7 @@ class AvatarService {
     return _allEmojis[Random().nextInt(_allEmojis.length)];
   }
 
-  factory AvatarService() => _instance;
+  void refresh() {
+    current = _randomEmoji();
+  }
 }

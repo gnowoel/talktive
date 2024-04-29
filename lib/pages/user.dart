@@ -21,7 +21,12 @@ class UserPage extends StatelessWidget {
                 style: const TextStyle(fontSize: 64),
               ),
               Text(emoji.name),
-              const SizedBox(height: 25),
+              IconButton(
+                onPressed: () {
+                  avatarService.refresh();
+                },
+                icon: const Icon(Icons.refresh),
+              ),
               FilledButton(
                 onPressed: () {},
                 child: const Text('Chat'),

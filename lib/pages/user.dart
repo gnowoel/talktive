@@ -7,8 +7,7 @@ class UserPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatarService = AvatarService();
-    final emoji = avatarService.current;
+    final avatar = Avatar();
 
     return Scaffold(
       body: SafeArea(
@@ -17,13 +16,13 @@ class UserPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                emoji.emoji,
+                avatar.current.emoji,
                 style: const TextStyle(fontSize: 64),
               ),
-              Text(emoji.name),
+              Text(avatar.current.name),
               IconButton(
                 onPressed: () {
-                  avatarService.refresh();
+                  avatar.refresh();
                 },
                 icon: const Icon(Icons.refresh),
               ),

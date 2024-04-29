@@ -2,14 +2,14 @@ import 'dart:math';
 
 import 'package:unicode_emojis/unicode_emojis.dart';
 
-class AvatarService {
+class Avatar {
   Emoji current = _randomEmoji();
 
-  AvatarService._();
+  Avatar._();
 
-  factory AvatarService() => _instance;
+  factory Avatar() => _instance;
 
-  static final AvatarService _instance = AvatarService._();
+  static final Avatar _instance = Avatar._();
 
   static const _allEmojis = UnicodeEmojis.allEmojis;
 

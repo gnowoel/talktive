@@ -1,8 +1,9 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:unicode_emojis/unicode_emojis.dart';
 
-class Avatar {
+class Avatar extends ChangeNotifier {
   Emoji current = _randomEmoji();
 
   Avatar._();
@@ -19,5 +20,6 @@ class Avatar {
 
   void refresh() {
     current = _randomEmoji();
+    notifyListeners();
   }
 }

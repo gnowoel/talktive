@@ -13,6 +13,7 @@ class App extends StatelessWidget {
       create: (context) => Avatar(),
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
+        title: 'Talktive',
         home: Home(),
       ),
     );

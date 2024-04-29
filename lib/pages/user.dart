@@ -1,34 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../services/avatar.dart';
 
-class UserPage extends StatefulWidget {
+class UserPage extends StatelessWidget {
   const UserPage({super.key});
 
   @override
-  State<UserPage> createState() => _UserPageState();
-}
-
-class _UserPageState extends State<UserPage> {
-  late Avatar avatar;
-
-  void _callback() => setState(() {});
-
-  @override
-  void initState() {
-    super.initState();
-    avatar = Avatar();
-    avatar.addListener(_callback);
-  }
-
-  @override
-  void dispose() {
-    avatar.removeListener(_callback);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final avatar = Provider.of<Avatar>(context);
+
     return Scaffold(
       body: SafeArea(
         child: Center(

@@ -10,7 +10,16 @@ class ErrorPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Text(message),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '\u{1f641}',
+                style: TextStyle(fontSize: 64),
+              ),
+              Text(message),
+            ],
+          ),
         ),
       ),
     );

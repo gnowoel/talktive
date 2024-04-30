@@ -9,8 +9,6 @@ class Fireauth {
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.code);
-    } catch (e) {
-      throw Exception('$e');
     }
   }
 }

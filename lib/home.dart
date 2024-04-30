@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/empty.dart';
+import 'pages/error.dart';
 import 'pages/user.dart';
 
 class Home extends StatefulWidget {
@@ -23,7 +24,13 @@ class _HomeState extends State<Home> {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        return snapshot.hasData ? const UserPage() : const EmptyPage();
+        if (snapshot.hasError) {
+          return ErrorPage(message: '${snapshot.error}');
+        } else if (!snapshot.hasData) {
+          return const EmptyPage();
+        } else {
+          return const UserPage();
+        }
       },
     );
   }

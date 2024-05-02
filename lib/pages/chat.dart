@@ -5,6 +5,16 @@ class ChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        title: const Text('Chat'),
+      ),
+      body: const SafeArea(
+        child: Center(
+          child: Text('(empty)'),
+        ),
+      ),
+    );
   }
 }

@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../models/room.dart';
+
 class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+  final Room room;
+
+  const ChatPage({
+    super.key,
+    required this.room,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Text(room.userName),
       ),
-      body: const SafeArea(
+      body: SafeArea(
         child: Center(
-          child: Text('(empty)'),
+          child: Text('(${room.id})'),
         ),
       ),
     );

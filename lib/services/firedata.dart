@@ -8,7 +8,7 @@ class Firedata {
   Future<Room> createRoom(userId, userName, userCode, languageCode) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    final seedRoom = SeedRoom(
+    final room = Room(
       userId: userId,
       userName: userName,
       userCode: userCode,
@@ -19,8 +19,8 @@ class Firedata {
 
     final ref = instance.ref('rooms').push();
 
-    await ref.set(seedRoom.toJson());
+    await ref.set(room.toJson());
 
-    return Room.fromSeed(seedRoom: seedRoom, id: ref.key!);
+    return room..id = ref.key;
   }
 }

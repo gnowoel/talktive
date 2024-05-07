@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 
+import '../models/message.dart';
 import '../models/room.dart';
 
 class Firedata {
@@ -27,5 +28,10 @@ class Firedata {
     await ref.set(room.toJson());
 
     return room..id = ref.key;
+  }
+
+  Future<void> sendMessage(String roomId, Message message) async {
+    final ref = instance.ref('messages/$roomId').push();
+    await ref.set(message.toJson());
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/room.dart';
+import '../widgets/input_field.dart';
 import '../widgets/message_list.dart';
 
 class ChatPage extends StatelessWidget {
@@ -24,7 +25,7 @@ class ChatPage extends StatelessWidget {
             Expanded(
               child: MessageList(room: room),
             ),
-            Text('(${room.id})')
+            InputField(room: room),
           ],
         ),
       ),

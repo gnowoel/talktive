@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '466457538668',
     projectId: 'talktive3-58486',
     authDomain: 'talktive3-58486.firebaseapp.com',
+    databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
     storageBucket: 'talktive3-58486.appspot.com',
     measurementId: 'G-R613MNBPDC',
   );
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:466457538668:android:0a83323b2975233101e849',
     messagingSenderId: '466457538668',
     projectId: 'talktive3-58486',
+    databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
     storageBucket: 'talktive3-58486.appspot.com',
   );
 
@@ -63,6 +65,7 @@ class DefaultFirebaseOptions {
     appId: '1:466457538668:ios:83d1747e360adf4001e849',
     messagingSenderId: '466457538668',
     projectId: 'talktive3-58486',
+    databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
     storageBucket: 'talktive3-58486.appspot.com',
     iosBundleId: 'app.talktive',
   );
@@ -72,6 +75,7 @@ class DefaultFirebaseOptions {
     appId: '1:466457538668:ios:83d1747e360adf4001e849',
     messagingSenderId: '466457538668',
     projectId: 'talktive3-58486',
+    databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
     storageBucket: 'talktive3-58486.appspot.com',
     iosBundleId: 'app.talktive',
   );
@@ -82,7 +86,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '466457538668',
     projectId: 'talktive3-58486',
     authDomain: 'talktive3-58486.firebaseapp.com',
+    databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
     storageBucket: 'talktive3-58486.appspot.com',
     measurementId: 'G-TQSPS89ZVH',
   );
+
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/room.dart';
+import '../widgets/message_list.dart';
 
 class ChatPage extends StatelessWidget {
   final Room room;
@@ -18,8 +19,13 @@ class ChatPage extends StatelessWidget {
         title: Text(room.userName),
       ),
       body: SafeArea(
-        child: Center(
-          child: Text('(${room.id})'),
+        child: Column(
+          children: [
+            Expanded(
+              child: MessageList(room: room),
+            ),
+            Text('(${room.id})')
+          ],
         ),
       ),
     );

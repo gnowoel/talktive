@@ -30,9 +30,13 @@ class _MessageListState extends State<MessageList> {
     final ref = firedata.instance.ref('messages/${widget.room.id}');
 
     ref.onChildAdded.listen((event) {
-      final message =
-          Message.fromJson(event.snapshot.value as Map<String, dynamic>);
-      messages.add(message);
+      final value = event.snapshot.value;
+      final Map<String, dynamic> json = Map<String, dynamic>.from(value as Map);
+      final message = Message.fromJson(json);
+
+      setState(() {
+        messages.add(message);
+      });
     });
   }
 

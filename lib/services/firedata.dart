@@ -5,7 +5,12 @@ import '../models/room.dart';
 class Firedata {
   final FirebaseDatabase instance = FirebaseDatabase.instance;
 
-  Future<Room> createRoom(userId, userName, userCode, languageCode) async {
+  Future<Room> createRoom(
+    String userId,
+    String userName,
+    String userCode,
+    String languageCode,
+  ) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
     final room = Room(

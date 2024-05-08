@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,35 +19,31 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   late Firedata firedata;
-  late StreamSubscription subscription;
-  var messages = <Message>[];
 
   @override
   void initState() {
     super.initState();
-
     firedata = Provider.of<Firedata>(context, listen: false);
-    final stream = firedata.receiveMessages(widget.room.id!);
-
-    subscription = stream.listen((event) {
-      setState(() {
-        messages = event;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    subscription.cancel();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        return Text(messages[index].content);
+    return StreamBuilder(
+      stream: firedata.receiveMessages(widget.room.id!),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        } else if (!snapshot.hasData) {
+          return const Text('(Empty)');
+        } else {
+          final messages = snapshot.data as List<Message>;
+          return ListView.builder(
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              return Text(messages[index].content);
+            },
+          );
+        }
       },
     );
   }

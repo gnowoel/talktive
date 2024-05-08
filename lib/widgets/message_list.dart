@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +21,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   late Firedata firedata;
+  late StreamSubscription subscription;
   var messages = <Message>[];
 
   @override
@@ -26,24 +29,19 @@ class _MessageListState extends State<MessageList> {
     super.initState();
 
     firedata = Provider.of<Firedata>(context, listen: false);
-
     final stream = firedata.receiveMessages(widget.room.id!);
 
-    stream.listen((event) {
-      final value = event.snapshot.value;
-
-      if (value == null) {
-        messages = [];
-      } else {
-        final jsonMap = Map<String, dynamic>.from(value as Map);
-
-        messages = jsonMap.entries.map((entry) {
-          final json = Map<String, dynamic>.from(entry.value as Map);
-          return Message.fromJson(json);
-        }).toList();
-      }
-      setState(() {});
+    subscription = stream.listen((event) {
+      setState(() {
+        messages = event;
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
   }
 
   @override

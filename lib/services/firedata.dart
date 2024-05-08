@@ -35,7 +35,20 @@ class Firedata {
     await ref.set(message.toJson());
   }
 
-  Stream<DatabaseEvent> receiveMessages(String roomId) {
-    return instance.ref('messages/$roomId').onValue;
+  Stream<List<Message>> receiveMessages(String roomId) {
+    return instance.ref('messages/$roomId').onValue.map<List<Message>>((event) {
+      final value = event.snapshot.value;
+
+      if (value == null) {
+        return <Message>[];
+      }
+
+      final jsonMap = Map<String, dynamic>.from(value as Map);
+
+      return jsonMap.entries.map((entry) {
+        final json = Map<String, dynamic>.from(entry.value as Map);
+        return Message.fromJson(json);
+      }).toList();
+    });
   }
 }

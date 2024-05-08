@@ -19,7 +19,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   late Firedata firedata;
-  final messages = <Message>[const Message(content: 'First message.')];
+  var messages = <Message>[];
 
   @override
   void initState() {
@@ -27,16 +27,22 @@ class _MessageListState extends State<MessageList> {
 
     firedata = Provider.of<Firedata>(context, listen: false);
 
-    final ref = firedata.instance.ref('messages/${widget.room.id}');
+    final stream = firedata.receiveMessages(widget.room.id!);
 
-    ref.onChildAdded.listen((event) {
+    stream.listen((event) {
       final value = event.snapshot.value;
-      final Map<String, dynamic> json = Map<String, dynamic>.from(value as Map);
-      final message = Message.fromJson(json);
 
-      setState(() {
-        messages.add(message);
-      });
+      if (value == null) {
+        messages = [];
+      } else {
+        final jsonMap = Map<String, dynamic>.from(value as Map);
+
+        messages = jsonMap.entries.map((entry) {
+          final json = Map<String, dynamic>.from(entry.value as Map);
+          return Message.fromJson(json);
+        }).toList();
+      }
+      setState(() {});
     });
   }
 

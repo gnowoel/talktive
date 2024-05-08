@@ -34,4 +34,8 @@ class Firedata {
     final ref = instance.ref('messages/$roomId').push();
     await ref.set(message.toJson());
   }
+
+  Stream<DatabaseEvent> receiveMessages(String roomId) {
+    return instance.ref('messages/$roomId').onValue;
+  }
 }

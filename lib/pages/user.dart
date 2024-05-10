@@ -43,6 +43,13 @@ class _UserPageState extends State<UserPage> {
     enter(room);
   }
 
+  Future<void> read() async {
+    final room = await firedata.selectRoom();
+    if (room != null) {
+      enter(room);
+    }
+  }
+
   void enter(Room room) {
     if (mounted) {
       Navigator.push(
@@ -72,6 +79,10 @@ class _UserPageState extends State<UserPage> {
                 icon: const Icon(Icons.refresh),
               ),
               FilledButton(
+                onPressed: read,
+                child: const Text('Read'),
+              ),
+              OutlinedButton(
                 onPressed: write,
                 child: const Text('Write'),
               ),

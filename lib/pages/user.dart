@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/room.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -26,7 +27,7 @@ class _UserPageState extends State<UserPage> {
     firedata = Provider.of<Firedata>(context, listen: false);
   }
 
-  Future<void> chat() async {
+  Future<void> write() async {
     final userId = fireauth.instance.currentUser!.uid;
     final userName = avatar.current.name;
     final userCode = avatar.current.emoji;
@@ -39,6 +40,10 @@ class _UserPageState extends State<UserPage> {
       languageCode,
     );
 
+    enter(room);
+  }
+
+  void enter(Room room) {
     if (mounted) {
       Navigator.push(
         context,
@@ -67,8 +72,8 @@ class _UserPageState extends State<UserPage> {
                 icon: const Icon(Icons.refresh),
               ),
               FilledButton(
-                onPressed: chat,
-                child: const Text('Chat'),
+                onPressed: write,
+                child: const Text('Write'),
               ),
             ],
           ),

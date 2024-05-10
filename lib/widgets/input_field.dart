@@ -30,7 +30,7 @@ class _InputFieldState extends State<InputField> {
   Future<void> _sendMessage() async {
     final content = _controller.text.trim();
 
-    firedata.sendMessage(widget.room.id!, Message(content: content));
+    firedata.sendMessage(widget.room.id, Message(content: content));
   }
 
   @override

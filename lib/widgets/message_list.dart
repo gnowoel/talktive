@@ -29,7 +29,7 @@ class _MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: firedata.receiveMessages(widget.room.id!),
+      stream: firedata.receiveMessages(widget.room.id),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('${snapshot.error}');

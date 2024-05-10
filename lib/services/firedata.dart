@@ -14,7 +14,7 @@ class Firedata {
   ) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    final room = Room(
+    final seedRoom = SeedRoom(
       userId: userId,
       userName: userName,
       userCode: userCode,
@@ -25,9 +25,9 @@ class Firedata {
 
     final ref = instance.ref('rooms').push();
 
-    await ref.set(room.toJson());
+    await ref.set(seedRoom.toJson());
 
-    return room..id = ref.key;
+    return Room.fromSeed(seedRoom: seedRoom, id: ref.key!);
   }
 
   Future<void> sendMessage(String roomId, Message message) async {

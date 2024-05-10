@@ -41,23 +41,23 @@ class Room {
     );
   }
 
-  factory Room.fromSeed({
-    required SeedRoom seedRoom,
-    required String id,
+  factory Room.fromValue({
+    required String key,
+    required RoomValue value,
   }) {
     return Room(
-      id: id,
-      userId: seedRoom.userId,
-      userName: seedRoom.userName,
-      userCode: seedRoom.userCode,
-      languageCode: seedRoom.languageCode,
-      createdAt: seedRoom.createdAt,
-      updatedAt: seedRoom.updatedAt,
+      id: key,
+      userId: value.userId,
+      userName: value.userName,
+      userCode: value.userCode,
+      languageCode: value.languageCode,
+      createdAt: value.createdAt,
+      updatedAt: value.updatedAt,
     );
   }
 }
 
-class SeedRoom {
+class RoomValue {
   final String userId;
   final String userName;
   final String userCode;
@@ -65,7 +65,7 @@ class SeedRoom {
   final int createdAt;
   final int updatedAt;
 
-  SeedRoom({
+  RoomValue({
     required this.userId,
     required this.userName,
     required this.userCode,
@@ -85,8 +85,8 @@ class SeedRoom {
     };
   }
 
-  factory SeedRoom.fromJson(Map<String, dynamic> json) {
-    return SeedRoom(
+  factory RoomValue.fromJson(Map<String, dynamic> json) {
+    return RoomValue(
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,

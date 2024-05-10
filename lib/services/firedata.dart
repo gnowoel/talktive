@@ -14,7 +14,7 @@ class Firedata {
   ) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    final seedRoom = SeedRoom(
+    final roomValue = RoomValue(
       userId: userId,
       userName: userName,
       userCode: userCode,
@@ -25,9 +25,9 @@ class Firedata {
 
     final ref = instance.ref('rooms').push();
 
-    await ref.set(seedRoom.toJson());
+    await ref.set(roomValue.toJson());
 
-    return Room.fromSeed(seedRoom: seedRoom, id: ref.key!);
+    return Room.fromValue(key: ref.key!, value: roomValue);
   }
 
   Future<void> sendMessage(String roomId, Message message) async {
@@ -60,15 +60,13 @@ class Firedata {
       return null;
     }
 
-    final value = snapshot.value;
-    final valueMap = Map<String, dynamic>.from(value as Map);
-    final roomList = valueMap.entries.map((entry) {
-      final valueMap = Map<String, dynamic>.from(entry.value as Map);
-      final seedRoom = SeedRoom.fromJson(valueMap);
-      final room = Room.fromSeed(seedRoom: seedRoom, id: entry.key);
-      return room;
+    final map1 = Map<String, dynamic>.from(snapshot.value as Map);
+    final list = map1.entries.map((entry) {
+      final map2 = Map<String, dynamic>.from(entry.value as Map);
+      final roomValue = RoomValue.fromJson(map2);
+      return Room.fromValue(key: entry.key, value: roomValue);
     }).toList();
 
-    return roomList.last;
+    return list.last;
   }
 }

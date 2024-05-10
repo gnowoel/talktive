@@ -53,20 +53,22 @@ class Firedata {
   }
 
   Future<Room?> selectRoom() async {
-    final ref = instance.ref('rooms');
-    final snapshot = await ref.limitToLast(1).get();
-    if (snapshot.exists) {
-      final value = snapshot.value;
-      final valueMap = Map<String, dynamic>.from(value as Map);
-      final roomList = valueMap.entries.map((entry) {
-        final valueMap = Map<String, dynamic>.from(entry.value as Map);
-        final seedRoom = SeedRoom.fromJson(valueMap);
-        final room = Room.fromSeed(seedRoom: seedRoom, id: entry.key);
-        return room;
-      }).toList();
-      return roomList.last;
-    } else {
+    final ref = instance.ref('rooms').orderByKey().limitToLast(1);
+    final snapshot = await ref.get();
+
+    if (!snapshot.exists) {
       return null;
     }
+
+    final value = snapshot.value;
+    final valueMap = Map<String, dynamic>.from(value as Map);
+    final roomList = valueMap.entries.map((entry) {
+      final valueMap = Map<String, dynamic>.from(entry.value as Map);
+      final seedRoom = SeedRoom.fromJson(valueMap);
+      final room = Room.fromSeed(seedRoom: seedRoom, id: entry.key);
+      return room;
+    }).toList();
+
+    return roomList.last;
   }
 }

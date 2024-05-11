@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 import '../services/firedata.dart';
+import 'message_item.dart';
 
 class MessageList extends StatefulWidget {
   final Room room;
@@ -40,7 +41,7 @@ class _MessageListState extends State<MessageList> {
           return ListView.builder(
             itemCount: messages.length,
             itemBuilder: (context, index) {
-              return Text(messages[index].content);
+              return MessageItem(message: messages[index]);
             },
           );
         }

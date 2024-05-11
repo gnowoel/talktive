@@ -29,10 +29,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return linux;
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -89,6 +86,17 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
     storageBucket: 'talktive3-58486.appspot.com',
     measurementId: 'G-TQSPS89ZVH',
+  );
+
+  static const FirebaseOptions linux = FirebaseOptions(
+    apiKey: 'AIzaSyAY2BMh_r1MaYUMlmgfSjM_4U0zcmMGn98',
+    appId: '1:466457538668:web:1a413c08ed39a94901e849',
+    messagingSenderId: '466457538668',
+    projectId: 'talktive3-58486',
+    authDomain: 'talktive3-58486.firebaseapp.com',
+    databaseURL: 'https://talktive3-58486-default-rtdb.firebaseio.com',
+    storageBucket: 'talktive3-58486.appspot.com',
+    measurementId: 'G-QK8S12XL2Z',
   );
 
 }

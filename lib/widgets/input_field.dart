@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/message.dart';
 import '../models/room.dart';
+import '../services/avatar.dart';
+import '../services/fireauth.dart';
 import '../services/firedata.dart';
 
 class InputField extends StatefulWidget {
@@ -18,19 +19,33 @@ class InputField extends StatefulWidget {
 }
 
 class _InputFieldState extends State<InputField> {
+  late Fireauth fireauth;
   late Firedata firedata;
+  late Avatar avatar;
   final _controller = TextEditingController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+    avatar = Provider.of<Avatar>(context);
   }
 
   Future<void> _sendMessage() async {
+    final roomId = widget.room.id;
+    final userId = fireauth.instance.currentUser!.uid;
+    final userName = avatar.name;
+    final userCode = avatar.code;
     final content = _controller.text.trim();
 
-    firedata.sendMessage(widget.room.id, Message(content: content));
+    firedata.sendMessage(
+      roomId,
+      userId,
+      userName,
+      userCode,
+      content,
+    );
   }
 
   @override

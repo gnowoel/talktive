@@ -6,20 +6,20 @@ import '../models/room.dart';
 class Firedata {
   final FirebaseDatabase instance = FirebaseDatabase.instance;
 
+  int get _now => DateTime.now().millisecondsSinceEpoch;
+
   Future<Room> createRoom(
     String userId,
     String userName,
     String userCode,
     String languageCode,
   ) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-
     final roomValue = RoomValue(
       userId: userId,
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      createdAt: timestamp,
+      createdAt: _now,
       updatedAt: 0,
     );
 
@@ -30,8 +30,23 @@ class Firedata {
     return Room.fromValue(key: ref.key!, value: roomValue);
   }
 
-  Future<void> sendMessage(String roomId, Message message) async {
+  Future<void> sendMessage(
+    String roomId,
+    String userId,
+    String userName,
+    String userCode,
+    String content,
+  ) async {
     final ref = instance.ref('messages/$roomId').push();
+
+    final message = Message(
+      userId: userId,
+      userName: userName,
+      userCode: userCode,
+      content: content,
+      createdAt: _now,
+    );
+
     await ref.set(message.toJson());
   }
 

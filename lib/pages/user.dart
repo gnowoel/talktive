@@ -29,8 +29,8 @@ class _UserPageState extends State<UserPage> {
 
   Future<void> write() async {
     final userId = fireauth.instance.currentUser!.uid;
-    final userName = avatar.current.name;
-    final userCode = avatar.current.emoji;
+    final userName = avatar.name;
+    final userCode = avatar.code;
     final languageCode = Localizations.localeOf(context).languageCode;
 
     final room = await firedata.createRoom(
@@ -68,10 +68,10 @@ class _UserPageState extends State<UserPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                avatar.current.emoji,
+                avatar.code,
                 style: const TextStyle(fontSize: 64),
               ),
-              Text(avatar.current.name),
+              Text(avatar.name),
               IconButton(
                 onPressed: () {
                   avatar.refresh();

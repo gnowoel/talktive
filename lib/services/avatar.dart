@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:unicode_emojis/unicode_emojis.dart';
 
 class Avatar extends ChangeNotifier {
-  Emoji current = _randomEmoji();
+  Emoji _current = _randomEmoji();
+
+  String get name => _current.name;
+
+  String get code => _current.emoji;
 
   static Emoji _randomEmoji() {
     return _selectedEmojis[Random().nextInt(_selectedEmojis.length)];
@@ -26,7 +30,7 @@ class Avatar extends ChangeNotifier {
   ];
 
   void refresh() {
-    current = _randomEmoji();
+    _current = _randomEmoji();
     notifyListeners();
   }
 }

@@ -34,7 +34,7 @@ class _MessageListState extends State<MessageList> {
         if (snapshot.hasError) {
           return Text('${snapshot.error}');
         } else if (!snapshot.hasData) {
-          return const Text('(Empty)');
+          return const SizedBox();
         } else {
           final messages = snapshot.data as List<Message>;
           return ListView.builder(

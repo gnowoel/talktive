@@ -1,6 +1,5 @@
 class Message {
   String? id;
-  final String roomUserId;
   final String userId;
   final String userName;
   final String userCode;
@@ -9,7 +8,6 @@ class Message {
 
   Message({
     this.id,
-    required this.roomUserId,
     required this.userId,
     required this.userName,
     required this.userCode,
@@ -20,7 +18,6 @@ class Message {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'roomUserId': roomUserId,
       'userId': userId,
       'userName': userName,
       'userCode': userCode,
@@ -32,7 +29,6 @@ class Message {
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       id: json['id'] as String?,
-      roomUserId: json['roomUserId'] as String,
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,

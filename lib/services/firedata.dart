@@ -32,7 +32,6 @@ class Firedata {
 
   Future<void> sendMessage(
     String roomId,
-    String roomUserId,
     String userId,
     String userName,
     String userCode,
@@ -41,7 +40,6 @@ class Firedata {
     final ref = instance.ref('messages/$roomId').push();
 
     final message = Message(
-      roomUserId: roomUserId,
       userId: userId,
       userName: userName,
       userCode: userCode,

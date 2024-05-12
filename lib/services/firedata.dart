@@ -40,6 +40,7 @@ class Firedata {
     final ref = instance.ref('messages/$roomId').push();
 
     final message = Message(
+      roomId: roomId,
       userId: userId,
       userName: userName,
       userCode: userCode,

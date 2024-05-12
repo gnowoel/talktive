@@ -5,6 +5,7 @@ import 'home.dart';
 import 'services/avatar.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
+import 'services/history.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -15,6 +16,7 @@ class App extends StatelessWidget {
       providers: [
         Provider(create: (context) => Fireauth()),
         Provider(create: (context) => Firedata()),
+        Provider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
       ],
       child: const MaterialApp(

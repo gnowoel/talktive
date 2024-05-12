@@ -34,6 +34,7 @@ class _InputFieldState extends State<InputField> {
 
   Future<void> _sendMessage() async {
     final roomId = widget.room.id;
+    final roomUserId = widget.room.userId;
     final userId = fireauth.instance.currentUser!.uid;
     final userName = avatar.name;
     final userCode = avatar.code;
@@ -41,6 +42,7 @@ class _InputFieldState extends State<InputField> {
 
     firedata.sendMessage(
       roomId,
+      roomUserId,
       userId,
       userName,
       userCode,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 
 import '../models/message.dart';
@@ -51,20 +53,19 @@ class Firedata {
   }
 
   Stream<List<Message>> receiveMessages(String roomId) {
-    return instance.ref('messages/$roomId').onValue.map<List<Message>>((event) {
+    final messages = <Message>[];
+
+    final ref = instance.ref('messages/$roomId').orderByKey();
+
+    final stream = ref.onChildAdded.map<List<Message>>((event) {
       final value = event.snapshot.value;
+      final json = Map<String, dynamic>.from(value as Map);
+      final message = Message.fromJson(json);
 
-      if (value == null) {
-        return <Message>[];
-      }
-
-      final jsonMap = Map<String, dynamic>.from(value as Map);
-
-      return jsonMap.entries.map((entry) {
-        final json = Map<String, dynamic>.from(entry.value as Map);
-        return Message.fromJson(json);
-      }).toList();
+      return messages..add(message);
     });
+
+    return stream;
   }
 
   Future<Room?> selectRoom() async {

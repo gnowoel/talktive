@@ -41,7 +41,10 @@ class _MessageListState extends State<MessageList> {
           return ListView.builder(
             itemCount: messages.length,
             itemBuilder: (context, index) {
-              return MessageItem(message: messages[index]);
+              return MessageItem(
+                roomUserId: widget.room.userId,
+                message: messages[index],
+              );
             },
           );
         }

@@ -6,9 +6,14 @@ import '../services/fireauth.dart';
 import 'bubble.dart';
 
 class MessageItem extends StatelessWidget {
+  final String roomUserId;
   final Message message;
 
-  const MessageItem({super.key, required this.message});
+  const MessageItem({
+    super.key,
+    required this.roomUserId,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +25,8 @@ class MessageItem extends StatelessWidget {
   }
 
   Widget _buildMessageItemLeft() {
+    final byOp = message.userId == roomUserId;
+
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -35,7 +42,10 @@ class MessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Flexible(
-                  child: Bubble(content: message.content),
+                  child: Bubble(
+                    content: message.content,
+                    byOp: byOp,
+                  ),
                 ),
               ],
             ),
@@ -58,7 +68,10 @@ class MessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Flexible(
-                  child: Bubble(content: message.content),
+                  child: Bubble(
+                    content: message.content,
+                    byMe: true,
+                  ),
                 ),
               ],
             ),

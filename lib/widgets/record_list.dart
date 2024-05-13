@@ -19,6 +19,7 @@ class _RecordListState extends State<RecordList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       itemCount: widget.records.length,
       itemBuilder: (context, index) {
         return RecordItem(record: widget.records[index]);

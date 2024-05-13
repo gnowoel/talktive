@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import '../models/record.dart';
 import '../models/room.dart';
+import 'prefs.dart';
 
 class History {
+  final prefs = Prefs();
   final records = <Record>[];
 
   Future<void> saveRecord(Room room) async {
@@ -15,5 +19,7 @@ class History {
 
     records.removeWhere((element) => element.roomId == record.roomId);
     records.add(record);
+
+    await prefs.setString('records', jsonEncode(records));
   }
 }

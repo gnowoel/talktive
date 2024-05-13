@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.2
+  shared_preferences: ^2.2.3
   unicode_emojis: ^0.4.0
 
 dev_dependencies:

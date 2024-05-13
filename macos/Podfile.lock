@@ -70,12 +70,16 @@ PODS:
   - GTMSessionFetcher/Core (3.4.1)
   - leveldb-library (1.22.5)
   - PromisesObjC (2.4.0)
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - firebase_auth (from `Flutter/ephemeral/.symlinks/plugins/firebase_auth/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_database (from `Flutter/ephemeral/.symlinks/plugins/firebase_database/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -100,6 +104,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_database/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
 
 SPEC CHECKSUMS:
   Firebase: 0312a2352584f782ea56f66d91606891d4607f06
@@ -117,6 +123,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 8000756fc1c19d2e5697b90311f7832d2e33f6cd
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
 

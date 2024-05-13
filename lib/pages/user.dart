@@ -22,15 +22,18 @@ class _UserPageState extends State<UserPage> {
   late History history;
 
   @override
+  void initState() {
+    super.initState();
+    history = Provider.of<History>(context, listen: false);
+    history.loadRecords();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     avatar = Provider.of<Avatar>(context);
-    history = Provider.of<History>(context);
-
-    history.loadRecords();
   }
 
   Future<void> write() async {

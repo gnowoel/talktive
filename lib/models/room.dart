@@ -1,3 +1,5 @@
+import 'record.dart';
+
 class Room {
   final String id;
   final String userId;
@@ -53,6 +55,18 @@ class Room {
       languageCode: value.languageCode,
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
+    );
+  }
+
+  factory Room.fromRecord({required Record record}) {
+    return Room(
+      id: record.roomId,
+      userId: record.roomUserId,
+      userName: record.roomUserName,
+      userCode: record.roomUserCode,
+      languageCode: '',
+      createdAt: 0,
+      updatedAt: 0,
     );
   }
 }

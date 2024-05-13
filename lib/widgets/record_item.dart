@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart';
 
 import '../models/record.dart';
+import '../services/fireauth.dart';
 
 class RecordItem extends StatefulWidget {
   final Record record;
@@ -17,9 +20,15 @@ class RecordItem extends StatefulWidget {
 class _RecordItemState extends State<RecordItem> {
   @override
   Widget build(BuildContext context) {
+    final fireauth = Provider.of<Fireauth>(context, listen: false);
+    final byMe = widget.record.roomUserId == fireauth.instance.currentUser!.uid;
+    final createdAt =
+        DateTime.fromMillisecondsSinceEpoch(widget.record.createdAt);
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
+      color: byMe ? Colors.amber[50] : null,
       child: ListTile(
         leading: Text(
           widget.record.roomUserCode,
@@ -28,7 +37,10 @@ class _RecordItemState extends State<RecordItem> {
         title: Text(
           widget.record.roomUserName,
         ),
-        subtitle: const Text('Less than 1 hour ago.'),
+        subtitle: Text(
+          format(createdAt),
+          overflow: TextOverflow.ellipsis,
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.keyboard_arrow_right),
           onPressed: () {},

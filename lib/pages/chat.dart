@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/room.dart';
 import '../services/history.dart';
-import '../widgets/input_field.dart';
+import '../widgets/input.dart';
 import '../widgets/message_list.dart';
 
 class ChatPage extends StatefulWidget {
@@ -51,7 +51,7 @@ class _ChatPageState extends State<ChatPage> {
             Expanded(
               child: MessageList(room: widget.room),
             ),
-            InputField(room: widget.room),
+            Input(room: widget.room),
           ],
         ),
       ),

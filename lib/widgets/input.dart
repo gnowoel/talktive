@@ -6,19 +6,19 @@ import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 
-class InputField extends StatefulWidget {
+class Input extends StatefulWidget {
   final Room room;
 
-  const InputField({
+  const Input({
     super.key,
     required this.room,
   });
 
   @override
-  State<InputField> createState() => _InputFieldState();
+  State<Input> createState() => _InputState();
 }
 
-class _InputFieldState extends State<InputField> {
+class _InputState extends State<Input> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;

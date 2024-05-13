@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/record.dart';
+import 'record_item.dart';
 
 class RecordList extends StatefulWidget {
   final List<Record> records;
@@ -20,7 +21,7 @@ class _RecordListState extends State<RecordList> {
     return ListView.builder(
       itemCount: widget.records.length,
       itemBuilder: (context, index) {
-        return Text(widget.records[index].roomUserName);
+        return RecordItem(record: widget.records[index]);
       },
     );
   }

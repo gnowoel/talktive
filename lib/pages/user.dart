@@ -5,6 +5,7 @@ import '../models/room.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/history.dart';
 import 'chat.dart';
 
 class UserPage extends StatefulWidget {
@@ -18,13 +19,18 @@ class _UserPageState extends State<UserPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
+  late History history;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    avatar = Provider.of<Avatar>(context);
+
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+    avatar = Provider.of<Avatar>(context);
+    history = Provider.of<History>(context);
+
+    history.loadRecords();
   }
 
   Future<void> write() async {

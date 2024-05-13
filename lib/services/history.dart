@@ -8,6 +8,18 @@ class History {
   final prefs = Prefs();
   final records = <Record>[];
 
+  Future<void> loadRecords() async {
+    final string = await prefs.getString('records');
+    final list = string == null
+        ? <Map<String, dynamic>>[]
+        : jsonDecode(string).cast<Map<String, dynamic>>();
+
+    records.clear();
+    for (final entry in list) {
+      records.add(Record.fromJson(entry));
+    }
+  }
+
   Future<void> saveRecord(Room room) async {
     final record = Record(
       roomId: room.id,

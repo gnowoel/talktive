@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   provider: ^6.1.2
   shared_preferences: ^2.2.3
+  timeago: ^3.6.1
   unicode_emojis: ^0.4.0
 
 dev_dependencies:

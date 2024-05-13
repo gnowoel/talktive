@@ -25,10 +25,15 @@ class _InputFieldState extends State<InputField> {
   final _controller = TextEditingController();
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     avatar = Provider.of<Avatar>(context);
   }
 

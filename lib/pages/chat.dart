@@ -22,8 +22,8 @@ class _ChatPageState extends State<ChatPage> {
   late History history;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     history = Provider.of<History>(context, listen: false);
     _addHistoryRecord();
   }

@@ -24,6 +24,8 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
+    fireauth = Provider.of<Fireauth>(context, listen: false);
+    firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
     history.loadRecords();
   }
@@ -31,8 +33,6 @@ class _UserPageState extends State<UserPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
     avatar = Provider.of<Avatar>(context);
   }
 
@@ -91,9 +91,16 @@ class _UserPageState extends State<UserPage> {
                 onPressed: read,
                 child: const Text('Read'),
               ),
+              const SizedBox(height: 8),
               OutlinedButton(
                 onPressed: write,
                 child: const Text('Write'),
+              ),
+              IconButton(
+                onPressed: () {
+                  avatar.refresh();
+                },
+                icon: const Icon(Icons.history),
               ),
             ],
           ),

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/room.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 
 class Input extends StatefulWidget {
-  final Room room;
+  final String roomId;
 
   const Input({
     super.key,
-    required this.room,
+    required this.roomId,
   });
 
   @override
@@ -38,7 +37,7 @@ class _InputState extends State<Input> {
   }
 
   Future<void> _sendMessage() async {
-    final roomId = widget.room.id;
+    final roomId = widget.roomId;
     final userId = fireauth.instance.currentUser!.uid;
     final userName = avatar.name;
     final userCode = avatar.code;

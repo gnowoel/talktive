@@ -51,7 +51,7 @@ class _ChatPageState extends State<ChatPage> {
             Expanded(
               child: MessageList(room: widget.room),
             ),
-            Input(room: widget.room),
+            Input(roomId: widget.room.id),
           ],
         ),
       ),

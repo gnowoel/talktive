@@ -7,6 +7,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
 import 'chat.dart';
+import 'recents.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -49,23 +50,30 @@ class _UserPageState extends State<UserPage> {
       languageCode,
     );
 
-    enter(room);
+    enterChat(room);
   }
 
   Future<void> read() async {
     final room = await firedata.selectRoom();
     if (room != null) {
-      enter(room);
+      enterChat(room);
     }
   }
 
-  void enter(Room room) {
+  void enterChat(Room room) {
     if (mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => ChatPage(room: room)),
       );
     }
+  }
+
+  void enterRecents() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RecentsPage()),
+    );
   }
 
   @override
@@ -97,9 +105,7 @@ class _UserPageState extends State<UserPage> {
                 child: const Text('Write'),
               ),
               IconButton(
-                onPressed: () {
-                  avatar.refresh();
-                },
+                onPressed: enterRecents,
                 icon: const Icon(Icons.history),
               ),
             ],

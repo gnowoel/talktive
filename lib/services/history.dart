@@ -30,7 +30,8 @@ class History {
     );
 
     records.removeWhere((element) => element.roomId == record.roomId);
-    records.add(record);
+    records.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Just in case
+    records.insert(0, record);
 
     await prefs.setString('records', jsonEncode(records));
   }
@@ -38,11 +39,9 @@ class History {
   List<Record> get recentRecords {
     final oneDayAgo = DateTime.now().subtract(const Duration(days: 1));
 
-    final list = records.where((record) {
+    return records.where((record) {
       final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
       return !createdAt.isBefore(oneDayAgo);
     }).toList();
-
-    return list.reversed.toList();
   }
 }

@@ -95,15 +95,17 @@ class _UserPageState extends State<UserPage> {
                 },
                 icon: const Icon(Icons.refresh),
               ),
+              const SizedBox(height: 4),
               FilledButton(
                 onPressed: read,
                 child: const Text('Read'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               OutlinedButton(
                 onPressed: write,
                 child: const Text('Write'),
               ),
+              const SizedBox(height: 4),
               IconButton(
                 onPressed: enterRecents,
                 icon: const Icon(Icons.history),

@@ -48,6 +48,7 @@ class _ChatPageState extends State<ChatPage> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 10),
             Expanded(
               child: MessageList(room: widget.room),
             ),

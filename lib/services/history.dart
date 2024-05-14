@@ -6,7 +6,7 @@ import 'prefs.dart';
 
 class History {
   final prefs = Prefs();
-  final records = <Record>[];
+  final _records = <Record>[];
 
   Future<void> loadRecords() async {
     final string = await prefs.getString('records');
@@ -14,9 +14,9 @@ class History {
         ? <Map<String, dynamic>>[]
         : jsonDecode(string).cast<Map<String, dynamic>>();
 
-    records.clear();
+    _records.clear();
     for (final entry in list) {
-      records.add(Record.fromJson(entry));
+      _records.add(Record.fromJson(entry));
     }
   }
 
@@ -29,19 +29,24 @@ class History {
       createdAt: DateTime.now().millisecondsSinceEpoch,
     );
 
-    records.removeWhere((element) => element.roomId == record.roomId);
-    records.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Just in case
-    records.insert(0, record);
+    _records.removeWhere((element) {
+      return element.roomId == record.roomId || _isInvalid(element);
+    });
+    _records.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Just in case
+    _records.insert(0, record);
 
-    await prefs.setString('records', jsonEncode(records));
+    await prefs.setString('records', jsonEncode(_records));
   }
 
   List<Record> get recentRecords {
-    final oneDayAgo = DateTime.now().subtract(const Duration(days: 1));
-
-    return records.where((record) {
-      final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
-      return !createdAt.isBefore(oneDayAgo);
-    }).toList();
+    return _records.where((record) => _isValid(record)).toList();
   }
+
+  bool _isValid(Record record) {
+    final oneDayAgo = DateTime.now().subtract(const Duration(days: 1));
+    final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
+    return !createdAt.isBefore(oneDayAgo);
+  }
+
+  bool _isInvalid(Record record) => !_isValid(record);
 }

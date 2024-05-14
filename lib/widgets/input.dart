@@ -54,18 +54,40 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _controller,
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 8, 4, 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.all(
+            Radius.circular(32),
           ),
+          border: Border.all(color: Colors.grey.shade300),
         ),
-        IconButton(
-          onPressed: _sendMessage,
-          icon: const Icon(Icons.send),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                minLines: 1,
+                maxLines: 12,
+                controller: _controller,
+                decoration: const InputDecoration.collapsed(
+                  hintText: 'Enter message',
+                  hintStyle: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: _sendMessage,
+              icon: Icon(
+                Icons.send,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

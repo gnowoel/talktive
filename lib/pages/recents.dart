@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/record.dart';
@@ -17,7 +16,7 @@ class RecentsPage extends StatefulWidget {
 class _RecentsPageState extends State<RecentsPage> {
   late History history;
   late List<Record> records;
-  late Timer timer;
+  late Ticker ticker;
 
   @override
   void initState() {
@@ -29,16 +28,18 @@ class _RecentsPageState extends State<RecentsPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     records = history.recentRecords;
-    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    ticker = Ticker((elapsed) {
+      print('elapsed: $elapsed');
       setState(() {
         records = history.recentRecords;
       });
     });
+    ticker.start();
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    ticker.stop();
     super.dispose();
   }
 

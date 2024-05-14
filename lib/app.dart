@@ -16,8 +16,8 @@ class App extends StatelessWidget {
       providers: [
         Provider(create: (context) => Fireauth()),
         Provider(create: (context) => Firedata()),
+        Provider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
-        ChangeNotifierProvider(create: (context) => History()),
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,

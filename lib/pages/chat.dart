@@ -41,19 +41,32 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: Text(widget.room.userName),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            Expanded(
-              child: MessageList(room: widget.room),
+        child: Align(
+          alignment: Alignment.center,
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: const BorderRadius.all(
+                Radius.circular(24),
+              ),
+              border: Border.all(color: Colors.grey.shade300),
             ),
-            Input(roomId: widget.room.id),
-          ],
+            constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Expanded(
+                  child: MessageList(room: widget.room),
+                ),
+                Input(roomId: widget.room.id),
+              ],
+            ),
+          ),
         ),
       ),
     );

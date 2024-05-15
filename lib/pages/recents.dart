@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/record.dart';
 import '../services/history.dart';
+import '../widgets/info.dart';
 import '../widgets/record_list.dart';
 
 class RecentsPage extends StatefulWidget {
@@ -51,12 +52,16 @@ class _RecentsPageState extends State<RecentsPage>
 
   @override
   Widget build(BuildContext context) {
+    const lines = ['Your recent chats', 'will appear here.', ''];
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: const Text('Recents'),
       ),
-      body: RecordList(records: records),
+      body: records.isEmpty
+          ? const Center(child: Info(lines: lines))
+          : RecordList(records: records),
     );
   }
 }

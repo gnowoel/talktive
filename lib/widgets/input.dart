@@ -43,13 +43,22 @@ class _InputState extends State<Input> {
     final userCode = avatar.code;
     final content = _controller.text.trim();
 
-    firedata.sendMessage(
+    if (content.isEmpty) {
+      if (_controller.text.isNotEmpty) {
+        _controller.clear();
+      }
+      return;
+    }
+
+    await firedata.sendMessage(
       roomId,
       userId,
       userName,
       userCode,
       content,
     );
+
+    _controller.clear();
   }
 
   @override

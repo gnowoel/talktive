@@ -18,12 +18,15 @@ class Bubble extends StatelessWidget {
         byMe ? Colors.green[200] : (byOp ? Colors.amber[50] : Colors.white);
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: backgroundColor,
       ),
-      child: Text(content),
+      child: Text(
+        content,
+        style: const TextStyle(fontSize: 16),
+      ),
     );
   }
 }

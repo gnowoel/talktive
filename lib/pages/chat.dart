@@ -27,7 +27,8 @@ class _ChatPageState extends State<ChatPage> {
   late Firedata firedata;
   late History history;
   late StreamSubscription subscription;
-  List<Message>? _messages;
+
+  List<Message> _messages = [];
 
   @override
   void initState() {
@@ -81,18 +82,7 @@ class _ChatPageState extends State<ChatPage> {
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: MessageList(
-                        roomUserId: widget.room.userId,
-                        messages: _messages ?? <Message>[],
-                      ),
-                    ),
-                    Input(roomId: widget.room.id),
-                  ],
-                ),
+                child: _buildColumn(),
               ),
             );
           } else {
@@ -100,22 +90,26 @@ class _ChatPageState extends State<ChatPage> {
               decoration: BoxDecoration(
                 color: Colors.grey[200],
               ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: MessageList(
-                      roomUserId: widget.room.userId,
-                      messages: _messages ?? <Message>[],
-                    ),
-                  ),
-                  Input(roomId: widget.room.id),
-                ],
-              ),
+              child: _buildColumn(),
             );
           }
         }),
       ),
+    );
+  }
+
+  Widget _buildColumn() {
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Expanded(
+          child: MessageList(
+            roomUserId: widget.room.userId,
+            messages: _messages,
+          ),
+        ),
+        Input(roomId: widget.room.id),
+      ],
     );
   }
 }

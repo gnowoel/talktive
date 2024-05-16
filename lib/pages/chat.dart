@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/room.dart';
 import '../services/history.dart';
+import '../widgets/health.dart';
 import '../widgets/input.dart';
 import '../widgets/message_list.dart';
 
@@ -43,6 +44,10 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.room.userName),
+        actions: const [
+          Health(),
+          SizedBox(width: 16),
+        ],
       ),
       body: SafeArea(
         child: LayoutBuilder(builder: (context, constraints) {

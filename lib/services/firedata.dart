@@ -39,7 +39,8 @@ class Firedata {
     String userCode,
     String content,
   ) async {
-    final ref = instance.ref('messages/$roomId').push();
+    final roomRef = instance.ref('rooms/$roomId');
+    final messageRef = instance.ref('messages/$roomId').push();
 
     final message = Message(
       userId: userId,
@@ -49,7 +50,8 @@ class Firedata {
       createdAt: _now,
     );
 
-    await ref.set(message.toJson());
+    await messageRef.set(message.toJson());
+    await roomRef.update({'updatedAt': _now});
   }
 
   Stream<List<Message>> receiveMessages(String roomId) {

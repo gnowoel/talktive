@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/message.dart';
 import '../models/room.dart';
+import '../services/firedata.dart';
 import '../services/history.dart';
 import '../widgets/health.dart';
 import '../widgets/input.dart';
@@ -20,17 +24,30 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  late Firedata firedata;
   late History history;
+  late StreamSubscription subscription;
+  List<Message>? _messages;
 
   @override
   void initState() {
     super.initState();
+
+    firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
+
     _addHistoryRecord();
+
+    subscription = firedata.receiveMessages(widget.room.id).listen((messages) {
+      setState(() {
+        _messages = messages;
+      });
+    });
   }
 
   @override
   void dispose() {
+    subscription.cancel();
     _addHistoryRecord();
     super.dispose();
   }
@@ -68,7 +85,10 @@ class _ChatPageState extends State<ChatPage> {
                   children: [
                     const SizedBox(height: 10),
                     Expanded(
-                      child: MessageList(room: widget.room),
+                      child: MessageList(
+                        roomUserId: widget.room.userId,
+                        messages: _messages ?? <Message>[],
+                      ),
                     ),
                     Input(roomId: widget.room.id),
                   ],
@@ -84,7 +104,10 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   const SizedBox(height: 10),
                   Expanded(
-                    child: MessageList(room: widget.room),
+                    child: MessageList(
+                      roomUserId: widget.room.userId,
+                      messages: _messages ?? <Message>[],
+                    ),
                   ),
                   Input(roomId: widget.room.id),
                 ],

@@ -29,6 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   late StreamSubscription subscription;
 
   List<Message> _messages = [];
+  int _roomUpdatedAt = 0;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _ChatPageState extends State<ChatPage> {
     subscription = firedata.receiveMessages(widget.room.id).listen((messages) {
       setState(() {
         _messages = messages;
+        _roomUpdatedAt = messages.last.createdAt;
       });
     });
   }
@@ -62,9 +64,9 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.room.userName),
-        actions: const [
-          Health(),
-          SizedBox(width: 16),
+        actions: [
+          Health(roomUpdatedAt: _roomUpdatedAt),
+          const SizedBox(width: 16),
         ],
       ),
       body: SafeArea(

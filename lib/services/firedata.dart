@@ -8,8 +8,6 @@ import '../models/room.dart';
 class Firedata {
   final FirebaseDatabase instance = FirebaseDatabase.instance;
 
-  int get _now => DateTime.now().millisecondsSinceEpoch;
-
   Future<Room> createRoom(
     String userId,
     String userName,
@@ -21,7 +19,7 @@ class Firedata {
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      createdAt: _now,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: 0,
     );
 
@@ -32,27 +30,40 @@ class Firedata {
     return Room.fromValue(key: ref.key!, value: roomValue);
   }
 
-  Future<void> sendMessage(
+  Future<bool> sendMessage(
     String roomId,
     String userId,
     String userName,
     String userCode,
     String content,
   ) async {
-    final roomRef = instance.ref('rooms/$roomId');
+    bool isActive = false;
     final messageRef = instance.ref('messages/$roomId').push();
-    final timestamp = _now;
+    final now = DateTime.now();
 
     final message = Message(
       userId: userId,
       userName: userName,
       userCode: userCode,
       content: content,
-      createdAt: timestamp,
+      createdAt: now.millisecondsSinceEpoch,
     );
 
     await messageRef.set(message.toJson());
-    await roomRef.update({'updatedAt': timestamp});
+
+    final roomRef = instance.ref('rooms/$roomId');
+    final snapshot = await roomRef.get();
+    final value = snapshot.value;
+    final json = Map<String, dynamic>.from(value as Map);
+    json['id'] = roomId;
+    final room = Room.fromJson(json);
+
+    if (room.isNew() || room.isActive(now)) {
+      await roomRef.update({'updatedAt': now});
+      isActive = true;
+    }
+
+    return isActive;
   }
 
   Stream<List<Message>> receiveMessages(String roomId) {

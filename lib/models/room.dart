@@ -69,6 +69,16 @@ class Room {
       updatedAt: 0,
     );
   }
+
+  bool isNew() {
+    return createdAt > updatedAt;
+  }
+
+  bool isActive([DateTime? now]) {
+    now = now ?? DateTime.now();
+    final then = DateTime.fromMillisecondsSinceEpoch(updatedAt);
+    return now.difference(then).inSeconds < 360; // TODO: 3600
+  }
 }
 
 class RoomValue {

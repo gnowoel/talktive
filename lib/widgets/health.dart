@@ -25,7 +25,7 @@ class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
     elapsed = _getElapsed();
     ticker = createTicker((_) {
       final newElapsed = _getElapsed();
-      if (newElapsed.inMinutes % 10 == 0) {
+      if (newElapsed.inSeconds != elapsed.inSeconds) {
         setState(() => elapsed = newElapsed);
       }
     });

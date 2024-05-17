@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class Heart extends StatelessWidget {
+class HeartItem extends StatelessWidget {
   final IconData icon;
   final MaterialColor color;
 
-  const Heart({
+  const HeartItem({
     super.key,
     this.icon = Icons.favorite,
     this.color = Colors.pink,

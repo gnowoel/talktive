@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'heart.dart';
+import 'heart_item.dart';
 
 class HeartList extends StatelessWidget {
   final Duration elapsed;
@@ -10,10 +10,11 @@ class HeartList extends StatelessWidget {
     required this.elapsed,
   });
 
-  final _full = const Heart();
-  final _half = const Heart(icon: Icons.heart_broken);
-  final _empty = const Heart(icon: Icons.favorite_outline);
-  final _grey = const Heart(icon: Icons.favorite_outline, color: Colors.grey);
+  final _full = const HeartItem();
+  final _half = const HeartItem(icon: Icons.heart_broken);
+  final _empty = const HeartItem(icon: Icons.favorite_outline);
+  final _grey =
+      const HeartItem(icon: Icons.favorite_outline, color: Colors.grey);
 
   @override
   Widget build(BuildContext context) {

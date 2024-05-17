@@ -40,7 +40,8 @@ class _ChatPageState extends State<ChatPage> {
 
     _addHistoryRecord();
 
-    subscription = firedata.receiveMessages(widget.room.id).listen((messages) {
+    subscription =
+        firedata.subscribeToMessages(widget.room.id).listen((messages) {
       setState(() {
         _messages = messages;
         _roomUpdatedAt = messages.last.createdAt;

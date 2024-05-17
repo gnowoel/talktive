@@ -66,7 +66,7 @@ class Firedata {
     return isActive;
   }
 
-  Stream<List<Message>> receiveMessages(String roomId) {
+  Stream<List<Message>> subscribeToMessages(String roomId) {
     final messages = <Message>[];
 
     final ref = instance.ref('messages/$roomId').orderByKey();

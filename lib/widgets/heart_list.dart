@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'heart.dart';
 
-class Hearts extends StatelessWidget {
+class HeartList extends StatelessWidget {
   final Duration elapsed;
 
-  const Hearts({
+  const HeartList({
     super.key,
     required this.elapsed,
   });

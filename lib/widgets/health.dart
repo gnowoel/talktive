@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'hearts.dart';
+import 'heart_list.dart';
 
 class Health extends StatelessWidget {
   final int roomUpdatedAt;
@@ -16,6 +16,6 @@ class Health extends StatelessWidget {
     final then = DateTime.fromMillisecondsSinceEpoch(roomUpdatedAt);
     final elapsed = now.difference(then);
 
-    return Hearts(elapsed: elapsed);
+    return HeartList(elapsed: elapsed);
   }
 }

@@ -50,7 +50,7 @@ class _InputState extends State<Input> {
       return;
     }
 
-    final isActive = await firedata.sendMessage(
+    final isRoomOpen = await firedata.sendMessage(
       roomId,
       userId,
       userName,
@@ -60,7 +60,8 @@ class _InputState extends State<Input> {
 
     _controller.clear();
 
-    if (mounted && !isActive) {
+    // Race conditions may happen
+    if (mounted && !isRoomOpen) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('The room has been closed.')),
       );

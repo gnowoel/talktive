@@ -48,7 +48,6 @@ class Firedata {
     String userCode,
     String content,
   ) async {
-    bool isActive = false;
     final messageRef = instance.ref('messages/$roomId').push();
     final now = DateTime.now();
 
@@ -65,13 +64,11 @@ class Firedata {
     final room = await getRoom(roomId);
     final roomRef = instance.ref('rooms/$roomId');
 
-    // TODO: Should be implemented with Cloud Functions
-    if (room.isNew() || room.isActive(now)) {
+    if (room.isOpen) {
       await roomRef.update({'updatedAt': now.millisecondsSinceEpoch});
-      isActive = true;
     }
 
-    return isActive;
+    return room.isOpen;
   }
 
   Stream<Room> subscribeToRoom(String roomId) {

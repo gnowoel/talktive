@@ -30,25 +30,14 @@ class Firedata {
     return Room.fromStub(key: ref.key!, value: roomValue);
   }
 
-  Future<Room> getRoom(roomId) async {
-    final ref = instance.ref('rooms/$roomId');
-    final snapshot = await ref.get();
-    final value = snapshot.value;
-    final json = Map<String, dynamic>.from(value as Map);
-    final stub = RoomStub.fromJson(json);
-    final room = Room.fromStub(key: roomId, value: stub);
-
-    return room;
-  }
-
   Future<bool> sendMessage(
-    String roomId,
+    Room room,
     String userId,
     String userName,
     String userCode,
     String content,
   ) async {
-    final messageRef = instance.ref('messages/$roomId').push();
+    final messageRef = instance.ref('messages/${room.id}').push();
     final now = DateTime.now();
 
     final message = Message(
@@ -61,8 +50,7 @@ class Firedata {
 
     await messageRef.set(message.toJson());
 
-    final room = await getRoom(roomId);
-    final roomRef = instance.ref('rooms/$roomId');
+    final roomRef = instance.ref('rooms/${room.id}');
 
     if (room.isOpen) {
       await roomRef.update({'updatedAt': now.millisecondsSinceEpoch});

@@ -70,7 +70,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.room.userName),
+        title: Text(_room.userName),
         actions: [
           Health(roomUpdatedAt: _room.updatedAt),
           const SizedBox(width: 16),
@@ -113,11 +113,11 @@ class _ChatPageState extends State<ChatPage> {
         const SizedBox(height: 10),
         Expanded(
           child: MessageList(
-            roomUserId: widget.room.userId,
+            roomUserId: _room.userId,
             messages: _messages,
           ),
         ),
-        Input(roomId: widget.room.id),
+        Input(room: _room),
       ],
     );
   }

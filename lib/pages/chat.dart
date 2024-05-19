@@ -26,10 +26,11 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   late Firedata firedata;
   late History history;
-  late StreamSubscription subscription;
+  late StreamSubscription roomSubscription;
+  late StreamSubscription messagesSubscription;
 
-  List<Message> _messages = [];
-  int _roomUpdatedAt = 0;
+  late Room _room;
+  late List<Message> _messages;
 
   @override
   void initState() {
@@ -38,26 +39,31 @@ class _ChatPageState extends State<ChatPage> {
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
-    _addHistoryRecord();
+    _room = widget.room;
+    _messages = [];
 
-    subscription =
+    _addHistoryRecord(_room);
+
+    roomSubscription = firedata.subscribeToRoom(widget.room.id).listen((room) {
+      setState(() => _room = room);
+    });
+
+    messagesSubscription =
         firedata.subscribeToMessages(widget.room.id).listen((messages) {
-      setState(() {
-        _messages = messages;
-        _roomUpdatedAt = messages.last.createdAt;
-      });
+      setState(() => _messages = messages);
     });
   }
 
   @override
   void dispose() {
-    subscription.cancel();
-    _addHistoryRecord();
+    messagesSubscription.cancel();
+    roomSubscription.cancel();
+    _addHistoryRecord(_room);
     super.dispose();
   }
 
-  Future<void> _addHistoryRecord() async {
-    await history.saveRecord(widget.room);
+  Future<void> _addHistoryRecord(Room room) async {
+    await history.saveRecord(room);
   }
 
   @override
@@ -66,7 +72,7 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Text(widget.room.userName),
         actions: [
-          Health(roomUpdatedAt: _roomUpdatedAt),
+          Health(roomUpdatedAt: _room.updatedAt),
           const SizedBox(width: 16),
         ],
       ),

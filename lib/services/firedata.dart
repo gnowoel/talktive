@@ -66,12 +66,29 @@ class Firedata {
     final room = await getRoom(roomId);
     final roomRef = instance.ref('rooms/$roomId');
 
+    // TODO: Should be implemented with Cloud Functions
     if (room.isNew() || room.isActive(now)) {
-      await roomRef.update({'updatedAt': now});
+      await roomRef.update({'updatedAt': now.millisecondsSinceEpoch});
       isActive = true;
     }
 
     return isActive;
+  }
+
+  Stream<Room> subscribeToRoom(String roomId) {
+    final ref = instance.ref('rooms/$roomId');
+
+    final stream = ref.onValue.map((event) {
+      final snapshot = event.snapshot;
+      final value = snapshot.value;
+      final json = Map<String, dynamic>.from(value as Map);
+      final stub = RoomStub.fromJson(json);
+      final room = Room.fromStub(key: roomId, value: stub);
+
+      return room;
+    });
+
+    return stream;
   }
 
   Stream<List<Message>> subscribeToMessages(String roomId) {
@@ -80,7 +97,8 @@ class Firedata {
     final ref = instance.ref('messages/$roomId').orderByKey();
 
     final stream = ref.onChildAdded.map<List<Message>>((event) {
-      final value = event.snapshot.value;
+      final snapshot = event.snapshot;
+      final value = snapshot.value;
       final json = Map<String, dynamic>.from(value as Map);
       final message = Message.fromJson(json);
 

@@ -14,7 +14,7 @@ class Firedata {
     String userCode,
     String languageCode,
   ) async {
-    final roomValue = RoomValue(
+    final roomValue = RoomStub(
       userId: userId,
       userName: userName,
       userCode: userCode,
@@ -27,7 +27,7 @@ class Firedata {
 
     await ref.set(roomValue.toJson());
 
-    return Room.fromValue(key: ref.key!, value: roomValue);
+    return Room.fromStub(key: ref.key!, value: roomValue);
   }
 
   Future<bool> sendMessage(
@@ -55,8 +55,8 @@ class Firedata {
     final snapshot = await roomRef.get();
     final value = snapshot.value;
     final json = Map<String, dynamic>.from(value as Map);
-    final roomValue = RoomValue.fromJson(json);
-    final room = Room.fromValue(key: roomId, value: roomValue);
+    final stub = RoomStub.fromJson(json);
+    final room = Room.fromStub(key: roomId, value: stub);
 
     if (room.isNew() || room.isActive(now)) {
       await roomRef.update({'updatedAt': now});
@@ -93,8 +93,8 @@ class Firedata {
     final map1 = Map<String, dynamic>.from(snapshot.value as Map);
     final list = map1.entries.map((entry) {
       final map2 = Map<String, dynamic>.from(entry.value as Map);
-      final roomValue = RoomValue.fromJson(map2);
-      return Room.fromValue(key: entry.key, value: roomValue);
+      final roomValue = RoomStub.fromJson(map2);
+      return Room.fromStub(key: entry.key, value: roomValue);
     }).toList();
 
     return list.last;

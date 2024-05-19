@@ -43,9 +43,9 @@ class Room {
     );
   }
 
-  factory Room.fromValue({
+  factory Room.fromStub({
     required String key,
-    required RoomValue value,
+    required RoomStub value,
   }) {
     return Room(
       id: key,
@@ -81,7 +81,7 @@ class Room {
   }
 }
 
-class RoomValue {
+class RoomStub {
   final String userId;
   final String userName;
   final String userCode;
@@ -89,7 +89,7 @@ class RoomValue {
   final int createdAt;
   final int updatedAt;
 
-  RoomValue({
+  RoomStub({
     required this.userId,
     required this.userName,
     required this.userCode,
@@ -109,8 +109,8 @@ class RoomValue {
     };
   }
 
-  factory RoomValue.fromJson(Map<String, dynamic> json) {
-    return RoomValue(
+  factory RoomStub.fromJson(Map<String, dynamic> json) {
+    return RoomStub(
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,

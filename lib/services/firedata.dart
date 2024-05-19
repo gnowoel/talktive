@@ -55,8 +55,8 @@ class Firedata {
     final snapshot = await roomRef.get();
     final value = snapshot.value;
     final json = Map<String, dynamic>.from(value as Map);
-    json['id'] = roomId;
-    final room = Room.fromJson(json);
+    final roomValue = RoomValue.fromJson(json);
+    final room = Room.fromValue(key: roomId, value: roomValue);
 
     if (room.isNew() || room.isActive(now)) {
       await roomRef.update({'updatedAt': now});

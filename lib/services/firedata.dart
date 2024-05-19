@@ -19,7 +19,6 @@ class Firedata {
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      isOpen: true,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: 0,
     );

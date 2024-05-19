@@ -6,7 +6,6 @@ class Room {
   final String userName;
   final String userCode;
   final String languageCode;
-  final bool isOpen;
   final int createdAt;
   final int updatedAt;
 
@@ -16,7 +15,6 @@ class Room {
     required this.userName,
     required this.userCode,
     required this.languageCode,
-    required this.isOpen,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -40,7 +38,6 @@ class Room {
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,
       languageCode: json['languageCode'] as String,
-      isOpen: json['isOpen'] as bool,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
     );
@@ -56,7 +53,6 @@ class Room {
       userName: value.userName,
       userCode: value.userCode,
       languageCode: value.languageCode,
-      isOpen: value.isOpen,
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
     );
@@ -69,7 +65,6 @@ class Room {
       userName: record.roomUserName,
       userCode: record.roomUserCode,
       languageCode: '',
-      isOpen: true,
       createdAt: 0,
       updatedAt: 0,
     );
@@ -91,7 +86,6 @@ class RoomStub {
   final String userName;
   final String userCode;
   final String languageCode;
-  final bool isOpen;
   final int createdAt;
   final int updatedAt;
 
@@ -100,7 +94,6 @@ class RoomStub {
     required this.userName,
     required this.userCode,
     required this.languageCode,
-    required this.isOpen,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -111,7 +104,6 @@ class RoomStub {
       'userName': userName,
       'userCode': userCode,
       'languageCode': languageCode,
-      'isOpen': isOpen,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -123,7 +115,6 @@ class RoomStub {
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,
       languageCode: json['languageCode'] as String,
-      isOpen: json['isOpen'] as bool,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
     );

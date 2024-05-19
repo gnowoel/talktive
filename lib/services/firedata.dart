@@ -30,6 +30,17 @@ class Firedata {
     return Room.fromStub(key: ref.key!, value: roomValue);
   }
 
+  Future<Room> getRoom(roomId) async {
+    final ref = instance.ref('rooms/$roomId');
+    final snapshot = await ref.get();
+    final value = snapshot.value;
+    final json = Map<String, dynamic>.from(value as Map);
+    final stub = RoomStub.fromJson(json);
+    final room = Room.fromStub(key: roomId, value: stub);
+
+    return room;
+  }
+
   Future<bool> sendMessage(
     String roomId,
     String userId,
@@ -51,12 +62,8 @@ class Firedata {
 
     await messageRef.set(message.toJson());
 
+    final room = await getRoom(roomId);
     final roomRef = instance.ref('rooms/$roomId');
-    final snapshot = await roomRef.get();
-    final value = snapshot.value;
-    final json = Map<String, dynamic>.from(value as Map);
-    final stub = RoomStub.fromJson(json);
-    final room = Room.fromStub(key: roomId, value: stub);
 
     if (room.isNew() || room.isActive(now)) {
       await roomRef.update({'updatedAt': now});

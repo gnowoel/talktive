@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
 class EmptyPage extends StatelessWidget {
-  final Widget child;
+  final bool hasAppBar;
+  final Widget? child;
 
-  const EmptyPage({super.key, required this.child});
+  const EmptyPage({
+    super.key,
+    this.hasAppBar = true,
+    this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: hasAppBar ? AppBar() : null,
       body: SafeArea(
         child: Center(
           child: child,

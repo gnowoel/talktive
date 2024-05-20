@@ -5,7 +5,9 @@ import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
+import '../widgets/info.dart';
 import 'chat.dart';
+import 'empty.dart';
 import 'recents.dart';
 
 class UserPage extends StatefulWidget {
@@ -57,8 +59,19 @@ class _UserPageState extends State<UserPage> {
   Future<void> read() async {
     final recentRoomIds = history.recentRoomIds;
     final room = await firedata.selectRoom(recentRoomIds);
-    if (room != null) {
-      _enterPage(ChatPage(room: room));
+
+    final lines = [
+      'No more to read.',
+      'But you can write.',
+      '',
+    ];
+
+    if (mounted) {
+      if (room != null) {
+        _enterPage(ChatPage(room: room));
+      } else {
+        _enterPage(EmptyPage(child: Info(lines: lines)));
+      }
     }
   }
 

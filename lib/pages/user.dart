@@ -54,7 +54,8 @@ class _UserPageState extends State<UserPage> {
   }
 
   Future<void> read() async {
-    final room = await firedata.selectRoom();
+    final recentRoomIds = history.recentRoomIds;
+    final room = await firedata.selectRoom(recentRoomIds);
     if (room != null) {
       enterChat(room);
     }

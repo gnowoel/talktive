@@ -38,6 +38,10 @@ class History {
     await prefs.setString('records', jsonEncode(_records));
   }
 
+  List<String> get recentRoomIds {
+    return recentRecords.map((record) => record.roomId).toList();
+  }
+
   List<Record> get recentRecords {
     return _records.where((record) => _isValid(record)).toList();
   }

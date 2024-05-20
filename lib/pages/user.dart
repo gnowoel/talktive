@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/room.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -50,31 +49,25 @@ class _UserPageState extends State<UserPage> {
       languageCode,
     );
 
-    enterChat(room);
+    if (mounted) {
+      _enterPage(ChatPage(room: room));
+    }
   }
 
   Future<void> read() async {
     final recentRoomIds = history.recentRoomIds;
     final room = await firedata.selectRoom(recentRoomIds);
     if (room != null) {
-      enterChat(room);
+      _enterPage(ChatPage(room: room));
     }
   }
 
-  void enterChat(Room room) {
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ChatPage(room: room)),
-      );
-    }
+  void recents() {
+    _enterPage(const RecentsPage());
   }
 
-  void enterRecents() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RecentsPage()),
-    );
+  void _enterPage(Widget widget) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
   }
 
   @override
@@ -108,7 +101,7 @@ class _UserPageState extends State<UserPage> {
               ),
               const SizedBox(height: 4),
               IconButton(
-                onPressed: enterRecents,
+                onPressed: recents,
                 icon: const Icon(Icons.history),
               ),
             ],

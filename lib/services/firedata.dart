@@ -78,9 +78,10 @@ class Firedata {
   Stream<List<Message>> subscribeToMessages(String roomId) {
     final messages = <Message>[];
 
-    final ref = instance.ref('messages/$roomId').orderByKey();
+    final ref = instance.ref('messages/$roomId');
+    final query = ref.orderByKey();
 
-    final stream = ref.onChildAdded.map<List<Message>>((event) {
+    final stream = query.onChildAdded.map<List<Message>>((event) {
       final snapshot = event.snapshot;
       final value = snapshot.value;
       final json = Map<String, dynamic>.from(value as Map);
@@ -93,29 +94,29 @@ class Firedata {
   }
 
   Future<Room?> selectRoom() async {
-    final ref = instance.ref('rooms').orderByKey().limitToLast(1);
-    final snapshot = await ref.get();
+    final rooms = await _getRooms();
+    return rooms.isNotEmpty ? rooms.first : null;
+  }
+
+  Future<List<Room>> _getRooms() async {
+    final oneHourAgo = DateTime.now()
+        .subtract(const Duration(seconds: 3600))
+        .millisecondsSinceEpoch;
+    final ref = instance.ref('rooms');
+    final query = ref.orderByChild('updatedAt').startAt(oneHourAgo + 1);
+    final snapshot = await query.get();
 
     if (!snapshot.exists) {
-      return null;
+      return [];
     }
 
     final map1 = Map<String, dynamic>.from(snapshot.value as Map);
     final list = map1.entries.map((entry) {
       final map2 = Map<String, dynamic>.from(entry.value as Map);
-      final roomValue = RoomStub.fromJson(map2);
-      return Room.fromStub(key: entry.key, value: roomValue);
+      final roomStub = RoomStub.fromJson(map2);
+      return Room.fromStub(key: entry.key, value: roomStub);
     }).toList();
 
-    return list.last;
-  }
-
-  Future<List<Room>> _getRooms(int limit) async {
-    final now = DateTime.now()
-        .subtract(const Duration(seconds: 3600))
-        .millisecondsSinceEpoch;
-    final ref = instance.ref('rooms');
-    final query =
-        ref.orderByChild('updatedAt').startAt(now).limitToFirst(limit);
+    return list;
   }
 }

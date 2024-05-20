@@ -111,7 +111,7 @@ class Firedata {
 
   Future<List<Room>> _getRooms(int limit) async {
     final oneHourAgo = DateTime.now()
-        .subtract(const Duration(seconds: 3600))
+        .subtract(const Duration(seconds: 360)) // TODO: 3600
         .millisecondsSinceEpoch;
     final ref = instance.ref('rooms');
     final query = ref

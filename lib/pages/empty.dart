@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class EmptyPage extends StatelessWidget {
-  const EmptyPage({super.key});
+  final Widget child;
+
+  const EmptyPage({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: Center(
-          child: CircularProgressIndicator(),
+          child: child,
         ),
       ),
     );

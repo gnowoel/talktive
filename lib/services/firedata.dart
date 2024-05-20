@@ -109,4 +109,13 @@ class Firedata {
 
     return list.last;
   }
+
+  Future<List<Room>> _getRooms(int limit) async {
+    final now = DateTime.now()
+        .subtract(const Duration(seconds: 3600))
+        .millisecondsSinceEpoch;
+    final ref = instance.ref('rooms');
+    final query =
+        ref.orderByChild('updatedAt').startAt(now).limitToFirst(limit);
+  }
 }

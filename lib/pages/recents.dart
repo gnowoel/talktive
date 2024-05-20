@@ -55,13 +55,42 @@ class _RecentsPageState extends State<RecentsPage>
     const lines = ['Your recent chats', 'will appear here.', ''];
 
     return Scaffold(
-      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: const Text('Recents'),
       ),
-      body: records.isEmpty
-          ? const Center(child: Info(lines: lines))
-          : RecordList(records: records),
+      body: SafeArea(
+        child: records.isEmpty
+            ? const Center(child: Info(lines: lines))
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth >= 600) {
+                    return Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(24),
+                          ),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        constraints:
+                            const BoxConstraints(minWidth: 324, maxWidth: 576),
+                        child: RecordList(records: records),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                      ),
+                      child: RecordList(records: records),
+                    );
+                  }
+                },
+              ),
+      ),
     );
   }
 }

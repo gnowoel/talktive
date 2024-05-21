@@ -8,6 +8,7 @@ class Room {
   final String languageCode;
   final int createdAt;
   final int updatedAt;
+  final String filter;
 
   Room({
     required this.id,
@@ -17,6 +18,7 @@ class Room {
     required this.languageCode,
     required this.createdAt,
     required this.updatedAt,
+    required this.filter,
   });
 
   Map<String, dynamic> toJson() {
@@ -28,6 +30,7 @@ class Room {
       'languageCode': languageCode,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'filter': filter,
     };
   }
 
@@ -40,6 +43,7 @@ class Room {
       languageCode: json['languageCode'] as String,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
+      filter: json['filter'] as String,
     );
   }
 
@@ -55,6 +59,7 @@ class Room {
       languageCode: value.languageCode,
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
+      filter: value.filter,
     );
   }
 
@@ -67,6 +72,7 @@ class Room {
       languageCode: '',
       createdAt: 0,
       updatedAt: 0,
+      filter: '',
     );
   }
 
@@ -90,6 +96,7 @@ class RoomStub {
   final String languageCode;
   final int createdAt;
   final int updatedAt;
+  final String filter;
 
   RoomStub({
     required this.userId,
@@ -98,6 +105,7 @@ class RoomStub {
     required this.languageCode,
     required this.createdAt,
     required this.updatedAt,
+    required this.filter,
   });
 
   Map<String, dynamic> toJson() {
@@ -108,6 +116,7 @@ class RoomStub {
       'languageCode': languageCode,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'filter': filter,
     };
   }
 
@@ -119,6 +128,7 @@ class RoomStub {
       languageCode: json['languageCode'] as String,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
+      filter: json['filter'] as String,
     );
   }
 }

@@ -21,6 +21,7 @@ class Firedata {
       languageCode: languageCode,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: 0,
+      filter: '9999-99-99T99:99:99.999Z',
     );
 
     final ref = instance.ref('rooms').push();
@@ -38,23 +39,37 @@ class Firedata {
     String content,
   ) async {
     final messageRef = instance.ref('messages/${room.id}').push();
-    final now = DateTime.now();
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final message = Message(
       userId: userId,
       userName: userName,
       userCode: userCode,
       content: content,
-      createdAt: now.millisecondsSinceEpoch,
+      createdAt: now,
     );
 
     await messageRef.set(message.toJson());
 
     final roomRef = instance.ref('rooms/${room.id}');
+    final params = <String, dynamic>{};
 
     if (room.isOpen) {
-      await roomRef.update({'updatedAt': now.millisecondsSinceEpoch});
+      params['updatedAt'] = now;
     }
+
+    // TODO: If use this, we can keep updating `updatedAt` even if the room is closed.
+    // if (!room.isOpen) { // TODO: `&& room.closedAt == 0`
+    //   params['closedAt'] = DateTime.fromMillisecondsSinceEpoch(room.updatedAt)
+    //       .add(const Duration(seconds: 360)); // TODO: 3600
+    // }
+
+    // Just a hack to convert int to sortable strings.
+    params['filter'] =
+        DateTime.fromMillisecondsSinceEpoch(now - room.createdAt, isUtc: true)
+            .toIso8601String();
+
+    await roomRef.update(params);
 
     return room.isOpen;
   }

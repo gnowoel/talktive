@@ -139,8 +139,14 @@ class Firedata {
       limit *= 2;
     }
 
-    // Don't keep people waiting too long
-    // rooms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    rooms.sort((a, b) {
+      int filterComp = a.filter.compareTo(b.filter);
+      if (filterComp == 0) {
+        return a.createdAt.compareTo(b.createdAt);
+      }
+      return filterComp;
+    });
+
     return rooms.isNotEmpty ? rooms.first : null;
   }
 

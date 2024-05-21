@@ -51,6 +51,10 @@ class Firedata {
 
     await messageRef.set(message.toJson());
 
+    return await _updateRoom(room, now);
+  }
+
+  Future<bool> _updateRoom(Room room, int now) async {
     final roomRef = instance.ref('rooms/${room.id}');
     final params = <String, dynamic>{};
     var roomCreatedAt = room.createdAt;
@@ -123,6 +127,7 @@ class Firedata {
     var limit = 2; // TODO: 16
     var next = true;
 
+    // TODO: Limit the number of retries
     while (next) {
       final result = await _getRooms(
         startAt: startAt,
@@ -130,6 +135,7 @@ class Firedata {
       );
       if (result.length < limit) next = false;
 
+      // TODO: Stop when seeing '9999-99-99T99:99:99.999Z'
       rooms = result
           .where((room) => room.isActive && !recentRoomIds.contains(room.id))
           .toList();

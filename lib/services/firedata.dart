@@ -108,6 +108,7 @@ class Firedata {
     return stream;
   }
 
+  // Inactive rooms should be removed after some time
   Future<Room?> selectRoom(List<String> recentRoomIds) async {
     var limit = 16;
     var next = true;
@@ -115,18 +116,17 @@ class Firedata {
 
     while (next) {
       rooms = await _getRooms(limit);
+      if (rooms.length < limit) next = false;
+
       rooms = rooms
           .where((room) => room.isActive && !recentRoomIds.contains(room.id))
           .toList();
-      rooms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
-      if (rooms.isNotEmpty || rooms.length < limit) {
-        next = false;
-      }
+      if (rooms.isNotEmpty) next = false;
 
       limit *= 2;
     }
 
+    rooms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     return rooms.isNotEmpty ? rooms.first : null;
   }
 

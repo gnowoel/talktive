@@ -110,41 +110,54 @@ class Firedata {
 
   // Inactive rooms should be removed after some time
   Future<Room?> selectRoom(List<String> recentRoomIds) async {
-    var limit = 16;
-    var next = true;
     var rooms = <Room>[];
+    var startAt = '';
+    var limit = 3;
+    var next = true;
 
     while (next) {
-      rooms = await _getRooms(limit);
-      if (rooms.length < limit) next = false;
+      final result = await _getRooms(
+        startAt: startAt,
+        limit: limit,
+      );
+      if (result.length < limit) next = false;
 
-      rooms = rooms
+      rooms = result
           .where((room) => room.isActive && !recentRoomIds.contains(room.id))
           .toList();
       if (rooms.isNotEmpty) next = false;
 
+      startAt = result.last.filter;
       limit *= 2;
     }
 
+    // Don't keep people waiting too long
     // rooms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     return rooms.isNotEmpty ? rooms.first : null;
   }
 
-  Future<List<Room>> _getRooms(int limit) async {
+  Future<List<Room>> _getRooms({
+    required String startAt,
+    required int limit,
+  }) async {
     final ref = instance.ref('rooms');
-    final query = ref.orderByChild('filter').limitToFirst(limit);
+    final query =
+        ref.orderByChild('filter').startAt(startAt).limitToFirst(limit);
     final snapshot = await query.get();
+
     if (!snapshot.exists) {
       return [];
     }
 
     final map1 = Map<String, dynamic>.from(snapshot.value as Map);
-    final list = map1.entries.map((entry) {
+    final rooms = map1.entries.map((entry) {
       final map2 = Map<String, dynamic>.from(entry.value as Map);
       final roomStub = RoomStub.fromJson(map2);
       return Room.fromStub(key: entry.key, value: roomStub);
     }).toList();
 
-    return list;
+    rooms.sort((a, b) => a.filter.compareTo(b.filter));
+
+    return rooms;
   }
 }

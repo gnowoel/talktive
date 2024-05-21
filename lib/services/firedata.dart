@@ -53,8 +53,16 @@ class Firedata {
 
     final roomRef = instance.ref('rooms/${room.id}');
     final params = <String, dynamic>{};
+    var roomCreatedAt = room.createdAt;
+    var roomIsOpen = false;
+
+    if (room.updatedAt == 0) {
+      roomCreatedAt = now;
+      params['createdAt'] = roomCreatedAt;
+    }
 
     if (room.isOpen) {
+      roomIsOpen = true;
       params['updatedAt'] = now;
     }
 
@@ -66,12 +74,12 @@ class Firedata {
 
     // Just a hack to convert int to sortable strings.
     params['filter'] =
-        DateTime.fromMillisecondsSinceEpoch(now - room.createdAt, isUtc: true)
+        DateTime.fromMillisecondsSinceEpoch(now - roomCreatedAt, isUtc: true)
             .toIso8601String();
 
     await roomRef.update(params);
 
-    return room.isOpen;
+    return roomIsOpen;
   }
 
   Stream<Room> subscribeToRoom(String roomId) {
@@ -112,7 +120,7 @@ class Firedata {
   Future<Room?> selectRoom(List<String> recentRoomIds) async {
     var rooms = <Room>[];
     var startAt = '';
-    var limit = 3;
+    var limit = 2; // TODO: 16
     var next = true;
 
     while (next) {

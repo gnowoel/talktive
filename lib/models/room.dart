@@ -77,12 +77,12 @@ class Room {
   }
 
   bool get isOpen {
-    return _isNew || _isActive;
+    return isNew || isActive;
   }
 
-  bool get _isNew => createdAt > updatedAt;
+  bool get isNew => createdAt > updatedAt;
 
-  bool get _isActive {
+  bool get isActive {
     final now = DateTime.now();
     final then = DateTime.fromMillisecondsSinceEpoch(updatedAt);
     return now.difference(then).inSeconds < 360; // TODO: 3600

@@ -115,9 +115,15 @@ class Firedata {
 
     while (next) {
       rooms = await _getRooms(limit);
-      if (rooms.length < limit) next = false;
-      rooms = rooms.where((room) => !recentRoomIds.contains(room.id)).toList();
-      if (rooms.isNotEmpty) next = false;
+      rooms = rooms
+          .where((room) => room.isActive && !recentRoomIds.contains(room.id))
+          .toList();
+      rooms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+      if (rooms.isNotEmpty || rooms.length < limit) {
+        next = false;
+      }
+
       limit *= 2;
     }
 
@@ -125,16 +131,9 @@ class Firedata {
   }
 
   Future<List<Room>> _getRooms(int limit) async {
-    final oneHourAgo = DateTime.now()
-        .subtract(const Duration(seconds: 360)) // TODO: 3600
-        .millisecondsSinceEpoch;
     final ref = instance.ref('rooms');
-    final query = ref
-        .orderByChild('updatedAt')
-        .startAt(oneHourAgo + 1)
-        .limitToLast(limit);
+    final query = ref.orderByChild('filter').limitToFirst(limit);
     final snapshot = await query.get();
-
     if (!snapshot.exists) {
       return [];
     }

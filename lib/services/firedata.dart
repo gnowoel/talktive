@@ -8,6 +8,8 @@ import '../models/room.dart';
 class Firedata {
   final FirebaseDatabase instance = FirebaseDatabase.instance;
 
+  int now = DateTime.now().millisecondsSinceEpoch;
+
   Future<Room> createRoom(
     String userId,
     String userName,
@@ -207,11 +209,14 @@ class Firedata {
     return rooms;
   }
 
-  Future<num> getClockSkew() async {
+  Future<void> syncTime() async {
     final offsetRef = FirebaseDatabase.instance.ref(".info/serverTimeOffset");
-    final event = await offsetRef.once(DatabaseEventType.value);
-    final offset = event.snapshot.value as num? ?? 0.0;
 
-    return offset;
+    offsetRef.onValue.listen((event) {
+      final offset = event.snapshot.value as num? ?? 0.0;
+      final estimatedServerTimeMs =
+          DateTime.now().millisecondsSinceEpoch + offset;
+      now = estimatedServerTimeMs.toInt();
+    });
   }
 }

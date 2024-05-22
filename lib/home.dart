@@ -5,6 +5,7 @@ import 'pages/empty.dart';
 import 'pages/error.dart';
 import 'pages/user.dart';
 import 'services/fireauth.dart';
+import 'services/firedata.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,7 +15,15 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late Firedata firedata;
   Key futureBuilderKey = UniqueKey();
+
+  @override
+  void initState() {
+    super.initState();
+    firedata = Provider.of<Firedata>(context, listen: false);
+    firedata.syncTime();
+  }
 
   void refresh() {
     setState(() {

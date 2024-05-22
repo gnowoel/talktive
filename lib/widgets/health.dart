@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 
+import '../services/firedata.dart';
 import 'heart_list.dart';
 
 class Health extends StatefulWidget {
@@ -16,12 +18,14 @@ class Health extends StatefulWidget {
 }
 
 class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
+  late Firedata firedata;
   late Ticker ticker;
   late Duration elapsed;
 
   @override
   void initState() {
     super.initState();
+    firedata = Provider.of<Firedata>(context, listen: false);
     elapsed = _getElapsed();
     ticker = createTicker((_) {
       final newElapsed = _getElapsed();
@@ -39,7 +43,7 @@ class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
   }
 
   Duration _getElapsed() {
-    final now = DateTime.now();
+    final now = DateTime.fromMillisecondsSinceEpoch(firedata.now());
     final then = DateTime.fromMillisecondsSinceEpoch(widget.roomUpdatedAt);
     return now.difference(then);
   }

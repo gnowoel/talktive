@@ -72,7 +72,7 @@ class Room {
       languageCode: '',
       createdAt: 0,
       updatedAt: 0,
-      filter: '',
+      filter: '\ufff0',
     );
   }
 

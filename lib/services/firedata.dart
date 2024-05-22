@@ -21,7 +21,7 @@ class Firedata {
       languageCode: languageCode,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: 0,
-      filter: '9999-99-99T99:99:99.999Z',
+      filter: '\ufff0',
     );
 
     final ref = instance.ref('rooms').push();
@@ -122,7 +122,7 @@ class Firedata {
 
   // Inactive rooms should be removed after some time
   Future<Room?> selectRoom(List<String> recentRoomIds) async {
-    var rooms = <Room>[];
+    final rooms = <Room>[];
     var startAt = '';
     var limit = 2; // TODO: 16
     var next = true;
@@ -133,12 +133,19 @@ class Firedata {
         startAt: startAt,
         limit: limit,
       );
+
       if (result.length < limit) next = false;
 
-      // TODO: Stop when seeing '9999-99-99T99:99:99.999Z'
-      rooms = result
-          .where((room) => room.isActive && !recentRoomIds.contains(room.id))
-          .toList();
+      rooms.clear();
+
+      for (final room in result) {
+        if (!room.isActive) {
+          _markClosed(room);
+        } else if (!recentRoomIds.contains(room.id)) {
+          rooms.add(room);
+        }
+      }
+
       if (rooms.isNotEmpty) next = false;
 
       startAt = result.last.filter;
@@ -156,13 +163,25 @@ class Firedata {
     return rooms.isNotEmpty ? rooms.first : null;
   }
 
+  Future<void> _markClosed(Room room) async {
+    final ref = instance.ref('rooms/${room.id}');
+    final params = <String, dynamic>{};
+
+    params['filter'] = '\ufff0';
+
+    await ref.update(params);
+  }
+
   Future<List<Room>> _getRooms({
     required String startAt,
     required int limit,
   }) async {
     final ref = instance.ref('rooms');
-    final query =
-        ref.orderByChild('filter').startAt(startAt).limitToFirst(limit);
+    final query = ref
+        .orderByChild('filter')
+        .startAt(startAt)
+        .endAt('9999-99-99T99:99:99.999Z')
+        .limitToFirst(limit);
     final snapshot = await query.get();
 
     if (!snapshot.exists) {

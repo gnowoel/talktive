@@ -14,7 +14,9 @@ class Firedata {
 
   final FirebaseDatabase instance = FirebaseDatabase.instance;
 
-  int now = DateTime.now().millisecondsSinceEpoch;
+  int _now = DateTime.now().millisecondsSinceEpoch;
+
+  int now() => _now;
 
   Future<Room> createRoom(
     String userId,
@@ -27,7 +29,7 @@ class Firedata {
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      createdAt: now,
+      createdAt: _now,
       updatedAt: 0,
       filter: '\ufff0',
     );
@@ -47,6 +49,7 @@ class Firedata {
     String content,
   ) async {
     final messageRef = instance.ref('messages/${room.id}').push();
+    final now = _now;
 
     final message = Message(
       userId: userId,
@@ -221,7 +224,7 @@ class Firedata {
       final offset = event.snapshot.value as num? ?? 0.0;
       final estimatedServerTimeMs =
           DateTime.now().millisecondsSinceEpoch + offset;
-      now = estimatedServerTimeMs.toInt();
+      _now = estimatedServerTimeMs.toInt();
     });
   }
 }

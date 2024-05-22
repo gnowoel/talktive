@@ -1,3 +1,4 @@
+import '../services/firedata.dart';
 import 'record.dart';
 
 class Room {
@@ -83,7 +84,8 @@ class Room {
   bool get isNew => createdAt > updatedAt;
 
   bool get isActive {
-    final now = DateTime.now();
+    final firedata = Firedata();
+    final now = DateTime.fromMillisecondsSinceEpoch(firedata.now());
     final then = DateTime.fromMillisecondsSinceEpoch(updatedAt);
     return now.difference(then).inSeconds < 360; // TODO: 3600
   }

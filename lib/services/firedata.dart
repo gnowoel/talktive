@@ -21,7 +21,7 @@ class Firedata {
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
+      createdAt: now,
       updatedAt: 0,
       filter: '\ufff0',
     );
@@ -41,7 +41,6 @@ class Firedata {
     String content,
   ) async {
     final messageRef = instance.ref('messages/${room.id}').push();
-    final now = DateTime.now().millisecondsSinceEpoch;
 
     final message = Message(
       userId: userId,

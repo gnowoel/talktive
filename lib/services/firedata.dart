@@ -163,17 +163,20 @@ class Firedata {
       return filterComp;
     });
 
-    _markClosed(expired);
+    _markClosed(expired); // To save time, don't wait.
 
     return rooms.isNotEmpty ? rooms.first : null;
   }
 
   Future<void> _markClosed(List<Room> rooms) async {
+    final ref = instance.ref('rooms');
+    final params = <String, dynamic>{};
+
     for (final room in rooms) {
-      instance.ref('rooms/${room.id}').update({
-        'filter': '\ufff0',
-      });
+      params['${room.id}/filter'] = '\ufff0';
     }
+
+    await ref.update(params);
   }
 
   Future<List<Room>> _getRooms({

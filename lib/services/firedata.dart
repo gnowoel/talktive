@@ -123,6 +123,7 @@ class Firedata {
   // Inactive rooms should be removed after some time
   Future<Room?> selectRoom(List<String> recentRoomIds) async {
     final rooms = <Room>[];
+    final expired = <Room>[];
     var startAt = '';
     var limit = 2; // TODO: 16
     var next = true;
@@ -140,7 +141,7 @@ class Firedata {
 
       for (final room in result) {
         if (!room.isActive) {
-          _markClosed(room);
+          expired.add(room);
         } else if (!recentRoomIds.contains(room.id)) {
           rooms.add(room);
         }
@@ -148,8 +149,10 @@ class Firedata {
 
       if (rooms.isNotEmpty) next = false;
 
-      startAt = result.last.filter;
-      limit *= 2;
+      if (next) {
+        startAt = result.last.filter;
+        limit *= 2;
+      }
     }
 
     rooms.sort((a, b) {
@@ -160,16 +163,17 @@ class Firedata {
       return filterComp;
     });
 
+    _markClosed(expired);
+
     return rooms.isNotEmpty ? rooms.first : null;
   }
 
-  Future<void> _markClosed(Room room) async {
-    final ref = instance.ref('rooms/${room.id}');
-    final params = <String, dynamic>{};
-
-    params['filter'] = '\ufff0';
-
-    await ref.update(params);
+  Future<void> _markClosed(List<Room> rooms) async {
+    for (final room in rooms) {
+      instance.ref('rooms/${room.id}').update({
+        'filter': '\ufff0',
+      });
+    }
   }
 
   Future<List<Room>> _getRooms({

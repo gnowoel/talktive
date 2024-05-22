@@ -6,6 +6,12 @@ import '../models/message.dart';
 import '../models/room.dart';
 
 class Firedata {
+  Firedata._();
+
+  static final Firedata _instance = Firedata._();
+
+  factory Firedata() => _instance;
+
   final FirebaseDatabase instance = FirebaseDatabase.instance;
 
   int now = DateTime.now().millisecondsSinceEpoch;

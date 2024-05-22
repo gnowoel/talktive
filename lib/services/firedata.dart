@@ -33,7 +33,7 @@ class Firedata {
       languageCode: languageCode,
       createdAt: now(),
       updatedAt: 0,
-      filter: '\ufff0',
+      filter: 'zzzz',
     );
 
     final ref = instance.ref('rooms').push();
@@ -136,7 +136,7 @@ class Firedata {
   Future<Room?> selectRoom(List<String> recentRoomIds) async {
     final rooms = <Room>[];
     final expired = <Room>[];
-    var startAt = '';
+    var startAt = '0000';
     var limit = 2; // TODO: 16
     var next = true;
 
@@ -185,7 +185,7 @@ class Firedata {
     final params = <String, dynamic>{};
 
     for (final room in rooms) {
-      params['${room.id}/filter'] = '\ufff0';
+      params['${room.id}/filter'] = 'zzzz';
     }
 
     await ref.update(params);
@@ -199,7 +199,7 @@ class Firedata {
     final query = ref
         .orderByChild('filter')
         .startAt(startAt)
-        .endAt('9999-99-99T99:99:99.999Z')
+        .endAt('9999')
         .limitToFirst(limit);
     final snapshot = await query.get();
 

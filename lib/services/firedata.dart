@@ -206,4 +206,12 @@ class Firedata {
 
     return rooms;
   }
+
+  Future<num> getClockSkew() async {
+    final offsetRef = FirebaseDatabase.instance.ref(".info/serverTimeOffset");
+    final event = await offsetRef.once(DatabaseEventType.value);
+    final offset = event.snapshot.value as num? ?? 0.0;
+
+    return offset;
+  }
 }

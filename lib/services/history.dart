@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../models/record.dart';
 import '../models/room.dart';
+import 'firedata.dart';
 import 'prefs.dart';
 
 class History {
@@ -26,7 +27,7 @@ class History {
       roomUserId: room.userId,
       roomUserName: room.userName,
       roomUserCode: room.userCode,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
+      createdAt: Firedata().now(),
     );
 
     _records.removeWhere((element) {
@@ -47,7 +48,8 @@ class History {
   }
 
   bool _isValid(Record record) {
-    final oneDayAgo = DateTime.now().subtract(const Duration(days: 1));
+    final now = DateTime.fromMillisecondsSinceEpoch(Firedata().now());
+    final oneDayAgo = now.subtract(const Duration(days: 1));
     final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
     return !createdAt.isBefore(oneDayAgo);
   }

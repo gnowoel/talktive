@@ -27,6 +27,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   ScrollNotification? _lastNotification;
+  bool _isSticky = false;
 
   @override
   void initState() {
@@ -54,9 +55,31 @@ class _MessageListState extends State<MessageList> {
 
       if (notification is ScrollEndNotification) {
         widget.updateScrollOffset(metrics.pixels);
+
+        if (metrics.extentAfter == 0) {
+          if (!_isSticky) {
+            setState(() => _isSticky = true);
+          }
+        }
+      }
+
+      if (notification is ScrollUpdateNotification) {
+        if (metrics.extentAfter != 0) {
+          if (_isSticky) {
+            setState(() => _isSticky = false);
+          }
+        }
       }
     }
 
+    return false;
+  }
+
+  bool _handleScrollMetricsNotification(
+      ScrollMetricsNotification notification) {
+    if (_isSticky) {
+      _scrollToBottom();
+    }
     return false;
   }
 
@@ -72,9 +95,13 @@ class _MessageListState extends State<MessageList> {
       return _buildInfo();
     }
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: _handleScrollNotification,
-      child: widget.messages.isEmpty ? _buildEmpty() : _buildListView(context),
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: _handleScrollMetricsNotification,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child:
+            widget.messages.isEmpty ? _buildEmpty() : _buildListView(context),
+      ),
     );
   }
 

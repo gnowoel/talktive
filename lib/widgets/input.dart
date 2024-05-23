@@ -7,10 +7,12 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 
 class Input extends StatefulWidget {
+  final FocusNode focusNode;
   final Room room;
 
   const Input({
     super.key,
+    required this.focusNode,
     required this.room,
   });
 
@@ -86,6 +88,7 @@ class _InputState extends State<Input> {
           children: [
             Expanded(
               child: TextField(
+                focusNode: widget.focusNode,
                 minLines: 1,
                 maxLines: 12,
                 controller: _controller,

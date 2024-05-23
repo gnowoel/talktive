@@ -24,6 +24,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  late FocusNode focusNode;
   late Firedata firedata;
   late History history;
   late StreamSubscription roomSubscription;
@@ -36,6 +37,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
+    focusNode = FocusNode();
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
@@ -59,6 +61,7 @@ class _ChatPageState extends State<ChatPage> {
     messagesSubscription.cancel();
     roomSubscription.cancel();
     _addHistoryRecord(_room);
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -113,11 +116,15 @@ class _ChatPageState extends State<ChatPage> {
         const SizedBox(height: 10),
         Expanded(
           child: MessageList(
+            focusNode: focusNode,
             roomUserId: _room.userId,
             messages: _messages,
           ),
         ),
-        Input(room: _room),
+        Input(
+          focusNode: focusNode,
+          room: _room,
+        ),
       ],
     );
   }

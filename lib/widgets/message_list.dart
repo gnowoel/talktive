@@ -6,6 +6,7 @@ import 'message_item.dart';
 class MessageList extends StatefulWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
+  final void Function(double) updateScrollOffset;
   final String roomUserId;
   final List<Message> messages;
 
@@ -13,6 +14,7 @@ class MessageList extends StatefulWidget {
     super.key,
     required this.focusNode,
     required this.scrollController,
+    required this.updateScrollOffset,
     required this.roomUserId,
     required this.messages,
   });
@@ -22,6 +24,8 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
+  ScrollNotification? _lastNotification;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +44,20 @@ class _MessageListState extends State<MessageList> {
     controller.jumpTo(bottom);
   }
 
+  bool _handleScrollNotification(ScrollNotification notification) {
+    final metrics = notification.metrics;
+
+    if (_lastNotification.runtimeType != notification.runtimeType) {
+      _lastNotification = notification;
+
+      if (notification is ScrollEndNotification) {
+        widget.updateScrollOffset(metrics.pixels);
+      }
+    }
+
+    return false;
+  }
+
   @override
   void dispose() {
     widget.focusNode.removeListener(_handleInputFocus);
@@ -48,6 +66,14 @@ class _MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: _handleScrollNotification,
+      child:
+          widget.messages.isEmpty ? const SizedBox() : _buildListView(context),
+    );
+  }
+
+  ListView _buildListView(BuildContext context) {
     return ListView.builder(
       controller: widget.scrollController,
       itemCount: widget.messages.length,

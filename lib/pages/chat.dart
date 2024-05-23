@@ -47,6 +47,7 @@ class _ChatPageState extends State<ChatPage> {
     scrollController = ScrollController(
       initialScrollOffset: scrollOffset,
     );
+
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
@@ -65,6 +66,10 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _updateScrollOffset(double position) {
+    scrollOffset = position;
+  }
+
   Future<void> _addHistoryRecord(Room room) async {
     await history.saveRecord(
       room: room,
@@ -76,9 +81,12 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     messagesSubscription.cancel();
     roomSubscription.cancel();
+
     _addHistoryRecord(_room);
+
     scrollController.dispose();
     focusNode.dispose();
+
     super.dispose();
   }
 
@@ -131,6 +139,7 @@ class _ChatPageState extends State<ChatPage> {
           child: MessageList(
             focusNode: focusNode,
             scrollController: scrollController,
+            updateScrollOffset: _updateScrollOffset,
             roomUserId: _room.userId,
             messages: _messages,
           ),

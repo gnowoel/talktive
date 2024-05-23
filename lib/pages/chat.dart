@@ -25,6 +25,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   late FocusNode focusNode;
+  late ScrollController scrollController;
   late Firedata firedata;
   late History history;
   late StreamSubscription roomSubscription;
@@ -38,6 +39,8 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     focusNode = FocusNode();
+    scrollController = ScrollController(
+    );
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
@@ -61,6 +64,7 @@ class _ChatPageState extends State<ChatPage> {
     messagesSubscription.cancel();
     roomSubscription.cancel();
     _addHistoryRecord(_room);
+    scrollController.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -117,6 +121,7 @@ class _ChatPageState extends State<ChatPage> {
         Expanded(
           child: MessageList(
             focusNode: focusNode,
+            scrollController: scrollController,
             roomUserId: _room.userId,
             messages: _messages,
           ),

@@ -101,34 +101,38 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
       body: SafeArea(
-        child: LayoutBuilder(builder: (context, constraints) {
-          if (constraints.maxWidth >= 600) {
-            return Align(
-              alignment: Alignment.center,
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(24),
-                  ),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-                child: _buildColumn(),
-              ),
-            );
-          } else {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-              ),
-              child: _buildColumn(),
-            );
-          }
-        }),
+        child: _buildLayoutBuilder(),
       ),
     );
+  }
+
+  Widget _buildLayoutBuilder() {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth >= 600) {
+        return Align(
+          alignment: Alignment.center,
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: const BorderRadius.all(
+                Radius.circular(24),
+              ),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
+            child: _buildColumn(),
+          ),
+        );
+      } else {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+          ),
+          child: _buildColumn(),
+        );
+      }
+    });
   }
 
   Widget _buildColumn() {
@@ -140,7 +144,7 @@ class _ChatPageState extends State<ChatPage> {
             focusNode: focusNode,
             scrollController: scrollController,
             updateScrollOffset: _updateScrollOffset,
-            roomUserId: _room.userId,
+            room: _room,
             messages: _messages,
           ),
         ),

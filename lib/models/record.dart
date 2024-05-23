@@ -4,6 +4,7 @@ class Record {
   final String roomUserName;
   final String roomUserCode;
   final int createdAt;
+  final double scrollOffset;
 
   Record({
     required this.roomId,
@@ -11,6 +12,7 @@ class Record {
     required this.roomUserName,
     required this.roomUserCode,
     required this.createdAt,
+    required this.scrollOffset,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +22,7 @@ class Record {
       'roomUserName': roomUserName,
       'roomUserCode': roomUserCode,
       'createdAt': createdAt,
+      'scrollOffset': scrollOffset,
     };
   }
 
@@ -30,6 +33,7 @@ class Record {
       roomUserName: json['roomUserName'] as String,
       roomUserCode: json['roomUserCode'] as String,
       createdAt: json['createdAt'] as int,
+      scrollOffset: json['scrollOffset'] as double,
     );
   }
 }

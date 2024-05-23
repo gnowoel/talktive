@@ -13,10 +13,12 @@ import '../widgets/message_list.dart';
 
 class ChatPage extends StatefulWidget {
   final Room room;
+  final double initialScrollOffset;
 
   const ChatPage({
     super.key,
     required this.room,
+    this.initialScrollOffset = 0.0,
   });
 
   @override
@@ -34,12 +36,16 @@ class _ChatPageState extends State<ChatPage> {
   late Room _room;
   late List<Message> _messages;
 
+  double scrollOffset = 0.0;
+
   @override
   void initState() {
     super.initState();
 
     focusNode = FocusNode();
+    scrollOffset = widget.initialScrollOffset;
     scrollController = ScrollController(
+      initialScrollOffset: scrollOffset,
     );
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
@@ -59,6 +65,13 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  Future<void> _addHistoryRecord(Room room) async {
+    await history.saveRecord(
+      room: room,
+      scrollOffset: scrollOffset,
+    );
+  }
+
   @override
   void dispose() {
     messagesSubscription.cancel();
@@ -67,10 +80,6 @@ class _ChatPageState extends State<ChatPage> {
     scrollController.dispose();
     focusNode.dispose();
     super.dispose();
-  }
-
-  Future<void> _addHistoryRecord(Room room) async {
-    await history.saveRecord(room);
   }
 
   @override

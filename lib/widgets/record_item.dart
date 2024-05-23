@@ -25,7 +25,12 @@ class _RecordItemState extends State<RecordItem> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChatPage(room: dummy)),
+      MaterialPageRoute(
+        builder: (context) => ChatPage(
+          room: dummy,
+          initialScrollOffset: record.scrollOffset,
+        ),
+      ),
     );
   }
 

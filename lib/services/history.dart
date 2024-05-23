@@ -21,13 +21,17 @@ class History {
     }
   }
 
-  Future<void> saveRecord(Room room) async {
+  Future<void> saveRecord({
+    required Room room,
+    required double scrollOffset,
+  }) async {
     final record = Record(
       roomId: room.id,
       roomUserId: room.userId,
       roomUserName: room.userName,
       roomUserCode: room.userCode,
       createdAt: Firedata().now(),
+      scrollOffset: scrollOffset,
     );
 
     _records.removeWhere((element) {

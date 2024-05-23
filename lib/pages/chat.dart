@@ -13,12 +13,14 @@ import '../widgets/message_list.dart';
 
 class ChatPage extends StatefulWidget {
   final Room room;
-  final double initialScrollOffset;
+  final int recordMessageCount;
+  final double recordScrollOffset;
 
   const ChatPage({
     super.key,
     required this.room,
-    this.initialScrollOffset = 0.0,
+    this.recordMessageCount = 1,
+    this.recordScrollOffset = 0.0,
   });
 
   @override
@@ -43,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     focusNode = FocusNode();
-    scrollOffset = widget.initialScrollOffset;
+    scrollOffset = widget.recordScrollOffset;
     scrollController = ScrollController(
       initialScrollOffset: scrollOffset,
     );
@@ -73,6 +75,7 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> _addHistoryRecord(Room room) async {
     await history.saveRecord(
       room: room,
+      messageCount: _messages.length,
       scrollOffset: scrollOffset,
     );
   }
@@ -143,6 +146,7 @@ class _ChatPageState extends State<ChatPage> {
           child: MessageList(
             focusNode: focusNode,
             scrollController: scrollController,
+            recordMessageCount: widget.recordMessageCount,
             updateScrollOffset: _updateScrollOffset,
             room: _room,
             messages: _messages,

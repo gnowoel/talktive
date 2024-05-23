@@ -8,6 +8,7 @@ import 'message_item.dart';
 class MessageList extends StatefulWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
+  final int recordMessageCount;
   final void Function(double) updateScrollOffset;
   final Room room;
   final List<Message> messages;
@@ -16,6 +17,7 @@ class MessageList extends StatefulWidget {
     super.key,
     required this.focusNode,
     required this.scrollController,
+    required this.recordMessageCount,
     required this.updateScrollOffset,
     required this.room,
     required this.messages,
@@ -83,6 +85,14 @@ class _MessageListState extends State<MessageList> {
     return false;
   }
 
+  bool _isNew() {
+    return widget.room.isNew;
+  }
+
+  bool _isLoaded() {
+    return widget.messages.length >= widget.recordMessageCount;
+  }
+
   @override
   void dispose() {
     widget.focusNode.removeListener(_handleInputFocus);
@@ -91,16 +101,13 @@ class _MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.room.isNew) {
-      return _buildInfo();
-    }
-
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
       child: NotificationListener<ScrollNotification>(
         onNotification: _handleScrollNotification,
-        child:
-            widget.messages.isEmpty ? _buildEmpty() : _buildListView(context),
+        child: _isNew()
+            ? _buildInfo()
+            : (!_isLoaded() ? _buildEmpty() : _buildListView(context)),
       ),
     );
   }
@@ -116,6 +123,7 @@ class _MessageListState extends State<MessageList> {
   }
 
   Widget _buildEmpty() {
+    // return const Center(child: CircularProgressIndicator());
     return const SizedBox();
   }
 

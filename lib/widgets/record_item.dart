@@ -28,7 +28,8 @@ class _RecordItemState extends State<RecordItem> {
       MaterialPageRoute(
         builder: (context) => ChatPage(
           room: dummy,
-          initialScrollOffset: record.scrollOffset,
+          recordMessageCount: record.messageCount,
+          recordScrollOffset: record.scrollOffset,
         ),
       ),
     );

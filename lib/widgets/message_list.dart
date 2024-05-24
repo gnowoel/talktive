@@ -101,13 +101,17 @@ class _MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollMetricsNotification>(
-      onNotification: _handleScrollMetricsNotification,
-      child: NotificationListener<ScrollNotification>(
-        onNotification: _handleScrollNotification,
-        child: _isNew()
-            ? _buildInfo()
-            : (!_isLoaded() ? _buildEmpty() : _buildListView(context)),
+    return Listener(
+      onPointerDown: (details) => FocusScope.of(context).unfocus(),
+      onPointerMove: (details) => FocusScope.of(context).unfocus(),
+      child: NotificationListener<ScrollMetricsNotification>(
+        onNotification: _handleScrollMetricsNotification,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: _handleScrollNotification,
+          child: _isNew()
+              ? _buildInfo()
+              : (!_isLoaded() ? _buildEmpty() : _buildListView(context)),
+        ),
       ),
     );
   }

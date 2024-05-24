@@ -29,7 +29,6 @@ class _UserPageState extends State<UserPage> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
-    history.loadRecords();
   }
 
   @override

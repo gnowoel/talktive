@@ -89,9 +89,12 @@ class Firedata {
     // }
 
     // Just a hack to convert int to sortable strings.
-    params['filter'] =
+    final languageCode = room.languageCode;
+    final timeElapsed =
         DateTime.fromMillisecondsSinceEpoch(now - roomCreatedAt, isUtc: true)
             .toIso8601String();
+
+    params['filter'] = '$languageCode-$timeElapsed';
 
     await roomRef.update(params);
 

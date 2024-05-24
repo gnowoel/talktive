@@ -18,6 +18,8 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  bool _isLocked = false;
+
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
@@ -37,25 +39,21 @@ class _UserPageState extends State<UserPage> {
     avatar = Provider.of<Avatar>(context);
   }
 
-  Future<void> write() async {
-    final userId = fireauth.instance.currentUser!.uid;
-    final userName = avatar.name;
-    final userCode = avatar.code;
-    final languageCode = Localizations.localeOf(context).languageCode;
+  Future<void> _refresh() async {
+    if (_isLocked == true) return;
 
-    final room = await firedata.createRoom(
-      userId,
-      userName,
-      userCode,
-      languageCode,
-    );
+    setState(() => _isLocked = true);
 
-    if (mounted) {
-      _enterPage(ChatPage(room: room));
-    }
+    avatar.refresh();
+
+    setState(() => _isLocked = false);
   }
 
-  Future<void> read() async {
+  Future<void> _read() async {
+    if (_isLocked == true) return;
+
+    setState(() => _isLocked = true);
+
     final recentRoomIds = history.recentRoomIds;
     final room = await firedata.selectRoom(recentRoomIds);
 
@@ -72,10 +70,42 @@ class _UserPageState extends State<UserPage> {
         _enterPage(EmptyPage(child: Info(lines: lines)));
       }
     }
+
+    setState(() => _isLocked = false);
   }
 
-  void recents() {
+  Future<void> _write() async {
+    if (_isLocked == true) return;
+
+    setState(() => _isLocked = true);
+
+    final userId = fireauth.instance.currentUser!.uid;
+    final userName = avatar.name;
+    final userCode = avatar.code;
+    final languageCode = Localizations.localeOf(context).languageCode;
+
+    final room = await firedata.createRoom(
+      userId,
+      userName,
+      userCode,
+      languageCode,
+    );
+
+    if (mounted) {
+      _enterPage(ChatPage(room: room));
+    }
+
+    setState(() => _isLocked = false);
+  }
+
+  void _recents() {
+    if (_isLocked == true) return;
+
+    setState(() => _isLocked = true);
+
     _enterPage(const RecentsPage());
+
+    setState(() => _isLocked = false);
   }
 
   void _enterPage(Widget widget) {
@@ -96,24 +126,22 @@ class _UserPageState extends State<UserPage> {
               ),
               Text(avatar.name),
               IconButton(
-                onPressed: () {
-                  avatar.refresh();
-                },
+                onPressed: _refresh,
                 icon: const Icon(Icons.refresh),
               ),
               const SizedBox(height: 4),
               FilledButton(
-                onPressed: read,
+                onPressed: _read,
                 child: const Text('Read'),
               ),
               const SizedBox(height: 12),
               OutlinedButton(
-                onPressed: write,
+                onPressed: _write,
                 child: const Text('Write'),
               ),
               const SizedBox(height: 4),
               IconButton(
-                onPressed: recents,
+                onPressed: _recents,
                 icon: const Icon(Icons.history),
               ),
             ],

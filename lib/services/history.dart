@@ -6,6 +6,12 @@ import 'firedata.dart';
 import 'prefs.dart';
 
 class History {
+  History._();
+
+  static final History _instance = History._();
+
+  factory History() => _instance;
+
   final prefs = Prefs();
   final _records = <Record>[];
 

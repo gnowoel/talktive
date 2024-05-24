@@ -4,6 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:unicode_emojis/unicode_emojis.dart';
 
 class Avatar extends ChangeNotifier {
+  Avatar._();
+
+  static final Avatar _instance = Avatar._();
+
+  factory Avatar() => _instance;
+
   Emoji _current = _randomEmoji();
 
   String get name => _current.name;

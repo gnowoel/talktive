@@ -18,6 +18,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
@@ -36,6 +37,7 @@ class _UserPageState extends State<UserPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    languageCode = Localizations.localeOf(context).languageCode;
     avatar = Provider.of<Avatar>(context);
   }
 
@@ -48,7 +50,7 @@ class _UserPageState extends State<UserPage> {
   Future<void> _read() async {
     _doAction(() async {
       final recentRoomIds = history.recentRoomIds;
-      final room = await firedata.selectRoom(recentRoomIds);
+      final room = await firedata.selectRoom(languageCode, recentRoomIds);
 
       final lines = [
         'No more to read.',
@@ -71,7 +73,6 @@ class _UserPageState extends State<UserPage> {
       final userId = fireauth.instance.currentUser!.uid;
       final userName = avatar.name;
       final userCode = avatar.code;
-      final languageCode = Localizations.localeOf(context).languageCode;
 
       final room = await firedata.createRoom(
         userId,

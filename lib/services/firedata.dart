@@ -33,7 +33,7 @@ class Firedata {
       languageCode: languageCode,
       createdAt: now(),
       updatedAt: 0,
-      filter: 'zzzz',
+      filter: '$languageCode-zzzz',
     );
 
     final ref = instance.ref('rooms').push();
@@ -133,16 +133,20 @@ class Firedata {
   }
 
   // Inactive rooms should be removed after some time
-  Future<Room?> selectRoom(List<String> recentRoomIds) async {
+  Future<Room?> selectRoom(
+    String languageCode,
+    List<String> recentRoomIds,
+  ) async {
     final rooms = <Room>[];
     final expired = <Room>[];
-    var startAt = '0000';
+    var startAt = '$languageCode-0000';
     var limit = 2; // TODO: 16
     var next = true;
 
     // TODO: Limit the number of retries
     while (next) {
       final result = await _getRooms(
+        languageCode: languageCode,
         startAt: startAt,
         limit: limit,
       );
@@ -180,18 +184,8 @@ class Firedata {
     return rooms.isNotEmpty ? rooms.first : null;
   }
 
-  Future<void> _markClosed(List<Room> rooms) async {
-    final ref = instance.ref('rooms');
-    final params = <String, dynamic>{};
-
-    for (final room in rooms) {
-      params['${room.id}/filter'] = 'zzzz';
-    }
-
-    await ref.update(params);
-  }
-
   Future<List<Room>> _getRooms({
+    required String languageCode,
     required String startAt,
     required int limit,
   }) async {
@@ -199,7 +193,7 @@ class Firedata {
     final query = ref
         .orderByChild('filter')
         .startAt(startAt)
-        .endAt('9999')
+        .endAt('$languageCode-9999')
         .limitToFirst(limit);
     final snapshot = await query.get();
 
@@ -217,6 +211,17 @@ class Firedata {
     rooms.sort((a, b) => a.filter.compareTo(b.filter));
 
     return rooms;
+  }
+
+  Future<void> _markClosed(List<Room> rooms) async {
+    final ref = instance.ref('rooms');
+    final params = <String, dynamic>{};
+
+    for (final room in rooms) {
+      params['${room.id}/filter'] = '${room.languageCode}-zzzz';
+    }
+
+    await ref.update(params);
   }
 
   Future<void> syncTime() async {

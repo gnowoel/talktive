@@ -39,77 +39,71 @@ class _UserPageState extends State<UserPage> {
     avatar = Provider.of<Avatar>(context);
   }
 
-  Future<void> _refresh() async {
-    if (_isLocked == true) return;
-
-    setState(() => _isLocked = true);
-
-    avatar.refresh();
-
-    setState(() => _isLocked = false);
+  void _refresh() {
+    _doAction(() async {
+      avatar.refresh();
+    });
   }
 
   Future<void> _read() async {
-    if (_isLocked == true) return;
+    _doAction(() async {
+      final recentRoomIds = history.recentRoomIds;
+      final room = await firedata.selectRoom(recentRoomIds);
 
-    setState(() => _isLocked = true);
+      final lines = [
+        'No more to read.',
+        'But you can write.',
+        '',
+      ];
 
-    final recentRoomIds = history.recentRoomIds;
-    final room = await firedata.selectRoom(recentRoomIds);
-
-    final lines = [
-      'No more to read.',
-      'But you can write.',
-      '',
-    ];
-
-    if (mounted) {
-      if (room != null) {
-        _enterPage(ChatPage(room: room));
-      } else {
-        _enterPage(EmptyPage(child: Info(lines: lines)));
+      if (mounted) {
+        if (room != null) {
+          _enterPage(ChatPage(room: room));
+        } else {
+          _enterPage(EmptyPage(child: Info(lines: lines)));
+        }
       }
-    }
-
-    setState(() => _isLocked = false);
+    });
   }
 
   Future<void> _write() async {
-    if (_isLocked == true) return;
+    await _doAction(() async {
+      final userId = fireauth.instance.currentUser!.uid;
+      final userName = avatar.name;
+      final userCode = avatar.code;
+      final languageCode = Localizations.localeOf(context).languageCode;
 
-    setState(() => _isLocked = true);
+      final room = await firedata.createRoom(
+        userId,
+        userName,
+        userCode,
+        languageCode,
+      );
 
-    final userId = fireauth.instance.currentUser!.uid;
-    final userName = avatar.name;
-    final userCode = avatar.code;
-    final languageCode = Localizations.localeOf(context).languageCode;
-
-    final room = await firedata.createRoom(
-      userId,
-      userName,
-      userCode,
-      languageCode,
-    );
-
-    if (mounted) {
-      _enterPage(ChatPage(room: room));
-    }
-
-    setState(() => _isLocked = false);
+      if (mounted) {
+        _enterPage(ChatPage(room: room));
+      }
+    });
   }
 
   void _recents() {
-    if (_isLocked == true) return;
-
-    setState(() => _isLocked = true);
-
-    _enterPage(const RecentsPage());
-
-    setState(() => _isLocked = false);
+    _doAction(() async {
+      _enterPage(const RecentsPage());
+    });
   }
 
   void _enterPage(Widget widget) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
+  }
+
+  Future<void> _doAction(Future<void> Function() action) async {
+    if (_isLocked == true) return;
+
+    setState(() => _isLocked = true);
+
+    await action();
+
+    setState(() => _isLocked = false);
   }
 
   @override

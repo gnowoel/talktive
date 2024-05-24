@@ -24,7 +24,9 @@ class _InputState extends State<Input> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
+
   final _controller = TextEditingController();
+  bool _isLocked = false;
 
   @override
   void initState() {
@@ -40,35 +42,49 @@ class _InputState extends State<Input> {
   }
 
   Future<void> _sendMessage() async {
-    final room = widget.room;
-    final userId = fireauth.instance.currentUser!.uid;
-    final userName = avatar.name;
-    final userCode = avatar.code;
-    final content = _controller.text.trim();
+    await _doAction(() async {
+      final room = widget.room;
+      final userId = fireauth.instance.currentUser!.uid;
+      final userName = avatar.name;
+      final userCode = avatar.code;
+      final content = _controller.text.trim();
 
-    if (content.isEmpty) {
-      if (_controller.text.isNotEmpty) {
-        _controller.clear();
+      if (content.isEmpty) {
+        if (_controller.text.isNotEmpty) {
+          _controller.clear();
+        }
+        return;
       }
-      return;
-    }
 
-    final isRoomOpen = await firedata.sendMessage(
-      room,
-      userId,
-      userName,
-      userCode,
-      content,
-    );
-
-    _controller.clear();
-
-    // Race conditions may happen
-    if (mounted && !isRoomOpen) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('The room has been closed.')),
+      final isRoomOpen = await firedata.sendMessage(
+        room,
+        userId,
+        userName,
+        userCode,
+        content,
       );
-    }
+
+      _controller.clear();
+
+      // Race conditions may arise when someone extends the room's lifespan just
+      // before you close it, but it will not have serious consequences for our
+      // application.
+      if (mounted && !isRoomOpen) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('The room has been closed.')),
+        );
+      }
+    });
+  }
+
+  Future<void> _doAction(Future<void> Function() action) async {
+    if (_isLocked == true) return;
+
+    setState(() => _isLocked = true);
+
+    await action();
+
+    setState(() => _isLocked = false);
   }
 
   @override
@@ -99,7 +115,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: _sendMessage,
+              onPressed: _isLocked ? null : _sendMessage,
               icon: Icon(
                 Icons.send,
                 color: Theme.of(context).primaryColor,

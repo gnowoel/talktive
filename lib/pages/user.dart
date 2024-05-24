@@ -18,12 +18,12 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  bool _isLocked = false;
-
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
   late History history;
+
+  bool _isLocked = false;
 
   @override
   void initState() {

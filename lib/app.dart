@@ -19,10 +19,11 @@ class App extends StatelessWidget {
         Provider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Talktive',
-        home: Home(),
+        theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+        home: const Home(),
       ),
     );
   }

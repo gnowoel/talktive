@@ -98,6 +98,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_room.userName),
+        backgroundColor: Colors.white,
         actions: [
           Health(roomUpdatedAt: _room.updatedAt),
           const SizedBox(width: 16),

@@ -58,6 +58,7 @@ class _RecentsPageState extends State<RecentsPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recents'),
+        backgroundColor: Colors.white,
       ),
       body: SafeArea(
         child: records.isEmpty

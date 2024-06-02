@@ -25,3 +25,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  image_path: "assets/images/icon-1024x1024-big.png"
+  android: true
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground:  "assets/images/icon-1024x1024-small.png"
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/images/icon-1024x1024-big.png"
+    background: "#FFFFFF"
+    theme_color: "#FFFFFF"

@@ -20,19 +20,19 @@ class HeartList extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> children;
 
-    // TODO: 10, 20, 30, 40, 50, 60
+    // For test: 1, 2, 3, 4, 5, 6
     switch (elapsed.inMinutes) {
-      case < 1:
+      case < 10:
         children = [_full, _full, _full];
-      case < 2:
+      case < 20:
         children = [_half, _full, _full];
-      case < 3:
+      case < 30:
         children = [_empty, _full, _full];
-      case < 4:
+      case < 40:
         children = [_empty, _half, _full];
-      case < 5:
+      case < 50:
         children = [_empty, _empty, _full];
-      case < 6:
+      case < 60:
         children = [_empty, _empty, _half];
       default:
         children = [_grey, _grey, _grey];

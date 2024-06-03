@@ -85,7 +85,7 @@ class Firedata {
     // TODO: If use this, we can keep updating `updatedAt` even if the room is closed.
     // if (!room.isOpen) { // TODO: `&& room.closedAt == 0`
     //   params['closedAt'] = DateTime.fromMillisecondsSinceEpoch(room.updatedAt)
-    //       .add(const Duration(seconds: 360)); // TODO: 3600
+    //       .add(const Duration(seconds: 3600)); // For test: 360
     // }
 
     // Just a hack to convert int to sortable strings.
@@ -143,7 +143,7 @@ class Firedata {
     final rooms = <Room>[];
     final expired = <Room>[];
     var startAt = '$languageCode-0000';
-    var limit = 2; // TODO: 16
+    var limit = 16; // For test: 2
     var next = true;
 
     // TODO: Limit the number of retries

@@ -87,7 +87,7 @@ class Room {
     final firedata = Firedata();
     final now = DateTime.fromMillisecondsSinceEpoch(firedata.now());
     final then = DateTime.fromMillisecondsSinceEpoch(updatedAt);
-    return now.difference(then).inSeconds < 360; // TODO: 3600
+    return now.difference(then).inSeconds < 3600; // For test: 360
   }
 }
 

@@ -36,5 +36,5 @@ flutter_launcher_icons:
   web:
     generate: true
     image_path: "assets/images/icon-1024x1024-big.png"
-    background: "#FFFFFF"
+    background_color: "#FFFFFF"
     theme_color: "#FFFFFF"

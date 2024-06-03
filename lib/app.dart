@@ -23,7 +23,9 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Talktive',
         theme: ThemeData(scaffoldBackgroundColor: Colors.white),
-        home: const Home(),
+        home: const SelectionArea(
+          child: Home(),
+        ),
       ),
     );
   }

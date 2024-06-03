@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'pages/empty.dart';
 import 'pages/error.dart';
 import 'pages/user.dart';
-import 'services/avatar.dart';
 import 'services/fireauth.dart';
 
 class Home extends StatefulWidget {
@@ -38,16 +37,9 @@ class _HomeState extends State<Home> {
               refresh: refresh,
             );
           } else if (!snapshot.hasData) {
-            return EmptyPage(
+            return const EmptyPage(
               hasAppBar: false,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Offstage(child: Text(Avatar().code)),
-                  const CircularProgressIndicator(),
-                  Offstage(child: Text(Avatar().code)),
-                ],
-              ),
+              child: CircularProgressIndicator(),
             );
           } else {
             return const UserPage();

@@ -87,7 +87,7 @@ class Room {
     return isNew || isActive;
   }
 
-  bool get isNew => createdAt > updatedAt;
+  bool get isNew => updatedAt == 0; // createdAt > updatedAt;
 
   bool get isActive {
     final firedata = Firedata();

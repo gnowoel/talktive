@@ -39,6 +39,7 @@ class _ChatPageState extends State<ChatPage> {
   late List<Message> _messages;
 
   double scrollOffset = 0.0;
+  // bool oneShot = true;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _ChatPageState extends State<ChatPage> {
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
+    // History record won't trigger the update, since the timestamps are missing
     firedata.updateRoomAccessedAt(widget.room, firedata.now());
 
     _room = widget.room;
@@ -61,6 +63,10 @@ class _ChatPageState extends State<ChatPage> {
     _addHistoryRecord(_room);
 
     roomSubscription = firedata.subscribeToRoom(widget.room.id).listen((room) {
+      // if (oneShot) {
+      //   firedata.updateRoomAccessedAt(room, firedata.now());
+      //   oneShot = false;
+      // }
       setState(() => _room = room);
     });
 

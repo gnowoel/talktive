@@ -96,8 +96,6 @@ class Firedata {
   }
 
   Future<void> updateRoomAccessedAt(Room room, int now) async {
-    if (!room.isActive) return;
-
     final roomRef = instance.ref('rooms/${room.id}');
     final params = <String, dynamic>{};
     final roomCreatedAt = room.createdAt;

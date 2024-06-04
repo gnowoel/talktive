@@ -73,7 +73,7 @@ class Firedata {
     var roomCreatedAt = room.createdAt;
     var roomIsOpen = false;
 
-    if (room.updatedAt == 0) {
+    if (room.isNew) {
       roomCreatedAt = now;
       params['createdAt'] = roomCreatedAt;
     }
@@ -83,13 +83,12 @@ class Firedata {
       params['updatedAt'] = now;
     }
 
-    final languageCode = room.languageCode;
-    final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
-      now - roomCreatedAt,
-      isUtc: true,
-    ).toIso8601String();
-
-    params['filter'] = '$languageCode-$timeElapsed';
+    if (room.isNew) {
+      final languageCode = room.languageCode;
+      final timeElapsed =
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true).toIso8601String();
+      params['filter'] = '$languageCode-$timeElapsed';
+    }
 
     await roomRef.update(params);
 
@@ -103,15 +102,18 @@ class Firedata {
     final params = <String, dynamic>{};
     final roomCreatedAt = room.createdAt;
 
-    params['accessedAt'] = now;
+    if (room.isOpen) {
+      params['accessedAt'] = now;
+    }
 
-    final languageCode = room.languageCode;
-    final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
-      now - roomCreatedAt,
-      isUtc: true,
-    ).toIso8601String();
-
-    params['filter'] = '$languageCode-$timeElapsed';
+    if (room.isActive) {
+      final languageCode = room.languageCode;
+      final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
+        now - roomCreatedAt,
+        isUtc: true,
+      ).toIso8601String();
+      params['filter'] = '$languageCode-$timeElapsed';
+    }
 
     await roomRef.update(params);
   }

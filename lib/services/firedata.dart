@@ -33,6 +33,7 @@ class Firedata {
       languageCode: languageCode,
       createdAt: now(),
       updatedAt: 0,
+      accessedAt: 0,
       filter: '$languageCode-zzzz',
     );
 
@@ -63,10 +64,10 @@ class Firedata {
 
     await messageRef.set(message.toJson());
 
-    return await _updateRoom(room, now);
+    return await _updateRoomUpdatedAt(room, now);
   }
 
-  Future<bool> _updateRoom(Room room, int now) async {
+  Future<bool> _updateRoomUpdatedAt(Room room, int now) async {
     final roomRef = instance.ref('rooms/${room.id}');
     final params = <String, dynamic>{};
     var roomCreatedAt = room.createdAt;
@@ -82,23 +83,37 @@ class Firedata {
       params['updatedAt'] = now;
     }
 
-    // TODO: If use this, we can keep updating `updatedAt` even if the room is closed.
-    // if (!room.isOpen) { // TODO: `&& room.closedAt == 0`
-    //   params['closedAt'] = DateTime.fromMillisecondsSinceEpoch(room.updatedAt)
-    //       .add(const Duration(seconds: 3600)); // For test: 360
-    // }
-
-    // Just a hack to convert int to sortable strings.
     final languageCode = room.languageCode;
-    final timeElapsed =
-        DateTime.fromMillisecondsSinceEpoch(now - roomCreatedAt, isUtc: true)
-            .toIso8601String();
+    final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
+      now - roomCreatedAt,
+      isUtc: true,
+    ).toIso8601String();
 
     params['filter'] = '$languageCode-$timeElapsed';
 
     await roomRef.update(params);
 
     return roomIsOpen;
+  }
+
+  Future<void> _updateRoomAccessedAt(Room room, int now) async {
+    if (!room.isActive) return;
+
+    final roomRef = instance.ref('rooms/${room.id}');
+    final params = <String, dynamic>{};
+    final roomCreatedAt = room.createdAt;
+
+    params['accessedAt'] = now;
+
+    final languageCode = room.languageCode;
+    final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
+      now - roomCreatedAt,
+      isUtc: true,
+    ).toIso8601String();
+
+    params['filter'] = '$languageCode-$timeElapsed';
+
+    await roomRef.update(params);
   }
 
   Stream<Room> subscribeToRoom(String roomId) {

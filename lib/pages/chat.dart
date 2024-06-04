@@ -53,6 +53,8 @@ class _ChatPageState extends State<ChatPage> {
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
+    firedata.updateRoomAccessedAt(widget.room, firedata.now());
+
     _room = widget.room;
     _messages = [];
 

@@ -64,10 +64,10 @@ class Firedata {
 
     await messageRef.set(message.toJson());
 
-    return await _updateRoomUpdatedAt(room, now);
+    return await updateRoomUpdatedAt(room, now);
   }
 
-  Future<bool> _updateRoomUpdatedAt(Room room, int now) async {
+  Future<bool> updateRoomUpdatedAt(Room room, int now) async {
     final roomRef = instance.ref('rooms/${room.id}');
     final params = <String, dynamic>{};
     var roomCreatedAt = room.createdAt;
@@ -95,7 +95,7 @@ class Firedata {
     return roomIsOpen;
   }
 
-  Future<void> _updateRoomAccessedAt(Room room, int now) async {
+  Future<void> updateRoomAccessedAt(Room room, int now) async {
     if (!room.isActive) return;
 
     final roomRef = instance.ref('rooms/${room.id}');

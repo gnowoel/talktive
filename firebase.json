@@ -1,1 +1,58 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"talktive3-58486","appId":"1:466457538668:android:0a83323b2975233101e849","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"talktive3-58486","appId":"1:466457538668:ios:83d1747e360adf4001e849","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"talktive3-58486","appId":"1:466457538668:ios:83d1747e360adf4001e849","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"talktive3-58486","configurations":{"android":"1:466457538668:android:0a83323b2975233101e849","ios":"1:466457538668:ios:83d1747e360adf4001e849","macos":"1:466457538668:ios:83d1747e360adf4001e849","web":"1:466457538668:web:1977c3b4af68aeaf01e849","windows":"1:466457538668:web:2f049bb88325708501e849"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "talktive3-58486",
+          "appId": "1:466457538668:android:0a83323b2975233101e849",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "talktive3-58486",
+          "appId": "1:466457538668:ios:83d1747e360adf4001e849",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "talktive3-58486",
+          "appId": "1:466457538668:ios:83d1747e360adf4001e849",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "talktive3-58486",
+          "configurations": {
+            "android": "1:466457538668:android:0a83323b2975233101e849",
+            "ios": "1:466457538668:ios:83d1747e360adf4001e849",
+            "macos": "1:466457538668:ios:83d1747e360adf4001e849",
+            "web": "1:466457538668:web:1977c3b4af68aeaf01e849",
+            "windows": "1:466457538668:web:2f049bb88325708501e849"
+          }
+        }
+      }
+    }
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "emulators": {
+    "auth": {
+      "host": "0.0.0.0",
+      "port": 9099
+    },
+    "database": {
+      "host": "0.0.0.0",
+      "port": 9000
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  }
+}

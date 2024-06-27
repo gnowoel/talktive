@@ -34,18 +34,27 @@
 
   <title>Talktive</title>
   <link rel="manifest" href="manifest.json">
-  <style>
+  <style type="text/css">
     .centered {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
     }
+    .loader {
+      width: 50px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 8px solid lightblue;
+      border-right-color: orange;
+      animation: l2 1s infinite linear;
+    }
+    @keyframes l2 {to{transform: rotate(1turn)}}
   </style>
 </head>
 <body>
   <div class="centered">
-    <img src="/icons/Icon-192.png" alt="Talktive" width="192" height="192">
+    <div class="loader"></div>
   </div>
   <script src="flutter_bootstrap.js" async></script>
 </body>

@@ -6,6 +6,7 @@ import 'services/avatar.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
 import 'services/history.dart';
+import 'theme.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -22,7 +23,7 @@ class App extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Talktive',
-        theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+        theme: theme,
         home: const SelectionArea(
           child: Home(),
         ),

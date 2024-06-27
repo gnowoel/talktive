@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
           } else if (!snapshot.hasData) {
             return const EmptyPage(
               hasAppBar: false,
-              child: CircularProgressIndicator(),
+              child: SizedBox(), // CircularProgressIndicator()
             );
           } else {
             return const UserPage();

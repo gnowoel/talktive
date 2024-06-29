@@ -14,18 +14,28 @@ class Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor =
-        byMe ? Colors.green[200] : (byOp ? Colors.amber[50] : Colors.white);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final containerColor = byMe
+        ? colorScheme.primaryContainer
+        : (byOp
+            ? colorScheme.tertiaryContainer
+            : colorScheme.surfaceContainerHigh);
+
+    final textColor = byMe
+        ? colorScheme.onPrimaryContainer
+        : (byOp ? colorScheme.onTertiaryContainer : colorScheme.onSurface);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: backgroundColor,
+        color: containerColor,
       ),
       child: Text(
         content,
-        style: const TextStyle(fontSize: 16),
+        style: TextStyle(fontSize: 16, color: textColor),
       ),
     );
   }

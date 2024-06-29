@@ -28,6 +28,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  late ThemeData theme;
   late FocusNode focusNode;
   late ScrollController scrollController;
   late Firedata firedata;
@@ -76,6 +77,12 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
+  }
+
   void _updateScrollOffset(double position) {
     scrollOffset = position;
   }
@@ -104,9 +111,10 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         title: Text(_room.userName),
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
         actions: [
           Health(roomUpdatedAt: _room.updatedAt),
           const SizedBox(width: 16),
@@ -126,7 +134,7 @@ class _ChatPageState extends State<ChatPage> {
           child: Container(
             margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: theme.colorScheme.surface,
               borderRadius: const BorderRadius.all(
                 Radius.circular(24),
               ),
@@ -139,7 +147,7 @@ class _ChatPageState extends State<ChatPage> {
       } else {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: theme.colorScheme.surface,
           ),
           child: _buildColumn(),
         );

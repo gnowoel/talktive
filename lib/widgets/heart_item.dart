@@ -14,7 +14,7 @@ class HeartItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Icon(
       icon,
-      color: color ?? Colors.pink.shade400,
+      color: color ?? Colors.pinkAccent,
       size: 20,
     );
   }

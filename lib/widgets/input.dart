@@ -21,6 +21,7 @@ class Input extends StatefulWidget {
 }
 
 class _InputState extends State<Input> {
+  late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
@@ -38,6 +39,7 @@ class _InputState extends State<Input> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    theme = Theme.of(context);
     avatar = Provider.of<Avatar>(context);
   }
 
@@ -94,11 +96,11 @@ class _InputState extends State<Input> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(24, 8, 4, 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surfaceContainerLow,
           borderRadius: const BorderRadius.all(
             Radius.circular(32),
           ),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
         ),
         child: Row(
           children: [
@@ -108,9 +110,9 @@ class _InputState extends State<Input> {
                 minLines: 1,
                 maxLines: 12,
                 controller: _controller,
-                decoration: const InputDecoration.collapsed(
+                decoration: InputDecoration.collapsed(
                   hintText: 'Enter message',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: TextStyle(color: theme.colorScheme.outline),
                 ),
               ),
             ),
@@ -118,7 +120,7 @@ class _InputState extends State<Input> {
               onPressed: _isLocked ? null : _sendMessage,
               icon: Icon(
                 Icons.send,
-                color: Theme.of(context).primaryColor,
+                color: theme.colorScheme.primary,
               ),
             ),
           ],

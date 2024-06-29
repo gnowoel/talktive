@@ -14,15 +14,13 @@ class Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final containerColor = byMe
         ? colorScheme.primaryContainer
         : (byOp
             ? colorScheme.tertiaryContainer
             : colorScheme.surfaceContainerHigh);
-
     final textColor = byMe
         ? colorScheme.onPrimaryContainer
         : (byOp ? colorScheme.onTertiaryContainer : colorScheme.onSurface);

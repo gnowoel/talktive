@@ -25,7 +25,7 @@ class Info extends StatelessWidget {
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
-        color: theme.colorScheme.surfaceDim,
+        color: theme.colorScheme.outline,
       ),
     );
   }

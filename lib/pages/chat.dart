@@ -138,7 +138,7 @@ class _ChatPageState extends State<ChatPage> {
               borderRadius: const BorderRadius.all(
                 Radius.circular(24),
               ),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: theme.colorScheme.secondaryContainer),
             ),
             constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
             child: _buildColumn(),

@@ -10,20 +10,22 @@ class Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: lines.map((line) => _buildLine(line)).toList(),
+      children: lines.map((line) => _buildLine(theme, line)).toList(),
     );
   }
 
-  Widget _buildLine(line) {
+  Widget _buildLine(ThemeData theme, String line) {
     return Text(
       line,
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
-        color: Colors.grey[400],
+        color: theme.colorScheme.surfaceDim,
       ),
     );
   }

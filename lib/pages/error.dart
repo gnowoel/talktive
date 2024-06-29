@@ -16,14 +16,29 @@ class ErrorPage extends StatefulWidget {
 }
 
 class _ErrorPageState extends State<ErrorPage> {
+  late ThemeData theme;
+
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    theme = Theme.of(context);
+
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(widget.message),
+          backgroundColor: theme.colorScheme.errorContainer,
+          content: Text(
+            widget.message,
+            style: TextStyle(
+              color: theme.colorScheme.onErrorContainer,
+            ),
+          ),
         ),
       );
     });
@@ -32,6 +47,7 @@ class _ErrorPageState extends State<ErrorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
       body: SafeArea(
         child: Center(
           child: Column(

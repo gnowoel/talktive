@@ -35,10 +35,6 @@
   <title>Talktive</title>
   <link rel="manifest" href="manifest.json">
   <style type="text/css">
-    body {
-      background-color: #f3f4e9;
-    }
-
     .centered {
       position: fixed;
       top: 50%;
@@ -46,15 +42,37 @@
       transform: translate(-50%, -50%);
     }
 
-    .loader {
-      width: 50px;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: 8px solid #b1d18a;
-      border-right-color: #344e16;
-      animation: l2 1s infinite linear;
+    @media (prefers-color-scheme: light) {
+      body {
+        background-color: #f3f4e9;   /* light:surfaceContainerLow */
+      }
+
+      .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 8px solid #b1d18a;   /* light:inversePrimary */
+        border-right-color: #344e16; /* dark:primaryContainer */
+        animation: l2 1s infinite linear;
+      }
+      @keyframes l2 {to{transform: rotate(1turn)}}
     }
-    @keyframes l2 {to{transform: rotate(1turn)}}
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1a1c16;   /* dark:surfaceContainerLow */
+      }
+
+      .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 8px solid #4b662c;   /* dark:inversePrimary */
+        border-right-color: #cceda4; /* light:primaryContainer */
+        animation: l2 1s infinite linear;
+      }
+      @keyframes l2 {to{transform: rotate(1turn)}}
+    }
   </style>
 </head>
 <body>

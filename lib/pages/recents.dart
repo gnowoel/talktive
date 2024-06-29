@@ -27,11 +27,6 @@ class _RecentsPageState extends State<RecentsPage>
   void initState() {
     super.initState();
     history = Provider.of<History>(context, listen: false);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     records = history.recentRecords;
     ticker = createTicker((_) {
       final now = DateTime.fromMillisecondsSinceEpoch(Firedata().now());

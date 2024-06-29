@@ -48,12 +48,14 @@ class _RecentsPageState extends State<RecentsPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     const lines = ['Your recent chats', 'will appear here.', ''];
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('Recents'),
-        backgroundColor: Colors.white,
       ),
       body: SafeArea(
         child: records.isEmpty
@@ -66,17 +68,18 @@ class _RecentsPageState extends State<RecentsPage>
   LayoutBuilder _buildLayout() {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final theme = Theme.of(context);
         if (constraints.maxWidth >= 600) {
           return Align(
             alignment: Alignment.center,
             child: Container(
               margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: theme.colorScheme.surface,
                 borderRadius: const BorderRadius.all(
                   Radius.circular(24),
                 ),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
               child: RecordList(records: records),
@@ -85,7 +88,7 @@ class _RecentsPageState extends State<RecentsPage>
         } else {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: theme.colorScheme.surface,
             ),
             child: RecordList(records: records),
           );

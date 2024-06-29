@@ -113,8 +113,8 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
-        title: Text(_room.userName),
         backgroundColor: theme.colorScheme.surfaceContainerLow,
+        title: Text(_room.userName),
         actions: [
           Health(roomUpdatedAt: _room.updatedAt),
           const SizedBox(width: 16),

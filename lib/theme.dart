@@ -5,7 +5,7 @@ ThemeData getTheme(BuildContext context) {
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       brightness: MediaQuery.platformBrightnessOf(context),
-      seedColor: Colors.lightGreen.shade400,
+      seedColor: Colors.lightGreen,
     ),
   );
 }

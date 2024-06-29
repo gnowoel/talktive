@@ -12,8 +12,13 @@ class EmptyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: hasAppBar ? AppBar(backgroundColor: Colors.white) : null,
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      appBar: hasAppBar
+          ? AppBar(backgroundColor: theme.colorScheme.surfaceContainerLow)
+          : null,
       body: SafeArea(
         child: Center(
           child: child,

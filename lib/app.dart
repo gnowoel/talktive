@@ -23,7 +23,7 @@ class App extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Talktive',
-        theme: theme,
+        theme: getTheme(context),
         home: const SelectionArea(
           child: Home(),
         ),

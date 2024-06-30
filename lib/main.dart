@@ -15,18 +15,18 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (kDebugMode) {
-    final host = defaultTargetPlatform == TargetPlatform.android
-        ? '10.0.2.2'
-        : 'localhost';
+  // if (kDebugMode) {
+  //   final host = defaultTargetPlatform == TargetPlatform.android
+  //       ? '10.0.2.2'
+  //       : 'localhost';
 
-    try {
-      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
-      FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
+  //   try {
+  //     await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+  //     FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   }
+  // }
 
   await History().loadRecords();
   Firedata().syncTime();

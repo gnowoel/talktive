@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <!--
+  <head>
+    <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
 
@@ -14,71 +14,81 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="$FLUTTER_BASE_HREF">
+    <base href="$FLUTTER_BASE_HREF" />
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Group Chat with Strangers">
+    <meta charset="UTF-8" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+    <meta name="description" content="Group Chat with Strangers" />
 
-  <!-- Added by me -->
-  <meta name="theme-color" content="#FFFFFF"/>
+    <!-- Added by me -->
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#f3f4e9"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#1a1c16"
+    />
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Talktive">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Talktive" />
+    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
 
-  <!-- Favicon -->
-  <link rel="shortcut icon" href="favicon.ico"/>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico" />
 
-  <title>Talktive</title>
-  <link rel="manifest" href="manifest.json">
-  <style type="text/css">
-    .centered {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+    <title>Talktive</title>
+    <link rel="manifest" href="manifest.json" />
+    <style type="text/css">
+      .centered {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
 
-    @media (prefers-color-scheme: light) {
       body {
-        background-color: #f3f4e9;   /* light:surfaceContainerLow */
+        background-color: #f3f4e9; /* light:surfaceContainerLow */
       }
 
       .loader {
         width: 50px;
         aspect-ratio: 1;
         border-radius: 50%;
-        border: 8px solid #b1d18a;   /* light:inversePrimary */
+        border: 8px solid #b1d18a; /* light:inversePrimary */
         border-right-color: #344e16; /* dark:primaryContainer */
         animation: l2 1s infinite linear;
       }
-      @keyframes l2 {to{transform: rotate(1turn)}}
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #1a1c16;   /* dark:surfaceContainerLow */
+      @keyframes l2 {
+        to {
+          transform: rotate(1turn);
+        }
       }
 
-      .loader {
-        width: 50px;
-        aspect-ratio: 1;
-        border-radius: 50%;
-        border: 8px solid #4b662c;   /* dark:inversePrimary */
-        border-right-color: #cceda4; /* light:primaryContainer */
-        animation: l2 1s infinite linear;
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #1a1c16; /* dark:surfaceContainerLow */
+        }
+
+        .loader {
+          width: 50px;
+          aspect-ratio: 1;
+          border-radius: 50%;
+          border: 8px solid #4b662c; /* dark:inversePrimary */
+          border-right-color: #cceda4; /* light:primaryContainer */
+          animation: l2 1s infinite linear;
+        }
       }
-      @keyframes l2 {to{transform: rotate(1turn)}}
-    }
-  </style>
-</head>
-<body>
-  <div class="centered">
-    <div class="loader"></div>
-  </div>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+    </style>
+  </head>
+  <body>
+    <div class="centered">
+      <div class="loader"></div>
+    </div>
+    <script src="flutter_bootstrap.js" async></script>
+  </body>
 </html>

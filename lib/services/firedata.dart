@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/message.dart';
 import '../models/room.dart';
@@ -158,7 +159,7 @@ class Firedata {
     final rooms = <Room>[];
     final expired = <Room>[];
     var startAt = '$languageCode-0000';
-    var limit = 16; // For test: 2
+    var limit = kDebugMode ? 2 : 16;
     var next = true;
 
     // TODO: Limit the number of retries

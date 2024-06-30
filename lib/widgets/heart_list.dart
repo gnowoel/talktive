@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'heart_item.dart';
@@ -20,19 +21,18 @@ class HeartList extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> children;
 
-    // For test: 1, 2, 3, 4, 5, 6
     switch (elapsed.inMinutes) {
-      case < 10:
+      case < (kDebugMode ? 1 : 10):
         children = [_full, _full, _full];
-      case < 20:
+      case < (kDebugMode ? 2 : 20):
         children = [_half, _full, _full];
-      case < 30:
+      case < (kDebugMode ? 3 : 30):
         children = [_empty, _full, _full];
-      case < 40:
+      case < (kDebugMode ? 4 : 40):
         children = [_empty, _half, _full];
-      case < 50:
+      case < (kDebugMode ? 5 : 50):
         children = [_empty, _empty, _full];
-      case < 60:
+      case < (kDebugMode ? 6 : 60):
         children = [_empty, _empty, _half];
       default:
         children = [_grey, _grey, _grey];

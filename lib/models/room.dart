@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../services/firedata.dart';
 import 'record.dart';
 
@@ -93,7 +95,7 @@ class Room {
     final firedata = Firedata();
     final now = DateTime.fromMillisecondsSinceEpoch(firedata.now());
     final then = DateTime.fromMillisecondsSinceEpoch(updatedAt);
-    return now.difference(then).inSeconds < 3600; // For test: 360
+    return now.difference(then).inSeconds < (kDebugMode ? 360 : 3600);
   }
 }
 

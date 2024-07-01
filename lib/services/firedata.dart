@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
+import '../models/expire.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 
@@ -65,6 +66,16 @@ class Firedata {
     );
 
     await messageRef.set(message.toJson());
+  }
+
+  Future<void> createExpire(String roomId) async {
+    final expireRef = instance.ref('expires').push();
+
+    final expire = Expire(
+      roomId: roomId,
+    );
+
+    await expireRef.set(expire.toJson());
   }
 
   Future<void> updateRoomAccessedAt(Room room, int now) async {
@@ -204,14 +215,9 @@ class Firedata {
   }
 
   Future<void> _markClosed(List<Room> rooms) async {
-    final ref = instance.ref('rooms');
-    final params = <String, dynamic>{};
-
     for (final room in rooms) {
-      params['${room.id}/filter'] = '${room.languageCode}-zzzz';
+      await createExpire(room.id);
     }
-
-    await ref.update(params);
   }
 
   Future<void> syncTime() async {

@@ -19,9 +19,9 @@ exports.updateRoomUpdatedAt = onValueCreated(
       .then((snapshot) => {
         if (!snapshot.exists()) return;
 
-        var room = snapshot.val();
-        var roomLanguageCode = room.languageCode;
-        var params = {};
+        const room = snapshot.val();
+        const roomLanguageCode = room.languageCode;
+        const params = {};
 
         params.updatedAt = message.createdAt;
 
@@ -44,6 +44,39 @@ exports.updateRoomUpdatedAt = onValueCreated(
       });
   },
 );
+
+exports.markRoomExpired = onValueCreated("/expires/*", (event) => {
+  const expire = event.data.val();
+  const roomId = expire.roomId;
+
+  const db = admin.database();
+  const expireRef = db.ref(event.ref);
+  const roomRef = db.ref(`rooms/${roomId}`);
+
+  logger.info(event);
+
+  roomRef
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.exists()) return;
+
+      const room = snapshot.val();
+      const filter = `${room.languageCode}-zzzz`;
+      const params = {};
+
+      if (room.filter !== filter) {
+        params.filter = filter;
+      }
+
+      roomRef.update(params);
+    })
+    .then(() => {
+      expireRef.remove();
+    })
+    .catch((error) => {
+      logger.error(error);
+    });
+});
 
 function isRoomNew(room) {
   return room.updatedAt == 0;

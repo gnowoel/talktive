@@ -18,7 +18,7 @@ class Firedata {
 
   int _clockSkew = 0;
 
-  int now() {
+  int serverNow() {
     return DateTime.now().millisecondsSinceEpoch + _clockSkew;
   }
 
@@ -55,7 +55,7 @@ class Firedata {
     String content,
   ) async {
     final messageRef = instance.ref('messages/${room.id}').push();
-    final now = this.now();
+    final now = serverNow();
 
     final message = Message(
       userId: userId,

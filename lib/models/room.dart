@@ -101,7 +101,7 @@ class Room {
 
   bool get isOld {
     final firedata = Firedata();
-    return closedAt > 0 && closedAt < firedata.now();
+    return closedAt > 0 && closedAt < firedata.serverNow();
   }
 }
 

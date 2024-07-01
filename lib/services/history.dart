@@ -37,7 +37,7 @@ class History {
       roomUserId: room.userId,
       roomUserName: room.userName,
       roomUserCode: room.userCode,
-      createdAt: Firedata().now(),
+      createdAt: Firedata().serverNow(),
       messageCount: messageCount,
       scrollOffset: scrollOffset,
     );
@@ -60,7 +60,7 @@ class History {
   }
 
   bool _isValid(Record record) {
-    final now = DateTime.fromMillisecondsSinceEpoch(Firedata().now());
+    final now = DateTime.fromMillisecondsSinceEpoch(Firedata().serverNow());
     final oneDayAgo = now.subtract(const Duration(days: 1));
     final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
     return !createdAt.isBefore(oneDayAgo);

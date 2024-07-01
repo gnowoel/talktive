@@ -11,6 +11,7 @@ class Room {
   final String languageCode;
   final int createdAt;
   final int updatedAt;
+  final int closedAt;
   final int accessedAt;
   final String filter;
 
@@ -22,6 +23,7 @@ class Room {
     required this.languageCode,
     required this.createdAt,
     required this.updatedAt,
+    required this.closedAt,
     required this.accessedAt,
     required this.filter,
   });
@@ -35,6 +37,7 @@ class Room {
       'languageCode': languageCode,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'closedAt': closedAt,
       'accessedAt': accessedAt,
       'filter': filter,
     };
@@ -49,6 +52,7 @@ class Room {
       languageCode: json['languageCode'] as String,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
+      closedAt: json['closedAt'] as int,
       accessedAt: json['accessedAt'] as int,
       filter: json['filter'] as String,
     );
@@ -66,6 +70,7 @@ class Room {
       languageCode: value.languageCode,
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
+      closedAt: value.closedAt,
       accessedAt: value.accessedAt,
       filter: value.filter,
     );
@@ -80,6 +85,7 @@ class Room {
       languageCode: '',
       createdAt: 0,
       updatedAt: 0,
+      closedAt: 0,
       accessedAt: 0,
       filter: '-zzzz',
     );
@@ -106,6 +112,7 @@ class RoomStub {
   final String languageCode;
   final int createdAt;
   final int updatedAt;
+  final int closedAt;
   final int accessedAt;
   final String filter;
 
@@ -116,6 +123,7 @@ class RoomStub {
     required this.languageCode,
     required this.createdAt,
     required this.updatedAt,
+    required this.closedAt,
     required this.accessedAt,
     required this.filter,
   });
@@ -128,6 +136,7 @@ class RoomStub {
       'languageCode': languageCode,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'closedAt': closedAt,
       'accessedAt': accessedAt,
       'filter': filter,
     };
@@ -141,6 +150,7 @@ class RoomStub {
       languageCode: json['languageCode'] as String,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
+      closedAt: json['closedAt'] as int,
       accessedAt: json['accessedAt'] as int,
       filter: json['filter'] as String,
     );

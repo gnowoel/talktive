@@ -32,10 +32,9 @@ class Firedata {
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      // createdAt: now(),
       createdAt: 0,
       updatedAt: 0,
-      // closedAt: 0, // TODO
+      closedAt: 0,
       accessedAt: 0,
       filter: '$languageCode-zzzz',
     );

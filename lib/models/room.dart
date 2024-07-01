@@ -85,13 +85,13 @@ class Room {
     );
   }
 
-  bool get isOpen {
-    return isNew || isActive;
+  bool get isNewOrOpen {
+    return isNew || isOpen;
   }
 
   bool get isNew => updatedAt == 0; // createdAt > updatedAt;
 
-  bool get isActive {
+  bool get isOpen {
     final firedata = Firedata();
     final now = DateTime.fromMillisecondsSinceEpoch(firedata.now());
     final then = DateTime.fromMillisecondsSinceEpoch(updatedAt);

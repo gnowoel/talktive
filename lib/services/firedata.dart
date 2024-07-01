@@ -32,7 +32,8 @@ class Firedata {
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      createdAt: now(),
+      // createdAt: now(),
+      createdAt: 0,
       updatedAt: 0,
       accessedAt: 0,
       filter: '$languageCode-zzzz',
@@ -72,15 +73,15 @@ class Firedata {
     final roomRef = instance.ref('rooms/${room.id}');
     final params = <String, dynamic>{};
     var roomCreatedAt = room.createdAt;
-    var roomIsOpen = false;
+    var roomIsNewOrOpen = false;
 
     if (room.isNew) {
       roomCreatedAt = now;
       params['createdAt'] = roomCreatedAt;
     }
 
-    if (room.isOpen) {
-      roomIsOpen = true;
+    if (room.isNewOrOpen) {
+      roomIsNewOrOpen = true;
       params['updatedAt'] = now;
     }
 
@@ -93,7 +94,7 @@ class Firedata {
 
     await roomRef.update(params);
 
-    return roomIsOpen;
+    return roomIsNewOrOpen;
   }
 
   Future<void> updateRoomAccessedAt(Room room, int now) async {
@@ -101,11 +102,11 @@ class Firedata {
     final params = <String, dynamic>{};
     final roomCreatedAt = room.createdAt;
 
-    if (room.isOpen) {
+    if (room.isNewOrOpen) {
       params['accessedAt'] = now;
     }
 
-    if (room.isActive) {
+    if (room.isOpen) {
       final languageCode = room.languageCode;
       final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
         now - roomCreatedAt,
@@ -175,7 +176,7 @@ class Firedata {
       rooms.clear();
 
       for (final room in result) {
-        if (!room.isActive) {
+        if (!room.isOpen) {
           expired.add(room);
         } else if (!recentRoomIds.contains(room.id)) {
           rooms.add(room);

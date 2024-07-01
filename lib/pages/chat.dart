@@ -55,8 +55,10 @@ class _ChatPageState extends State<ChatPage> {
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
-    // History record won't trigger the update, since the timestamps are missing
-    firedata.updateRoomAccessedAt(widget.room, firedata.serverNow());
+    // History records shouldn't trigger the action
+    if (!widget.room.isNew && !widget.room.isFromRecord) {
+      firedata.createAccess(widget.room.id);
+    }
 
     _room = widget.room;
     _messages = [];
@@ -65,7 +67,7 @@ class _ChatPageState extends State<ChatPage> {
 
     roomSubscription = firedata.subscribeToRoom(widget.room.id).listen((room) {
       // if (oneShot) {
-      //   firedata.updateRoomAccessedAt(room, firedata.serverNow());
+      //   firedata.createAccess(widget.room.id);
       //   oneShot = false;
       // }
       setState(() => _room = room);

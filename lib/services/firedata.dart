@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
+import '../models/access.dart';
 import '../models/expire.dart';
 import '../models/message.dart';
 import '../models/room.dart';
@@ -20,6 +21,15 @@ class Firedata {
 
   int serverNow() {
     return DateTime.now().millisecondsSinceEpoch + _clockSkew;
+  }
+
+  Future<void> syncTime() async {
+    final ref = FirebaseDatabase.instance.ref(".info/serverTimeOffset");
+
+    ref.onValue.listen((event) {
+      final offset = event.snapshot.value as num? ?? 0.0;
+      _clockSkew = offset.toInt();
+    });
   }
 
   Future<Room> createRoom(
@@ -68,35 +78,12 @@ class Firedata {
     await messageRef.set(message.toJson());
   }
 
-  Future<void> createExpire(String roomId) async {
-    final expireRef = instance.ref('expires').push();
+  Future<void> createAccess(String roomId) async {
+    final accessRef = instance.ref('accesses').push();
 
-    final expire = Expire(
-      roomId: roomId,
-    );
+    final access = Access(roomId: roomId);
 
-    await expireRef.set(expire.toJson());
-  }
-
-  Future<void> updateRoomAccessedAt(Room room, int now) async {
-    final roomRef = instance.ref('rooms/${room.id}');
-    final params = <String, dynamic>{};
-    final roomCreatedAt = room.createdAt;
-
-    if (room.isNewOrOpen) {
-      params['accessedAt'] = now;
-    }
-
-    if (room.isOpen) {
-      final languageCode = room.languageCode;
-      final timeElapsed = DateTime.fromMillisecondsSinceEpoch(
-        now - roomCreatedAt,
-        isUtc: true,
-      ).toIso8601String();
-      params['filter'] = '$languageCode-$timeElapsed';
-    }
-
-    await roomRef.update(params);
+    await accessRef.set(access.toJson());
   }
 
   Stream<Room> subscribeToRoom(String roomId) {
@@ -216,16 +203,17 @@ class Firedata {
 
   Future<void> _markClosed(List<Room> rooms) async {
     for (final room in rooms) {
-      await createExpire(room.id);
+      await _createExpire(room.id);
     }
   }
 
-  Future<void> syncTime() async {
-    final ref = FirebaseDatabase.instance.ref(".info/serverTimeOffset");
+  Future<void> _createExpire(String roomId) async {
+    final expireRef = instance.ref('expires').push();
 
-    ref.onValue.listen((event) {
-      final offset = event.snapshot.value as num? ?? 0.0;
-      _clockSkew = offset.toInt();
-    });
+    final expire = Expire(
+      roomId: roomId,
+    );
+
+    await expireRef.set(expire.toJson());
   }
 }

@@ -103,6 +103,8 @@ class Room {
     final firedata = Firedata();
     return closedAt > 0 && closedAt < firedata.serverNow();
   }
+
+  bool get isFromRecord => filter == '-zzzz';
 }
 
 class RoomStub {

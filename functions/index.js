@@ -53,8 +53,6 @@ exports.markRoomExpired = onValueCreated("/expires/*", (event) => {
   const expireRef = db.ref(event.ref);
   const roomRef = db.ref(`rooms/${roomId}`);
 
-  logger.info(event);
-
   roomRef
     .get()
     .then((snapshot) => {
@@ -72,6 +70,37 @@ exports.markRoomExpired = onValueCreated("/expires/*", (event) => {
     })
     .then(() => {
       expireRef.remove();
+    })
+    .catch((error) => {
+      logger.error(error);
+    });
+});
+
+exports.updateRoomFilter = onValueCreated("/accesses/*", (event) => {
+  const access = event.data.val();
+  const roomId = access.roomId;
+
+  const db = admin.database();
+  const accessRef = db.ref(event.ref);
+  const roomRef = db.ref(`rooms/${roomId}`);
+
+  roomRef
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.exists()) return;
+
+      const room = snapshot.val();
+      const now = new Date().getTime();
+      const diff = now - room.createdAt;
+      const timeElapsed =
+        diff < 0 ? new Date(0).toJSON() : new Date(diff).toJSON();
+
+      roomRef.update({
+        filter: `${room.languageCode}-${timeElapsed}`,
+      });
+    })
+    .then(() => {
+      accessRef.remove();
     })
     .catch((error) => {
       logger.error(error);

@@ -35,6 +35,7 @@ class Firedata {
       // createdAt: now(),
       createdAt: 0,
       updatedAt: 0,
+      // closedAt: 0, // TODO
       accessedAt: 0,
       filter: '$languageCode-zzzz',
     );
@@ -46,7 +47,7 @@ class Firedata {
     return Room.fromStub(key: ref.key!, value: roomValue);
   }
 
-  Future<bool> sendMessage(
+  Future<void> sendMessage(
     Room room,
     String userId,
     String userName,
@@ -65,36 +66,6 @@ class Firedata {
     );
 
     await messageRef.set(message.toJson());
-
-    return await updateRoomUpdatedAt(room, now);
-  }
-
-  Future<bool> updateRoomUpdatedAt(Room room, int now) async {
-    final roomRef = instance.ref('rooms/${room.id}');
-    final params = <String, dynamic>{};
-    var roomCreatedAt = room.createdAt;
-    var roomIsNewOrOpen = false;
-
-    if (room.isNew) {
-      roomCreatedAt = now;
-      params['createdAt'] = roomCreatedAt;
-    }
-
-    if (room.isNewOrOpen) {
-      roomIsNewOrOpen = true;
-      params['updatedAt'] = now;
-    }
-
-    if (room.isNew) {
-      final languageCode = room.languageCode;
-      final timeElapsed =
-          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true).toIso8601String();
-      params['filter'] = '$languageCode-$timeElapsed';
-    }
-
-    await roomRef.update(params);
-
-    return roomIsNewOrOpen;
   }
 
   Future<void> updateRoomAccessedAt(Room room, int now) async {

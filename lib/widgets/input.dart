@@ -58,13 +58,15 @@ class _InputState extends State<Input> {
         return;
       }
 
-      final isRoomOpen = await firedata.sendMessage(
+      await firedata.sendMessage(
         room,
         userId,
         userName,
         userCode,
         content,
       );
+
+      const isRoomOpen = true; // TODO
 
       _controller.clear();
 

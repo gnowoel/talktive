@@ -116,7 +116,7 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: Text(_room.userName),
         actions: [
-          Health(roomUpdatedAt: _room.updatedAt),
+          Health(room: _room),
           const SizedBox(width: 16),
         ],
       ),

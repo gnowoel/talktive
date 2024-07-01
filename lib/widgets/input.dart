@@ -66,14 +66,9 @@ class _InputState extends State<Input> {
         content,
       );
 
-      const isRoomOpen = true; // TODO
-
       _controller.clear();
 
-      // Race conditions may arise when someone extends the room's lifespan just
-      // before you close it, but it will not have serious consequences for our
-      // application.
-      if (mounted && !isRoomOpen) {
+      if (mounted && widget.room.isOld) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('The room has been closed.')),
         );

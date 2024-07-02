@@ -20,18 +20,23 @@ exports.updateRoomUpdatedAt = onValueCreated(
         if (!snapshot.exists()) return;
 
         const room = snapshot.val();
-        const roomLanguageCode = room.languageCode;
+        const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
+        const filterZ = `${room.languageCode}-zzzz`;
         const params = {};
 
         params.updatedAt = message.createdAt;
 
         if (isRoomNew(room)) {
           params.createdAt = message.createdAt;
-          params.filter = `${roomLanguageCode}-1970-01-01T00:00:00.000Z`;
+          params.filter = filter0;
         }
 
         if (!isRoomOld(room, message)) {
           params.closedAt = message.createdAt + 360 * 1000; // TODO: 3600 * 1000
+        } else {
+          if (room.filter !== filterZ) {
+            params.filter = filterZ;
+          }
         }
 
         return params;
@@ -59,11 +64,11 @@ exports.markRoomExpired = onValueCreated("/expires/*", (event) => {
       if (!snapshot.exists()) return;
 
       const room = snapshot.val();
-      const filter = `${room.languageCode}-zzzz`;
+      const filterZ = `${room.languageCode}-zzzz`;
       const params = {};
 
-      if (room.filter !== filter) {
-        params.filter = filter;
+      if (room.filter !== filterZ) {
+        params.filter = filterZ;
       }
 
       roomRef.update(params);
@@ -92,8 +97,7 @@ exports.updateRoomFilter = onValueCreated("/accesses/*", (event) => {
       const room = snapshot.val();
       const now = new Date().getTime();
       const diff = now - room.createdAt;
-      const timeElapsed =
-        diff < 0 ? new Date(0).toJSON() : new Date(diff).toJSON();
+      const timeElapsed = new Date(diff).toJSON();
 
       roomRef.update({
         filter: `${room.languageCode}-${timeElapsed}`,

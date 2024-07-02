@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
-import '../models/access.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 
@@ -79,10 +78,9 @@ class Firedata {
 
   Future<void> createAccess(String roomId) async {
     final accessRef = instance.ref('accesses').push();
+    final entry = {roomId: true};
 
-    final access = Access(roomId: roomId);
-
-    await accessRef.set(access.toJson());
+    await accessRef.set(entry);
   }
 
   Stream<Room> subscribeToRoom(String roomId) {

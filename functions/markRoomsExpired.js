@@ -9,32 +9,34 @@ const markRoomsExpired = onValueCreated("/expires/*", (event) => {
   let promise = Promise.resolve();
 
   Object.keys(collection).forEach((roomId) => {
-    promise = promise.then(() => {
-      const roomRef = db.ref(`rooms/${roomId}`);
+    promise = promise.then(() => markOneRoom(roomId));
+  });
 
-      return roomRef.get().then((snapshot) => {
-        if (!snapshot.exists()) return;
-
-        const room = snapshot.val();
-        const filterZ = `${room.languageCode}-zzzz`;
-        const params = {};
-
-        if (room.filter !== filterZ) {
-          params.filter = filterZ;
-        }
-
-        roomRef.update(params);
-      });
+  promise = promise
+    .then(() => {
+      expireRef.remove();
+    })
+    .catch((error) => {
+      logger.error(error);
     });
-  });
-
-  promise = promise.then(() => {
-    expireRef.remove();
-  });
-
-  promise = promise.catch((error) => {
-    logger.error(error);
-  });
 });
+
+function markOneRoom(roomId) {
+  const roomRef = db.ref(`rooms/${roomId}`);
+
+  return roomRef.get().then((snapshot) => {
+    if (!snapshot.exists()) return;
+
+    const room = snapshot.val();
+    const filterZ = `${room.languageCode}-zzzz`;
+    const params = {};
+
+    if (room.filter !== filterZ) {
+      params.filter = filterZ;
+    }
+
+    return roomRef.update(params);
+  });
+}
 
 module.exports = markRoomsExpired;

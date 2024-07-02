@@ -79,26 +79,19 @@ class Room {
       createdAt: 0,
       updatedAt: 0,
       closedAt: 0,
-      filter: '-zzzz',
+      filter: '-rrrr',
     );
   }
 
-  bool get isNewOrOpen {
-    return isNew || isOpen;
-  }
+  bool get isNewOrOpen => isNew || isOpen;
 
-  bool get isNew => updatedAt == 0;
+  bool get isNew => filter.endsWith('-aaaa');
 
-  bool get isOpen {
-    return !isNew && !isOld;
-  }
+  bool get isOpen => !isNew && !isOld;
 
-  bool get isOld {
-    final firedata = Firedata();
-    return closedAt > 0 && closedAt < firedata.serverNow();
-  }
+  bool get isOld => closedAt <= Firedata().serverNow();
 
-  bool get isFromRecord => filter == '-zzzz';
+  bool get isFromRecord => filter == '-rrrr';
 }
 
 class RoomStub {

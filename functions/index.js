@@ -108,9 +108,9 @@ exports.updateRoomFilter = onValueCreated("/accesses/*", (event) => {
 });
 
 function isRoomNew(room) {
-  return room.updatedAt == 0;
+  return room.filter.endsWith("-aaaa");
 }
 
 function isRoomOld(room, message) {
-  return room.closedAt > 0 && room.closedAt < message.createdAt;
+  return room.closed <= message.createdAt;
 }

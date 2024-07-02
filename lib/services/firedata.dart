@@ -38,15 +38,16 @@ class Firedata {
     String userCode,
     String languageCode,
   ) async {
+    final now = serverNow();
     final roomValue = RoomStub(
       userId: userId,
       userName: userName,
       userCode: userCode,
       languageCode: languageCode,
-      createdAt: 0,
-      updatedAt: 0,
-      closedAt: 0,
-      filter: '$languageCode-zzzz',
+      createdAt: now,
+      updatedAt: now,
+      closedAt: now + (kDebugMode ? 360 : 3600) * 1000,
+      filter: '$languageCode-aaaa',
     );
 
     final ref = instance.ref('rooms').push();

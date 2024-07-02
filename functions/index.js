@@ -112,5 +112,5 @@ function isRoomNew(room) {
 }
 
 function isRoomOld(room, message) {
-  return room.closed <= message.createdAt;
+  return room.filter.endsWith("-zzzz") || room.closedAt <= message.createdAt;
 }

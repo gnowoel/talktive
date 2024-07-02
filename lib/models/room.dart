@@ -89,7 +89,8 @@ class Room {
 
   bool get isOpen => !isNew && !isOld;
 
-  bool get isOld => closedAt <= Firedata().serverNow();
+  bool get isOld =>
+      filter.endsWith('-zzzz') || closedAt <= Firedata().serverNow();
 
   bool get isFromRecord => filter == '-rrrr';
 }

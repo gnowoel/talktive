@@ -68,7 +68,7 @@ class _InputState extends State<Input> {
 
       _controller.clear();
 
-      if (mounted && widget.room.isOld) {
+      if (mounted && widget.room.isClosed) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('The room has been closed.')),
         );

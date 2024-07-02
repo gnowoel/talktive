@@ -44,7 +44,9 @@ class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
   }
 
   Duration _getElapsed() {
-    if (!widget.room.isOpen) return const Duration(minutes: 60);
+    if (widget.room.isNew || widget.room.isClosed) {
+      return const Duration(minutes: 60);
+    }
 
     final now = DateTime.fromMillisecondsSinceEpoch(firedata.serverNow());
     final then = DateTime.fromMillisecondsSinceEpoch(widget.room.updatedAt);

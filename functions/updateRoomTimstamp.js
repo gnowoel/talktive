@@ -24,7 +24,7 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
         params.filter = filter0;
       }
 
-      if (!isRoomOld(room, message)) {
+      if (!isRoomClosed(room, message)) {
         params.closedAt = message.createdAt + 360 * 1000; // TODO: 3600 * 1000
       } else {
         if (room.filter !== filterZ) {
@@ -46,7 +46,7 @@ function isRoomNew(room) {
   return room.filter.endsWith("-aaaa");
 }
 
-function isRoomOld(room, message) {
+function isRoomClosed(room, message) {
   return room.filter.endsWith("-zzzz") || room.closedAt <= message.createdAt;
 }
 

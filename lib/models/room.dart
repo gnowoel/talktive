@@ -10,7 +10,6 @@ class Room {
   final int createdAt;
   final int updatedAt;
   final int closedAt;
-  final int accessedAt;
   final String filter;
 
   Room({
@@ -22,7 +21,6 @@ class Room {
     required this.createdAt,
     required this.updatedAt,
     required this.closedAt,
-    required this.accessedAt,
     required this.filter,
   });
 
@@ -36,7 +34,6 @@ class Room {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'closedAt': closedAt,
-      'accessedAt': accessedAt,
       'filter': filter,
     };
   }
@@ -51,7 +48,6 @@ class Room {
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
       closedAt: json['closedAt'] as int,
-      accessedAt: json['accessedAt'] as int,
       filter: json['filter'] as String,
     );
   }
@@ -69,7 +65,6 @@ class Room {
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
       closedAt: value.closedAt,
-      accessedAt: value.accessedAt,
       filter: value.filter,
     );
   }
@@ -84,7 +79,6 @@ class Room {
       createdAt: 0,
       updatedAt: 0,
       closedAt: 0,
-      accessedAt: 0,
       filter: '-zzzz',
     );
   }
@@ -115,7 +109,6 @@ class RoomStub {
   final int createdAt;
   final int updatedAt;
   final int closedAt;
-  final int accessedAt;
   final String filter;
 
   RoomStub({
@@ -126,7 +119,6 @@ class RoomStub {
     required this.createdAt,
     required this.updatedAt,
     required this.closedAt,
-    required this.accessedAt,
     required this.filter,
   });
 
@@ -139,7 +131,6 @@ class RoomStub {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'closedAt': closedAt,
-      'accessedAt': accessedAt,
       'filter': filter,
     };
   }
@@ -153,7 +144,6 @@ class RoomStub {
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
       closedAt: json['closedAt'] as int,
-      accessedAt: json['accessedAt'] as int,
       filter: json['filter'] as String,
     );
   }

@@ -46,7 +46,6 @@ class Firedata {
       createdAt: 0,
       updatedAt: 0,
       closedAt: 0,
-      accessedAt: 0,
       filter: '$languageCode-zzzz',
     );
 

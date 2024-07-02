@@ -83,14 +83,13 @@ class Room {
     );
   }
 
-  bool get isNewOrOpen => isNew || isOpen;
-
   bool get isNew => filter.endsWith('-aaaa');
 
   bool get isOpen => !isNew && !isOld;
 
-  bool get isOld =>
-      filter.endsWith('-zzzz') || closedAt <= Firedata().serverNow();
+  bool get isOld => isMarkedOld || closedAt <= Firedata().serverNow();
+
+  bool get isMarkedOld => filter.endsWith('-zzzz');
 
   bool get isFromRecord => filter == '-rrrr';
 }

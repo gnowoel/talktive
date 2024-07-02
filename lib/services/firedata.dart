@@ -144,8 +144,10 @@ class Firedata {
       rooms.clear();
 
       for (final room in result) {
-        if (!room.isOpen) {
-          expired.add(room);
+        if (room.isOld) {
+          if (!room.isMarkedOld) {
+            expired.add(room);
+          }
         } else if (!recentRoomIds.contains(room.id)) {
           rooms.add(room);
         }

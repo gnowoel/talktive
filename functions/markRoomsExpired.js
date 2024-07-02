@@ -2,7 +2,7 @@ const { onValueCreated } = require("firebase-functions/v2/database");
 const { logger } = require("firebase-functions");
 const { db } = require("./admin");
 
-const markRoomExpired = onValueCreated("/expires/*", (event) => {
+const markRoomsExpired = onValueCreated("/expires/*", (event) => {
   const collection = event.data.val();
   const expireRef = db.ref(event.ref);
 
@@ -37,4 +37,4 @@ const markRoomExpired = onValueCreated("/expires/*", (event) => {
   });
 });
 
-module.exports = markRoomExpired;
+module.exports = markRoomsExpired;

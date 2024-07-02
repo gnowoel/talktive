@@ -3,32 +3,38 @@ const { logger } = require("firebase-functions");
 const { db } = require("./admin");
 
 const markRoomExpired = onValueCreated("/expires/*", (event) => {
-  const expire = event.data.val();
-  const roomId = expire.roomId;
+  const collection = event.data.val();
   const expireRef = db.ref(event.ref);
-  const roomRef = db.ref(`rooms/${roomId}`);
 
-  roomRef
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.exists()) return;
+  let promise = Promise.resolve();
 
-      const room = snapshot.val();
-      const filterZ = `${room.languageCode}-zzzz`;
-      const params = {};
+  Object.keys(collection).forEach((roomId) => {
+    promise = promise.then(() => {
+      const roomRef = db.ref(`rooms/${roomId}`);
 
-      if (room.filter !== filterZ) {
-        params.filter = filterZ;
-      }
+      return roomRef.get().then((snapshot) => {
+        if (!snapshot.exists()) return;
 
-      roomRef.update(params);
-    })
-    .then(() => {
-      expireRef.remove();
-    })
-    .catch((error) => {
-      logger.error(error);
+        const room = snapshot.val();
+        const filterZ = `${room.languageCode}-zzzz`;
+        const params = {};
+
+        if (room.filter !== filterZ) {
+          params.filter = filterZ;
+        }
+
+        roomRef.update(params);
+      });
     });
+  });
+
+  promise = promise.then(() => {
+    expireRef.remove();
+  });
+
+  promise = promise.catch((error) => {
+    logger.error(error);
+  });
 });
 
 module.exports = markRoomExpired;

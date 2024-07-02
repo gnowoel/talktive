@@ -4,7 +4,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/access.dart';
-import '../models/expire.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 
@@ -169,7 +168,7 @@ class Firedata {
       return filterComp;
     });
 
-    _markClosed(expired); // To save time, don't wait.
+    _markClosed(expired); // No need to wait
 
     return rooms.isNotEmpty ? rooms.first : null;
   }
@@ -204,18 +203,13 @@ class Firedata {
   }
 
   Future<void> _markClosed(List<Room> rooms) async {
+    final expiresRef = instance.ref('expires').push();
+    final collection = <String, dynamic>{};
+
     for (final room in rooms) {
-      await _createExpire(room.id);
+      collection[room.id] = true;
     }
-  }
 
-  Future<void> _createExpire(String roomId) async {
-    final expireRef = instance.ref('expires').push();
-
-    final expire = Expire(
-      roomId: roomId,
-    );
-
-    await expireRef.set(expire.toJson());
+    await expiresRef.set(collection);
   }
 }

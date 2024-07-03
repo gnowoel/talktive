@@ -1,6 +1,12 @@
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { logger } = require("firebase-functions");
-const { db } = require("./admin");
+const admin = require("firebase-admin");
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+const db = admin.database();
 
 const updateRoomFilter = onValueCreated("/accesses/*/{roomId}", (event) => {
   const roomId = event.params.roomId;

@@ -1,7 +1,7 @@
-const updateRoomTimestamp = require("./updateRoomTimstamp");
-const markRoomsExpired = require("./markRoomsExpired");
-const updateRoomFilter = require("./updateRoomFilter");
-const scheduledCleanup = require("./scheduledCleanup");
+const updateRoomTimestamp = require("./src/updateRoomTimstamp");
+const markRoomsExpired = require("./src/markRoomsExpired");
+const updateRoomFilter = require("./src/updateRoomFilter");
+const scheduledCleanup = require("./src/scheduledCleanup");
 
 module.exports = {
   updateRoomTimestamp,

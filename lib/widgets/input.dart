@@ -45,11 +45,18 @@ class _InputState extends State<Input> {
 
   Future<void> _sendMessage() async {
     await _doAction(() async {
+      const maxLength = 1024;
+
       final room = widget.room;
       final userId = fireauth.instance.currentUser!.uid;
       final userName = avatar.name;
       final userCode = avatar.code;
-      final content = _controller.text.trim();
+
+      var content = _controller.text.trim();
+
+      if (content.length > maxLength) {
+        content = '${content.substring(0, maxLength)}...';
+      }
 
       if (content.isEmpty) {
         if (_controller.text.isNotEmpty) {

@@ -1,7 +1,7 @@
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { logger } = require("firebase-functions");
 
-const scheduledCleanup = onSchedule("1 * * * *", async (event) => {
+const scheduledCleanup = onSchedule("every hour", async (event) => {
   logger.info(event);
 });
 

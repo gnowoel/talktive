@@ -8,27 +8,71 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-const span = 120 * 1000; // TODO: '48 * 3600 * 1000' for production
-const time = new Date().getTime() - span;
+const span = 48 * 1000; // FIXME: `48 * 3600 * 1000` for production
 
 const cleanup = async () => {
   const ref = db.ref("rooms");
+  const time = new Date().getTime() - span;
   const query = ref.orderByChild("closedAt").endAt(time);
 
-  let promise = Promise.resolve();
-
-  query.once("value", (snapshot) => {
-    snapshot.forEach((childSnapshot) => {
-      const roomId = childSnapshot.key;
-
-      const messagesRef = db.ref(`messages/${roomId}`);
-      const roomRef = db.ref(`rooms/${roomId}`);
-
-      promise = promise.then(() => messagesRef.remove());
-      promise = promise.then(() => roomRef.remove());
-
-      return promise;
+  return query
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.exists()) return;
+      const rooms = snapshot.val();
+      return Object.keys(rooms);
+    })
+    .then((roomIds) => {
+      return roomIds.reduce((p, roomId) => {
+        return p
+          .then(() => {
+            return saveStats(roomId);
+          })
+          .then(() => {
+            return removeRoom(roomId);
+          });
+      }, Promise.resolve());
     });
+};
+
+const saveStats = (roomId) => {
+  return Promise.resolve()
+    .then(() => {
+      return getMessageCount(roomId);
+    })
+    .then((messageCount) => {
+      const deletedAt = new Date().getTime();
+      const params = {
+        messageCount,
+        deletedAt,
+      };
+      return params;
+    })
+    .then((params) => {
+      const statsRef = db.ref(`stats/${roomId}`);
+      return statsRef.set(params);
+    });
+};
+
+const removeRoom = (roomId) => {
+  return Promise.resolve()
+    .then(() => {
+      const messagesRef = db.ref(`messages/${roomId}`);
+      return messagesRef.remove();
+    })
+    .then(() => {
+      const roomRef = db.ref(`rooms/${roomId}`);
+      return roomRef.remove();
+    });
+};
+
+const getMessageCount = (roomId) => {
+  const messagesRef = db.ref(`messages/${roomId}`);
+
+  return messagesRef.get().then((snapshot) => {
+    if (!snapshot.exists()) return;
+    const messages = snapshot.val();
+    return Object.keys(messages).length;
   });
 };
 

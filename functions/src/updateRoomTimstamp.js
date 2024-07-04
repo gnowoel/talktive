@@ -31,7 +31,7 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
       }
 
       if (!isRoomClosed(room, message)) {
-        params.closedAt = message.createdAt + 360 * 1000; // TODO: 3600 * 1000
+        params.closedAt = message.createdAt + 360 * 1000; // FIXME: `3600 * 1000` for production
       } else {
         if (room.filter !== filterZ) {
           params.filter = filterZ;

@@ -8,7 +8,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "pubsub": "GOOGLE_CLOUD_PROJECT='talktive3-58486' node pubsub"
+    "pubsub": "PUBSUB_EMULATOR_HOST='localhost:8085' node pubsub"
   },
   "engines": {
     "node": "20"

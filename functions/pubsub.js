@@ -2,7 +2,7 @@ const { PubSub } = require("@google-cloud/pubsub");
 const { logger } = require("firebase-functions");
 
 const pubsub = new PubSub({
-  apiEndpoint: "localhost:8085",
+  projectId: "talktive3-58486",
 });
 
 const func = "scheduledCleanup";

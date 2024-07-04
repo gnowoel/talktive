@@ -8,6 +8,29 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+const span = 120 * 1000; // TODO: '48 * 3600 * 1000' for production
+const time = new Date().getTime() - span;
+
+const cleanup = async () => {
+  const ref = db.ref("rooms");
+  const query = ref.orderByChild("closedAt").endAt(time);
+
+  let promise = Promise.resolve();
+
+  query.once("value", (snapshot) => {
+    snapshot.forEach((childSnapshot) => {
+      const roomId = childSnapshot.key;
+
+      const messagesRef = db.ref(`messages/${roomId}`);
+      const roomRef = db.ref(`rooms/${roomId}`);
+
+      promise = promise.then(() => messagesRef.remove());
+      promise = promise.then(() => roomRef.remove());
+
+      return promise;
+    });
+  });
+};
 
 const requestedCleanup = onRequest((req, res) => {
   cleanup()
@@ -24,16 +47,6 @@ const scheduledCleanup = onSchedule("every hour", async (event) => {
     logger.error(error);
   });
 });
-
-const cleanup = () => {
-  const ref = db.ref(`test/abc`);
-  const promise = ref.set({ id: `${randomNumber(100, 999)}` });
-  return promise;
-};
-
-const randomNumber = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-};
 
 module.exports = {
   requestedCleanup,

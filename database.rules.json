@@ -3,7 +3,7 @@
     ".read": "auth != null",
     ".write": "auth != null",
     "rooms": {
-      ".indexOn": ["filter"]
+      ".indexOn": ["filter", "closedAt"]
     }
   }
 }

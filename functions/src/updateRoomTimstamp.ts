@@ -7,6 +7,10 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+const priorClosing =
+  process.env.FUNCTIONS_EMULATOR === "true"
+    ? 360 * 1000 // 6 minutes
+    : 3600 * 1000; // 1 hour
 
 const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
   const roomId = event.params.roomId;
@@ -30,16 +34,16 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
         params.filter = filter0;
         params.messageCount = 1;
       } else {
-        // Just a workaround
-        if (admin.database.ServerValue) {
-          params.messageCount = admin.database.ServerValue.increment(1);
-        } else {
+        // `ServerValue` doesn't work on localhost
+        if (process.env.FUNCTIONS_EMULATOR === "true") {
           params.messageCount = room.messageCount + 1;
+        } else {
+          params.messageCount = admin.database.ServerValue.increment(1);
         }
       }
 
       if (!isRoomClosed(room, message)) {
-        params.closedAt = message.createdAt + 360 * 1000; // FIXME: `3600 * 1000` for production
+        params.closedAt = message.createdAt + priorClosing;
       } else {
         if (room.filter !== filterZ) {
           params.filter = filterZ;

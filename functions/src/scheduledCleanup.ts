@@ -8,11 +8,14 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-const span = 48 * 1000; // FIXME: `48 * 3600 * 1000` for production
+const priorDeleting =
+  process.env.FUNCTIONS_EMULATOR === "true"
+    ? 48 * 360 * 1000 // 4.8 hours
+    : 48 * 3600 * 1000; // 48 hours
 
 const cleanup = async () => {
   const ref = db.ref("rooms");
-  const time = new Date().getTime() - span;
+  const time = new Date().getTime() - priorDeleting;
   const query = ref.orderByChild("closedAt").endAt(time);
 
   return query

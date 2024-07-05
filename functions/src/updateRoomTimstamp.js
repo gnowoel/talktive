@@ -28,6 +28,9 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
       if (isRoomNew(room)) {
         params.createdAt = message.createdAt;
         params.filter = filter0;
+        params.messageCount = 1;
+      } else {
+        params.messageCount = admin.database.ServerValue.increment(1);
       }
 
       if (!isRoomClosed(room, message)) {

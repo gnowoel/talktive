@@ -20,60 +20,54 @@ const cleanup = async () => {
     .then((snapshot) => {
       if (!snapshot.exists()) return []; // for empty results
       const rooms = snapshot.val();
-      return Object.keys(rooms);
+      return Object.keys(rooms).map((roomId) => {
+        return {
+          id: roomId,
+          ...rooms[roomId],
+        };
+      });
     })
-    .then((roomIds) => {
-      return roomIds.reduce((p, roomId) => {
+    .then((rooms) => {
+      return rooms.reduce((p, room) => {
         return p
           .then(() => {
-            return saveStats(roomId);
+            return saveStats(room);
           })
           .then(() => {
-            return removeRecords(roomId);
+            return removeRecords(room);
           });
       }, Promise.resolve());
     });
 };
 
-const saveStats = (roomId) => {
+const saveStats = (room) => {
   return Promise.resolve()
     .then(() => {
-      return getMessageCount(roomId);
-    })
-    .then((messageCount) => {
-      const deletedAt = new Date().getTime();
-      const params = {
-        messageCount,
-        deletedAt,
+      return {
+        messageCount: getMessageCount(room),
+        deletedAt: new Date().getTime(),
       };
-      return params;
     })
     .then((params) => {
-      const statsRef = db.ref(`stats/${roomId}`);
+      const statsRef = db.ref(`stats/${room.id}`);
       return statsRef.set(params);
     });
 };
 
-const removeRecords = (roomId) => {
+const removeRecords = (room) => {
   return Promise.resolve()
     .then(() => {
-      const messagesRef = db.ref(`messages/${roomId}`);
+      const messagesRef = db.ref(`messages/${room.id}`);
       return messagesRef.remove();
     })
     .then(() => {
-      const roomRef = db.ref(`rooms/${roomId}`);
+      const roomRef = db.ref(`rooms/${room.id}`);
       return roomRef.remove();
     });
 };
 
-const getMessageCount = (roomId) => {
-  const messagesRef = db.ref(`messages/${roomId}`);
-
-  return messagesRef.get().then((snapshot) => {
-    if (!snapshot.exists()) return 0; // for empty rooms
-    const messages = snapshot.val();
-    return Object.keys(messages).length;
-  });
+const getMessageCount = (room) => {
+  return typeof room.messageCount === "undefined" ? 0 : room.messageCount;
 };
 
 const requestedCleanup = onRequest((req, res) => {

@@ -1,7 +1,12 @@
-import { onValueCreated } from "firebase-functions/v2/database";
-import * as logger from "firebase-functions/logger";
+const updateRoomTimestamp = require("./updateRoomTimstamp");
+const markRoomsExpired = require("./markRoomsExpired");
+const updateRoomFilter = require("./updateRoomFilter");
+const { requestedCleanup, scheduledCleanup } = require("./scheduledCleanup");
 
-export const helloWorld = onValueCreated("/messages/{roomId}/*", (event) => {
-  const roomId = event.params.roomId;
-  logger.info(`roomId: ${roomId}`);
-});
+module.exports = {
+  updateRoomTimestamp,
+  markRoomsExpired,
+  updateRoomFilter,
+  requestedCleanup,
+  scheduledCleanup,
+};

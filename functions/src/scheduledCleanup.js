@@ -18,7 +18,7 @@ const cleanup = async () => {
   return query
     .get()
     .then((snapshot) => {
-      if (!snapshot.exists()) return;
+      if (!snapshot.exists()) return []; // for empty results
       const rooms = snapshot.val();
       return Object.keys(rooms);
     })

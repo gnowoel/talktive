@@ -8,7 +8,9 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "http": "curl http://127.0.0.1:5001/talktive3-58486/us-central1/requestedCleanup",
+    "pubsub": "PUBSUB_EMULATOR_HOST='localhost:8085' node pubsub"
   },
   "engines": {
     "node": "20"
@@ -19,6 +21,7 @@
     "firebase-functions": "^5.0.0"
   },
   "devDependencies": {
+    "@google-cloud/pubsub": "^4.5.0",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "eslint": "^8.9.0",

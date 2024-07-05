@@ -30,7 +30,12 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
         params.filter = filter0;
         params.messageCount = 1;
       } else {
-        params.messageCount = admin.database.ServerValue.increment(1);
+        // Just a workaround
+        if (admin.database.ServerValue) {
+          params.messageCount = admin.database.ServerValue.increment(1);
+        } else {
+          params.messageCount = room.messageCount + 1;
+        }
       }
 
       if (!isRoomClosed(room, message)) {
@@ -44,19 +49,21 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
       return params;
     })
     .then((params) => {
-      ref.update(params);
+      if (params) {
+        ref.update(params);
+      }
     })
     .catch((error) => {
       logger.error(error);
     });
 });
 
-function isRoomNew(room) {
+const isRoomNew = (room) => {
   return room.filter.endsWith("-aaaa");
-}
+};
 
-function isRoomClosed(room, message) {
+const isRoomClosed = (room, message) => {
   return room.filter.endsWith("-zzzz") || room.closedAt <= message.createdAt;
-}
+};
 
 module.exports = updateRoomTimestamp;

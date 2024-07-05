@@ -29,7 +29,7 @@ const cleanup = async () => {
             return saveStats(roomId);
           })
           .then(() => {
-            return removeRoom(roomId);
+            return removeRecords(roomId);
           });
       }, Promise.resolve());
     });
@@ -54,7 +54,7 @@ const saveStats = (roomId) => {
     });
 };
 
-const removeRoom = (roomId) => {
+const removeRecords = (roomId) => {
   return Promise.resolve()
     .then(() => {
       const messagesRef = db.ref(`messages/${roomId}`);
@@ -70,7 +70,7 @@ const getMessageCount = (roomId) => {
   const messagesRef = db.ref(`messages/${roomId}`);
 
   return messagesRef.get().then((snapshot) => {
-    if (!snapshot.exists()) return;
+    if (!snapshot.exists()) return 0; // for empty rooms
     const messages = snapshot.val();
     return Object.keys(messages).length;
   });
@@ -78,11 +78,11 @@ const getMessageCount = (roomId) => {
 
 const requestedCleanup = onRequest((req, res) => {
   cleanup()
-    .then(() => {
-      res.send("success");
-    })
     .catch((error) => {
       logger.error(error);
+    })
+    .then(() => {
+      res.send("success");
     });
 });
 

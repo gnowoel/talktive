@@ -89,6 +89,8 @@ class Room {
 
   bool get isMarkedClosed => filter.endsWith('-zzzz');
 
+  bool get isDeleted => false; // TODO: need to implement
+
   bool get isFromRecord => filter == '-rrrr';
 }
 

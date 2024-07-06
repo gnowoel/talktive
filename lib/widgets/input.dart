@@ -65,20 +65,38 @@ class _InputState extends State<Input> {
         return;
       }
 
-      await firedata.sendMessage(
-        room,
-        userId,
-        userName,
-        userCode,
-        content,
-      );
+      if (!widget.room.isDeleted) {
+        await firedata.sendMessage(
+          room,
+          userId,
+          userName,
+          userCode,
+          content,
+        );
+      }
 
       _controller.clear();
 
-      if (mounted && widget.room.isClosed) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('The room has been closed.')),
-        );
+      if (mounted) {
+        if (widget.room.isClosed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('The room has been closed.')),
+          );
+        }
+
+        if (widget.room.isDeleted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: theme.colorScheme.errorContainer,
+              content: Text(
+                'The room has been deleted.',
+                style: TextStyle(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          );
+        }
       }
     });
   }

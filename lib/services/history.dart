@@ -29,12 +29,13 @@ class History {
 
   Future<void> saveRecord({
     required Room room,
+    required String currentUserId,
     required int messageCount,
     required double scrollOffset,
   }) async {
     final record = Record(
       roomId: room.id,
-      roomUserId: room.userId,
+      roomUserId: room.userId == currentUserId ? 'me' : '',
       roomUserName: room.userName,
       roomUserCode: room.userCode,
       createdAt: Firedata().serverNow(),

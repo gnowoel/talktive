@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart';
 
 import '../models/record.dart';
 import '../models/room.dart';
 import '../pages/chat.dart';
-import '../services/fireauth.dart';
 
 class RecordItem extends StatefulWidget {
   final Record record;
@@ -38,8 +36,7 @@ class _RecordItemState extends State<RecordItem> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final fireauth = Provider.of<Fireauth>(context, listen: false);
-    final byMe = widget.record.roomUserId == fireauth.instance.currentUser!.uid;
+    final byMe = widget.record.roomUserId == 'me';
     final createdAt =
         DateTime.fromMillisecondsSinceEpoch(widget.record.createdAt);
 

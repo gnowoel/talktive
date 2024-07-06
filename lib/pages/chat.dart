@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talktive/services/fireauth.dart';
 
 import '../models/message.dart';
 import '../models/room.dart';
@@ -31,6 +32,7 @@ class _ChatPageState extends State<ChatPage> {
   late ThemeData theme;
   late FocusNode focusNode;
   late ScrollController scrollController;
+  late Fireauth fireauth;
   late Firedata firedata;
   late History history;
   late StreamSubscription roomSubscription;
@@ -52,6 +54,7 @@ class _ChatPageState extends State<ChatPage> {
       initialScrollOffset: scrollOffset,
     );
 
+    fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
 
@@ -66,10 +69,6 @@ class _ChatPageState extends State<ChatPage> {
     _addHistoryRecord(_room);
 
     roomSubscription = firedata.subscribeToRoom(widget.room.id).listen((room) {
-      // if (oneShot) {
-      //   firedata.createAccess(widget.room.id);
-      //   oneShot = false;
-      // }
       setState(() => _room = room);
     });
 
@@ -90,9 +89,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _addHistoryRecord(Room room) async {
+    final currentUserId = fireauth.instance.currentUser!.uid;
+    final messageCount = _messages.length;
+
     await history.saveRecord(
       room: room,
-      messageCount: _messages.length,
+      currentUserId: currentUserId,
+      messageCount: messageCount,
       scrollOffset: scrollOffset,
     );
   }

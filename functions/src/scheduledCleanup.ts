@@ -10,7 +10,7 @@ if (!admin.apps.length) {
 const db = admin.database();
 const priorDeleting =
   process.env.FUNCTIONS_EMULATOR === "true"
-    ? 48 * 360 * 1000 // 4.8 hours
+    ? 0 // no wait for manual trigger
     : 48 * 3600 * 1000; // 48 hours
 
 const cleanup = async () => {
@@ -34,43 +34,27 @@ const cleanup = async () => {
       return rooms.reduce((p, room) => {
         return p
           .then(() => {
-            return saveStats(room);
+            return markDeleted(room);
           })
           .then(() => {
-            return removeRecords(room);
+            return removeMessages(room);
           });
       }, Promise.resolve());
     });
 };
 
-const saveStats = (room) => {
-  return Promise.resolve()
-    .then(() => {
-      return {
-        messageCount: getMessageCount(room),
-        deletedAt: new Date().getTime(),
-      };
-    })
-    .then((params) => {
-      const statsRef = db.ref(`stats/${room.id}`);
-      return statsRef.set(params);
-    });
+const markDeleted = (room) => {
+  const roomRef = db.ref(`rooms/${room.id}`);
+  const filterZ = `${room.languageCode}-zzzz`;
+  return roomRef.update({
+    filter: filterZ,
+    deletedAt: new Date().getTime(),
+  });
 };
 
-const removeRecords = (room) => {
-  return Promise.resolve()
-    .then(() => {
-      const messagesRef = db.ref(`messages/${room.id}`);
-      return messagesRef.remove();
-    })
-    .then(() => {
-      const roomRef = db.ref(`rooms/${room.id}`);
-      return roomRef.remove();
-    });
-};
-
-const getMessageCount = (room) => {
-  return typeof room.messageCount === "undefined" ? 0 : room.messageCount;
+const removeMessages = (room) => {
+  const messagesRef = db.ref(`messages/${room.id}`);
+  return messagesRef.remove();
 };
 
 const requestedCleanup = onRequest((req, res) => {

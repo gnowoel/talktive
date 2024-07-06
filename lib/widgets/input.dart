@@ -78,12 +78,6 @@ class _InputState extends State<Input> {
       _controller.clear();
 
       if (mounted) {
-        if (widget.room.isClosed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('The room has been closed.')),
-          );
-        }
-
         if (widget.room.isDeleted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -95,6 +89,10 @@ class _InputState extends State<Input> {
                 ),
               ),
             ),
+          );
+        } else if (widget.room.isClosed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('The room has been closed.')),
           );
         }
       }

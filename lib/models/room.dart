@@ -10,6 +10,7 @@ class Room {
   final int createdAt;
   final int updatedAt;
   final int closedAt;
+  final int deletedAt;
   final String filter;
 
   Room({
@@ -21,6 +22,7 @@ class Room {
     required this.createdAt,
     required this.updatedAt,
     required this.closedAt,
+    required this.deletedAt,
     required this.filter,
   });
 
@@ -34,6 +36,7 @@ class Room {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'closedAt': closedAt,
+      'deletedAt': deletedAt,
       'filter': filter,
     };
   }
@@ -48,6 +51,7 @@ class Room {
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
       closedAt: json['closedAt'] as int,
+      deletedAt: json['deletedAt'] as int,
       filter: json['filter'] as String,
     );
   }
@@ -65,6 +69,7 @@ class Room {
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
       closedAt: value.closedAt,
+      deletedAt: value.deletedAt,
       filter: value.filter,
     );
   }
@@ -79,6 +84,7 @@ class Room {
       createdAt: 0,
       updatedAt: 0,
       closedAt: 0,
+      deletedAt: 0,
       filter: '-rrrr',
     );
   }
@@ -89,7 +95,7 @@ class Room {
 
   bool get isMarkedClosed => filter.endsWith('-zzzz');
 
-  bool get isDeleted => false; // TODO: need to implement
+  bool get isDeleted => deletedAt != 0;
 
   bool get isFromRecord => filter == '-rrrr';
 }
@@ -102,6 +108,7 @@ class RoomStub {
   final int createdAt;
   final int updatedAt;
   final int closedAt;
+  final int deletedAt;
   final String filter;
 
   RoomStub({
@@ -112,6 +119,7 @@ class RoomStub {
     required this.createdAt,
     required this.updatedAt,
     required this.closedAt,
+    required this.deletedAt,
     required this.filter,
   });
 
@@ -124,6 +132,7 @@ class RoomStub {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'closedAt': closedAt,
+      'deletedAt': deletedAt,
       'filter': filter,
     };
   }
@@ -137,6 +146,7 @@ class RoomStub {
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
       closedAt: json['closedAt'] as int,
+      deletedAt: json['deletedAt'] as int,
       filter: json['filter'] as String,
     );
   }

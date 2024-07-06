@@ -93,7 +93,7 @@ class Room {
 
   bool get isClosed => isMarkedClosed || closedAt <= Firedata().serverNow();
 
-  bool get isMarkedClosed => filter.endsWith('-zzzz');
+  bool get isMarkedClosed => filter == '-zzzz';
 
   bool get isDeleted => deletedAt != 0;
 

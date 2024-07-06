@@ -24,7 +24,7 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
 
       const room = snapshot.val();
       const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
-      const filterZ = `${room.languageCode}-zzzz`;
+      const filterZ = "-zzzz";
       const params = {};
 
       params.updatedAt = message.createdAt;
@@ -67,7 +67,7 @@ const isRoomNew = (room) => {
 };
 
 const isRoomClosed = (room, message) => {
-  return room.filter.endsWith("-zzzz") || room.closedAt <= message.createdAt;
+  return room.filter === "-zzzz" || room.closedAt <= message.createdAt;
 };
 
 module.exports = updateRoomTimestamp;

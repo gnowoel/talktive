@@ -45,7 +45,7 @@ const cleanup = async () => {
 
 const markDeleted = (room) => {
   const roomRef = db.ref(`rooms/${room.id}`);
-  const filterZ = `${room.languageCode}-zzzz`;
+  const filterZ = "-zzzz";
   return roomRef.update({
     filter: filterZ,
     deletedAt: new Date().getTime(),

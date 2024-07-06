@@ -34,7 +34,7 @@ function markOneRoom(roomId) {
     if (!snapshot.exists()) return;
 
     const room = snapshot.val();
-    const filterZ = `${room.languageCode}-zzzz`;
+    const filterZ = "-zzzz";
     const params = {};
 
     if (room.filter !== filterZ) {

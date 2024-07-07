@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-import '../helpers/random.dart';
+import '../helpers/helpers.dart';
 
 class Fireauth {
   final FirebaseAuth instance = FirebaseAuth.instance;
@@ -9,10 +9,9 @@ class Fireauth {
   Future<UserCredential> signInAnonymously() async {
     try {
       if (kDebugMode) {
-        final randomString = getRandomString(6);
         final userCredential = await instance.createUserWithEmailAndPassword(
-          email: '$randomString@example.com',
-          password: randomString,
+          email: generateEmail(),
+          password: generatePassword(),
         );
         return userCredential;
       } else {

@@ -11,14 +11,16 @@ class Fireauth {
 
     try {
       if (currentUser != null) {
-        await currentUser.getIdToken(); // Touch the server
+        await currentUser.reload(); // Touch the server to check connection
         return currentUser;
       } else {
+        debugPrint('currentUser == null');
         if (kDebugMode) {
           final userCredential = await instance.createUserWithEmailAndPassword(
             email: generateEmail(),
             password: generatePassword(),
           );
+          debugPrint(userCredential.user!.toString());
           return userCredential.user!;
         } else {
           final userCredential = await instance.signInAnonymously();
@@ -26,8 +28,9 @@ class Fireauth {
         }
       }
     } on FirebaseAuthException catch (e) {
-      // TODO: Sign out unless there's a network error
-      // await instance.signOut();
+      if (e.code == 'user-token-expired') {
+        await instance.signOut();
+      }
       throw Exception(e.code);
     }
   }

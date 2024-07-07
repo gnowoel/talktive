@@ -6,19 +6,27 @@ import '../helpers/helpers.dart';
 class Fireauth {
   final FirebaseAuth instance = FirebaseAuth.instance;
 
-  Future<UserCredential> signInAnonymously() async {
+  Future<User> signInAnonymously() async {
+    final currentUser = instance.currentUser;
+
+    if (currentUser != null) {
+      return currentUser;
+    }
+
     try {
       if (kDebugMode) {
         final userCredential = await instance.createUserWithEmailAndPassword(
           email: generateEmail(),
           password: generatePassword(),
         );
-        return userCredential;
+        return userCredential.user!;
       } else {
         final userCredential = await instance.signInAnonymously();
-        return userCredential;
+        return userCredential.user!;
       }
     } on FirebaseAuthException catch (e) {
+      // TODO: logout unless there's a network error
+      // await instance.signOut();
       throw Exception(e.code);
     }
   }

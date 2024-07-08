@@ -2,6 +2,7 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
+const { getAuth } = require("firebase-admin/auth");
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -14,6 +15,42 @@ const priorDeleting =
     : 48 * 3600 * 1000; // 48 hours
 
 const cleanup = async () => {
+  return Promise.resolve()
+    .then(() => cleanupUsers())
+    .then(() => cleanupRooms());
+};
+
+const cleanupUsers = () => {
+  const timestamp = new Date().toJSON(); // TODO
+  const ref = db.ref("users");
+  const query = ref
+    .orderByChild("filter")
+    .startAt("temp-0000")
+    .endAt(`temp-${timestamp}`)
+    .limitToFirst(1000);
+
+  return query
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.exists()) return [];
+      return snapshot.val();
+    })
+    .then((users) => {
+      const userIds = Object.keys(users);
+      const params = {};
+      const usersRef = db.ref('users');
+
+      userIds.forEach((userId) => {
+        params[userId] = null;
+      });
+
+      return getAuth().deleteUsers(userIds).then(() => {
+        usersRef.update(params);
+      });
+    });
+};
+
+const cleanupRooms = () => {
   const ref = db.ref("rooms");
   const time = new Date().getTime() - priorDeleting;
   const query = ref.orderByChild("closedAt").endAt(time);
@@ -34,7 +71,7 @@ const cleanup = async () => {
       return rooms.reduce((p, room) => {
         return p
           .then(() => {
-            return markDeleted(room);
+            return markRoomDeleted(room);
           })
           .then(() => {
             return removeMessages(room);
@@ -43,7 +80,7 @@ const cleanup = async () => {
     });
 };
 
-const markDeleted = (room) => {
+const markRoomDeleted = (room) => {
   const roomRef = db.ref(`rooms/${room.id}`);
   const filterZ = "-zzzz";
   return roomRef.update({

@@ -2,6 +2,9 @@
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null",
+    "users": {
+      ".indexOn": ["filter"]
+    },
     "rooms": {
       ".indexOn": ["filter", "closedAt"]
     }

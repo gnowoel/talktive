@@ -9,8 +9,8 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 const syncUser = functions.auth.user().onCreate((user) => {
-  const uid = user.uid;
-  const userRef = db.ref(`users/${uid}`);
+  const userId = user.uid;
+  const userRef = db.ref(`users/${userId}`);
   const createdAt = new Date().toJSON();
   const params = {
     filter: `temp-${createdAt}`

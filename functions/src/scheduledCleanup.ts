@@ -14,6 +14,22 @@ const priorDeleting =
     ? 0 // no wait for manual trigger
     : 48 * 3600 * 1000; // 48 hours
 
+const scheduledCleanup = onSchedule("every hour", async (event) => {
+  cleanup().catch((error) => {
+    logger.error(error);
+  });
+});
+
+const requestedCleanup = onRequest((req, res) => {
+  cleanup()
+    .catch((error) => {
+      logger.error(error);
+    })
+    .then(() => {
+      res.send("success");
+    });
+});
+
 const cleanup = async () => {
   return Promise.resolve()
     .then(() => cleanupUsers())
@@ -93,22 +109,6 @@ const removeMessages = (room) => {
   const messagesRef = db.ref(`messages/${room.id}`);
   return messagesRef.remove();
 };
-
-const requestedCleanup = onRequest((req, res) => {
-  cleanup()
-    .catch((error) => {
-      logger.error(error);
-    })
-    .then(() => {
-      res.send("success");
-    });
-});
-
-const scheduledCleanup = onSchedule("every hour", async (event) => {
-  cleanup().catch((error) => {
-    logger.error(error);
-  });
-});
 
 module.exports = {
   requestedCleanup,

@@ -14,13 +14,11 @@ class Fireauth {
         await currentUser.reload(); // Touch the server to check connection
         return currentUser;
       } else {
-        debugPrint('currentUser == null');
         if (kDebugMode) {
           final userCredential = await instance.createUserWithEmailAndPassword(
             email: generateEmail(),
             password: generatePassword(),
           );
-          debugPrint(userCredential.user!.toString());
           return userCredential.user!;
         } else {
           final userCredential = await instance.signInAnonymously();

@@ -9,8 +9,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "http": "curl http://127.0.0.1:5001/talktive3-58486/us-central1/requestedCleanup",
-    "pubsub": "PUBSUB_EMULATOR_HOST='localhost:8085' node pubsub"
+    "http": "curl http://127.0.0.1:5001/talktive3-58486/us-central1/requestedCleanup"
   },
   "engines": {
     "node": "20"

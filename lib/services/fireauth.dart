@@ -26,7 +26,7 @@ class Fireauth {
         }
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-token-expired') {
+      if (e.code != 'network-request-failed') {
         await instance.signOut();
       }
       throw Exception(e.code);

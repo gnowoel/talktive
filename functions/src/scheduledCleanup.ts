@@ -1,9 +1,9 @@
-const { onRequest } = require("firebase-functions/v2/https");
-const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { logger } = require("firebase-functions");
-const admin = require("firebase-admin");
-const { getAuth } = require("firebase-admin/auth");
-const { isDebugMode } = require('./helpers');
+import { onRequest } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions";
+import * as admin from "firebase-admin";
+import { getAuth } from "firebase-admin/auth";
+import { isDebugMode } from "./helpers";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -11,20 +11,20 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const priorUserDeleting = isDebugMode
-    ? 0 // now
-    : 30 * 24 * 3600 * 1000; // 30 days
+const priorUserDeleting = isDebugMode()
+  ? 0 // now
+  : 30 * 24 * 3600 * 1000; // 30 days
 const priorRoomDeleting = isDebugMode()
-    ? 0 // no wait for manual trigger
-    : 48 * 3600 * 1000; // 48 hours
+  ? 0 // no wait for manual trigger
+  : 48 * 3600 * 1000; // 48 hours
 
-const scheduledCleanup = onSchedule("every hour", async (event) => {
+export const scheduledCleanup = onSchedule("every hour", async (event) => {
   cleanup().catch((error) => {
     logger.error(error);
   });
 });
 
-const requestedCleanup = onRequest((req, res) => {
+export const requestedCleanup = onRequest((req, res) => {
   cleanup()
     .catch((error) => {
       logger.error(error);
@@ -112,9 +112,4 @@ const markRoomDeleted = (room) => {
 const removeMessages = (room) => {
   const messagesRef = db.ref(`messages/${room.id}`);
   return messagesRef.remove();
-};
-
-module.exports = {
-  scheduledCleanup,
-  requestedCleanup,
 };

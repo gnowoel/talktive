@@ -1,1 +1,1 @@
-exports.isDebugMode = () => process.env.FUNCTIONS_EMULATOR === "true";
+export const isDebugMode = () => process.env.FUNCTIONS_EMULATOR === "true";

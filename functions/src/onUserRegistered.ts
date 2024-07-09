@@ -1,6 +1,6 @@
-const functions = require("firebase-functions/v1");
-const { logger } = require("firebase-functions");
-const admin = require("firebase-admin");
+import * as functions from "firebase-functions/v1";
+import { logger } from "firebase-functions";
+import * as admin from "firebase-admin";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -21,4 +21,4 @@ const onUserRegistered = functions.auth.user().onCreate((user) => {
   });
 });
 
-module.exports = onUserRegistered;
+export default onUserRegistered;

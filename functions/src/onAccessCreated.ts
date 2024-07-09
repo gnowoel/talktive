@@ -1,6 +1,6 @@
-const { onValueCreated } = require("firebase-functions/v2/database");
-const { logger } = require("firebase-functions");
-const admin = require("firebase-admin");
+import { onValueCreated } from "firebase-functions/v2/database";
+import { logger } from "firebase-functions";
+import * as admin from "firebase-admin";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -35,4 +35,4 @@ const onAccessCreated = onValueCreated("/accesses/*/{roomId}", (event) => {
     });
 });
 
-module.exports = onAccessCreated;
+export default onAccessCreated;

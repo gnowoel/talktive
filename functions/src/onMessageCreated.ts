@@ -1,7 +1,7 @@
-const { onValueCreated } = require("firebase-functions/v2/database");
-const { logger } = require("firebase-functions");
-const admin = require("firebase-admin");
-const { isDebugMode } = require("./helpers");
+import { onValueCreated } from "firebase-functions/v2/database";
+import { logger } from "firebase-functions";
+import * as admin from "firebase-admin";
+import { isDebugMode } from "./helpers";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -88,4 +88,4 @@ const isRoomClosed = (room, message) => {
   return room.filter === "-zzzz" || room.closedAt <= message.createdAt;
 };
 
-module.exports = onMessageCreated;
+export default onMessageCreated;

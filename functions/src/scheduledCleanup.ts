@@ -18,6 +18,23 @@ const priorRoomDeleting = isDebugMode()
   ? 0 // no wait for manual trigger
   : 48 * 3600 * 1000; // 48 hours
 
+interface Params {
+  [userId: string]: null
+}
+
+interface Room {
+  id: string
+  userId: string
+  userName: string
+  userCode: string
+  languageCode: string
+  createdAt: number
+  updatedAt: number
+  closedAt: number
+  deletedAt: number
+  filter: string
+}
+
 export const scheduledCleanup = onSchedule("every hour", async (_) => {
   cleanup().catch((error) => {
     logger.error(error);
@@ -57,7 +74,7 @@ const cleanupUsers = () => {
     })
     .then((users) => {
       const userIds = Object.keys(users);
-      const params = {};
+      const params: Params = {};
       const usersRef = db.ref("users");
 
       userIds.forEach((userId) => {
@@ -100,7 +117,7 @@ const cleanupRooms = () => {
     });
 };
 
-const markRoomDeleted = (room) => {
+const markRoomDeleted = (room: Room) => {
   const roomRef = db.ref(`rooms/${room.id}`);
   const filterZ = "-zzzz";
   return roomRef.update({
@@ -109,7 +126,7 @@ const markRoomDeleted = (room) => {
   });
 };
 
-const removeMessages = (room) => {
+const removeMessages = (room: Room) => {
   const messagesRef = db.ref(`messages/${room.id}`);
   return messagesRef.remove();
 };

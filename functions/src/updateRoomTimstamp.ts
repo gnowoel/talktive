@@ -1,14 +1,14 @@
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
+const { isDebugMode } = require('./helpers');
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
 const db = admin.database();
-const priorClosing =
-  process.env.FUNCTIONS_EMULATOR === "true"
+const priorClosing = isDebugMode()
     ? 360 * 1000 // 6 minutes
     : 3600 * 1000; // 1 hour
 
@@ -35,7 +35,7 @@ const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
         params.messageCount = 1;
       } else {
         // `ServerValue` doesn't work on localhost
-        if (process.env.FUNCTIONS_EMULATOR === "true") {
+        if (isDebugMode()) {
           params.messageCount = room.messageCount + 1;
         } else {
           params.messageCount = admin.database.ServerValue.increment(1);

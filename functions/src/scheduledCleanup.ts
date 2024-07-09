@@ -3,14 +3,18 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 const { getAuth } = require("firebase-admin/auth");
+const { isDebugMode } = require('./helpers');
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
 const db = admin.database();
-const priorDeleting =
-  process.env.FUNCTIONS_EMULATOR === "true"
+
+const priorUserDeleting = isDebugMode
+    ? 0 // now
+    : 30 * 24 * 3600 * 1000 // 30 days
+const priorRoomDeleting = isDebugMode()
     ? 0 // no wait for manual trigger
     : 48 * 3600 * 1000; // 48 hours
 
@@ -37,18 +41,12 @@ const cleanup = async () => {
 };
 
 const cleanupUsers = () => {
-  const now = new Date();
-  const then = new Date(now.getTime() - 30 * 24 * 3600 * 1000); // a month ago
-  const timestamp =
-    process.env.FUNCTIONS_EMULATOR === "true"
-      ? now.toJSON()
-      : then.toJSON();
-
   const ref = db.ref("users");
+  const time = (new Date().getTime() - priorUserDeleting).toJSON();
   const query = ref
     .orderByChild("filter")
     .startAt("temp-0000")
-    .endAt(`temp-${timestamp}`)
+    .endAt(`temp-${time}`)
     .limitToFirst(1000);
 
   return query
@@ -74,7 +72,7 @@ const cleanupUsers = () => {
 
 const cleanupRooms = () => {
   const ref = db.ref("rooms");
-  const time = new Date().getTime() - priorDeleting;
+  const time = new Date().getTime() - priorRoomDeleting;
   const query = ref.orderByChild("closedAt").endAt(time);
 
   return query

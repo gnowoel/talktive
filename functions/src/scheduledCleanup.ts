@@ -42,7 +42,7 @@ const cleanup = async () => {
 
 const cleanupUsers = () => {
   const ref = db.ref("users");
-  const time = (new Date().getTime() - priorUserDeleting).toJSON();
+  const time = new Date((new Date().getTime() - priorUserDeleting)).toJSON();
   const query = ref
     .orderByChild("filter")
     .startAt("temp-0000")

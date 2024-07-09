@@ -18,7 +18,7 @@ const priorRoomDeleting = isDebugMode()
   ? 0 // no wait for manual trigger
   : 48 * 3600 * 1000; // 48 hours
 
-export const scheduledCleanup = onSchedule("every hour", async (event) => {
+export const scheduledCleanup = onSchedule("every hour", async (_) => {
   cleanup().catch((error) => {
     logger.error(error);
   });

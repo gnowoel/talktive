@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const updateRoomFilter = onValueCreated("/accesses/*/{roomId}", (event) => {
+const onAccessCreated = onValueCreated("/accesses/*/{roomId}", (event) => {
   const roomId = event.params.roomId;
   const accessRef = db.ref(event.ref);
   const roomRef = db.ref(`rooms/${roomId}`);
@@ -35,4 +35,4 @@ const updateRoomFilter = onValueCreated("/accesses/*/{roomId}", (event) => {
     });
 });
 
-module.exports = updateRoomFilter;
+module.exports = onAccessCreated;

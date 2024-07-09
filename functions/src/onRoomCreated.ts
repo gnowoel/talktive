@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const updateUserTimestamp = onValueCreated('/rooms/*', (event) => {
+const onRoomCreated = onValueCreated('/rooms/*', (event) => {
   const room = event.data.val();
   const userId = room.userId;
   const userRef = db.ref(`users/${userId}`);
@@ -20,4 +20,4 @@ const updateUserTimestamp = onValueCreated('/rooms/*', (event) => {
   return userRef.update(params);
 });
 
-module.exports = updateUserTimestamp;
+module.exports = onRoomCreated;

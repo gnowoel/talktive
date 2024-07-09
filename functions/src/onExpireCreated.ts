@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const markRoomsExpired = onValueCreated("/expires/*", (event) => {
+const onExpireCreated = onValueCreated("/expires/*", (event) => {
   const collection = event.data.val();
   const expireRef = db.ref(event.ref);
 
@@ -45,4 +45,4 @@ function markOneRoom(roomId) {
   });
 }
 
-module.exports = markRoomsExpired;
+module.exports = onExpireCreated;

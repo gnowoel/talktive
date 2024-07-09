@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const syncUser = functions.auth.user().onCreate((user) => {
+const onUserRegistered = functions.auth.user().onCreate((user) => {
   const userId = user.uid;
   const userRef = db.ref(`users/${userId}`);
   const createdAt = new Date().toJSON();
@@ -19,4 +19,4 @@ const syncUser = functions.auth.user().onCreate((user) => {
   userRef.set(params);
 });
 
-module.exports = syncUser;
+module.exports = onUserRegistered;

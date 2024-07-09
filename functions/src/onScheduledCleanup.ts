@@ -18,13 +18,13 @@ const priorRoomDeleting = isDebugMode()
     ? 0 // no wait for manual trigger
     : 48 * 3600 * 1000; // 48 hours
 
-const scheduledCleanup = onSchedule("every hour", async (event) => {
+const onScheduledCleanup = onSchedule("every hour", async (event) => {
   cleanup().catch((error) => {
     logger.error(error);
   });
 });
 
-const requestedCleanup = onRequest((req, res) => {
+const onRequestedCleanup = onRequest((req, res) => {
   cleanup()
     .catch((error) => {
       logger.error(error);
@@ -115,6 +115,6 @@ const removeMessages = (room) => {
 };
 
 module.exports = {
-  requestedCleanup,
-  scheduledCleanup,
+  onScheduledCleanup,
+  onRequestedCleanup
 };

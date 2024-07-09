@@ -37,7 +37,13 @@ const cleanup = async () => {
 };
 
 const cleanupUsers = () => {
-  const timestamp = new Date().toJSON(); // TODO
+  const now = new Date();
+  const then = new Date(now.getTime() - 30 * 24 * 3600 * 1000); // a month ago
+  const timestamp =
+    process.env.FUNCTIONS_EMULATOR === "true"
+      ? now.toJSON()
+      : then.toJSON();
+
   const ref = db.ref("users");
   const query = ref
     .orderByChild("filter")

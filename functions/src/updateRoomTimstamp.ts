@@ -12,12 +12,30 @@ const priorClosing = isDebugMode()
     ? 360 * 1000 // 6 minutes
     : 3600 * 1000; // 1 hour
 
-const updateRoomTimestamp = onValueCreated("/messages/{roomId}/*", (event) => {
+const onMessageCreated = onValueCreated("/messages/{roomId}/*", (event) => {
   const roomId = event.params.roomId;
   const message = event.data.val();
+  const userId = message.userId;
+
+  return Promise.resolve()
+    .then(() => updateUserTimestamp(userId))
+    .then(() => updateRoomTimestamp(roomId, message));
+});
+
+const updateUserTimestamp = (userId) => {
+  const userRef = db.ref(`users/${userId}`);
+  const updatedAt = new Date().toJSON();
+  const params = {
+    filter: `perm-${updatedAt}`
+  };
+
+  return userRef.update(params);
+}
+
+const updateRoomTimestamp = (roomId, message) => {
   const ref = db.ref(`rooms/${roomId}`);
 
-  ref
+  return ref
     .get()
     .then((snapshot) => {
       if (!snapshot.exists()) return;
@@ -70,4 +88,4 @@ const isRoomClosed = (room, message) => {
   return room.filter === "-zzzz" || room.closedAt <= message.createdAt;
 };
 
-module.exports = updateRoomTimestamp;
+module.exports = onMessageCreated;

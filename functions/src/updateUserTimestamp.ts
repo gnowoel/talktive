@@ -17,7 +17,7 @@ const updateUserTimestamp = onValueCreated('/rooms/*', (event) => {
     filter: `perm-${updatedAt}`
   };
 
-  userRef.update(params);
+  return userRef.update(params);
 });
 
 module.exports = updateUserTimestamp;

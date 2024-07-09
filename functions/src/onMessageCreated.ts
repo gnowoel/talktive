@@ -1,7 +1,7 @@
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
-const { isDebugMode } = require('./helpers');
+const { isDebugMode } = require("./helpers");
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -9,8 +9,8 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 const priorClosing = isDebugMode()
-    ? 360 * 1000 // 6 minutes
-    : 3600 * 1000; // 1 hour
+  ? 360 * 1000 // 6 minutes
+  : 3600 * 1000; // 1 hour
 
 const onMessageCreated = onValueCreated("/messages/{roomId}/*", (event) => {
   const roomId = event.params.roomId;
@@ -26,11 +26,11 @@ const updateUserTimestamp = (userId) => {
   const userRef = db.ref(`users/${userId}`);
   const updatedAt = new Date().toJSON();
   const params = {
-    filter: `perm-${updatedAt}`
+    filter: `perm-${updatedAt}`,
   };
 
   return userRef.update(params);
-}
+};
 
 const updateRoomTimestamp = (roomId, message) => {
   const ref = db.ref(`rooms/${roomId}`);
@@ -78,7 +78,7 @@ const updateRoomTimestamp = (roomId, message) => {
     .catch((error) => {
       logger.error(error);
     });
-});
+};
 
 const isRoomNew = (room) => {
   return room.filter.endsWith("-aaaa");

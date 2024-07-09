@@ -8,16 +8,18 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const onRoomCreated = onValueCreated('/rooms/*', (event) => {
+const onRoomCreated = onValueCreated("/rooms/*", (event) => {
   const room = event.data.val();
   const userId = room.userId;
   const userRef = db.ref(`users/${userId}`);
   const updatedAt = new Date().toJSON();
   const params = {
-    filter: `perm-${updatedAt}`
+    filter: `perm-${updatedAt}`,
   };
 
-  return userRef.update(params);
+  return userRef.update(params).catch((error) => {
+    logger.error(error);
+  });
 });
 
 module.exports = onRoomCreated;

@@ -13,18 +13,18 @@ const db = admin.database();
 
 const priorUserDeleting = isDebugMode
     ? 0 // now
-    : 30 * 24 * 3600 * 1000 // 30 days
+    : 30 * 24 * 3600 * 1000; // 30 days
 const priorRoomDeleting = isDebugMode()
     ? 0 // no wait for manual trigger
     : 48 * 3600 * 1000; // 48 hours
 
-const onScheduledCleanup = onSchedule("every hour", async (event) => {
+const scheduledCleanup = onSchedule("every hour", async (event) => {
   cleanup().catch((error) => {
     logger.error(error);
   });
 });
 
-const onRequestedCleanup = onRequest((req, res) => {
+const requestedCleanup = onRequest((req, res) => {
   cleanup()
     .catch((error) => {
       logger.error(error);
@@ -58,7 +58,7 @@ const cleanupUsers = () => {
     .then((users) => {
       const userIds = Object.keys(users);
       const params = {};
-      const usersRef = db.ref('users');
+      const usersRef = db.ref("users");
 
       userIds.forEach((userId) => {
         params[userId] = null;
@@ -115,6 +115,6 @@ const removeMessages = (room) => {
 };
 
 module.exports = {
-  onScheduledCleanup,
-  onRequestedCleanup
+  scheduledCleanup,
+  requestedCleanup,
 };

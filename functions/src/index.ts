@@ -3,7 +3,7 @@ const onRoomCreated = require('./onRoomCreated');
 const onMessageCreated = require("./onMessageCreated");
 const onAccessCreated = require("./onAccessCreated");
 const onExpireCreated = require("./onExpireCreated");
-const { onScheduledCleanup, onRequestedCleanup } = require("./onScheduledCleanup");
+const { scheduledCleanup, requestedCleanup } = require("./scheduledCleanup");
 
 module.exports = {
   onUserRegistered,   // Copy user
@@ -11,6 +11,6 @@ module.exports = {
   onMessageCreated,   // Update user and room timestamp
   onAccessCreated,    // Update room timestamp
   onExpireCreated,    // Update room timestamp
-  onScheduledCleanup, // Cleanup users and rooms with scheduler
-  onRequestedCleanup, // Cleanup users and rooms with request (for localhost)
+  scheduledCleanup, // Cleanup users and rooms with scheduler
+  requestedCleanup, // Cleanup users and rooms with request (for localhost)
 };

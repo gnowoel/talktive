@@ -1,4 +1,4 @@
-const functions = require('firebase-functions/v1');
+const functions = require("firebase-functions/v1");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 
@@ -13,10 +13,12 @@ const onUserRegistered = functions.auth.user().onCreate((user) => {
   const userRef = db.ref(`users/${userId}`);
   const createdAt = new Date().toJSON();
   const params = {
-    filter: `temp-${createdAt}`
+    filter: `temp-${createdAt}`,
   };
 
-  userRef.set(params);
+  return userRef.set(params).catch((error) => {
+    logger.error(error);
+  });
 });
 
 module.exports = onUserRegistered;

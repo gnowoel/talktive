@@ -27,7 +27,7 @@ const onExpireCreated = onValueCreated("/expires/*", (event) => {
     });
 });
 
-function markOneRoom(roomId) {
+const markOneRoom = (roomId) => {
   const roomRef = db.ref(`rooms/${roomId}`);
 
   return roomRef.get().then((snapshot) => {
@@ -43,6 +43,6 @@ function markOneRoom(roomId) {
 
     return roomRef.update(params);
   });
-}
+};
 
 module.exports = onExpireCreated;

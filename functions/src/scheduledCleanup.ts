@@ -12,10 +12,10 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 const priorUserDeleting = isDebugMode() ?
-  0 : // now
+  0 : // now wait
   30 * 24 * 3600 * 1000; // 30 days
 const priorRoomDeleting = isDebugMode() ?
-  0 : // no wait for manual trigger
+  0 : // no wait
   48 * 3600 * 1000; // 48 hours
 
 interface Params {

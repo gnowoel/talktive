@@ -20,10 +20,6 @@ interface Room {
   filter: string
 }
 
-interface Message {
-  createdAt: number
-}
-
 const db = admin.database();
 const priorClosing = isDebugMode() ?
   360 * 1000 : // 6 minutes
@@ -33,10 +29,11 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   const roomId = event.params.roomId;
   const message = event.data.val();
   const userId = message.userId;
+  const messageCreatedAt = message.createdAt;
 
   try {
     await updateUserTimestamp(userId);
-    await updateRoomTimestamp(roomId, message);
+    await updateRoomTimestamp(roomId, messageCreatedAt);
   } catch (error) {
     logger.error(error);
   }
@@ -54,7 +51,7 @@ const updateUserTimestamp = async (userId: string) => {
   }
 };
 
-const updateRoomTimestamp = async (roomId: string, message: Message) => {
+const updateRoomTimestamp = async (roomId: string, messageCreatedAt: number) => {
   const ref = db.ref(`rooms/${roomId}`);
 
   const snapshot = await ref.get();
@@ -66,10 +63,10 @@ const updateRoomTimestamp = async (roomId: string, message: Message) => {
   const filterZ = '-zzzz';
   const params: Params = {};
 
-  params.updatedAt = message.createdAt;
+  params.updatedAt = messageCreatedAt;
 
   if (isRoomNew(room)) {
-    params.createdAt = message.createdAt;
+    params.createdAt = messageCreatedAt;
     params.filter = filter0;
     params.messageCount = 1;
   } else {
@@ -81,8 +78,8 @@ const updateRoomTimestamp = async (roomId: string, message: Message) => {
     }
   }
 
-  if (!isRoomClosed(room, message)) {
-    params.closedAt = message.createdAt + priorClosing;
+  if (!isRoomClosed(room, messageCreatedAt)) {
+    params.closedAt = messageCreatedAt + priorClosing;
   } else {
     if (room.filter !== filterZ) {
       params.filter = filterZ;
@@ -100,8 +97,8 @@ const isRoomNew = (room: Room) => {
   return room.filter.endsWith('-aaaa');
 };
 
-const isRoomClosed = (room: Room, message: Message) => {
-  return room.filter === '-zzzz' || room.closedAt <= message.createdAt;
+const isRoomClosed = (room: Room, timestamp: number) => {
+  return room.filter === '-zzzz' || room.closedAt <= timestamp;
 };
 
 export default onMessageCreated;

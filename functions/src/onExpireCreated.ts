@@ -17,18 +17,17 @@ const onExpireCreated = onValueCreated('/expires/*', async (event) => {
   const expireRef = db.ref(event.ref);
   const roomIds = Object.keys(expires);
 
-  for (const roomId in roomIds) {
-    await markOneRoom(roomId);
-  }
-
   try {
-    return await expireRef.remove();
+    for (const roomId in roomIds) {
+      await markRoomExpired(roomId);
+    }
+    await expireRef.remove();
   } catch (error) {
     logger.error(error);
   }
 });
 
-const markOneRoom = async (roomId: string) => {
+const markRoomExpired = async (roomId: string) => {
   const roomRef = db.ref(`rooms/${roomId}`);
   const snapshot = await roomRef.get();
 

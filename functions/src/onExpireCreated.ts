@@ -12,41 +12,41 @@ interface Params {
   filter?: string
 }
 
-const onExpireCreated = onValueCreated('/expires/*', (event) => {
-  const collection = event.data.val();
+const onExpireCreated = onValueCreated('/expires/*', async (event) => {
+  const expires = event.data.val();
   const expireRef = db.ref(event.ref);
+  const roomIds = Object.keys(expires);
 
-  let promise = Promise.resolve();
+  for (const roomId in roomIds) {
+    await markOneRoom(roomId);
+  }
 
-  Object.keys(collection).forEach((roomId) => {
-    promise = promise.then(() => markOneRoom(roomId));
-  });
-
-  promise = promise
-    .then(() => {
-      expireRef.remove();
-    })
-    .catch((error) => {
-      logger.error(error);
-    });
+  try {
+    return await expireRef.remove();
+  } catch (error) {
+    logger.error(error);
+  }
 });
 
-const markOneRoom = (roomId: string) => {
+const markOneRoom = async (roomId: string) => {
   const roomRef = db.ref(`rooms/${roomId}`);
+  const snapshot = await roomRef.get();
 
-  return roomRef.get().then((snapshot) => {
-    if (!snapshot.exists()) return;
+  if (!snapshot.exists()) return;
 
-    const room = snapshot.val();
-    const filterZ = '-zzzz';
-    const params: Params = {};
+  const room = snapshot.val();
+  const filterZ = '-zzzz';
+  const params: Params = {};
 
-    if (room.filter !== filterZ) {
-      params.filter = filterZ;
-    }
+  if (room.filter !== filterZ) {
+    params.filter = filterZ;
+  }
 
-    return roomRef.update(params);
-  });
+  try {
+    await roomRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
 };
 
 export default onExpireCreated;

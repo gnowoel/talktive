@@ -8,31 +8,27 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const onAccessCreated = onValueCreated('/accesses/*/{roomId}', (event) => {
+const onAccessCreated = onValueCreated('/accesses/*/{roomId}', async (event) => {
   const roomId = event.params.roomId;
   const accessRef = db.ref(event.ref);
   const roomRef = db.ref(`rooms/${roomId}`);
 
-  roomRef
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.exists()) return;
+  const snapshot = await roomRef.get();
 
-      const room = snapshot.val();
-      const now = new Date().getTime();
-      const diff = now - room.createdAt;
-      const timeElapsed = new Date(diff).toJSON();
+  if (!snapshot.exists()) return;
 
-      roomRef.update({
-        filter: `${room.languageCode}-${timeElapsed}`,
-      });
-    })
-    .then(() => {
-      accessRef.remove();
-    })
-    .catch((error) => {
-      logger.error(error);
-    });
+  const room = snapshot.val();
+  const now = new Date().getTime();
+  const then = now - room.createdAt;
+  const elapsed = new Date(then).toJSON();
+  const filter = `${room.languageCode}-${elapsed}`;
+
+  try {
+    await roomRef.update({ filter });
+    await accessRef.remove();
+  } catch (error) {
+    logger.error(error);
+  }
 });
 
 export default onAccessCreated;

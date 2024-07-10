@@ -8,17 +8,17 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const onUserRegistered = functions.auth.user().onCreate((user) => {
+const onUserRegistered = functions.auth.user().onCreate(async (user) => {
   const userId = user.uid;
   const userRef = db.ref(`users/${userId}`);
   const createdAt = new Date().toJSON();
-  const params = {
-    filter: `temp-${createdAt}`,
-  };
+  const filter = `temp-${createdAt}`;
 
-  return userRef.set(params).catch((error) => {
+  try {
+    await userRef.set({ filter });
+  } catch (error) {
     logger.error(error);
-  });
+  }
 });
 
 export default onUserRegistered;

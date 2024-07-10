@@ -1,7 +1,7 @@
-import { onValueCreated } from "firebase-functions/v2/database";
-import { logger } from "firebase-functions";
-import * as admin from "firebase-admin";
-import { isDebugMode } from "./helpers";
+import { onValueCreated } from 'firebase-functions/v2/database';
+import { logger } from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import { isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -25,11 +25,11 @@ interface Message {
 }
 
 const db = admin.database();
-const priorClosing = isDebugMode()
-  ? 360 * 1000 // 6 minutes
-  : 3600 * 1000; // 1 hour
+const priorClosing = isDebugMode() ?
+  360 * 1000 : // 6 minutes
+  3600 * 1000; // 1 hour
 
-const onMessageCreated = onValueCreated("/messages/{roomId}/*", (event) => {
+const onMessageCreated = onValueCreated('/messages/{roomId}/*', (event) => {
   const roomId = event.params.roomId;
   const message = event.data.val();
   const userId = message.userId;
@@ -59,7 +59,7 @@ const updateRoomTimestamp = (roomId: string, message: Message) => {
 
       const room = snapshot.val();
       const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
-      const filterZ = "-zzzz";
+      const filterZ = '-zzzz';
       const params: Params = {};
 
       params.updatedAt = message.createdAt;
@@ -98,11 +98,11 @@ const updateRoomTimestamp = (roomId: string, message: Message) => {
 };
 
 const isRoomNew = (room: Room) => {
-  return room.filter.endsWith("-aaaa");
+  return room.filter.endsWith('-aaaa');
 };
 
 const isRoomClosed = (room: Room, message: Message) => {
-  return room.filter === "-zzzz" || room.closedAt <= message.createdAt;
+  return room.filter === '-zzzz' || room.closedAt <= message.createdAt;
 };
 
 export default onMessageCreated;

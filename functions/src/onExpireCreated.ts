@@ -1,6 +1,6 @@
-import { onValueCreated } from "firebase-functions/v2/database";
-import { logger } from "firebase-functions";
-import * as admin from "firebase-admin";
+import { onValueCreated } from 'firebase-functions/v2/database';
+import { logger } from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -12,7 +12,7 @@ interface Params {
   filter?: string
 }
 
-const onExpireCreated = onValueCreated("/expires/*", (event) => {
+const onExpireCreated = onValueCreated('/expires/*', (event) => {
   const collection = event.data.val();
   const expireRef = db.ref(event.ref);
 
@@ -38,7 +38,7 @@ const markOneRoom = (roomId: string) => {
     if (!snapshot.exists()) return;
 
     const room = snapshot.val();
-    const filterZ = "-zzzz";
+    const filterZ = '-zzzz';
     const params: Params = {};
 
     if (room.filter !== filterZ) {

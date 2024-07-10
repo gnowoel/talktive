@@ -1,6 +1,6 @@
-import * as functions from "firebase-functions/v1";
-import { logger } from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from 'firebase-functions/v1';
+import { logger } from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   admin.initializeApp();

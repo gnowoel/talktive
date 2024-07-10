@@ -6,9 +6,9 @@ module.exports = {
   },
   extends: [
     "eslint:recommended",
-    // "plugin:import/errors",
-    // "plugin:import/warnings",
-    // "plugin:import/typescript",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
     // "google",
     "plugin:@typescript-eslint/recommended",
   ],
@@ -28,7 +28,10 @@ module.exports = {
   rules: {
     // "quotes": ["error", "double"],
     "import/no-unresolved": 0,
-    // "indent": ["error", 2],
-    '@typescript-eslint/no-unused-vars': ['error', { 'varsIgnorePattern': '^_', "argsIgnorePattern": "^_" }],
+    "indent": ["error", 2],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+    ],
   },
 };

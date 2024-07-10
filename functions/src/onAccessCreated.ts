@@ -1,6 +1,6 @@
-import { onValueCreated } from "firebase-functions/v2/database";
-import { logger } from "firebase-functions";
-import * as admin from "firebase-admin";
+import { onValueCreated } from 'firebase-functions/v2/database';
+import { logger } from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const onAccessCreated = onValueCreated("/accesses/*/{roomId}", (event) => {
+const onAccessCreated = onValueCreated('/accesses/*/{roomId}', (event) => {
   const roomId = event.params.roomId;
   const accessRef = db.ref(event.ref);
   const roomRef = db.ref(`rooms/${roomId}`);

@@ -1,9 +1,9 @@
-import { onRequest } from "firebase-functions/v2/https";
-import { onSchedule } from "firebase-functions/v2/scheduler";
-import { logger } from "firebase-functions";
-import * as admin from "firebase-admin";
-import { getAuth } from "firebase-admin/auth";
-import { isDebugMode } from "./helpers";
+import { onRequest } from 'firebase-functions/v2/https';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { logger } from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
+import { isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -11,12 +11,12 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const priorUserDeleting = isDebugMode()
-  ? 0 // now
-  : 30 * 24 * 3600 * 1000; // 30 days
-const priorRoomDeleting = isDebugMode()
-  ? 0 // no wait for manual trigger
-  : 48 * 3600 * 1000; // 48 hours
+const priorUserDeleting = isDebugMode() ?
+  0 : // now
+  30 * 24 * 3600 * 1000; // 30 days
+const priorRoomDeleting = isDebugMode() ?
+  0 : // no wait for manual trigger
+  48 * 3600 * 1000; // 48 hours
 
 interface Params {
   [userId: string]: null
@@ -26,7 +26,7 @@ interface Room {
   id: string
 }
 
-export const scheduledCleanup = onSchedule("every hour", async (_) => {
+export const scheduledCleanup = onSchedule('every hour', async (_) => {
   cleanup().catch((error) => {
     logger.error(error);
   });
@@ -38,7 +38,7 @@ export const requestedCleanup = onRequest((req, res) => {
       logger.error(error);
     })
     .then(() => {
-      res.send("success");
+      res.send('success');
     });
 });
 
@@ -49,11 +49,11 @@ const cleanup = async () => {
 };
 
 const cleanupUsers = () => {
-  const ref = db.ref("users");
+  const ref = db.ref('users');
   const time = new Date((new Date().getTime() - priorUserDeleting)).toJSON();
   const query = ref
-    .orderByChild("filter")
-    .startAt("temp-0000")
+    .orderByChild('filter')
+    .startAt('temp-0000')
     .endAt(`temp-${time}`)
     .limitToFirst(1000);
 
@@ -66,7 +66,7 @@ const cleanupUsers = () => {
     .then((users) => {
       const userIds = Object.keys(users);
       const params: Params = {};
-      const usersRef = db.ref("users");
+      const usersRef = db.ref('users');
 
       userIds.forEach((userId) => {
         params[userId] = null;
@@ -79,9 +79,9 @@ const cleanupUsers = () => {
 };
 
 const cleanupRooms = () => {
-  const ref = db.ref("rooms");
+  const ref = db.ref('rooms');
   const time = new Date().getTime() - priorRoomDeleting;
-  const query = ref.orderByChild("closedAt").endAt(time);
+  const query = ref.orderByChild('closedAt').endAt(time);
 
   return query
     .get()
@@ -110,7 +110,7 @@ const cleanupRooms = () => {
 
 const markRoomDeleted = (room: Room) => {
   const roomRef = db.ref(`rooms/${room.id}`);
-  const filterZ = "-zzzz";
+  const filterZ = '-zzzz';
   return roomRef.update({
     filter: filterZ,
     deletedAt: new Date().getTime(),

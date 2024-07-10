@@ -8,6 +8,10 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
+interface Params {
+  filter?: string
+}
+
 const onExpireCreated = onValueCreated("/expires/*", (event) => {
   const collection = event.data.val();
   const expireRef = db.ref(event.ref);
@@ -27,7 +31,7 @@ const onExpireCreated = onValueCreated("/expires/*", (event) => {
     });
 });
 
-const markOneRoom = (roomId) => {
+const markOneRoom = (roomId: string) => {
   const roomRef = db.ref(`rooms/${roomId}`);
 
   return roomRef.get().then((snapshot) => {
@@ -35,7 +39,7 @@ const markOneRoom = (roomId) => {
 
     const room = snapshot.val();
     const filterZ = "-zzzz";
-    const params = {};
+    const params: Params = {};
 
     if (room.filter !== filterZ) {
       params.filter = filterZ;

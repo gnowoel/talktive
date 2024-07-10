@@ -29,72 +29,71 @@ const priorClosing = isDebugMode() ?
   360 * 1000 : // 6 minutes
   3600 * 1000; // 1 hour
 
-const onMessageCreated = onValueCreated('/messages/{roomId}/*', (event) => {
+const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) => {
   const roomId = event.params.roomId;
   const message = event.data.val();
   const userId = message.userId;
 
-  return Promise.resolve()
-    .then(() => updateUserTimestamp(userId))
-    .then(() => updateRoomTimestamp(roomId, message));
+  try {
+    await updateUserTimestamp(userId);
+    await updateRoomTimestamp(roomId, message);
+  } catch (error) {
+    logger.error(error);
+  }
 });
 
-const updateUserTimestamp = (userId: string) => {
+const updateUserTimestamp = async (userId: string) => {
   const userRef = db.ref(`users/${userId}`);
   const updatedAt = new Date().toJSON();
-  const params = {
-    filter: `perm-${updatedAt}`,
-  };
+  const filter = `perm-${updatedAt}`;
 
-  return userRef.update(params);
+  try {
+    await userRef.update({ filter });
+  } catch (error) {
+    logger.error(error);
+  }
 };
 
-const updateRoomTimestamp = (roomId: string, message: Message) => {
+const updateRoomTimestamp = async (roomId: string, message: Message) => {
   const ref = db.ref(`rooms/${roomId}`);
 
-  return ref
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.exists()) return;
+  const snapshot = await ref.get();
 
-      const room = snapshot.val();
-      const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
-      const filterZ = '-zzzz';
-      const params: Params = {};
+  if (!snapshot.exists()) return;
 
-      params.updatedAt = message.createdAt;
+  const room = snapshot.val();
+  const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
+  const filterZ = '-zzzz';
+  const params: Params = {};
 
-      if (isRoomNew(room)) {
-        params.createdAt = message.createdAt;
-        params.filter = filter0;
-        params.messageCount = 1;
-      } else {
-        // `ServerValue` doesn't work on localhost
-        if (isDebugMode()) {
-          params.messageCount = room.messageCount + 1;
-        } else {
-          params.messageCount = admin.database.ServerValue.increment(1);
-        }
-      }
+  params.updatedAt = message.createdAt;
 
-      if (!isRoomClosed(room, message)) {
-        params.closedAt = message.createdAt + priorClosing;
-      } else {
-        if (room.filter !== filterZ) {
-          params.filter = filterZ;
-        }
-      }
+  if (isRoomNew(room)) {
+    params.createdAt = message.createdAt;
+    params.filter = filter0;
+    params.messageCount = 1;
+  } else {
+    // `ServerValue` doesn't work with Emulators Suite
+    if (isDebugMode()) {
+      params.messageCount = room.messageCount + 1;
+    } else {
+      params.messageCount = admin.database.ServerValue.increment(1);
+    }
+  }
 
-      return params;
-    })
-    .then((params) => {
-      if (params) {
-        ref.update(params);
-      }
-    })
-    .catch((error) => {
-      logger.error(error);
-    });
+  if (!isRoomClosed(room, message)) {
+    params.closedAt = message.createdAt + priorClosing;
+  } else {
+    if (room.filter !== filterZ) {
+      params.filter = filterZ;
+    }
+  }
+
+  try {
+    ref.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
 };
 
 const isRoomNew = (room: Room) => {

@@ -24,15 +24,6 @@ interface Params {
 
 interface Room {
   id: string
-  userId: string
-  userName: string
-  userCode: string
-  languageCode: string
-  createdAt: number
-  updatedAt: number
-  closedAt: number
-  deletedAt: number
-  filter: string
 }
 
 export const scheduledCleanup = onSchedule("every hour", async (_) => {

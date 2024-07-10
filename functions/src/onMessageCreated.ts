@@ -7,6 +7,23 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+interface Params {
+  createdAt?: number
+  updatedAt?: number
+  closedAt?: number
+  messageCount?: number | {}
+  filter?: string
+}
+
+interface Room {
+  closedAt: number
+  filter: string
+}
+
+interface Message {
+  createdAt: number
+}
+
 const db = admin.database();
 const priorClosing = isDebugMode()
   ? 360 * 1000 // 6 minutes
@@ -22,7 +39,7 @@ const onMessageCreated = onValueCreated("/messages/{roomId}/*", (event) => {
     .then(() => updateRoomTimestamp(roomId, message));
 });
 
-const updateUserTimestamp = (userId) => {
+const updateUserTimestamp = (userId: string) => {
   const userRef = db.ref(`users/${userId}`);
   const updatedAt = new Date().toJSON();
   const params = {
@@ -32,7 +49,7 @@ const updateUserTimestamp = (userId) => {
   return userRef.update(params);
 };
 
-const updateRoomTimestamp = (roomId, message) => {
+const updateRoomTimestamp = (roomId: string, message: Message) => {
   const ref = db.ref(`rooms/${roomId}`);
 
   return ref
@@ -43,7 +60,7 @@ const updateRoomTimestamp = (roomId, message) => {
       const room = snapshot.val();
       const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
       const filterZ = "-zzzz";
-      const params = {};
+      const params: Params = {};
 
       params.updatedAt = message.createdAt;
 
@@ -80,11 +97,11 @@ const updateRoomTimestamp = (roomId, message) => {
     });
 };
 
-const isRoomNew = (room) => {
+const isRoomNew = (room: Room) => {
   return room.filter.endsWith("-aaaa");
 };
 
-const isRoomClosed = (room, message) => {
+const isRoomClosed = (room: Room, message: Message) => {
   return room.filter === "-zzzz" || room.closedAt <= message.createdAt;
 };
 

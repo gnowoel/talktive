@@ -11,7 +11,7 @@ interface Params {
   createdAt?: number
   updatedAt?: number
   closedAt?: number
-  messageCount?: number | {}
+  messageCount?: number | object
   filter?: string
 }
 

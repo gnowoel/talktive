@@ -22,7 +22,7 @@ interface Params {
   [userId: string]: null
 }
 
-export const scheduledCleanup = onSchedule('every hour', async (_) => {
+export const scheduledCleanup = onSchedule('every hour', async (_event) => {
   try {
     await cleanup();
   } catch (error) {
@@ -30,7 +30,7 @@ export const scheduledCleanup = onSchedule('every hour', async (_) => {
   }
 });
 
-export const requestedCleanup = onRequest(async (req, res) => {
+export const requestedCleanup = onRequest(async (_req, res) => {
   try {
     await cleanup();
   } catch (error) {

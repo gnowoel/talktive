@@ -36,10 +36,11 @@ const markRoomExpired = async (roomId: string) => {
   const room = snapshot.val();
   const filterZ = '-zzzz';
   const params: Params = {};
+  const now = new Date().getTime();
 
-  if (room.filter !== filterZ) {
-    params.filter = filterZ;
-  }
+  if (room.filter === filterZ || room.closedAt > now) return;
+
+  params.filter = filterZ;
 
   try {
     await roomRef.update(params);

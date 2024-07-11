@@ -4,14 +4,16 @@
       ".indexOn": ["filter"]
     },
     "rooms": {
+      ".read": "auth !== null",
+      ".indexOn": ["filter", "closedAt"],
       "$roomId": {
         ".read": "auth !== null",
-        ".write": "auth !== null && auth.uid === newData.child('userId').val()",
-        ".indexOn": ["filter", "closedAt"]
+        ".write": "auth !== null && auth.uid === newData.child('userId').val()"
       }
     },
     "messages": {
       "$roomId": {
+        ".read": "auth !== null",
         "$messageId": {
           ".read": "auth !== null",
           ".write": "auth !== null && auth.uid === newData.child('userId').val()",
@@ -20,6 +22,16 @@
             ".validate": "newData.isString() && newData.val().length <= 1024"
           }
         }
+      }
+    },
+    "accesses": {
+      "$accessId": {
+        ".write": "auth !== null"
+      }
+    },
+    "expires": {
+      "$expireId": {
+        ".write": "auth !== null"
       }
     }
   }

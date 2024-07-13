@@ -7,10 +7,14 @@ import '../mocks.dart';
 void main() {
   setupMocks();
 
-  group('History', () {
-    final history = History();
-    final room = Room(
-      id: 'id',
+  final history = History();
+  const currentUserId = 'currentUid';
+  const messageCount = 0;
+  const scrollOffset = 0.0;
+
+  Room generateRoom(int number) {
+    return Room(
+      id: 'id-$number',
       userId: 'uid',
       userName: 'name',
       userCode: 'code',
@@ -21,19 +25,23 @@ void main() {
       deletedAt: 0,
       filter: 'filter',
     );
-    const currentUserId = 'currentUid';
-    const messageCount = 0;
-    const scrollOffset = 0.0;
+  }
 
-    test('.saveRecord()', () async {
-      await history.saveRecord(
-        room: room,
-        currentUserId: currentUserId,
-        messageCount: messageCount,
-        scrollOffset: scrollOffset,
-      );
+  Future<void> saveHistoryRecord(int number) async {
+    await history.saveRecord(
+      room: generateRoom(number),
+      currentUserId: currentUserId,
+      messageCount: messageCount,
+      scrollOffset: scrollOffset,
+    );
+  }
+
+  group('History', () {
+    test('can save records', () async {
+      await saveHistoryRecord(1);
+      await saveHistoryRecord(2);
       final recentRecords = history.recentRecords;
-      expect(recentRecords.length, equals(1));
+      expect(recentRecords, hasLength(2));
     });
   });
 }

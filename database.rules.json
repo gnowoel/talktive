@@ -7,7 +7,6 @@
       ".read": "auth !== null",
       ".indexOn": ["filter", "closedAt"],
       "$roomId": {
-        ".read": "auth !== null",
         ".write": "auth !== null && auth.uid === newData.child('userId').val()"
       }
     },
@@ -15,7 +14,6 @@
       "$roomId": {
         ".read": "auth !== null",
         "$messageId": {
-          ".read": "auth !== null",
           ".write": "auth !== null && auth.uid === newData.child('userId').val()",
           ".validate": "newData.hasChild('content')",
           "content": {

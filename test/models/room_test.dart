@@ -1,7 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/models/room.dart';
 
+import '../mock.dart';
+
 void main() {
+  setupMocks();
+
   group('Room', () {
     final json = <String, dynamic>{
       'id': 'id',
@@ -100,6 +104,70 @@ void main() {
 
       expect(room, isA<Room>());
       expect(room.id, equals(key));
+    });
+  });
+
+  group('utils', () {
+    final json = <String, dynamic>{
+      'id': 'id',
+      'userId': 'userId',
+      'userName': 'userName',
+      'userCode': 'userCode',
+      'languageCode': 'languageCode',
+      'createdAt': 0,
+      'updatedAt': 0,
+      'closedAt': 0,
+      'deletedAt': 0,
+      'filter': 'filter',
+    };
+
+    test('isNew', () {
+      final room = Room.fromJson(json);
+      final roomNew = room.copyWith(filter: 'en-aaaa');
+
+      expect(room.isNew, isFalse);
+      expect(roomNew.isNew, isTrue);
+    });
+
+    test('isMarkedClosed', () {
+      final room = Room.fromJson(json);
+      final roomMarkedClosed = room.copyWith(filter: '-zzzz');
+
+      expect(room.isMarkedClosed, isFalse);
+      expect(roomMarkedClosed.isMarkedClosed, isTrue);
+    });
+
+    test('isClosed', () {
+      final past = DateTime.now().subtract(const Duration(days: 1));
+      final future = DateTime.now().add(const Duration(days: 1));
+
+      final room = Room.fromJson(json);
+      final roomMarkedClosed = room.copyWith(filter: '-zzzz');
+      final roomClosed = room.copyWith(closedAt: past.millisecondsSinceEpoch);
+      final roomOpen = room.copyWith(closedAt: future.millisecondsSinceEpoch);
+
+      expect(room.isClosed, isTrue);
+      expect(roomMarkedClosed.isClosed, isTrue);
+      expect(roomClosed.isClosed, isTrue);
+      expect(roomOpen.isClosed, isFalse);
+    });
+
+    test('isDeleted', () {
+      final now = DateTime.now();
+
+      final room = Room.fromJson(json);
+      final roomDeleted = room.copyWith(deletedAt: now.millisecondsSinceEpoch);
+
+      expect(room.isDeleted, isFalse);
+      expect(roomDeleted.isDeleted, isTrue);
+    });
+
+    test('isFromRecord', () {
+      final room = Room.fromJson(json);
+      final roomFromRecord = room.copyWith(filter: '-rrrr');
+
+      expect(room.isFromRecord, isFalse);
+      expect(roomFromRecord.isFromRecord, isTrue);
     });
   });
 }

@@ -26,6 +26,32 @@ class Room {
     required this.filter,
   });
 
+  Room copyWith({
+    String? id,
+    String? userId,
+    String? userName,
+    String? userCode,
+    String? languageCode,
+    int? createdAt,
+    int? updatedAt,
+    int? closedAt,
+    int? deletedAt,
+    String? filter,
+  }) {
+    return Room(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userCode: userCode ?? this.userCode,
+      languageCode: languageCode ?? this.languageCode,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      closedAt: closedAt ?? this.closedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      filter: filter ?? this.filter,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

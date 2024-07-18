@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/models/record.dart';
+import 'package:talktive/models/room.dart';
 
 void main() {
   group('Record', () {
@@ -38,6 +39,14 @@ void main() {
       final recordJson = recordObject.toJson();
 
       expect(recordJson['roomId'], equals(json['roomId']));
+    });
+
+    test('Room.fromRecord()', () {
+      final record = Record.fromJson(json);
+      final room = Room.fromRecord(record: record);
+
+      expect(room, isA<Room>());
+      expect(room.id, equals(record.roomId));
     });
   });
 }

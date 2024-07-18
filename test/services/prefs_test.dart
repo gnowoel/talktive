@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/services/prefs.dart';
 
-import '../mocks.dart';
+import '../mock.dart';
 
 void main() {
   setupMocks();

@@ -2,7 +2,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/services/fireauth.dart';
 
-import '../mocks.dart';
+import '../mock.dart';
 
 void main() {
   setupMocks();

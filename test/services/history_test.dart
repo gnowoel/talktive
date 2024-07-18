@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/models/room.dart';
 import 'package:talktive/services/history.dart';
 
-import '../mocks.dart';
+import '../mock.dart';
 
 void main() {
   setupMocks();

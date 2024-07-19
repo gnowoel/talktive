@@ -15,7 +15,7 @@ class History {
   final prefs = Prefs();
   final _records = <Record>[];
 
-  Future<void> loadRecords() async {
+  Future<void> init() async {
     final string = await prefs.getString('records');
     final list = string == null
         ? <Map<String, dynamic>>[]

@@ -1,27 +1,28 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/services/avatar.dart';
 
+import '../mock.dart';
+
 void main() {
+  setupMocks();
+
   group('Avatar', () {
     final avatar = Avatar();
 
-    test('has an initial value', () {
-      expect(avatar.name.isNotEmpty, true);
-      expect(avatar.code.isNotEmpty, true);
+    test('initEmoji()', () async {
+      await avatar.init();
+      expect(avatar.name, isNotEmpty);
+      expect(avatar.code, isNotEmpty);
     });
 
-    test('can generate new values', () {
-      avatar.refresh();
-      expect(avatar.name.isNotEmpty, true);
-      expect(avatar.code.isNotEmpty, true);
-    });
-
-    test('can change old values', () {
+    test('refresh()', () {
       final name = avatar.name;
       final code = avatar.code;
+
       avatar.refresh();
-      expect(avatar.name == name, false);
-      expect(avatar.code == code, false);
+
+      expect(avatar.name == name, isFalse);
+      expect(avatar.code == code, isFalse);
     });
   });
 }

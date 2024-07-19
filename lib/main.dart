@@ -28,8 +28,8 @@ Future<void> main() async {
     }
   }
 
-  await Avatar().initEmoji();
-  await History().loadRecords();
+  await Avatar().init();
+  await History().init();
   Firedata().syncTime();
   runApp(const App());
 }

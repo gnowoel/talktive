@@ -29,5 +29,15 @@ void main() {
 
       expect(emojiJson['code'], equals(json['code']));
     });
+
+    test('Emoji.random()', () {
+      final emoji1 = Emoji.fromJson(json);
+      final emoji2 = Emoji.random();
+
+      expect(emoji1.name == emoji2.name, isFalse);
+      expect(emoji1.code == emoji2.code, isFalse);
+      expect(emoji2.name, isNotEmpty);
+      expect(emoji2.code, isNotEmpty);
+    });
   });
 }

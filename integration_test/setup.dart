@@ -11,9 +11,8 @@ Future<void> setup() async {
 
   await Firebase.initializeApp();
 
-  final host = defaultTargetPlatform == TargetPlatform.android
-      ? '10.0.2.2'
-      : 'localhost';
+  final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+  final host = isAndroid ? '10.0.2.2' : 'localhost';
 
   await FirebaseAuth.instance.useAuthEmulator(host, 9099);
   FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);

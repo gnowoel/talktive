@@ -16,9 +16,8 @@ Future<void> main() async {
   );
 
   if (kDebugMode) {
-    final host = defaultTargetPlatform == TargetPlatform.android
-        ? '10.0.2.2'
-        : 'localhost';
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+    final host = isAndroid ? '10.0.2.2' : 'localhost';
 
     try {
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);

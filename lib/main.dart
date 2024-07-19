@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'services/avatar.dart';
 import 'services/firedata.dart';
 import 'services/history.dart';
 
@@ -27,6 +28,7 @@ Future<void> main() async {
     }
   }
 
+  await Avatar().loadEmoji();
   await History().loadRecords();
   Firedata().syncTime();
   runApp(const App());

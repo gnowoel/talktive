@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:talktive/services/prefs.dart';
 import 'package:unicode_emojis/unicode_emojis.dart';
 
 class Avatar extends ChangeNotifier {
@@ -10,11 +11,34 @@ class Avatar extends ChangeNotifier {
 
   factory Avatar() => _instance;
 
-  Emoji _current = _randomEmoji();
+  final prefs = Prefs();
 
-  String get name => _current.name;
+  late Emoji _emoji;
 
-  String get code => _current.emoji;
+  String get name => _emoji.name;
+
+  String get code => _emoji.emoji;
+
+  void refresh() {
+    final emoji = _randomEmoji();
+    saveEmoji(emoji); // no wait
+  }
+
+  Future<void> saveEmoji(Emoji emoji) async {
+    _emoji = emoji;
+    await prefs.setString('emoji', emoji.toJson());
+    notifyListeners();
+  }
+
+  Future<void> loadEmoji() async {
+    final string = await prefs.getString('emoji');
+    if (string == null) {
+      refresh();
+    } else {
+      _emoji = Emoji.fromJson(string);
+      notifyListeners();
+    }
+  }
 
   static Emoji _randomEmoji() {
     return _selectedEmojis[Random().nextInt(_selectedEmojis.length)];
@@ -34,9 +58,4 @@ class Avatar extends ChangeNotifier {
     Category.activities,
     Category.objects,
   ];
-
-  void refresh() {
-    _current = _randomEmoji();
-    notifyListeners();
-  }
 }

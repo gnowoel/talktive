@@ -28,7 +28,7 @@ Future<void> main() async {
     }
   }
 
-  await Avatar().loadEmoji();
+  await Avatar().initEmoji();
   await History().loadRecords();
   Firedata().syncTime();
   runApp(const App());

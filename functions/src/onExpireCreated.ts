@@ -18,7 +18,7 @@ const onExpireCreated = onValueCreated('/expires/*', async (event) => {
   const roomIds = Object.keys(expires);
 
   try {
-    for (const roomId in roomIds) {
+    for (const roomId of roomIds) {
       await markRoomExpired(roomId);
     }
     await expireRef.remove();

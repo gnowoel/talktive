@@ -11,12 +11,12 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const priorUserDeleting = isDebugMode() ?
-  0 : // now wait
-  30 * 24 * 3600 * 1000; // 30 days
-const priorRoomDeleting = isDebugMode() ?
-  0 : // no wait
-  48 * 3600 * 1000; // 48 hours
+const priorUserDeleting = isDebugMode()
+  ? 0 // now wait
+  : 30 * 24 * 3600 * 1000; // 30 days
+const priorRoomDeleting = isDebugMode()
+  ? 0 // no wait
+  : 48 * 3600 * 1000; // 48 hours
 
 interface Params {
   [userId: string]: null
@@ -51,7 +51,7 @@ const cleanup = async () => {
 
 const cleanupUsers = async () => {
   const ref = db.ref('users');
-  const time = new Date((new Date().getTime() - priorUserDeleting)).toJSON();
+  const time = new Date(new Date().getTime() - priorUserDeleting).toJSON();
 
   const query = ref
     .orderByChild('filter')
@@ -93,7 +93,7 @@ const cleanupRooms = async () => {
   const roomIds = Object.keys(rooms);
 
   try {
-    for (const roomId in roomIds) {
+    for (const roomId of roomIds) {
       await markRoomDeleted(roomId);
       await removeMessages(roomId);
     }

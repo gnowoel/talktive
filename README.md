@@ -22,9 +22,19 @@ You can open your heart and share your happiness or sadness. In an hour, everyon
 
 No one but the participants can see your conversations. Expired rooms are not publicly accessible, and all records will eventually be deleted.
 
-## Local setup
+## Firebase project
 
-Before starting, create a new Firebase project and enable Anonymous Authentication. Other services like Realtime Database and Functions will be enabled in the following steps.
+Create a new Firebase project and and upgrade to the Blaze plan (in order to use Functions).
+
+Enable the following services:
+
+* Authentication (Anonymous)
+* Realtime Database
+* Functions
+
+For Realtime Database, update the Security Rules with the content of `database.rules.json`.
+
+## Local setup
 
 Clone the repo:
 
@@ -82,18 +92,16 @@ $ flutter run
 
 ## Deployment
 
-First upgrade your Firebase project to the Blaze plan (pay-as-you-go).
-
-Now deploy the functions (in the `functions` directory):
+Deploy the functions (in the `functions` directory):
 
 ```
 $ npm run deploy
 ```
 
-Then build the `web` release of the app with `flutter build`:
+Build the `web` release of the app with `flutter build`:
 
 ```
 $ flutter build web
 ```
 
-Finally upload the `build/web` directory to your hosting service of choice.
+Upload the `build/web` directory to your hosting service of choice.

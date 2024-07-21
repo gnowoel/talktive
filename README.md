@@ -4,7 +4,7 @@ An anonymous group chat app for safely talking to strangers.
 
 **[Click to open the app](https://open.talktive.app/)**
 
-## Features
+## Main features
 
 **:see_no_evil: Anonymous**
 
@@ -22,36 +22,32 @@ You can open your heart and share your happiness or sadness. In an hour, everyon
 
 No one but the participants can see your conversations. Expired rooms are not publicly accessible, and all records will eventually be deleted.
 
-## Setup
+## Local setup
 
 Clone the repo:
 
 ```
 $ git clone https://github.com/gnowoel/talktive.git
+$ cd talktive
 ```
 
-Initialize Firebase (Firebase Authentication, Realtime Database and Firebase Emulators Suite):
+Configure Firebase for Authentication, Realtime Database and Emulators Suite:
 
 ```
 $ firebase init
-```
-
-Connect to Firebase with FlutterFire:
-
-```
 $ flutterfire configure
 ```
 
-Start Firebase Emulators Suite:
+Start Emulators Suite:
 
 ```
 $ firebase emulators:start
 ```
 
-Watch and compile TypeScript code for Cloud Functions (in the `functions` directory):
+Watch and compile Cloud Functions code:
 
 ```
-$ npm run build:watch
+$ npm run build:watch # Run it in the `functions` directory
 ```
 
 Optionally start a device simulator or emulator:
@@ -60,7 +56,7 @@ Optionally start a device simulator or emulator:
 $ flutter emulators --launch Pixel_3a_API_34_extension_level_7_x86_64
 ```
 
-Run the tests:
+Optionally run the unit and integration tests:
 
 ```
 $ flutter test

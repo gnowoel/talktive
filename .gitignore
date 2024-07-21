@@ -42,5 +42,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# More by me
+# Firebase related
+.firebaserc
+firebase.json
+lib/firebase_options.dart
 firepit-log.txt

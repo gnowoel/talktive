@@ -24,6 +24,8 @@ No one but the participants can see your conversations. Expired rooms are not pu
 
 ## Local setup
 
+Before starting, create a new Firebase project and enable Anonymous Authentication. Other services like Realtime Database and Functions will be enabled in the following steps.
+
 Clone the repo:
 
 ```
@@ -31,12 +33,21 @@ $ git clone https://github.com/gnowoel/talktive.git
 $ cd talktive
 ```
 
-Configure Firebase for Authentication, Realtime Database and Emulators Suite:
+Configure Firebase for Realtime Database, Functions and Emulators Suite:
 
 ```
-$ firebase init
+$ firebase login
+$ dart pub global activate flutterfire_cli
 $ flutterfire configure
+$ firebase init
 ```
+
+In Emulators Setup, choose:
+
+* Authentication Emulator
+* Database Emulator
+* Functions Emulator
+* Pub/Sub Emulator
 
 Start Emulators Suite:
 
@@ -44,10 +55,10 @@ Start Emulators Suite:
 $ firebase emulators:start
 ```
 
-Watch and compile Cloud Functions code:
+Watch and compile Cloud Functions code (in the `functions` directory):
 
 ```
-$ npm run build:watch # Run it in the `functions` directory
+$ npm run build:watch
 ```
 
 Optionally start a device simulator or emulator:
@@ -68,3 +79,21 @@ Start the app:
 ```
 $ flutter run
 ```
+
+## Deployment
+
+First upgrade your Firebase project to the Blaze plan (pay-as-you-go).
+
+Now deploy the functions (in the `functions` directory):
+
+```
+$ npm run deploy
+```
+
+Then build the `web` release of the app with `flutter build`:
+
+```
+$ flutter build web
+```
+
+Finally upload the `build/web` directory to your hosting service of choice.

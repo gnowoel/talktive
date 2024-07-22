@@ -24,15 +24,13 @@ No one but the participants can see your conversations. Expired rooms are not pu
 
 ## Firebase project
 
-Create a new Firebase project and and upgrade to the Blaze plan (in order to use Functions).
-
-Enable the following services:
+Create a new Firebase project, and enable the following services:
 
 * Authentication (Anonymous)
 * Realtime Database
 * Functions
 
-For Realtime Database, update the Security Rules with the content of `database.rules.json`.
+In order to use Cloud Functions, we need to upgrade the project to the Blaze plan (pay-as-you-go).
 
 ## Local setup
 
@@ -43,21 +41,44 @@ $ git clone https://github.com/gnowoel/talktive.git
 $ cd talktive
 ```
 
-Configure Firebase for Realtime Database, Functions and Emulators Suite:
+Configure Flutterfire:
 
 ```
 $ firebase login
 $ dart pub global activate flutterfire_cli
 $ flutterfire configure
+```
+
+Configure Firebase:
+
+```
 $ firebase init
 ```
 
-In Emulators Setup, choose:
+Select the following services:
+
+* Realtime Database
+* Functions
+* Emulators
+
+For "Functions", select:
+
+* TypeScript
+
+For "Emulators", select:
 
 * Authentication Emulator
-* Database Emulator
 * Functions Emulator
+* Database Emulator
 * Pub/Sub Emulator
+
+## Running locally
+
+Watch and compile Cloud Functions code (from the `functions` directory):
+
+```
+$ npm run build:watch
+```
 
 Start Emulators Suite:
 
@@ -65,13 +86,7 @@ Start Emulators Suite:
 $ firebase emulators:start
 ```
 
-Watch and compile Cloud Functions code (in the `functions` directory):
-
-```
-$ npm run build:watch
-```
-
-Optionally start a device simulator or emulator:
+Optionally start a device simulator or emulator, for example:
 
 ```
 $ flutter emulators --launch Pixel_3a_API_34_extension_level_7_x86_64
@@ -92,13 +107,19 @@ $ flutter run
 
 ## Deployment
 
-Deploy the functions (in the `functions` directory):
+Deploy Realtime Database Securty Rules:
+
+```
+$ firebase deploy --only database
+```
+
+Deploy Cloud Functions (from the `functions` directory):
 
 ```
 $ npm run deploy
 ```
 
-Build the `web` release of the app with `flutter build`:
+Build the `web` release of the Flutter app:
 
 ```
 $ flutter build web

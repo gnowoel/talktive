@@ -3,7 +3,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
-import { isDebugMode } from './helpers';
+import { isDebugMode, getYear, getMonth } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -24,6 +24,7 @@ interface Params {
 
 export const scheduledCleanup = onSchedule('every hour', async (_event) => {
   try {
+    await setup();
     await cleanup();
   } catch (error) {
     logger.error(error);
@@ -32,6 +33,7 @@ export const scheduledCleanup = onSchedule('every hour', async (_event) => {
 
 export const requestedCleanup = onRequest(async (_req, res) => {
   try {
+    await setup();
     await cleanup();
   } catch (error) {
     logger.error(error);
@@ -39,6 +41,38 @@ export const requestedCleanup = onRequest(async (_req, res) => {
 
   res.send('success');
 });
+
+const setup = async () => {
+  const thisMonth = new Date();
+  const nextMonth = new Date(thisMonth.getTime() + 30 * 24 * 3600 * 1000);
+
+  try {
+    await setupMonthStats(thisMonth);
+    await setupMonthStats(nextMonth);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const setupMonthStats = async (timestamp: Date) => {
+  const year = getYear(timestamp);
+  const month = getMonth(timestamp);
+  const statsRef = db.ref(`stats/${year}/${month}`);
+
+  const snapshot = await statsRef.get();
+
+  if (snapshot.exists()) return;
+
+  try {
+    await statsRef.set({
+      users: 0,
+      rooms: 0,
+      messages: 0
+    });
+  } catch (error) {
+    logger.error(error);
+  }
+}
 
 const cleanup = async () => {
   try {

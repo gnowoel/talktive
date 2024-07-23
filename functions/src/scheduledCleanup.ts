@@ -3,7 +3,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
-import { isDebugMode, getYear, getMonth } from './helpers';
+import { isDebugMode, getYear, getMonth, getDate } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -43,21 +43,22 @@ export const requestedCleanup = onRequest(async (_req, res) => {
 });
 
 const setup = async () => {
-  const thisMonth = new Date();
-  const nextMonth = new Date(thisMonth.getTime() + 30 * 24 * 3600 * 1000);
+  const today = new Date();
+  const tomorrow = new Date(today.getTime() + 24 * 3600 * 1000);
 
   try {
-    await setupMonthStats(thisMonth);
-    await setupMonthStats(nextMonth);
+    await setupDateStats(today);
+    await setupDateStats(tomorrow);
   } catch (error) {
     logger.error(error);
   }
 };
 
-const setupMonthStats = async (timestamp: Date) => {
+const setupDateStats = async (timestamp: Date) => {
   const year = getYear(timestamp);
   const month = getMonth(timestamp);
-  const statsRef = db.ref(`stats/${year}/${month}`);
+  const date = getDate(timestamp);
+  const statsRef = db.ref(`stats/${year}/${month}/${date}`);
 
   const snapshot = await statsRef.get();
 

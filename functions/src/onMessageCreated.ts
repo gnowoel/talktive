@@ -1,7 +1,7 @@
-import { onValueCreated } from 'firebase-functions/v2/database';
-import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { isDebugMode, getYear, getMonth } from './helpers';
+import { logger } from 'firebase-functions';
+import { onValueCreated } from 'firebase-functions/v2/database';
+import { getDate, getMonth, getYear, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -112,7 +112,8 @@ const isRoomClosed = (room: Room, timestamp: number) => {
 const updateMessageStats = async (now: Date) => {
   const year = getYear(now);
   const month = getMonth(now);
-  const statRef = db.ref(`stats/${year}/${month}`);
+  const date = getDate(now);
+  const statRef = db.ref(`stats/${year}/${month}/${date}`);
 
   const snapshot = await statRef.get();
 

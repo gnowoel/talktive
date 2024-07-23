@@ -1,7 +1,7 @@
-import * as functions from 'firebase-functions/v1';
-import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { getYear, getMonth, isDebugMode } from './helpers';
+import { logger } from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
+import { getDate, getMonth, getYear, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -46,7 +46,8 @@ const copyUser = async (user: User, now: Date) => {
 const updateUserStats = async (now: Date) => {
   const year = getYear(now);
   const month = getMonth(now);
-  const statRef = db.ref(`stats/${year}/${month}`);
+  const date = getDate(now);
+  const statRef = db.ref(`stats/${year}/${month}/${date}`);
 
   const snapshot = await statRef.get();
 

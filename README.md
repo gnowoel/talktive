@@ -80,10 +80,16 @@ Watch and compile Cloud Functions code (from the `functions` directory):
 $ npm run build:watch
 ```
 
-Start Emulators Suite:
+Start Emulators Suite, and take a note of the URL for the HTTP request:
 
 ```
 $ firebase emulators:start
+```
+
+Trigger the scheduler once with an HTTP request, using the URL from the previous step:
+
+```
+$ curl http://127.0.0.1:5001/talktive-12345/us-central1/requestedCleanup
 ```
 
 Optionally start a device simulator or emulator, for example:

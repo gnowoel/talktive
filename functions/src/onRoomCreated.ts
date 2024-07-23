@@ -7,20 +7,22 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-interface Params {
+interface StatParams {
+  users?: number | object
   rooms?: number | object
+  messages?: number | object
 }
 
 const db = admin.database();
 
 const onRoomCreated = onValueCreated('/rooms/*', async (event) => {
-  const now = new Date;
+  const now = new Date();
   const room = event.data.val();
   const userId = room.userId;
 
   try {
     await markUserPermanent(userId, now);
-    await saveRoomStats(now);
+    await updateRoomStats(now);
   } catch (error) {
     logger.error(error);
   }
@@ -39,7 +41,7 @@ const markUserPermanent = async (userId: string, now: Date) => {
 
 }
 
-const saveRoomStats = async (now: Date) => {
+const updateRoomStats = async (now: Date) => {
   const year = getYear(now);
   const month = getMonth(now);
   const statRef = db.ref(`stats/${year}/${month}`);
@@ -49,7 +51,7 @@ const saveRoomStats = async (now: Date) => {
   if (!snapshot.exists()) return;
 
   const stat = snapshot.val();
-  const params: Params = {};
+  const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {

@@ -11,8 +11,10 @@ interface User {
   uid: string
 }
 
-interface Params {
+interface StatParams {
   users?: number | object
+  rooms?: number | object
+  messages?: number | object
 }
 
 const db = admin.database();
@@ -22,7 +24,7 @@ const onUserRegistered = functions.auth.user().onCreate(async (user) => {
 
   try {
     await copyUser(user, now);
-    await saveUserStats(now);
+    await updateUserStats(now);
   } catch (error) {
     logger.error(error);
   }
@@ -41,7 +43,7 @@ const copyUser = async (user: User, now: Date) => {
   }
 };
 
-const saveUserStats = async (now: Date) => {
+const updateUserStats = async (now: Date) => {
   const year = getYear(now);
   const month = getMonth(now);
   const statRef = db.ref(`stats/${year}/${month}`);
@@ -51,7 +53,7 @@ const saveUserStats = async (now: Date) => {
   if (!snapshot.exists()) return;
 
   const stat = snapshot.val();
-  const params: Params = {};
+  const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {

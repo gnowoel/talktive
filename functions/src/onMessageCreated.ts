@@ -1,13 +1,18 @@
 import { onValueCreated } from 'firebase-functions/v2/database';
 import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { isDebugMode } from './helpers';
+import { isDebugMode, getYear, getMonth } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-interface Params {
+interface Room {
+  closedAt: number
+  filter: string
+}
+
+interface RoomParams {
   createdAt?: number
   updatedAt?: number
   closedAt?: number
@@ -15,9 +20,10 @@ interface Params {
   filter?: string
 }
 
-interface Room {
-  closedAt: number
-  filter: string
+interface StatParams {
+  users?: number | object
+  rooms?: number | object
+  messages?: number | object
 }
 
 const db = admin.database();
@@ -26,22 +32,24 @@ const priorClosing = isDebugMode() ?
   3600 * 1000; // 1 hour
 
 const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) => {
+  const now = new Date();
   const roomId = event.params.roomId;
   const message = event.data.val();
   const userId = message.userId;
   const messageCreatedAt = message.createdAt;
 
   try {
-    await updateUserTimestamp(userId);
-    await updateRoomTimestamp(roomId, messageCreatedAt);
+    await updateUserTimestamp(userId, now);
+    await updateRoomTimestampAndMessageCount(roomId, messageCreatedAt);
+    await updateMessageStats(now);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const updateUserTimestamp = async (userId: string) => {
+const updateUserTimestamp = async (userId: string, now: Date) => {
   const userRef = db.ref(`users/${userId}`);
-  const updatedAt = new Date().toJSON();
+  const updatedAt = now.toJSON();
   const filter = `perm-${updatedAt}`;
 
   try {
@@ -51,7 +59,7 @@ const updateUserTimestamp = async (userId: string) => {
   }
 };
 
-const updateRoomTimestamp = async (roomId: string, messageCreatedAt: number) => {
+const updateRoomTimestampAndMessageCount = async (roomId: string, messageCreatedAt: number) => {
   const ref = db.ref(`rooms/${roomId}`);
 
   const snapshot = await ref.get();
@@ -61,7 +69,7 @@ const updateRoomTimestamp = async (roomId: string, messageCreatedAt: number) => 
   const room = snapshot.val();
   const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
   const filterZ = '-zzzz';
-  const params: Params = {};
+  const params: RoomParams = {};
 
   params.updatedAt = messageCreatedAt;
 
@@ -87,7 +95,7 @@ const updateRoomTimestamp = async (roomId: string, messageCreatedAt: number) => 
   }
 
   try {
-    ref.update(params);
+    await ref.update(params);
   } catch (error) {
     logger.error(error);
   }
@@ -99,6 +107,32 @@ const isRoomNew = (room: Room) => {
 
 const isRoomClosed = (room: Room, timestamp: number) => {
   return room.filter === '-zzzz' || room.closedAt <= timestamp;
+};
+
+const updateMessageStats = async (now: Date) => {
+  const year = getYear(now);
+  const month = getMonth(now);
+  const statRef = db.ref(`stats/${year}/${month}`);
+
+  const snapshot = await statRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const stat = snapshot.val();
+  const params: StatParams = {};
+
+  // `ServerValue` doesn't work with Emulators Suite
+  if (isDebugMode()) {
+    params.messages = stat.messages + 1;
+  } else {
+    params.messages = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await statRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
 };
 
 export default onMessageCreated;

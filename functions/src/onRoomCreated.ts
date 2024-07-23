@@ -1,18 +1,34 @@
 import { onValueCreated } from 'firebase-functions/v2/database';
 import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { getYear, getMonth, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+interface Params {
+  rooms?: number | object
+}
+
 const db = admin.database();
 
 const onRoomCreated = onValueCreated('/rooms/*', async (event) => {
+  const now = new Date;
   const room = event.data.val();
   const userId = room.userId;
+
+  try {
+    await markUserPermanent(userId, now);
+    await saveRoomStats(now);
+  } catch (error) {
+    logger.error(error);
+  }
+});
+
+const markUserPermanent = async (userId: string, now: Date) => {
   const userRef = db.ref(`users/${userId}`);
-  const updatedAt = new Date().toJSON();
+  const updatedAt = now.toJSON();
   const filter = `perm-${updatedAt}`;
 
   try {
@@ -20,6 +36,34 @@ const onRoomCreated = onValueCreated('/rooms/*', async (event) => {
   } catch (error) {
     logger.error(error);
   }
-});
+
+}
+
+const saveRoomStats = async (now: Date) => {
+  const year = getYear(now);
+  const month = getMonth(now);
+  const statRef = db.ref(`stats/${year}/${month}`);
+
+  const snapshot = await statRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const stat = snapshot.val();
+  const params: Params = {};
+
+  // `ServerValue` doesn't work with Emulators Suite
+  if (isDebugMode()) {
+    params.rooms = stat.rooms + 1;
+  } else {
+    params.rooms = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await statRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 
 export default onRoomCreated;

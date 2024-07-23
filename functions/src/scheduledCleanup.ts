@@ -1,9 +1,9 @@
-import { onRequest } from 'firebase-functions/v2/https';
-import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
-import { isDebugMode, getYear, getMonth, getDate } from './helpers';
+import { logger } from 'firebase-functions';
+import { onRequest } from 'firebase-functions/v2/https';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -55,17 +55,13 @@ const setup = async () => {
 };
 
 const setupDateStats = async (timestamp: Date) => {
-  const year = getYear(timestamp);
-  const month = getMonth(timestamp);
-  const date = getDate(timestamp);
-  const statsRef = db.ref(`stats/${year}/${month}/${date}`);
-
-  const snapshot = await statsRef.get();
+  const statRef = db.ref(`stats/${formatDate(timestamp)}`);
+  const snapshot = await statRef.get();
 
   if (snapshot.exists()) return;
 
   try {
-    await statsRef.set({
+    await statRef.set({
       users: 0,
       rooms: 0,
       messages: 0

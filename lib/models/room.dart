@@ -115,13 +115,28 @@ class Room {
     );
   }
 
+  static dummyDeletedRoom() {
+    return Room(
+      id: 'id',
+      userId: 'userId',
+      userName: 'userName',
+      userCode: 'userCode',
+      languageCode: 'languageCode',
+      createdAt: 0,
+      updatedAt: 0,
+      closedAt: 0,
+      deletedAt: 0,
+      filter: '-dddd',
+    );
+  }
+
   bool get isNew => filter.endsWith('-aaaa');
 
   bool get isClosed => isMarkedClosed || closedAt <= Firedata().serverNow();
 
   bool get isMarkedClosed => filter == '-zzzz';
 
-  bool get isDeleted => deletedAt != 0;
+  bool get isDeleted => filter == '-dddd';
 
   bool get isFromRecord => filter == '-rrrr';
 }

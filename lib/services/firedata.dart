@@ -90,9 +90,16 @@ class Firedata {
     final stream = ref.onValue.map((event) {
       final snapshot = event.snapshot;
       final value = snapshot.value;
-      final json = Map<String, dynamic>.from(value as Map);
-      final stub = RoomStub.fromJson(json);
-      final room = Room.fromStub(key: roomId, value: stub);
+
+      late Room room;
+
+      if (value != null) {
+        final json = Map<String, dynamic>.from(value as Map);
+        final stub = RoomStub.fromJson(json);
+        room = Room.fromStub(key: roomId, value: stub);
+      } else {
+        room = Room.dummyDeletedRoom();
+      }
 
       return room;
     });

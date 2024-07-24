@@ -69,7 +69,22 @@ class _ChatPageState extends State<ChatPage> {
     _addHistoryRecord(_room);
 
     roomSubscription = firedata.subscribeToRoom(widget.room.id).listen((room) {
-      setState(() => _room = room);
+      if (!room.isDeleted) {
+        setState(() => _room = room);
+      } else {
+        setState(() => _room = _room.copyWith(filter: room.filter));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: theme.colorScheme.errorContainer,
+            content: Text(
+              'The room has been deleted.',
+              style: TextStyle(
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+          ),
+        );
+      }
     });
 
     messagesSubscription =

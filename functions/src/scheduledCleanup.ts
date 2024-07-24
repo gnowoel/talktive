@@ -11,10 +11,11 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const priorUserDeleting = isDebugMode()
+const timeBeforeUserDeleting = isDebugMode()
   ? 0 // now wait
   : 30 * 24 * 3600 * 1000; // 30 days
-const priorRoomDeleting = isDebugMode()
+
+const timeBeforeRoomDeleting = isDebugMode()
   ? 0 // no wait
   : 48 * 3600 * 1000; // 48 hours
 
@@ -47,14 +48,14 @@ const setup = async () => {
   const tomorrow = new Date(today.getTime() + 24 * 3600 * 1000);
 
   try {
-    await setupDateStats(today);
-    await setupDateStats(tomorrow);
+    await setupDailyStats(today);
+    await setupDailyStats(tomorrow);
   } catch (error) {
     logger.error(error);
   }
 };
 
-const setupDateStats = async (timestamp: Date) => {
+const setupDailyStats = async (timestamp: Date) => {
   const statRef = db.ref(`stats/${formatDate(timestamp)}`);
   const snapshot = await statRef.get();
 
@@ -82,7 +83,7 @@ const cleanup = async () => {
 
 const cleanupUsers = async () => {
   const ref = db.ref('users');
-  const time = new Date(new Date().getTime() - priorUserDeleting).toJSON();
+  const time = new Date(new Date().getTime() - timeBeforeUserDeleting).toJSON();
 
   const query = ref
     .orderByChild('filter')
@@ -113,7 +114,7 @@ const cleanupUsers = async () => {
 
 const cleanupRooms = async () => {
   const ref = db.ref('rooms');
-  const time = new Date().getTime() - priorRoomDeleting;
+  const time = new Date().getTime() - timeBeforeRoomDeleting;
   const query = ref.orderByChild('closedAt').endAt(time);
 
   const snapshot = await query.get();

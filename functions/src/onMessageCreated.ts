@@ -27,7 +27,7 @@ interface StatParams {
 }
 
 const db = admin.database();
-const priorClosing = isDebugMode() ?
+const timeBeforeClosing = isDebugMode() ?
   360 * 1000 : // 6 minutes
   3600 * 1000; // 1 hour
 
@@ -87,7 +87,7 @@ const updateRoomTimestampAndMessageCount = async (roomId: string, messageCreated
   }
 
   if (!isRoomClosed(room, messageCreatedAt)) {
-    params.closedAt = messageCreatedAt + priorClosing;
+    params.closedAt = messageCreatedAt + timeBeforeClosing;
   } else {
     if (room.filter !== filterZ) {
       params.filter = filterZ;

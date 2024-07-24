@@ -17,7 +17,7 @@ const timeBeforeUserDeleting = isDebugMode()
 
 const timeBeforeRoomDeleting = isDebugMode()
   ? 0 // no wait
-  : 48 * 3600 * 1000; // 48 hours
+  : 72 * 3600 * 1000; // 72 hours
 
 interface Params {
   [userId: string]: null
@@ -75,7 +75,7 @@ const setupDailyStats = async (timestamp: Date) => {
 const cleanup = async () => {
   try {
     await cleanupUsers();
-    await cleanupRooms();
+    await cleanupRoomsAndMessages();
   } catch (error) {
     logger.error(error);
   }
@@ -112,7 +112,7 @@ const cleanupUsers = async () => {
   }
 };
 
-const cleanupRooms = async () => {
+const cleanupRoomsAndMessages = async () => {
   const ref = db.ref('rooms');
   const time = new Date().getTime() - timeBeforeRoomDeleting;
   const query = ref.orderByChild('closedAt').endAt(time);
@@ -126,23 +126,9 @@ const cleanupRooms = async () => {
 
   try {
     for (const roomId of roomIds) {
-      await markRoomDeleted(roomId);
       await removeMessages(roomId);
+      await removeRoom(roomId);
     }
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const markRoomDeleted = async (roomId: string) => {
-  const roomRef = db.ref(`rooms/${roomId}`);
-  const filterZ = '-zzzz';
-
-  try {
-    await roomRef.update({
-      filter: filterZ,
-      deletedAt: new Date().getTime(),
-    });
   } catch (error) {
     logger.error(error);
   }
@@ -153,6 +139,16 @@ const removeMessages = async (roomId: string) => {
 
   try {
     await messagesRef.remove();
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const removeRoom = async (roomId: string) => {
+  const roomRef = db.ref(`rooms/${roomId}`);
+
+  try {
+    await roomRef.remove();
   } catch (error) {
     logger.error(error);
   }

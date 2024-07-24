@@ -16,7 +16,6 @@ interface RoomParams {
   createdAt?: number
   updatedAt?: number
   closedAt?: number
-  messageCount?: number | object
   filter?: string
 }
 
@@ -39,15 +38,15 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   const messageCreatedAt = message.createdAt;
 
   try {
-    await updateUserTimestamp(userId, now);
-    await updateRoomTimestampAndMessageCount(roomId, messageCreatedAt);
+    await updateUserFilter(userId, now);
+    await updateRoomTimestamps(roomId, messageCreatedAt);
     await updateMessageStats(now);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const updateUserTimestamp = async (userId: string, now: Date) => {
+const updateUserFilter = async (userId: string, now: Date) => {
   const userRef = db.ref(`users/${userId}`);
   const updatedAt = now.toJSON();
   const filter = `perm-${updatedAt}`;
@@ -59,7 +58,7 @@ const updateUserTimestamp = async (userId: string, now: Date) => {
   }
 };
 
-const updateRoomTimestampAndMessageCount = async (roomId: string, messageCreatedAt: number) => {
+const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) => {
   const ref = db.ref(`rooms/${roomId}`);
 
   const snapshot = await ref.get();
@@ -76,14 +75,6 @@ const updateRoomTimestampAndMessageCount = async (roomId: string, messageCreated
   if (isRoomNew(room)) {
     params.createdAt = messageCreatedAt;
     params.filter = filter0;
-    params.messageCount = 1;
-  } else {
-    // `ServerValue` doesn't work with Emulators Suite
-    if (isDebugMode()) {
-      params.messageCount = room.messageCount + 1;
-    } else {
-      params.messageCount = admin.database.ServerValue.increment(1);
-    }
   }
 
   if (!isRoomClosed(room, messageCreatedAt)) {
@@ -99,14 +90,6 @@ const updateRoomTimestampAndMessageCount = async (roomId: string, messageCreated
   } catch (error) {
     logger.error(error);
   }
-};
-
-const isRoomNew = (room: Room) => {
-  return room.filter.endsWith('-aaaa');
-};
-
-const isRoomClosed = (room: Room, timestamp: number) => {
-  return room.filter === '-zzzz' || room.closedAt <= timestamp;
 };
 
 const updateMessageStats = async (now: Date) => {
@@ -130,6 +113,14 @@ const updateMessageStats = async (now: Date) => {
   } catch (error) {
     logger.error(error);
   }
+};
+
+const isRoomNew = (room: Room) => {
+  return room.filter.endsWith('-aaaa');
+};
+
+const isRoomClosed = (room: Room, timestamp: number) => {
+  return room.filter === '-zzzz' || room.closedAt <= timestamp;
 };
 
 export default onMessageCreated;

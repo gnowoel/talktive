@@ -21,14 +21,14 @@ const onRoomCreated = onValueCreated('/rooms/*', async (event) => {
   const userId = room.userId;
 
   try {
-    await markUserPermanent(userId, now);
+    await updateUserFilter(userId, now);
     await updateRoomStats(now);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const markUserPermanent = async (userId: string, now: Date) => {
+const updateUserFilter = async (userId: string, now: Date) => {
   const userRef = db.ref(`users/${userId}`);
   const updatedAt = now.toJSON();
   const filter = `perm-${updatedAt}`;

@@ -115,7 +115,7 @@ const cleanupUsers = async () => {
 const cleanupRoomsAndMessages = async () => {
   const ref = db.ref('rooms');
   const time = new Date().getTime() - timeBeforeRoomDeleting;
-  const query = ref.orderByChild('closedAt').endAt(time);
+  const query = ref.orderByChild('closedAt').endAt(time).limitToFirst(1000);
 
   const snapshot = await query.get();
 

@@ -142,6 +142,7 @@ class _InputState extends State<Input> {
                 Icons.send,
                 color: theme.colorScheme.primary,
               ),
+              tooltip: 'Send message',
             ),
           ],
         ),

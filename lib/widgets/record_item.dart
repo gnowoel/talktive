@@ -68,6 +68,7 @@ class _RecordItemState extends State<RecordItem> {
           trailing: IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
             onPressed: () => enterChat(widget.record),
+            tooltip: 'Enter room',
           ),
         ),
       ),

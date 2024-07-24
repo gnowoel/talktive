@@ -32,9 +32,12 @@ class MessageItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            message.userCode,
-            style: const TextStyle(fontSize: 24),
+          Tooltip(
+            message: message.userName,
+            child: Text(
+              message.userCode,
+              style: const TextStyle(fontSize: 24),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -77,9 +80,12 @@ class MessageItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            message.userCode,
-            style: const TextStyle(fontSize: 24),
+          Tooltip(
+            message: message.userName,
+            child: Text(
+              message.userCode,
+              style: const TextStyle(fontSize: 24),
+            ),
           ),
         ],
       ),

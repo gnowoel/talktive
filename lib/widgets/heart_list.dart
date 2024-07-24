@@ -11,11 +11,22 @@ class HeartList extends StatelessWidget {
     required this.elapsed,
   });
 
-  final _full = const HeartItem();
-  final _half = const HeartItem(icon: Icons.heart_broken);
-  final _empty = const HeartItem(icon: Icons.favorite_outline);
-  final _grey =
-      const HeartItem(icon: Icons.favorite_outline, color: Colors.grey);
+  final _full = const HeartItem(
+    semanticLabel: 'Full heart',
+  );
+  final _half = const HeartItem(
+    icon: Icons.heart_broken,
+    semanticLabel: 'Half heart',
+  );
+  final _empty = const HeartItem(
+    icon: Icons.favorite_outline,
+    semanticLabel: 'Empty heart',
+  );
+  final _grey = const HeartItem(
+    icon: Icons.favorite_outline,
+    color: Colors.grey,
+    semanticLabel: 'Empty heart',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -23,19 +34,47 @@ class HeartList extends StatelessWidget {
 
     switch (elapsed.inMinutes) {
       case < (kDebugMode ? 1 : 10):
-        children = [_full, _full, _full];
+        children = [
+          _full,
+          _full,
+          _full,
+        ];
       case < (kDebugMode ? 2 : 20):
-        children = [_half, _full, _full];
+        children = [
+          _half,
+          _full,
+          _full,
+        ];
       case < (kDebugMode ? 3 : 30):
-        children = [_empty, _full, _full];
+        children = [
+          _empty,
+          _full,
+          _full,
+        ];
       case < (kDebugMode ? 4 : 40):
-        children = [_empty, _half, _full];
+        children = [
+          _empty,
+          _half,
+          _full,
+        ];
       case < (kDebugMode ? 5 : 50):
-        children = [_empty, _empty, _full];
+        children = [
+          _empty,
+          _empty,
+          _full,
+        ];
       case < (kDebugMode ? 6 : 60):
-        children = [_empty, _empty, _half];
+        children = [
+          _empty,
+          _empty,
+          _half,
+        ];
       default:
-        children = [_grey, _grey, _grey];
+        children = [
+          _grey,
+          _grey,
+          _grey,
+        ];
     }
 
     return Row(children: children);

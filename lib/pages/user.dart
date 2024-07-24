@@ -123,6 +123,7 @@ class _UserPageState extends State<UserPage> {
               IconButton(
                 onPressed: _refresh,
                 icon: const Icon(Icons.refresh),
+                tooltip: 'Change profile',
               ),
               const SizedBox(height: 4),
               FilledButton(
@@ -138,6 +139,7 @@ class _UserPageState extends State<UserPage> {
               IconButton(
                 onPressed: _recents,
                 icon: const Icon(Icons.history),
+                tooltip: 'Recent rooms',
               ),
             ],
           ),

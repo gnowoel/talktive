@@ -38,7 +38,6 @@ const updateUserFilter = async (userId: string, now: Date) => {
   } catch (error) {
     logger.error(error);
   }
-
 }
 
 const updateRoomStats = async (now: Date) => {

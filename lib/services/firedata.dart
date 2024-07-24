@@ -45,7 +45,6 @@ class Firedata {
       createdAt: now,
       updatedAt: now,
       closedAt: now + (kDebugMode ? 360 : 3600) * 1000,
-      deletedAt: 0,
       filter: '$languageCode-aaaa',
     );
 

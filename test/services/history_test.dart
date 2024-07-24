@@ -22,7 +22,6 @@ void main() {
       createdAt: 0,
       updatedAt: 0,
       closedAt: 0,
-      deletedAt: 0,
       filter: 'filter',
     );
   }

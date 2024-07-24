@@ -16,7 +16,6 @@ void main() {
       'createdAt': 0,
       'updatedAt': 0,
       'closedAt': 0,
-      'deletedAt': 0,
       'filter': 'filter',
     };
 
@@ -30,7 +29,6 @@ void main() {
         createdAt: json['createdAt'] as int,
         updatedAt: json['updatedAt'] as int,
         closedAt: json['closedAt'] as int,
-        deletedAt: json['deletedAt'] as int,
         filter: json['filter'] as String,
       );
 
@@ -60,7 +58,6 @@ void main() {
       'createdAt': 0,
       'updatedAt': 0,
       'closedAt': 0,
-      'deletedAt': 0,
       'filter': 'filter',
     };
 
@@ -73,7 +70,6 @@ void main() {
         createdAt: json['createdAt'] as int,
         updatedAt: json['updatedAt'] as int,
         closedAt: json['closedAt'] as int,
-        deletedAt: json['deletedAt'] as int,
         filter: json['filter'] as String,
       );
 
@@ -117,7 +113,6 @@ void main() {
       'createdAt': 0,
       'updatedAt': 0,
       'closedAt': 0,
-      'deletedAt': 0,
       'filter': 'filter',
     };
 
@@ -153,10 +148,8 @@ void main() {
     });
 
     test('isDeleted', () {
-      final now = DateTime.now();
-
       final room = Room.fromJson(json);
-      final roomDeleted = room.copyWith(deletedAt: now.millisecondsSinceEpoch);
+      final roomDeleted = room.copyWith(filter: '-dddd');
 
       expect(room.isDeleted, isFalse);
       expect(roomDeleted.isDeleted, isTrue);

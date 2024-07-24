@@ -34,7 +34,7 @@ const markRoomExpired = async (roomId: string) => {
   if (!snapshot.exists()) return;
 
   const room = snapshot.val();
-  const filterZ = '-zzzz';
+  const filterZ = '-cccc';
   const params: Params = {};
   const now = new Date().getTime();
 

@@ -45,7 +45,7 @@ class Firedata {
       createdAt: now,
       updatedAt: now,
       closedAt: now + (kDebugMode ? 360 : 3600) * 1000,
-      filter: '$languageCode-aaaa',
+      filter: '$languageCode-nnnn',
     );
 
     final ref = instance.ref('rooms').push();

@@ -67,7 +67,7 @@ const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) =>
 
   const room = snapshot.val();
   const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
-  const filterZ = '-zzzz';
+  const filterC = '-cccc';
   const params: RoomParams = {};
 
   params.updatedAt = messageCreatedAt;
@@ -80,8 +80,8 @@ const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) =>
   if (!isRoomClosed(room, messageCreatedAt)) {
     params.closedAt = messageCreatedAt + timeBeforeClosing;
   } else {
-    if (room.filter !== filterZ) {
-      params.filter = filterZ;
+    if (room.filter !== filterC) {
+      params.filter = filterC;
     }
   }
 
@@ -116,11 +116,11 @@ const updateMessageStats = async (now: Date) => {
 };
 
 const isRoomNew = (room: Room) => {
-  return room.filter.endsWith('-aaaa');
+  return room.filter.endsWith('-nnnn');
 };
 
 const isRoomClosed = (room: Room, timestamp: number) => {
-  return room.filter === '-zzzz' || room.closedAt <= timestamp;
+  return room.filter === '-cccc' || room.closedAt <= timestamp;
 };
 
 export default onMessageCreated;

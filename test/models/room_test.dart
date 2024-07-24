@@ -118,7 +118,7 @@ void main() {
 
     test('isNew', () {
       final room = Room.fromJson(json);
-      final roomNew = room.copyWith(filter: 'en-aaaa');
+      final roomNew = room.copyWith(filter: 'en-nnnn');
 
       expect(room.isNew, isFalse);
       expect(roomNew.isNew, isTrue);
@@ -126,7 +126,7 @@ void main() {
 
     test('isMarkedClosed', () {
       final room = Room.fromJson(json);
-      final roomMarkedClosed = room.copyWith(filter: '-zzzz');
+      final roomMarkedClosed = room.copyWith(filter: '-cccc');
 
       expect(room.isMarkedClosed, isFalse);
       expect(roomMarkedClosed.isMarkedClosed, isTrue);
@@ -137,7 +137,7 @@ void main() {
       final future = DateTime.now().add(const Duration(days: 1));
 
       final room = Room.fromJson(json);
-      final roomMarkedClosed = room.copyWith(filter: '-zzzz');
+      final roomMarkedClosed = room.copyWith(filter: '-cccc');
       final roomClosed = room.copyWith(closedAt: past.millisecondsSinceEpoch);
       final roomOpen = room.copyWith(closedAt: future.millisecondsSinceEpoch);
 

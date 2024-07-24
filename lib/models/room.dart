@@ -121,11 +121,11 @@ class Room {
     );
   }
 
-  bool get isNew => filter.endsWith('-aaaa');
+  bool get isNew => filter.endsWith('-nnnn');
 
   bool get isClosed => isMarkedClosed || closedAt <= Firedata().serverNow();
 
-  bool get isMarkedClosed => filter == '-zzzz';
+  bool get isMarkedClosed => filter == '-cccc';
 
   bool get isDeleted => filter == '-dddd';
 

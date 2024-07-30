@@ -95,7 +95,7 @@ $ curl http://127.0.0.1:5001/talktive-12345/us-central1/requestedCleanup
 Optionally start a device simulator or emulator, for example:
 
 ```
-$ flutter emulators --launch Pixel_3a_API_34_extension_level_7_x86_64
+$ flutter emulators --launch apple_ios_simulator
 ```
 
 Optionally run the unit and integration tests:

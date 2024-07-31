@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -42,8 +44,7 @@ class _UserPageState extends State<UserPage> {
     if (kIsWeb) {
       languageCode = View.of(context).platformDispatcher.locale.languageCode;
     } else {
-      // TODO: Make it work
-      languageCode = Localizations.localeOf(context).languageCode;
+      languageCode = Platform.localeName.split('_').first;
     }
 
     avatar = Provider.of<Avatar>(context);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
@@ -37,7 +38,14 @@ class _UserPageState extends State<UserPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    languageCode = Localizations.localeOf(context).languageCode;
+
+    if (kIsWeb) {
+      languageCode = View.of(context).platformDispatcher.locale.languageCode;
+    } else {
+      // TODO: Make it work
+      languageCode = Localizations.localeOf(context).languageCode;
+    }
+
     avatar = Provider.of<Avatar>(context);
   }
 

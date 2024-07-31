@@ -2,7 +2,13 @@
 
 An anonymous group chat app for safely talking to strangers.
 
-**[Click to open the app](https://open.talktive.app/)**
+<br />
+
+[![button_open-the-app](https://github.com/user-attachments/assets/13c64934-2123-4829-bc8f-6a729b4dfd3d)](https://open.talktive.app/)
+
+## Screenshots
+
+![screenshots](https://github.com/user-attachments/assets/855c3de8-6c62-4d83-bfd9-122a684cd14b)
 
 ## Main features
 
@@ -22,7 +28,7 @@ You can open your heart and share your happiness or sadness. In an hour, everyon
 
 No one but the participants can see your conversations. Expired rooms are not publicly accessible, and all records will eventually be deleted.
 
-## Firebase project
+## Firebase setup
 
 Create a new Firebase project, and enable the following services:
 
@@ -72,7 +78,7 @@ For "Emulators", select:
 * Database Emulator
 * Pub/Sub Emulator
 
-## Running locally
+## Running
 
 Watch and compile Cloud Functions code (from the `functions` directory):
 

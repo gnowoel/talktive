@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
-import 'services/firedata.dart';
 import 'services/history.dart';
 
 Future<void> main() async {
@@ -30,6 +29,5 @@ Future<void> main() async {
 
   await Avatar().init();
   await History().init();
-  Firedata().syncTime();
   runApp(const App());
 }

@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,10 +15,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = FirebaseAuth.instance;
+    final database = FirebaseDatabase.instance;
+
     return MultiProvider(
       providers: [
-        Provider(create: (context) => Fireauth()),
-        Provider(create: (context) => Firedata()..syncTime()),
+        Provider(create: (context) => Fireauth(auth)),
+        Provider(create: (context) => Firedata(database)..syncTime()),
         Provider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
       ],

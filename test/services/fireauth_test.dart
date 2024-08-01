@@ -9,7 +9,7 @@ void main() {
 
   final user = MockUser(isAnonymous: true);
   final auth = MockFirebaseAuth(mockUser: user);
-  final fireauth = Fireauth(instance: auth);
+  final fireauth = Fireauth(auth);
 
   group('Fireauth', () {
     test('can sign in anonymously', () async {

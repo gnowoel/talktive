@@ -10,7 +10,7 @@ void main() {
   setupMocks();
 
   final database = MockFirebaseDatabase.instance;
-  final firedata = Firedata(instance: database);
+  final firedata = Firedata(database);
 
   const userId = 'uid';
   const userName = 'name';

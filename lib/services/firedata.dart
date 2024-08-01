@@ -11,8 +11,7 @@ class Firedata {
   final FirebaseDatabase instance;
   final Clock clock = Clock();
 
-  Firedata({FirebaseDatabase? instance})
-      : instance = instance ?? FirebaseDatabase.instance;
+  Firedata(this.instance);
 
   Future<void> syncTime() async {
     final ref = FirebaseDatabase.instance.ref(".info/serverTimeOffset");

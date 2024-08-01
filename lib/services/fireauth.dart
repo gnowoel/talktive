@@ -6,7 +6,7 @@ import '../helpers/helpers.dart';
 class Fireauth {
   final FirebaseAuth instance;
 
-  Fireauth({instance}) : instance = instance ?? FirebaseAuth.instance;
+  Fireauth(this.instance);
 
   Future<User> signInAnonymously() async {
     final currentUser = instance.currentUser;

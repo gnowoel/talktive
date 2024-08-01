@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../models/record.dart';
 import '../models/room.dart';
-import 'firedata.dart';
+import 'clock.dart';
 import 'prefs.dart';
 
 class History {
@@ -38,7 +38,7 @@ class History {
       roomUserId: room.userId == currentUserId ? 'me' : '',
       roomUserName: room.userName,
       roomUserCode: room.userCode,
-      createdAt: Firedata().serverNow(),
+      createdAt: Clock().serverNow(),
       messageCount: messageCount,
       scrollOffset: scrollOffset,
     );
@@ -61,7 +61,7 @@ class History {
   }
 
   bool _isValid(Record record) {
-    final now = DateTime.fromMillisecondsSinceEpoch(Firedata().serverNow());
+    final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
     final oneDayAgo = now.subtract(const Duration(days: 1));
     final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
     return !createdAt.isBefore(oneDayAgo);

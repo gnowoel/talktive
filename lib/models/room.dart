@@ -1,4 +1,4 @@
-import '../services/firedata.dart';
+import '../services/clock.dart';
 import 'record.dart';
 
 class Room {
@@ -123,7 +123,7 @@ class Room {
 
   bool get isNew => filter.endsWith('-nnnn');
 
-  bool get isClosed => isMarkedClosed || closedAt <= Firedata().serverNow();
+  bool get isClosed => isMarkedClosed || closedAt <= Clock().serverNow();
 
   bool get isMarkedClosed => filter == '-cccc';
 

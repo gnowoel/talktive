@@ -5,25 +5,21 @@ import 'package:flutter/foundation.dart';
 
 import '../models/message.dart';
 import '../models/room.dart';
+import 'clock.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
+  final Clock clock = Clock();
 
   Firedata({FirebaseDatabase? instance})
       : instance = instance ?? FirebaseDatabase.instance;
-
-  int _clockSkew = 0;
-
-  int serverNow() {
-    return DateTime.now().millisecondsSinceEpoch + _clockSkew;
-  }
 
   Future<void> syncTime() async {
     final ref = FirebaseDatabase.instance.ref(".info/serverTimeOffset");
 
     ref.onValue.listen((event) {
       final offset = event.snapshot.value as num? ?? 0.0;
-      _clockSkew = offset.toInt();
+      clock.updateClockSkew(offset.toInt());
     });
   }
 
@@ -33,7 +29,7 @@ class Firedata {
     String userCode,
     String languageCode,
   ) async {
-    final now = serverNow();
+    final now = clock.serverNow();
     final roomValue = RoomStub(
       userId: userId,
       userName: userName,
@@ -60,7 +56,7 @@ class Firedata {
     String content,
   ) async {
     final messageRef = instance.ref('messages/${room.id}').push();
-    final now = serverNow();
+    final now = clock.serverNow();
 
     final message = Message(
       userId: userId,

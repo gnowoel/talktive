@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/record.dart';
-import '../services/firedata.dart';
+import '../services/clock.dart';
 import '../services/history.dart';
 import '../widgets/info.dart';
 import '../widgets/record_list.dart';
@@ -21,7 +21,7 @@ class _RecentsPageState extends State<RecentsPage>
   late List<Record> records;
   late Ticker ticker;
 
-  DateTime then = DateTime.fromMillisecondsSinceEpoch(Firedata().serverNow());
+  DateTime then = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _RecentsPageState extends State<RecentsPage>
     history = Provider.of<History>(context, listen: false);
     records = history.recentRecords;
     ticker = createTicker((_) {
-      final now = DateTime.fromMillisecondsSinceEpoch(Firedata().serverNow());
+      final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
       if (now.difference(then).inSeconds > 1) {
         setState(() {
           records = history.recentRecords;

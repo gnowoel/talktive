@@ -7,7 +7,10 @@ import '../models/message.dart';
 import '../models/room.dart';
 
 class Firedata {
-  final FirebaseDatabase instance = FirebaseDatabase.instance;
+  final FirebaseDatabase instance;
+
+  Firedata({FirebaseDatabase? instance})
+      : instance = instance ?? FirebaseDatabase.instance;
 
   int _clockSkew = 0;
 
@@ -49,7 +52,7 @@ class Firedata {
     return Room.fromStub(key: ref.key!, value: roomValue);
   }
 
-  Future<void> sendMessage(
+  Future<Message> sendMessage(
     Room room,
     String userId,
     String userName,
@@ -68,6 +71,8 @@ class Firedata {
     );
 
     await messageRef.set(message.toJson());
+
+    return message;
   }
 
   Future<void> createAccess(String roomId) async {

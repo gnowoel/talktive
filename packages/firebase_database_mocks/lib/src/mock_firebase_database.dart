@@ -11,9 +11,6 @@ class MockFirebaseDatabase extends Mock implements FirebaseDatabase {
   Map<String, dynamic> _volatileData = <String, dynamic>{};
 
   @override
-  DatabaseReference reference() => ref();
-
-  @override
   DatabaseReference ref([String? path]) {
     if (path != null) {
       return MockDatabaseReference(_volatileData).child(path);

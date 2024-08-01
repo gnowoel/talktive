@@ -18,12 +18,6 @@ void main() {
         MockDatabaseReference().child("initialPath").path,
       );
     });
-    test("Should get reference using the deprecated reference() method", () {
-      expect(
-        MockFirebaseDatabase.instance.reference().child("deprecated").path,
-        MockDatabaseReference().child("deprecated").path,
-      );
-    });
     test('Should work with slash as prefix', () {
       expect(
         databaseReference.child('/test').path,

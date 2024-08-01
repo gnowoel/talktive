@@ -16,9 +16,9 @@ dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
-  firebase_database: ^10.3.4
+  firebase_database: any
   mockito: ^5.4.2
-  firebase_core_platform_interface: ^5.0.0
+  firebase_core_platform_interface: any
 
 dev_dependencies:
   flutter_lints: ^3.0.1

@@ -24,6 +24,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   firebase_core_platform_interface: ^5.1.0
   firebase_auth_mocks: ^0.14.0
+  firebase_database_mocks:
+    path: ./packages/firebase_database_mocks
   integration_test:
     sdk: flutter
 

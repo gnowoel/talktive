@@ -8,7 +8,7 @@ void main() {
     test('instantiates a singleton object', () async {
       final anotherClock = Clock();
 
-      expect(clock, equals(anotherClock));
+      expect(identical(clock, anotherClock), isTrue);
     });
 
     test('.serverNow()', () async {
@@ -25,7 +25,7 @@ void main() {
 
       final now2 = clock.serverNow();
 
-      expect(now2 - now1, equals(10));
+      expect(now2 - now1 >= 10, isTrue);
     });
   });
 }

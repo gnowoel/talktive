@@ -32,6 +32,8 @@ class Fireauth {
         await instance.signOut();
       }
       throw Exception(e.code);
+    } catch (e) {
+      rethrow;
     }
   }
 }

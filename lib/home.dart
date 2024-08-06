@@ -14,43 +14,33 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Key futureBuilderKey = UniqueKey();
-
   void refresh() {
-    setState(() {
-      futureBuilderKey = UniqueKey();
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context);
 
-    try {
-      return FutureBuilder(
-        key: futureBuilderKey,
-        future: fireauth.signInAnonymously(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return ErrorPage(
-              message: '${snapshot.error}',
-              refresh: refresh,
-            );
-          } else if (!snapshot.hasData) {
-            return const EmptyPage(
-              hasAppBar: false,
-              child: SizedBox(), // CircularProgressIndicator()
-            );
-          } else {
-            return const UserPage();
-          }
-        },
-      );
-    } catch (e) {
-      return ErrorPage(
-        message: '$e',
-        refresh: refresh,
-      );
-    }
+    return FutureBuilder(
+      future: fireauth.signInAnonymously(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const EmptyPage(
+            hasAppBar: false,
+            child: SizedBox(), // CircularProgressIndicator()
+          );
+        }
+
+        if (snapshot.hasError) {
+          return ErrorPage(
+            message: '${snapshot.error}',
+            refresh: refresh,
+          );
+        }
+
+        return const UserPage();
+      },
+    );
   }
 }

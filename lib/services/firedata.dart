@@ -14,7 +14,7 @@ class Firedata {
   Firedata(this.instance);
 
   Future<void> syncTime() async {
-    final ref = FirebaseDatabase.instance.ref(".info/serverTimeOffset");
+    final ref = instance.ref(".info/serverTimeOffset");
 
     ref.onValue.listen((event) {
       final offset = event.snapshot.value as num? ?? 0.0;

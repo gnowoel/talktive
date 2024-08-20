@@ -35,6 +35,7 @@ class History {
   }) async {
     final record = Record(
       roomId: room.id,
+      roomTopic: room.topic,
       roomUserId: room.userId == currentUserId ? 'me' : '',
       roomUserName: room.userName,
       roomUserCode: room.userCode,

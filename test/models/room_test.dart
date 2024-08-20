@@ -9,6 +9,7 @@ void main() {
   group('Room', () {
     final json = <String, dynamic>{
       'id': 'id',
+      'topic': 'topic',
       'userId': 'userId',
       'userName': 'userName',
       'userCode': 'userCode',
@@ -22,6 +23,7 @@ void main() {
     test('constructor', () {
       final room = Room(
         id: json['id'] as String,
+        topic: json['topic'] as String,
         userId: json['userId'] as String,
         userName: json['userName'] as String,
         userCode: json['userCode'] as String,
@@ -51,6 +53,7 @@ void main() {
 
   group('RoomStub', () {
     final json = <String, dynamic>{
+      'topic': 'topic',
       'userId': 'userId',
       'userName': 'userName',
       'userCode': 'userCode',
@@ -63,6 +66,7 @@ void main() {
 
     test('constructor', () {
       final roomStub = RoomStub(
+        topic: json['topic'] as String,
         userId: json['userId'] as String,
         userName: json['userName'] as String,
         userCode: json['userCode'] as String,
@@ -106,6 +110,7 @@ void main() {
   group('utils', () {
     final json = <String, dynamic>{
       'id': 'id',
+      'topic': 'topic',
       'userId': 'userId',
       'userName': 'userName',
       'userCode': 'userCode',

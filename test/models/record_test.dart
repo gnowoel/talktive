@@ -6,6 +6,7 @@ void main() {
   group('Record', () {
     final json = <String, dynamic>{
       'roomId': 'roomId',
+      'roomTopic': 'roomTopic',
       'roomUserId': 'roomUserId',
       'roomUserName': 'userName',
       'roomUserCode': 'userCode',
@@ -17,6 +18,7 @@ void main() {
     test('constructor', () {
       final record = Record(
         roomId: json['roomId'] as String,
+        roomTopic: json['roomTopic'] as String,
         roomUserId: json['roomUserId'] as String,
         roomUserName: json['roomUserName'] as String,
         roomUserCode: json['roomUserCode'] as String,

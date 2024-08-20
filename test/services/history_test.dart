@@ -15,6 +15,7 @@ void main() {
   Room generateRoom(int number) {
     return Room(
       id: 'id-$number',
+      topic: 'topic',
       userId: 'uid',
       userName: 'name',
       userCode: 'code',

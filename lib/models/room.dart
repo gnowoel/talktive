@@ -3,6 +3,7 @@ import 'record.dart';
 
 class Room {
   final String id;
+  final String topic;
   final String userId;
   final String userName;
   final String userCode;
@@ -14,6 +15,7 @@ class Room {
 
   Room({
     required this.id,
+    required this.topic,
     required this.userId,
     required this.userName,
     required this.userCode,
@@ -26,6 +28,7 @@ class Room {
 
   Room copyWith({
     String? id,
+    String? topic,
     String? userId,
     String? userName,
     String? userCode,
@@ -37,6 +40,7 @@ class Room {
   }) {
     return Room(
       id: id ?? this.id,
+      topic: topic ?? this.topic,
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
       userCode: userCode ?? this.userCode,
@@ -51,6 +55,7 @@ class Room {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'topic': topic,
       'userId': userId,
       'userName': userName,
       'userCode': userCode,
@@ -65,6 +70,7 @@ class Room {
   factory Room.fromJson(Map<String, dynamic> json) {
     return Room(
       id: json['id'] as String,
+      topic: json['topic'] as String,
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,
@@ -82,6 +88,7 @@ class Room {
   }) {
     return Room(
       id: key,
+      topic: value.topic,
       userId: value.userId,
       userName: value.userName,
       userCode: value.userCode,
@@ -96,6 +103,7 @@ class Room {
   factory Room.fromRecord({required Record record}) {
     return Room(
       id: record.roomId,
+      topic: record.roomTopic,
       userId: record.roomUserId,
       userName: record.roomUserName,
       userCode: record.roomUserCode,
@@ -110,6 +118,7 @@ class Room {
   static dummyDeletedRoom() {
     return Room(
       id: 'id',
+      topic: 'topic',
       userId: 'userId',
       userName: 'userName',
       userCode: 'userCode',
@@ -133,6 +142,7 @@ class Room {
 }
 
 class RoomStub {
+  final String topic;
   final String userId;
   final String userName;
   final String userCode;
@@ -143,6 +153,7 @@ class RoomStub {
   final String filter;
 
   RoomStub({
+    required this.topic,
     required this.userId,
     required this.userName,
     required this.userCode,
@@ -155,6 +166,7 @@ class RoomStub {
 
   Map<String, dynamic> toJson() {
     return {
+      'topic': topic,
       'userId': userId,
       'userName': userName,
       'userCode': userCode,
@@ -168,6 +180,7 @@ class RoomStub {
 
   factory RoomStub.fromJson(Map<String, dynamic> json) {
     return RoomStub(
+      topic: json['topic'] as String,
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,

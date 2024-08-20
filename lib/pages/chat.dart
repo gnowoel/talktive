@@ -8,7 +8,7 @@ import '../models/message.dart';
 import '../models/room.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
-import '../widgets/health.dart';
+import '../widgets/chat_app_bar.dart';
 import '../widgets/input.dart';
 import '../widgets/message_list.dart';
 
@@ -132,13 +132,8 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: Text(_room.userName),
-        actions: [
-          Health(room: _room),
-          const SizedBox(width: 16),
-        ],
+      appBar: ChatAppBar(
+        room: _room,
       ),
       body: SafeArea(
         child: _buildLayoutBuilder(),

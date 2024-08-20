@@ -28,6 +28,12 @@ You can open your heart and share your happiness or sadness. In an hour, everyon
 
 No one but the participants can see your conversations. Expired rooms are not publicly accessible, and all records will eventually be deleted.
 
+## Implementation
+
+The technical details can be found in the blog post:
+
+* [The Challenges of Building a Simple Chat App with Flutter and Firebase](https://medium.com/@gnowoel/the-challenges-of-building-a-simple-chat-app-with-flutter-and-firebase-b9f0a2f0f889)
+
 ## Firebase setup
 
 Create a new Firebase project, and enable the following services:

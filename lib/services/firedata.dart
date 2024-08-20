@@ -30,6 +30,7 @@ class Firedata {
   ) async {
     final now = clock.serverNow();
     final roomValue = RoomStub(
+      topic: userName, // Use `userName` as the default topic
       userId: userId,
       userName: userName,
       userCode: userCode,

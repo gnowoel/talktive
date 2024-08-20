@@ -1,5 +1,6 @@
 class Record {
   final String roomId;
+  final String roomTopic;
   final String roomUserId;
   final String roomUserName;
   final String roomUserCode;
@@ -9,6 +10,7 @@ class Record {
 
   Record({
     required this.roomId,
+    required this.roomTopic,
     required this.roomUserId,
     required this.roomUserName,
     required this.roomUserCode,
@@ -20,6 +22,7 @@ class Record {
   Map<String, dynamic> toJson() {
     return {
       'roomId': roomId,
+      'roomTopic': roomTopic,
       'roomUserId': roomUserId,
       'roomUserName': roomUserName,
       'roomUserCode': roomUserCode,
@@ -32,6 +35,7 @@ class Record {
   factory Record.fromJson(Map<String, dynamic> json) {
     return Record(
       roomId: json['roomId'] as String,
+      roomTopic: json['roomTopic'] as String,
       roomUserId: json['roomUserId'] as String,
       roomUserName: json['roomUserName'] as String,
       roomUserCode: json['roomUserCode'] as String,

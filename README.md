@@ -1,6 +1,6 @@
 # Talktive
 
-An anonymous group chat app for comfortably talking to strangers.
+A simple anonymous group chat app for comfortably talking to strangers.
 
 <br />
 

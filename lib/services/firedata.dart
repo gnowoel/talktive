@@ -78,6 +78,12 @@ class Firedata {
     await accessRef.set(entry);
   }
 
+  Future<void> updateRoomTopic(String roomId, String topic) async {
+    final ref = instance.ref('rooms/$roomId');
+
+    await ref.update({'topic': topic});
+  }
+
   Stream<Room> subscribeToRoom(String roomId) {
     final ref = instance.ref('rooms/$roomId');
 

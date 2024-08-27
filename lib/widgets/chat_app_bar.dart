@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/room.dart';
+import '../services/firedata.dart';
 import '../widgets/health.dart';
 
 class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -20,8 +22,15 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _ChatAppBarState extends State<ChatAppBar> {
   late ThemeData theme;
+  late Firedata firedata;
 
   bool _isEditable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    firedata = Provider.of<Firedata>(context, listen: false);
+  }
 
   @override
   void didChangeDependencies() {
@@ -30,15 +39,12 @@ class _ChatAppBarState extends State<ChatAppBar> {
   }
 
   void _handleTap() {
-    setState(() {
-      _isEditable = true;
-    });
+    setState(() => _isEditable = true);
   }
 
-  void _handleCheck() {
-    setState(() {
-      _isEditable = false;
-    });
+  void _handleCheck(roomId, topic) {
+    firedata.updateRoomTopic(roomId, topic);
+    setState(() => _isEditable = false);
   }
 
   @override
@@ -53,7 +59,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
         ),
         actions: [
           IconButton(
-            onPressed: _handleCheck,
+            onPressed: () => _handleCheck(widget.room.id, controller.text),
             icon: const Icon(Icons.check),
           ),
           const SizedBox(width: 16),

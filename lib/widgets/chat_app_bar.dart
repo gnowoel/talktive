@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/room.dart';
+import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../widgets/health.dart';
 
@@ -22,6 +23,7 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _ChatAppBarState extends State<ChatAppBar> {
   late ThemeData theme;
+  late Fireauth fireauth;
   late Firedata firedata;
 
   bool _isEditable = false;
@@ -29,6 +31,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
   @override
   void initState() {
     super.initState();
+    fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
   }
 
@@ -50,13 +53,13 @@ class _ChatAppBarState extends State<ChatAppBar> {
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: widget.room.topic);
+    final currentUserId = fireauth.instance.currentUser!.uid;
+    final isOp = widget.room.userId == currentUserId;
 
-    if (_isEditable) {
+    if (isOp && _isEditable) {
       return AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: TextField(
-          controller: controller,
-        ),
+        title: TextField(controller: controller),
         actions: [
           IconButton(
             onPressed: () => _handleCheck(widget.room.id, controller.text),

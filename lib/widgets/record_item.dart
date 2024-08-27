@@ -57,7 +57,7 @@ class _RecordItemState extends State<RecordItem> {
             style: TextStyle(fontSize: 36, color: textColor),
           ),
           title: Text(
-            widget.record.roomUserName,
+            widget.record.roomTopic,
             style: TextStyle(color: textColor),
           ),
           subtitle: Text(

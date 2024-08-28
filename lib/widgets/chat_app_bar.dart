@@ -45,8 +45,8 @@ class _ChatAppBarState extends State<ChatAppBar> {
     setState(() => _isEditable = true);
   }
 
-  void _handleCheck(roomId, topic) {
-    firedata.updateRoomTopic(roomId, topic);
+  void _handleCheck(Room room, String topic) {
+    firedata.updateRoomTopic(room, topic);
     setState(() => _isEditable = false);
   }
 
@@ -62,7 +62,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
         title: TextField(controller: controller),
         actions: [
           IconButton(
-            onPressed: () => _handleCheck(widget.room.id, controller.text),
+            onPressed: () => _handleCheck(widget.room, controller.text),
             icon: const Icon(Icons.check),
           ),
           const SizedBox(width: 16),

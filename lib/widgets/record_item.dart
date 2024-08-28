@@ -59,6 +59,7 @@ class _RecordItemState extends State<RecordItem> {
           title: Text(
             widget.record.roomTopic,
             style: TextStyle(color: textColor),
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
             format(createdAt),

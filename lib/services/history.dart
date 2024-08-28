@@ -23,7 +23,12 @@ class History {
 
     _records.clear();
     for (final entry in list) {
-      _records.add(Record.fromJson(entry));
+      try {
+        _records.add(Record.fromJson(entry));
+      } catch (e) {
+        // Ignore the malformed entry, which might be
+        // created from an older version of the app.
+      }
     }
   }
 

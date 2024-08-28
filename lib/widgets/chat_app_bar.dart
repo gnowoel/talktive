@@ -26,6 +26,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
   late Fireauth fireauth;
   late Firedata firedata;
   late FocusNode focusNode;
+  late TextEditingController controller;
 
   bool _isEditable = false;
 
@@ -35,6 +36,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     focusNode = FocusNode();
+    controller = TextEditingController(text: widget.room.topic);
   }
 
   @override
@@ -46,6 +48,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
   @override
   void dispose() {
     focusNode.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -63,7 +66,6 @@ class _ChatAppBarState extends State<ChatAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController(text: widget.room.topic);
     final currentUserId = fireauth.instance.currentUser!.uid;
     final isOp = widget.room.userId == currentUserId;
 

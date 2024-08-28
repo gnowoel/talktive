@@ -25,6 +25,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
+  late FocusNode focusNode;
 
   bool _isEditable = false;
 
@@ -33,6 +34,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
     super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+    focusNode = FocusNode();
   }
 
   @override
@@ -41,8 +43,17 @@ class _ChatAppBarState extends State<ChatAppBar> {
     theme = Theme.of(context);
   }
 
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
   void _handleTap() {
-    setState(() => _isEditable = true);
+    setState(() {
+      _isEditable = true;
+      focusNode.requestFocus();
+    });
   }
 
   void _handleCheck(Room room, String topic) {
@@ -59,7 +70,10 @@ class _ChatAppBarState extends State<ChatAppBar> {
     if (isOp && _isEditable) {
       return AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: TextField(controller: controller),
+        title: TextField(
+          focusNode: focusNode,
+          controller: controller,
+        ),
         actions: [
           IconButton(
             onPressed: () => _handleCheck(widget.room, controller.text),

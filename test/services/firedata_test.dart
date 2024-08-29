@@ -30,6 +30,7 @@ void main() {
         userCode,
         languageCode,
       );
+
       expect(room.userId, equals('uid'));
     });
 
@@ -40,6 +41,7 @@ void main() {
         userCode,
         languageCode,
       );
+
       expect(room, isA<Room>());
       expect(room.userId, equals('uid'));
 
@@ -53,6 +55,43 @@ void main() {
 
       expect(message, isA<Message>());
       expect(message.content, equals(content));
+    });
+
+    test('can set default room topic', () async {
+      final room = await firedata.createRoom(
+        userId,
+        userName,
+        userCode,
+        languageCode,
+      );
+
+      expect(room, isA<Room>());
+      expect(room.userId, equals('uid'));
+      expect(room.topic, equals(room.userName));
+    });
+
+    test('can update the room topic', () async {
+      final room = await firedata.createRoom(
+        userId,
+        userName,
+        userCode,
+        languageCode,
+      );
+
+      expect(room, isA<Room>());
+      expect(room.userId, equals('uid'));
+      expect(room.topic, equals(room.userName));
+
+      await firedata.updateRoomTopic(room, 'new topic');
+
+      final ref = firedata.instance.ref('rooms/${room.id}');
+      final snapshot = await ref.get();
+      final json = Map<String, dynamic>.from(snapshot.value as Map);
+      final roomStub = RoomStub.fromJson(json);
+      final updatedRoom = Room.fromStub(key: snapshot.key!, value: roomStub);
+
+      expect(updatedRoom.topic, isNot(equals(room.userName)));
+      expect(updatedRoom.topic, equals('new topic'));
     });
   });
 }

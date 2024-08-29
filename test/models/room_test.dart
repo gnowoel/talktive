@@ -6,8 +6,8 @@ import '../mock.dart';
 void main() {
   setupMocks();
 
-  group('Room', () {
-    final json = <String, dynamic>{
+  Map<String, dynamic> generateJson() {
+    return <String, dynamic>{
       'id': 'id',
       'topic': 'topic',
       'userId': 'userId',
@@ -19,8 +19,12 @@ void main() {
       'closedAt': 0,
       'filter': 'filter',
     };
+  }
 
+  group('Room', () {
     test('constructor', () {
+      final json = generateJson();
+
       final room = Room(
         id: json['id'] as String,
         topic: json['topic'] as String,
@@ -38,12 +42,25 @@ void main() {
     });
 
     test('fromJson()', () {
+      final json = generateJson();
+
+      final room = Room.fromJson(json);
+
+      expect(room, isA<Room>());
+    });
+
+    test('fromJson() (without topic)', () {
+      final json = generateJson();
+      json['topic'] = null;
+
       final room = Room.fromJson(json);
 
       expect(room, isA<Room>());
     });
 
     test('toJson()', () {
+      final json = generateJson();
+
       final roomObject = Room.fromJson(json);
       final roomJson = roomObject.toJson();
 
@@ -52,19 +69,10 @@ void main() {
   });
 
   group('RoomStub', () {
-    final json = <String, dynamic>{
-      'topic': 'topic',
-      'userId': 'userId',
-      'userName': 'userName',
-      'userCode': 'userCode',
-      'languageCode': 'languageCode',
-      'createdAt': 0,
-      'updatedAt': 0,
-      'closedAt': 0,
-      'filter': 'filter',
-    };
-
     test('constructor', () {
+      final json = generateJson();
+      json['id'] = null;
+
       final roomStub = RoomStub(
         topic: json['topic'] as String,
         userId: json['userId'] as String,
@@ -81,12 +89,28 @@ void main() {
     });
 
     test('fromJson()', () {
+      final json = generateJson();
+      json['id'] = null;
+
+      final roomStub = RoomStub.fromJson(json);
+
+      expect(roomStub, isA<RoomStub>());
+    });
+
+    test('fromJson() (without topic)', () {
+      final json = generateJson();
+      json['id'] = null;
+      json['topic'] = null;
+
       final roomStub = RoomStub.fromJson(json);
 
       expect(roomStub, isA<RoomStub>());
     });
 
     test('toJson()', () {
+      final json = generateJson();
+      json['id'] = null;
+
       final roomStubObject = RoomStub.fromJson(json);
       final roomStubJson = roomStubObject.toJson();
 
@@ -95,6 +119,9 @@ void main() {
     });
 
     test('Room.fromStub()', () {
+      final json = generateJson();
+      json['id'] = null;
+
       const key = 'key';
       final roomStub = RoomStub.fromJson(json);
       final room = Room.fromStub(
@@ -108,18 +135,7 @@ void main() {
   });
 
   group('utils', () {
-    final json = <String, dynamic>{
-      'id': 'id',
-      'topic': 'topic',
-      'userId': 'userId',
-      'userName': 'userName',
-      'userCode': 'userCode',
-      'languageCode': 'languageCode',
-      'createdAt': 0,
-      'updatedAt': 0,
-      'closedAt': 0,
-      'filter': 'filter',
-    };
+    final json = generateJson();
 
     test('isNew', () {
       final room = Room.fromJson(json);

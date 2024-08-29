@@ -79,6 +79,9 @@ class _ChatAppBarState extends State<ChatAppBar> {
         title: TextField(
           focusNode: focusNode,
           controller: controller,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+          ),
         ),
         actions: [
           IconButton(

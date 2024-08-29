@@ -38,10 +38,12 @@ class History {
     required int messageCount,
     required double scrollOffset,
   }) async {
+    final byMe = room.userId == 'me' || room.userId == currentUserId;
+
     final record = Record(
       roomId: room.id,
       roomTopic: room.topic,
-      roomUserId: room.userId == currentUserId ? 'me' : '',
+      roomUserId: byMe ? 'me' : '',
       roomUserName: room.userName,
       roomUserCode: room.userCode,
       createdAt: Clock().serverNow(),

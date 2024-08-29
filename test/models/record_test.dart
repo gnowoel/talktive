@@ -3,8 +3,8 @@ import 'package:talktive/models/record.dart';
 import 'package:talktive/models/room.dart';
 
 void main() {
-  group('Record', () {
-    final json = <String, dynamic>{
+  Map<String, dynamic> generateJson() {
+    return <String, dynamic>{
       'roomId': 'roomId',
       'roomTopic': 'roomTopic',
       'roomUserId': 'roomUserId',
@@ -14,8 +14,12 @@ void main() {
       'messageCount': 0,
       'scrollOffset': 0.0,
     };
+  }
 
+  group('Record', () {
     test('constructor', () {
+      final json = generateJson();
+
       final record = Record(
         roomId: json['roomId'] as String,
         roomTopic: json['roomTopic'] as String,
@@ -31,12 +35,26 @@ void main() {
     });
 
     test('fromJson()', () {
+      final json = generateJson();
+
       final record = Record.fromJson(json);
 
       expect(record, isA<Record>());
     });
 
+    test('fromJson() (without topic)', () {
+      final json = generateJson();
+      json['roomTopic'] = null;
+
+      final record = Record.fromJson(json);
+
+      expect(record, isA<Record>());
+      expect(record.roomTopic, equals(record.roomUserName));
+    });
+
     test('toJson()', () {
+      final json = generateJson();
+
       final recordObject = Record.fromJson(json);
       final recordJson = recordObject.toJson();
 
@@ -44,6 +62,8 @@ void main() {
     });
 
     test('Room.fromRecord()', () {
+      final json = generateJson();
+
       final record = Record.fromJson(json);
       final room = Room.fromRecord(record: record);
 

@@ -60,7 +60,11 @@ class _ChatAppBarState extends State<ChatAppBar> {
   }
 
   void _handleCheck(Room room, String topic) {
-    firedata.updateRoomTopic(room, topic.trim());
+    final text = topic.trim();
+
+    controller.text = text.isEmpty ? room.topic : text;
+
+    firedata.updateRoomTopic(room, text);
     setState(() => _isEditable = false);
   }
 

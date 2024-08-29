@@ -56,6 +56,7 @@ void main() {
       final room = Room.fromJson(json);
 
       expect(room, isA<Room>());
+      expect(room.topic, equals(room.userName));
     });
 
     test('toJson()', () {
@@ -105,6 +106,7 @@ void main() {
       final roomStub = RoomStub.fromJson(json);
 
       expect(roomStub, isA<RoomStub>());
+      expect(roomStub.topic, equals(roomStub.userName));
     });
 
     test('toJson()', () {

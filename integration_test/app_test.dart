@@ -9,11 +9,13 @@ Future<void> main() async {
   await setup();
 
   final messageContent = DateTime.now().toIso8601String();
+  final newTopic = messageContent.substring(messageContent.length - 6);
 
   group('App', () {
     testWidgets('walkthrough of Write, History & Read', (tester) async {
       await tester.pumpWidget(const App());
       await tester.pumpAndSettle();
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
       // Write
 
@@ -23,12 +25,35 @@ Future<void> main() async {
       await tester.tap(writeButtonFinder);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
-      final textFieldFinder = find.byType(TextField);
+      final topicTextFinder1 = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byType(Text),
+      );
+      expect(topicTextFinder1, findsWidgets);
+
+      await tester.tap(topicTextFinder1.first);
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
+
+      final topicFieldFinder = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byType(TextField),
+      );
+      final checkButtonFinder = find.byIcon(Icons.check);
+      expect(topicFieldFinder, findsWidgets);
+      expect(checkButtonFinder, findsOneWidget);
+
+      await tester.enterText(topicFieldFinder.first, newTopic);
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
+      await tester.tap(checkButtonFinder);
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
+
+      final messageFieldFinder = find.byType(TextField);
       final sendButtonFinder = find.byIcon(Icons.send);
-      expect(textFieldFinder, findsOneWidget);
+      expect(messageFieldFinder, findsOneWidget);
       expect(sendButtonFinder, findsOneWidget);
 
-      await tester.enterText(textFieldFinder, messageContent);
+      await tester.enterText(messageFieldFinder, messageContent);
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
       await tester.tap(sendButtonFinder);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
@@ -50,7 +75,9 @@ Future<void> main() async {
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
       final listTileFinder = find.byType(ListTile);
+      final topicTextFinder2 = find.text(newTopic);
       expect(listTileFinder, findsWidgets);
+      expect(topicTextFinder2, findsOneWidget);
 
       await tester.tap(listTileFinder.first);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));

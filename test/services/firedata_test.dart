@@ -4,11 +4,7 @@ import 'package:talktive/models/message.dart';
 import 'package:talktive/models/room.dart';
 import 'package:talktive/services/firedata.dart';
 
-import '../mock.dart';
-
 void main() {
-  setupMocks();
-
   final database = MockFirebaseDatabase.instance;
   final firedata = Firedata(database);
 

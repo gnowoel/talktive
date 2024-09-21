@@ -59,6 +59,17 @@ void main() {
       expect(room.topic, equals(room.userName));
     });
 
+    test('copyWith()', () {
+      final json = generateJson();
+      final room = Room.fromJson(json);
+
+      final room1 = room.copyWith(topic: 'topic1');
+      final room2 = room.copyWith(topic: 'topic2');
+
+      expect(room1.id, equals(room2.id));
+      expect(room1.topic, isNot(equals(room2.topic)));
+    });
+
     test('toJson()', () {
       final json = generateJson();
 

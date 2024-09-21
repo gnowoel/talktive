@@ -31,6 +31,16 @@ void main() {
       expect(message, isA<Message>());
     });
 
+    test('copyWith()', () {
+      final message = Message.fromJson(json);
+
+      final message1 = message.copyWith(content: 'content1');
+      final message2 = message.copyWith(content: 'content2');
+
+      expect(message1.id, equals(message2.id));
+      expect(message1.content, isNot(equals(message2.content)));
+    });
+
     test('toJson()', () {
       final messageObject = Message.fromJson(json);
       final messageJson = messageObject.toJson();

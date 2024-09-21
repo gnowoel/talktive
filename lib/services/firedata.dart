@@ -121,6 +121,12 @@ class Firedata {
       final json = Map<String, dynamic>.from(value as Map);
       final message = Message.fromJson(json);
 
+      if (messages.isNotEmpty && messages.last.userId == message.userId) {
+        messages[messages.length - 1] = messages.last
+            .copyWith(content: '${messages.last.content}\n${message.content}');
+        return messages;
+      }
+
       return messages..add(message);
     });
 

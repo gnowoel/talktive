@@ -15,6 +15,24 @@ class Message {
     required this.createdAt,
   });
 
+  Message copyWith({
+    String? id,
+    String? userId,
+    String? userName,
+    String? userCode,
+    String? content,
+    int? createdAt,
+  }) {
+    return Message(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userCode: userCode ?? this.userCode,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

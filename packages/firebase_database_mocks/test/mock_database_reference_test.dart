@@ -214,19 +214,18 @@ void main() {
 
     test('Should persist data while test running', () async {
       MockFirebaseDatabase.setDataPersistenceEnabled(enabled: true);
-      MockDatabaseReference? _databaseReference = MockDatabaseReference();
-      await _databaseReference.child('test1').set('value1');
-      await _databaseReference.child('test2/test2').set('value2');
-      await _databaseReference.child('test3/test_one').set('value3');
-      _databaseReference = null;
-      expect(_databaseReference, isNull);
+      MockDatabaseReference? databaseReference = MockDatabaseReference();
+      await databaseReference.child('test1').set('value1');
+      await databaseReference.child('test2/test2').set('value2');
+      await databaseReference.child('test3/test_one').set('value3');
+      databaseReference = null;
+      expect(databaseReference, isNull);
 
       var newDatabaseReference = MockDatabaseReference();
       expect(
         (await newDatabaseReference.child('test1').once()).snapshot.value,
         equals('value1'),
       );
-      print('test1 passed');
       expect(
         (await newDatabaseReference.child('test2/test2').once()).snapshot.value,
         equals('value2'),

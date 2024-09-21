@@ -20,6 +20,7 @@ class MockDatabaseReference extends Mock implements DatabaseReference {
   }
 
   /// TODO implement real [onchange] (should yield each change).
+  @override
   Stream<DatabaseEvent> get onValue async* {
     yield await once();
   }
@@ -34,8 +35,9 @@ class MockDatabaseReference extends Mock implements DatabaseReference {
   set _data(data) {
     if (MockFirebaseDatabase.persistData) {
       _persistedData = data;
-    } else
-      return _volatileData = data;
+    } else {
+      _volatileData = data;
+    }
   }
 
   @override
@@ -88,22 +90,22 @@ class MockDatabaseReference extends Mock implements DatabaseReference {
   @override
   Future<void> update(Map<String, Object?> value) async {
     value = _parseValue(value);
-    Map<String, dynamic> _baseData = _getDataHandle(_nodePath, _data, true)!;
+    Map<String, dynamic> baseData = _getDataHandle(_nodePath, _data, true)!;
 
-    if (key != null && _baseData[key] == null) {
-      _baseData[key!] = <String, dynamic>{};
+    if (key != null && baseData[key] == null) {
+      baseData[key!] = <String, dynamic>{};
     }
 
     if (key != null) {
-      _baseData = _baseData[key]!;
+      baseData = baseData[key]!;
     }
 
-    for (var _key in value.keys) {
-      final segments = _key.split('/');
-      final innerKey = segments.isNotEmpty ? segments.last : _key;
-      final _data = _getDataHandle(_key, _baseData, true)!;
+    for (var valueKey in value.keys) {
+      final segments = valueKey.split('/');
+      final innerKey = segments.isNotEmpty ? segments.last : valueKey;
+      final innerData = _getDataHandle(valueKey, baseData, true)!;
 
-      _data[innerKey] = value[_key];
+      innerData[innerKey] = value[valueKey];
     }
   }
 
@@ -152,24 +154,24 @@ class MockDatabaseReference extends Mock implements DatabaseReference {
 
     // The caller will access the value at key.
     final segmentsWithoutKey = pathSegments.take(pathSegments.length - 1);
-    Map<String, dynamic>? _data = data;
+    Map<String, dynamic>? result = data;
     for (var segment in segmentsWithoutKey) {
-      if (_data == null) {
+      if (result == null) {
         if (createIfMissing) {
-          _data = <String, dynamic>{};
+          result = <String, dynamic>{};
         } else {
           break;
         }
       }
 
-      if (_data[segment] == null && createIfMissing) {
-        _data[segment] = <String, dynamic>{};
+      if (result[segment] == null && createIfMissing) {
+        result[segment] = <String, dynamic>{};
       }
 
-      _data = _data[segment];
+      result = result[segment];
     }
 
-    return _data;
+    return result;
   }
 
   dynamic _getCurrentData() {

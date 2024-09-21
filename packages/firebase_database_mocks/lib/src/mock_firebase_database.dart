@@ -8,7 +8,7 @@ class MockFirebaseDatabase extends Mock implements FirebaseDatabase {
 
   static get persistData => _persistData;
 
-  Map<String, dynamic> _volatileData = <String, dynamic>{};
+  final _volatileData = <String, dynamic>{};
 
   @override
   DatabaseReference ref([String? path]) {
@@ -18,7 +18,6 @@ class MockFirebaseDatabase extends Mock implements FirebaseDatabase {
     return MockDatabaseReference(_volatileData);
   }
 
-  // ignore: unused_field
   static bool _persistData = true;
 
   //Todo support non persistence.

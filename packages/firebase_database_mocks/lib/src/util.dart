@@ -10,16 +10,16 @@ const _pushChars =
 ///   keys created later if sorted)
 final nextPushId = (() {
   // prevents collisions if you push more than once in one millisecond
-  var _lastPushTime = 0;
+  var lastPushTime = 0;
   // if called more than once in one millisecond previous random chars
   // will be used except incremented by 1
-  final _lastRandChars = List<int>.generate(12, (index) => 0);
-  final _random = Random.secure();
+  final lastRandChars = List<int>.generate(12, (index) => 0);
+  final random = Random.secure();
 
   // now is time in milliseconds since epoch
   return (int now) {
-    final duplicateTime = now == _lastPushTime;
-    _lastPushTime = now;
+    final duplicateTime = now == lastPushTime;
+    lastPushTime = now;
 
     // List<String> but it's actually chars
     final timestampChars = List<String>.generate(8, (index) => '');
@@ -36,21 +36,23 @@ final nextPushId = (() {
 
     if (!duplicateTime) {
       for (var i = 0; i < 12; i++) {
-        _lastRandChars[i] = _random.nextInt(64);
+        // FIXME(gnowoel): Consider `lastRandChars[0] = 0`
+        lastRandChars[i] = random.nextInt(64);
       }
     } else {
       // timestamp hasn't changed since last push, thus will use
       // previous random number incremented by 1
       late int i;
-      for (i = 11; i >= 0 && _lastRandChars[i] == 63; i--) {
-        _lastRandChars[i] = 0;
+      for (i = 11; i >= 0 && lastRandChars[i] == 63; i--) {
+        lastRandChars[i] = 0;
       }
-      _lastRandChars[i]++;
+      // FIXME(gnowoel): What if all numbers were `63`?
+      lastRandChars[i]++;
     }
 
     // add 12 random chars
     for (var i = 0; i < 12; i++) {
-      id += _pushChars[_lastRandChars[i]];
+      id += _pushChars[lastRandChars[i]];
     }
 
     assert(id.length == 20);

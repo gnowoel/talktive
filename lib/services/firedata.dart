@@ -121,10 +121,18 @@ class Firedata {
       final json = Map<String, dynamic>.from(value as Map);
       final message = Message.fromJson(json);
 
-      if (messages.isNotEmpty && messages.last.userId == message.userId) {
-        messages[messages.length - 1] = messages.last
-            .copyWith(content: '${messages.last.content}\n${message.content}');
-        return messages;
+      if (messages.isNotEmpty) {
+        final last = messages.last;
+        final current = message;
+
+        if (last.userId == current.userId) {
+          final index = messages.length - 1;
+          final content = '${last.content}\n${current.content}';
+
+          messages[index] = last.copyWith(content: content);
+
+          return messages;
+        }
       }
 
       return messages..add(message);

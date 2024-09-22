@@ -27,6 +27,10 @@ Future<void> main() async {
     }
   }
 
+  if (!kIsWeb) {
+    FirebaseDatabase.instance.setPersistenceEnabled(true);
+  }
+
   await Avatar().init();
   await History().init();
   runApp(const App());

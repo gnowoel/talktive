@@ -8,13 +8,24 @@ import 'setup.dart';
 Future<void> main() async {
   await setup();
 
-  final messageContent = DateTime.now().toIso8601String();
-  final newTopic = messageContent.substring(messageContent.length - 6);
+  final now = DateTime.now().toIso8601String();
+  final firstLine = now.substring(0, 10);
+  final secondLine = now.substring(11, 19);
+  final newMessage = '$firstLine\n$secondLine';
+  final newTopic = now.substring(now.length - 6);
 
   group('App', () {
     testWidgets('walkthrough of Write, History & Read', (tester) async {
       await tester.pumpWidget(const App());
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 2));
+
+      // Avatar
+
+      final refreshButtonFinder = find.byIcon(Icons.refresh);
+      expect(refreshButtonFinder, findsOneWidget);
+
+      await tester.tap(refreshButtonFinder);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
       // Write
@@ -52,12 +63,17 @@ Future<void> main() async {
       expect(messageFieldFinder, findsOneWidget);
       expect(sendButtonFinder, findsOneWidget);
 
-      await tester.enterText(messageFieldFinder, messageContent);
+      await tester.enterText(messageFieldFinder, firstLine);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
       await tester.tap(sendButtonFinder);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
-      final bubbleFinder1 = find.widgetWithText(Bubble, messageContent);
+      await tester.enterText(messageFieldFinder, secondLine);
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
+      await tester.tap(sendButtonFinder);
+      await tester.pumpFrames(const App(), const Duration(seconds: 2));
+
+      final bubbleFinder1 = find.widgetWithText(Bubble, newMessage);
       expect(bubbleFinder1, findsOneWidget);
 
       final backButtonFinder1 = find.byType(BackButton);
@@ -82,7 +98,7 @@ Future<void> main() async {
       await tester.tap(listTileFinder.first);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
-      final bubbleFinder2 = find.widgetWithText(Bubble, messageContent);
+      final bubbleFinder2 = find.widgetWithText(Bubble, newMessage);
       expect(bubbleFinder2, findsOneWidget);
 
       final backButtonFinder2 = find.byType(BackButton);
@@ -105,7 +121,7 @@ Future<void> main() async {
       await tester.tap(readButtonFinder);
       await tester.pumpFrames(const App(), const Duration(seconds: 2));
 
-      final bubbleFinder3 = find.widgetWithText(Bubble, messageContent);
+      final bubbleFinder3 = find.widgetWithText(Bubble, newMessage);
       expect(bubbleFinder3, findsNothing);
 
       final backButtonFinder4 = find.byType(BackButton);

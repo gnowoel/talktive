@@ -126,12 +126,19 @@ class Firedata {
         final current = message;
 
         if (last.userId == current.userId) {
-          final index = messages.length - 1;
-          final content = '${last.content}\n${current.content}';
+          final lastTime = DateTime.fromMillisecondsSinceEpoch(last.createdAt);
+          final currentTime =
+              DateTime.fromMillisecondsSinceEpoch(current.createdAt);
+          const oneMinute = Duration(minutes: 1);
 
-          messages[index] = last.copyWith(content: content);
+          if (lastTime.isAfter(currentTime.subtract(oneMinute))) {
+            final index = messages.length - 1;
+            final content = '${last.content}\n${current.content}';
 
-          return messages;
+            messages[index] = last.copyWith(content: content);
+
+            return messages;
+          }
         }
       }
 

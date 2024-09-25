@@ -1,7 +1,7 @@
 name: talktive
-description: "Talk without a trace."
+description: "A simple anonymous group chat app"
 publish_to: 'none'
-version: 0.1.0
+version: 0.2.0
 
 environment:
   sdk: '>=3.3.4 <4.0.0'

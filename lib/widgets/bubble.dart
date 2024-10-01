@@ -31,9 +31,11 @@ class Bubble extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         color: containerColor,
       ),
-      child: Text(
-        content,
-        style: TextStyle(fontSize: 16, color: textColor),
+      child: SelectionArea(
+        child: Text(
+          content,
+          style: TextStyle(fontSize: 16, color: textColor),
+        ),
       ),
     );
   }

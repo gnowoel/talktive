@@ -73,17 +73,20 @@ class _ChatPageState extends State<ChatPage> {
         setState(() => _room = room);
       } else {
         setState(() => _room = _room.copyWith(filter: room.filter));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: theme.colorScheme.errorContainer,
-            content: Text(
-              'The room has been deleted.',
-              style: TextStyle(
-                color: theme.colorScheme.onErrorContainer,
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: theme.colorScheme.errorContainer,
+              content: Text(
+                'The room has been deleted.',
+                style: TextStyle(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
     });
 

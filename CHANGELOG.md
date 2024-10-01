@@ -1,0 +1,16 @@
+# CHANGELOG
+
+## 0.3.0+3
+
+- Make message text selectable
+- Show snack bar messages only when necessary
+
+## 0.2.0+2
+
+- Merge adjacent messages by same sender
+- Enable offline capabilities of the database
+- Update dependencies
+
+## 0.1.0
+
+Initial release

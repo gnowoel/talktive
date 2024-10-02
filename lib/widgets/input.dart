@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/room.dart';
@@ -109,6 +110,25 @@ class _InputState extends State<Input> {
     setState(() => _isLocked = false);
   }
 
+  KeyEventResult _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
+          HardwareKeyboard.instance.isControlPressed;
+
+      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
+          event.logicalKey == LogicalKeyboardKey.numpadEnter;
+
+      if (isCtrlOrCommandPressed && isEnterPressed) {
+        if (!_isLocked) {
+          _sendMessage();
+          return KeyEventResult.handled;
+        }
+      }
+    }
+
+    return KeyEventResult.ignored;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -125,14 +145,18 @@ class _InputState extends State<Input> {
         child: Row(
           children: [
             Expanded(
-              child: TextField(
-                focusNode: widget.focusNode,
-                minLines: 1,
-                maxLines: 12,
-                controller: _controller,
-                decoration: InputDecoration.collapsed(
-                  hintText: 'Enter message',
-                  hintStyle: TextStyle(color: theme.colorScheme.outline),
+              child: KeyboardListener(
+                focusNode: FocusNode(),
+                onKeyEvent: _handleKeyEvent,
+                child: TextField(
+                  focusNode: widget.focusNode,
+                  minLines: 1,
+                  maxLines: 12,
+                  controller: _controller,
+                  decoration: InputDecoration.collapsed(
+                    hintText: 'Enter message',
+                    hintStyle: TextStyle(color: theme.colorScheme.outline),
+                  ),
                 ),
               ),
             ),

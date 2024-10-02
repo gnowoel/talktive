@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.4.0+4
+
+- Enable keyboard shortcut `Cmd+Enter` or `Ctrl+Enter` for sending messages
+
 ## 0.3.0+3
 
 - Make message text selectable

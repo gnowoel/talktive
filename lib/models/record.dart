@@ -35,8 +35,7 @@ class Record {
   factory Record.fromJson(Map<String, dynamic> json) {
     return Record(
       roomId: json['roomId'] as String,
-      // TODO: Just use `topic` in the next release
-      roomTopic: (json['roomTopic'] ?? json['roomUserName']) as String,
+      roomTopic: json['roomTopic'] as String,
       roomUserId: json['roomUserId'] as String,
       roomUserName: json['roomUserName'] as String,
       roomUserCode: json['roomUserCode'] as String,

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.0+5
+
+- Adjust the data model to support customizing chat room titles
+
 ## 0.4.0+4
 
 - Enable keyboard shortcut `Cmd+Enter` or `Ctrl+Enter` for sending messages

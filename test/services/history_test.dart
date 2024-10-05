@@ -14,6 +14,7 @@ void main() {
 
   Map<String, dynamic> generateJson() {
     return <String, dynamic>{
+      'topic': 'topic',
       'userId': 'uid',
       'userName': 'name',
       'userCode': 'code',

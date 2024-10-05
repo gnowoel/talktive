@@ -42,16 +42,6 @@ void main() {
       expect(record, isA<Record>());
     });
 
-    test('fromJson() (without topic)', () {
-      final json = generateJson();
-      json['roomTopic'] = null;
-
-      final record = Record.fromJson(json);
-
-      expect(record, isA<Record>());
-      expect(record.roomTopic, equals(record.roomUserName));
-    });
-
     test('toJson()', () {
       final json = generateJson();
 

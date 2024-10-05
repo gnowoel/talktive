@@ -49,16 +49,6 @@ void main() {
       expect(room, isA<Room>());
     });
 
-    test('fromJson() (without topic)', () {
-      final json = generateJson();
-      json['topic'] = null;
-
-      final room = Room.fromJson(json);
-
-      expect(room, isA<Room>());
-      expect(room.topic, equals(room.userName));
-    });
-
     test('copyWith()', () {
       final json = generateJson();
       final room = Room.fromJson(json);
@@ -107,17 +97,6 @@ void main() {
       final roomStub = RoomStub.fromJson(json);
 
       expect(roomStub, isA<RoomStub>());
-    });
-
-    test('fromJson() (without topic)', () {
-      final json = generateJson();
-      json['id'] = null;
-      json['topic'] = null;
-
-      final roomStub = RoomStub.fromJson(json);
-
-      expect(roomStub, isA<RoomStub>());
-      expect(roomStub.topic, equals(roomStub.userName));
     });
 
     test('toJson()', () {

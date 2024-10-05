@@ -70,8 +70,7 @@ class Room {
   factory Room.fromJson(Map<String, dynamic> json) {
     return Room(
       id: json['id'] as String,
-      // TODO: Just use `topic` in the next release
-      topic: (json['topic'] ?? json['userName']) as String,
+      topic: json['topic'] as String,
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,
@@ -181,8 +180,7 @@ class RoomStub {
 
   factory RoomStub.fromJson(Map<String, dynamic> json) {
     return RoomStub(
-      // TODO: Just use `topic` in the next release
-      topic: (json['topic'] ?? json['userName']) as String,
+      topic: json['topic'] as String,
       userId: json['userId'] as String,
       userName: json['userName'] as String,
       userCode: json['userCode'] as String,

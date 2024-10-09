@@ -50,4 +50,15 @@ class Emoji {
     emojis.Category.activities,
     emojis.Category.objects,
   ];
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Emoji &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          code == other.code;
+
+  @override
+  int get hashCode => name.hashCode ^ code.hashCode;
 }

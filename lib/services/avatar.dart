@@ -21,7 +21,7 @@ class Avatar extends ChangeNotifier {
   String get code => _emoji.code;
 
   void refresh() {
-    final emoji = Emoji.random();
+    final emoji = _getNewEmoji();
     _saveEmoji(emoji); // no wait
   }
 
@@ -31,6 +31,14 @@ class Avatar extends ChangeNotifier {
         string == null ? Emoji.random() : Emoji.fromJson(jsonDecode(string));
 
     await _saveEmoji(emoji);
+  }
+
+  Emoji _getNewEmoji() {
+    var emoji = Emoji.random();
+    if (emoji == _emoji) {
+      emoji = _getNewEmoji();
+    }
+    return emoji;
   }
 
   Future<void> _saveEmoji(Emoji emoji) async {

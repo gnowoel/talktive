@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.6.0+6
+
+- Make sure we get a different user profile on clicking the refresh button
+
 ## 0.5.0+5
 
 - Adjust the data model to support customizing chat room titles

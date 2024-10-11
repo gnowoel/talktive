@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.0+7
+
+- Add support for the predictive back gesture
+- Get instant feedback on message delivery even when offline
+- Set up centralized error handling to improve robustness
+
 ## 0.6.0+6
 
 - Make sure we get a different user profile on clicking the refresh button

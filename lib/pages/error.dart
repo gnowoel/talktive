@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../helpers/exception.dart';
+
 class ErrorPage extends StatefulWidget {
   const ErrorPage({
     super.key,
@@ -30,16 +32,10 @@ class _ErrorPageState extends State<ErrorPage> {
     theme = Theme.of(context);
 
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: theme.colorScheme.errorContainer,
-          content: Text(
-            widget.message,
-            style: TextStyle(
-              color: theme.colorScheme.onErrorContainer,
-            ),
-          ),
-        ),
+      ErrorHandler.showSnackBarMessage(
+        context,
+        AppException(widget.message),
+        severe: true,
       );
     });
   }

@@ -31,9 +31,9 @@ class Fireauth {
       if (e.code != 'network-request-failed') {
         await instance.signOut();
       }
-      throw Exception(e.code);
+      throw AppException(e.code);
     } catch (e) {
-      rethrow;
+      throw AppException(e.toString());
     }
   }
 }

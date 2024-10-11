@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import '../helpers/exception.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -111,7 +112,13 @@ class _UserPageState extends State<UserPage> {
 
     setState(() => _isLocked = true);
 
-    await action();
+    try {
+      await action();
+    } on AppException catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context, e);
+      }
+    }
 
     setState(() => _isLocked = false);
   }

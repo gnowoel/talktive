@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/services/fireauth.dart';
 
+import '../helpers/exception.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 import '../services/firedata.dart';
@@ -75,16 +76,10 @@ class _ChatPageState extends State<ChatPage> {
         setState(() => _room = _room.copyWith(filter: room.filter));
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: theme.colorScheme.errorContainer,
-              content: Text(
-                'The room has been deleted.',
-                style: TextStyle(
-                  color: theme.colorScheme.onErrorContainer,
-                ),
-              ),
-            ),
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been deleted.'),
+            severe: true,
           );
         }
       }

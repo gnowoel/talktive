@@ -13,7 +13,7 @@ class Firedata {
 
   Firedata(this.instance);
 
-  Future<void> syncTime() async {
+  void syncTime() {
     final ref = instance.ref(".info/serverTimeOffset");
 
     ref.onValue.listen((event) {

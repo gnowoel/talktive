@@ -28,7 +28,6 @@ class _InputState extends State<Input> {
   late Avatar avatar;
 
   final _controller = TextEditingController();
-  bool _isLocked = false;
 
   @override
   void initState() {
@@ -100,13 +99,7 @@ class _InputState extends State<Input> {
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
-    if (_isLocked == true) return;
-
-    setState(() => _isLocked = true);
-
     await action();
-
-    setState(() => _isLocked = false);
   }
 
   KeyEventResult _handleKeyEvent(KeyEvent event) {
@@ -118,10 +111,8 @@ class _InputState extends State<Input> {
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
-        if (!_isLocked) {
-          _sendMessage();
-          return KeyEventResult.handled;
-        }
+        _sendMessage();
+        return KeyEventResult.handled;
       }
     }
 
@@ -160,7 +151,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: _isLocked ? null : _sendMessage,
+              onPressed: _sendMessage,
               icon: Icon(
                 Icons.send,
                 color: theme.colorScheme.primary,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/exception.dart';
 import '../models/room.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
@@ -78,20 +79,15 @@ class _InputState extends State<Input> {
 
       if (mounted) {
         if (widget.room.isDeleted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: theme.colorScheme.errorContainer,
-              content: Text(
-                'The room has been deleted.',
-                style: TextStyle(
-                  color: theme.colorScheme.onErrorContainer,
-                ),
-              ),
-            ),
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been deleted.'),
+            severe: true,
           );
         } else if (widget.room.isClosed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('The room has been closed.')),
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been closed.'),
           );
         }
       }
@@ -99,7 +95,13 @@ class _InputState extends State<Input> {
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
-    await action();
+    try {
+      await action();
+    } on AppException catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context, e);
+      }
+    }
   }
 
   KeyEventResult _handleKeyEvent(KeyEvent event) {

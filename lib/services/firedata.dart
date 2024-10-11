@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
+import '../helpers/exception.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 import 'clock.dart';
@@ -28,24 +29,28 @@ class Firedata {
     String userCode,
     String languageCode,
   ) async {
-    final now = clock.serverNow();
-    final roomValue = RoomStub(
-      topic: userName, // Use `userName` as the default topic
-      userId: userId,
-      userName: userName,
-      userCode: userCode,
-      languageCode: languageCode,
-      createdAt: now,
-      updatedAt: now,
-      closedAt: now + (kDebugMode ? 360 : 3600) * 1000,
-      filter: '$languageCode-nnnn',
-    );
+    try {
+      final now = clock.serverNow();
+      final roomValue = RoomStub(
+        topic: userName, // Use `userName` as the default topic
+        userId: userId,
+        userName: userName,
+        userCode: userCode,
+        languageCode: languageCode,
+        createdAt: now,
+        updatedAt: now,
+        closedAt: now + (kDebugMode ? 360 : 3600) * 1000,
+        filter: '$languageCode-nnnn',
+      );
 
-    final ref = instance.ref('rooms').push();
+      final ref = instance.ref('rooms').push();
 
-    await ref.set(roomValue.toJson());
+      await ref.set(roomValue.toJson());
 
-    return Room.fromStub(key: ref.key!, value: roomValue);
+      return Room.fromStub(key: ref.key!, value: roomValue);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Future<Message> sendMessage(
@@ -55,35 +60,47 @@ class Firedata {
     String userCode,
     String content,
   ) async {
-    final messageRef = instance.ref('messages/${room.id}').push();
-    final now = clock.serverNow();
+    try {
+      final messageRef = instance.ref('messages/${room.id}').push();
+      final now = clock.serverNow();
 
-    final message = Message(
-      userId: userId,
-      userName: userName,
-      userCode: userCode,
-      content: content,
-      createdAt: now,
-    );
+      final message = Message(
+        userId: userId,
+        userName: userName,
+        userCode: userCode,
+        content: content,
+        createdAt: now,
+      );
 
-    await messageRef.set(message.toJson());
+      await messageRef.set(message.toJson());
 
-    return message;
+      return message;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Future<void> createAccess(String roomId) async {
-    final accessRef = instance.ref('accesses').push();
-    final entry = {roomId: true};
+    try {
+      final accessRef = instance.ref('accesses').push();
+      final entry = {roomId: true};
 
-    await accessRef.set(entry);
+      await accessRef.set(entry);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Future<void> updateRoomTopic(Room room, String topic) async {
-    if (topic.isEmpty || room.topic == topic) return;
+    try {
+      if (topic.isEmpty || room.topic == topic) return;
 
-    final ref = instance.ref('rooms/${room.id}');
+      final ref = instance.ref('rooms/${room.id}');
 
-    await ref.update({'topic': topic});
+      await ref.update({'topic': topic});
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Stream<Room> subscribeToRoom(String roomId) {
@@ -153,53 +170,57 @@ class Firedata {
     String languageCode,
     List<String> recentRoomIds,
   ) async {
-    final rooms = <Room>[];
-    final expired = <Room>[];
-    var startAt = '$languageCode-0000';
-    var limit = kDebugMode ? 2 : 16;
-    var next = true;
+    try {
+      final rooms = <Room>[];
+      final expired = <Room>[];
+      var startAt = '$languageCode-0000';
+      var limit = kDebugMode ? 2 : 16;
+      var next = true;
 
-    // TODO: Limit the number of retries
-    while (next) {
-      final result = await _getRooms(
-        languageCode: languageCode,
-        startAt: startAt,
-        limit: limit,
-      );
+      // TODO: Limit the number of retries
+      while (next) {
+        final result = await _getRooms(
+          languageCode: languageCode,
+          startAt: startAt,
+          limit: limit,
+        );
 
-      if (result.length < limit) next = false;
+        if (result.length < limit) next = false;
 
-      rooms.clear();
+        rooms.clear();
 
-      for (final room in result) {
-        if (room.isClosed) {
-          if (!room.isMarkedClosed) {
-            expired.add(room);
+        for (final room in result) {
+          if (room.isClosed) {
+            if (!room.isMarkedClosed) {
+              expired.add(room);
+            }
+          } else if (!recentRoomIds.contains(room.id)) {
+            rooms.add(room);
           }
-        } else if (!recentRoomIds.contains(room.id)) {
-          rooms.add(room);
+        }
+
+        if (rooms.isNotEmpty) next = false;
+
+        if (next) {
+          startAt = result.last.filter;
+          limit *= 2;
         }
       }
 
-      if (rooms.isNotEmpty) next = false;
+      rooms.sort((a, b) {
+        int filterComp = a.filter.compareTo(b.filter);
+        if (filterComp == 0) {
+          return a.createdAt.compareTo(b.createdAt);
+        }
+        return filterComp;
+      });
 
-      if (next) {
-        startAt = result.last.filter;
-        limit *= 2;
-      }
+      _markClosed(expired); // No need to wait
+
+      return rooms.isNotEmpty ? rooms.first : null;
+    } catch (e) {
+      throw AppException(e.toString());
     }
-
-    rooms.sort((a, b) {
-      int filterComp = a.filter.compareTo(b.filter);
-      if (filterComp == 0) {
-        return a.createdAt.compareTo(b.createdAt);
-      }
-      return filterComp;
-    });
-
-    _markClosed(expired); // No need to wait
-
-    return rooms.isNotEmpty ? rooms.first : null;
   }
 
   Future<List<Room>> _getRooms({
@@ -207,38 +228,46 @@ class Firedata {
     required String startAt,
     required int limit,
   }) async {
-    final ref = instance.ref('rooms');
-    final query = ref
-        .orderByChild('filter')
-        .startAt(startAt)
-        .endAt('$languageCode-9999')
-        .limitToFirst(limit);
-    final snapshot = await query.get();
+    try {
+      final ref = instance.ref('rooms');
+      final query = ref
+          .orderByChild('filter')
+          .startAt(startAt)
+          .endAt('$languageCode-9999')
+          .limitToFirst(limit);
+      final snapshot = await query.get();
 
-    if (!snapshot.exists) {
-      return [];
+      if (!snapshot.exists) {
+        return [];
+      }
+
+      final map1 = Map<String, dynamic>.from(snapshot.value as Map);
+      final rooms = map1.entries.map((entry) {
+        final map2 = Map<String, dynamic>.from(entry.value as Map);
+        final roomStub = RoomStub.fromJson(map2);
+        return Room.fromStub(key: entry.key, value: roomStub);
+      }).toList();
+
+      rooms.sort((a, b) => a.filter.compareTo(b.filter));
+
+      return rooms;
+    } catch (e) {
+      throw AppException(e.toString());
     }
-
-    final map1 = Map<String, dynamic>.from(snapshot.value as Map);
-    final rooms = map1.entries.map((entry) {
-      final map2 = Map<String, dynamic>.from(entry.value as Map);
-      final roomStub = RoomStub.fromJson(map2);
-      return Room.fromStub(key: entry.key, value: roomStub);
-    }).toList();
-
-    rooms.sort((a, b) => a.filter.compareTo(b.filter));
-
-    return rooms;
   }
 
   Future<void> _markClosed(List<Room> rooms) async {
-    final expiresRef = instance.ref('expires').push();
-    final collection = <String, dynamic>{};
+    try {
+      final expiresRef = instance.ref('expires').push();
+      final collection = <String, dynamic>{};
 
-    for (final room in rooms) {
-      collection[room.id] = true;
+      for (final room in rooms) {
+        collection[room.id] = true;
+      }
+
+      await expiresRef.set(collection);
+    } catch (e) {
+      throw AppException(e.toString());
     }
-
-    await expiresRef.set(collection);
   }
 }

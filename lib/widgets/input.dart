@@ -67,6 +67,7 @@ class _InputState extends State<Input> {
       }
 
       if (!widget.room.isDeleted) {
+        _controller.clear();
         await firedata.sendMessage(
           room,
           userId,
@@ -75,8 +76,6 @@ class _InputState extends State<Input> {
           content,
         );
       }
-
-      _controller.clear();
 
       if (mounted) {
         if (widget.room.isDeleted) {

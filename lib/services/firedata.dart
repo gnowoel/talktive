@@ -146,9 +146,9 @@ class Firedata {
           final lastTime = DateTime.fromMillisecondsSinceEpoch(last.createdAt);
           final currentTime =
               DateTime.fromMillisecondsSinceEpoch(current.createdAt);
-          const oneMinute = Duration(minutes: 1);
+          const interval = Duration(seconds: 1);
 
-          if (lastTime.isAfter(currentTime.subtract(oneMinute))) {
+          if (lastTime.isAfter(currentTime.subtract(interval))) {
             final index = messages.length - 1;
             final content = '${last.content}\n${current.content}';
 

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.1+8
+
+- Merge only messages sent consecutively within a short period of time
+
 ## 1.0.0+7
 
 - Add support for the predictive back gesture

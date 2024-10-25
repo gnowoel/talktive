@@ -14,6 +14,10 @@ void main() {
   const languageCode = 'lang';
   const content = 'content';
 
+  tearDown(() {
+    database.clear();
+  });
+
   group('Firedata', () {
     test('can instantiate Firedata', () async {
       expect(firedata, isA<Firedata>());
@@ -80,7 +84,7 @@ void main() {
 
       await firedata.updateRoomTopic(room, 'new topic');
 
-      final ref = firedata.instance.ref('rooms/${room.id}');
+      final ref = database.ref('rooms/${room.id}');
       final snapshot = await ref.get();
       final json = Map<String, dynamic>.from(snapshot.value as Map);
       final roomStub = RoomStub.fromJson(json);
@@ -90,15 +94,67 @@ void main() {
       expect(updatedRoom.topic, equals('new topic'));
     });
 
-    test('can create an access', () async {
+    test('can create an `access` record', () async {
       await firedata.createAccess('roomId1');
       await firedata.createAccess('roomId2');
 
-      final ref = firedata.instance.ref('accesses');
+      final ref = database.ref('accesses');
       final snapshot = await ref.get();
       final children = snapshot.children.toList();
 
       expect(children.length, 2);
+    });
+
+    group('selectRoom()', () {
+      test('selects a room based on `filter`', () async {
+        await firedata.createRoom('2', '2', '2', 'en-2222');
+        await firedata.createRoom('1', '1', '1', 'en-1111');
+        await firedata.createRoom('3', '3', '3', 'en-3333');
+
+        final room = await firedata.selectRoom('en', []);
+
+        expect(room?.userId, '1');
+      });
+
+      test('can skip visited rooms', () async {
+        final room1 = await firedata.createRoom('2', '2', '2', 'en-2222');
+        final room2 = await firedata.createRoom('1', '1', '1', 'en-1111');
+        final room3 = await firedata.createRoom('3', '3', '3', 'en-3333');
+
+        final recentRoomIds = [room1.id, room2.id, room3.id];
+        final room = await firedata.selectRoom('en', recentRoomIds);
+
+        expect(room, null);
+      });
+
+      test('does not select empty rooms', () async {
+        await firedata.createRoom('1', '1', '1', 'en');
+        await firedata.createRoom('2', '2', '2', 'en');
+        await firedata.createRoom('3', '3', '3', 'en');
+
+        final room = await firedata.selectRoom('en', []);
+        expect(room, null);
+      });
+
+      test('can create an `expires` record when needed', () async {
+        final room = await firedata.createRoom('0', '0', '0', 'en-0000');
+
+        final roomRef = database.ref('rooms/${room.id}');
+        await roomRef.update({'closedAt': 0});
+
+        final snapshot1 = await roomRef.get();
+        final json = Map<String, dynamic>.from(snapshot1.value as Map);
+
+        expect(json['closedAt'], 0);
+
+        await firedata.selectRoom('en', []);
+
+        final expiresRef = database.ref('expires');
+        final snapshot2 = await expiresRef.get();
+        final children = snapshot2.children.toList();
+
+        expect(children.length, 1);
+      });
     });
   });
 }

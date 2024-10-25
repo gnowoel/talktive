@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.0.2+9
+
+- Increase test coverage
+- Upgrade dependencies
+
 ## 1.0.1+8
 
 - Merge only messages sent consecutively within a short period of time

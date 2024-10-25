@@ -1,11 +1,11 @@
-import 'package:firebase_database_mocks/firebase_database_mocks.dart';
+import 'package:fake_firebase_database/fake_firebase_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talktive/models/message.dart';
 import 'package:talktive/models/room.dart';
 import 'package:talktive/services/firedata.dart';
 
 void main() {
-  final database = MockFirebaseDatabase.instance;
+  final database = FakeFirebaseDatabase.instance;
   final firedata = Firedata(database);
 
   const userId = 'uid';

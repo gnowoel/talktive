@@ -89,5 +89,16 @@ void main() {
       expect(updatedRoom.topic, isNot(equals(room.userName)));
       expect(updatedRoom.topic, equals('new topic'));
     });
+
+    test('can create an access', () async {
+      await firedata.createAccess('roomId1');
+      await firedata.createAccess('roomId2');
+
+      final ref = firedata.instance.ref('accesses');
+      final snapshot = await ref.get();
+      final children = snapshot.children.toList();
+
+      expect(children.length, 2);
+    });
   });
 }

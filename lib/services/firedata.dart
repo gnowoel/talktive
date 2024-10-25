@@ -165,7 +165,7 @@ class Firedata {
     return stream;
   }
 
-  // Inactive rooms should be removed after some time
+  // Inactive rooms will be removed by Could Functions after some time
   Future<Room?> selectRoom(
     String languageCode,
     List<String> recentRoomIds,
@@ -177,7 +177,7 @@ class Firedata {
       var limit = kDebugMode ? 2 : 16;
       var next = true;
 
-      // TODO: Limit the number of retries
+      // TODO: Limit the number of retries if necessary
       while (next) {
         final result = await _getRooms(
           languageCode: languageCode,

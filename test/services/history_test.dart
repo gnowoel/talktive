@@ -37,13 +37,17 @@ void main() {
     return Room.fromJson(json);
   }
 
-  Future<void> saveHistoryRecord(String id, [String? userId]) async {
+  Future<void> saveHistoryRecord(String roomId, [String? userId]) async {
     await history.saveRecord(
-      room: generateRoom(id, userId),
+      room: generateRoom(roomId, userId),
       currentUserId: currentUserId,
       messageCount: messageCount,
       scrollOffset: scrollOffset,
     );
+  }
+
+  Future<void> removeHistoryRecord(String roomId) async {
+    await history.removeRecord(roomId: roomId);
   }
 
   tearDown(() async {
@@ -64,6 +68,19 @@ void main() {
       final recentRecords = history.recentRecords;
       expect(recentRecords[0].roomUserId, equals('me'));
       expect(recentRecords[1].roomUserId, equals('me'));
+    });
+
+    test('can remove records', () async {
+      await saveHistoryRecord('id-1');
+      await saveHistoryRecord('id-2');
+
+      final recentRecords1 = history.recentRecords;
+      expect(recentRecords1, hasLength(2));
+
+      await removeHistoryRecord('id-2');
+      final recentRecords2 = history.recentRecords;
+      expect(recentRecords2, hasLength(1));
+      expect(recentRecords2.first.roomId, 'id-1');
     });
   });
 }

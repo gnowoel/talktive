@@ -13,6 +13,7 @@ void main() {
       'createdAt': 0,
       'messageCount': 0,
       'scrollOffset': 0.0,
+      'visible': true,
     };
   }
 
@@ -29,6 +30,7 @@ void main() {
         createdAt: json['createdAt'] as int,
         messageCount: json['messageCount'] as int,
         scrollOffset: json['scrollOffset'] as double,
+        visible: json['visible'] as bool,
       );
 
       expect(record, isA<Record>());

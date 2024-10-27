@@ -7,6 +7,7 @@ class Record {
   final int createdAt;
   final int messageCount;
   final double scrollOffset;
+  final bool visible;
 
   Record({
     required this.roomId,
@@ -17,6 +18,7 @@ class Record {
     required this.createdAt,
     required this.messageCount,
     required this.scrollOffset,
+    required this.visible,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +31,7 @@ class Record {
       'createdAt': createdAt,
       'messageCount': messageCount,
       'scrollOffset': scrollOffset,
+      'visible': visible,
     };
   }
 
@@ -42,6 +45,7 @@ class Record {
       createdAt: json['createdAt'] as int,
       messageCount: json['messageCount'] as int,
       scrollOffset: json['scrollOffset'] as double,
+      visible: json['visible'] as bool,
     );
   }
 }

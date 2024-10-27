@@ -61,6 +61,10 @@ class History {
 
     await _setPref(jsonEncode(_records));
   }
+
+  Future<void> removeRecord({required String roomId}) async {
+    _records.removeWhere((element) => element.roomId == roomId);
+    await _setPref(jsonEncode(_records));
   }
 
   List<String> get recentRoomIds {

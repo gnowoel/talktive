@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import '../models/record.dart';
 import '../models/room.dart';
 import 'clock.dart';
@@ -66,6 +68,12 @@ class History {
 
   List<Record> get recentRecords {
     return _records.where((record) => _isValid(record)).toList();
+  }
+
+  @visibleForTesting
+  Future<void> clear() async {
+    _records.clear();
+    await prefs.setString('records', jsonEncode(_records));
   }
 
   bool _isValid(Record record) {

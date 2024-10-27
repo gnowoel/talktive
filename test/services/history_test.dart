@@ -46,6 +46,10 @@ void main() {
     );
   }
 
+  tearDown(() async {
+    await history.clear();
+  });
+
   group('History', () {
     test('can save records', () async {
       await saveHistoryRecord('id-1');

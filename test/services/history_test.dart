@@ -50,6 +50,10 @@ void main() {
     await history.removeRecord(roomId: roomId);
   }
 
+  Future<void> hideHistoryRecord(String roomId) async {
+    await history.hideRecord(roomId: roomId);
+  }
+
   tearDown(() async {
     await history.clear();
   });
@@ -81,6 +85,22 @@ void main() {
       final recentRecords2 = history.recentRecords;
       expect(recentRecords2, hasLength(1));
       expect(recentRecords2.first.roomId, 'id-1');
+    });
+
+    test('can hide records', () async {
+      await saveHistoryRecord('id-1');
+      await saveHistoryRecord('id-2');
+
+      final recentRecords1 = history.recentRecords;
+      expect(recentRecords1, hasLength(2));
+
+      await hideHistoryRecord('id-2');
+      final recentRecords2 = history.recentRecords;
+      expect(recentRecords2, hasLength(2));
+
+      final visibleRecentRecords = history.visibleRecentRecords;
+      expect(visibleRecentRecords, hasLength(1));
+      expect(visibleRecentRecords.first.roomId, 'id-1');
     });
   });
 }

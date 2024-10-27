@@ -63,11 +63,6 @@ class History {
     await _setPref(jsonEncode(_records));
   }
 
-  Future<void> removeRecord({required String roomId}) async {
-    _records.removeWhere((element) => element.roomId == roomId);
-    await _setPref(jsonEncode(_records));
-  }
-
   Future<void> hideRecord({required String roomId}) async {
     final index = _records.indexWhere((record) => record.roomId == roomId);
     if (index >= 0) {

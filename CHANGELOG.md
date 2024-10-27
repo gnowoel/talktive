@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.0+10
+
+- Swipe to dismiss recent rooms
+
 ## 1.0.2+9
 
 - Increase test coverage

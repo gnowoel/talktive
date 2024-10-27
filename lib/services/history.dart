@@ -51,6 +51,7 @@ class History {
       createdAt: Clock().serverNow(),
       messageCount: messageCount,
       scrollOffset: scrollOffset,
+      visible: true,
     );
 
     _records.removeWhere((element) {

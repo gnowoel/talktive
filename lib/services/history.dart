@@ -18,7 +18,7 @@ class History {
   final _records = <Record>[];
 
   Future<void> init() async {
-    final string = await prefs.getString('records');
+    final string = await _getPref();
     final list = string == null
         ? <Map<String, dynamic>>[]
         : jsonDecode(string).cast<Map<String, dynamic>>();
@@ -59,7 +59,8 @@ class History {
     _records.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Just in case
     _records.insert(0, record);
 
-    await prefs.setString('records', jsonEncode(_records));
+    await _setPref(jsonEncode(_records));
+  }
   }
 
   List<String> get recentRoomIds {
@@ -73,7 +74,16 @@ class History {
   @visibleForTesting
   Future<void> clear() async {
     _records.clear();
-    await prefs.setString('records', jsonEncode(_records));
+    await _setPref(jsonEncode(_records));
+  }
+
+  Future<void> _setPref(String? records) async {
+    if (records == null) return;
+    await prefs.setString('records', records);
+  }
+
+  Future<String?> _getPref() async {
+    return await prefs.getString('records');
   }
 
   bool _isValid(Record record) {

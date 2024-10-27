@@ -68,12 +68,24 @@ class History {
     await _setPref(jsonEncode(_records));
   }
 
+  Future<void> hideRecord({required String roomId}) async {
+    final index = _records.indexWhere((record) => record.roomId == roomId);
+    if (index >= 0) {
+      _records[index] = _records[index].copyWith(visible: false);
+    }
+    await _setPref(jsonEncode(_records));
+  }
+
   List<String> get recentRoomIds {
     return recentRecords.map((record) => record.roomId).toList();
   }
 
   List<Record> get recentRecords {
     return _records.where((record) => _isValid(record)).toList();
+  }
+
+  List<Record> get visibleRecentRecords {
+    return recentRecords.where((record) => _isVisible(record)).toList();
   }
 
   @visibleForTesting
@@ -99,4 +111,6 @@ class History {
   }
 
   bool _isInvalid(Record record) => !_isValid(record);
+
+  bool _isVisible(Record record) => record.visible;
 }

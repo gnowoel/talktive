@@ -44,6 +44,17 @@ void main() {
       expect(record, isA<Record>());
     });
 
+    test('copyWith()', () {
+      final json = generateJson();
+
+      final record1 = Record.fromJson(json);
+      final record2 = record1.copyWith(visible: false);
+
+      expect(record1.roomId, record2.roomId);
+      expect(record2.visible, false);
+      expect(record1.visible, isNot(record2.visible));
+    });
+
     test('toJson()', () {
       final json = generateJson();
 

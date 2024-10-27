@@ -21,6 +21,30 @@ class Record {
     required this.visible,
   });
 
+  Record copyWith({
+    String? roomId,
+    String? roomTopic,
+    String? roomUserId,
+    String? roomUserName,
+    String? roomUserCode,
+    int? createdAt,
+    int? messageCount,
+    double? scrollOffset,
+    bool? visible,
+  }) {
+    return Record(
+      roomId: roomId ?? this.roomId,
+      roomTopic: roomTopic ?? this.roomTopic,
+      roomUserId: roomUserId ?? this.roomUserId,
+      roomUserName: roomUserName ?? this.roomUserName,
+      roomUserCode: roomUserCode ?? this.roomUserCode,
+      createdAt: createdAt ?? this.createdAt,
+      messageCount: messageCount ?? this.messageCount,
+      scrollOffset: scrollOffset ?? this.scrollOffset,
+      visible: visible ?? this.visible,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'roomId': roomId,

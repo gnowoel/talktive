@@ -27,12 +27,12 @@ class _RecentsPageState extends State<RecentsPage>
   void initState() {
     super.initState();
     history = Provider.of<History>(context, listen: false);
-    records = history.recentRecords;
+    records = history.visibleRecentRecords;
     ticker = createTicker((_) {
       final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
       if (now.difference(then).inSeconds > 1) {
         setState(() {
-          records = history.recentRecords;
+          records = history.visibleRecentRecords;
           then = now;
         });
       }

@@ -60,7 +60,7 @@ class _RecordItemState extends State<RecordItem> {
     return Dismissible(
       key: Key(roomId),
       onDismissed: (direction) async {
-        await history.removeRecord(roomId: roomId);
+        await history.hideRecord(roomId: roomId);
       },
       child: Card(
         elevation: 0,

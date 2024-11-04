@@ -63,8 +63,8 @@ class _UserPageState extends State<UserPage> {
       final room = await firedata.selectRoom(languageCode, recentRoomIds);
 
       final lines = [
-        'No more to read.',
-        'But you can write.',
+        'No more messages.',
+        'But you can leave one.',
         '',
       ];
 

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.1.1+11
+
+- Change the wording of the help messages
+- Update dependencies
+
 ## 1.1.0+10
 
 - Swipe to dismiss recent rooms

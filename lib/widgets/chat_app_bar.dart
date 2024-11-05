@@ -73,32 +73,46 @@ class _ChatAppBarState extends State<ChatAppBar> {
     final currentUserId = fireauth.instance.currentUser!.uid;
     final isOp = widget.room.userId == currentUserId;
     final isTopicSet = widget.room.topic != widget.room.userName;
-    final hint = 'Tap to set a topic';
+    final hint = 'New room';
 
-    if (isOp && _isEditable) {
-      return AppBar(
-        backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: TextField(
-          focusNode: focusNode,
-          controller: controller,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
+    if (isOp) {
+      if (_isEditable) {
+        return AppBar(
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
+          title: TextField(
+            focusNode: focusNode,
+            controller: controller,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+            ),
           ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _handleCheck(widget.room, controller.text),
-            icon: const Icon(Icons.check),
+          actions: [
+            IconButton(
+              onPressed: () => _handleCheck(widget.room, controller.text),
+              icon: const Icon(Icons.check),
+            ),
+            const SizedBox(width: 16),
+          ],
+        );
+      } else {
+        return AppBar(
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
+          title: GestureDetector(
+            onTap: _handleTap,
+            child: isTopicSet ? Text(widget.room.topic) : Text(hint),
           ),
-          const SizedBox(width: 16),
-        ],
-      );
+          actions: [
+            Health(room: widget.room),
+            const SizedBox(width: 16),
+          ],
+        );
+      }
     } else {
       return AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: GestureDetector(
           onTap: _handleTap,
-          child: isTopicSet ? Text(widget.room.topic) : Text(hint),
+          child: Text(widget.room.topic),
         ),
         actions: [
           Health(room: widget.room),

@@ -10,9 +10,7 @@ import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
-import '../widgets/info.dart';
 import 'chat.dart';
-import 'empty.dart';
 import 'recents.dart';
 
 class UserPage extends StatefulWidget {
@@ -58,34 +56,16 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-  Future<void> _read() async {
-    _doAction(() async {
-      final recentRoomIds = history.recentRoomIds;
-      final room = await firedata.selectRoom(languageCode, recentRoomIds);
-
-      final lines = [
-        'No more messages.',
-        'But you can leave one.',
-        '',
-      ];
-
-      if (mounted) {
-        if (room != null) {
-          _enterPage(ChatPage(room: room));
-        } else {
-          _enterPage(EmptyPage(child: Info(lines: lines)));
-        }
-      }
-    });
-  }
-
   Future<void> _fetch() async {
     _doAction(() async {
-      _enterPage(RoomsPage());
+      final recentRoomIds = history.recentRoomIds;
+      final rooms = await firedata.fetchRooms(languageCode, recentRoomIds);
+
+      _enterPage(RoomsPage(rooms: rooms));
     });
   }
 
-  Future<void> _write() async {
+  Future<void> _create() async {
     await _doAction(() async {
       final userId = fireauth.instance.currentUser!.uid;
       final userName = avatar.name;
@@ -160,8 +140,8 @@ class _UserPageState extends State<UserPage> {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
-                    onPressed: _write,
-                    child: const Text('Write'),
+                    onPressed: _create,
+                    child: const Text('Create'),
                   ),
                   const SizedBox(height: 4),
                   IconButton(

@@ -118,8 +118,8 @@ class _MessageListState extends State<MessageList> {
 
   Widget _buildInfo() {
     const lines = [
-      'Leave a message.',
-      'Then wait for a reply.',
+      'Tap to set a title.',
+      'Then leave a message.',
     ];
 
     return const SizedBox.expand(

@@ -127,38 +127,54 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                avatar.code,
-                style: const TextStyle(fontSize: 64),
+        child: Column(
+          children: [
+            Expanded(
+              child: SizedBox(),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    avatar.code,
+                    style: const TextStyle(fontSize: 64),
+                  ),
+                  Text(avatar.name),
+                  IconButton(
+                    onPressed: _refresh,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'Change profile',
+                  ),
+                  const SizedBox(height: 4),
+                  FilledButton(
+                    onPressed: _read,
+                    child: const Text('Read'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: _write,
+                    child: const Text('Write'),
+                  ),
+                  const SizedBox(height: 4),
+                  IconButton(
+                    onPressed: _recents,
+                    icon: const Icon(Icons.history),
+                    tooltip: 'Recent rooms',
+                  ),
+                ],
               ),
-              Text(avatar.name),
-              IconButton(
-                onPressed: _refresh,
-                icon: const Icon(Icons.refresh),
-                tooltip: 'Change profile',
+            ),
+            Expanded(
+              child: Center(
+                child: SizedBox(),
+                // child: TextButton(
+                //   onPressed: () {},
+                //   child: Text('Leave a comment!'),
+                // ),
               ),
-              const SizedBox(height: 4),
-              FilledButton(
-                onPressed: _read,
-                child: const Text('Read'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: _write,
-                child: const Text('Write'),
-              ),
-              const SizedBox(height: 4),
-              IconButton(
-                onPressed: _recents,
-                icon: const Icon(Icons.history),
-                tooltip: 'Recent rooms',
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

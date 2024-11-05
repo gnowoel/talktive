@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.2.0+13
+
+- Display a list of rooms for user selection
+
 ## 1.1.2+12
 
 - Guide users to set a topic for new chat rooms

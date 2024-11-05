@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.2+12
+
+- Guide users to set a topic for new chat rooms
+
 ## 1.1.1+11
 
 - Change the wording of the help messages

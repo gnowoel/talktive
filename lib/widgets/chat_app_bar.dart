@@ -72,6 +72,8 @@ class _ChatAppBarState extends State<ChatAppBar> {
   Widget build(BuildContext context) {
     final currentUserId = fireauth.instance.currentUser!.uid;
     final isOp = widget.room.userId == currentUserId;
+    final isTopicSet = widget.room.topic != widget.room.userName;
+    final hint = 'Tap to set a topic';
 
     if (isOp && _isEditable) {
       return AppBar(
@@ -96,7 +98,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: GestureDetector(
           onTap: _handleTap,
-          child: Text(widget.room.topic),
+          child: isTopicSet ? Text(widget.room.topic) : Text(hint),
         ),
         actions: [
           Health(room: widget.room),

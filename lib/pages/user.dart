@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:talktive/pages/rooms.dart';
 
 import '../helpers/exception.dart';
 import '../services/avatar.dart';
@@ -78,6 +79,12 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
+  Future<void> _fetch() async {
+    _doAction(() async {
+      _enterPage(RoomsPage());
+    });
+  }
+
   Future<void> _write() async {
     await _doAction(() async {
       final userId = fireauth.instance.currentUser!.uid;
@@ -148,8 +155,8 @@ class _UserPageState extends State<UserPage> {
                   ),
                   const SizedBox(height: 4),
                   FilledButton(
-                    onPressed: _read,
-                    child: const Text('Read'),
+                    onPressed: _fetch,
+                    child: const Text('Fetch'),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(

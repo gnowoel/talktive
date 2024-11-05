@@ -165,8 +165,8 @@ class Firedata {
     return stream;
   }
 
-  // Inactive rooms will be removed by Could Functions after some time
-  Future<Room?> selectRoom(
+  // Inactive rooms will be removed by scheduled Cloud Functions
+  Future<List<Room>> fetchRooms(
     String languageCode,
     List<String> recentRoomIds,
   ) async {
@@ -217,7 +217,7 @@ class Firedata {
 
       _markClosed(expired); // No need to wait
 
-      return rooms.isNotEmpty ? rooms.first : null;
+      return rooms;
     } catch (e) {
       throw AppException(e.toString());
     }

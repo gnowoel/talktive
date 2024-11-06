@@ -55,11 +55,17 @@ class History extends ChangeNotifier {
       visible: visible,
     );
 
-    _records.removeWhere((element) {
-      return element.roomId == record.roomId || _isInvalid(element);
-    });
+    _records.removeWhere((record) => _isInvalid(record));
+
+    final index = _records.indexWhere((record) => record.roomId == room.id);
+
+    if (index >= 0) {
+      _records[index] = record.copyWith(createdAt: _records[index].createdAt);
+    } else {
+      _records.insert(0, record);
+    }
+
     _records.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Just in case
-    _records.insert(0, record);
 
     await _setPref(jsonEncode(_records));
     notifyListeners();

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart';
@@ -5,6 +7,7 @@ import 'package:timeago/timeago.dart';
 import '../models/record.dart';
 import '../models/room.dart';
 import '../pages/chat.dart';
+import '../services/firedata.dart';
 import '../services/history.dart';
 
 class RecordItem extends StatefulWidget {
@@ -20,12 +23,25 @@ class RecordItem extends StatefulWidget {
 }
 
 class _RecordItemState extends State<RecordItem> {
+  late Firedata firedata;
   late History history;
+  late StreamSubscription roomSubscription;
+
+  late Room _room;
 
   @override
   void initState() {
     super.initState();
+
+    firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
+
+    _room = Room.fromRecord(record: widget.record);
+
+    roomSubscription =
+        firedata.subscribeToRoom(widget.record.roomId).listen((room) {
+      setState(() => _room = room);
+    });
   }
 
   void enterChat(Record record) {
@@ -41,6 +57,12 @@ class _RecordItemState extends State<RecordItem> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    roomSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -83,14 +105,32 @@ class _RecordItemState extends State<RecordItem> {
               style: TextStyle(color: textColor),
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right),
-              onPressed: () => enterChat(widget.record),
-              tooltip: 'Enter room',
-            ),
+            trailing: _buildIconButton(),
           ),
         ),
       ),
+    );
+  }
+
+  IconButton _buildIconButton() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasNewMessages = _room.updatedAt > widget.record.roomUpdatedAt;
+
+    if (!hasNewMessages) {
+      return IconButton(
+        icon: const Icon(Icons.keyboard_arrow_right),
+        onPressed: () => enterChat(widget.record),
+        tooltip: 'Enter room',
+      );
+    }
+
+    return IconButton(
+      icon: Icon(
+        Icons.keyboard_double_arrow_right,
+        color: colorScheme.tertiary,
+      ),
+      onPressed: () => enterChat(widget.record),
+      tooltip: 'Enter room',
     );
   }
 }

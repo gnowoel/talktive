@@ -26,6 +26,10 @@ class History extends ChangeNotifier {
     _records.clear();
     for (final entry in list) {
       try {
+        // TODO: For data migration. Delete in a later version.
+        if (!(entry as Map<String, dynamic>).containsKey('roomUpdatedAt')) {
+          entry['roomUpdatedAt'] = entry['createdAt'];
+        }
         _records.add(Record.fromJson(entry));
       } catch (e) {
         // Ignore the malformed entry, which might be
@@ -49,6 +53,7 @@ class History extends ChangeNotifier {
       roomUserId: byMe ? 'me' : '',
       roomUserName: room.userName,
       roomUserCode: room.userCode,
+      roomUpdatedAt: room.updatedAt,
       createdAt: Clock().serverNow(),
       messageCount: messageCount,
       scrollOffset: scrollOffset,

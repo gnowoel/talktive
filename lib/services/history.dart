@@ -39,6 +39,7 @@ class History {
     required String currentUserId,
     required int messageCount,
     required double scrollOffset,
+    bool visible = true,
   }) async {
     final byMe = room.userId == 'me' || room.userId == currentUserId;
 
@@ -51,7 +52,7 @@ class History {
       createdAt: Clock().serverNow(),
       messageCount: messageCount,
       scrollOffset: scrollOffset,
-      visible: true,
+      visible: visible,
     );
 
     _records.removeWhere((element) {

@@ -89,6 +89,7 @@ class _MessageListState extends State<MessageList> {
     return widget.room.isNew;
   }
 
+  // TODO: Scroll incrementally (without showing the empty list)
   bool _isLoaded() {
     return widget.messages.length >= widget.recordMessageCount;
   }

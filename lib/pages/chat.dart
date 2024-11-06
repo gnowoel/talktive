@@ -67,8 +67,6 @@ class _ChatPageState extends State<ChatPage> {
     _room = widget.room;
     _messages = [];
 
-    _addHistoryRecord(_room);
-
     roomSubscription = firedata.subscribeToRoom(widget.room.id).listen((room) {
       if (!room.isDeleted) {
         setState(() => _room = room);
@@ -104,13 +102,20 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> _addHistoryRecord(Room room) async {
     final currentUserId = fireauth.instance.currentUser!.uid;
     final messageCount = _messages.length;
+    final visible = _isEngaged;
 
     await history.saveRecord(
       room: room,
       currentUserId: currentUserId,
       messageCount: messageCount,
       scrollOffset: scrollOffset,
+      visible: visible,
     );
+  }
+
+  bool get _isEngaged {
+    final currentUserId = fireauth.instance.currentUser!.uid;
+    return _messages.any((message) => message.userId == currentUserId);
   }
 
   @override

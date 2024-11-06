@@ -18,7 +18,6 @@ class RecentsPage extends StatefulWidget {
 class _RecentsPageState extends State<RecentsPage> {
   late History history;
   late List<Record> records;
-  late Ticker ticker;
 
   DateTime then = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
 
@@ -27,12 +26,6 @@ class _RecentsPageState extends State<RecentsPage> {
     super.initState();
     history = Provider.of<History>(context, listen: false);
     records = history.visibleRecentRecords;
-  }
-
-  @override
-  void dispose() {
-    ticker.dispose();
-    super.dispose();
   }
 
   @override

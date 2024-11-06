@@ -4,6 +4,7 @@ class Record {
   final String roomUserId;
   final String roomUserName;
   final String roomUserCode;
+  final int roomUpdatedAt;
   final int createdAt;
   final int messageCount;
   final double scrollOffset;
@@ -15,6 +16,7 @@ class Record {
     required this.roomUserId,
     required this.roomUserName,
     required this.roomUserCode,
+    required this.roomUpdatedAt,
     required this.createdAt,
     required this.messageCount,
     required this.scrollOffset,
@@ -27,6 +29,7 @@ class Record {
     String? roomUserId,
     String? roomUserName,
     String? roomUserCode,
+    int? roomUpdatedAt,
     int? createdAt,
     int? messageCount,
     double? scrollOffset,
@@ -38,6 +41,7 @@ class Record {
       roomUserId: roomUserId ?? this.roomUserId,
       roomUserName: roomUserName ?? this.roomUserName,
       roomUserCode: roomUserCode ?? this.roomUserCode,
+      roomUpdatedAt: roomUpdatedAt ?? this.roomUpdatedAt,
       createdAt: createdAt ?? this.createdAt,
       messageCount: messageCount ?? this.messageCount,
       scrollOffset: scrollOffset ?? this.scrollOffset,
@@ -52,6 +56,7 @@ class Record {
       'roomUserId': roomUserId,
       'roomUserName': roomUserName,
       'roomUserCode': roomUserCode,
+      'roomUpdatedAt': roomUpdatedAt,
       'createdAt': createdAt,
       'messageCount': messageCount,
       'scrollOffset': scrollOffset,
@@ -66,6 +71,7 @@ class Record {
       roomUserId: json['roomUserId'] as String,
       roomUserName: json['roomUserName'] as String,
       roomUserCode: json['roomUserCode'] as String,
+      roomUpdatedAt: json['roomUpdatedAt'] as int,
       createdAt: json['createdAt'] as int,
       messageCount: json['messageCount'] as int,
       scrollOffset: json['scrollOffset'] as double,

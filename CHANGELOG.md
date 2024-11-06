@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.2.1+14
+
+- Hide rooms after visiting them on the Rooms page
+- Hide rooms that the user has not replied to on the Recents page
+- Remove recent rooms based on their updated timestamp
+- Flag rooms with new messages on the History page
+
 ## 1.2.0+13
 
 - Display a list of rooms for user selection

@@ -7,7 +7,7 @@ import '../models/room.dart';
 import 'clock.dart';
 import 'prefs.dart';
 
-class History {
+class History extends ChangeNotifier {
   History._();
 
   static final History _instance = History._();
@@ -62,6 +62,7 @@ class History {
     _records.insert(0, record);
 
     await _setPref(jsonEncode(_records));
+    notifyListeners();
   }
 
   Future<void> hideRecord({required String roomId}) async {
@@ -70,6 +71,7 @@ class History {
       _records[index] = _records[index].copyWith(visible: false);
     }
     await _setPref(jsonEncode(_records));
+    notifyListeners();
   }
 
   List<String> get recentRoomIds {
@@ -88,6 +90,7 @@ class History {
   Future<void> clear() async {
     _records.clear();
     await _setPref(jsonEncode(_records));
+    notifyListeners();
   }
 
   Future<void> _setPref(String? records) async {

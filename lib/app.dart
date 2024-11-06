@@ -22,7 +22,7 @@ class App extends StatelessWidget {
       providers: [
         Provider(create: (context) => Fireauth(auth)),
         Provider(create: (context) => Firedata(database)..syncTime()),
-        Provider(create: (context) => History()),
+        ChangeNotifierProvider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
       ],
       child: MaterialApp(

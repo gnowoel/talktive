@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/room.dart';
+import '../services/history.dart';
 import '../widgets/info.dart';
 import '../widgets/room_list.dart';
 
@@ -17,10 +19,24 @@ class RoomsPage extends StatefulWidget {
 }
 
 class _RoomsPageState extends State<RoomsPage> {
+  late History history;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    history = Provider.of<History>(context);
+  }
+
+  List<Room> _unvisitedRooms(List<Room> rooms) {
+    final recentRoomIds = history.recentRoomIds;
+    return rooms.where((room) => !recentRoomIds.contains(room.id)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more rooms here.', 'Create one?', ''];
+    final rooms = _unvisitedRooms(widget.rooms);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -29,14 +45,14 @@ class _RoomsPageState extends State<RoomsPage> {
         title: const Text('Rooms'),
       ),
       body: SafeArea(
-        child: widget.rooms.isEmpty
+        child: rooms.isEmpty
             ? const Center(child: Info(lines: lines))
-            : _buildLayout(),
+            : _buildLayout(rooms),
       ),
     );
   }
 
-  LayoutBuilder _buildLayout() {
+  LayoutBuilder _buildLayout(List<Room> rooms) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final theme = Theme.of(context);
@@ -53,7 +69,7 @@ class _RoomsPageState extends State<RoomsPage> {
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-              child: RoomList(rooms: widget.rooms),
+              child: RoomList(rooms: rooms),
             ),
           );
         } else {
@@ -61,7 +77,7 @@ class _RoomsPageState extends State<RoomsPage> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
             ),
-            child: RoomList(rooms: widget.rooms),
+            child: RoomList(rooms: rooms),
           );
         }
       },

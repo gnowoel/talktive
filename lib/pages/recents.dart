@@ -15,8 +15,7 @@ class RecentsPage extends StatefulWidget {
   State<RecentsPage> createState() => _RecentsPageState();
 }
 
-class _RecentsPageState extends State<RecentsPage>
-    with SingleTickerProviderStateMixin {
+class _RecentsPageState extends State<RecentsPage> {
   late History history;
   late List<Record> records;
   late Ticker ticker;
@@ -28,16 +27,6 @@ class _RecentsPageState extends State<RecentsPage>
     super.initState();
     history = Provider.of<History>(context, listen: false);
     records = history.visibleRecentRecords;
-    ticker = createTicker((_) {
-      final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
-      if (now.difference(then).inSeconds > 1) {
-        setState(() {
-          records = history.visibleRecentRecords;
-          then = now;
-        });
-      }
-    });
-    ticker.start();
   }
 
   @override

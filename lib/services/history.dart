@@ -116,8 +116,9 @@ class History extends ChangeNotifier {
   bool _isValid(Record record) {
     final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
     final oneDayAgo = now.subtract(const Duration(days: 1));
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
-    return !createdAt.isBefore(oneDayAgo);
+    final roomUpdatedAt =
+        DateTime.fromMillisecondsSinceEpoch(record.roomUpdatedAt);
+    return !roomUpdatedAt.isBefore(oneDayAgo);
   }
 
   bool _isInvalid(Record record) => !_isValid(record);

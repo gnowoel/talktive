@@ -109,7 +109,7 @@ class Room {
       userCode: record.roomUserCode,
       languageCode: '',
       createdAt: 0,
-      updatedAt: 0,
+      updatedAt: record.roomUpdatedAt,
       closedAt: 0,
       filter: '-rrrr',
     );

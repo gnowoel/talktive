@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/record.dart';
@@ -29,7 +28,15 @@ class _RecentsPageState extends State<RecentsPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    history = Provider.of<History>(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    records = history.visibleRecentRecords;
+
     final theme = Theme.of(context);
     const lines = ['Your recent chats', 'will appear here.', ''];
 

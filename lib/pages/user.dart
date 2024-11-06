@@ -141,7 +141,7 @@ class _UserPageState extends State<UserPage> {
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: _create,
-                    child: const Text('Create'),
+                    child: const Text('Write'),
                   ),
                   const SizedBox(height: 4),
                   IconButton(

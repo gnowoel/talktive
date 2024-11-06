@@ -20,7 +20,7 @@ class _RoomsPageState extends State<RoomsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = ['No more rooms here.', 'Creating one?', ''];
+    const lines = ['No more rooms here.', 'Create one?', ''];
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,

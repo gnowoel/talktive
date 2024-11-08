@@ -73,7 +73,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
     final currentUserId = fireauth.instance.currentUser!.uid;
     final isOp = widget.room.userId == currentUserId;
     final isTopicSet = widget.room.topic != widget.room.userName;
-    final hint = 'Set a room title';
+    final hint = "What's the room about?";
 
     if (isOp) {
       if (_isEditable) {

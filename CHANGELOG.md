@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.2.2+15
+
+- Let people know they can chat in their own languages
+- Display language names in the Rooms page title
+
 ## 1.2.1+14
 
 - Hide rooms after visiting them on the Rooms page

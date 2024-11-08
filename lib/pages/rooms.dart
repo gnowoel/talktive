@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talktive/helpers/helpers.dart';
 
 import '../models/room.dart';
 import '../services/history.dart';
@@ -37,12 +38,16 @@ class _RoomsPageState extends State<RoomsPage> {
     final theme = Theme.of(context);
     const lines = ['No more rooms here.', 'Create one?', ''];
     final rooms = _unvisitedRooms(widget.rooms);
+    final languageCode = getLanguageCode(context);
+    final languageName = getLanguageName(languageCode);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Rooms'),
+        title: languageName == null
+            ? const Text('Rooms')
+            : Text('Rooms in $languageName'),
       ),
       body: SafeArea(
         child: rooms.isEmpty

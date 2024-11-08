@@ -112,6 +112,8 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -154,11 +156,23 @@ class _UserPageState extends State<UserPage> {
             ),
             Expanded(
               child: Center(
-                child: SizedBox(),
-                // child: TextButton(
-                //   onPressed: () {},
-                //   child: Text('Leave a comment!'),
-                // ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outlined,
+                      color: colorScheme.tertiary,
+                      size: 16,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Chat in your own language!',
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

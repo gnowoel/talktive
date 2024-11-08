@@ -1,17 +1,14 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:talktive/pages/rooms.dart';
 
-import '../helpers/exception.dart';
+import '../helpers/helpers.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
 import 'chat.dart';
 import 'recents.dart';
+import 'rooms.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -35,18 +32,12 @@ class _UserPageState extends State<UserPage> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
+    languageCode = getLanguageCode(context);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    if (kIsWeb) {
-      languageCode = View.of(context).platformDispatcher.locale.languageCode;
-    } else {
-      languageCode = Platform.localeName.split('_').first;
-    }
-
     avatar = Provider.of<Avatar>(context);
   }
 

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:talktive/services/prefs.dart';
 
 import '../models/emoji.dart';
+import 'prefs.dart';
 
 class Avatar extends ChangeNotifier {
   Avatar._();

@@ -31,7 +31,7 @@ const BOT_WAIT_TIME = 5 * 1000;
 const BOT = {
   userId: 'bot',
   userName: 'assistant',
-  userCode: '\u{1f916}',
+  userCode: '\u{1f469}', // Woman
 };
 
 const RESPONSES = [

@@ -35,7 +35,7 @@ class Avatar extends ChangeNotifier {
 
   Emoji _getNewEmoji() {
     var emoji = Emoji.random();
-    if (emoji == _emoji) {
+    if (emoji.code == _emoji.code || emoji.code == '\u{1f469}') {
       emoji = _getNewEmoji();
     }
     return emoji;

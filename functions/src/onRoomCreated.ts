@@ -1,16 +1,11 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
+import { StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
-}
-
-interface StatParams {
-  users?: number | object
-  rooms?: number | object
-  messages?: number | object
 }
 
 const db = admin.database();

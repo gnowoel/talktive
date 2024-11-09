@@ -6,3 +6,10 @@ export interface Message {
   content: string;
   createdAt: number;
 }
+
+export interface StatParams {
+  users?: number | object
+  rooms?: number | object
+  messages?: number | object
+  responses?: number | object
+}

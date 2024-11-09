@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
-import { Message } from './types';
+import { Message, StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
@@ -18,12 +18,6 @@ interface RoomParams {
   updatedAt?: number
   closedAt?: number
   filter?: string
-}
-
-interface StatParams {
-  users?: number | object
-  rooms?: number | object
-  messages?: number | object
 }
 
 const db = admin.database();
@@ -58,7 +52,7 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   try {
     await updateUserFilter(userId, now);
     await updateRoomTimestamps(roomId, messageCreatedAt);
-    await updateMessageStats(now);
+    await updateMessageOrResponseStats(now, message);
     await autoRespond(roomId, message);
   } catch (error) {
     logger.error(error);
@@ -111,7 +105,7 @@ const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) =>
   }
 };
 
-const updateMessageStats = async (now: Date) => {
+const updateMessageOrResponseStats = async (now: Date, message: Message) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);
   const snapshot = await statRef.get();
 
@@ -120,11 +114,23 @@ const updateMessageStats = async (now: Date) => {
   const stat = snapshot.val();
   const params: StatParams = {};
 
-  // `ServerValue` doesn't work with Emulators Suite
-  if (isDebugMode()) {
-    params.messages = stat.messages + 1;
+  if (message.userId === BOT.userId) {
+    // Just in case that data has not migrated after upgrading
+    if (!('responses' in stat)) return;
+
+    // `ServerValue` doesn't work with Emulators Suite
+    if (isDebugMode()) {
+      params.responses = stat.responses + 1;
+    } else {
+      params.responses = admin.database.ServerValue.increment(1);
+    }
   } else {
-    params.messages = admin.database.ServerValue.increment(1);
+    // `ServerValue` doesn't work with Emulators Suite
+    if (isDebugMode()) {
+      params.messages = stat.messages + 1;
+    } else {
+      params.messages = admin.database.ServerValue.increment(1);
+    }
   }
 
   try {

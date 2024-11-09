@@ -36,7 +36,7 @@ class _RoomsPageState extends State<RoomsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = ['No more rooms here.', 'Create one?', ''];
+    const lines = ['No more rooms here.', 'Check history for replies.', ''];
     final rooms = _unvisitedRooms(widget.rooms);
     final languageCode = getLanguageCode(context);
     final languageName = getLanguageName(languageCode);

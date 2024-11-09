@@ -21,11 +21,13 @@ class RoomsPage extends StatefulWidget {
 
 class _RoomsPageState extends State<RoomsPage> {
   late History history;
+  late String languageCode;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     history = Provider.of<History>(context);
+    languageCode = getLanguageCode(context);
   }
 
   List<Room> _unvisitedRooms(List<Room> rooms) {
@@ -38,7 +40,6 @@ class _RoomsPageState extends State<RoomsPage> {
     final theme = Theme.of(context);
     const lines = ['No more rooms here.', 'Check history for replies.', ''];
     final rooms = _unvisitedRooms(widget.rooms);
-    final languageCode = getLanguageCode(context);
     final languageName = getLanguageName(languageCode);
 
     return Scaffold(

@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
+import { Message } from './types';
 import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
@@ -23,14 +24,6 @@ interface StatParams {
   users?: number | object
   rooms?: number | object
   messages?: number | object
-}
-
-interface Message {
-  userId: string
-  userName: string
-  userCode: string
-  content: string
-  createdAt: number
 }
 
 const db = admin.database();

@@ -15,12 +15,15 @@ class MessageItem extends StatelessWidget {
     required this.message,
   });
 
+  bool get _isBot => message.userId == 'bot';
+
   @override
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
     final byMe = message.userId == currentUser.uid;
 
+    // Bot messages are always shown on the left
     return byMe ? _buildMessageItemRight() : _buildMessageItemLeft();
   }
 
@@ -48,6 +51,7 @@ class MessageItem extends StatelessWidget {
                   child: Bubble(
                     content: message.content,
                     byOp: byOp,
+                    isBot: _isBot,
                   ),
                 ),
               ],

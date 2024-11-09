@@ -25,10 +25,35 @@ interface StatParams {
   messages?: number | object
 }
 
+interface Message {
+  userId: string
+  userName: string
+  userCode: string
+  content: string
+  createdAt: number
+}
+
 const db = admin.database();
+
 const timeBeforeClosing = isDebugMode() ?
   360 * 1000 : // 6 minutes
   3600 * 1000; // 1 hour
+
+const BOT_WAIT_TIME = 5 * 1000;
+
+const BOT = {
+  userId: 'bot',
+  userName: 'assistant',
+  userCode: '\u{1f916}',
+};
+
+const RESPONSES = [
+  "Thanks for sharing! Could you tell me more about that?",
+  "That's interesting! What made you think of that?",
+  "I see what you mean. How do you feel about it?",
+  "Tell me more about your perspective on this.",
+  "That's a good point! What else comes to mind?",
+];
 
 const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) => {
   const now = new Date();
@@ -41,6 +66,7 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
     await updateUserFilter(userId, now);
     await updateRoomTimestamps(roomId, messageCreatedAt);
     await updateMessageStats(now);
+    await autoRespond(roomId, message);
   } catch (error) {
     logger.error(error);
   }
@@ -121,6 +147,38 @@ const isRoomNew = (room: Room) => {
 
 const isRoomClosed = (room: Room, timestamp: number) => {
   return room.filter === '-cccc' || room.closedAt <= timestamp;
+};
+
+const autoRespond = async (roomId: string, message: Message) => {
+  if (message.userId === BOT.userId) return;
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, BOT_WAIT_TIME));
+
+    const roomSnapshot = await db.ref(`/rooms/${roomId}`).get();
+    const room = roomSnapshot.val();
+
+    if (!room || room.filter === '-dddd' || room.filter === '-cccc') {
+      return; // Room is deleted or closed
+    }
+
+    const botMessage = {
+      userId: BOT.userId,
+      userName: BOT.userName,
+      userCode: BOT.userCode,
+      content: getRandomResponse(),
+      createdAt: Date.now(),
+    };
+
+    await db.ref(`/messages/${roomId}`).push(botMessage);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const getRandomResponse = () => {
+  const randomIndex = Math.floor(Math.random() * RESPONSES.length);
+  return RESPONSES[randomIndex];
 };
 
 export default onMessageCreated;

@@ -159,7 +159,7 @@ const sendBotResponse = async (roomId: string, message: Message) => {
     const recentMessagesQuery = messagesRef
       .orderByChild('createdAt')
       .endAt(message.createdAt)
-      .limitToLast(CHATGPT_CONFIG.maxContextMessages);
+      .limitToLast(CHATGPT_CONFIG.maxContextMessages + 1);
 
     const recentMessagesSnapshot = await recentMessagesQuery.get();
     const recentMessages: Message[] = [];
@@ -170,6 +170,8 @@ const sendBotResponse = async (roomId: string, message: Message) => {
         recentMessages.push(msg);
       });
     }
+
+    recentMessages.pop();
 
     const response = await ChatGPTService.generateResponse(
       message.content,

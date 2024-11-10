@@ -178,6 +178,8 @@ const sendBotResponse = async (roomId: string, message: Message) => {
       recentMessages
     );
 
+    if (!response) return;
+
     const botMessage = {
       userId: BOT.userId,
       userName: BOT.userName,

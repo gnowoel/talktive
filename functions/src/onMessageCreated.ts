@@ -28,7 +28,7 @@ const timeBeforeClosing = isDebugMode() ?
   360 * 1000 : // 6 minutes
   3600 * 1000; // 1 hour
 
-const BOT_WAIT_TIME = 5 * 1000;
+const BOT_WAIT_TIME = 10 * 1000;
 
 const BOT = {
   userId: 'bot',
@@ -153,6 +153,10 @@ const sendBotResponse = async (roomId: string, message: Message) => {
 
     if (!room || room.filter === '-dddd' || room.filter === '-cccc') {
       return; // Room is deleted or closed
+    }
+
+    if (room.updatedAt > message.createdAt) {
+      return; // Someone else replied
     }
 
     const messagesRef = db.ref(`/messages/${roomId}`);

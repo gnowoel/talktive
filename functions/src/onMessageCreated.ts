@@ -3,6 +3,7 @@ import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
 import { Message, StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
+import { ChatGPTService } from './services/chatgpt';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -33,14 +34,6 @@ const BOT = {
   userName: 'assistant',
   userCode: '\u{1f469}', // Woman
 };
-
-const RESPONSES = [
-  "Thanks for sharing! Could you tell me more about that?",
-  "That's interesting! What made you think of that?",
-  "I see what you mean. How do you feel about it?",
-  "Tell me more about your perspective on this.",
-  "That's a good point! What else comes to mind?",
-];
 
 const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) => {
   const now = new Date();
@@ -161,11 +154,13 @@ const autoRespond = async (roomId: string, message: Message) => {
       return; // Room is deleted or closed
     }
 
+    const response = await ChatGPTService.generateResponse(message.content);
+
     const botMessage = {
       userId: BOT.userId,
       userName: BOT.userName,
       userCode: BOT.userCode,
-      content: getRandomResponse(),
+      content: response,
       createdAt: Date.now(),
     };
 
@@ -173,11 +168,6 @@ const autoRespond = async (roomId: string, message: Message) => {
   } catch (error) {
     logger.error(error);
   }
-};
-
-const getRandomResponse = () => {
-  const randomIndex = Math.floor(Math.random() * RESPONSES.length);
-  return RESPONSES[randomIndex];
 };
 
 export default onMessageCreated;

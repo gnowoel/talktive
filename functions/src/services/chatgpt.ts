@@ -1,6 +1,7 @@
 import { logger } from 'firebase-functions';
 import fetch from 'node-fetch';
 import { CHATGPT_CONFIG } from '../config';
+import { Message } from '../types';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -44,13 +45,28 @@ export class ChatGPTService {
     }
   }
 
-  public static async generateResponse(userMessage: string): Promise<string> {
-    const messages: ChatMessage[] = [
-      { role: 'system', content: CHATGPT_CONFIG.systemPrompt },
-      { role: 'user', content: userMessage }
-    ];
+  private static convertToContextMessages(messages: Message[]): ChatMessage[] {
+    return messages.map(msg => ({
+      role: msg.userId === 'bot' ? 'assistant' : 'user',
+      content: msg.content
+    }));
+  }
 
+  public static async generateResponse(currentMessage: string, recentMessages: Message[] = []): Promise<string> {
     try {
+      const messages: ChatMessage[] = [
+        { role: 'system', content: CHATGPT_CONFIG.systemPrompt }
+      ];
+
+      if (recentMessages.length > 0) {
+        const contextMessages = this.convertToContextMessages(
+          recentMessages.slice(-CHATGPT_CONFIG.maxContextMessages)
+        );
+        messages.push(...contextMessages);
+      }
+
+      messages.push({ role: 'user', content: currentMessage });
+
       return await this.callApi(messages);
     } catch (error) {
       logger.error('Failed to generate response:', error);

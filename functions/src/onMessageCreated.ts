@@ -4,6 +4,7 @@ import { onValueCreated } from 'firebase-functions/v2/database';
 import { Message, StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
 import { ChatGPTService } from './services/chatgpt';
+import { CHATGPT_CONFIG } from './config';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -46,7 +47,7 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
     await updateUserFilter(userId, now);
     await updateRoomTimestamps(roomId, messageCreatedAt);
     await updateMessageOrResponseStats(now, message);
-    await autoRespond(roomId, message);
+    await sendBotResponse(roomId, message);
   } catch (error) {
     logger.error(error);
   }
@@ -141,7 +142,7 @@ const isRoomClosed = (room: Room, timestamp: number) => {
   return room.filter === '-cccc' || room.closedAt <= timestamp;
 };
 
-const autoRespond = async (roomId: string, message: Message) => {
+const sendBotResponse = async (roomId: string, message: Message) => {
   if (message.userId === BOT.userId) return;
 
   try {
@@ -154,7 +155,26 @@ const autoRespond = async (roomId: string, message: Message) => {
       return; // Room is deleted or closed
     }
 
-    const response = await ChatGPTService.generateResponse(message.content);
+    const messagesRef = db.ref(`/messages/${roomId}`);
+    const recentMessagesQuery = messagesRef
+      .orderByChild('createdAt')
+      .endAt(message.createdAt)
+      .limitToLast(CHATGPT_CONFIG.maxContextMessages);
+
+    const recentMessagesSnapshot = await recentMessagesQuery.get();
+    const recentMessages: Message[] = [];
+
+    if (recentMessagesSnapshot.exists()) {
+      recentMessagesSnapshot.forEach((childSnapshot) => {
+        const msg = childSnapshot.val();
+        recentMessages.push(msg);
+      });
+    }
+
+    const response = await ChatGPTService.generateResponse(
+      message.content,
+      recentMessages
+    );
 
     const botMessage = {
       userId: BOT.userId,

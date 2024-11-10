@@ -6,5 +6,6 @@ export const CHATGPT_CONFIG = {
   model: 'gpt-4o-mini',
   temperature: 0.7,
   maxTokens: 150,
+  maxContextMessages: 5,
   systemPrompt: "You are a friendly and engaging chat assistant. Keep responses concise and natural. Encourage conversation without being pushy.",
 };

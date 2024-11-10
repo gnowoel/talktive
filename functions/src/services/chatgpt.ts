@@ -6,6 +6,10 @@ import { Message } from '../types';
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+  metadata?: {
+    user_id: string;
+    user_name: string;
+  };
 }
 
 interface ApiResponse {
@@ -46,13 +50,26 @@ export class ChatGPTService {
   }
 
   private static convertToContextMessages(messages: Message[]): ChatMessage[] {
-    return messages.map(msg => ({
-      role: msg.userId === 'bot' ? 'assistant' : 'user',
-      content: msg.content
-    }));
+    return messages.map((msg) => {
+      if (msg.userId === 'bot') {
+        return {
+          role: 'assistant',
+          content: msg.content
+        };
+      } else {
+        return {
+          role: 'user',
+          content: msg.content,
+          metadata: {
+            user_id: msg.userId,
+            user_name: msg.userName
+          }
+        }
+      }
+    });
   }
 
-  public static async generateResponse(currentMessage: string, recentMessages: Message[] = []): Promise<string | null> {
+  public static async generateResponse(currentMessage: Message, recentMessages: Message[] = []): Promise<string | null> {
     try {
       const messages: ChatMessage[] = [
         { role: 'system', content: CHATGPT_CONFIG.systemPrompt }
@@ -65,7 +82,14 @@ export class ChatGPTService {
         messages.push(...contextMessages);
       }
 
-      messages.push({ role: 'user', content: currentMessage });
+      messages.push({
+        role: 'user',
+        content: currentMessage.content,
+        metadata: {
+          user_id: currentMessage.userId,
+          user_name: currentMessage.userName
+        }
+      });
 
       return await this.callApi(messages);
     } catch (error) {

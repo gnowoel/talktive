@@ -178,7 +178,7 @@ const sendBotResponse = async (roomId: string, message: Message) => {
     recentMessages.pop();
 
     const response = await ChatGPTService.generateResponse(
-      message.content,
+      message,
       recentMessages
     );
 

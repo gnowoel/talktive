@@ -6,6 +6,7 @@ import { Message } from '../types';
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+  name?: string;
 }
 
 interface ApiResponse {
@@ -46,16 +47,29 @@ export class ChatGPTService {
   }
 
   private static convertToContextMessages(messages: Message[]): ChatMessage[] {
-    return messages.map(msg => ({
-      role: msg.userId === 'bot' ? 'assistant' : 'user',
-      content: msg.content
-    }));
+    return messages.map(msg => {
+      if (msg.userId === 'bot') {
+        return {
+          role: 'assistant',
+          content: msg.content
+        };
+      } else {
+        return {
+          role: 'user',
+          name: msg.userName,
+          content: `${msg.userName}: ${msg.content}`
+        }
+      }
+    });
   }
 
   public static async generateResponse(currentMessage: Message, recentMessages: Message[] = []): Promise<string | null> {
     try {
       const messages: ChatMessage[] = [
-        { role: 'system', content: CHATGPT_CONFIG.systemPrompt }
+        {
+          role: 'system',
+          content: `${CHATGPT_CONFIG.systemPrompt}\n\nLook at the name prefix in each user's message to see who is speaking. But you don't have to prefix your reponses with a name.`
+        }
       ];
 
       if (recentMessages.length > 0) {
@@ -65,7 +79,11 @@ export class ChatGPTService {
         messages.push(...contextMessages);
       }
 
-      messages.push({ role: 'user', content: currentMessage.content });
+      messages.push({
+        role: 'user',
+        name: currentMessage.userName,
+        content: `${currentMessage.userName}: ${currentMessage.content}`
+      });
 
       return await this.callApi(messages);
     } catch (error) {

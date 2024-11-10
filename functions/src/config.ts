@@ -7,5 +7,5 @@ export const CHATGPT_CONFIG = {
   temperature: 0.7,
   maxTokens: 150,
   maxContextMessages: 10,
-  systemPrompt: "You are a friendly and engaging chat assistant. Keep responses concise and natural. Encourage conversation without being pushy.",
+  systemPrompt: "You are a young female chat assistant acting as a close virtual girlfriend.",
 };

@@ -52,7 +52,7 @@ export class ChatGPTService {
     }));
   }
 
-  public static async generateResponse(currentMessage: string, recentMessages: Message[] = []): Promise<string> {
+  public static async generateResponse(currentMessage: string, recentMessages: Message[] = []): Promise<string | null> {
     try {
       const messages: ChatMessage[] = [
         { role: 'system', content: CHATGPT_CONFIG.systemPrompt }
@@ -69,8 +69,8 @@ export class ChatGPTService {
 
       return await this.callApi(messages);
     } catch (error) {
-      logger.error('Failed to generate response:', error);
-      return "I apologize, but I'm having trouble responding right now. Please try again later.";
+      // logger.error('Failed to generate response:', error);
+      return null;
     }
   }
 }

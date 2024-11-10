@@ -13,6 +13,7 @@
     "messages": {
       "$roomId": {
         ".read": "auth !== null",
+        ".indexOn": ["createdAt"],
         "$messageId": {
           ".write": "auth !== null && auth.uid === newData.child('userId').val()",
           ".validate": "newData.hasChild('content')",

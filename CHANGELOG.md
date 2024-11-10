@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.3.0+16
+
+- Let the chatbot join a conversation where no one is responding
+
 ## 1.2.2+15
 
 - Let people know they can chat in their own languages

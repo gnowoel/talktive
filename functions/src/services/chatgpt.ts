@@ -6,10 +6,6 @@ import { Message } from '../types';
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
-  metadata?: {
-    user_id: string;
-    user_name: string;
-  };
 }
 
 interface ApiResponse {
@@ -50,23 +46,10 @@ export class ChatGPTService {
   }
 
   private static convertToContextMessages(messages: Message[]): ChatMessage[] {
-    return messages.map((msg) => {
-      if (msg.userId === 'bot') {
-        return {
-          role: 'assistant',
-          content: msg.content
-        };
-      } else {
-        return {
-          role: 'user',
-          content: msg.content,
-          metadata: {
-            user_id: msg.userId,
-            user_name: msg.userName
-          }
-        }
-      }
-    });
+    return messages.map(msg => ({
+      role: msg.userId === 'bot' ? 'assistant' : 'user',
+      content: msg.content
+    }));
   }
 
   public static async generateResponse(currentMessage: Message, recentMessages: Message[] = []): Promise<string | null> {
@@ -82,14 +65,7 @@ export class ChatGPTService {
         messages.push(...contextMessages);
       }
 
-      messages.push({
-        role: 'user',
-        content: currentMessage.content,
-        metadata: {
-          user_id: currentMessage.userId,
-          user_name: currentMessage.userName
-        }
-      });
+      messages.push({ role: 'user', content: currentMessage.content });
 
       return await this.callApi(messages);
     } catch (error) {

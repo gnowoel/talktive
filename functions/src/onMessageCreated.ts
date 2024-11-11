@@ -143,6 +143,8 @@ const isRoomClosed = (room: Room, timestamp: number) => {
 };
 
 const sendBotResponse = async (roomId: string, message: Message) => {
+  if (roomId !== BOT.userId) return; // Disable chatbot for now
+
   if (message.userId === BOT.userId) return;
 
   try {

@@ -30,7 +30,7 @@ export class ChatGPTService {
           model: CHATGPT_CONFIG.model,
           messages,
           temperature: CHATGPT_CONFIG.temperature,
-          max_tokens: CHATGPT_CONFIG.maxTokens,
+          max_completion_tokens: CHATGPT_CONFIG.maxCompletionToken,
         }),
       });
 
@@ -68,7 +68,7 @@ export class ChatGPTService {
       const messages: ChatMessage[] = [
         {
           role: 'system',
-          content: `${CHATGPT_CONFIG.systemPrompt}\n\nLook at the name prefix in each user's message to see who is speaking. But you don't have to prefix your reponses with a name.`
+          content: CHATGPT_CONFIG.systemPrompt,
         }
       ];
 

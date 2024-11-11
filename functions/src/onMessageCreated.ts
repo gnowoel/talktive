@@ -33,7 +33,7 @@ const BOT_WAIT_TIME = 10 * 1000;
 const BOT = {
   userId: 'bot',
   userName: 'assistant',
-  userCode: '\u{1f469}', // Woman
+  userCode: '\u{1f916}', // Robot
 };
 
 const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) => {

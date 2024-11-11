@@ -5,7 +5,7 @@ export const CHATGPT_CONFIG = {
   apiKey: defineString('CHATGPT_API_KEY'),
   model: 'gpt-4o-mini',
   temperature: 0.7,
-  maxTokens: 150,
-  maxContextMessages: 10,
-  systemPrompt: "You are a young female chat assistant acting as a close virtual girlfriend.",
+  maxCompletionToken: 150,
+  maxContextMessages: 9,
+  systemPrompt: "You are a friendly and engaging chat assistant. Keep responses concise and natural. Encourage conversation without being pushy."
 };

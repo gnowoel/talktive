@@ -56,7 +56,8 @@ export class ChatGPTService {
       } else {
         return {
           role: 'user',
-          name: msg.userName.split(/\s+/).join('_'), // Must not contain special characters
+          // Must not contain special characters
+          name: msg.userName.replace(/[\W_]/g, ' ').split(/\s+/).join('_'),
           content: msg.content
         };
       }
@@ -81,7 +82,8 @@ export class ChatGPTService {
 
       messages.push({
         role: 'user',
-        name: currentMessage.userName.split(/\s+/).join('_'), // Must not contain special characters
+        // Must not contain special characters
+        name: currentMessage.userName.replace(/[\W_]/g, ' ').split(/\s+/).join('_'),
         content: currentMessage.content
       });
 

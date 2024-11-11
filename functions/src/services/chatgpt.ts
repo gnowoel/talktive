@@ -56,9 +56,9 @@ export class ChatGPTService {
       } else {
         return {
           role: 'user',
-          name: msg.userName,
-          content: `${msg.userName}: ${msg.content}`
-        }
+          name: msg.userName.split(/\s+/).join('_'), // Must not contain special characters
+          content: msg.content
+        };
       }
     });
   }
@@ -81,8 +81,8 @@ export class ChatGPTService {
 
       messages.push({
         role: 'user',
-        name: currentMessage.userName,
-        content: `${currentMessage.userName}: ${currentMessage.content}`
+        name: currentMessage.userName.split(/\s+/).join('_'), // Must not contain special characters
+        content: currentMessage.content
       });
 
       return await this.callApi(messages);

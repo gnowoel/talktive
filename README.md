@@ -53,7 +53,7 @@ $ git clone https://github.com/gnowoel/talktive.git
 $ cd talktive
 ```
 
-Configure Flutterfire:
+Configure FlutterFire:
 
 ```
 $ firebase login

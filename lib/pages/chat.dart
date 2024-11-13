@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/room.dart';
+import '../models/text_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
@@ -115,7 +117,12 @@ class _ChatPageState extends State<ChatPage> {
 
   bool get _isEngaged {
     final currentUserId = fireauth.instance.currentUser!.uid;
-    return _messages.any((message) => message.userId == currentUserId);
+    return _messages.any((message) {
+      if (message is ImageMessage) {
+        return message.userId == currentUserId;
+      }
+      return (message as TextMessage).userId == currentUserId;
+    });
   }
 
   @override

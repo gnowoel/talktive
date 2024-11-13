@@ -68,7 +68,7 @@ class _InputState extends State<Input> {
 
       if (!widget.room.isDeleted) {
         _controller.clear();
-        await firedata.sendMessage(
+        await firedata.sendTextMessage(
           room,
           userId,
           userName,

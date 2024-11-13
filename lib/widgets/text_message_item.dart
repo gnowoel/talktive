@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/message.dart';
+import '../models/text_message.dart';
 import '../services/fireauth.dart';
 import 'bubble.dart';
 
-class MessageItem extends StatelessWidget {
+class TextMessageItem extends StatelessWidget {
   final String roomUserId;
-  final Message message;
+  final TextMessage message;
 
-  const MessageItem({
+  const TextMessageItem({
     super.key,
     required this.roomUserId,
     required this.message,

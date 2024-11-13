@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../models/image_message.dart';
 import '../models/message.dart';
+import '../models/text_message.dart';
 import '../models/room.dart';
 import 'info.dart';
-import 'message_item.dart';
+import 'text_message_item.dart';
 
 class MessageList extends StatefulWidget {
   final FocusNode focusNode;
@@ -137,9 +139,15 @@ class _MessageListState extends State<MessageList> {
       controller: widget.scrollController,
       itemCount: widget.messages.length,
       itemBuilder: (context, index) {
-        return MessageItem(
+        final message = widget.messages[index];
+
+        if (message is ImageMessage) {
+          return SizedBox();
+        }
+
+        return TextMessageItem(
           roomUserId: widget.room.userId,
-          message: widget.messages[index],
+          message: message as TextMessage,
         );
       },
     );

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../helpers/exception.dart';
 import '../models/message.dart';
 import '../models/room.dart';
+import '../models/text_message.dart';
 import 'clock.dart';
 
 class Firedata {
@@ -53,7 +54,7 @@ class Firedata {
     }
   }
 
-  Future<Message> sendMessage(
+  Future<Message> sendTextMessage(
     Room room,
     String userId,
     String userName,
@@ -64,7 +65,7 @@ class Firedata {
       final messageRef = instance.ref('messages/${room.id}').push();
       final now = clock.serverNow();
 
-      final message = Message(
+      final message = TextMessage(
         userId: userId,
         userName: userName,
         userCode: userCode,
@@ -142,19 +143,22 @@ class Firedata {
         final last = messages.last;
         final current = message;
 
-        if (last.userId == current.userId) {
-          final lastTime = DateTime.fromMillisecondsSinceEpoch(last.createdAt);
-          final currentTime =
-              DateTime.fromMillisecondsSinceEpoch(current.createdAt);
-          const interval = Duration(seconds: 1);
+        if (last is TextMessage && current is TextMessage) {
+          if (last.userId == current.userId) {
+            final lastTime =
+                DateTime.fromMillisecondsSinceEpoch(last.createdAt);
+            final currentTime =
+                DateTime.fromMillisecondsSinceEpoch(current.createdAt);
+            const interval = Duration(seconds: 1);
 
-          if (lastTime.isAfter(currentTime.subtract(interval))) {
-            final index = messages.length - 1;
-            final content = '${last.content}\n${current.content}';
+            if (lastTime.isAfter(currentTime.subtract(interval))) {
+              final index = messages.length - 1;
+              final content = '${last.content}\n${current.content}';
 
-            messages[index] = last.copyWith(content: content);
+              messages[index] = last.copyWith(content: content);
 
-            return messages;
+              return messages;
+            }
           }
         }
       }

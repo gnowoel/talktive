@@ -126,7 +126,7 @@ class _InputState extends State<Input> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 8, 4, 8),
+        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerLow,
           borderRadius: const BorderRadius.all(
@@ -136,6 +136,14 @@ class _InputState extends State<Input> {
         ),
         child: Row(
           children: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.attach_file,
+                color: theme.colorScheme.primary,
+              ),
+              tooltip: 'Send picture',
+            ),
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),

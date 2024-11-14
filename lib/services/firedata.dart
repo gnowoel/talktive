@@ -87,7 +87,7 @@ class Firedata {
     String userId,
     String userName,
     String userCode,
-    String content,
+    String uri,
   ) async {
     try {
       final messageRef = instance.ref('messages/${room.id}').push();
@@ -97,8 +97,8 @@ class Firedata {
         userId: userId,
         userName: userName,
         userCode: userCode,
-        // content: '(Please upgrade your app to view images.)',
-        content: content,
+        content: '(Please upgrade your app to view images.)',
+        uri: uri,
         createdAt: now,
       );
 

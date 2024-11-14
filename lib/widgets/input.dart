@@ -102,26 +102,31 @@ class _InputState extends State<Input> {
 
   Future<void> _sendImageMessage() async {
     await _doAction(() async {
-      final image = await ImagePicker().pickImage(
+      final xFile = await ImagePicker().pickImage(
         imageQuality: 70,
         maxWidth: 1440,
         source: ImageSource.gallery,
       );
 
-      if (image == null) return;
-
-      final room = widget.room;
-      final userId = fireauth.instance.currentUser!.uid;
-      final userName = avatar.name;
-      final userCode = avatar.code;
+      if (xFile == null) return;
 
       if (!widget.room.isDeleted) {
+        final room = widget.room;
+        final userId = fireauth.instance.currentUser!.uid;
+        final userName = avatar.name;
+        final userCode = avatar.code;
+
+        final file = File(xFile.path);
+        final path = 'rooms/${room.id}/${xFile.name}';
+
+        final uri = await storage.saveFile(path, file);
+
         await firedata.sendImageMessage(
           room,
           userId,
           userName,
           userCode,
-          image,
+          uri,
         );
       }
 

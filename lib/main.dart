@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ Future<void> main() async {
     try {
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
+      await FirebaseStorage.instance.useStorageEmulator(host, 9199);
     } catch (e) {
       debugPrint(e.toString());
     }

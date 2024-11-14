@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
@@ -7,6 +10,7 @@ import '../models/room.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/storage.dart';
 
 class Input extends StatefulWidget {
   final FocusNode focusNode;
@@ -26,6 +30,7 @@ class _InputState extends State<Input> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
+  late Storage storage;
   late Avatar avatar;
 
   final _controller = TextEditingController();
@@ -35,6 +40,7 @@ class _InputState extends State<Input> {
     super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+    storage = Provider.of<Storage>(context, listen: false);
   }
 
   @override
@@ -44,7 +50,7 @@ class _InputState extends State<Input> {
     avatar = Provider.of<Avatar>(context);
   }
 
-  Future<void> _sendMessage() async {
+  Future<void> _sendTextMessage() async {
     await _doAction(() async {
       const maxLength = 1024;
 
@@ -94,6 +100,48 @@ class _InputState extends State<Input> {
     });
   }
 
+  Future<void> _sendImageMessage() async {
+    await _doAction(() async {
+      final image = await ImagePicker().pickImage(
+        imageQuality: 70,
+        maxWidth: 1440,
+        source: ImageSource.gallery,
+      );
+
+      if (image == null) return;
+
+      final room = widget.room;
+      final userId = fireauth.instance.currentUser!.uid;
+      final userName = avatar.name;
+      final userCode = avatar.code;
+
+      if (!widget.room.isDeleted) {
+        await firedata.sendImageMessage(
+          room,
+          userId,
+          userName,
+          userCode,
+          image,
+        );
+      }
+
+      if (mounted) {
+        if (widget.room.isDeleted) {
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been deleted.'),
+            severe: true,
+          );
+        } else if (widget.room.isClosed) {
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been closed.'),
+          );
+        }
+      }
+    });
+  }
+
   Future<void> _doAction(Future<void> Function() action) async {
     try {
       await action();
@@ -113,7 +161,7 @@ class _InputState extends State<Input> {
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
-        _sendMessage();
+        _sendTextMessage();
         return KeyEventResult.handled;
       }
     }
@@ -137,7 +185,7 @@ class _InputState extends State<Input> {
         child: Row(
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: _sendImageMessage,
               icon: Icon(
                 Icons.attach_file,
                 color: theme.colorScheme.primary,
@@ -161,7 +209,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: _sendMessage,
+              onPressed: _sendTextMessage,
               icon: Icon(
                 Icons.send,
                 color: theme.colorScheme.primary,

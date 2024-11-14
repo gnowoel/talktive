@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../helpers/exception.dart';
 import '../models/message.dart';
@@ -70,6 +71,33 @@ class Firedata {
         userName: userName,
         userCode: userCode,
         content: content,
+        createdAt: now,
+      );
+
+      await messageRef.set(message.toJson());
+
+      return message;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<Message> sendImageMessage(
+    Room room,
+    String userId,
+    String userName,
+    String userCode,
+    XFile image,
+  ) async {
+    try {
+      final messageRef = instance.ref('messages/${room.id}').push();
+      final now = clock.serverNow();
+
+      final message = TextMessage(
+        userId: userId,
+        userName: userName,
+        userCode: userCode,
+        content: '(Please upgrade your app to view images.)',
         createdAt: now,
       );
 

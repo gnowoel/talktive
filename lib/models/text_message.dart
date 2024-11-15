@@ -15,7 +15,7 @@ class TextMessage extends Message {
     required this.userCode,
     required this.content,
     required this.createdAt,
-  }) : super(type: 'image');
+  }) : super(type: 'text');
 
   TextMessage copyWith({
     String? id,
@@ -42,6 +42,7 @@ class TextMessage extends Message {
       'userName': userName,
       'userCode': userCode,
       'content': content,
+      'type': type,
       'createdAt': createdAt,
     };
   }

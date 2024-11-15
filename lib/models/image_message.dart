@@ -47,6 +47,7 @@ class ImageMessage extends Message {
       'userCode': userCode,
       'content': content,
       'uri': uri,
+      'type': type,
       'createdAt': createdAt,
     };
   }

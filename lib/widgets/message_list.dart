@@ -4,6 +4,7 @@ import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/text_message.dart';
 import '../models/room.dart';
+import 'image_message_item.dart';
 import 'info.dart';
 import 'text_message_item.dart';
 
@@ -142,7 +143,10 @@ class _MessageListState extends State<MessageList> {
         final message = widget.messages[index];
 
         if (message is ImageMessage) {
-          return SizedBox();
+          return ImageMessageItem(
+            roomUserId: widget.room.userId,
+            message: message,
+          );
         }
 
         return TextMessageItem(

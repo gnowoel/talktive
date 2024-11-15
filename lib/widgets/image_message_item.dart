@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../models/image_message.dart';
 import '../services/fireauth.dart';
-import 'bubble.dart';
 
 class ImageMessageItem extends StatelessWidget {
   final String roomUserId;
@@ -14,8 +13,6 @@ class ImageMessageItem extends StatelessWidget {
     required this.roomUserId,
     required this.message,
   });
-
-  bool get _isBot => message.userId == 'bot';
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +25,6 @@ class ImageMessageItem extends StatelessWidget {
   }
 
   Widget _buildMessageItemLeft() {
-    final byOp = message.userId == roomUserId;
-
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -48,11 +43,7 @@ class ImageMessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Flexible(
-                  child: Bubble(
-                    content: message.content,
-                    byOp: byOp,
-                    isBot: _isBot,
-                  ),
+                  child: Image.network(message.uri),
                 ),
               ],
             ),
@@ -75,10 +66,7 @@ class ImageMessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Flexible(
-                  child: Bubble(
-                    content: message.content,
-                    byMe: true,
-                  ),
+                  child: Image.network(message.uri),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +33,8 @@ class _InputState extends State<Input> {
   late Firedata firedata;
   late Storage storage;
   late Avatar avatar;
+
+  bool _isUploading = false;
 
   final _controller = TextEditingController();
 
@@ -119,6 +122,10 @@ class _InputState extends State<Input> {
         final file = File(xFile.path);
         final path = 'rooms/${room.id}/${xFile.name}';
 
+        setState(() => _isUploading = true);
+        if (kDebugMode) {
+          await Future.delayed(Duration(seconds: 2));
+        }
         final uri = await storage.saveFile(path, file);
 
         await firedata.sendImageMessage(
@@ -153,6 +160,10 @@ class _InputState extends State<Input> {
     } on AppException catch (e) {
       if (mounted) {
         ErrorHandler.showSnackBarMessage(context, e);
+      }
+    } finally {
+      if (_isUploading) {
+        setState(() => _isUploading = false);
       }
     }
   }
@@ -191,10 +202,18 @@ class _InputState extends State<Input> {
           children: [
             IconButton(
               onPressed: _sendImageMessage,
-              icon: Icon(
-                Icons.attach_file,
-                color: theme.colorScheme.primary,
-              ),
+              icon: _isUploading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    )
+                  : Icon(
+                      Icons.attach_file,
+                      color: theme.colorScheme.primary,
+                    ),
               tooltip: 'Send picture',
             ),
             Expanded(

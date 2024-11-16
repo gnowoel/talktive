@@ -43,7 +43,10 @@ class ImageMessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Flexible(
-                  child: Image.network(message.uri),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(message.uri),
+                  ),
                 ),
               ],
             ),
@@ -66,7 +69,10 @@ class ImageMessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Flexible(
-                  child: Image.network(message.uri),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(message.uri),
+                  ),
                 ),
               ],
             ),

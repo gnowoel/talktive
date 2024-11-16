@@ -97,7 +97,7 @@ class Firedata {
         userId: userId,
         userName: userName,
         userCode: userCode,
-        content: '(Please upgrade your app to view images.)',
+        content: '(Upgrade your app to see images.)',
         uri: uri,
         createdAt: now,
       );

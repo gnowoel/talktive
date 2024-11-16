@@ -157,7 +157,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                     SizedBox(width: 4),
                     Text(
-                      'Chat in your own language!',
+                      'Now you can send pictures!',
                       style: TextStyle(
                         color: colorScheme.onSurfaceVariant,
                       ),

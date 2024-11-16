@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.4.0+17
+
+- Now people can share pictures
+
 ## 1.3.0+16
 
 - Let the chatbot join a conversation where no one is responding

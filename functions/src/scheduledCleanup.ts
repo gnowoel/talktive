@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
+import { getStorage } from 'firebase-admin/storage';
 import { logger } from 'firebase-functions';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
@@ -10,6 +11,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+const storage = getStorage();
 
 const timeBeforeUserDeleting = isDebugMode()
   ? 0 // now wait
@@ -85,7 +87,7 @@ const setupDailyStats = async (timestamp: Date) => {
 const cleanup = async () => {
   try {
     await cleanupUsers();
-    await cleanupRoomsAndMessages();
+    await cleanupRooms();
   } catch (error) {
     logger.error(error);
   }
@@ -122,7 +124,8 @@ const cleanupUsers = async () => {
   }
 };
 
-const cleanupRoomsAndMessages = async () => {
+// Rooms, messages & images
+const cleanupRooms = async () => {
   const ref = db.ref('rooms');
   const time = new Date().getTime() - timeBeforeRoomDeleting;
   const query = ref.orderByChild('closedAt').endAt(time).limitToFirst(1000);
@@ -136,7 +139,8 @@ const cleanupRoomsAndMessages = async () => {
 
   try {
     for (const roomId of roomIds) {
-      await removeMessages(roomId);
+      await removeRoomImages(roomId);
+      await removeRoomMessages(roomId);
       await removeRoom(roomId);
     }
   } catch (error) {
@@ -144,7 +148,21 @@ const cleanupRoomsAndMessages = async () => {
   }
 };
 
-const removeMessages = async (roomId: string) => {
+const removeRoomImages = async (roomId: string) => {
+  try {
+    const bucket = storage.bucket();
+    const prefix = `rooms/${roomId}/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    const deletePromises = files.map(file => file.delete());
+    await Promise.all(deletePromises);
+  } catch (error) {
+    logger.error(`Failed to remove images from room ${roomId}:`, error);
+  }
+};
+
+const removeRoomMessages = async (roomId: string) => {
   const messagesRef = db.ref(`messages/${roomId}`);
 
   try {

@@ -129,17 +129,18 @@ class _UserPageState extends State<UserPage> {
                   const SizedBox(height: 4),
                   FilledButton(
                     onPressed: _fetch,
-                    child: const Text('Fetch'),
+                    child: const Text('Users'),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: _create,
-                    child: const Text('Write'),
+                    child: const Text('Chats'),
                   ),
                   const SizedBox(height: 4),
                   IconButton(
                     onPressed: _recents,
-                    icon: const Icon(Icons.history),
+                    icon: const Icon(Icons.sentiment_neutral_outlined),
+                    // icon: const Icon(Icons.sentiment_satisfied_outlined),
                     tooltip: 'Recent rooms',
                   ),
                 ],

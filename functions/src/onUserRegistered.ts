@@ -18,7 +18,7 @@ const onUserRegistered = functions.auth.user().onCreate(async (user) => {
   const now = new Date();
 
   try {
-    // await copyUser(user, now);
+    await copyUser(user, now);
     await updateUserStats(now);
   } catch (error) {
     logger.error(error);
@@ -32,7 +32,11 @@ const copyUser = async (user: User, now: Date) => {
   const filter = `temp-${createdAt}`;
 
   try {
-    await userRef.set({ filter });
+    await userRef.set({
+      filter,
+      createdAt: now.valueOf(),
+      updatedAt: now.valueOf(),
+    });
   } catch (error) {
     logger.error(error);
   }

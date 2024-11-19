@@ -152,6 +152,11 @@ class Firedata {
     return stream;
   }
 
+  Future<void> updateAvatar(String userId, String userCode) async {
+    final ref = instance.ref('users/$userId');
+    await ref.update({'photoURL': userCode});
+  }
+
   Stream<Room> subscribeToRoom(String roomId) {
     final ref = instance.ref('rooms/$roomId');
 

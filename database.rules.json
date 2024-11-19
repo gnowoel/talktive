@@ -1,7 +1,11 @@
 {
   "rules": {
     "users": {
-      ".indexOn": ["filter"]
+      ".read": "auth !== null",
+      ".indexOn": ["filter"],
+      "$userId": {
+        ".write": "auth !== null && auth.uid === $userId"
+      }
     },
     "rooms": {
       ".read": "auth !== null",

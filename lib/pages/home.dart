@@ -7,6 +7,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
 import 'chat.dart';
+import 'profile.dart';
 import 'recents.dart';
 import 'rooms.dart';
 import 'users.dart';
@@ -88,6 +89,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _profile() {
+    _doAction(() async {
+      _enterPage(const ProfilePage());
+    });
+  }
+
   void _enterPage(Widget widget) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
   }
@@ -129,23 +136,23 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Text(avatar.name),
                   IconButton(
-                    onPressed: _refresh,
+                    onPressed: _profile,
                     icon: const Icon(Icons.refresh),
                     tooltip: 'Change avatar',
                   ),
                   const SizedBox(height: 4),
                   FilledButton(
-                    onPressed: _users,
+                    onPressed: _profile,
                     child: const Text('Users'),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
-                    onPressed: _create,
+                    onPressed: _profile,
                     child: const Text('Chats'),
                   ),
                   const SizedBox(height: 4),
                   IconButton(
-                    onPressed: _recents,
+                    onPressed: _profile,
                     icon: const Icon(Icons.sentiment_neutral_outlined),
                     // icon: const Icon(Icons.sentiment_satisfied_outlined),
                     tooltip: 'Update profile',
@@ -156,13 +163,13 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Center(
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: _profile,
                   icon: const Icon(
                     Icons.lightbulb_outlined,
                     size: 16,
                   ),
                   label: Text(
-                    'Tell people more about you!',
+                    'Tell us more about you!',
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w400,

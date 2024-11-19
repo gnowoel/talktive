@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
+import '../models/user.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -26,6 +29,9 @@ class _HomePageState extends State<HomePage> {
   late Avatar avatar;
   late History history;
 
+  late StreamSubscription userSubscription;
+
+  User? _user;
   bool _isLocked = false;
 
   @override
@@ -34,6 +40,12 @@ class _HomePageState extends State<HomePage> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
+
+    final userId = fireauth.instance.currentUser!.uid;
+
+    userSubscription = firedata.subscribeToUser(userId).listen((user) async {
+      setState(() => _user = user);
+    });
   }
 
   @override
@@ -116,8 +128,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    userSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    if (_user == null) {
+      return Scaffold(
+        body: SafeArea(
+          child: const SizedBox(),
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -131,12 +157,12 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    avatar.code,
+                    _user!.photoURL ?? avatar.code,
                     style: const TextStyle(fontSize: 64),
                   ),
-                  Text(avatar.name),
+                  // Text(_user.displayName ?? avatar.name),
                   IconButton(
-                    onPressed: _profile,
+                    onPressed: _refresh,
                     icon: const Icon(Icons.refresh),
                     tooltip: 'Change avatar',
                   ),

@@ -29,7 +29,7 @@ Future<void> main() async {
     }
   }
 
-  if (!kIsWeb) {
+  if (!kDebugMode && !kIsWeb) {
     FirebaseDatabase.instance.setPersistenceEnabled(true);
   }
 

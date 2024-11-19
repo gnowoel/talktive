@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'home.dart';
+import 'entry.dart';
 import 'services/avatar.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -33,7 +33,7 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Talktive',
         theme: getTheme(context),
-        home: const Home(),
+        home: const Entry(),
       ),
     );
   }

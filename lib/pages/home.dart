@@ -169,19 +169,20 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 4),
                   FilledButton(
-                    onPressed: _profile,
+                    onPressed: _user!.isNew ? _profile : _users,
                     child: const Text('Users'),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
-                    onPressed: _profile,
+                    onPressed: _user!.isNew ? _profile : _recents,
                     child: const Text('Chats'),
                   ),
                   const SizedBox(height: 4),
                   IconButton(
                     onPressed: _profile,
-                    icon: const Icon(Icons.sentiment_neutral_outlined),
-                    // icon: const Icon(Icons.sentiment_satisfied_outlined),
+                    icon: _user!.isNew
+                        ? const Icon(Icons.sentiment_neutral_outlined)
+                        : const Icon(Icons.sentiment_satisfied_outlined),
                     tooltip: 'Update profile',
                   ),
                 ],

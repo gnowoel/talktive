@@ -31,6 +31,10 @@ class User {
       gender: value.gender,
     );
   }
+
+  bool get isNew {
+    return displayName == null || description == null || gender == null;
+  }
 }
 
 class UserStub {

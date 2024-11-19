@@ -10,14 +10,14 @@ import 'chat.dart';
 import 'recents.dart';
 import 'rooms.dart';
 
-class UserPage extends StatefulWidget {
-  const UserPage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<UserPage> createState() => _UserPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _UserPageState extends State<UserPage> {
+class _HomePageState extends State<HomePage> {
   late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'pages/empty.dart';
 import 'pages/error.dart';
-import 'pages/user.dart';
+import 'pages/home.dart';
 import 'services/fireauth.dart';
 
 class Entry extends StatefulWidget {
@@ -39,7 +39,7 @@ class _EntryState extends State<Entry> {
           );
         }
 
-        return const UserPage();
+        return const HomePage();
       },
     );
   }

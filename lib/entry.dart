@@ -6,14 +6,14 @@ import 'pages/error.dart';
 import 'pages/user.dart';
 import 'services/fireauth.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class Entry extends StatefulWidget {
+  const Entry({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Entry> createState() => _EntryState();
 }
 
-class _HomeState extends State<Home> {
+class _EntryState extends State<Entry> {
   void refresh() {
     setState(() {});
   }

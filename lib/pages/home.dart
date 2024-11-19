@@ -9,6 +9,7 @@ import '../services/history.dart';
 import 'chat.dart';
 import 'recents.dart';
 import 'rooms.dart';
+import 'users.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -53,6 +54,12 @@ class _HomePageState extends State<HomePage> {
       final rooms = await firedata.fetchRooms(languageCode, recentRoomIds);
 
       _enterPage(RoomsPage(rooms: rooms));
+    });
+  }
+
+  Future<void> _users() async {
+    _doAction(() async {
+      _enterPage(UsersPage());
     });
   }
 
@@ -124,11 +131,11 @@ class _HomePageState extends State<HomePage> {
                   IconButton(
                     onPressed: _refresh,
                     icon: const Icon(Icons.refresh),
-                    tooltip: 'Change profile',
+                    tooltip: 'Change avatar',
                   ),
                   const SizedBox(height: 4),
                   FilledButton(
-                    onPressed: _fetch,
+                    onPressed: _users,
                     child: const Text('Users'),
                   ),
                   const SizedBox(height: 12),
@@ -139,9 +146,9 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 4),
                   IconButton(
                     onPressed: _recents,
-                    // icon: const Icon(Icons.sentiment_neutral_outlined),
-                    icon: const Icon(Icons.sentiment_satisfied_outlined),
-                    tooltip: 'Recent rooms',
+                    icon: const Icon(Icons.sentiment_neutral_outlined),
+                    // icon: const Icon(Icons.sentiment_satisfied_outlined),
+                    tooltip: 'Update profile',
                   ),
                 ],
               ),
@@ -154,7 +161,13 @@ class _HomePageState extends State<HomePage> {
                     Icons.lightbulb_outlined,
                     size: 16,
                   ),
-                  label: const Text('Tell us more about you!'),
+                  label: Text(
+                    'Tell people more about you!',
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 ),
               ),
             ),

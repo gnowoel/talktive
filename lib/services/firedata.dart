@@ -133,6 +133,25 @@ class Firedata {
     }
   }
 
+  Stream<User?> subscribeToUser(String userId) {
+    final ref = instance.ref('users/$userId');
+
+    final stream = ref.onValue.map((event) {
+      final snapshot = event.snapshot;
+      final value = snapshot.value;
+
+      if (value == null) return null;
+
+      final json = Map<String, dynamic>.from(value as Map);
+      final stub = UserStub.fromJson(json);
+      final user = User.fromStub(key: userId, value: stub);
+
+      return user;
+    });
+
+    return stream;
+  }
+
   Stream<Room> subscribeToRoom(String roomId) {
     final ref = instance.ref('rooms/$roomId');
 

@@ -18,7 +18,7 @@ const onUserRegistered = functions.auth.user().onCreate(async (user) => {
   const now = new Date();
 
   try {
-    await copyUser(user, now);
+    // await copyUser(user, now);
     await updateUserStats(now);
   } catch (error) {
     logger.error(error);

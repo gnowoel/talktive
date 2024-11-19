@@ -42,7 +42,6 @@ class _HomePageState extends State<HomePage> {
     history = Provider.of<History>(context, listen: false);
 
     final userId = fireauth.instance.currentUser!.uid;
-
     userSubscription = firedata.subscribeToUser(userId).listen((user) async {
       setState(() => _user = user);
     });
@@ -57,7 +56,9 @@ class _HomePageState extends State<HomePage> {
 
   void _refresh() {
     _doAction(() async {
+      final userId = fireauth.instance.currentUser!.uid;
       avatar.refresh();
+      await firedata.updateAvatar(userId, avatar.code);
     });
   }
 

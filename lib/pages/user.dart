@@ -139,8 +139,8 @@ class _UserPageState extends State<UserPage> {
                   const SizedBox(height: 4),
                   IconButton(
                     onPressed: _recents,
-                    icon: const Icon(Icons.sentiment_neutral_outlined),
-                    // icon: const Icon(Icons.sentiment_satisfied_outlined),
+                    // icon: const Icon(Icons.sentiment_neutral_outlined),
+                    icon: const Icon(Icons.sentiment_satisfied_outlined),
                     tooltip: 'Recent rooms',
                   ),
                 ],
@@ -148,22 +148,13 @@ class _UserPageState extends State<UserPage> {
             ),
             Expanded(
               child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.lightbulb_outlined,
-                      color: colorScheme.tertiary,
-                      size: 16,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Now you can send pictures!',
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+                child: TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.lightbulb_outlined,
+                    size: 16,
+                  ),
+                  label: const Text('Tell us more about you!'),
                 ),
               ),
             ),

@@ -8,6 +8,7 @@ import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 import '../models/text_message.dart';
+import '../models/user.dart';
 import 'clock.dart';
 
 class Firedata {

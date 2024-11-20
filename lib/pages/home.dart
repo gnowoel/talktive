@@ -138,73 +138,91 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    if (_user == null) {
+      return Scaffold(
+        body: SafeArea(
+          child: const SizedBox(),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
-        child: _user == null
-            ? const SizedBox()
-            : Column(
+        child: Column(
+          children: [
+            Expanded(
+              child: const SizedBox(),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: const SizedBox(),
+                  Text(
+                    _user!.photoURL ?? avatar.code,
+                    style: const TextStyle(fontSize: 64),
                   ),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _user!.photoURL ?? avatar.code,
-                          style: const TextStyle(fontSize: 64),
-                        ),
-                        // Text(_user.displayName ?? avatar.name),
-                        const SizedBox(height: 4),
-                        IconButton(
-                          onPressed: _refresh,
-                          icon: const Icon(Icons.refresh),
-                          tooltip: 'Change avatar',
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton(
-                          onPressed: _user!.isNew ? _profile : _users,
-                          child: const Text('Users'),
-                        ),
-                        const SizedBox(height: 16),
-                        OutlinedButton(
-                          onPressed: _user!.isNew ? _profile : _recents,
-                          child: const Text('Chats'),
-                        ),
-                        const SizedBox(height: 8),
-                        IconButton(
-                          onPressed: _profile,
-                          icon: _user!.isNew
-                              ? const Icon(Icons.sentiment_neutral_outlined)
-                              : const Icon(Icons.sentiment_satisfied_outlined),
-                          tooltip: 'Update profile',
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 8),
+                  Text(_user!.displayName ?? avatar.name),
+                  const SizedBox(height: 4),
+                  IconButton(
+                    onPressed: _refresh,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'Change avatar',
                   ),
-                  Expanded(
-                    child: _user!.isNew
-                        ? Center(
-                            child: TextButton.icon(
-                              onPressed: _profile,
-                              icon: const Icon(
-                                Icons.lightbulb_outlined,
-                                size: 16,
-                              ),
-                              label: Text(
-                                'Tell us more about you!',
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    onPressed: _user!.isNew ? _profile : _users,
+                    child: const Text('Users'),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton(
+                    onPressed: _user!.isNew ? _profile : _recents,
+                    child: const Text('Chats'),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: _profile,
+                        icon: const Icon(Icons.female),
+                        tooltip: 'Update profile',
+                      ),
+                      IconButton(
+                        onPressed: _profile,
+                        icon: const Icon(Icons.sentiment_satisfied_outlined),
+                        tooltip: 'Update profile',
+                      ),
+                      IconButton(
+                        onPressed: _profile,
+                        icon: const Icon(Icons.male),
+                        tooltip: 'Update profile',
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+            Expanded(
+              child: Center(
+                child: TextButton.icon(
+                  onPressed: _profile,
+                  icon: const Icon(
+                    Icons.lightbulb_outlined,
+                    size: 16,
+                  ),
+                  label: Text(
+                    'You can chat in English!',
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ class User {
   final String id;
   final int createdAt;
   final int updatedAt;
+  final String? languageCode;
   final String? photoURL;
   final String? displayName;
   final String? description;
@@ -11,6 +12,7 @@ class User {
     required this.id,
     required this.createdAt,
     required this.updatedAt,
+    this.languageCode,
     this.photoURL,
     this.displayName,
     this.description,
@@ -25,6 +27,7 @@ class User {
       id: key,
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
+      languageCode: value.languageCode,
       photoURL: value.photoURL,
       displayName: value.displayName,
       description: value.description,
@@ -33,13 +36,18 @@ class User {
   }
 
   bool get isNew {
-    return displayName == null || description == null || gender == null;
+    return languageCode == null ||
+        photoURL == null ||
+        displayName == null ||
+        description == null ||
+        gender == null;
   }
 }
 
 class UserStub {
   final int createdAt;
   final int updatedAt;
+  final String? languageCode;
   final String? photoURL;
   final String? displayName;
   final String? description;
@@ -48,6 +56,7 @@ class UserStub {
   UserStub({
     required this.createdAt,
     required this.updatedAt,
+    this.languageCode,
     this.photoURL,
     this.displayName,
     this.description,
@@ -58,6 +67,7 @@ class UserStub {
     return {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'languageCode': languageCode,
       'photoURL': photoURL,
       'displayName': displayName,
       'description': description,
@@ -69,6 +79,7 @@ class UserStub {
     return UserStub(
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
+      languageCode: json['languageCode'] as String?,
       photoURL: json['photoURL'] as String?,
       displayName: json['displayName'] as String?,
       description: json['description'] as String?,

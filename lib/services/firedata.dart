@@ -160,6 +160,7 @@ class Firedata {
 
   Future<void> updateProfile({
     required String userId,
+    required String languageCode,
     required String photoURL,
     required String displayName,
     required String description,
@@ -170,6 +171,7 @@ class Firedata {
       final ref = instance.ref('users/$userId');
 
       await ref.update({
+        'languageCode': languageCode,
         'photoURL': photoURL,
         'displayName': displayName,
         'description': description,

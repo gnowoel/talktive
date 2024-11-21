@@ -155,7 +155,10 @@ class Firedata {
 
   Future<void> updateAvatar(String userId, String userCode) async {
     final ref = instance.ref('users/$userId');
-    await ref.update({'photoURL': userCode});
+    await ref.update({
+      'photoURL': userCode,
+      'updatedAt': Clock().serverNow(),
+    });
   }
 
   Future<void> updateProfile({
@@ -165,7 +168,6 @@ class Firedata {
     required String displayName,
     required String description,
     required String gender,
-    required int timestamp,
   }) async {
     try {
       final ref = instance.ref('users/$userId');
@@ -176,7 +178,7 @@ class Firedata {
         'displayName': displayName,
         'description': description,
         'gender': gender,
-        'updatedAt': timestamp,
+        'updatedAt': Clock().serverNow(),
       });
     } catch (e) {
       throw AppException(e.toString());

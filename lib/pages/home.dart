@@ -163,8 +163,8 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(fontSize: 64),
                   ),
                   const SizedBox(height: 8),
-                  Text(_user!.displayName ?? avatar.name),
-                  const SizedBox(height: 4),
+                  // Text(_user!.displayName ?? avatar.name),
+                  // const SizedBox(height: 4),
                   IconButton(
                     onPressed: _refresh,
                     icon: const Icon(Icons.refresh),

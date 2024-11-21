@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../helpers/helpers.dart';
 import '../models/user.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
@@ -17,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late ThemeData theme;
+  late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
@@ -54,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.didChangeDependencies();
     theme = Theme.of(context);
     avatar = Provider.of<Avatar>(context);
+    languageCode = getLanguageCode(context);
   }
 
   String? _validateName(String? value) {
@@ -104,6 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // TODO: languageCode
         await firedata.updateProfile(
           userId: userId,
+          languageCode: languageCode,
           photoURL: avatar.code,
           displayName: _displayNameController.text.trim(),
           description: _descriptionController.text.trim(),

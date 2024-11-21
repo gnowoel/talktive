@@ -136,8 +136,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final languageName = getLanguageName(languageCode);
+    final isEnglish = languageName == 'English';
 
     if (_user == null) {
       return Scaffold(
@@ -190,24 +190,31 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Expanded(
-              child: Center(
-                child: TextButton.icon(
-                  onPressed: _profile,
-                  icon: const Icon(
-                    Icons.lightbulb_outlined,
-                    size: 16,
-                  ),
-                  label: Text(
-                    'You can chat in $languageName!',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ),
+              child: isEnglish ? const SizedBox() : _buildLanguageTip(),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageTip() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final languageName = getLanguageName(languageCode);
+
+    return Center(
+      child: TextButton.icon(
+        onPressed: _profile,
+        icon: const Icon(
+          Icons.lightbulb_outlined,
+          size: 16,
+        ),
+        label: Text(
+          'You can chat in $languageName!',
+          style: TextStyle(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ),
     );

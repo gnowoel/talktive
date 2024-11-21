@@ -108,7 +108,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
       try {
         final userId = fireauth.instance.currentUser!.uid;
-        final now = DateTime.now().millisecondsSinceEpoch;
 
         var displayName = _displayNameController.text.trim();
         var description = _descriptionController.text.trim();
@@ -127,7 +126,6 @@ class _ProfilePageState extends State<ProfilePage> {
           displayName: displayName,
           description: description,
           gender: _selectedGender!,
-          timestamp: now,
         );
 
         if (mounted) {

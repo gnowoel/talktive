@@ -23,6 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late ThemeData theme;
   late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;
@@ -50,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    theme = Theme.of(context);
     avatar = Provider.of<Avatar>(context);
     languageCode = getLanguageCode(context);
   }
@@ -163,7 +165,11 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(fontSize: 64),
                   ),
                   const SizedBox(height: 8),
-                  if (!_user!.isNew) Text(_user!.displayName ?? avatar.name),
+                  if (!_user!.isNew)
+                    Text(
+                      _user!.displayName ?? avatar.name,
+                      style: theme.textTheme.bodyLarge,
+                    ),
                   if (!_user!.isNew) const SizedBox(height: 4),
                   IconButton(
                     onPressed: _refresh,

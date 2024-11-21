@@ -48,7 +48,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) {
+    value = value?.trim();
+    if (value == null || value.isEmpty) {
       return 'Please enter a display name';
     }
     if (value.length < 2) {
@@ -61,7 +62,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String? _validateDescription(String? value) {
-    if (value == null || value.trim().isEmpty) {
+    value = value?.trim();
+    if (value == null || value.isEmpty) {
       return 'Please enter a brief description';
     }
     if (value.length < 10) {
@@ -125,97 +127,80 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        avatar.code,
-                        style: const TextStyle(fontSize: 64),
-                      ),
-                      const SizedBox(height: 8),
-                      IconButton(
-                        onPressed: () {
-                          avatar.refresh();
-                          final userId = fireauth.instance.currentUser!.uid;
-                          firedata.updateAvatar(userId, avatar.code);
-                        },
-                        icon: const Icon(Icons.refresh),
-                        tooltip: 'Change avatar',
-                      ),
-                    ],
-                  ),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Center(
+                child: Text(
+                  avatar.code,
+                  style: const TextStyle(fontSize: 64),
                 ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Display Name',
-                    hintText: 'Enter a name to display',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateName,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    hintText: 'Tell us a bit about yourself',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateDescription,
-                  maxLines: 3,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Gender',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedGender,
-                  items: _genderOptions
-                      .map((option) => DropdownMenuItem(
-                            value: option['value'],
-                            child: Text(option['label']!),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() => _selectedGender = value);
-                  },
-                  validator: _validateGender,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _isProcessing ? null : _submit,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: _isProcessing
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(),
-                            )
-                          : const Text('Save'),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Display Name',
+                      hintText: 'What do people call you?',
+                    ),
+                    validator: _validateName,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Tell us a bit about yourself',
+                    ),
+                    validator: _validateDescription,
+                    // maxLines: 3,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      labelText: 'Gender',
+                    ),
+                    value: _selectedGender,
+                    items: _genderOptions
+                        .map((option) => DropdownMenuItem(
+                              value: option['value'],
+                              child: Text(option['label']!),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedGender = value);
+                    },
+                    validator: _validateGender,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                // width: double.infinity,
+                child: FilledButton(
+                  onPressed: _isProcessing ? null : _submit,
+                  child: _isProcessing
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Save'),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

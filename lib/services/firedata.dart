@@ -158,6 +158,27 @@ class Firedata {
     await ref.update({'photoURL': userCode});
   }
 
+  Future<void> updateProfile({
+    required String userId,
+    required String displayName,
+    required String description,
+    required String gender,
+    required int timestamp,
+  }) async {
+    try {
+      final ref = instance.ref('users/$userId');
+
+      await ref.update({
+        'displayName': displayName,
+        'description': description,
+        'gender': gender,
+        'updatedAt': timestamp,
+      });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Stream<Room> subscribeToRoom(String roomId) {
     final ref = instance.ref('rooms/$roomId');
 

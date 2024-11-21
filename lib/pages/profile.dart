@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/exception.dart';
 import '../helpers/helpers.dart';
 import '../models/user.dart';
 import '../services/avatar.dart';
@@ -23,6 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late Firedata firedata;
   late Avatar avatar;
 
+  late String _photoURL;
   late TextEditingController _displayNameController;
   late TextEditingController _descriptionController;
 
@@ -38,12 +38,18 @@ class _ProfilePageState extends State<ProfilePage> {
     {'label': 'Prefer not to say', 'value': 'X'},
   ];
 
+  final minDisplayNameLength = 2;
+  final maxDisplayNameLength = 30;
+  final minDescriptionLength = 10;
+  final maxDescriptionLength = 200;
+
   @override
   void initState() {
     super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
 
+    _photoURL = widget.user?.photoURL ?? avatar.code;
     _displayNameController =
         TextEditingController(text: widget.user?.displayName);
     _descriptionController =
@@ -59,16 +65,16 @@ class _ProfilePageState extends State<ProfilePage> {
     languageCode = getLanguageCode(context);
   }
 
-  String? _validateName(String? value) {
+  String? _validateDisplayName(String? value) {
     value = value?.trim();
     if (value == null || value.isEmpty) {
       return 'Please enter a display name';
     }
-    if (value.length < 2) {
-      return 'Name must be at least 2 characters';
+    if (value.length < minDisplayNameLength) {
+      return 'Must be at least $minDisplayNameLength characters';
     }
-    if (value.length > 30) {
-      return 'Name must be less than 30 characters';
+    if (value.length > maxDisplayNameLength) {
+      return 'Must be less than $maxDisplayNameLength characters';
     }
     return null;
   }
@@ -78,11 +84,11 @@ class _ProfilePageState extends State<ProfilePage> {
     if (value == null || value.isEmpty) {
       return 'Please enter a brief description';
     }
-    if (value.length < 10) {
-      return 'Description must be at least 10 characters';
+    if (value.length < minDescriptionLength) {
+      return 'Must be at least $minDescriptionLength characters';
     }
-    if (value.length > 200) {
-      return 'Description must be less than 200 characters';
+    if (value.length > maxDescriptionLength) {
+      return 'Must be less than $maxDescriptionLength characters';
     }
     return null;
   }
@@ -104,13 +110,22 @@ class _ProfilePageState extends State<ProfilePage> {
         final userId = fireauth.instance.currentUser!.uid;
         final now = DateTime.now().millisecondsSinceEpoch;
 
-        // TODO: languageCode
+        var displayName = _displayNameController.text.trim();
+        var description = _descriptionController.text.trim();
+
+        if (displayName.length > maxDisplayNameLength) {
+          displayName = '${displayName.substring(0, maxDisplayNameLength)}...';
+        }
+        if (description.length > maxDescriptionLength) {
+          description = '${description.substring(0, maxDescriptionLength)}...';
+        }
+
         await firedata.updateProfile(
           userId: userId,
           languageCode: languageCode,
           photoURL: avatar.code,
-          displayName: _displayNameController.text.trim(),
-          description: _descriptionController.text.trim(),
+          displayName: displayName,
+          description: description,
           gender: _selectedGender!,
           timestamp: now,
         );
@@ -141,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('About me'),
       ),
       body: Form(
         key: _formKey,
@@ -151,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Expanded(
               child: Center(
                 child: Text(
-                  avatar.code,
+                  _photoURL,
                   style: const TextStyle(fontSize: 64),
                 ),
               ),
@@ -166,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       labelText: 'Display Name',
                       hintText: 'What do people call you?',
                     ),
-                    validator: _validateName,
+                    validator: _validateDisplayName,
                     textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: 16),

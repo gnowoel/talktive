@@ -33,7 +33,7 @@ Future<void> main() async {
     FirebaseDatabase.instance.setPersistenceEnabled(true);
   }
 
-  await Avatar().init();
+  Avatar().init();
   await History().init();
   runApp(const App());
 }

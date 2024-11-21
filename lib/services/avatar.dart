@@ -1,20 +1,17 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import '../models/emoji.dart';
-import 'prefs.dart';
 
 class Avatar extends ChangeNotifier {
-  Avatar._();
+  Avatar._() {
+    init();
+  }
 
   static final Avatar _instance = Avatar._();
 
   factory Avatar() => _instance;
 
-  final prefs = Prefs();
-
-  late Emoji _emoji;
+  Emoji _emoji = Emoji.random();
 
   String get name => _emoji.name;
 
@@ -22,15 +19,11 @@ class Avatar extends ChangeNotifier {
 
   void refresh() {
     final emoji = _getNewEmoji();
-    _saveEmoji(emoji); // no wait
+    _saveEmoji(emoji);
   }
 
-  Future<void> init() async {
-    final string = await prefs.getString('emoji');
-    final emoji =
-        string == null ? Emoji.random() : Emoji.fromJson(jsonDecode(string));
-
-    await _saveEmoji(emoji);
+  void init() async {
+    refresh();
   }
 
   Emoji _getNewEmoji() {
@@ -41,9 +34,8 @@ class Avatar extends ChangeNotifier {
     return emoji;
   }
 
-  Future<void> _saveEmoji(Emoji emoji) async {
+  void _saveEmoji(Emoji emoji) {
     _emoji = emoji;
-    await prefs.setString('emoji', jsonEncode(emoji.toJson()));
     notifyListeners();
   }
 }

@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
 
   void _profile() {
     _doAction(() async {
-      _enterPage(const ProfilePage());
+      _enterPage(ProfilePage(user: _user));
     });
   }
 

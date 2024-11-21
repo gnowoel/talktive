@@ -181,25 +181,10 @@ class _HomePageState extends State<HomePage> {
                     child: const Text('Chats'),
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: _profile,
-                        icon: const Icon(Icons.female),
-                        tooltip: 'Update profile',
-                      ),
-                      IconButton(
-                        onPressed: _profile,
-                        icon: const Icon(Icons.sentiment_satisfied_outlined),
-                        tooltip: 'Update profile',
-                      ),
-                      IconButton(
-                        onPressed: _profile,
-                        icon: const Icon(Icons.male),
-                        tooltip: 'Update profile',
-                      ),
-                    ],
+                  IconButton(
+                    onPressed: _profile,
+                    icon: const Icon(Icons.sentiment_satisfied_outlined),
+                    tooltip: 'Update profile',
                   ),
                 ],
               ),

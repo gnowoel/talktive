@@ -101,8 +101,10 @@ class _ProfilePageState extends State<ProfilePage> {
         final userId = fireauth.instance.currentUser!.uid;
         final now = DateTime.now().millisecondsSinceEpoch;
 
+        // TODO: languageCode
         await firedata.updateProfile(
           userId: userId,
+          photoURL: avatar.code,
           displayName: _displayNameController.text.trim(),
           description: _descriptionController.text.trim(),
           gender: _selectedGender!,

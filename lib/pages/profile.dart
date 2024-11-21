@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../models/user.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final User? user;
+  const ProfilePage({super.key, this.user});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -19,11 +21,12 @@ class _ProfilePageState extends State<ProfilePage> {
   late Firedata firedata;
   late Avatar avatar;
 
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  String? _selectedGender;
+  late TextEditingController _displayNameController;
+  late TextEditingController _descriptionController;
 
+  final _formKey = GlobalKey<FormState>();
+
+  String? _selectedGender;
   bool _isProcessing = false;
 
   final _genderOptions = [
@@ -38,6 +41,12 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+
+    _displayNameController =
+        TextEditingController(text: widget.user?.displayName);
+    _descriptionController =
+        TextEditingController(text: widget.user?.description);
+    _selectedGender = widget.user?.gender;
   }
 
   @override
@@ -94,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
         await firedata.updateProfile(
           userId: userId,
-          displayName: _nameController.text.trim(),
+          displayName: _displayNameController.text.trim(),
           description: _descriptionController.text.trim(),
           gender: _selectedGender!,
           timestamp: now,
@@ -117,7 +126,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _displayNameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -146,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   TextFormField(
-                    controller: _nameController,
+                    controller: _displayNameController,
                     decoration: const InputDecoration(
                       labelText: 'Display Name',
                       hintText: 'What do people call you?',
@@ -188,14 +197,15 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Expanded(
               child: Center(
-                // width: double.infinity,
                 child: FilledButton(
                   onPressed: _isProcessing ? null : _submit,
                   child: _isProcessing
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(),
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                          ),
                         )
                       : const Text('Save'),
                 ),

@@ -44,7 +44,7 @@ class _RecentsPageState extends State<RecentsPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('History'),
+        title: const Text('Chats'),
       ),
       body: SafeArea(
         child: records.isEmpty

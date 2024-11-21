@@ -177,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: _user!.isNew ? _profile : _recents,
+                    onPressed: _recents,
                     child: const Text('Chats'),
                   ),
                   const SizedBox(height: 8),

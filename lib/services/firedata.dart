@@ -157,7 +157,7 @@ class Firedata {
     final ref = instance.ref('users/$userId');
     await ref.update({
       'photoURL': userCode,
-      'updatedAt': Clock().serverNow(),
+      'updatedAt': ServerValue.timestamp,
     });
   }
 
@@ -178,7 +178,7 @@ class Firedata {
         'displayName': displayName,
         'description': description,
         'gender': gender,
-        'updatedAt': Clock().serverNow(),
+        'updatedAt': ServerValue.timestamp,
       });
     } catch (e) {
       throw AppException(e.toString());

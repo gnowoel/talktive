@@ -38,18 +38,56 @@ class _UserItemState extends State<UserItem> {
           ),
           title: Text(
             widget.user.displayName!,
-            style: TextStyle(color: textColor),
             overflow: TextOverflow.ellipsis,
           ),
-          subtitle: Text(
-            format(updatedAt),
-            style: TextStyle(color: textColor),
-            overflow: TextOverflow.ellipsis,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.user.description!,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Row(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 6, bottom: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      widget.user.languageCode!,
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    margin: const EdgeInsets.only(top: 6, bottom: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      format(updatedAt, locale: 'en_short'),
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.keyboard_arrow_right),
+            icon: const Icon(Icons.male),
             onPressed: () => {},
-            tooltip: 'Chat',
+            tooltip: 'Chat now',
           ),
         ),
       ),

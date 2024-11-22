@@ -48,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
+    avatar = Provider.of<Avatar>(context, listen: false);
 
     _photoURL = widget.user?.photoURL ?? avatar.code;
     _displayNameController =
@@ -61,7 +62,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
-    avatar = Provider.of<Avatar>(context);
     languageCode = getLanguageCode(context);
   }
 

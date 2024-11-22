@@ -250,6 +250,25 @@ class Firedata {
     return stream;
   }
 
+  Future<List<User>> getUsers() async {
+    final ref = instance.ref('users');
+    final query = ref.orderByPriority().limitToLast(16);
+    final snapshot = await query.get();
+
+    if (!snapshot.exists) {
+      return [];
+    }
+
+    final listMap = Map<String, dynamic>.from(snapshot.value as Map);
+    final users = listMap.entries.map((entry) {
+      final entryMap = Map<String, dynamic>.from(entry.value as Map);
+      final userStub = UserStub.fromJson(entryMap);
+      return User.fromStub(key: entry.key, value: userStub);
+    }).toList();
+
+    return users;
+  }
+
   // Inactive rooms will be removed by scheduled Cloud Functions
   Future<List<Room>> fetchRooms(
     String languageCode,

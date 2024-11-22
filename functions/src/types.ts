@@ -1,3 +1,14 @@
+export interface User {
+  id?: string;
+  createdAt: number;
+  updatedAt: number;
+  languageCode?: string;
+  photoURL?: string;
+  displayName?: string;
+  description?: string;
+  genger?: string;
+}
+
 export interface Message {
   id?: string;
   userId: string;

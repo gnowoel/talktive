@@ -255,7 +255,9 @@ class Firedata {
   }) async {
     try {
       final users = <User>[];
-      final limit = kDebugMode ? 16 : 32;
+      final minNumber = kDebugMode ? 8 : 16;
+      final limit = minNumber * 2;
+
       int? endBefore;
       bool next = true;
 
@@ -275,7 +277,7 @@ class Firedata {
           }
         }
 
-        if (users.length >= limit / 2) {
+        if (users.length >= minNumber) {
           next = false;
         }
 
@@ -283,6 +285,8 @@ class Firedata {
           endBefore = result.last.updatedAt;
         }
       }
+
+      users.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
       return users;
     } catch (e) {
@@ -315,7 +319,7 @@ class Firedata {
         return User.fromStub(key: entry.key, value: userStub);
       }).toList();
 
-      return users.reversed.toList();
+      return users;
     } catch (e) {
       throw AppException(e.toString());
     }

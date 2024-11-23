@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 8),
                   FilledButton(
                     onPressed: _user!.isNew ? _profile : _users,
-                    child: const Text('Users'),
+                    child: const Text('Fetch'),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(

@@ -26,14 +26,14 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _fetchUsers() async {
-    final users = await firedata.getUsers();
+    final users = await firedata.fetchUsers(excludedUserIds: <String>[]);
     setState(() => _users = [..._users, ...users]);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = ['No more users here.', 'Try again later.', ''];
+    const lines = ['No more users here.', 'Try once again.', ''];
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,

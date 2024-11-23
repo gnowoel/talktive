@@ -252,7 +252,7 @@ class Firedata {
 
   Future<List<User>> getUsers() async {
     final ref = instance.ref('users');
-    final query = ref.orderByPriority().limitToLast(16);
+    final query = ref.orderByChild('updatedAt').limitToLast(16);
     final snapshot = await query.get();
 
     if (!snapshot.exists) {
@@ -266,7 +266,7 @@ class Firedata {
       return User.fromStub(key: entry.key, value: userStub);
     }).toList();
 
-    return users;
+    return users.reversed.toList();
   }
 
   // Inactive rooms will be removed by scheduled Cloud Functions

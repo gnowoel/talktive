@@ -250,23 +250,75 @@ class Firedata {
     return stream;
   }
 
-  Future<List<User>> getUsers() async {
-    final ref = instance.ref('users');
-    final query = ref.orderByChild('updatedAt').limitToLast(16);
-    final snapshot = await query.get();
+  Future<List<User>> fetchUsers({
+    required List<String> excludedUserIds,
+  }) async {
+    try {
+      final users = <User>[];
+      final limit = kDebugMode ? 16 : 32;
+      int? endBefore;
+      bool next = true;
 
-    if (!snapshot.exists) {
-      return [];
+      while (next) {
+        final result = await _getUsers(
+          endBefore: endBefore,
+          limit: limit,
+        );
+
+        if (result.length < limit) {
+          next = false;
+        }
+
+        for (final user in result) {
+          if (!excludedUserIds.contains(user.id)) {
+            users.add(user);
+          }
+        }
+
+        if (users.length >= limit / 2) {
+          next = false;
+        }
+
+        if (next) {
+          endBefore = result.last.updatedAt;
+        }
+      }
+
+      return users;
+    } catch (e) {
+      throw AppException(e.toString());
     }
+  }
 
-    final listMap = Map<String, dynamic>.from(snapshot.value as Map);
-    final users = listMap.entries.map((entry) {
-      final entryMap = Map<String, dynamic>.from(entry.value as Map);
-      final userStub = UserStub.fromJson(entryMap);
-      return User.fromStub(key: entry.key, value: userStub);
-    }).toList();
+  Future<List<User>> _getUsers({
+    required int? endBefore,
+    required int limit,
+  }) async {
+    try {
+      final ref = instance.ref('users');
+      final query = endBefore == null
+          ? ref.orderByChild('updatedAt').limitToLast(limit)
+          : ref
+              .orderByChild('updatedAt')
+              .endBefore(endBefore)
+              .limitToLast(limit);
+      final snapshot = await query.get();
 
-    return users.reversed.toList();
+      if (!snapshot.exists) {
+        return [];
+      }
+
+      final listMap = Map<String, dynamic>.from(snapshot.value as Map);
+      final users = listMap.entries.map((entry) {
+        final entryMap = Map<String, dynamic>.from(entry.value as Map);
+        final userStub = UserStub.fromJson(entryMap);
+        return User.fromStub(key: entry.key, value: userStub);
+      }).toList();
+
+      return users.reversed.toList();
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   // Inactive rooms will be removed by scheduled Cloud Functions

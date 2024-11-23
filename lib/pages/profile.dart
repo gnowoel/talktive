@@ -122,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
         await firedata.updateProfile(
           userId: userId,
           languageCode: languageCode,
-          photoURL: avatar.code,
+          photoURL: _photoURL,
           displayName: displayName,
           description: description,
           gender: _selectedGender!,

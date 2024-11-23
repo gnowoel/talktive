@@ -49,15 +49,7 @@ class _UserItemState extends State<UserItem> {
               ),
               Row(
                 children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 6, bottom: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16),
-                      ),
-                    ),
+                  Tag(
                     child: Text(
                       widget.user.languageCode!,
                       style: TextStyle(fontSize: 12),
@@ -65,15 +57,7 @@ class _UserItemState extends State<UserItem> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Container(
-                    margin: const EdgeInsets.only(top: 6, bottom: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16),
-                      ),
-                    ),
+                  Tag(
                     child: Text(
                       format(updatedAt, locale: 'en_short'),
                       style: TextStyle(fontSize: 12),
@@ -91,6 +75,27 @@ class _UserItemState extends State<UserItem> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class Tag extends StatelessWidget {
+  final Widget child;
+
+  const Tag({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 6, bottom: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blueAccent),
+        borderRadius: BorderRadius.all(
+          Radius.circular(16),
+        ),
+      ),
+      child: child,
     );
   }
 }

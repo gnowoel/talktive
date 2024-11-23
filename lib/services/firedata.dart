@@ -272,7 +272,7 @@ class Firedata {
         }
 
         for (final user in result) {
-          if (!excludedUserIds.contains(user.id)) {
+          if (!user.isNew && !excludedUserIds.contains(user.id)) {
             users.add(user);
           }
         }

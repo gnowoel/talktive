@@ -51,7 +51,15 @@ class _UserItemState extends State<UserItem> {
                 children: [
                   Tag(
                     child: Text(
-                      widget.user.languageCode!,
+                      widget.user.gender!,
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Tag(
+                    child: Text(
+                      widget.user.languageCode!.toUpperCase(),
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -69,7 +77,7 @@ class _UserItemState extends State<UserItem> {
             ],
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.male),
+            icon: const Icon(Icons.keyboard_arrow_right),
             onPressed: () => {},
             tooltip: 'Chat now',
           ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart';
 
 import '../models/room.dart';
-import '../pages/chat.dart';
+import '../pages/room.dart';
 
 class RoomItem extends StatefulWidget {
   final Room room;
@@ -17,11 +17,11 @@ class RoomItem extends StatefulWidget {
 }
 
 class _RoomItemState extends State<RoomItem> {
-  void enterChat(Room room) {
+  void enterRoom(Room room) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatPage(
+        builder: (context) => RoomPage(
           room: widget.room,
         ),
       ),
@@ -42,7 +42,7 @@ class _RoomItemState extends State<RoomItem> {
       margin: const EdgeInsets.symmetric(vertical: 6),
       color: cardColor,
       child: GestureDetector(
-        onTap: () => enterChat(widget.room),
+        onTap: () => enterRoom(widget.room),
         child: ListTile(
           leading: Text(
             widget.room.userCode,
@@ -60,7 +60,7 @@ class _RoomItemState extends State<RoomItem> {
           ),
           trailing: IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
-            onPressed: () => enterChat(widget.room),
+            onPressed: () => enterRoom(widget.room),
             tooltip: 'Enter room',
           ),
         ),

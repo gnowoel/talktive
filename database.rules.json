@@ -2,14 +2,26 @@
   "rules": {
     "users": {
       ".read": "auth !== null",
-      ".indexOn": ["filter", "updatedAt"],
+      ".indexOn": [
+        "filter",
+        "updatedAt"
+      ],
       "$userId": {
         ".write": "auth !== null && auth.uid === $userId"
       }
     },
+    "chats": {
+      "$chatId": {
+        ".read": "auth !== null && (auth.uid === data.child('userId1').val() || auth.uid === data.child('userId2').val())",
+        ".write": "auth !== null && auth.uid === newData.child('userId1').val()"
+      }
+    },
     "rooms": {
       ".read": "auth !== null",
-      ".indexOn": ["filter", "closedAt"],
+      ".indexOn": [
+        "filter",
+        "closedAt"
+      ],
       "$roomId": {
         ".write": "auth !== null && auth.uid === newData.child('userId').val()"
       }
@@ -17,7 +29,9 @@
     "messages": {
       "$roomId": {
         ".read": "auth !== null",
-        ".indexOn": ["createdAt"],
+        ".indexOn": [
+          "createdAt"
+        ],
         "$messageId": {
           ".write": "auth !== null && auth.uid === newData.child('userId').val()",
           ".validate": "newData.hasChild('content')",

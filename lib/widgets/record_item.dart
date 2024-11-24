@@ -6,7 +6,7 @@ import 'package:timeago/timeago.dart';
 
 import '../models/record.dart';
 import '../models/room.dart';
-import '../pages/chat.dart';
+import '../pages/room.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
 
@@ -44,13 +44,13 @@ class _RecordItemState extends State<RecordItem> {
     });
   }
 
-  void enterChat(Record record) {
+  void enterRoom(Record record) {
     final dummy = Room.fromRecord(record: record);
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatPage(
+        builder: (context) => RoomPage(
           room: dummy,
           recordMessageCount: record.messageCount,
           recordScrollOffset: record.scrollOffset,
@@ -89,7 +89,7 @@ class _RecordItemState extends State<RecordItem> {
         margin: const EdgeInsets.symmetric(vertical: 6),
         color: cardColor,
         child: GestureDetector(
-          onTap: () => enterChat(widget.record),
+          onTap: () => enterRoom(widget.record),
           child: ListTile(
             leading: Text(
               widget.record.roomUserCode,
@@ -119,7 +119,7 @@ class _RecordItemState extends State<RecordItem> {
     if (!hasNewMessages) {
       return IconButton(
         icon: const Icon(Icons.keyboard_arrow_right),
-        onPressed: () => enterChat(widget.record),
+        onPressed: () => enterRoom(widget.record),
         tooltip: 'Enter room',
       );
     }
@@ -129,7 +129,7 @@ class _RecordItemState extends State<RecordItem> {
         Icons.keyboard_double_arrow_right,
         color: colorScheme.tertiary,
       ),
-      onPressed: () => enterChat(widget.record),
+      onPressed: () => enterRoom(widget.record),
       tooltip: 'Enter room',
     );
   }

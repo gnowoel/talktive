@@ -15,12 +15,12 @@ import '../widgets/chat_app_bar.dart';
 import '../widgets/input.dart';
 import '../widgets/message_list.dart';
 
-class ChatPage extends StatefulWidget {
+class RoomPage extends StatefulWidget {
   final Room room;
   final int recordMessageCount;
   final double recordScrollOffset;
 
-  const ChatPage({
+  const RoomPage({
     super.key,
     required this.room,
     this.recordMessageCount = 1,
@@ -28,10 +28,10 @@ class ChatPage extends StatefulWidget {
   });
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<RoomPage> createState() => _RoomPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _RoomPageState extends State<RoomPage> {
   late ThemeData theme;
   late FocusNode focusNode;
   late ScrollController scrollController;

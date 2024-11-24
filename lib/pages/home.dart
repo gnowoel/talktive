@@ -9,10 +9,8 @@ import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
-import 'chat.dart';
 import 'profile.dart';
 import 'recents.dart';
-import 'rooms.dart';
 import 'users.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,8 +54,8 @@ class _HomePageState extends State<HomePage> {
     languageCode = getLanguageCode(context);
   }
 
-  void _refresh() {
-    _doAction(() async {
+  Future<void> _refresh() async {
+    await _doAction(() async {
       final userId = fireauth.instance.currentUser!.uid;
       avatar.refresh();
       await firedata.updateAvatar(userId, avatar.code);
@@ -65,53 +63,37 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetch() async {
-    _doAction(() async {
-      final recentRoomIds = history.recentRoomIds;
-      final rooms = await firedata.fetchRooms(languageCode, recentRoomIds);
-
-      _enterPage(RoomsPage(rooms: rooms));
-    });
-  }
-
-  Future<void> _users() async {
-    _doAction(() async {
-      _enterPage(UsersPage());
-    });
-  }
-
-  Future<void> _create() async {
     await _doAction(() async {
-      final userId = fireauth.instance.currentUser!.uid;
-      final userName = avatar.name;
-      final userCode = avatar.code;
-
-      final room = await firedata.createRoom(
-        userId,
-        userName,
-        userCode,
-        languageCode,
-      );
-
-      if (mounted) {
-        _enterPage(ChatPage(room: room));
+      if (_user!.isNew) {
+        await _enterPage(ProfilePage(
+          user: _user,
+          onComplete: _users,
+        ));
+      } else {
+        await _users();
       }
     });
   }
 
-  void _recents() {
-    _doAction(() async {
-      _enterPage(const RecentsPage());
+  Future<void> _users() async {
+    await _enterPage(UsersPage());
+  }
+
+  Future<void> _chats() async {
+    await _doAction(() async {
+      await _enterPage(const RecentsPage());
     });
   }
 
-  void _profile() {
-    _doAction(() async {
-      _enterPage(ProfilePage(user: _user));
+  Future<void> _profile() async {
+    await _doAction(() async {
+      await _enterPage(ProfilePage(user: _user));
     });
   }
 
-  void _enterPage(Widget widget) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
+  Future<void> _enterPage(Widget widget) async {
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => widget));
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
@@ -178,12 +160,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 8),
                   FilledButton(
-                    onPressed: _user!.isNew ? _profile : _users,
+                    onPressed: _fetch,
                     child: const Text('Fetch'),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: _recents,
+                    onPressed: _chats,
                     child: const Text('Chats'),
                   ),
                   const SizedBox(height: 8),

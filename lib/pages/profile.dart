@@ -9,7 +9,13 @@ import '../services/firedata.dart';
 
 class ProfilePage extends StatefulWidget {
   final User? user;
-  const ProfilePage({super.key, this.user});
+  final VoidCallback? onComplete;
+
+  const ProfilePage({
+    super.key,
+    this.user,
+    this.onComplete,
+  });
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -130,6 +136,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (mounted) {
           Navigator.pop(context);
+          print('>> .call()');
+          widget.onComplete?.call();
         }
       } on AppException catch (e) {
         if (mounted) {

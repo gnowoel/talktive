@@ -136,7 +136,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (mounted) {
           Navigator.pop(context);
-          print('>> .call()');
           widget.onComplete?.call();
         }
       } on AppException catch (e) {

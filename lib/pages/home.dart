@@ -62,7 +62,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _fetch() async {
+  Future<void> _chats() async {
+    await _doAction(() async {
+      await _enterPage(const RecentsPage());
+    });
+  }
+
+  Future<void> _redirect() async {
     await _doAction(() async {
       if (_user!.isNew) {
         await _enterPage(ProfilePage(
@@ -77,12 +83,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _users() async {
     await _enterPage(UsersPage());
-  }
-
-  Future<void> _chats() async {
-    await _doAction(() async {
-      await _enterPage(const RecentsPage());
-    });
   }
 
   Future<void> _profile() async {
@@ -160,13 +160,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 8),
                   FilledButton(
-                    onPressed: _fetch,
-                    child: const Text('Fetch'),
+                    onPressed: _chats,
+                    child: const Text('Chats'),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: _chats,
-                    child: const Text('Chats'),
+                    onPressed: _redirect,
+                    child: const Text('Users'),
                   ),
                   const SizedBox(height: 8),
                   IconButton(

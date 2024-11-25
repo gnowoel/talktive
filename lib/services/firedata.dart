@@ -60,10 +60,15 @@ class Firedata {
     try {
       final chatId = ([userId1, userId2]..sort()).join();
       final ref = instance.ref('chats/$chatId');
-      await ref.set({
-        'createdAt': ServerValue.timestamp,
-        'updatedAt': ServerValue.timestamp,
-      });
+      await ref.runTransaction((oldChat) {
+        if (oldChat != null) {
+          return Transaction.abort();
+        }
+        return Transaction.success({
+          'createdAt': ServerValue.timestamp,
+          'updatedAt': ServerValue.timestamp,
+        });
+      }, applyLocally: false);
       return ref.key!;
     } catch (e) {
       throw AppException(e.toString());

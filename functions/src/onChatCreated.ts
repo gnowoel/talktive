@@ -25,8 +25,17 @@ const onChatCreated = onValueCreated('/chats/{chatId}', async (event) => {
 
 const copyToFollower = async (userId: string, chatId: string, chat: Chat) => {
   try {
+    const otherId = chatId.replace(userId, '');
+
+    const userRef = db.ref(`users/${otherId}`);
+    const snapshot = await userRef.get();
+    const other = snapshot.val();
+
     const ref = db.ref(`contacts/${userId}/${chatId}`);
     await ref.set({
+      photoURL: other.photoURL,
+      displayName: other.displayName,
+      lastMessageCount: other.description,
       messageCount: chat.messageCount,
       createdAt: chat.createdAt,
       updatedAt: chat.updatedAt,

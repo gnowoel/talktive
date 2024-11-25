@@ -68,6 +68,8 @@ class Firedata {
           return Transaction.abort();
         }
         return Transaction.success({
+          'followers': [userId1, userId2],
+          'messageCount': 0,
           'createdAt': ServerValue.timestamp,
           'updatedAt': ServerValue.timestamp,
         });

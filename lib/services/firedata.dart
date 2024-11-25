@@ -60,7 +60,7 @@ class Firedata {
     try {
       final chatId = ([userId1, userId2]..sort()).join();
       final ref = instance.ref('chats/$chatId');
-      await ref.runTransaction((oldChat) {
+      final result = await ref.runTransaction((oldChat) {
         if (oldChat != null) {
           return Transaction.abort();
         }
@@ -69,7 +69,7 @@ class Firedata {
           'updatedAt': ServerValue.timestamp,
         });
       }, applyLocally: false);
-      return ref.key!;
+      return result.snapshot.key!;
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -9,6 +9,13 @@ export interface User {
   genger?: string;
 }
 
+export interface Chat {
+  id?: string;
+  createdAt: number;
+  updatedAt: number;
+  messageCount: number;
+}
+
 export interface Message {
   id?: string;
   userId: string;

@@ -12,8 +12,8 @@
     },
     "chats": {
       "$chatId": {
-        ".read": "auth !== null && (auth.uid === data.child('userId1').val() || auth.uid === data.child('userId2').val())",
-        ".write": "auth !== null && auth.uid === newData.child('userId1').val()"
+        ".read": "auth !== null && $chatId.contains(auth.uid)",
+        ".write": "auth !== null && $chatId.contains(auth.uid)"
       }
     },
     "rooms": {

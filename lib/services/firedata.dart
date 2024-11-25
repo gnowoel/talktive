@@ -58,14 +58,12 @@ class Firedata {
 
   Future<String> createChat(String userId1, String userId2) async {
     try {
-      final ref = instance.ref('chats').push();
+      final chatId = ([userId1, userId2]..sort()).join();
+      final ref = instance.ref('chats/$chatId');
       await ref.set({
-        'userId1': userId1,
-        'userId2': userId2,
         'createdAt': ServerValue.timestamp,
         'updatedAt': ServerValue.timestamp,
       });
-
       return ref.key!;
     } catch (e) {
       throw AppException(e.toString());

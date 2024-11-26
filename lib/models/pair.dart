@@ -1,4 +1,4 @@
-class Chat {
+class Pair {
   final String id;
   final int createdAt;
   final int updatedAt;
@@ -7,7 +7,7 @@ class Chat {
   final String? firstUserId;
   final String? lastMessageContent;
 
-  Chat({
+  Pair({
     required this.id,
     required this.createdAt,
     required this.updatedAt,

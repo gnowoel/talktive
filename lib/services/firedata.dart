@@ -56,15 +56,15 @@ class Firedata {
     }
   }
 
-  Future<String> createChat(String userId1, String userId2) async {
+  Future<String> createPair(String userId1, String userId2) async {
     try {
       if (userId1 == userId2) {
         throw Exception("You can't talk to yourself");
       }
-      final chatId = ([userId1, userId2]..sort()).join();
-      final ref = instance.ref('chats/$chatId');
-      final result = await ref.runTransaction((oldChat) {
-        if (oldChat != null) {
+      final pairId = ([userId1, userId2]..sort()).join();
+      final ref = instance.ref('pairs/$pairId');
+      final result = await ref.runTransaction((pair) {
+        if (pair != null) {
           return Transaction.abort();
         }
         return Transaction.success({

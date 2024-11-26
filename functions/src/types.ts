@@ -9,11 +9,13 @@ export interface User {
   gender?: string;
 }
 
-export interface Chat {
+export interface Pair {
   id?: string;
   createdAt: number;
   updatedAt: number;
   messageCount: number;
+  firstUserId?: string;
+  lastMessageContent?: string;
 }
 
 export interface Message {

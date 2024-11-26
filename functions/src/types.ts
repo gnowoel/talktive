@@ -6,7 +6,7 @@ export interface User {
   photoURL?: string;
   displayName?: string;
   description?: string;
-  genger?: string;
+  gender?: string;
 }
 
 export interface Chat {

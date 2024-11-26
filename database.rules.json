@@ -10,10 +10,10 @@
         ".write": "auth !== null && auth.uid === $userId"
       }
     },
-    "chats": {
-      "$chatId": {
-        ".read": "auth !== null && $chatId.contains(auth.uid)",
-        ".write": "auth !== null && $chatId.contains(auth.uid)"
+    "pairs": {
+      "$pairId": {
+        ".read": "auth !== null && $pairId.contains(auth.uid)",
+        ".write": "auth !== null && $pairId.contains(auth.uid)"
       }
     },
     "rooms": {

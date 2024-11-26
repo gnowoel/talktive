@@ -36,7 +36,7 @@ class _UserItemState extends State<UserItem> {
     _doAction(() async {
       final userId1 = fireauth.instance.currentUser!.uid;
       final userId2 = widget.user.id;
-      final chatId = await firedata.createChat(userId1, userId2);
+      final chatId = await firedata.createPair(userId1, userId2);
       if (mounted) {
         Navigator.push(
           context,

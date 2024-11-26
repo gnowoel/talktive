@@ -21,6 +21,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late Firedata firedata;
   late StreamSubscription chatsSubscription;
   late List<Chat> _chats;
+  bool _isPopulated = false;
 
   @override
   void initState() {
@@ -32,7 +33,10 @@ class _ChatsPageState extends State<ChatsPage> {
 
     final userId = fireauth.instance.currentUser!.uid;
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
-      setState(() => _chats = chats);
+      setState(() {
+        _chats = chats;
+        _isPopulated = true;
+      });
     });
   }
 
@@ -55,7 +59,9 @@ class _ChatsPageState extends State<ChatsPage> {
       ),
       body: SafeArea(
         child: _chats.isEmpty
-            ? const Center(child: Info(lines: lines))
+            ? (_isPopulated
+                ? Center(child: Info(lines: lines))
+                : const SizedBox())
             : _buildLayout(_chats),
       ),
     );

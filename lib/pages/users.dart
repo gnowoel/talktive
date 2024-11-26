@@ -17,7 +17,7 @@ class _UsersPageState extends State<UsersPage> {
   late Firedata firedata;
   late List<User> _users;
 
-  bool _doneFetch = false;
+  bool _isPopulated = false;
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _UsersPageState extends State<UsersPage> {
     final users = await firedata.fetchUsers(excludedUserIds: <String>[]);
     setState(() {
       _users = [..._users, ...users];
-      _doneFetch = true;
+      _isPopulated = true;
     });
   }
 
@@ -48,9 +48,9 @@ class _UsersPageState extends State<UsersPage> {
       ),
       body: SafeArea(
         child: _users.isEmpty
-            ? _doneFetch
+            ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
-                : const SizedBox()
+                : const SizedBox())
             : _buildLayout(_users),
       ),
     );

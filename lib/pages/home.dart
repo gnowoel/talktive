@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   Text(
                     _user!.photoURL ?? avatar.code,
                     style: const TextStyle(fontSize: 64),
@@ -159,20 +159,31 @@ class _HomePageState extends State<HomePage> {
                     tooltip: 'Change avatar',
                   ),
                   const SizedBox(height: 8),
-                  FilledButton.icon(
-                    onPressed: _chats,
-                    icon: Icon(
-                      Icons.circle,
-                      size: 12,
-                      color: null, // theme.colorScheme.errorContainer
-                    ),
-                    label: const Text('Chats'),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      FilledButton(
+                        onPressed: _chats,
+                        child: const Text('Chats'),
+                      ),
+                      Positioned(
+                        top: -3,
+                        right: -3,
+                        child: Container(
+                          width: 9,
+                          height: 9,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.error,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
-                  OutlinedButton.icon(
+                  OutlinedButton(
                     onPressed: _redirect,
-                    icon: const Icon(Icons.radio_button_unchecked, size: 12),
-                    label: const Text('Users'),
+                    child: const Text('Users'),
                   ),
                   const SizedBox(height: 8),
                   IconButton(

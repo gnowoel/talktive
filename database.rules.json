@@ -16,6 +16,11 @@
         ".write": "auth !== null && $pairId.contains(auth.uid)"
       }
     },
+    "chats": {
+      "$userId": {
+        ".read": "auth !== null && auth.uid === $userId"
+      }
+    },
     "rooms": {
       ".read": "auth !== null",
       ".indexOn": [

@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
-import { Chat } from './types';
+import { Chat, User } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -29,13 +29,13 @@ const copyToFollower = async (userId: string, chatId: string, chat: Chat) => {
 
     const userRef = db.ref(`users/${otherId}`);
     const snapshot = await userRef.get();
-    const other = snapshot.val();
+    const other: User = snapshot.val();
 
     const ref = db.ref(`contacts/${userId}/${chatId}`);
     await ref.set({
-      photoURL: other.photoURL,
-      displayName: other.displayName,
-      lastMessageCount: other.description,
+      partner: other,
+      firstUserId: null,
+      lastMessageContent: null,
       messageCount: chat.messageCount,
       createdAt: chat.createdAt,
       updatedAt: chat.updatedAt,

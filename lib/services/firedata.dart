@@ -69,6 +69,8 @@ class Firedata {
         }
         return Transaction.success({
           'followers': [userId1, userId2],
+          'firstUserId': null,
+          'lastMessageContent': null,
           'messageCount': 0,
           'createdAt': ServerValue.timestamp,
           'updatedAt': ServerValue.timestamp,

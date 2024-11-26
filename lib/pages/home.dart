@@ -159,14 +159,20 @@ class _HomePageState extends State<HomePage> {
                     tooltip: 'Change avatar',
                   ),
                   const SizedBox(height: 8),
-                  FilledButton(
+                  FilledButton.icon(
                     onPressed: _chats,
-                    child: const Text('Chats'),
+                    icon: Icon(
+                      Icons.circle,
+                      size: 12,
+                      color: null, // theme.colorScheme.errorContainer
+                    ),
+                    label: const Text('Chats'),
                   ),
                   const SizedBox(height: 16),
-                  OutlinedButton(
+                  OutlinedButton.icon(
                     onPressed: _redirect,
-                    child: const Text('Users'),
+                    icon: const Icon(Icons.radio_button_unchecked, size: 12),
+                    label: const Text('Users'),
                   ),
                   const SizedBox(height: 8),
                   IconButton(

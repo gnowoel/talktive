@@ -159,26 +159,14 @@ class _HomePageState extends State<HomePage> {
                     tooltip: 'Change avatar',
                   ),
                   const SizedBox(height: 8),
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      FilledButton(
-                        onPressed: _chats,
-                        child: const Text('Chats'),
-                      ),
-                      Positioned(
-                        top: -3,
-                        right: -3,
-                        child: Container(
-                          width: 9,
-                          height: 9,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.error,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Badge(
+                    isLabelVisible: true,
+                    label: const Text('7'),
+                    backgroundColor: theme.colorScheme.error,
+                    child: FilledButton(
+                      onPressed: _chats,
+                      child: const Text('Chats'),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(

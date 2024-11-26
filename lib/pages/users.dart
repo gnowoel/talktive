@@ -67,9 +67,7 @@ class _UsersPageState extends State<UsersPage> {
               margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(24),
-                ),
+                borderRadius: const BorderRadius.all(Radius.circular(24)),
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:timeago/timeago.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
@@ -107,7 +107,7 @@ class _UserItemState extends State<UserItem> {
                   const SizedBox(width: 4),
                   Tag(
                     child: Text(
-                      format(updatedAt, locale: 'en_short'),
+                      timeago.format(updatedAt, locale: 'en_short'),
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -119,7 +119,7 @@ class _UserItemState extends State<UserItem> {
           trailing: IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
             onPressed: () => _enterChat,
-            tooltip: 'Chat now',
+            tooltip: 'Chat',
           ),
         ),
       ),

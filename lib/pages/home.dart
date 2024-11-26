@@ -9,8 +9,8 @@ import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
+import 'chats.dart';
 import 'profile.dart';
-import 'recents.dart';
 import 'users.dart';
 
 class HomePage extends StatefulWidget {
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _chats() async {
     await _doAction(() async {
-      await _enterPage(const RecentsPage());
+      await _enterPage(const ChatsPage());
     });
   }
 

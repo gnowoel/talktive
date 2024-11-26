@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
 import '../helpers/exception.dart';
+import '../models/chat.dart';
 import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/room.dart';
@@ -229,6 +230,26 @@ class Firedata {
       }
 
       return room;
+    });
+
+    return stream;
+  }
+
+  Stream<List<Chat>> subscribeToChats(String userId) {
+    final chats = <Chat>[];
+
+    final ref = instance.ref('chats/$userId/pairs');
+    final query = ref.orderByKey(); // TODO: orderByChild('createdAt')
+
+    final stream = query.onChildAdded.map<List<Chat>>((event) {
+      final snapshot = event.snapshot;
+      final value = snapshot.value;
+
+      final json = Map<String, dynamic>.from(value as Map);
+      final stub = ChatStub.fromJson(json);
+      final chat = Chat.fromStub(key: userId, value: stub);
+
+      return chats..add(chat);
     });
 
     return stream;

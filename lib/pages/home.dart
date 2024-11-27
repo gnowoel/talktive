@@ -152,11 +152,18 @@ class _HomePageState extends State<HomePage> {
                       _user!.displayName ?? avatar.name,
                       style: theme.textTheme.bodyLarge,
                     ),
-                  if (!_user!.isNew) const SizedBox(height: 4),
-                  IconButton(
-                    onPressed: _refresh,
-                    icon: const Icon(Icons.refresh),
-                    tooltip: 'Change avatar',
+                  if (!_user!.isNew) const SizedBox(height: 6),
+                  // IconButton(
+                  //   onPressed: _refresh,
+                  //   icon: const Icon(Icons.refresh),
+                  //   tooltip: 'Change avatar',
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.all(14),
+                    child: Badge(
+                      label: const Text('7', style: TextStyle(fontSize: 14)),
+                      backgroundColor: theme.colorScheme.error,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Stack(
@@ -165,15 +172,6 @@ class _HomePageState extends State<HomePage> {
                       FilledButton(
                         onPressed: _chats,
                         child: const Text('Chats'),
-                      ),
-                      Positioned(
-                        top: -8,
-                        right: -8,
-                        child: Badge(
-                          isLabelVisible: true,
-                          label: const Text('7'),
-                          backgroundColor: theme.colorScheme.error,
-                        ),
                       ),
                     ],
                   ),

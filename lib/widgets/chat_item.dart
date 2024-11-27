@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/chat.dart';
+import '../pages/chat.dart';
 import 'tag.dart';
 
 class ChatItem extends StatefulWidget {
@@ -17,6 +18,15 @@ class ChatItem extends StatefulWidget {
 }
 
 class _ChatItemState extends State<ChatItem> {
+  void enterChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatPage(chatId: widget.chat.id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -31,7 +41,7 @@ class _ChatItemState extends State<ChatItem> {
       margin: const EdgeInsets.symmetric(vertical: 6),
       color: cardColor,
       child: GestureDetector(
-        onTap: () {},
+        onTap: enterChat,
         child: ListTile(
           leading: Text(
             widget.chat.partner.photoURL!,

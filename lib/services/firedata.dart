@@ -247,7 +247,7 @@ class Firedata {
 
       final json = Map<String, dynamic>.from(value as Map);
       final stub = ChatStub.fromJson(json);
-      final chat = Chat.fromStub(key: userId, value: stub);
+      final chat = Chat.fromStub(key: snapshot.key!, value: stub);
 
       return chats..add(chat);
     });

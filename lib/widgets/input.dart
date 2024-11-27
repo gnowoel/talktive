@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../models/room.dart';
+import '../models/chat.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -15,12 +15,12 @@ import '../services/storage.dart';
 
 class Input extends StatefulWidget {
   final FocusNode focusNode;
-  final Room room;
+  final Chat chat;
 
   const Input({
     super.key,
     required this.focusNode,
-    required this.room,
+    required this.chat,
   });
 
   @override
@@ -57,7 +57,7 @@ class _InputState extends State<Input> {
     await _doAction(() async {
       const maxLength = 1024;
 
-      final room = widget.room;
+      final chat = widget.chat;
       final userId = fireauth.instance.currentUser!.uid;
       final userName = avatar.name;
       final userCode = avatar.code;
@@ -75,10 +75,10 @@ class _InputState extends State<Input> {
         return;
       }
 
-      if (!widget.room.isDeleted) {
+      if (!widget.chat.isDeleted) {
         _controller.clear();
         await firedata.sendTextMessage(
-          room,
+          chat,
           userId,
           userName,
           userCode,
@@ -87,16 +87,16 @@ class _InputState extends State<Input> {
       }
 
       if (mounted) {
-        if (widget.room.isDeleted) {
+        if (widget.chat.isDeleted) {
           ErrorHandler.showSnackBarMessage(
             context,
-            AppException('The room has been deleted.'),
+            AppException('The chat has been deleted.'),
             severe: true,
           );
-        } else if (widget.room.isClosed) {
+        } else if (widget.chat.isClosed) {
           ErrorHandler.showSnackBarMessage(
             context,
-            AppException('The room has been closed.'),
+            AppException('The chat has been closed.'),
           );
         }
       }
@@ -113,14 +113,14 @@ class _InputState extends State<Input> {
 
       if (xFile == null) return;
 
-      if (!widget.room.isDeleted) {
-        final room = widget.room;
+      if (!widget.chat.isDeleted) {
+        final chat = widget.chat;
         final userId = fireauth.instance.currentUser!.uid;
         final userName = avatar.name;
         final userCode = avatar.code;
 
         final file = File(xFile.path);
-        final path = 'rooms/${room.id}/${xFile.name}';
+        final path = 'chats/${chat.id}/${xFile.name}';
 
         setState(() => _isUploading = true);
         if (kDebugMode) {
@@ -129,7 +129,7 @@ class _InputState extends State<Input> {
         final uri = await storage.saveFile(path, file);
 
         await firedata.sendImageMessage(
-          room,
+          chat,
           userId,
           userName,
           userCode,
@@ -138,13 +138,13 @@ class _InputState extends State<Input> {
       }
 
       if (mounted) {
-        if (widget.room.isDeleted) {
+        if (widget.chat.isDeleted) {
           ErrorHandler.showSnackBarMessage(
             context,
             AppException('The room has been deleted.'),
             severe: true,
           );
-        } else if (widget.room.isClosed) {
+        } else if (widget.chat.isClosed) {
           ErrorHandler.showSnackBarMessage(
             context,
             AppException('The room has been closed.'),

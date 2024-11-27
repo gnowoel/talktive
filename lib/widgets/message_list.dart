@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../models/chat.dart';
 import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/text_message.dart';
-import '../models/room.dart';
 import 'image_message_item.dart';
 import 'info.dart';
 import 'text_message_item.dart';
@@ -11,18 +11,14 @@ import 'text_message_item.dart';
 class MessageList extends StatefulWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
-  final int recordMessageCount;
-  final void Function(double) updateScrollOffset;
-  final Room room;
+  final Chat chat;
   final List<Message> messages;
 
   const MessageList({
     super.key,
     required this.focusNode,
     required this.scrollController,
-    required this.recordMessageCount,
-    required this.updateScrollOffset,
-    required this.room,
+    required this.chat,
     required this.messages,
   });
 
@@ -59,8 +55,6 @@ class _MessageListState extends State<MessageList> {
       _lastNotification = notification;
 
       if (notification is ScrollEndNotification) {
-        widget.updateScrollOffset(metrics.pixels);
-
         if (metrics.extentAfter == 0) {
           if (!_isSticky) {
             setState(() => _isSticky = true);
@@ -89,12 +83,7 @@ class _MessageListState extends State<MessageList> {
   }
 
   bool _isNew() {
-    return widget.room.isNew;
-  }
-
-  // TODO: Scroll incrementally (without showing the empty list)
-  bool _isLoaded() {
-    return widget.messages.length >= widget.recordMessageCount;
+    return widget.chat.isNew;
   }
 
   @override
@@ -112,9 +101,7 @@ class _MessageListState extends State<MessageList> {
         onNotification: _handleScrollMetricsNotification,
         child: NotificationListener<ScrollNotification>(
           onNotification: _handleScrollNotification,
-          child: _isNew()
-              ? _buildInfo()
-              : (!_isLoaded() ? _buildEmpty() : _buildListView(context)),
+          child: _isNew() ? _buildInfo() : _buildListView(context),
         ),
       ),
     );
@@ -130,11 +117,6 @@ class _MessageListState extends State<MessageList> {
     );
   }
 
-  Widget _buildEmpty() {
-    // return const Center(child: CircularProgressIndicator());
-    return const SizedBox();
-  }
-
   Widget _buildListView(BuildContext context) {
     return ListView.builder(
       controller: widget.scrollController,
@@ -144,13 +126,11 @@ class _MessageListState extends State<MessageList> {
 
         if (message is ImageMessage) {
           return ImageMessageItem(
-            roomUserId: widget.room.userId,
             message: message,
           );
         }
 
         return TextMessageItem(
-          roomUserId: widget.room.userId,
           message: message as TextMessage,
         );
       },

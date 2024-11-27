@@ -118,8 +118,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    userSubscription.cancel();
     chatsSubscription.cancel();
+    userSubscription.cancel();
     super.dispose();
   }
 

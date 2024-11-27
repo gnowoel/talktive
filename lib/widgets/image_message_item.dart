@@ -5,12 +5,10 @@ import '../models/image_message.dart';
 import '../services/fireauth.dart';
 
 class ImageMessageItem extends StatelessWidget {
-  final String roomUserId;
   final ImageMessage message;
 
   const ImageMessageItem({
     super.key,
-    required this.roomUserId,
     required this.message,
   });
 

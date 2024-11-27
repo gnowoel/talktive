@@ -57,8 +57,10 @@ class Firedata {
     }
   }
 
-  Future<String> createPair(String userId1, String userId2) async {
+  Future<Chat> createPair(String userId, User partner) async {
     try {
+      final userId1 = userId;
+      final userId2 = partner.id;
       if (userId1 == userId2) {
         throw Exception("You can't talk to yourself");
       }
@@ -77,22 +79,34 @@ class Firedata {
           'updatedAt': ServerValue.timestamp,
         });
       }, applyLocally: false);
-      return result.snapshot.key!;
+
+      final snapshot = result.snapshot;
+      final value = snapshot.value;
+      final json = Map<String, dynamic>.from(value as Map);
+      final stub = ChatStub(
+        createdAt: json['createdAt'] as int,
+        updatedAt: json['updatedAt'] as int,
+        partner: UserStub.fromJson(partner.toJson()),
+        messageCount: json['messageCount'] as int,
+      );
+      final chat = Chat.fromStub(key: snapshot.key!, value: stub);
+
+      return chat;
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
   Future<Message> sendTextMessage(
-    Room room,
+    Chat chat,
     String userId,
     String userName,
     String userCode,
     String content,
   ) async {
     try {
-      final messageRef = instance.ref('messages/${room.id}').push();
-      final now = clock.serverNow();
+      final messageRef = instance.ref('messages/${chat.id}').push();
+      final now = clock.serverNow(); // TODO: Use `ServerValue` instead
 
       final message = TextMessage(
         userId: userId,
@@ -111,21 +125,22 @@ class Firedata {
   }
 
   Future<Message> sendImageMessage(
-    Room room,
+    Chat chat,
     String userId,
     String userName,
     String userCode,
     String uri,
   ) async {
     try {
-      final messageRef = instance.ref('messages/${room.id}').push();
-      final now = clock.serverNow();
+      final messageRef = instance.ref('messages/${chat.id}').push();
+      final now = clock.serverNow(); // TODO: Use `ServerValue` instead
 
       final message = ImageMessage(
         userId: userId,
         userName: userName,
         userCode: userCode,
-        content: '(Upgrade your app to see images.)',
+        content:
+            '(Upgrade your app to see images.)', // TODO: Remove the `content` field
         uri: uri,
         createdAt: now,
       );
@@ -250,6 +265,29 @@ class Firedata {
       final chat = Chat.fromStub(key: snapshot.key!, value: stub);
 
       return chats..add(chat);
+    });
+
+    return stream;
+  }
+
+  Stream<Chat> subscribeToChat(String userId, String chatId) {
+    final ref = instance.ref('chats/$userId/pairs/$chatId');
+
+    final stream = ref.onValue.map((event) {
+      final snapshot = event.snapshot;
+      final value = snapshot.value;
+
+      late Chat chat;
+
+      if (value != null) {
+        final json = Map<String, dynamic>.from(value as Map);
+        final stub = ChatStub.fromJson(json);
+        chat = Chat.fromStub(key: chatId, value: stub);
+      } else {
+        chat = Chat.dummyDeletedChat();
+      }
+
+      return chat;
     });
 
     return stream;

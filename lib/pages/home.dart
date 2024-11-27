@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
+import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
@@ -29,8 +30,10 @@ class _HomePageState extends State<HomePage> {
   late History history;
 
   late StreamSubscription userSubscription;
+  late StreamSubscription chatsSubscription;
 
   User? _user;
+  late List<Chat> _chats;
   bool _isLocked = false;
 
   @override
@@ -39,10 +42,15 @@ class _HomePageState extends State<HomePage> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
+    _chats = [];
 
     final userId = fireauth.instance.currentUser!.uid;
-    userSubscription = firedata.subscribeToUser(userId).listen((user) async {
+
+    userSubscription = firedata.subscribeToUser(userId).listen((user) {
       setState(() => _user = user);
+    });
+    chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
+      setState(() => _chats = chats);
     });
   }
 
@@ -54,38 +62,34 @@ class _HomePageState extends State<HomePage> {
     languageCode = getLanguageCode(context);
   }
 
-  Future<void> _refresh() async {
+  // Future<void> _changeAvatar() async {
+  //   await _doAction(() async {
+  //     final userId = fireauth.instance.currentUser!.uid;
+  //     avatar.refresh();
+  //     await firedata.updateAvatar(userId, avatar.code);
+  //   });
+  // }
+
+  Future<void> _chatsPage() async {
     await _doAction(() async {
-      final userId = fireauth.instance.currentUser!.uid;
-      avatar.refresh();
-      await firedata.updateAvatar(userId, avatar.code);
+      await _enterPage(ChatsPage(chats: _chats));
     });
   }
 
-  Future<void> _chats() async {
-    await _doAction(() async {
-      await _enterPage(const ChatsPage());
-    });
-  }
-
-  Future<void> _redirect() async {
+  Future<void> _usersPage() async {
     await _doAction(() async {
       if (_user!.isNew) {
         await _enterPage(ProfilePage(
           user: _user,
-          onComplete: _users,
+          onComplete: () async => await _enterPage(UsersPage()),
         ));
       } else {
-        await _users();
+        await _enterPage(UsersPage());
       }
     });
   }
 
-  Future<void> _users() async {
-    await _enterPage(UsersPage());
-  }
-
-  Future<void> _profile() async {
+  Future<void> _updateProfile() async {
     await _doAction(() async {
       await _enterPage(ProfilePage(user: _user));
     });
@@ -115,14 +119,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     userSubscription.cancel();
+    chatsSubscription.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final languageName = getLanguageName(languageCode);
-    final isEnglish = languageName == 'English';
-
     if (_user == null) {
       return Scaffold(
         body: SafeArea(
@@ -154,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   if (!_user!.isNew) const SizedBox(height: 6),
                   // IconButton(
-                  //   onPressed: _refresh,
+                  //   onPressed: _changeAvatar,
                   //   icon: const Icon(Icons.refresh),
                   //   tooltip: 'Change avatar',
                   // ),
@@ -170,19 +172,19 @@ class _HomePageState extends State<HomePage> {
                     clipBehavior: Clip.none,
                     children: [
                       FilledButton(
-                        onPressed: _chats,
+                        onPressed: _chatsPage,
                         child: const Text('Chats'),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: _redirect,
+                    onPressed: _usersPage,
                     child: const Text('Users'),
                   ),
                   const SizedBox(height: 8),
                   IconButton(
-                    onPressed: _profile,
+                    onPressed: _updateProfile,
                     icon: const Icon(Icons.sentiment_satisfied_outlined),
                     tooltip: 'Update profile',
                   ),
@@ -190,7 +192,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Expanded(
-              child: isEnglish ? const SizedBox() : _buildLanguageTip(),
+              // child: _buildTip(),
+              child: const SizedBox(),
             ),
           ],
         ),
@@ -198,25 +201,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildLanguageTip() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final languageName = getLanguageName(languageCode);
+  // Widget _buildTip() {
+  //   final colorScheme = Theme.of(context).colorScheme;
 
-    return Center(
-      child: TextButton.icon(
-        onPressed: _profile,
-        icon: const Icon(
-          Icons.lightbulb_outlined,
-          size: 16,
-        ),
-        label: Text(
-          'You can chat in $languageName!',
-          style: TextStyle(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ),
-    );
-  }
+  //   return Center(
+  //     child: TextButton.icon(
+  //       onPressed: () {},
+  //       icon: const Icon(
+  //         Icons.lightbulb_outlined,
+  //         size: 16,
+  //       ),
+  //       label: Text(
+  //         'Just a tip',
+  //         style: TextStyle(
+  //           color: colorScheme.onSurfaceVariant,
+  //           fontWeight: FontWeight.w400,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }

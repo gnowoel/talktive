@@ -1,51 +1,19 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../models/chat.dart';
-import '../services/fireauth.dart';
-import '../services/firedata.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 
 class ChatsPage extends StatefulWidget {
-  const ChatsPage({super.key});
+  final List<Chat> chats;
+
+  const ChatsPage({super.key, required this.chats});
 
   @override
   State<ChatsPage> createState() => _ChatsPageState();
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  late Fireauth fireauth;
-  late Firedata firedata;
-  late StreamSubscription chatsSubscription;
-  late List<Chat> _chats;
-  bool _isPopulated = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
-    _chats = [];
-
-    final userId = fireauth.instance.currentUser!.uid;
-    chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
-      setState(() {
-        _chats = chats;
-        _isPopulated = true;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    chatsSubscription.cancel();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -58,11 +26,9 @@ class _ChatsPageState extends State<ChatsPage> {
         title: const Text('Chats'),
       ),
       body: SafeArea(
-        child: _chats.isEmpty
-            ? (_isPopulated
-                ? Center(child: Info(lines: lines))
-                : const SizedBox())
-            : _buildLayout(_chats),
+        child: widget.chats.isEmpty
+            ? Center(child: Info(lines: lines))
+            : _buildLayout(widget.chats),
       ),
     );
   }
@@ -82,7 +48,7 @@ class _ChatsPageState extends State<ChatsPage> {
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-              child: ChatList(chats: _chats),
+              child: ChatList(chats: widget.chats),
             ),
           );
         } else {
@@ -90,7 +56,7 @@ class _ChatsPageState extends State<ChatsPage> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
             ),
-            child: ChatList(chats: _chats),
+            child: ChatList(chats: widget.chats),
           );
         }
       },

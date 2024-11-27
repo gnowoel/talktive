@@ -20,6 +20,26 @@ class Chat {
     this.lastMessageContent,
   });
 
+  Chat copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    UserStub? partner,
+    int? messageCount,
+    String? firstUserId,
+    String? lastMessageContent,
+  }) {
+    return Chat(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      partner: partner ?? this.partner,
+      messageCount: messageCount ?? this.messageCount,
+      firstUserId: firstUserId ?? this.firstUserId,
+      lastMessageContent: lastMessageContent ?? this.lastMessageContent,
+    );
+  }
+
   factory Chat.fromStub({
     required String key,
     required ChatStub value,
@@ -35,10 +55,27 @@ class Chat {
     );
   }
 
-  bool get isExpired {
+  static dummyDeletedChat() {
+    return Chat(
+      id: 'id',
+      createdAt: 0,
+      updatedAt: 0,
+      partner: UserStub(
+        createdAt: 0,
+        updatedAt: 0,
+      ),
+      messageCount: 0,
+    );
+  }
+
+  bool get isNew => messageCount == 0;
+
+  bool get isClosed {
     const threeDays = 1000 * 3600 * 72;
     return updatedAt + threeDays <= Clock().serverNow();
   }
+
+  bool get isDeleted => updatedAt == 0;
 }
 
 class ChatStub {

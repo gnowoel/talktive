@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 class Bubble extends StatelessWidget {
   final String content;
   final bool byMe;
-  final bool byOp;
   final bool isBot;
 
   const Bubble({
     super.key,
     required this.content,
     this.byMe = false,
-    this.byOp = false,
     this.isBot = false,
   });
 
@@ -22,15 +20,11 @@ class Bubble extends StatelessWidget {
         ? colorScheme.secondaryContainer
         : (byMe
             ? colorScheme.primaryContainer
-            : (byOp
-                ? colorScheme.tertiaryContainer
-                : colorScheme.surfaceContainerHigh));
+            : colorScheme.surfaceContainerHigh);
 
     final textColor = isBot
         ? colorScheme.onSecondaryContainer
-        : (byMe
-            ? colorScheme.onPrimaryContainer
-            : (byOp ? colorScheme.onTertiaryContainer : colorScheme.onSurface));
+        : (byMe ? colorScheme.onPrimaryContainer : colorScheme.onSurface);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

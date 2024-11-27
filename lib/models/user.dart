@@ -19,6 +19,19 @@ class User {
     this.gender,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'languageCode': languageCode,
+      'photoURL': photoURL,
+      'displayName': displayName,
+      'description': description,
+      'gender': gender,
+    };
+  }
+
   factory User.fromStub({
     required String key,
     required UserStub value,

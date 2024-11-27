@@ -6,12 +6,10 @@ import '../services/fireauth.dart';
 import 'bubble.dart';
 
 class TextMessageItem extends StatelessWidget {
-  final String roomUserId;
   final TextMessage message;
 
   const TextMessageItem({
     super.key,
-    required this.roomUserId,
     required this.message,
   });
 
@@ -28,8 +26,6 @@ class TextMessageItem extends StatelessWidget {
   }
 
   Widget _buildMessageItemLeft() {
-    final byOp = message.userId == roomUserId;
-
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -50,7 +46,6 @@ class TextMessageItem extends StatelessWidget {
                 Flexible(
                   child: Bubble(
                     content: message.content,
-                    byOp: byOp,
                     isBot: _isBot,
                   ),
                 ),

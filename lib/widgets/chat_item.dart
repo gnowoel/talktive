@@ -22,7 +22,7 @@ class _ChatItemState extends State<ChatItem> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatPage(chatId: widget.chat.id),
+        builder: (context) => ChatPage(chat: widget.chat),
       ),
     );
   }

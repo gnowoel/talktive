@@ -78,10 +78,11 @@ class _ChatItemState extends State<ChatItem> {
               ),
             ],
           ),
-          trailing: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right),
-              onPressed: () {},
-              tooltip: 'Chat'),
+          // trailing: Icon(Icons.check_circle_outline),
+          trailing: Badge(
+            label: const Text('7', style: TextStyle(fontSize: 14)),
+            backgroundColor: colorScheme.error,
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import '../services/clock.dart';
 import 'user.dart';
 
 class Chat {
@@ -32,6 +33,11 @@ class Chat {
       firstUserId: value.firstUserId,
       lastMessageContent: value.lastMessageContent,
     );
+  }
+
+  bool get isExpired {
+    const threeDays = 1000 * 3600 * 72;
+    return updatedAt + threeDays <= Clock().serverNow();
   }
 }
 

@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   User? _user;
   late List<Chat> _chats;
   bool _isLocked = false;
+  final _newMessageCount = 10;
 
   @override
   void initState() {
@@ -62,13 +63,13 @@ class _HomePageState extends State<HomePage> {
     languageCode = getLanguageCode(context);
   }
 
-  // Future<void> _changeAvatar() async {
-  //   await _doAction(() async {
-  //     final userId = fireauth.instance.currentUser!.uid;
-  //     avatar.refresh();
-  //     await firedata.updateAvatar(userId, avatar.code);
-  //   });
-  // }
+  Future<void> _changeAvatar() async {
+    await _doAction(() async {
+      final userId = fireauth.instance.currentUser!.uid;
+      avatar.refresh();
+      await firedata.updateAvatar(userId, avatar.code);
+    });
+  }
 
   Future<void> _chatsPage() async {
     await _doAction(() async {
@@ -155,18 +156,23 @@ class _HomePageState extends State<HomePage> {
                       style: theme.textTheme.bodyLarge,
                     ),
                   if (!_user!.isNew) const SizedBox(height: 6),
-                  // IconButton(
-                  //   onPressed: _changeAvatar,
-                  //   icon: const Icon(Icons.refresh),
-                  //   tooltip: 'Change avatar',
-                  // ),
-                  Padding(
-                    padding: EdgeInsets.all(14),
-                    child: Badge(
-                      label: const Text('7', style: TextStyle(fontSize: 14)),
-                      backgroundColor: theme.colorScheme.error,
-                    ),
-                  ),
+                  _newMessageCount == 0
+                      ? IconButton(
+                          onPressed: _changeAvatar,
+                          icon: const Icon(Icons.refresh),
+                          tooltip: 'Change avatar',
+                        )
+                      : TextButton(
+                          onPressed: _chatsPage,
+                          child: Badge(
+                            label: Text(
+                                _newMessageCount < 10
+                                    ? '$_newMessageCount'
+                                    : '9+',
+                                style: TextStyle(fontSize: 14)),
+                            backgroundColor: theme.colorScheme.error,
+                          ),
+                        ),
                   const SizedBox(height: 8),
                   Stack(
                     clipBehavior: Clip.none,

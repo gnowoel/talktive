@@ -251,7 +251,7 @@ class Firedata {
   }
 
   Stream<List<Chat>> subscribeToChats(String userId) {
-    final ref = instance.ref('chats/$userId/pairs');
+    final ref = instance.ref('chats/$userId');
 
     final stream = ref.onValue.map((event) {
       final snapshot = event.snapshot;
@@ -277,7 +277,7 @@ class Firedata {
   }
 
   Stream<Chat> subscribeToChat(String userId, String chatId) {
-    final ref = instance.ref('chats/$userId/pairs/$chatId');
+    final ref = instance.ref('chats/$userId/$chatId');
 
     final stream = ref.onValue.map((event) {
       final snapshot = event.snapshot;

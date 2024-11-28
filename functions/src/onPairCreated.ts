@@ -31,7 +31,7 @@ const copyToFollower = async (userId: string, pairId: string, pair: Pair) => {
     const snapshot = await userRef.get();
     const other: User = snapshot.val();
 
-    const ref = db.ref(`chats/${userId}/pairs/${pairId}`);
+    const ref = db.ref(`chats/${userId}/${pairId}`);
     await ref.set({
       partner: other,
       firstUserId: null,

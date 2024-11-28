@@ -251,20 +251,26 @@ class Firedata {
   }
 
   Stream<List<Chat>> subscribeToChats(String userId) {
-    final chats = <Chat>[];
-
     final ref = instance.ref('chats/$userId/pairs');
-    final query = ref.orderByKey(); // TODO: orderByChild('createdAt')
 
-    final stream = query.onChildAdded.map<List<Chat>>((event) {
+    final stream = ref.onValue.map((event) {
       final snapshot = event.snapshot;
-      final value = snapshot.value;
 
-      final json = Map<String, dynamic>.from(value as Map);
-      final stub = ChatStub.fromJson(json);
-      final chat = Chat.fromStub(key: snapshot.key!, value: stub);
+      if (!snapshot.exists) {
+        return <Chat>[];
+      }
 
-      return chats..add(chat);
+      final listMap = Map<String, dynamic>.from(snapshot.value as Map);
+
+      final chats = listMap.entries.map((entry) {
+        final entryMap = Map<String, dynamic>.from(entry.value as Map);
+        final chatStub = ChatStub.fromJson(entryMap);
+        return Chat.fromStub(key: entry.key, value: chatStub);
+      }).toList();
+
+      chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return chats;
     });
 
     return stream;
@@ -394,10 +400,11 @@ class Firedata {
       final snapshot = await query.get();
 
       if (!snapshot.exists) {
-        return [];
+        return <User>[];
       }
 
       final listMap = Map<String, dynamic>.from(snapshot.value as Map);
+
       final users = listMap.entries.map((entry) {
         final entryMap = Map<String, dynamic>.from(entry.value as Map);
         final userStub = UserStub.fromJson(entryMap);

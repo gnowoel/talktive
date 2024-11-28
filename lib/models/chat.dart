@@ -55,7 +55,7 @@ class Chat {
     );
   }
 
-  static dummyDeletedChat() {
+  static dummy() {
     return Chat(
       id: 'id',
       createdAt: 0,
@@ -68,14 +68,18 @@ class Chat {
     );
   }
 
-  bool get isNew => messageCount == 0;
+  bool get isNew {
+    return messageCount == 0 && createdAt != 0 && updatedAt != 0;
+  }
 
   bool get isClosed {
     const threeDays = 1000 * 3600 * 72;
     return updatedAt + threeDays <= Clock().serverNow();
   }
 
-  bool get isDeleted => updatedAt == 0;
+  bool get isDummy {
+    return createdAt == 0 && updatedAt == 0;
+  }
 }
 
 class ChatStub {

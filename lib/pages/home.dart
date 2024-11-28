@@ -192,8 +192,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Expanded(
-              // child: _buildTip(),
-              child: const SizedBox(),
+              child: _buildTip(),
             ),
           ],
         ),
@@ -201,24 +200,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Widget _buildTip() {
-  //   final colorScheme = Theme.of(context).colorScheme;
+  Widget _buildTip() {
+    final colorScheme = Theme.of(context).colorScheme;
 
-  //   return Center(
-  //     child: TextButton.icon(
-  //       onPressed: () {},
-  //       icon: const Icon(
-  //         Icons.lightbulb_outlined,
-  //         size: 16,
-  //       ),
-  //       label: Text(
-  //         'Just a tip',
-  //         style: TextStyle(
-  //           color: colorScheme.onSurfaceVariant,
-  //           fontWeight: FontWeight.w400,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+    return Center(
+      child: TextButton.icon(
+        onPressed: () {},
+        icon: const Icon(
+          Icons.lightbulb_outlined,
+          size: 16,
+        ),
+        label: Text(
+          'Inactive chats will expire in 3 days',
+          style: TextStyle(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
 }

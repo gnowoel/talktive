@@ -16,11 +16,13 @@ import '../services/storage.dart';
 class Input extends StatefulWidget {
   final FocusNode focusNode;
   final Chat chat;
+  final bool enabled;
 
   const Input({
     super.key,
     required this.focusNode,
     required this.chat,
+    required this.enabled,
   });
 
   @override
@@ -221,6 +223,7 @@ class _InputState extends State<Input> {
                 focusNode: FocusNode(),
                 onKeyEvent: _handleKeyEvent,
                 child: TextField(
+                  enabled: widget.enabled,
                   focusNode: widget.focusNode,
                   minLines: 1,
                   maxLines: 12,

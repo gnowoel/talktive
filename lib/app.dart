@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'entry.dart';
 import 'services/avatar.dart';
+import 'services/cache.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
 import 'services/history.dart';
@@ -28,6 +29,7 @@ class App extends StatelessWidget {
         Provider(create: (context) => Storage(storage)),
         ChangeNotifierProvider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
+        ChangeNotifierProvider(create: (context) => Cache()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -7,6 +7,7 @@ import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/avatar.dart';
+import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/history.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   late Firedata firedata;
   late Avatar avatar;
   late History history;
+  late Cache cache;
 
   late StreamSubscription userSubscription;
   late StreamSubscription chatsSubscription;
@@ -43,15 +45,18 @@ class _HomePageState extends State<HomePage> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     history = Provider.of<History>(context, listen: false);
+    cache = Provider.of<Cache>(context, listen: false);
     _chats = [];
 
     final userId = fireauth.instance.currentUser!.uid;
 
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
       setState(() => _user = user);
+      cache.updateUser(user);
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       setState(() => _chats = chats);
+      cache.updateChats(chats);
     });
   }
 

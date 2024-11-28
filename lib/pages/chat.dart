@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
         firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
       if (!chat.isDeleted) {
         setState(() => _chat = chat);
-      } else {
+      } else if (!_chat.isNew) {
         setState(() => _chat = _chat.copyWith(updatedAt: chat.updatedAt));
 
         if (mounted) {

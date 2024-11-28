@@ -75,7 +75,7 @@ class _InputState extends State<Input> {
         return;
       }
 
-      if (!widget.chat.isDeleted) {
+      if (!widget.chat.isDummy) {
         _controller.clear();
         await firedata.sendTextMessage(
           chat,
@@ -87,7 +87,7 @@ class _InputState extends State<Input> {
       }
 
       if (mounted) {
-        if (widget.chat.isDeleted) {
+        if (widget.chat.isDummy) {
           ErrorHandler.showSnackBarMessage(
             context,
             AppException('The chat has been deleted.'),
@@ -113,7 +113,7 @@ class _InputState extends State<Input> {
 
       if (xFile == null) return;
 
-      if (!widget.chat.isDeleted) {
+      if (!widget.chat.isDummy) {
         final chat = widget.chat;
         final userId = fireauth.instance.currentUser!.uid;
         final userName = avatar.name;
@@ -138,7 +138,7 @@ class _InputState extends State<Input> {
       }
 
       if (mounted) {
-        if (widget.chat.isDeleted) {
+        if (widget.chat.isDummy) {
           ErrorHandler.showSnackBarMessage(
             context,
             AppException('The room has been deleted.'),

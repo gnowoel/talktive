@@ -51,18 +51,26 @@ class _ChatPageState extends State<ChatPage> {
     final userId = fireauth.instance.currentUser!.uid;
     chatSubscription =
         firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
-      if (!chat.isDeleted) {
-        setState(() => _chat = chat);
-      } else if (!_chat.isNew) {
-        setState(() => _chat = _chat.copyWith(updatedAt: chat.updatedAt));
-
-        if (mounted) {
-          ErrorHandler.showSnackBarMessage(
-            context,
-            AppException('The room has been deleted.'),
-            severe: true,
-          );
+      if (chat.isDummy) {
+        if (_chat.isNew) {
+          // Ignore
+        } else {
+          setState(() {
+            _chat = _chat.copyWith(
+              createdAt: chat.createdAt, // 0
+              updatedAt: chat.updatedAt, // 0
+            );
+          });
+          if (mounted) {
+            ErrorHandler.showSnackBarMessage(
+              context,
+              AppException('The room has been deleted.'),
+              severe: true,
+            );
+          }
         }
+      } else {
+        setState(() => _chat = chat);
       }
     });
 

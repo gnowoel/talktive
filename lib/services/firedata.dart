@@ -290,7 +290,7 @@ class Firedata {
         final stub = ChatStub.fromJson(json);
         chat = Chat.fromStub(key: chatId, value: stub);
       } else {
-        chat = Chat.dummyDeletedChat();
+        chat = Chat.dummy();
       }
 
       return chat;

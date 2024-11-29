@@ -36,18 +36,24 @@ const BOT = {
   userCode: '\u{1f916}', // Robot
 };
 
-const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) => {
+const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) => {
   const now = new Date();
-  const roomId = event.params.roomId;
+  const listId = event.params.listId;
   const message = event.data.val();
   const userId = message.userId;
   const messageCreatedAt = message.createdAt;
-  const pairId = roomId;
+
+  const pairId = listId;
+  const roomId = listId;
+  const isPair = listId.length === 56;
 
   try {
     await updateUserUpdatedAt(userId, now);
-    await updatePair(pairId, message);
-    await updateRoomTimestamps(roomId, messageCreatedAt);
+    if (isPair) {
+      await updatePair(pairId, message);
+    } else {
+      await updateRoomTimestamps(roomId, messageCreatedAt);
+    }
     await updateMessageOrResponseStats(now, message);
     await sendBotResponse(roomId, message);
   } catch (error) {

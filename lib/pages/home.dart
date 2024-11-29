@@ -36,8 +36,8 @@ class _HomePageState extends State<HomePage> {
 
   User? _user;
   late List<Chat> _chats;
+  late int _newMessageCount;
   bool _isLocked = false;
-  final _newMessageCount = 10;
 
   @override
   void initState() {
@@ -51,11 +51,9 @@ class _HomePageState extends State<HomePage> {
     final userId = fireauth.instance.currentUser!.uid;
 
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
-      setState(() => _user = user);
       cache.updateUser(user);
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
-      setState(() => _chats = chats);
       cache.updateChats(chats);
     });
   }
@@ -64,8 +62,11 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
-    avatar = Provider.of<Avatar>(context);
     languageCode = getLanguageCode(context);
+    avatar = context.watch<Avatar>();
+    _user = context.watch<Cache>().user;
+    _chats = context.watch<Cache>().chats;
+    _newMessageCount = _chats.length;
   }
 
   Future<void> _changeAvatar() async {

@@ -35,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   late Chat _chat;
   late List<Message> _messages;
 
-  bool _isInitialized = false;
+  bool _isReady = false;
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
     final userId = fireauth.instance.currentUser!.uid;
     chatSubscription =
         firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
-      if (_isInitialized) {
+      if (_isReady) {
         if (chat.isDummy) {
           setState(() {
             _chat = _chat.copyWith(
@@ -77,7 +77,7 @@ class _ChatPageState extends State<ChatPage> {
         } else {
           setState(() {
             _chat = chat;
-            _isInitialized = true;
+            _isReady = true;
           });
         }
       }
@@ -179,7 +179,7 @@ class _ChatPageState extends State<ChatPage> {
         Input(
           focusNode: focusNode,
           chat: _chat,
-          enabled: _isInitialized,
+          enabled: _isReady,
         ),
       ],
     );

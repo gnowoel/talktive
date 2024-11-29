@@ -317,13 +317,7 @@ class Firedata {
 
         if (last is TextMessage && current is TextMessage) {
           if (last.userId == current.userId) {
-            final lastTime =
-                DateTime.fromMillisecondsSinceEpoch(last.createdAt);
-            final currentTime =
-                DateTime.fromMillisecondsSinceEpoch(current.createdAt);
-            const interval = Duration(seconds: 1);
-
-            if (lastTime.isAfter(currentTime.subtract(interval))) {
+            if (current.createdAt - last.createdAt < 1 * 1000) {
               final index = messages.length - 1;
               final content = '${last.content}\n${current.content}';
 

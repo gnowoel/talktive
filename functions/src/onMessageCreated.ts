@@ -44,7 +44,7 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   const pairId = roomId;
 
   try {
-    await updatePairMessageCount(pairId);
+    await updatePair(pairId, message);
     await updateRoomTimestamps(roomId, messageCreatedAt);
     await updateMessageOrResponseStats(now, message);
     await sendBotResponse(roomId, message);
@@ -53,7 +53,7 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   }
 });
 
-const updatePairMessageCount = async (pairId: string) => {
+const updatePair = async (pairId: string, message: Message) => {
   const ref = db.ref(`pairs/${pairId}`);
   const snapshot = await ref.get();
 
@@ -67,6 +67,8 @@ const updatePairMessageCount = async (pairId: string) => {
   } else {
     params.messageCount = admin.database.ServerValue.increment(1);
   }
+
+  params.lastMessageContent = message.content;
 
   try {
     await ref.update(params);

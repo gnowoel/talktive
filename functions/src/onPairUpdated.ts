@@ -27,8 +27,10 @@ const updateFollower = async (userId: string, pairId: string, pair: Pair) => {
   try {
     const ref = db.ref(`chats/${userId}/${pairId}`);
     await ref.update({
-      // TODO: `updatedAt` && `firstUserId`
+      updatedAt: pair.updatedAt,
       messageCount: pair.messageCount,
+      firstUserId: pair.firstUserId,
+      lastMessageContent: pair.lastMessageContent,
     });
   } catch (error) {
     logger.error(error);

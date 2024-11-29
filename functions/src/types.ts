@@ -28,7 +28,9 @@ export interface Message {
 }
 
 export interface PairParams {
-  messageCount?: number | object
+  messageCount?: number | object;
+  firstUserId?: string;
+  lastMessageContent?: string;
 }
 
 export interface StatParams {

@@ -10,30 +10,15 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-const onRoomCreated = onValueCreated('/rooms/*', async (event) => {
+const onRoomCreated = onValueCreated('/rooms/*', async (_) => {
   const now = new Date();
-  const room = event.data.val();
-  const userId = room.userId;
 
   try {
-    await updateUserFilter(userId, now);
     await updateRoomStats(now);
   } catch (error) {
     logger.error(error);
   }
 });
-
-const updateUserFilter = async (userId: string, now: Date) => {
-  const userRef = db.ref(`users/${userId}`);
-  const updatedAt = now.toJSON();
-  const filter = `perm-${updatedAt}`;
-
-  try {
-    await userRef.update({ filter });
-  } catch (error) {
-    logger.error(error);
-  }
-}
 
 const updateRoomStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);

@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _chatsPage() async {
     await _doAction(() async {
-      await _enterPage(ChatsPage(chats: _chats));
+      await _enterPage(ChatsPage());
     });
   }
 

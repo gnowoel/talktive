@@ -7,36 +7,17 @@ import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 
 class ChatsPage extends StatefulWidget {
-  final List<Chat> chats;
-
-  const ChatsPage({super.key, required this.chats});
+  const ChatsPage({super.key});
 
   @override
   State<ChatsPage> createState() => _ChatsPageState();
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  late Cache cache;
-  late List<Chat> _chats;
-
-  @override
-  void initState() {
-    super.initState();
-    _chats = widget.chats;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    cache = Provider.of<Cache>(context);
-    if (_chats != cache.chats) {
-      setState(() => _chats = cache.chats);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chats = context.select((Cache cache) => cache.chats);
     const lines = ['Your recent chats', 'will appear here.', ''];
 
     return Scaffold(
@@ -46,9 +27,9 @@ class _ChatsPageState extends State<ChatsPage> {
         title: const Text('Chats'),
       ),
       body: SafeArea(
-        child: _chats.isEmpty
+        child: chats.isEmpty
             ? Center(child: Info(lines: lines))
-            : _buildLayout(_chats),
+            : _buildLayout(chats),
       ),
     );
   }
@@ -68,7 +49,7 @@ class _ChatsPageState extends State<ChatsPage> {
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-              child: ChatList(chats: _chats),
+              child: ChatList(chats: chats),
             ),
           );
         } else {
@@ -76,7 +57,7 @@ class _ChatsPageState extends State<ChatsPage> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
             ),
-            child: ChatList(chats: _chats),
+            child: ChatList(chats: chats),
           );
         }
       },

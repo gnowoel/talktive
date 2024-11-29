@@ -60,23 +60,15 @@ const setup = async () => {
 const setupDailyStats = async (timestamp: Date) => {
   const statRef = db.ref(`stats/${formatDate(timestamp)}`);
   const snapshot = await statRef.get();
-  const stat = snapshot.val();
 
   try {
-    if (snapshot.exists()) {
-      // TODO: For data migration when upgrading. Can be simplified after deployment.
-      if ('responses' in stat) {
-        return;
-      } else {
-        await statRef.update({
-          responses: 0,
-        });
-      }
-    } else {
+    if (!snapshot.exists()) {
       await statRef.set({
         users: 0,
+        chats: 0,
         rooms: 0,
-        messages: 0
+        messages: 0,
+        responses: 0,
       });
     }
   } catch (error) {

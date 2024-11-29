@@ -94,6 +94,15 @@ const cleanup = async () => {
 };
 
 const cleanupUsers = async () => {
+  try {
+    await cleanupTempUsers();
+    await cleanupPermUsers();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const cleanupTempUsers = async () => {
   const ref = db.ref('users');
   const time = new Date(new Date().getTime() - timeBeforeUserDeleting).toJSON();
 
@@ -103,20 +112,52 @@ const cleanupUsers = async () => {
     .endAt(`temp-${time}`)
     .limitToFirst(1000);
 
-  const snapshot = await query.get();
+  try {
+    const snapshot = await query.get();
 
-  if (!snapshot.exists()) return;
+    if (!snapshot.exists()) return;
 
-  const users = snapshot.val();
-  const userIds = Object.keys(users);
-  const params: Params = {};
-  const usersRef = db.ref('users');
+    const users = snapshot.val();
+    const userIds = Object.keys(users);
+    const params: Params = {};
+    const usersRef = db.ref('users');
 
-  userIds.forEach((userId) => {
-    params[userId] = null;
-  });
+    userIds.forEach((userId) => {
+      params[userId] = null;
+    });
+
+    await getAuth().deleteUsers(userIds);
+    await usersRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+// TODO: Remove this once we have fully upgraded to v2.
+const cleanupPermUsers = async () => {
+  const ref = db.ref('users');
+  const time = new Date(new Date().getTime() - timeBeforeUserDeleting * 3).toJSON();
+
+  const query = ref
+    .orderByChild('filter')
+    .startAt('perm-0000')
+    .endAt(`perm-${time}`)
+    .limitToFirst(1000);
 
   try {
+    const snapshot = await query.get();
+
+    if (!snapshot.exists()) return;
+
+    const users = snapshot.val();
+    const userIds = Object.keys(users);
+    const params: Params = {};
+    const usersRef = db.ref('users');
+
+    userIds.forEach((userId) => {
+      params[userId] = null;
+    });
+
     await getAuth().deleteUsers(userIds);
     await usersRef.update(params);
   } catch (error) {

@@ -40,12 +40,10 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   const now = new Date();
   const roomId = event.params.roomId;
   const message = event.data.val();
-  const userId = message.userId;
   const messageCreatedAt = message.createdAt;
   const pairId = roomId;
 
   try {
-    await updateUserFilter(userId, now);
     await updatePairMessageCount(pairId);
     await updateRoomTimestamps(roomId, messageCreatedAt);
     await updateMessageOrResponseStats(now, message);
@@ -54,18 +52,6 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
     logger.error(error);
   }
 });
-
-const updateUserFilter = async (userId: string, now: Date) => {
-  const userRef = db.ref(`users/${userId}`);
-  const updatedAt = now.toJSON();
-  const filter = `perm-${updatedAt}`;
-
-  try {
-    await userRef.update({ filter });
-  } catch (error) {
-    logger.error(error);
-  }
-};
 
 const updatePairMessageCount = async (pairId: string) => {
   const ref = db.ref(`pairs/${pairId}`);

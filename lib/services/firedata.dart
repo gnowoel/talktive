@@ -223,6 +223,7 @@ class Firedata {
         'description': description,
         'gender': gender,
         'updatedAt': ServerValue.timestamp,
+        'filter': null, // Remove the `temp-*` or `perm-*` marker
       });
     } catch (e) {
       throw AppException(e.toString());

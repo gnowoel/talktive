@@ -27,6 +27,10 @@ export interface Message {
   createdAt: number;
 }
 
+export interface PairParams {
+  messageCount?: number | object
+}
+
 export interface StatParams {
   users?: number | object
   rooms?: number | object

@@ -68,10 +68,6 @@ class Chat {
     );
   }
 
-  bool get isNew {
-    return messageCount == 0 && createdAt != 0 && updatedAt != 0;
-  }
-
   bool get isClosed {
     const threeDays = 1000 * 3600 * 72;
     return updatedAt + threeDays <= Clock().serverNow();

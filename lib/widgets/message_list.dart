@@ -83,7 +83,7 @@ class _MessageListState extends State<MessageList> {
   }
 
   bool _isNew() {
-    return widget.chat.isNew;
+    return widget.messages.isEmpty;
   }
 
   @override

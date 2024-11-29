@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
-import { Message, StatParams } from './types';
+import { Message, PairParams, StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
 import { ChatGPTService } from './services/chatgpt';
 import { CHATGPT_CONFIG } from './config';
@@ -42,9 +42,11 @@ const onMessageCreated = onValueCreated('/messages/{roomId}/*', async (event) =>
   const message = event.data.val();
   const userId = message.userId;
   const messageCreatedAt = message.createdAt;
+  const pairId = roomId;
 
   try {
     await updateUserFilter(userId, now);
+    await updatePairMessageCount(pairId);
     await updateRoomTimestamps(roomId, messageCreatedAt);
     await updateMessageOrResponseStats(now, message);
     await sendBotResponse(roomId, message);
@@ -64,6 +66,28 @@ const updateUserFilter = async (userId: string, now: Date) => {
     logger.error(error);
   }
 };
+
+const updatePairMessageCount = async (pairId: string) => {
+  const ref = db.ref(`pairs/${pairId}`);
+  const snapshot = await ref.get();
+
+  if (!snapshot.exists()) return;
+
+  const pair = snapshot.val();
+  const params: PairParams = {};
+
+  if (isDebugMode()) {
+    params.messageCount = pair.messageCount + 1;
+  } else {
+    params.messageCount = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await ref.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+}
 
 const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) => {
   const ref = db.ref(`rooms/${roomId}`);

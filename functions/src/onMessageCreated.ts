@@ -81,13 +81,17 @@ const updatePair = async (pairId: string, message: Message) => {
   const pair = snapshot.val();
   const params: PairParams = {};
 
+  params.lastMessageContent = message.content;
+
+  if (!pair.firstUserId) {
+    params.firstUserId = message.userId;
+  }
+
   if (isDebugMode()) {
     params.messageCount = pair.messageCount + 1;
   } else {
     params.messageCount = admin.database.ServerValue.increment(1);
   }
-
-  params.lastMessageContent = message.content;
 
   try {
     await ref.update(params);

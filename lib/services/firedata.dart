@@ -181,10 +181,12 @@ class Firedata {
 
     final stream = ref.onValue.map((event) {
       final snapshot = event.snapshot;
+
+      if (!snapshot.exists) {
+        return null;
+      }
+
       final value = snapshot.value;
-
-      if (value == null) return null;
-
       final json = Map<String, dynamic>.from(value as Map);
       final stub = UserStub.fromJson(json);
       final user = User.fromStub(key: userId, value: stub);
@@ -231,17 +233,17 @@ class Firedata {
     final ref = instance.ref('rooms/$roomId');
 
     final stream = ref.onValue.map((event) {
-      final snapshot = event.snapshot;
-      final value = snapshot.value;
-
       late Room room;
 
-      if (value != null) {
+      final snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        final value = snapshot.value;
         final json = Map<String, dynamic>.from(value as Map);
         final stub = RoomStub.fromJson(json);
         room = Room.fromStub(key: roomId, value: stub);
       } else {
-        room = Room.dummyDeletedRoom();
+        room = Room.dummy();
       }
 
       return room;
@@ -280,12 +282,12 @@ class Firedata {
     final ref = instance.ref('chats/$userId/$chatId');
 
     final stream = ref.onValue.map((event) {
-      final snapshot = event.snapshot;
-      final value = snapshot.value;
-
       late Chat chat;
 
-      if (value != null) {
+      final snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        final value = snapshot.value;
         final json = Map<String, dynamic>.from(value as Map);
         final stub = ChatStub.fromJson(json);
         chat = Chat.fromStub(key: chatId, value: stub);
@@ -299,10 +301,10 @@ class Firedata {
     return stream;
   }
 
-  Stream<List<Message>> subscribeToMessages(String roomId) {
+  Stream<List<Message>> subscribeToMessages(String chatId) {
     final messages = <Message>[];
 
-    final ref = instance.ref('messages/$roomId');
+    final ref = instance.ref('messages/$chatId');
     final query = ref.orderByKey();
 
     final stream = query.onChildAdded.map<List<Message>>((event) {

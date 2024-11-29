@@ -115,7 +115,7 @@ class Room {
     );
   }
 
-  static dummyDeletedRoom() {
+  static dummy() {
     return Room(
       id: 'id',
       topic: 'topic',

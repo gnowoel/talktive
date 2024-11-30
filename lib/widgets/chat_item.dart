@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../pages/chat.dart';
 import 'tag.dart';
@@ -35,6 +36,8 @@ class _ChatItemState extends State<ChatItem> {
 
     final cardColor = colorScheme.surfaceContainerHigh;
     final textColor = colorScheme.onSurface;
+
+    final newMessageCount = chatUnreadMessageCount(widget.chat);
 
     return Card(
       elevation: 0,
@@ -88,11 +91,26 @@ class _ChatItemState extends State<ChatItem> {
               ),
             ],
           ),
-          // trailing: Icon(Icons.check_circle_outline),
-          trailing: Badge(
-            label: const Text('7', style: TextStyle(fontSize: 14)),
-            backgroundColor: colorScheme.error,
-          ),
+          trailing: newMessageCount > 0
+              ? Badge(
+                  label: Text(
+                    '$newMessageCount',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  backgroundColor: colorScheme.error,
+                )
+              : Badge(
+                  label: Text(
+                    '$newMessageCount',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorScheme.surfaceContainerLowest,
+                    ),
+                  ),
+                  backgroundColor: colorScheme.outlineVariant,
+                ),
         ),
       ),
     );

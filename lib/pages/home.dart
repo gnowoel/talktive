@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
     avatar = context.watch<Avatar>();
     _user = context.watch<Cache>().user;
     _chats = context.watch<Cache>().chats;
-    _newMessageCount = _chats.length;
+    _newMessageCount = chatsUnreadMessageCount(_chats);
   }
 
   Future<void> _changeAvatar() async {
@@ -171,10 +171,7 @@ class _HomePageState extends State<HomePage> {
                       : TextButton(
                           onPressed: _chatsPage,
                           child: Badge(
-                            label: Text(
-                                _newMessageCount < 10
-                                    ? '$_newMessageCount'
-                                    : '9+',
+                            label: Text('$_newMessageCount',
                                 style: TextStyle(fontSize: 14)),
                             backgroundColor: theme.colorScheme.error,
                           ),

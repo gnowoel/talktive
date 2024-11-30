@@ -45,7 +45,7 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
 
   const pairId = listId;
   const roomId = listId;
-  const isPair = listId.length === 56;
+  const isPair = listId.length > 20; // Push ID is 20 characters long
 
   try {
     await updateUserUpdatedAt(userId, now);

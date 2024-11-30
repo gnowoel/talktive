@@ -51,6 +51,7 @@ class _ChatPageState extends State<ChatPage> {
     _messages = [];
 
     final userId = fireauth.instance.currentUser!.uid;
+
     chatSubscription =
         firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
       if (_isReady) {
@@ -95,19 +96,14 @@ class _ChatPageState extends State<ChatPage> {
     theme = Theme.of(context);
   }
 
-  // Future<void> _addHistoryRecord(Chat chat) async {
-  //   final currentUserId = fireauth.instance.currentUser!.uid;
-  //   final messageCount = _messages.length;
-  //   final visible = _isEngaged;
-
-  //   await history.saveRecord(
-  //     room: room,
-  //     currentUserId: currentUserId,
-  //     messageCount: messageCount,
-  //     scrollOffset: scrollOffset,
-  //     visible: visible,
-  //   );
-  // }
+  Future<void> _updateReadMessageCount(Chat chat) async {
+    final userId = fireauth.instance.currentUser!.uid;
+    await firedata.updateChatReadMessageCount(
+      chat.id,
+      userId,
+      _messages.length,
+    );
+  }
 
   @override
   void dispose() {
@@ -117,7 +113,7 @@ class _ChatPageState extends State<ChatPage> {
     scrollController.dispose();
     focusNode.dispose();
 
-    // _addHistoryRecord(_chat);
+    _updateReadMessageCount(_chat);
 
     super.dispose();
   }

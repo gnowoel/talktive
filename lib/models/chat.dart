@@ -7,6 +7,7 @@ class Chat {
   final int updatedAt;
   final UserStub partner;
   final int messageCount;
+  final int? readMessageCount;
   final String? firstUserId;
   final String? lastMessageContent;
 
@@ -16,6 +17,7 @@ class Chat {
     required this.updatedAt,
     required this.partner,
     required this.messageCount,
+    this.readMessageCount,
     this.firstUserId,
     this.lastMessageContent,
   });
@@ -26,6 +28,7 @@ class Chat {
     int? updatedAt,
     UserStub? partner,
     int? messageCount,
+    int? readMessageCount,
     String? firstUserId,
     String? lastMessageContent,
   }) {
@@ -35,6 +38,7 @@ class Chat {
       updatedAt: updatedAt ?? this.updatedAt,
       partner: partner ?? this.partner,
       messageCount: messageCount ?? this.messageCount,
+      readMessageCount: readMessageCount ?? this.readMessageCount,
       firstUserId: firstUserId ?? this.firstUserId,
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
     );
@@ -50,6 +54,7 @@ class Chat {
       updatedAt: value.updatedAt,
       partner: value.partner,
       messageCount: value.messageCount,
+      readMessageCount: value.readMessageCount,
       firstUserId: value.firstUserId,
       lastMessageContent: value.lastMessageContent,
     );
@@ -83,6 +88,7 @@ class ChatStub {
   final int updatedAt;
   final UserStub partner;
   final int messageCount;
+  final int? readMessageCount;
   final String? firstUserId;
   final String? lastMessageContent;
 
@@ -91,6 +97,7 @@ class ChatStub {
     required this.updatedAt,
     required this.partner,
     required this.messageCount,
+    this.readMessageCount,
     this.firstUserId,
     this.lastMessageContent,
   });
@@ -102,6 +109,7 @@ class ChatStub {
       partner:
           UserStub.fromJson(Map<String, dynamic>.from(json['partner'] as Map)),
       messageCount: json['messageCount'] as int,
+      readMessageCount: json['readMessageCount'] as int?,
       firstUserId: json['firstUserId'] as String?,
       lastMessageContent: json['lastMessageContent'] as String?,
     );

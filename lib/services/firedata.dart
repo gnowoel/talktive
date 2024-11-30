@@ -302,6 +302,18 @@ class Firedata {
     return stream;
   }
 
+  Future<void> updateChatReadMessageCount(
+      String chatId, String userId, int count) async {
+    try {
+      final ref = instance.ref('chats/$userId/$chatId');
+      await ref.update({
+        'readMessageCount': count,
+      });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Stream<List<Message>> subscribeToMessages(String chatId) {
     final messages = <Message>[];
 

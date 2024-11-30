@@ -28,7 +28,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   ScrollNotification? _lastNotification;
-  bool _isSticky = false;
+  bool _isSticky = true;
 
   @override
   void initState() {

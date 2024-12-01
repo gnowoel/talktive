@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
-import '../models/room.dart';
+import '../models/chat.dart';
 import '../services/cache.dart';
 import '../services/firedata.dart';
 import 'heart_list.dart';
 
 class Health extends StatefulWidget {
-  final Room room;
+  final Chat chat;
 
   const Health({
     super.key,
-    required this.room,
+    required this.chat,
   });
 
   @override
@@ -45,12 +45,12 @@ class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
   }
 
   Duration _getElapsed() {
-    if (widget.room.isNew || widget.room.isClosed) {
+    if (widget.chat.isNew || widget.chat.isClosed) {
       return const Duration(minutes: 60);
     }
 
     final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
-    final then = DateTime.fromMillisecondsSinceEpoch(widget.room.updatedAt);
+    final then = DateTime.fromMillisecondsSinceEpoch(widget.chat.updatedAt);
 
     return now.difference(then);
   }

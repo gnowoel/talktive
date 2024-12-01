@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../models/chat.dart';
-import '../services/avatar.dart';
+import '../models/user.dart';
+import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/storage.dart';
@@ -34,7 +35,6 @@ class _InputState extends State<Input> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Storage storage;
-  late Avatar avatar;
 
   bool _isUploading = false;
 
@@ -52,17 +52,13 @@ class _InputState extends State<Input> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
-    avatar = Provider.of<Avatar>(context);
   }
 
-  Future<void> _sendTextMessage() async {
+  Future<void> _sendTextMessage(User user) async {
     await _doAction(() async {
       const maxLength = 1024;
 
       final chat = widget.chat;
-      final userId = fireauth.instance.currentUser!.uid;
-      final userName = avatar.name;
-      final userCode = avatar.code;
 
       var content = _controller.text.trim();
 
@@ -81,9 +77,9 @@ class _InputState extends State<Input> {
         _controller.clear();
         await firedata.sendTextMessage(
           chat,
-          userId,
-          userName,
-          userCode,
+          user.id,
+          user.displayName!,
+          user.photoURL!,
           content,
         );
       }
@@ -105,7 +101,7 @@ class _InputState extends State<Input> {
     });
   }
 
-  Future<void> _sendImageMessage() async {
+  Future<void> _sendImageMessage(User user) async {
     await _doAction(() async {
       final xFile = await ImagePicker().pickImage(
         imageQuality: 70,
@@ -117,9 +113,6 @@ class _InputState extends State<Input> {
 
       if (!widget.chat.isDummy) {
         final chat = widget.chat;
-        final userId = fireauth.instance.currentUser!.uid;
-        final userName = avatar.name;
-        final userCode = avatar.code;
 
         final file = File(xFile.path);
         final path = 'chats/${chat.id}/${xFile.name}';
@@ -132,9 +125,9 @@ class _InputState extends State<Input> {
 
         await firedata.sendImageMessage(
           chat,
-          userId,
-          userName,
-          userCode,
+          user.id,
+          user.displayName!,
+          user.photoURL!,
           uri,
         );
       }
@@ -170,7 +163,7 @@ class _InputState extends State<Input> {
     }
   }
 
-  KeyEventResult _handleKeyEvent(KeyEvent event) {
+  KeyEventResult _handleKeyEvent(KeyEvent event, User user) {
     if (event is KeyDownEvent) {
       final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
@@ -179,7 +172,7 @@ class _InputState extends State<Input> {
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
-        _sendTextMessage();
+        _sendTextMessage(user);
         return KeyEventResult.handled;
       }
     }
@@ -189,6 +182,8 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.select((Cache cache) => cache.user);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       child: Container(
@@ -203,7 +198,7 @@ class _InputState extends State<Input> {
         child: Row(
           children: [
             IconButton(
-              onPressed: _sendImageMessage,
+              onPressed: () => _sendImageMessage(user!),
               icon: _isUploading
                   ? SizedBox(
                       width: 20,
@@ -221,7 +216,7 @@ class _InputState extends State<Input> {
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),
-                onKeyEvent: _handleKeyEvent,
+                onKeyEvent: (event) => _handleKeyEvent(event, user!),
                 child: TextField(
                   enabled: widget.enabled,
                   focusNode: widget.focusNode,
@@ -236,7 +231,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: _sendTextMessage,
+              onPressed: () => _sendTextMessage(user!),
               icon: Icon(
                 Icons.send,
                 color: theme.colorScheme.primary,

@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 
 import '../helpers/exception.dart';
 import '../models/chat.dart';
-import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/room.dart';
 import '../models/text_message.dart';
@@ -97,7 +96,7 @@ class Firedata {
     }
   }
 
-  Future<Message> sendTextMessage(
+  Future<void> sendTextMessage(
     Chat chat,
     String userId,
     String userDisplayName,
@@ -106,25 +105,20 @@ class Firedata {
   ) async {
     try {
       final messageRef = instance.ref('messages/${chat.id}').push();
-      final now = clock.serverNow(); // TODO: Use `ServerValue` instead
 
-      final message = TextMessage(
-        userId: userId,
-        userDisplayName: userDisplayName,
-        userPhotoURL: userPhotoURL,
-        content: content,
-        createdAt: now,
-      );
-
-      await messageRef.set(message.toJson());
-
-      return message;
+      await messageRef.set({
+        'userId': userId,
+        'userDisplayName': userDisplayName,
+        'userPhotoURL': userPhotoURL,
+        'content': content,
+        'createdAt': ServerValue.timestamp,
+      });
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  Future<Message> sendImageMessage(
+  Future<void> sendImageMessage(
     Chat chat,
     String userId,
     String userDisplayName,
@@ -133,19 +127,14 @@ class Firedata {
   ) async {
     try {
       final messageRef = instance.ref('messages/${chat.id}').push();
-      final now = clock.serverNow(); // TODO: Use `ServerValue` instead
 
-      final message = ImageMessage(
-        userId: userId,
-        userDisplayName: userDisplayName,
-        userPhotoURL: userPhotoURL,
-        uri: uri,
-        createdAt: now,
-      );
-
-      await messageRef.set(message.toJson());
-
-      return message;
+      await messageRef.set({
+        'userId': userId,
+        'userDisplayName': userDisplayName,
+        'userPhotoURL': userPhotoURL,
+        'uri': uri,
+        'createdAt': ServerValue.timestamp,
+      });
     } catch (e) {
       throw AppException(e.toString());
     }

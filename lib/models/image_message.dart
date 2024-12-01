@@ -3,18 +3,16 @@ import 'message.dart';
 class ImageMessage extends Message {
   String? id;
   final String userId;
-  final String userName;
-  final String userCode;
-  final String content;
+  final String userDisplayName;
+  final String userPhotoURL;
   final String uri;
   final int createdAt;
 
   ImageMessage({
     this.id,
     required this.userId,
-    required this.userName,
-    required this.userCode,
-    required this.content,
+    required this.userDisplayName,
+    required this.userPhotoURL,
     required this.uri,
     required this.createdAt,
   }) : super(type: 'image');
@@ -22,18 +20,16 @@ class ImageMessage extends Message {
   ImageMessage copyWith({
     String? id,
     String? userId,
-    String? userName,
-    String? userCode,
-    String? content,
+    String? userDisplayName,
+    String? userPhotoURL,
     String? uri,
     int? createdAt,
   }) {
     return ImageMessage(
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      userName: userName ?? this.userName,
-      userCode: userCode ?? this.userCode,
-      content: content ?? this.content,
+      userDisplayName: userDisplayName ?? this.userDisplayName,
+      userPhotoURL: userPhotoURL ?? this.userPhotoURL,
       uri: uri ?? this.uri,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -43,9 +39,8 @@ class ImageMessage extends Message {
     return {
       'id': id,
       'userId': userId,
-      'userName': userName,
-      'userCode': userCode,
-      'content': content,
+      'userDisplayName': userDisplayName,
+      'userPhotoURL': userPhotoURL,
       'uri': uri,
       'type': type,
       'createdAt': createdAt,
@@ -56,9 +51,8 @@ class ImageMessage extends Message {
     return ImageMessage(
       id: json['id'] as String?,
       userId: json['userId'] as String,
-      userName: json['userName'] as String,
-      userCode: json['userCode'] as String,
-      content: json['content'] as String,
+      userDisplayName: json['userDisplayName'] as String,
+      userPhotoURL: json['userPhotoURL'] as String,
       uri: json['uri'] as String,
       createdAt: json['createdAt'] as int,
     );

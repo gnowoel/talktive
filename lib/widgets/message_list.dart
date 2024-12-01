@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/chat.dart';
 import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/text_message.dart';
@@ -11,14 +10,12 @@ import 'text_message_item.dart';
 class MessageList extends StatefulWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
-  final Chat chat;
   final List<Message> messages;
 
   const MessageList({
     super.key,
     required this.focusNode,
     required this.scrollController,
-    required this.chat,
     required this.messages,
   });
 

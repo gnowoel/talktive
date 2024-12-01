@@ -29,9 +29,9 @@ class ImageMessageItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Tooltip(
-            message: message.userName,
+            message: message.userDisplayName,
             child: Text(
-              message.userCode,
+              message.userPhotoURL,
               style: const TextStyle(fontSize: 24),
             ),
           ),
@@ -77,9 +77,9 @@ class ImageMessageItem extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Tooltip(
-            message: message.userName,
+            message: message.userDisplayName,
             child: Text(
-              message.userCode,
+              message.userPhotoURL,
               style: const TextStyle(fontSize: 24),
             ),
           ),

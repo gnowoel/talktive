@@ -74,7 +74,7 @@ class _ChatPageState extends State<ChatPage> {
         }
       } else {
         if (chat.isDummy) {
-          // Ignore
+          // Ignore, not ready yet
         } else {
           setState(() {
             _chat = chat;
@@ -168,7 +168,6 @@ class _ChatPageState extends State<ChatPage> {
           child: MessageList(
             focusNode: focusNode,
             scrollController: scrollController,
-            chat: _chat,
             messages: _messages,
           ),
         ),

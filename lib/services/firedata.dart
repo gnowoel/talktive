@@ -100,8 +100,8 @@ class Firedata {
   Future<Message> sendTextMessage(
     Chat chat,
     String userId,
-    String userName,
-    String userCode,
+    String userDisplayName,
+    String userPhotoURL,
     String content,
   ) async {
     try {
@@ -110,8 +110,8 @@ class Firedata {
 
       final message = TextMessage(
         userId: userId,
-        userName: userName,
-        userCode: userCode,
+        userDisplayName: userDisplayName,
+        userPhotoURL: userPhotoURL,
         content: content,
         createdAt: now,
       );
@@ -127,8 +127,8 @@ class Firedata {
   Future<Message> sendImageMessage(
     Chat chat,
     String userId,
-    String userName,
-    String userCode,
+    String userDisplayName,
+    String userPhotoURL,
     String uri,
   ) async {
     try {
@@ -137,10 +137,8 @@ class Firedata {
 
       final message = ImageMessage(
         userId: userId,
-        userName: userName,
-        userCode: userCode,
-        content:
-            '(Upgrade your app to see images.)', // TODO: Remove the `content` field
+        userDisplayName: userDisplayName,
+        userPhotoURL: userPhotoURL,
         uri: uri,
         createdAt: now,
       );

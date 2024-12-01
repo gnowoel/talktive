@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chat.dart';
@@ -19,28 +20,30 @@ class Health extends StatefulWidget {
   State<Health> createState() => _HealthState();
 }
 
-class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
+class _HealthState extends State<Health> {
   late Firedata firedata;
-  late Ticker ticker;
+  late Timer timer;
   late Duration elapsed;
 
   @override
   void initState() {
     super.initState();
+
     firedata = Provider.of<Firedata>(context, listen: false);
+
     elapsed = _getElapsed();
-    ticker = createTicker((_) {
+
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final newElapsed = _getElapsed();
-      if (newElapsed.inSeconds != elapsed.inSeconds) {
+      if (newElapsed.inMinutes != elapsed.inMinutes) {
         setState(() => elapsed = newElapsed);
       }
     });
-    ticker.start();
   }
 
   @override
   void dispose() {
-    ticker.dispose();
+    timer.cancel();
     super.dispose();
   }
 
@@ -49,10 +52,10 @@ class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
       return const Duration(minutes: 60);
     }
 
-    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
-    final then = DateTime.fromMillisecondsSinceEpoch(widget.chat.updatedAt);
+    final now = Cache().now;
+    final then = widget.chat.updatedAt;
 
-    return now.difference(then);
+    return Duration(milliseconds: now - then);
   }
 
   @override

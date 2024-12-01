@@ -258,6 +258,8 @@ class Firedata {
         return Chat.fromStub(key: entry.key, value: chatStub);
       }).toList();
 
+      chats.removeWhere((chat) => chat.isNew);
+
       chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       return chats;

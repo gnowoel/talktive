@@ -1,4 +1,4 @@
-import '../services/clock.dart';
+import '../services/cache.dart';
 import 'record.dart';
 
 class Room {
@@ -132,7 +132,7 @@ class Room {
 
   bool get isNew => filter.endsWith('-nnnn');
 
-  bool get isClosed => isMarkedClosed || closedAt <= Clock().serverNow();
+  bool get isClosed => isMarkedClosed || closedAt <= Cache().now;
 
   bool get isMarkedClosed => filter == '-cccc';
 

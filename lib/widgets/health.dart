@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/room.dart';
-import '../services/clock.dart';
+import '../services/cache.dart';
 import '../services/firedata.dart';
 import 'heart_list.dart';
 
@@ -49,7 +49,7 @@ class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
       return const Duration(minutes: 60);
     }
 
-    final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
+    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
     final then = DateTime.fromMillisecondsSinceEpoch(widget.room.updatedAt);
 
     return now.difference(then);

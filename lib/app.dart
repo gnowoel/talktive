@@ -25,7 +25,7 @@ class App extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider(create: (context) => Fireauth(auth)),
-        Provider(create: (context) => Firedata(database)..syncTime()),
+        Provider(create: (context) => Firedata(database)),
         Provider(create: (context) => Storage(storage)),
         ChangeNotifierProvider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),

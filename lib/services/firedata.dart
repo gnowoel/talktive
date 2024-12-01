@@ -9,21 +9,22 @@ import '../models/message.dart';
 import '../models/room.dart';
 import '../models/text_message.dart';
 import '../models/user.dart';
-import 'clock.dart';
+import 'cache.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
-  final Clock clock = Clock();
 
   Firedata(this.instance);
 
-  void syncTime() {
-    final ref = instance.ref(".info/serverTimeOffset");
+  Stream<int> subscribeToNow() {
+    final ref = instance.ref('.info/serverTimeOffset');
 
-    ref.onValue.listen((event) {
-      final offset = event.snapshot.value as num? ?? 0.0;
-      clock.updateClockSkew(offset.toInt());
+    final stream = ref.onValue.map((event) {
+      final clockSkew = (event.snapshot.value as num? ?? 0.0).toInt();
+      return DateTime.now().millisecondsSinceEpoch + clockSkew;
     });
+
+    return stream;
   }
 
   Future<Room> createRoom(
@@ -33,7 +34,7 @@ class Firedata {
     String languageCode,
   ) async {
     try {
-      final now = clock.serverNow();
+      final now = Cache().now;
       final roomValue = RoomStub(
         topic: userName, // Use `userName` as the default topic
         userId: userId,

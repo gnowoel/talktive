@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/record.dart';
 import '../models/room.dart';
-import 'clock.dart';
+import 'cache.dart';
 import 'prefs.dart';
 
 class History extends ChangeNotifier {
@@ -54,7 +54,7 @@ class History extends ChangeNotifier {
       roomUserName: room.userName,
       roomUserCode: room.userCode,
       roomUpdatedAt: room.updatedAt,
-      createdAt: Clock().serverNow(),
+      createdAt: Cache().now, // TODO: Use `ServerValue` instead
       messageCount: messageCount,
       scrollOffset: scrollOffset,
       visible: visible,
@@ -114,7 +114,7 @@ class History extends ChangeNotifier {
   }
 
   bool _isValid(Record record) {
-    final now = DateTime.fromMillisecondsSinceEpoch(Clock().serverNow());
+    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
     final oneDayAgo = now.subtract(const Duration(days: 1));
     final roomUpdatedAt =
         DateTime.fromMillisecondsSinceEpoch(record.roomUpdatedAt);

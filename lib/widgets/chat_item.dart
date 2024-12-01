@@ -38,6 +38,9 @@ class _ChatItemState extends State<ChatItem> {
     final textColor = colorScheme.onSurface;
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
+    final lastMessageContent =
+        (widget.chat.lastMessageContent ?? widget.chat.partner.description!)
+            .replaceAll(RegExp(r'\s+'), ' ');
 
     return Card(
       elevation: 0,
@@ -58,8 +61,7 @@ class _ChatItemState extends State<ChatItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.chat.lastMessageContent ??
-                    widget.chat.partner.description!,
+                lastMessageContent,
                 overflow: TextOverflow.ellipsis,
               ),
               Row(

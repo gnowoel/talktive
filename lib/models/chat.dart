@@ -1,4 +1,4 @@
-import '../services/clock.dart';
+import '../services/cache.dart';
 import 'user.dart';
 
 class Chat {
@@ -77,7 +77,7 @@ class Chat {
 
   bool get isClosed {
     const threeDays = 1000 * 3600 * 72;
-    return updatedAt + threeDays <= Clock().serverNow();
+    return updatedAt + threeDays <= Cache().now;
   }
 
   bool get isDummy {

@@ -108,6 +108,7 @@ class Firedata {
       final messageRef = instance.ref('messages/${chat.id}').push();
 
       await messageRef.set({
+        'type': 'text',
         'userId': userId,
         'userDisplayName': userDisplayName,
         'userPhotoURL': userPhotoURL,
@@ -130,9 +131,11 @@ class Firedata {
       final messageRef = instance.ref('messages/${chat.id}').push();
 
       await messageRef.set({
+        'type': 'image',
         'userId': userId,
         'userDisplayName': userDisplayName,
         'userPhotoURL': userPhotoURL,
+        'content': '[Image]',
         'uri': uri,
         'createdAt': ServerValue.timestamp,
       });

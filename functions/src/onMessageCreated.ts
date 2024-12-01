@@ -50,7 +50,7 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
   try {
     await updateUserUpdatedAt(userId, now);
     if (isPair) {
-      await updatePair(pairId, message);
+      await updatePair(pairId, message, now);
     } else {
       await updateRoomTimestamps(roomId, messageCreatedAt);
     }
@@ -72,7 +72,7 @@ const updateUserUpdatedAt = async (userId: string, now: Date) => {
   }
 }
 
-const updatePair = async (pairId: string, message: Message) => {
+const updatePair = async (pairId: string, message: Message, now: Date) => {
   const ref = db.ref(`pairs/${pairId}`);
   const snapshot = await ref.get();
 
@@ -81,6 +81,7 @@ const updatePair = async (pairId: string, message: Message) => {
   const pair = snapshot.val();
   const params: PairParams = {};
 
+  params.updatedAt = now.valueOf();
   params.lastMessageContent = message.content;
 
   if (!pair.firstUserId) {

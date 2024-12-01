@@ -8,6 +8,7 @@ import '../models/chat.dart';
 import '../models/message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../widgets/health.dart';
 import '../widgets/input.dart';
 import '../widgets/message_list.dart';
 
@@ -124,6 +125,10 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         title: Text(_chat.partner.displayName!),
+        actions: [
+          Health(chat: widget.chat),
+          const SizedBox(width: 16),
+        ],
       ),
       body: SafeArea(
         child: _buildLayoutBuilder(),

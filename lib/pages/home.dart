@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   late History history;
   late Cache cache;
 
-  late StreamSubscription nowSubscription;
+  late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
   late StreamSubscription chatsSubscription;
 
@@ -51,8 +51,8 @@ class _HomePageState extends State<HomePage> {
 
     final userId = fireauth.instance.currentUser!.uid;
 
-    nowSubscription = firedata.subscribeToNow().listen((now) {
-      cache.updateNow(now);
+    clockSkewSubscription = firedata.subscribeToClockSkew().listen((clockSkew) {
+      cache.updateClockSkew(clockSkew);
     });
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
       cache.updateUser(user);
@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     chatsSubscription.cancel();
     userSubscription.cancel();
-    nowSubscription.cancel();
+    clockSkewSubscription.cancel();
     super.dispose();
   }
 

@@ -16,12 +16,11 @@ class Firedata {
 
   Firedata(this.instance);
 
-  Stream<int> subscribeToNow() {
+  Stream<int> subscribeToClockSkew() {
     final ref = instance.ref('.info/serverTimeOffset');
 
     final stream = ref.onValue.map((event) {
-      final clockSkew = (event.snapshot.value as num? ?? 0.0).toInt();
-      return DateTime.now().millisecondsSinceEpoch + clockSkew;
+      return (event.snapshot.value as num? ?? 0.0).toInt();
     });
 
     return stream;

@@ -105,7 +105,7 @@ class _MessageListState extends State<MessageList> {
   }
 
   Widget _buildInfo() {
-    const lines = ['Say hi or send a picture', 'to your new friend.'];
+    const lines = ['Say hi or send a photo', 'to your new friend.'];
 
     return const SizedBox.expand(
       child: AbsorbPointer(

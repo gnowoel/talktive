@@ -5,6 +5,7 @@ class ImageMessage extends Message {
   final String userId;
   final String userDisplayName;
   final String userPhotoURL;
+  final String content;
   final String uri;
   final int createdAt;
 
@@ -13,6 +14,7 @@ class ImageMessage extends Message {
     required this.userId,
     required this.userDisplayName,
     required this.userPhotoURL,
+    required this.content,
     required this.uri,
     required this.createdAt,
   }) : super(type: 'image');
@@ -22,6 +24,7 @@ class ImageMessage extends Message {
     String? userId,
     String? userDisplayName,
     String? userPhotoURL,
+    String? content,
     String? uri,
     int? createdAt,
   }) {
@@ -30,6 +33,7 @@ class ImageMessage extends Message {
       userId: userId ?? this.userId,
       userDisplayName: userDisplayName ?? this.userDisplayName,
       userPhotoURL: userPhotoURL ?? this.userPhotoURL,
+      content: content ?? this.content,
       uri: uri ?? this.uri,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -41,6 +45,7 @@ class ImageMessage extends Message {
       'userId': userId,
       'userDisplayName': userDisplayName,
       'userPhotoURL': userPhotoURL,
+      'content': content,
       'uri': uri,
       'type': type,
       'createdAt': createdAt,
@@ -53,6 +58,7 @@ class ImageMessage extends Message {
       userId: json['userId'] as String,
       userDisplayName: json['userDisplayName'] as String,
       userPhotoURL: json['userPhotoURL'] as String,
+      content: json['content'] as String,
       uri: json['uri'] as String,
       createdAt: json['createdAt'] as int,
     );

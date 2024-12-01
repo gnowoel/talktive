@@ -73,6 +73,8 @@ class Chat {
     );
   }
 
+  bool get isNew => firstUserId == null;
+
   bool get isClosed {
     const threeDays = 1000 * 3600 * 72;
     return updatedAt + threeDays <= Clock().serverNow();

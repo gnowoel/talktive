@@ -8,7 +8,7 @@ import '../models/chat.dart';
 import '../models/message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../widgets/health.dart';
+import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/message_list.dart';
 
@@ -127,7 +127,7 @@ class _ChatPageState extends State<ChatPage> {
         title: Text(_chat.partner.displayName!),
         actions: [
           RepaintBoundary(
-            child: Health(chat: _chat),
+            child: Hearts(chat: _chat),
           ),
           const SizedBox(width: 16),
         ],

@@ -126,7 +126,7 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Text(_chat.partner.displayName!),
         actions: [
-          Health(chat: widget.chat),
+          Health(chat: _chat),
           const SizedBox(width: 16),
         ],
       ),

@@ -48,7 +48,7 @@ class _HeartsState extends State<Hearts> with SingleTickerProviderStateMixin {
   }
 
   Duration _getElapsed() {
-    if (widget.chat.isNew || widget.chat.isClosed) {
+    if (widget.chat.isNew || widget.chat.isClosed || widget.chat.isDummy) {
       return const Duration(hours: 72);
     }
 

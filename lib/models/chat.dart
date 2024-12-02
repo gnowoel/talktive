@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../services/cache.dart';
 import 'user.dart';
 
@@ -76,13 +78,19 @@ class Chat {
   bool get isNew => firstUserId == null;
 
   bool get isClosed {
-    const threeDays = 1000 * 3600 * 72;
-    return updatedAt + threeDays <= Cache().now;
+    const delay = kDebugMode
+        ? 1000 * 60 * 6 // 6 minutes
+        : 1000 * 60 * 60 * 72; // 3 days
+    return updatedAt + delay <= Cache().now;
   }
 
-  bool get isDummy {
-    return createdAt == 0 && updatedAt == 0;
-  }
+  bool get isNotClosed => !isClosed;
+
+  // Does not exist (not created or deleted)
+  bool get isDummy => createdAt == 0 && updatedAt == 0;
+
+  // Exists
+  bool get isNotDummy => !isDummy;
 }
 
 class ChatStub {

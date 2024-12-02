@@ -5,6 +5,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/user.dart';
 import '../pages/chat.dart';
+import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import 'tag.dart';
@@ -59,6 +60,7 @@ class _UserItemState extends State<UserItem> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
     final updatedAt =
         DateTime.fromMillisecondsSinceEpoch(widget.user.updatedAt);
 
@@ -107,7 +109,7 @@ class _UserItemState extends State<UserItem> {
                   const SizedBox(width: 4),
                   Tag(
                     child: Text(
-                      timeago.format(updatedAt, locale: 'en_short'),
+                      timeago.format(updatedAt, locale: 'en_short', clock: now),
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),

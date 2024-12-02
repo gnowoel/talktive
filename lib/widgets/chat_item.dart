@@ -4,6 +4,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../pages/chat.dart';
+import '../services/cache.dart';
 import 'tag.dart';
 
 class ChatItem extends StatefulWidget {
@@ -31,6 +32,7 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
     final updatedAt =
         DateTime.fromMillisecondsSinceEpoch(widget.chat.updatedAt);
 
@@ -84,7 +86,7 @@ class _ChatItemState extends State<ChatItem> {
                   const SizedBox(width: 4),
                   Tag(
                     child: Text(
-                      timeago.format(updatedAt, locale: 'en_short'),
+                      timeago.format(updatedAt, locale: 'en_short', clock: now),
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -16,10 +16,12 @@ const storage = getStorage();
 const timeBeforeUserDeleting = isDebugMode()
   ? 0 // now wait
   : 30 * 24 * 3600 * 1000; // 30 days
-
 const timeBeforeRoomDeleting = isDebugMode()
   ? 0 // no wait
   : 72 * 3600 * 1000; // 72 hours
+const timeBeforePairDeleting = isDebugMode()
+  ? 0 // no wait
+  : 96 * 3600 * 1000; // 96 hours
 
 interface Params {
   [userId: string]: null
@@ -80,6 +82,7 @@ const cleanup = async () => {
   try {
     await cleanupUsers();
     await cleanupRooms();
+    await cleanupPairs();
   } catch (error) {
     logger.error(error);
   }
@@ -210,6 +213,79 @@ const removeRoom = async (roomId: string) => {
 
   try {
     await roomRef.remove();
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+// Pairs, chats, messages & images
+const cleanupPairs = async () => {
+  try {
+    const ref = db.ref('pairs');
+    const time = new Date().getTime() - timeBeforePairDeleting;
+    const query = ref.orderByChild('updatedAt').endAt(time).limitToFirst(1000);
+
+    const snapshot = await query.get();
+
+    if (!snapshot.exists()) return;
+
+    const pairs = snapshot.val();
+    const pairIds = Object.keys(pairs);
+
+    for (const pairId of pairIds) {
+      const chatId = pairId;
+      const userIds = pairs[pairId].followers;
+
+      await removeChatImages(chatId);
+      await removeChatMessages(chatId);
+
+      for (const userId of userIds) {
+        await removeChat(userId, chatId);
+      }
+
+      await removePair(pairId);
+    }
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const removeChatImages = async (chatId: string) => {
+  try {
+    const bucket = storage.bucket();
+    const prefix = `chats/${chatId}/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    const deletePromises = files.map(file => file.delete());
+    await Promise.all(deletePromises);
+  } catch (error) {
+    logger.error(`Failed to remove images from chat ${chatId}:`, error);
+  }
+};
+
+const removeChatMessages = async (chatId: string) => {
+  try {
+    const messagesRef = db.ref(`messages/${chatId}`);
+    await messagesRef.remove();
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const removeChat = async (userId: string, chatId: string) => {
+  try {
+    const chatRef = db.ref(`chats/${userId}/${chatId}`);
+    await chatRef.remove();
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const removePair = async (pairId: string) => {
+  try {
+    const pairRef = db.ref(`pairs/${pairId}`);
+    await pairRef.remove();
   } catch (error) {
     logger.error(error);
   }

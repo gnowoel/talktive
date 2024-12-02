@@ -33,37 +33,37 @@ class HeartList extends StatelessWidget {
     List<Widget> children;
 
     switch (elapsed.inMinutes) {
-      case < (kDebugMode ? 1 : 10):
+      case < (kDebugMode ? 1 : 60 * 12 * 1):
         children = [
           _full,
           _full,
           _full,
         ];
-      case < (kDebugMode ? 2 : 20):
+      case < (kDebugMode ? 2 : 60 * 12 * 2):
         children = [
           _half,
           _full,
           _full,
         ];
-      case < (kDebugMode ? 3 : 30):
+      case < (kDebugMode ? 3 : 60 * 12 * 3):
         children = [
           _empty,
           _full,
           _full,
         ];
-      case < (kDebugMode ? 4 : 40):
+      case < (kDebugMode ? 4 : 60 * 12 * 4):
         children = [
           _empty,
           _half,
           _full,
         ];
-      case < (kDebugMode ? 5 : 50):
+      case < (kDebugMode ? 5 : 60 * 12 * 5):
         children = [
           _empty,
           _empty,
           _full,
         ];
-      case < (kDebugMode ? 6 : 60):
+      case < (kDebugMode ? 6 : 60 * 12 * 6):
         children = [
           _empty,
           _empty,

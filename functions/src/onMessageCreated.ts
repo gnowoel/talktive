@@ -25,8 +25,8 @@ interface RoomParams {
 const db = admin.database();
 
 const timeBeforeClosing = isDebugMode() ?
-  360 * 1000 : // 6 minutes
-  3600 * 1000; // 1 hour
+  1000 * 60 * 6 : // 6 minutes
+  1000 * 60 * 60 * 24 * 3; // 3 days
 
 const BOT_WAIT_TIME = 10 * 1000;
 

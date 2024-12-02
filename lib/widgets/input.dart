@@ -73,7 +73,7 @@ class _InputState extends State<Input> {
         return;
       }
 
-      if (!widget.chat.isDummy) {
+      if (!widget.chat.isDummy && !widget.chat.isClosed) {
         _controller.clear();
         await firedata.sendTextMessage(
           chat,
@@ -198,7 +198,7 @@ class _InputState extends State<Input> {
         child: Row(
           children: [
             IconButton(
-              onPressed: () => _sendImageMessage(user!),
+              onPressed: widget.enabled ? () => _sendImageMessage(user!) : null,
               icon: _isUploading
                   ? SizedBox(
                       width: 20,
@@ -216,7 +216,9 @@ class _InputState extends State<Input> {
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),
-                onKeyEvent: (event) => _handleKeyEvent(event, user!),
+                onKeyEvent: widget.enabled
+                    ? (event) => _handleKeyEvent(event, user!)
+                    : null,
                 child: TextField(
                   enabled: widget.enabled,
                   focusNode: widget.focusNode,
@@ -231,7 +233,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: () => _sendTextMessage(user!),
+              onPressed: widget.enabled ? () => _sendTextMessage(user!) : null,
               icon: Icon(
                 Icons.send,
                 color: theme.colorScheme.primary,

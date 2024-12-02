@@ -7,19 +7,19 @@ import '../services/cache.dart';
 import '../services/firedata.dart';
 import 'heart_list.dart';
 
-class Health extends StatefulWidget {
+class Hearts extends StatefulWidget {
   final Chat chat;
 
-  const Health({
+  const Hearts({
     super.key,
     required this.chat,
   });
 
   @override
-  State<Health> createState() => _HealthState();
+  State<Hearts> createState() => _HeartsState();
 }
 
-class _HealthState extends State<Health> with SingleTickerProviderStateMixin {
+class _HeartsState extends State<Hearts> with SingleTickerProviderStateMixin {
   late Firedata firedata;
   late Ticker ticker;
   late Duration elapsed;

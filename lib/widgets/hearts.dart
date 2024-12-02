@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -21,10 +22,10 @@ class Hearts extends StatefulWidget {
   State<Hearts> createState() => _HeartsState();
 }
 
-class _HeartsState extends State<Hearts> with SingleTickerProviderStateMixin {
+class _HeartsState extends State<Hearts> {
   late Firedata firedata;
-  late Ticker ticker;
-  late Duration elapsed;
+  late Timer timer;
+  late Duration _elapsed;
 
   @override
   void initState() {
@@ -32,20 +33,16 @@ class _HeartsState extends State<Hearts> with SingleTickerProviderStateMixin {
 
     firedata = Provider.of<Firedata>(context, listen: false);
 
-    elapsed = _getElapsed();
+    _elapsed = _getElapsed();
 
-    ticker = createTicker((_) {
-      final newElapsed = _getElapsed();
-      if (newElapsed.compareTo(elapsed) != 0) {
-        setState(() => elapsed = newElapsed);
-      }
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() => _elapsed = _getElapsed());
     });
-    ticker.start();
   }
 
   @override
   void dispose() {
-    ticker.dispose();
+    timer.cancel();
     super.dispose();
   }
 
@@ -90,7 +87,7 @@ class _HeartsState extends State<Hearts> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Tooltip(
       message: _getRemains(widget.chat),
-      child: HeartList(elapsed: elapsed),
+      child: HeartList(elapsed: _elapsed),
     );
   }
 }

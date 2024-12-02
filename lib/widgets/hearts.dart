@@ -76,6 +76,7 @@ class _HeartsState extends State<Hearts> with SingleTickerProviderStateMixin {
     var remains = timeago.format(
       DateTime.fromMillisecondsSinceEpoch(now - diff),
       locale: 'en_short',
+      clock: DateTime.fromMillisecondsSinceEpoch(now),
     );
 
     if (remains == 'now') {

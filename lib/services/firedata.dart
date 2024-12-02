@@ -298,8 +298,13 @@ class Firedata {
       String chatId, String userId, int count) async {
     try {
       final ref = instance.ref('chats/$userId/$chatId');
-      await ref.update({
-        'readMessageCount': count,
+      await ref.runTransaction((chat) {
+        if (chat == null) {
+          return Transaction.abort();
+        }
+        final chatMap = Map<String, dynamic>.from(chat as Map);
+        chatMap['readMessageCount'] = count;
+        return Transaction.success(chatMap);
       });
     } catch (e) {
       throw AppException(e.toString());

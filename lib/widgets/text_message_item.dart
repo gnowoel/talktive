@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/text_message.dart';
 import '../services/fireauth.dart';
 import 'bubble.dart';
+import 'user_info_dialog.dart';
 
 class TextMessageItem extends StatelessWidget {
   final TextMessage message;
@@ -15,6 +16,16 @@ class TextMessageItem extends StatelessWidget {
 
   bool get _isBot => message.userId == 'bot';
 
+  void _showUserInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => UserInfoDialog(
+        photoURL: message.userPhotoURL,
+        displayName: message.userDisplayName,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
@@ -22,20 +33,25 @@ class TextMessageItem extends StatelessWidget {
     final byMe = message.userId == currentUser.uid;
 
     // Bot messages are always shown on the left
-    return byMe ? _buildMessageItemRight() : _buildMessageItemLeft();
+    return byMe
+        ? _buildMessageItemRight(context)
+        : _buildMessageItemLeft(context);
   }
 
-  Widget _buildMessageItemLeft() {
+  Widget _buildMessageItemLeft(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Tooltip(
-            message: message.userDisplayName,
-            child: Text(
-              message.userPhotoURL,
-              style: const TextStyle(fontSize: 24),
+          GestureDetector(
+            onTap: () => _showUserInfo(context),
+            child: Tooltip(
+              message: message.userDisplayName,
+              child: Text(
+                message.userPhotoURL,
+                style: const TextStyle(fontSize: 24),
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -58,7 +74,7 @@ class TextMessageItem extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageItemRight() {
+  Widget _buildMessageItemRight(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -79,11 +95,14 @@ class TextMessageItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Tooltip(
-            message: message.userDisplayName,
-            child: Text(
-              message.userPhotoURL,
-              style: const TextStyle(fontSize: 24),
+          GestureDetector(
+            onTap: () => _showUserInfo(context),
+            child: Tooltip(
+              message: message.userDisplayName,
+              child: Text(
+                message.userPhotoURL,
+                style: const TextStyle(fontSize: 24),
+              ),
             ),
           ),
         ],

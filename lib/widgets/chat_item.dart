@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../pages/chat.dart';
 import '../services/cache.dart';
+import '../services/fireauth.dart';
 import 'tag.dart';
 
 class ChatItem extends StatefulWidget {
@@ -20,6 +22,16 @@ class ChatItem extends StatefulWidget {
 }
 
 class _ChatItemState extends State<ChatItem> {
+  late Fireauth fireauth;
+  late bool byMe;
+
+  @override
+  void initState() {
+    super.initState();
+    fireauth = context.read<Fireauth>();
+    byMe = widget.chat.firstUserId == fireauth.instance.currentUser!.uid;
+  }
+
   void enterChat() {
     Navigator.push(
       context,
@@ -36,8 +48,10 @@ class _ChatItemState extends State<ChatItem> {
     final updatedAt =
         DateTime.fromMillisecondsSinceEpoch(widget.chat.updatedAt);
 
-    final cardColor = colorScheme.surfaceContainerHigh;
-    final textColor = colorScheme.onSurface;
+    final cardColor =
+        byMe ? colorScheme.tertiaryContainer : colorScheme.surfaceContainerHigh;
+    final textColor =
+        byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
     final lastMessageContent =
@@ -110,10 +124,10 @@ class _ChatItemState extends State<ChatItem> {
                     '$newMessageCount',
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.surfaceContainerLowest,
+                      color: colorScheme.surfaceContainerLow,
                     ),
                   ),
-                  backgroundColor: colorScheme.outlineVariant,
+                  backgroundColor: colorScheme.outline,
                 ),
         ),
       ),

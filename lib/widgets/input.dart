@@ -111,7 +111,7 @@ class _InputState extends State<Input> {
 
       if (xFile == null) return;
 
-      if (!widget.chat.isDummy) {
+      if (!widget.chat.isDummy && !widget.chat.isClosed) {
         final chat = widget.chat;
 
         final file = File(xFile.path);

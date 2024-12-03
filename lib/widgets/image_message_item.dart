@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/image_message.dart';
 import '../services/fireauth.dart';
-import 'user_info_dialog.dart';
+import 'user_info_loader.dart';
 
 class ImageMessageItem extends StatelessWidget {
   final ImageMessage message;
@@ -16,7 +16,8 @@ class ImageMessageItem extends StatelessWidget {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => UserInfoDialog(
+      builder: (context) => UserInfoLoader(
+        userId: message.userId,
         photoURL: message.userPhotoURL,
         displayName: message.userDisplayName,
       ),

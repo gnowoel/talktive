@@ -391,6 +391,24 @@ class Firedata {
     }
   }
 
+  Future<User?> fetchUser(String userId) async {
+    try {
+      final ref = instance.ref('users/$userId');
+      final snapshot = await ref.get();
+
+      if (!snapshot.exists) {
+        return null;
+      }
+
+      final value = snapshot.value;
+      final json = Map<String, dynamic>.from(value as Map);
+      final stub = UserStub.fromJson(json);
+      return User.fromStub(key: userId, value: stub);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<List<User>> _getUsers({
     required int? endBefore,
     required int limit,

@@ -7,14 +7,12 @@ class UserInfoDialog extends StatelessWidget {
   final String photoURL;
   final String displayName;
   final User? user;
-  final String? error;
 
   const UserInfoDialog({
     super.key,
     required this.photoURL,
     required this.displayName,
     this.user,
-    this.error,
   });
 
   @override
@@ -39,21 +37,13 @@ class UserInfoDialog extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: error == null
-                    ? SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : Text(
-                        'Failed to load more information',
-                        style: theme.textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 16,
+                width: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                ),
               ),
               const SizedBox(height: 16),
               TextButton(

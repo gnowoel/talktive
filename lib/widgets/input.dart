@@ -17,13 +17,11 @@ import '../services/storage.dart';
 class Input extends StatefulWidget {
   final FocusNode focusNode;
   final Chat chat;
-  final bool enabled;
 
   const Input({
     super.key,
     required this.focusNode,
     required this.chat,
-    required this.enabled,
   });
 
   @override
@@ -35,6 +33,7 @@ class _InputState extends State<Input> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Storage storage;
+  late bool _enabled;
 
   bool _isUploading = false;
 
@@ -46,6 +45,7 @@ class _InputState extends State<Input> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     storage = Provider.of<Storage>(context, listen: false);
+    _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
   }
 
   @override
@@ -198,7 +198,7 @@ class _InputState extends State<Input> {
         child: Row(
           children: [
             IconButton(
-              onPressed: widget.enabled ? () => _sendImageMessage(user!) : null,
+              onPressed: _enabled ? () => _sendImageMessage(user!) : null,
               icon: _isUploading
                   ? SizedBox(
                       width: 20,
@@ -216,11 +216,10 @@ class _InputState extends State<Input> {
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),
-                onKeyEvent: widget.enabled
-                    ? (event) => _handleKeyEvent(event, user!)
-                    : null,
+                onKeyEvent:
+                    _enabled ? (event) => _handleKeyEvent(event, user!) : null,
                 child: TextField(
-                  enabled: widget.enabled,
+                  enabled: _enabled,
                   focusNode: widget.focusNode,
                   minLines: 1,
                   maxLines: 12,
@@ -233,7 +232,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: widget.enabled ? () => _sendTextMessage(user!) : null,
+              onPressed: _enabled ? () => _sendTextMessage(user!) : null,
               icon: Icon(
                 Icons.send,
                 color: theme.colorScheme.primary,

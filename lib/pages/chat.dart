@@ -155,8 +155,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildColumn() {
-    final enabled = _chat.isNotDummy && _chat.isNotClosed;
-
     return Column(
       children: [
         const SizedBox(height: 10),
@@ -170,7 +168,6 @@ class _ChatPageState extends State<ChatPage> {
         Input(
           focusNode: focusNode,
           chat: _chat,
-          enabled: enabled,
         ),
       ],
     );

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -34,6 +35,7 @@ class _InputState extends State<Input> {
   late Firedata firedata;
   late Storage storage;
   late bool _enabled;
+  late Timer timer;
 
   bool _isUploading = false;
 
@@ -42,16 +44,54 @@ class _InputState extends State<Input> {
   @override
   void initState() {
     super.initState();
+
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     storage = Provider.of<Storage>(context, listen: false);
+
     _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+
+    timer = Timer(Duration(milliseconds: _getRemains(widget.chat)), () {
+      setState(() {
+        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+      });
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    timer.cancel();
+    timer = Timer(Duration(milliseconds: _getRemains(widget.chat)), () {
+      setState(() {
+        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  int _getRemains(Chat chat) {
+    final delay = kDebugMode
+        ? 1000 * 60 * 6 // 6 minutes
+        : 1000 * 60 * 60 * 72; // 3 days
+
+    final now = Cache().now;
+    final then = chat.updatedAt;
+    final elapsed = now - then;
+    final diff = delay - elapsed;
+
+    return diff < 0 ? 0 : diff;
   }
 
   Future<void> _sendTextMessage(User user) async {

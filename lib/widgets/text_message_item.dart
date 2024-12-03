@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/text_message.dart';
 import '../services/fireauth.dart';
 import 'bubble.dart';
-import 'user_info_dialog.dart';
+import 'user_info_loader.dart';
 
 class TextMessageItem extends StatelessWidget {
   final TextMessage message;
@@ -19,7 +19,8 @@ class TextMessageItem extends StatelessWidget {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => UserInfoDialog(
+      builder: (context) => UserInfoLoader(
+        userId: message.userId,
         photoURL: message.userPhotoURL,
         displayName: message.userDisplayName,
       ),

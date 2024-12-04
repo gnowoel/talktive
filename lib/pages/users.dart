@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/user.dart';
+import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../widgets/info.dart';
 import '../widgets/user_list.dart';
@@ -14,6 +15,7 @@ class UsersPage extends StatefulWidget {
 }
 
 class _UsersPageState extends State<UsersPage> {
+  late Fireauth fireauth;
   late Firedata firedata;
   late List<User> _users;
 
@@ -22,13 +24,20 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
-    firedata = Provider.of<Firedata>(context, listen: false);
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
     _users = [];
     _fetchUsers();
   }
 
   Future<void> _fetchUsers() async {
-    final users = await firedata.fetchUsers(excludedUserIds: <String>[]);
+    final userId = fireauth.instance.currentUser!.uid;
+    final partnerIds = firedata.partnerIds(userId);
+
+    final users = await firedata.fetchUsers(
+      excludedUserIds: [userId, ...partnerIds],
+    );
+
     setState(() {
       _users = [..._users, ...users];
       _isPopulated = true;

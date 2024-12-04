@@ -96,22 +96,21 @@ class UserInfoDialog extends StatelessWidget {
               runSpacing: 8,
               children: [
                 Tag(
-                  tooltip: 'Gender: ${getLongGenderName(user!.gender!)}',
+                  tooltip: '${getLongGenderName(user!.gender!)}',
                   child: Text(
                     user!.gender!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
-                  tooltip: 'Language: ${getLanguageName(user!.languageCode!)}',
+                  tooltip: '${getLanguageName(user!.languageCode!)}',
                   child: Text(
                     user!.languageCode!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
-                  tooltip:
-                      'Last seen: ${timeago.format(updatedAt, clock: now)}',
+                  tooltip: 'Last seen',
                   child: Text(
                     timeago.format(updatedAt, locale: 'en_short', clock: now),
                     style: const TextStyle(fontSize: 12),

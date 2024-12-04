@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talktive/helpers/helpers.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
@@ -95,18 +96,22 @@ class UserInfoDialog extends StatelessWidget {
               runSpacing: 8,
               children: [
                 Tag(
+                  tooltip: 'Gender: ${getLongGenderName(user!.gender!)}',
                   child: Text(
                     user!.gender!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
+                  tooltip: 'Language: ${getLanguageName(user!.languageCode!)}',
                   child: Text(
                     user!.languageCode!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
+                  tooltip:
+                      'Last seen: ${timeago.format(updatedAt, clock: now)}',
                   child: Text(
                     timeago.format(updatedAt, locale: 'en_short', clock: now),
                     style: const TextStyle(fontSize: 12),

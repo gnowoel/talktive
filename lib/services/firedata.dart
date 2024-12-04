@@ -83,8 +83,8 @@ class Firedata {
       final value = snapshot.value;
       final json = Map<String, dynamic>.from(value as Map);
       final stub = ChatStub(
-        createdAt: json['createdAt'] as int,
-        updatedAt: json['updatedAt'] as int,
+        createdAt: 0,
+        updatedAt: 0,
         partner: UserStub.fromJson(partner.toJson()),
         messageCount: json['messageCount'] as int,
       );

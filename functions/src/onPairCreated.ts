@@ -41,6 +41,7 @@ const copyToFollower = async (userId: string, pairId: string, pair: Pair) => {
       lastMessageContent: null,
       messageCount: pair.messageCount, // 0
       readMessageCount: pair.messageCount, // 0
+      mute: false,
       createdAt: pair.createdAt,
       updatedAt: pair.updatedAt,
     });

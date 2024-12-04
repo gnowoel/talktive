@@ -12,6 +12,7 @@ class Chat {
   final int? readMessageCount;
   final String? firstUserId;
   final String? lastMessageContent;
+  final bool? mute;
 
   Chat({
     required this.id,
@@ -22,6 +23,7 @@ class Chat {
     this.readMessageCount,
     this.firstUserId,
     this.lastMessageContent,
+    this.mute,
   });
 
   Chat copyWith({
@@ -33,6 +35,7 @@ class Chat {
     int? readMessageCount,
     String? firstUserId,
     String? lastMessageContent,
+    bool? mute,
   }) {
     return Chat(
       id: id ?? this.id,
@@ -43,6 +46,7 @@ class Chat {
       readMessageCount: readMessageCount ?? this.readMessageCount,
       firstUserId: firstUserId ?? this.firstUserId,
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
+      mute: mute ?? this.mute,
     );
   }
 
@@ -59,6 +63,7 @@ class Chat {
       readMessageCount: value.readMessageCount,
       firstUserId: value.firstUserId,
       lastMessageContent: value.lastMessageContent,
+      mute: value.mute,
     );
   }
 
@@ -91,6 +96,8 @@ class Chat {
 
   // Exists
   bool get isNotDummy => !isDummy;
+
+  bool get isMuted => mute ?? false;
 }
 
 class ChatStub {
@@ -101,6 +108,7 @@ class ChatStub {
   final int? readMessageCount;
   final String? firstUserId;
   final String? lastMessageContent;
+  final bool? mute;
 
   ChatStub({
     required this.createdAt,
@@ -110,6 +118,7 @@ class ChatStub {
     this.readMessageCount,
     this.firstUserId,
     this.lastMessageContent,
+    this.mute,
   });
 
   factory ChatStub.fromJson(Map<String, dynamic> json) {
@@ -122,6 +131,7 @@ class ChatStub {
       readMessageCount: json['readMessageCount'] as int?,
       firstUserId: json['firstUserId'] as String?,
       lastMessageContent: json['lastMessageContent'] as String?,
+      mute: json['mute'] as bool?,
     );
   }
 }

@@ -37,11 +37,11 @@ class _UserItemState extends State<UserItem> {
     _doAction(() async {
       final userId = fireauth.instance.currentUser!.uid;
       final partner = widget.user;
-      final pair = await firedata.createPair(userId, partner);
+      final chat = await firedata.createPair(userId, partner);
       if (mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ChatPage(chat: pair)),
+          MaterialPageRoute(builder: (context) => ChatPage(chat: chat)),
         );
       }
     });

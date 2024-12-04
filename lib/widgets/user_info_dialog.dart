@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
+import '../services/cache.dart';
 import 'tag.dart';
 
 class UserInfoDialog extends StatelessWidget {
@@ -61,6 +63,9 @@ class UserInfoDialog extends StatelessWidget {
       );
     }
 
+    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(user!.updatedAt);
+
     return Dialog(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -91,19 +96,19 @@ class UserInfoDialog extends StatelessWidget {
               children: [
                 Tag(
                   child: Text(
-                    'F',
+                    user!.gender!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
                   child: Text(
-                    'en',
+                    user!.languageCode!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
                   child: Text(
-                    '2h',
+                    timeago.format(updatedAt, locale: 'en_short', clock: now),
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),

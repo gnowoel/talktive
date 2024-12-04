@@ -92,6 +92,8 @@ class _UserItemState extends State<UserItem> {
               Row(
                 children: [
                   Tag(
+                    tooltip:
+                        'Gender: ${getLongGenderName(widget.user.gender!)}',
                     child: Text(
                       widget.user.gender!,
                       style: TextStyle(fontSize: 12),
@@ -100,6 +102,8 @@ class _UserItemState extends State<UserItem> {
                   ),
                   const SizedBox(width: 4),
                   Tag(
+                    tooltip:
+                        'Language: ${getLanguageName(widget.user.languageCode!)}',
                     child: Text(
                       widget.user.languageCode!,
                       style: TextStyle(fontSize: 12),
@@ -108,6 +112,8 @@ class _UserItemState extends State<UserItem> {
                   ),
                   const SizedBox(width: 4),
                   Tag(
+                    tooltip:
+                        'Last seen: ${timeago.format(updatedAt, clock: now)}',
                     child: Text(
                       timeago.format(updatedAt, locale: 'en_short', clock: now),
                       style: TextStyle(fontSize: 12),

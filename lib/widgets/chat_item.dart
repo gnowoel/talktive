@@ -83,6 +83,8 @@ class _ChatItemState extends State<ChatItem> {
               Row(
                 children: [
                   Tag(
+                    tooltip:
+                        'Gender: ${getLongGenderName(widget.chat.partner.gender!)}',
                     child: Text(
                       widget.chat.partner.gender!,
                       style: TextStyle(fontSize: 12),
@@ -91,6 +93,8 @@ class _ChatItemState extends State<ChatItem> {
                   ),
                   const SizedBox(width: 4),
                   Tag(
+                    tooltip:
+                        'Language: ${getLanguageName(widget.chat.partner.languageCode!)}',
                     child: Text(
                       widget.chat.partner.languageCode!,
                       style: TextStyle(fontSize: 12),
@@ -99,6 +103,8 @@ class _ChatItemState extends State<ChatItem> {
                   ),
                   const SizedBox(width: 4),
                   Tag(
+                    tooltip:
+                        'Last updated: ${timeago.format(updatedAt, clock: now)}',
                     child: Text(
                       timeago.format(updatedAt, locale: 'en_short', clock: now),
                       style: TextStyle(fontSize: 12),

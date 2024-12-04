@@ -12,8 +12,9 @@ class ChatsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final chats = context.select((Cache cache) => cache.chats);
     const lines = ['Your recent chats', 'will appear here.', ''];
+    final chats = context.select((Cache cache) => cache.chats);
+    final activeChats = chats.where((chat) => chat.isActive).toList();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -22,9 +23,9 @@ class ChatsPage extends StatelessWidget {
         title: const Text('Chats'),
       ),
       body: SafeArea(
-        child: chats.isEmpty
+        child: activeChats.isEmpty
             ? Center(child: Info(lines: lines))
-            : _buildLayout(chats),
+            : _buildLayout(activeChats),
       ),
     );
   }

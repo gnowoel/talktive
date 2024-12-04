@@ -11,6 +11,7 @@ import '../services/firedata.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/message_list.dart';
+import '../widgets/user_info_loader.dart';
 
 class ChatPage extends StatefulWidget {
   final Chat chat;
@@ -106,12 +107,29 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
+  void _showUserInfo(BuildContext context) {
+    final userId = fireauth.instance.currentUser!.uid;
+    final otherId = _chat.id.replaceFirst(userId, '');
+
+    showDialog(
+      context: context,
+      builder: (context) => UserInfoLoader(
+        userId: otherId,
+        photoURL: _chat.partner.photoURL!,
+        displayName: _chat.partner.displayName!,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
-        title: Text(_chat.partner.displayName!),
+        title: GestureDetector(
+          onTap: () => _showUserInfo(context),
+          child: Text(_chat.partner.displayName!),
+        ),
         actions: [
           RepaintBoundary(
             child: Hearts(chat: _chat),

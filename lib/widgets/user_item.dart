@@ -123,7 +123,7 @@ class _UserItemState extends State<UserItem> {
           ),
           trailing: IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
-            onPressed: () => _enterChat,
+            onPressed: _enterChat,
             tooltip: 'Chat',
           ),
         ),

@@ -27,6 +27,7 @@ class UserInfoLoader extends StatefulWidget {
 class _UserInfoLoaderState extends State<UserInfoLoader> {
   late Firedata firedata;
   User? _user;
+  String? _error;
 
   @override
   void initState() {
@@ -44,14 +45,15 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
   Future<void> _loadUser() async {
     try {
       final user = await firedata.fetchUser(widget.userId);
-      if (kDebugMode) {
-        await Future.delayed(const Duration(seconds: 2));
-      }
+      // if (kDebugMode) {
+      //   await Future.delayed(const Duration(seconds: 2));
+      // }
       if (mounted) {
         setState(() => _user = user);
       }
     } on AppException catch (e) {
       if (mounted) {
+        setState(() => _error = e.toString());
         ErrorHandler.showSnackBarMessage(context, e);
       }
     }
@@ -63,6 +65,7 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
       return UserInfoDialog(
         photoURL: widget.photoURL,
         displayName: widget.displayName,
+        error: _error,
       );
     }
 

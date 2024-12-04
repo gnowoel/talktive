@@ -261,8 +261,6 @@ class Firedata {
         return Chat.fromStub(key: entry.key, value: chatStub);
       }).toList();
 
-      chats.removeWhere((chat) => chat.isNew);
-
       chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       return chats;
@@ -304,6 +302,22 @@ class Firedata {
         }
         final chatMap = Map<String, dynamic>.from(chat as Map);
         chatMap['readMessageCount'] = count;
+        return Transaction.success(chatMap);
+      });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<void> updateChatMute(String chatId, String userId, bool mute) async {
+    try {
+      final ref = instance.ref('chats/$userId/$chatId');
+      await ref.runTransaction((chat) {
+        if (chat == null) {
+          return Transaction.abort();
+        }
+        final chatMap = Map<String, dynamic>.from(chat as Map);
+        chatMap['mute'] = true;
         return Transaction.success(chatMap);
       });
     } catch (e) {

@@ -3,6 +3,10 @@ import 'package:flutter/foundation.dart';
 import '../services/cache.dart';
 import 'user.dart';
 
+const delay = kDebugMode
+    ? 1000 * 60 * 6 // 6 minutes
+    : 1000 * 60 * 60 * 72; // 3 days
+
 class Chat {
   final String id;
   final int createdAt;
@@ -81,23 +85,19 @@ class Chat {
   }
 
   bool get isNew => firstUserId == null;
+  bool get isNotNew => !isNew;
 
-  bool get isClosed {
-    const delay = kDebugMode
-        ? 1000 * 60 * 6 // 6 minutes
-        : 1000 * 60 * 60 * 72; // 3 days
-    return updatedAt + delay <= Cache().now;
-  }
-
+  bool get isClosed => updatedAt + delay <= Cache().now;
   bool get isNotClosed => !isClosed;
 
   // Does not exist (not created or deleted)
   bool get isDummy => createdAt == 0 && updatedAt == 0;
-
-  // Exists
   bool get isNotDummy => !isDummy;
 
   bool get isMuted => mute ?? false;
+  bool get isNotMuted => !isMuted;
+
+  bool get isActive => isNotNew && isNotClosed && isNotMuted;
 }
 
 class ChatStub {

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,9 +44,6 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
   Future<void> _loadUser() async {
     try {
       final user = await firedata.fetchUser(widget.userId);
-      // if (kDebugMode) {
-      //   await Future.delayed(const Duration(seconds: 2));
-      // }
       if (mounted) {
         setState(() => _user = user);
       }

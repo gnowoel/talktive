@@ -67,7 +67,13 @@ class _InputState extends State<Input> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     timer.cancel();
+
+    setState(() {
+      _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+    });
+
     timer = Timer(Duration(milliseconds: _getRemains(widget.chat)), () {
       setState(() {
         _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;

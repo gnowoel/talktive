@@ -54,6 +54,20 @@ class Chat {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'partner': partner.toJson(),
+      'messageCount': messageCount,
+      'readMessageCount': readMessageCount,
+      'firstUserId': firstUserId,
+      'lastMessageContent': lastMessageContent,
+      'mute': mute,
+    };
+  }
+
   factory Chat.fromStub({
     required String key,
     required ChatStub value,

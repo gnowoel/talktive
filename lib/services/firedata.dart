@@ -361,13 +361,6 @@ class Firedata {
     return stream;
   }
 
-  List<String> partnerIds(String userId) {
-    return Cache()
-        .chats
-        .map((chat) => chat.id.replaceFirst(userId, ''))
-        .toList();
-  }
-
   Future<List<User>> fetchUsers({
     required List<String> excludedUserIds,
   }) async {

@@ -1,11 +1,6 @@
-import 'package:flutter/foundation.dart';
-
+import '../helpers/time.dart';
 import '../services/cache.dart';
 import 'user.dart';
-
-const delay = kDebugMode
-    ? 1000 * 60 * 6 // 6 minutes
-    : 1000 * 60 * 60 * 72; // 3 days
 
 class Chat {
   final String id;

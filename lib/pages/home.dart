@@ -37,7 +37,6 @@ class _HomePageState extends State<HomePage> {
 
   User? _user;
   late List<Chat> _chats;
-  late int _newMessageCount;
   bool _isLocked = false;
 
   @override
@@ -45,7 +44,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
-    history = Provider.of<History>(context, listen: false);
     cache = Provider.of<Cache>(context, listen: false);
     _chats = [];
 
@@ -67,10 +65,10 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
     theme = Theme.of(context);
     languageCode = getLanguageCode(context);
-    avatar = context.watch<Avatar>();
-    _user = context.watch<Cache>().user;
-    _chats = context.watch<Cache>().chats;
-    _newMessageCount = chatsUnreadMessageCount(_chats);
+    avatar = Provider.of<Avatar>(context);
+    cache = Provider.of<Cache>(context);
+    _user = cache.user;
+    _chats = cache.chats;
   }
 
   Future<void> _changeAvatar() async {
@@ -145,6 +143,8 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
+    final newMessageCount = chatsUnreadMessageCount(_chats);
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                       style: theme.textTheme.bodyLarge,
                     ),
                   if (!_user!.isNew) const SizedBox(height: 6),
-                  _newMessageCount == 0
+                  newMessageCount == 0
                       ? IconButton(
                           onPressed: _changeAvatar,
                           icon: const Icon(Icons.refresh),
@@ -176,7 +176,7 @@ class _HomePageState extends State<HomePage> {
                       : TextButton(
                           onPressed: _chatsPage,
                           child: Badge(
-                            label: Text('$_newMessageCount',
+                            label: Text('$newMessageCount',
                                 style: TextStyle(fontSize: 14)),
                             backgroundColor: theme.colorScheme.error,
                           ),

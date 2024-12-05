@@ -6,9 +6,14 @@ import '../services/cache.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 
-class ChatsPage extends StatelessWidget {
+class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
 
+  @override
+  State<ChatsPage> createState() => _ChatsPageState();
+}
+
+class _ChatsPageState extends State<ChatsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

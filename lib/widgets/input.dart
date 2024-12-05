@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/exception.dart';
+import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/cache.dart';
@@ -51,11 +51,14 @@ class _InputState extends State<Input> {
 
     _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
 
-    timer = Timer(Duration(milliseconds: _getRemains(widget.chat)), () {
-      setState(() {
-        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
-      });
-    });
+    timer = Timer(
+      Duration(milliseconds: getTimeLeft(widget.chat)),
+      () {
+        setState(() {
+          _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+        });
+      },
+    );
   }
 
   @override
@@ -74,30 +77,20 @@ class _InputState extends State<Input> {
       _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
     });
 
-    timer = Timer(Duration(milliseconds: _getRemains(widget.chat)), () {
-      setState(() {
-        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
-      });
-    });
+    timer = Timer(
+      Duration(milliseconds: getTimeLeft(widget.chat)),
+      () {
+        setState(() {
+          _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
     timer.cancel();
     super.dispose();
-  }
-
-  int _getRemains(Chat chat) {
-    final delay = kDebugMode
-        ? 1000 * 60 * 6 // 6 minutes
-        : 1000 * 60 * 60 * 72; // 3 days
-
-    final now = Cache().now;
-    final then = chat.updatedAt;
-    final elapsed = now - then;
-    final diff = delay - elapsed;
-
-    return diff < 0 ? 0 : diff;
   }
 
   Future<void> _sendTextMessage(User user) async {

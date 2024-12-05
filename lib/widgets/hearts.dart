@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../services/cache.dart';
 import '../services/firedata.dart';
@@ -57,36 +57,31 @@ class _HeartsState extends State<Hearts> {
     return Duration(milliseconds: now - then);
   }
 
-  String _getRemains(Chat chat) {
+  String _getInfoText(Chat chat) {
     final now = Cache().now;
-    final then = chat.updatedAt;
-    final elapsed = now - then;
-    final delay = kDebugMode
-        ? 1000 * 60 * 6 // 6 minutes
-        : 1000 * 60 * 60 * 72; // 3 days
-    final diff = delay - elapsed;
+    final diff = getTimeLeft(chat, now: now);
 
     if (chat.isNew) return 'New chat';
 
-    if (diff <= 0) return 'Chat closed';
+    if (diff == 0) return 'Chat closed';
 
-    var remains = timeago.format(
+    var text = timeago.format(
       DateTime.fromMillisecondsSinceEpoch(now - diff),
       locale: 'en_short',
       clock: DateTime.fromMillisecondsSinceEpoch(now),
     );
 
-    if (remains == 'now') {
+    if (text == 'now') {
       return 'Closing soon';
     }
 
-    return 'Closing in $remains';
+    return 'Closing in $text';
   }
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: _getRemains(widget.chat),
+      message: _getInfoText(widget.chat),
       child: HeartList(elapsed: _elapsed),
     );
   }

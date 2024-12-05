@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../services/cache.dart';
 import '../widgets/chat_list.dart';
@@ -50,26 +50,13 @@ class _ChatsPageState extends State<ChatsPage> {
 
     _timer?.cancel();
 
-    final times = _chats.map((chat) => _getRemains(chat)).toList();
+    final times = _chats.map((chat) => getTimeLeft(chat)).toList();
     times.sort();
     final nextTime = times.first;
 
     _timer = Timer(Duration(milliseconds: nextTime), () {
       _setChatsAndTimer();
     });
-  }
-
-  int _getRemains(Chat chat) {
-    final delay = kDebugMode
-        ? 1000 * 60 * 6 // 6 minutes
-        : 1000 * 60 * 60 * 72; // 3 days
-
-    final now = Cache().now;
-    final then = chat.updatedAt;
-    final elapsed = now - then;
-    final diff = delay - elapsed;
-
-    return diff < 0 ? 0 : diff;
   }
 
   @override

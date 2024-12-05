@@ -20,7 +20,6 @@ class _UsersPageState extends State<UsersPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Cache cache;
-  late List<Chat> _chats;
   late List<User> _users;
 
   bool _isPopulated = false;
@@ -28,23 +27,17 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
+
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    cache = context.read<Cache>();
     _users = [];
+
+    _fetchUsers(cache.chats);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // TODO: Cache `chats` in a separate class to avoid unnecessary rebuilds
-    cache = Provider.of<Cache>(context);
-    setState(() => _chats = cache.chats);
-    _fetchUsers();
-  }
-
-  Future<void> _fetchUsers() async {
-    final inactiveIds = _inactiveIds();
+  Future<void> _fetchUsers(List<Chat> chats) async {
+    final inactiveIds = _inactiveIds(chats);
     final users = await firedata.fetchUsers(
       excludedUserIds: inactiveIds,
     );
@@ -55,17 +48,17 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
-  List<User> _filterUsers() {
-    final inactiveIds = _inactiveIds();
+  List<User> _filterUsers(List<Chat> chats) {
+    final inactiveIds = _inactiveIds(chats);
     final users = _users.where((user) {
       return !inactiveIds.contains(user.id);
     }).toList();
     return users;
   }
 
-  List<String> _inactiveIds() {
+  List<String> _inactiveIds(List<Chat> chats) {
     final userId = fireauth.instance.currentUser!.uid;
-    final partnerIds = _partnerIds(userId, _chats);
+    final partnerIds = _partnerIds(userId, chats);
     return [userId, ...partnerIds];
   }
 
@@ -79,7 +72,9 @@ class _UsersPageState extends State<UsersPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try once again.', ''];
-    final users = _filterUsers();
+
+    final chats = context.select((Cache cache) => cache.chats);
+    final users = _filterUsers(chats);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,

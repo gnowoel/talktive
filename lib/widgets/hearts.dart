@@ -24,7 +24,7 @@ class Hearts extends StatefulWidget {
 
 class _HeartsState extends State<Hearts> {
   late Firedata firedata;
-  late Timer timer;
+  late Timer _timer;
   late Duration _elapsed;
 
   @override
@@ -35,14 +35,14 @@ class _HeartsState extends State<Hearts> {
 
     _elapsed = _getElapsed();
 
-    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() => _elapsed = _getElapsed());
     });
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    _timer.cancel();
     super.dispose();
   }
 

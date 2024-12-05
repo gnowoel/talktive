@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,28 +17,65 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  late Timer _timer;
+  late Cache cache;
+  late List<Chat> _chats;
+  Timer? _timer;
 
   @override
   initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {});
-    });
+    _chats = [];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // TODO: Cache chats in a separate class.
+    cache = Provider.of<Cache>(context);
+    _setChatsAndTimer();
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
+  }
+
+  void _setChatsAndTimer() {
+    setState(() {
+      _chats = cache.chats.where((chat) => chat.isActive).toList();
+    });
+
+    if (_chats.isEmpty) return;
+
+    _timer?.cancel();
+
+    final times = _chats.map((chat) => _getRemains(chat)).toList();
+    times.sort();
+    final nextTime = times.first;
+
+    _timer = Timer(Duration(milliseconds: nextTime), () {
+      _setChatsAndTimer();
+    });
+  }
+
+  int _getRemains(Chat chat) {
+    final delay = kDebugMode
+        ? 1000 * 60 * 6 // 6 minutes
+        : 1000 * 60 * 60 * 72; // 3 days
+
+    final now = Cache().now;
+    final then = chat.updatedAt;
+    final elapsed = now - then;
+    final diff = delay - elapsed;
+
+    return diff < 0 ? 0 : diff;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['Your recent chats', 'will appear here.', ''];
-    final chats = context.select((Cache cache) => cache.chats);
-    final activeChats = chats.where((chat) => chat.isActive).toList();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -46,9 +84,9 @@ class _ChatsPageState extends State<ChatsPage> {
         title: const Text('Chats'),
       ),
       body: SafeArea(
-        child: activeChats.isEmpty
+        child: _chats.isEmpty
             ? Center(child: Info(lines: lines))
-            : _buildLayout(activeChats),
+            : _buildLayout(_chats),
       ),
     );
   }

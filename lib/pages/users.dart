@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/chat.dart';
 import '../models/user.dart';
+import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../widgets/info.dart';
@@ -17,6 +19,8 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage> {
   late Fireauth fireauth;
   late Firedata firedata;
+  late Cache cache;
+  late List<Chat> _chats;
   late List<User> _users;
 
   bool _isPopulated = false;
@@ -27,27 +31,55 @@ class _UsersPageState extends State<UsersPage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     _users = [];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // TODO: Cache `chats` in a separate class to avoid unnecessary rebuilds
+    cache = Provider.of<Cache>(context);
+    setState(() => _chats = cache.chats);
     _fetchUsers();
   }
 
   Future<void> _fetchUsers() async {
-    final userId = fireauth.instance.currentUser!.uid;
-    final partnerIds = firedata.partnerIds(userId);
-
+    final inactiveIds = _inactiveIds();
     final users = await firedata.fetchUsers(
-      excludedUserIds: [userId, ...partnerIds],
+      excludedUserIds: inactiveIds,
     );
 
     setState(() {
-      _users = [..._users, ...users];
+      _users = users;
       _isPopulated = true;
     });
+  }
+
+  List<User> _filterUsers() {
+    final inactiveIds = _inactiveIds();
+    final users = _users.where((user) {
+      return !inactiveIds.contains(user.id);
+    }).toList();
+    return users;
+  }
+
+  List<String> _inactiveIds() {
+    final userId = fireauth.instance.currentUser!.uid;
+    final partnerIds = _partnerIds(userId, _chats);
+    return [userId, ...partnerIds];
+  }
+
+  List<String> _partnerIds(String userId, List<Chat> chats) {
+    return chats.map((chat) {
+      return chat.id.replaceFirst(userId, '');
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try once again.', ''];
+    final users = _filterUsers();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -56,11 +88,11 @@ class _UsersPageState extends State<UsersPage> {
         title: const Text('Users'),
       ),
       body: SafeArea(
-        child: _users.isEmpty
+        child: users.isEmpty
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
-            : _buildLayout(_users),
+            : _buildLayout(users),
       ),
     );
   }

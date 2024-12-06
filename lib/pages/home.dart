@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     cache = Provider.of<Cache>(context);
 
     _user = cache.user;
-    _chats = cache.chats;
+    _chats = cache.chats.where((chat) => chat.isActive).toList();
   }
 
   Future<void> _changeAvatar() async {

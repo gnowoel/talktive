@@ -9,7 +9,6 @@ import 'package:flutter/rendering.dart';
 import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
-import 'services/history.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +34,6 @@ Future<void> main() async {
   }
 
   Avatar().init();
-  await History().init();
   debugRepaintRainbowEnabled = false;
   runApp(const App());
 }

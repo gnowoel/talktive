@@ -9,7 +9,6 @@ import 'services/avatar.dart';
 import 'services/cache.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
-import 'services/history.dart';
 import 'services/storage.dart';
 import 'theme.dart';
 
@@ -27,7 +26,6 @@ class App extends StatelessWidget {
         Provider(create: (context) => Fireauth(auth)),
         Provider(create: (context) => Firedata(database)),
         Provider(create: (context) => Storage(storage)),
-        ChangeNotifierProvider(create: (context) => History()),
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => Cache()),
       ],

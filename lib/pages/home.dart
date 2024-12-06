@@ -10,7 +10,6 @@ import '../services/avatar.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/history.dart';
 import 'chats.dart';
 import 'profile.dart';
 import 'users.dart';
@@ -28,7 +27,6 @@ class _HomePageState extends State<HomePage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
-  late History history;
   late Cache cache;
 
   late StreamSubscription clockSkewSubscription;
@@ -42,9 +40,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     cache = Provider.of<Cache>(context, listen: false);
+
     _chats = [];
 
     final userId = fireauth.instance.currentUser!.uid;
@@ -54,21 +54,22 @@ class _HomePageState extends State<HomePage> {
     });
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
       cache.updateUser(user);
+      setState(() => _user = user);
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       cache.updateChats(chats);
+      setState(() => _chats = chats);
     });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     theme = Theme.of(context);
     languageCode = getLanguageCode(context);
+
     avatar = Provider.of<Avatar>(context);
-    cache = Provider.of<Cache>(context);
-    _user = cache.user;
-    _chats = cache.chats;
   }
 
   Future<void> _changeAvatar() async {

@@ -34,32 +34,14 @@ class _HomePageState extends State<HomePage> {
   late StreamSubscription chatsSubscription;
 
   User? _user;
-  late List<Chat> _chats;
+  List<Chat> _chats = [];
   bool _isLocked = false;
 
   @override
   void initState() {
     super.initState();
-
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
-    cache = Provider.of<Cache>(context, listen: false);
-
-    _chats = [];
-
-    final userId = fireauth.instance.currentUser!.uid;
-
-    clockSkewSubscription = firedata.subscribeToClockSkew().listen((clockSkew) {
-      cache.updateClockSkew(clockSkew);
-    });
-    userSubscription = firedata.subscribeToUser(userId).listen((user) {
-      cache.updateUser(user);
-      setState(() => _user = user);
-    });
-    chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
-      cache.updateChats(chats);
-      setState(() => _chats = chats);
-    });
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
   }
 
   @override
@@ -70,6 +52,10 @@ class _HomePageState extends State<HomePage> {
     languageCode = getLanguageCode(context);
 
     avatar = Provider.of<Avatar>(context);
+    cache = Provider.of<Cache>(context);
+
+    _user = cache.user;
+    _chats = cache.chats;
   }
 
   Future<void> _changeAvatar() async {

@@ -42,9 +42,7 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void _setChatsAndTimer() {
-    setState(() {
-      _chats = cache.chats.where((chat) => chat.isActive).toList();
-    });
+    _chats = cache.chats.where((chat) => chat.isActive).toList();
 
     if (_chats.isEmpty) return;
 
@@ -55,7 +53,9 @@ class _ChatsPageState extends State<ChatsPage> {
     final nextTime = times.first;
 
     _timer = Timer(Duration(milliseconds: nextTime), () {
-      _setChatsAndTimer();
+      setState(() {
+        _setChatsAndTimer();
+      });
     });
   }
 

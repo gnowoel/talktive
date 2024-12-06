@@ -110,9 +110,10 @@ class _ChatPageState extends State<ChatPage> {
     scrollController.dispose();
     focusNode.dispose();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateReadMessageCount(_chat);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _updateReadMessageCount(_chat);
+    // });
+    _updateReadMessageCount(_chat);
 
     super.dispose();
   }

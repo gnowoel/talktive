@@ -214,33 +214,24 @@ class Firedata {
     return stream;
   }
 
-  Future<void> updateChatReadMessageCount(
-      String chatId, String userId, int count) async {
+  Future<void> updateChat(
+    String chatId,
+    String userId, {
+    int? readMessageCount,
+    bool? mute,
+  }) async {
     try {
       final ref = instance.ref('chats/$userId/$chatId');
-      await ref.runTransaction((chat) {
-        if (chat == null) {
-          return Transaction.abort();
-        }
-        final chatMap = Map<String, dynamic>.from(chat as Map);
-        chatMap['readMessageCount'] = count;
-        return Transaction.success(chatMap);
-      });
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
 
-  Future<void> updateChatMute(String chatId, String userId, bool mute) async {
-    try {
-      final ref = instance.ref('chats/$userId/$chatId');
       await ref.runTransaction((chat) {
-        if (chat == null) {
-          return Transaction.abort();
-        }
-        final chatMap = Map<String, dynamic>.from(chat as Map);
-        chatMap['mute'] = true;
-        return Transaction.success(chatMap);
+        if (chat == null) return Transaction.abort();
+
+        final json = Map<String, dynamic>.from(chat as Map);
+
+        json['readMessageCount'] = readMessageCount ?? json['readMessageCount'];
+        json['mute'] = mute ?? json['mute'];
+
+        return Transaction.success(json);
       });
     } catch (e) {
       throw AppException(e.toString());

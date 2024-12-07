@@ -14,3 +14,10 @@ int getTimeLeft(Chat chat, {int? now}) {
   final diff = delay - elapsed;
   return diff < 0 ? 0 : diff;
 }
+
+int? getNextTime(List<Chat> chats) {
+  if (chats.isEmpty) return null;
+  final times = chats.map((chat) => getTimeLeft(chat)).toList();
+  times.sort();
+  return times.first;
+}

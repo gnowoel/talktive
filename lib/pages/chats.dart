@@ -18,7 +18,7 @@ class ChatsPage extends StatefulWidget {
 
 class _ChatsPageState extends State<ChatsPage> {
   late Cache cache;
-  late List<Chat> _chats;
+  List<Chat> _chats = [];
   Timer? _timer;
 
   @override
@@ -44,15 +44,17 @@ class _ChatsPageState extends State<ChatsPage> {
   void _setChatsAndTimer() {
     _chats = cache.chats.where((chat) => chat.isActive).toList();
 
-    if (_chats.isEmpty) return;
+    final nextTime = getNextTime(_chats);
+
+    if (nextTime == null) return;
+
+    final duration = Duration(
+      milliseconds: nextTime,
+    );
 
     _timer?.cancel();
 
-    final times = _chats.map((chat) => getTimeLeft(chat)).toList();
-    times.sort();
-    final nextTime = times.first;
-
-    _timer = Timer(Duration(milliseconds: nextTime), () {
+    _timer = Timer(duration, () {
       setState(() {
         _setChatsAndTimer();
       });

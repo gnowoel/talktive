@@ -20,8 +20,8 @@ class _UsersPageState extends State<UsersPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Cache cache;
-  late List<User> _users;
 
+  List<User> _users = [];
   bool _isPopulated = false;
 
   @override
@@ -31,29 +31,19 @@ class _UsersPageState extends State<UsersPage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     cache = context.read<Cache>();
-    _users = [];
 
     _fetchUsers(cache.chats);
   }
 
   Future<void> _fetchUsers(List<Chat> chats) async {
-    final knownUserIds = _knownUserIds(chats);
     final users = await firedata.fetchUsers(
-      excludedUserIds: knownUserIds,
+      excludedUserIds: _knownUserIds(chats),
     );
 
     setState(() {
       _users = users;
       _isPopulated = true;
     });
-  }
-
-  List<User> _filterUsers(List<Chat> chats) {
-    final knownUserIds = _knownUserIds(chats);
-    final users = _users.where((user) {
-      return !knownUserIds.contains(user.id);
-    }).toList();
-    return users;
   }
 
   List<String> _knownUserIds(List<Chat> chats) {
@@ -73,9 +63,6 @@ class _UsersPageState extends State<UsersPage> {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try once again.', ''];
 
-    final chats = context.select((Cache cache) => cache.chats);
-    final users = _filterUsers(chats);
-
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
@@ -83,16 +70,16 @@ class _UsersPageState extends State<UsersPage> {
         title: const Text('Users'),
       ),
       body: SafeArea(
-        child: users.isEmpty
+        child: _users.isEmpty
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
-            : _buildLayout(users),
+            : _buildLayout(),
       ),
     );
   }
 
-  LayoutBuilder _buildLayout(List<User> users) {
+  LayoutBuilder _buildLayout() {
     return LayoutBuilder(
       builder: (context, constraints) {
         final theme = Theme.of(context);
@@ -107,7 +94,7 @@ class _UsersPageState extends State<UsersPage> {
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-              child: UserList(users: users),
+              child: UserList(users: _users),
             ),
           );
         } else {
@@ -115,7 +102,7 @@ class _UsersPageState extends State<UsersPage> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
             ),
-            child: UserList(users: users),
+            child: UserList(users: _users),
           );
         }
       },

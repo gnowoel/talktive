@@ -215,8 +215,8 @@ class Firedata {
   }
 
   Future<void> updateChat(
-    String chatId,
-    String userId, {
+    String userId,
+    String chatId, {
     int? readMessageCount,
     bool? mute,
   }) async {

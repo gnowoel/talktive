@@ -93,18 +93,6 @@ class _ChatPageState extends State<ChatPage> {
     theme = Theme.of(context);
   }
 
-  Future<void> _updateReadMessageCount(Chat chat) async {
-    final readMessageCount = _messages.length;
-
-    if (readMessageCount == 0) return;
-
-    await firedata.updateChat(
-      fireauth.instance.currentUser!.uid,
-      chat.id,
-      readMessageCount: readMessageCount,
-    );
-  }
-
   @override
   void dispose() {
     messagesSubscription.cancel();
@@ -129,6 +117,20 @@ class _ChatPageState extends State<ChatPage> {
         photoURL: _chat.partner.photoURL!,
         displayName: _chat.partner.displayName!,
       ),
+    );
+  }
+
+  Future<void> _updateReadMessageCount(Chat chat) async {
+    final count = _messages.length;
+
+    if (count == 0 || count == _chat.readMessageCount) {
+      return;
+    }
+
+    await firedata.updateChat(
+      fireauth.instance.currentUser!.uid,
+      chat.id,
+      readMessageCount: count,
     );
   }
 

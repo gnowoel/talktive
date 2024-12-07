@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
 
   User? _user;
   List<Chat> _chats = [];
+  Timer? _timer;
   bool _isLocked = false;
 
   @override
@@ -55,7 +56,27 @@ class _HomePageState extends State<HomePage> {
     cache = Provider.of<Cache>(context);
 
     _user = cache.user;
+    _setChatsAndTimer();
+  }
+
+  void _setChatsAndTimer() {
     _chats = cache.chats.where((chat) => chat.isActive).toList();
+
+    final nextTime = getNextTime(_chats);
+
+    if (nextTime == null) return;
+
+    final duration = Duration(
+      milliseconds: nextTime,
+    );
+
+    _timer?.cancel();
+
+    _timer = Timer(duration, () {
+      setState(() {
+        _setChatsAndTimer();
+      });
+    });
   }
 
   Future<void> _changeAvatar() async {
@@ -114,6 +135,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     chatsSubscription.cancel();
     userSubscription.cancel();
     clockSkewSubscription.cancel();

@@ -37,9 +37,9 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _fetchUsers(List<Chat> chats) async {
-    final inactiveIds = _inactiveIds(chats);
+    final knownUserIds = _knownUserIds(chats);
     final users = await firedata.fetchUsers(
-      excludedUserIds: inactiveIds,
+      excludedUserIds: knownUserIds,
     );
 
     setState(() {
@@ -49,14 +49,14 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   List<User> _filterUsers(List<Chat> chats) {
-    final inactiveIds = _inactiveIds(chats);
+    final knownUserIds = _knownUserIds(chats);
     final users = _users.where((user) {
-      return !inactiveIds.contains(user.id);
+      return !knownUserIds.contains(user.id);
     }).toList();
     return users;
   }
 
-  List<String> _inactiveIds(List<Chat> chats) {
+  List<String> _knownUserIds(List<Chat> chats) {
     final userId = fireauth.instance.currentUser!.uid;
     final partnerIds = _partnerIds(userId, chats);
     return [userId, ...partnerIds];
@@ -107,7 +107,7 @@ class _UsersPageState extends State<UsersPage> {
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-              child: UserList(users: _users),
+              child: UserList(users: users),
             ),
           );
         } else {
@@ -115,7 +115,7 @@ class _UsersPageState extends State<UsersPage> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
             ),
-            child: UserList(users: _users),
+            child: UserList(users: users),
           );
         }
       },

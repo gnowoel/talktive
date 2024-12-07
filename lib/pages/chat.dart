@@ -94,11 +94,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _updateReadMessageCount(Chat chat) async {
-    final userId = fireauth.instance.currentUser!.uid;
-    await firedata.updateChatReadMessageCount(
+    final readMessageCount = _messages.length;
+
+    if (readMessageCount == 0) return;
+
+    await firedata.updateChat(
+      fireauth.instance.currentUser!.uid,
       chat.id,
-      userId,
-      _messages.length,
+      readMessageCount: readMessageCount,
     );
   }
 
@@ -110,9 +113,6 @@ class _ChatPageState extends State<ChatPage> {
     scrollController.dispose();
     focusNode.dispose();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _updateReadMessageCount(_chat);
-    // });
     _updateReadMessageCount(_chat);
 
     super.dispose();

@@ -58,6 +58,12 @@ class _UsersPageState extends State<UsersPage> {
     }).toList();
   }
 
+  void _hideUser(User user) {
+    setState(() {
+      _users.remove(user);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -94,7 +100,7 @@ class _UsersPageState extends State<UsersPage> {
                 border: Border.all(color: theme.colorScheme.secondaryContainer),
               ),
               constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-              child: UserList(users: _users),
+              child: UserList(users: _users, hideUser: _hideUser),
             ),
           );
         } else {
@@ -102,7 +108,7 @@ class _UsersPageState extends State<UsersPage> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
             ),
-            child: UserList(users: _users),
+            child: UserList(users: _users, hideUser: _hideUser),
           );
         }
       },

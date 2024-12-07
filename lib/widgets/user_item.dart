@@ -12,10 +12,12 @@ import 'tag.dart';
 
 class UserItem extends StatefulWidget {
   final User user;
+  final void Function(User) hideUser;
 
   const UserItem({
     super.key,
     required this.user,
+    required this.hideUser,
   });
 
   @override
@@ -38,6 +40,7 @@ class _UserItemState extends State<UserItem> {
       final userId = fireauth.instance.currentUser!.uid;
       final partner = widget.user;
       final chat = await firedata.createPair(userId, partner);
+      widget.hideUser(widget.user);
       if (mounted) {
         Navigator.push(
           context,

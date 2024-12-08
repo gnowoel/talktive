@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -164,6 +163,7 @@ class _InputState extends State<Input> {
         imageQuality: 70,
         maxWidth: 1440,
         source: ImageSource.gallery,
+        requestFullMetadata: false,
       );
 
       if (xFile == null) return;

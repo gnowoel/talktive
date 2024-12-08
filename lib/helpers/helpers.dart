@@ -5,3 +5,4 @@ export './gender.dart';
 export './messages.dart';
 export './time.dart';
 export './images.dart';
+export './uri.dart';

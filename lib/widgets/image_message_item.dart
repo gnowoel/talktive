@@ -24,7 +24,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   @override
   void initState() {
     super.initState();
-    _imageProvider = getImageProvder(widget.message.uri);
+    _imageProvider = getImageProvder(convertUri(widget.message.uri));
   }
 
   void _showUserInfo(BuildContext context) {

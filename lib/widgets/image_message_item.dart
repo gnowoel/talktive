@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/helpers.dart';
 import '../models/image_message.dart';
 import '../services/fireauth.dart';
 import 'user_info_loader.dart';
@@ -18,6 +19,14 @@ class ImageMessageItem extends StatefulWidget {
 }
 
 class _ImageMessageItemState extends State<ImageMessageItem> {
+  late ImageProvider _imageProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageProvider = getImageProvder(widget.message.uri);
+  }
+
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
@@ -65,7 +74,10 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                 Flexible(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.network(widget.message.uri),
+                    child: Image(
+                      fit: BoxFit.contain,
+                      image: _imageProvider,
+                    ),
                   ),
                 ),
               ],
@@ -91,7 +103,10 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                 Flexible(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.network(widget.message.uri),
+                    child: Image(
+                      fit: BoxFit.contain,
+                      image: _imageProvider,
+                    ),
                   ),
                 ),
               ],

@@ -5,7 +5,7 @@ import '../models/image_message.dart';
 import '../services/fireauth.dart';
 import 'user_info_loader.dart';
 
-class ImageMessageItem extends StatelessWidget {
+class ImageMessageItem extends StatefulWidget {
   final ImageMessage message;
 
   const ImageMessageItem({
@@ -13,13 +13,18 @@ class ImageMessageItem extends StatelessWidget {
     required this.message,
   });
 
+  @override
+  State<ImageMessageItem> createState() => _ImageMessageItemState();
+}
+
+class _ImageMessageItemState extends State<ImageMessageItem> {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => UserInfoLoader(
-        userId: message.userId,
-        photoURL: message.userPhotoURL,
-        displayName: message.userDisplayName,
+        userId: widget.message.userId,
+        photoURL: widget.message.userPhotoURL,
+        displayName: widget.message.userDisplayName,
       ),
     );
   }
@@ -28,7 +33,7 @@ class ImageMessageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = message.userId == currentUser.uid;
+    final byMe = widget.message.userId == currentUser.uid;
 
     // Bot messages are always shown on the left
     return byMe
@@ -45,9 +50,9 @@ class ImageMessageItem extends StatelessWidget {
           GestureDetector(
             onTap: () => _showUserInfo(context),
             child: Tooltip(
-              message: message.userDisplayName,
+              message: widget.message.userDisplayName,
               child: Text(
-                message.userPhotoURL,
+                widget.message.userPhotoURL,
                 style: const TextStyle(fontSize: 24),
               ),
             ),
@@ -60,7 +65,7 @@ class ImageMessageItem extends StatelessWidget {
                 Flexible(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.network(message.uri),
+                    child: Image.network(widget.message.uri),
                   ),
                 ),
               ],
@@ -86,7 +91,7 @@ class ImageMessageItem extends StatelessWidget {
                 Flexible(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.network(message.uri),
+                    child: Image.network(widget.message.uri),
                   ),
                 ),
               ],
@@ -96,9 +101,9 @@ class ImageMessageItem extends StatelessWidget {
           GestureDetector(
             onTap: () => _showUserInfo(context),
             child: Tooltip(
-              message: message.userDisplayName,
+              message: widget.message.userDisplayName,
               child: Text(
-                message.userPhotoURL,
+                widget.message.userPhotoURL,
                 style: const TextStyle(fontSize: 24),
               ),
             ),

@@ -2,15 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+const _a = 'http://10.0.2.2';
+const _b = 'http://localhost';
+
 @override
 String convertUri(String uri) {
   if (!kDebugMode) return uri;
+  if (_isAndroid) return uri.replaceFirst(_b, _a);
+  return uri.replaceFirst(_a, _b);
+}
 
-  if (kIsWeb) {
-    return uri.replaceFirst('10.0.2.2', 'localhost');
-  } else if (Platform.isAndroid) {
-    return uri.replaceFirst('localhost', '10.0.2.2');
-  }
-
-  return uri.replaceFirst('10.0.2.2', 'localhost');
+bool get _isAndroid {
+  if (kIsWeb) return false;
+  if (Platform.isAndroid) return true;
+  return false;
 }

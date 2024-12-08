@@ -142,6 +142,25 @@ class _InputState extends State<Input> {
 
   Future<void> _sendImageMessage(User user) async {
     await _doAction(() async {
+      if (widget.chat.isDummy) {
+        if (mounted) {
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been deleted.'),
+            severe: true,
+          );
+        }
+        return;
+      } else if (widget.chat.isClosed) {
+        if (mounted) {
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The room has been closed.'),
+          );
+        }
+        return;
+      }
+
       final xFile = await ImagePicker().pickImage(
         imageQuality: 70,
         maxWidth: 1440,
@@ -150,41 +169,24 @@ class _InputState extends State<Input> {
 
       if (xFile == null) return;
 
-      if (!widget.chat.isDummy && !widget.chat.isClosed) {
-        final chat = widget.chat;
+      setState(() => _isUploading = true);
 
-        final file = File(xFile.path);
-        final path = 'chats/${chat.id}/${xFile.name}';
-
-        setState(() => _isUploading = true);
-        if (kDebugMode) {
-          await Future.delayed(Duration(seconds: 2));
-        }
-        final uri = await storage.saveFile(path, file);
-
-        await firedata.sendImageMessage(
-          chat,
-          user.id,
-          user.displayName!,
-          user.photoURL!,
-          uri,
-        );
+      if (kDebugMode) {
+        await Future.delayed(const Duration(seconds: 1));
       }
 
-      if (mounted) {
-        if (widget.chat.isDummy) {
-          ErrorHandler.showSnackBarMessage(
-            context,
-            AppException('The room has been deleted.'),
-            severe: true,
-          );
-        } else if (widget.chat.isClosed) {
-          ErrorHandler.showSnackBarMessage(
-            context,
-            AppException('The room has been closed.'),
-          );
-        }
-      }
+      final file = File(xFile.path);
+      final path = 'chats/${widget.chat.id}/${xFile.name}';
+
+      final uri = await storage.saveFile(path, file);
+
+      await firedata.sendImageMessage(
+        widget.chat,
+        user.id,
+        user.displayName!,
+        user.photoURL!,
+        uri,
+      );
     });
   }
 

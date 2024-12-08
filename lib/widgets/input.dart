@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -171,14 +170,9 @@ class _InputState extends State<Input> {
 
       setState(() => _isUploading = true);
 
-      if (kDebugMode) {
-        await Future.delayed(const Duration(seconds: 1));
-      }
-
-      final file = File(xFile.path);
+      final data = await xFile.readAsBytes();
       final path = 'chats/${widget.chat.id}/${xFile.name}';
-
-      final uri = await storage.saveFile(path, file);
+      final uri = await storage.saveData(path, data);
 
       await firedata.sendImageMessage(
         widget.chat,

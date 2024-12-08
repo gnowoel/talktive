@@ -85,6 +85,10 @@ class _ChatItemState extends State<ChatItem> {
 
     return Dismissible(
       key: Key(widget.chat.id),
+      background: Icon(
+        Icons.delete,
+        color: colorScheme.error,
+      ),
       onDismissed: (direction) async {
         await _muteChat();
       },

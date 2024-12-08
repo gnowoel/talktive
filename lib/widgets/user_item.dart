@@ -81,6 +81,10 @@ class _UserItemState extends State<UserItem> {
 
     return Dismissible(
       key: Key(widget.user.id),
+      background: Icon(
+        Icons.delete,
+        color: colorScheme.error,
+      ),
       onDismissed: (direction) async {
         await _createPairAndHideUser();
       },

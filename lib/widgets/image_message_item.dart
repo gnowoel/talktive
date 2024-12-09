@@ -86,7 +86,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                       maxHeight: halfWidth,
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(8),
                       child: GestureDetector(
                         onTap: () => _showImageViewer(context),
                         child: Image(
@@ -126,7 +126,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                         maxHeight: halfWidth,
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(8),
                         child: GestureDetector(
                           onTap: () => _showImageViewer(context),
                           child: Image(

@@ -53,39 +53,45 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   Widget _buildMessageItemLeft(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => _showUserInfo(context),
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        GestureDetector(
+          onTap: () => _showUserInfo(context),
+          child: Tooltip(
+            message: widget.message.userDisplayName,
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image(
-                      fit: BoxFit.contain,
-                      image: _imageProvider,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Flexible(
+                child: LayoutBuilder(builder: (context, constraints) {
+                  final halfWidth = constraints.maxWidth / 2;
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: halfWidth,
+                      maxHeight: halfWidth,
                     ),
-                  ),
-                ),
-              ],
-            ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image(
+                        fit: BoxFit.contain,
+                        image: _imageProvider,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-          const SizedBox(width: 48),
-        ],
-      ),
+        ),
+        const SizedBox(width: 32),
+      ]),
     );
   }
 
@@ -95,19 +101,28 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          const SizedBox(width: 48),
+          const SizedBox(width: 32),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Flexible(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image(
-                      fit: BoxFit.contain,
-                      image: _imageProvider,
-                    ),
-                  ),
+                  child: LayoutBuilder(builder: (context, constraints) {
+                    final halfWidth = constraints.maxWidth / 2;
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: halfWidth,
+                        maxHeight: halfWidth,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image(
+                          fit: BoxFit.contain,
+                          image: _imageProvider,
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),

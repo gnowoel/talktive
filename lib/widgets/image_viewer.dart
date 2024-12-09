@@ -11,22 +11,15 @@ class ImageViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.zero,
+    return Dialog.fullscreen(
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Photo View
           PhotoView(
             imageProvider: imageProvider,
             minScale: PhotoViewComputedScale.contained,
             maxScale: PhotoViewComputedScale.covered * 2,
-            backgroundDecoration: const BoxDecoration(
-              color: Colors.transparent,
-            ),
           ),
-          // Close button
           Positioned(
             top: 40,
             right: 20,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../helpers/helpers.dart';
 import '../models/image_message.dart';
 import '../services/fireauth.dart';
+import 'image_viewer.dart';
 import 'user_info_loader.dart';
 
 class ImageMessageItem extends StatefulWidget {
@@ -35,6 +36,13 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
         photoURL: widget.message.userPhotoURL,
         displayName: widget.message.userDisplayName,
       ),
+    );
+  }
+
+  void _showImageViewer(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => ImageViewer(imageProvider: _imageProvider),
     );
   }
 
@@ -79,9 +87,12 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: Image(
-                        fit: BoxFit.contain,
-                        image: _imageProvider,
+                      child: GestureDetector(
+                        onTap: () => _showImageViewer(context),
+                        child: Image(
+                          fit: BoxFit.contain,
+                          image: _imageProvider,
+                        ),
                       ),
                     ),
                   );
@@ -116,9 +127,12 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(15),
-                        child: Image(
-                          fit: BoxFit.contain,
-                          image: _imageProvider,
+                        child: GestureDetector(
+                          onTap: () => _showImageViewer(context),
+                          child: Image(
+                            fit: BoxFit.contain,
+                            image: _imageProvider,
+                          ),
                         ),
                       ),
                     );

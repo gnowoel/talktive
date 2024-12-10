@@ -1,10 +1,10 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
-import { Chat, Message, PairParams, StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
 import { ChatGPTService } from './services/chatgpt';
 import { CHATGPT_CONFIG } from './config';
+import { Chat, RoomMessage, Message, PairParams, StatParams } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -51,7 +51,7 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
     await updateUserUpdatedAt(userId, now);
     if (isPair) {
       await updatePair(pairId, message, now);
-      await sendPushNotification(userId, pairId);
+      await sendPushNotification(userId, pairId, message);
     } else {
       await updateRoomTimestamps(roomId, messageCreatedAt);
     }
@@ -102,7 +102,7 @@ const updatePair = async (pairId: string, message: Message, now: Date) => {
   }
 };
 
-const sendPushNotification = async (userId: string, pairId: string) => {
+const sendPushNotification = async (userId: string, pairId: string, message: Message) => {
   try {
     const otherId = pairId.replace(userId, '');
     const chatId = pairId;
@@ -119,17 +119,17 @@ const sendPushNotification = async (userId: string, pairId: string) => {
 
     if (!token) return;
 
-    const title = '<title>';
-    const body = '<body>';
+    const title = `${message.userPhotoURL} ${message.userDisplayName} sent a message:`;
+    const body = message.content;
     const data = undefined;
 
-    const message: admin.messaging.Message = {
+    const pushMessage: admin.messaging.Message = {
       notification: { title, body },
       data,
       token
     };
 
-    await admin.messaging().send(message);
+    await admin.messaging().send(pushMessage);
   } catch (error) {
     logger.error(error);
   }
@@ -259,7 +259,7 @@ const isRoomClosed = (room: Room, timestamp: number) => {
   return room.filter === '-cccc' || room.closedAt <= timestamp;
 };
 
-const sendBotResponse = async (roomId: string, message: Message) => {
+const sendBotResponse = async (roomId: string, message: RoomMessage) => {
   if (roomId !== BOT.userId) return; // Disable chatbot for now
 
   if (message.userId === BOT.userId) return;
@@ -285,7 +285,7 @@ const sendBotResponse = async (roomId: string, message: Message) => {
       .limitToLast(CHATGPT_CONFIG.maxContextMessages + 1);
 
     const recentMessagesSnapshot = await recentMessagesQuery.get();
-    const recentMessages: Message[] = [];
+    const recentMessages: RoomMessage[] = [];
 
     if (recentMessagesSnapshot.exists()) {
       recentMessagesSnapshot.forEach((childSnapshot) => {

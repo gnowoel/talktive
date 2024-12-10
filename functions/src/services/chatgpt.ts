@@ -1,7 +1,7 @@
 import { logger } from 'firebase-functions';
 import fetch from 'node-fetch';
 import { CHATGPT_CONFIG } from '../config';
-import { Message } from '../types';
+import { RoomMessage } from '../types';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -46,7 +46,7 @@ export class ChatGPTService {
     }
   }
 
-  private static convertToContextMessages(messages: Message[]): ChatMessage[] {
+  private static convertToContextMessages(messages: RoomMessage[]): ChatMessage[] {
     return messages.map(msg => {
       if (msg.userId === 'bot') {
         return {
@@ -64,7 +64,7 @@ export class ChatGPTService {
     });
   }
 
-  public static async generateResponse(currentMessage: Message, recentMessages: Message[] = []): Promise<string | null> {
+  public static async generateResponse(currentMessage: RoomMessage, recentMessages: RoomMessage[] = []): Promise<string | null> {
     try {
       const messages: ChatMessage[] = [
         {

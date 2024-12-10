@@ -3,17 +3,17 @@ import 'package:provider/provider.dart';
 
 import 'pages/empty.dart';
 import 'pages/error.dart';
-import 'upstream.dart';
+import 'notifier.dart';
 import 'services/fireauth.dart';
 
-class Entry extends StatefulWidget {
-  const Entry({super.key});
+class Auth extends StatefulWidget {
+  const Auth({super.key});
 
   @override
-  State<Entry> createState() => _EntryState();
+  State<Auth> createState() => _AuthState();
 }
 
-class _EntryState extends State<Entry> {
+class _AuthState extends State<Auth> {
   void refresh() {
     setState(() {});
   }
@@ -39,7 +39,7 @@ class _EntryState extends State<Entry> {
           );
         }
 
-        return const Upstream();
+        return const Notifier();
       },
     );
   }

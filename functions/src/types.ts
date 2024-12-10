@@ -7,6 +7,7 @@ export interface User {
   displayName?: string;
   description?: string;
   gender?: string;
+  fcmToken?: string;
 }
 
 export interface Pair {
@@ -16,6 +17,18 @@ export interface Pair {
   messageCount: number;
   firstUserId?: string;
   lastMessageContent?: string;
+}
+
+export interface Chat {
+  id?: string;
+  createdAt: number;
+  updatedAt: number;
+  partner: User;
+  messageCount: number;
+  readMessageCount?: number;
+  firstUserId?: string;
+  lastMessageContent?: string;
+  mute?: boolean;
 }
 
 export interface Message {

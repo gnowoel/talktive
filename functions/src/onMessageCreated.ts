@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
-import { Message, PairParams, StatParams } from './types';
+import { Chat, Message, PairParams, StatParams } from './types';
 import { formatDate, isDebugMode } from './helpers';
 import { ChatGPTService } from './services/chatgpt';
 import { CHATGPT_CONFIG } from './config';
@@ -105,6 +105,16 @@ const updatePair = async (pairId: string, message: Message, now: Date) => {
 const sendPushNotification = async (userId: string, pairId: string) => {
   try {
     const otherId = pairId.replace(userId, '');
+    const chatId = pairId;
+
+    const chat = await getChat(userId, chatId);
+
+    if (!chat) return;
+
+    const isActive = isChatActive(chat);
+
+    if (!isActive) return;
+
     const token = await getFcmToken(otherId);
 
     if (!token) return;
@@ -125,6 +135,38 @@ const sendPushNotification = async (userId: string, pairId: string) => {
   }
 };
 
+const getChat = async (userId: string, chatId: string) => {
+  try {
+    const chatRef = db.ref(`chats/${userId}/${chatId}`);
+    const snapshot = await chatRef.get();
+
+    if (!snapshot.exists()) return null;
+
+    const chat = snapshot.val();
+
+    return chat;
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const isChatActive = (chat: Chat) => {
+  return !isChatNew(chat) && !isChatClosed(chat) && !isChatMuted(chat);
+};
+
+const isChatNew = (chat: Chat) => {
+  return !chat.firstUserId;
+};
+
+const isChatClosed = (chat: Chat) => {
+  const now = new Date().getTime();
+  return chat.updatedAt + timeBeforeClosing <= now;
+};
+
+const isChatMuted = (chat: Chat) => {
+  return !!chat.mute;
+};
+
 const getFcmToken = async (userId: string) => {
   try {
     const userRef = db.ref(`users/${userId}`);
@@ -138,7 +180,7 @@ const getFcmToken = async (userId: string) => {
   } catch (error) {
     logger.error(error);
   }
-}
+};
 
 const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) => {
   const ref = db.ref(`rooms/${roomId}`);

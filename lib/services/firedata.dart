@@ -165,6 +165,12 @@ class Firedata {
     }
   }
 
+  Future<void> setUserFcmToken(String? userId, String? fcmToken) async {
+    if (userId == null || fcmToken == null) return;
+    final ref = instance.ref('users/$userId/fcmToken');
+    await ref.set(fcmToken);
+  }
+
   Stream<List<Chat>> subscribeToChats(String userId) {
     final ref = instance.ref('chats/$userId');
 

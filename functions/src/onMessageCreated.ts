@@ -51,6 +51,7 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
     await updateUserUpdatedAt(userId, now);
     if (isPair) {
       await updatePair(pairId, message, now);
+      await sendPushNotification(userId, pairId);
     } else {
       await updateRoomTimestamps(roomId, messageCreatedAt);
     }
@@ -70,7 +71,7 @@ const updateUserUpdatedAt = async (userId: string, now: Date) => {
   } catch (error) {
     logger.error(error);
   }
-}
+};
 
 const updatePair = async (pairId: string, message: Message, now: Date) => {
   const ref = db.ref(`pairs/${pairId}`);
@@ -96,6 +97,44 @@ const updatePair = async (pairId: string, message: Message, now: Date) => {
 
   try {
     await ref.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const sendPushNotification = async (userId: string, pairId: string) => {
+  try {
+    const otherId = pairId.replace(userId, '');
+    const token = await getFcmToken(otherId);
+
+    if (!token) return;
+
+    const title = '<title>';
+    const body = '<body>';
+    const data = undefined;
+
+    const message: admin.messaging.Message = {
+      notification: { title, body },
+      data,
+      token
+    };
+
+    await admin.messaging().send(message);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const getFcmToken = async (userId: string) => {
+  try {
+    const userRef = db.ref(`users/${userId}`);
+    const snapshot = await userRef.get();
+
+    if (!snapshot.exists()) return null;
+
+    const user = snapshot.val();
+
+    return user.fcmToken;
   } catch (error) {
     logger.error(error);
   }

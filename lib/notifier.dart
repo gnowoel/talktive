@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'pages/home.dart';
 import 'services/messaging.dart';
-import 'streams.dart';
 
 class Notifier extends StatefulWidget {
   const Notifier({super.key});
@@ -19,6 +19,6 @@ class _NotifierState extends State<Notifier> {
 
   @override
   Widget build(BuildContext context) {
-    return const Streams();
+    return const HomePage();
   }
 }

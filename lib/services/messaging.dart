@@ -6,7 +6,15 @@ class Messaging {
 
   Messaging(this.instance);
 
-  Future<void> init() async {
+  Future<String?> getToken() async {
+    return await instance.getToken();
+  }
+
+  Stream<String> subscribeToFcmToken() {
+    return instance.onTokenRefresh;
+  }
+
+  Future<void> addListeners() async {
     // Handle background messages
     FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
 
@@ -29,14 +37,6 @@ class Messaging {
 
   Future<void> _handleMessageOpenedApp(RemoteMessage message) async {
     debugPrint('Handling notification tap when app is in background');
-  }
-
-  Future<String?> getToken() async {
-    return await instance.getToken();
-  }
-
-  Stream<String> subscribeToFcmToken() {
-    return instance.onTokenRefresh;
   }
 }
 

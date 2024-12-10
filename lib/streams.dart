@@ -8,14 +8,14 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import 'pages/home.dart';
 
-class Upstream extends StatefulWidget {
-  const Upstream({super.key});
+class Streams extends StatefulWidget {
+  const Streams({super.key});
 
   @override
-  State<Upstream> createState() => _UpstreamState();
+  State<Streams> createState() => _StreamsState();
 }
 
-class _UpstreamState extends State<Upstream> {
+class _StreamsState extends State<Streams> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Cache cache;

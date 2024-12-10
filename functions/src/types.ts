@@ -31,13 +31,23 @@ export interface Chat {
   mute?: boolean;
 }
 
-export interface Message {
+export interface RoomMessage {
   id?: string;
   userId: string;
   userName: string;
   userCode: string;
   content: string;
   createdAt: number;
+}
+
+export interface Message {
+  id?: string;
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL: string;
+  content: string;
+  createdAt: number;
+  type: string;
 }
 
 export interface PairParams {

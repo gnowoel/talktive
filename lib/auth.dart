@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'pages/empty.dart';
 import 'pages/error.dart';
-import 'notifier.dart';
+import 'streams.dart';
 import 'services/fireauth.dart';
 
 class Auth extends StatefulWidget {
@@ -39,7 +39,7 @@ class _AuthState extends State<Auth> {
           );
         }
 
-        return const Notifier();
+        return const Streams();
       },
     );
   }

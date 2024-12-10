@@ -2,19 +2,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 class Messaging {
-  Messaging._();
-  static final Messaging _instance = Messaging._();
-  factory Messaging() => _instance;
+  final FirebaseMessaging instance;
 
-  final instance = FirebaseMessaging.instance;
+  Messaging(this.instance);
 
   Future<void> init() async {
-    await _requestPermission();
-
-    // Get FCM token
-    final token = await instance.getToken();
-    debugPrint('FCM Token: $token');
-
     // Handle background messages
     FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
 
@@ -31,20 +23,6 @@ class Messaging {
     });
   }
 
-  Future<void> _requestPermission() async {
-    if (!kIsWeb) {
-      final settings = await instance.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        debugPrint('Notfication permission granted');
-      }
-    }
-  }
-
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     debugPrint('Handling foreground message: ${message.messageId}');
   }
@@ -55,6 +33,10 @@ class Messaging {
 
   Future<String?> getToken() async {
     return await instance.getToken();
+  }
+
+  Stream<String> subscribeToFcmToken() {
+    return instance.onTokenRefresh;
   }
 }
 

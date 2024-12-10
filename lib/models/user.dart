@@ -7,6 +7,7 @@ class User {
   final String? displayName;
   final String? description;
   final String? gender;
+  final String? fcmToken;
 
   User({
     required this.id,
@@ -17,6 +18,7 @@ class User {
     this.displayName,
     this.description,
     this.gender,
+    this.fcmToken,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +31,7 @@ class User {
       'displayName': displayName,
       'description': description,
       'gender': gender,
+      'fcmToken': fcmToken,
     };
   }
 
@@ -45,6 +48,7 @@ class User {
       displayName: value.displayName,
       description: value.description,
       gender: value.gender,
+      fcmToken: value.fcmToken,
     );
   }
 
@@ -65,6 +69,7 @@ class UserStub {
   final String? displayName;
   final String? description;
   final String? gender;
+  final String? fcmToken;
 
   UserStub({
     required this.createdAt,
@@ -74,6 +79,7 @@ class UserStub {
     this.displayName,
     this.description,
     this.gender,
+    this.fcmToken,
   });
 
   Map<String, dynamic> toJson() {
@@ -85,6 +91,7 @@ class UserStub {
       'displayName': displayName,
       'description': description,
       'gender': gender,
+      'fcmToken': fcmToken,
     };
   }
 
@@ -97,6 +104,7 @@ class UserStub {
       displayName: json['displayName'] as String?,
       description: json['description'] as String?,
       gender: json['gender'] as String?,
+      fcmToken: json['fcmToken'] as String?,
     );
   }
 }

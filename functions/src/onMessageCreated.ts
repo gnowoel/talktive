@@ -119,13 +119,12 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
 
     if (!token) return;
 
-    const title = `${message.userPhotoURL} ${message.userDisplayName} sent a message:`;
+    const title = `${message.userPhotoURL} ${message.userDisplayName}`;
     const body = message.content;
-    const data = undefined;
 
     const pushMessage: admin.messaging.Message = {
       notification: { title, body },
-      data,
+      data: { userId, chatId },
       token
     };
 

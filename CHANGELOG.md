@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2.0.0+18
+
+- Chat in private rooms
+- Send push notifications
+
 ## 1.4.0+17
 
 - Now people can share pictures

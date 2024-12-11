@@ -47,6 +47,7 @@ class _NotifierState extends State<Notifier> {
     try {
       await _requestPermission();
       await _storeFcmToken();
+      await _localSetup();
       await _addListeners();
     } catch (e) {
       // Ignore on unsupported platforms
@@ -77,6 +78,14 @@ class _NotifierState extends State<Notifier> {
         _fcmToken = token;
         await firedata.setUserFcmToken(_user?.id, _fcmToken);
       });
+    } catch (e) {
+      // Ignore on unsupported platforms
+    }
+  }
+
+  Future<void> _localSetup() async {
+    try {
+      await messaging.localSetup();
     } catch (e) {
       // Ignore on unsupported platforms
     }

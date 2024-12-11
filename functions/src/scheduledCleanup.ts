@@ -24,7 +24,7 @@ const timeBeforePairDeleting = isDebugMode()
   : 96 * 3600 * 1000; // 96 hours
 
 interface Params {
-  [userId: string]: null
+  [userId: string]: null;
 }
 
 export const scheduledCleanup = onSchedule('every hour', async (_event) => {
@@ -39,6 +39,7 @@ export const scheduledCleanup = onSchedule('every hour', async (_event) => {
 export const requestedCleanup = onRequest(async (_req, res) => {
   try {
     await setup();
+    await migrate();
     await cleanup();
   } catch (error) {
     logger.error(error);
@@ -73,6 +74,50 @@ const setupDailyStats = async (timestamp: Date) => {
         responses: 0,
       });
     }
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const migrate = async () => {
+  try {
+    await migrateUsers();
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+const migrateUsers = async () => {
+  const ref = db.ref('users');
+
+  const query = ref
+    .orderByChild('updatedAt')
+    .endBefore(0)
+    .limitToFirst(1000);
+
+  try {
+    const snapshot = await query.get();
+
+    if (!snapshot.exists()) return;
+
+    const users = snapshot.val();
+    logger.info(users);
+    const userIds = Object.keys(users);
+    const params: Params = {};
+    const usersRef = db.ref('users');
+
+    userIds.forEach((userId) => {
+      const user = users[userId];
+      if (!user['updatedAt']) {
+        const timestamp = user.filter.slice(5);
+        const then = new Date(timestamp).getTime();
+        user['createdAt'] = then;
+        user['updatedAt'] = then;
+        params[userId] = user;
+      }
+    });
+
+    await usersRef.update(params);
   } catch (error) {
     logger.error(error);
   }

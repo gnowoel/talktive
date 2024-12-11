@@ -159,9 +159,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isNew = widget.user == null ? true : widget.user!.isNew;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About me'),
+        title: isNew ? const Text('Introduce Yourself') : const Text('Profile'),
       ),
       body: Form(
         key: _formKey,
@@ -233,7 +235,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             strokeWidth: 3,
                           ),
                         )
-                      : const Text('Save'),
+                      : isNew
+                          ? const Text('Continue')
+                          : const Text('Save'),
                 ),
               ),
             ),

@@ -107,7 +107,7 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
     const otherId = pairId.replace(userId, '');
     const chatId = pairId;
 
-    const chat = await getChat(userId, chatId);
+    const chat = await getChat(otherId, chatId);
 
     if (!chat) return;
 
@@ -124,7 +124,7 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
 
     const pushMessage: admin.messaging.Message = {
       notification: { title, body },
-      data: { userId, chatId },
+      data: { senderId: userId, userId: otherId, chatId },
       token
     };
 

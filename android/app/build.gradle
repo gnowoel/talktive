@@ -37,6 +37,9 @@ android {
     ndkVersion = "27.0.12077973"
 
     compileOptions {
+        // Added by me
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -58,6 +61,9 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        //Added by me
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -82,4 +88,7 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    // Added by me
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.3'
+}

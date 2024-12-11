@@ -284,11 +284,12 @@ class Firedata {
     required List<String> excludedUserIds,
   }) async {
     try {
+      final now = DateTime.now();
       final users = <User>[];
       final minNumber = kDebugMode ? 8 : 16;
       final limit = minNumber * 2;
 
-      int? endBefore;
+      int endBefore = now.add(const Duration(days: 365)).millisecondsSinceEpoch;
       bool next = true;
 
       while (next) {
@@ -348,12 +349,11 @@ class Firedata {
   }) async {
     try {
       final ref = instance.ref('users');
-      final query = endBefore == null
-          ? ref.orderByChild('updatedAt').limitToLast(limit)
-          : ref
-              .orderByChild('updatedAt')
-              .endBefore(endBefore)
-              .limitToLast(limit);
+      final query = ref
+          .orderByChild('updatedAt')
+          .startAt(0)
+          .endBefore(endBefore)
+          .limitToLast(limit);
       final snapshot = await query.get();
 
       if (!snapshot.exists) {

@@ -287,15 +287,17 @@ class Firedata {
       final users = <User>[];
       final now = DateTime.now();
       final tomorrow = now.add(const Duration(days: 1)).millisecondsSinceEpoch;
+      final startAfter = -1 * tomorrow;
 
-      var startAfter = -1 * tomorrow;
       var limit = kDebugMode ? 2 : 32;
       var minimum = kDebugMode ? 1 : 16;
       var retries = 3;
 
       while (retries > 0) {
+        users.clear();
+
         final result = await _getUsers(
-          startAfter: startAfter, // Might miss user who just updated
+          startAfter: startAfter,
           limit: limit,
         );
 
@@ -313,8 +315,7 @@ class Firedata {
           retries = 0;
         }
 
-        if (retries != 0) {
-          startAfter = -1 * result.last.updatedAt;
+        if (retries > 1) {
           limit *= 2;
           retries--;
         }

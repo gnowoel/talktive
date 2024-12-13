@@ -21,20 +21,25 @@ const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
 });
 
 const updateUserPriority = async (userId: string, user: User) => {
+  if (isNew(user)) return;
+
   const userRef = db.ref(`users/${userId}`);
-  const languageCode = user.languageCode;
-  const updatedAt = user.updatedAt;
 
-  if (!languageCode || !updatedAt) return;
-
-  const timestamp = new Date(updatedAt).toJSON();
-  const priority = `${languageCode}-${timestamp}`;
+  const priority = -1 * user.updatedAt;
 
   await userRef.setPriority(priority, (error) => {
     if (error) {
       logger.error(error);
     }
   });
-};
+}
+
+const isNew = (user: User) => {
+  return !user.languageCode ||
+    !user.photoURL ||
+    !user.displayName ||
+    !user.description ||
+    !user.gender;
+}
 
 export default onUserUpdated;

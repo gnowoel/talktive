@@ -284,36 +284,39 @@ class Firedata {
     required List<String> excludedUserIds,
   }) async {
     try {
-      final now = DateTime.now();
       final users = <User>[];
-      final minNumber = kDebugMode ? 8 : 16;
-      final limit = minNumber * 2;
+      final now = DateTime.now();
+      final tomorrow = now.add(const Duration(days: 1)).millisecondsSinceEpoch;
 
-      int endBefore = now.add(const Duration(days: 365)).millisecondsSinceEpoch;
-      bool next = true;
+      var startAfter = -1 * tomorrow;
+      var limit = kDebugMode ? 2 : 32;
+      var minimum = kDebugMode ? 1 : 16;
+      var retries = 3;
 
-      while (next) {
+      while (retries > 0) {
         final result = await _getUsers(
-          endBefore: endBefore,
+          startAfter: startAfter, // Might miss user who just updated
           limit: limit,
         );
 
         if (result.length < limit) {
-          next = false;
+          retries = 0;
         }
 
         for (final user in result) {
-          if (!user.isNew && !excludedUserIds.contains(user.id)) {
+          if (!excludedUserIds.contains(user.id)) {
             users.add(user);
           }
         }
 
-        if (users.length >= minNumber) {
-          next = false;
+        if (users.length >= minimum) {
+          retries = 0;
         }
 
-        if (next) {
-          endBefore = result.last.updatedAt;
+        if (retries != 0) {
+          startAfter = -1 * result.last.updatedAt;
+          limit *= 2;
+          retries--;
         }
       }
 
@@ -344,15 +347,15 @@ class Firedata {
   }
 
   Future<List<User>> _getUsers({
-    required int? endBefore,
+    required int startAfter,
     required int limit,
   }) async {
     try {
       final ref = instance.ref('users');
       final query = ref
-          .orderByChild('updatedAt')
-          .startAt(0)
-          .endBefore(endBefore)
+          .orderByPriority()
+          .startAfter(startAfter)
+          .endBefore(0)
           .limitToLast(limit);
       final snapshot = await query.get();
 

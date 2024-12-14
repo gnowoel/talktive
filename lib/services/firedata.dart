@@ -357,7 +357,7 @@ class Firedata {
           .orderByPriority()
           .startAfter(startAfter)
           .endBefore(0)
-          .limitToLast(limit);
+          .limitToFirst(limit);
       final snapshot = await query.get();
 
       if (!snapshot.exists) {

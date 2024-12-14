@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2.0.0+18
+## 2.0.1+19
 
 - Chat in private rooms
 - Send push notifications

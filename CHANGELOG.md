@@ -2,6 +2,10 @@
 
 ## 2.0.1+19
 
+- Fetch users in reversed timestamp order
+
+## 2.0.0+18
+
 - Chat in private rooms
 - Send push notifications
 

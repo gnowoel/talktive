@@ -7,5 +7,6 @@ int chatsUnreadMessageCount(List<Chat> chats) {
 }
 
 int chatUnreadMessageCount(Chat chat) {
-  return chat.messageCount - chat.readMessageCount!;
+  final diff = chat.messageCount - chat.readMessageCount!;
+  return diff > 0 ? diff : 0;
 }

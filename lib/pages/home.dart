@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    final newMessageCount = chatsUnreadMessageCount(_chats);
+    final newMessageCountTotal = chatsUnreadMessageCount(_chats);
 
     return Scaffold(
       body: SafeArea(
@@ -176,19 +176,19 @@ class _HomePageState extends State<HomePage> {
                       style: theme.textTheme.bodyLarge,
                     ),
                   if (!_user!.isNew) const SizedBox(height: 6),
-                  newMessageCount == 0
-                      ? IconButton(
-                          onPressed: _changeAvatar,
-                          icon: const Icon(Icons.refresh),
-                          tooltip: 'Change avatar',
-                        )
-                      : TextButton(
+                  newMessageCountTotal > 0
+                      ? TextButton(
                           onPressed: _chatsPage,
                           child: Badge(
-                            label: Text('$newMessageCount',
+                            label: Text('$newMessageCountTotal',
                                 style: TextStyle(fontSize: 14)),
                             backgroundColor: theme.colorScheme.error,
                           ),
+                        )
+                      : IconButton(
+                          onPressed: _changeAvatar,
+                          icon: const Icon(Icons.refresh),
+                          tooltip: 'Change avatar',
                         ),
                   const SizedBox(height: 8),
                   Stack(

@@ -160,13 +160,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isNew = widget.user == null ? true : widget.user!.isNew;
-
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: isNew ? const Text('Introduce Yourself') : const Text('Profile'),
+        title: const Text('My profile'),
       ),
       body: SafeArea(
         child: Layout(
@@ -240,9 +238,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 strokeWidth: 3,
                               ),
                             )
-                          : isNew
-                              ? const Text('Continue')
-                              : const Text('Save'),
+                          : const Text('Save'),
                     ),
                   ),
                 ),

@@ -74,7 +74,7 @@ class _UsersPageState extends State<UsersPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Users'),
+        title: const Text('Top users'),
       ),
       body: SafeArea(
         child: _users.isEmpty

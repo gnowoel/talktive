@@ -91,6 +91,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _usersPage() async {
     await _doAction(() async {
+      if (_user!.isNew) {
+        await firedata.updateProfile(
+          userId: _user!.id,
+          languageCode: languageCode,
+          photoURL: avatar.code,
+          displayName: avatar.shortName,
+          description: avatar.name,
+          gender: 'X',
+        );
+      }
       await _enterPage(UsersPage());
     });
   }
@@ -205,6 +215,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTip() {
     final colorScheme = Theme.of(context).colorScheme;
+    final hasUpdated = _user!.hasUpdated ?? false;
 
     return Center(
       child: TextButton.icon(
@@ -214,7 +225,7 @@ class _HomePageState extends State<HomePage> {
           size: 16,
         ),
         label: Text(
-          _user!.isNew
+          !hasUpdated
               ? "Don't forget to update your profile"
               : "Inactive chats will expire in 3 days",
           style: TextStyle(

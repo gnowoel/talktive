@@ -131,6 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
           displayName: displayName,
           description: description,
           gender: _selectedGender!,
+          hasUpdated: true,
         );
 
         if (mounted) {

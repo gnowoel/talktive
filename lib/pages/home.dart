@@ -222,7 +222,9 @@ class _HomePageState extends State<HomePage> {
           size: 16,
         ),
         label: Text(
-          'Inactive chats will expire in 3 days',
+          _user!.isNew
+              ? "Don't forget to update your profile"
+              : "Inactive chats will expire in 3 days",
           style: TextStyle(
             color: colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w400,

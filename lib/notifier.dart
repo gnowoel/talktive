@@ -45,7 +45,7 @@ class _NotifierState extends State<Notifier> {
 
   Future<void> _firstTimeSetup() async {
     try {
-      await _requestPermission();
+      // await _requestPermission();
       await _storeFcmToken();
       await _localSetup();
       await _addListeners();
@@ -54,17 +54,17 @@ class _NotifierState extends State<Notifier> {
     }
   }
 
-  Future<void> _requestPermission() async {
-    try {
-      await messaging.instance.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    } catch (e) {
-      // Ignore on unsupported platforms
-    }
-  }
+  // Future<void> _requestPermission() async {
+  //   try {
+  //     await messaging.instance.requestPermission(
+  //       alert: true,
+  //       badge: true,
+  //       sound: true,
+  //     );
+  //   } catch (e) {
+  //     // Ignore on unsupported platforms
+  //   }
+  // }
 
   Future<void> _storeFcmToken() async {
     try {

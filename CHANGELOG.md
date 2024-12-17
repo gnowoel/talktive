@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2.0.2+20
+
+- Fix a bug where new message count could be negative
+- Update layout of the home page
+- Updating user profiles is no longer mandatory
+- Don't request for push notification permissions
+- Update dependencies
+
 ## 2.0.1+19
 
 - Fetch users in reversed timestamp order

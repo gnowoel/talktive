@@ -29,10 +29,6 @@ class _HomePageState extends State<HomePage> {
   late Avatar avatar;
   late Cache cache;
 
-  late StreamSubscription clockSkewSubscription;
-  late StreamSubscription userSubscription;
-  late StreamSubscription chatsSubscription;
-
   User? _user;
   List<Chat> _chats = [];
   Timer? _timer;
@@ -136,9 +132,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _timer?.cancel();
-    chatsSubscription.cancel();
-    userSubscription.cancel();
-    clockSkewSubscription.cancel();
     super.dispose();
   }
 

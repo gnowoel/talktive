@@ -289,8 +289,8 @@ class Firedata {
       final tomorrow = now.add(const Duration(days: 1)).millisecondsSinceEpoch;
       final startAfter = -1 * tomorrow;
 
-      var limit = kDebugMode ? 2 : 32;
-      var minimum = kDebugMode ? 1 : 16;
+      var limit = kDebugMode ? 4 : 32;
+      var minimum = kDebugMode ? 2 : 16;
       var retries = 3;
 
       while (retries > 0) {

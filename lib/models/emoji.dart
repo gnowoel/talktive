@@ -3,25 +3,29 @@ import 'dart:math';
 import 'package:unicode_emojis/unicode_emojis.dart' as emojis;
 
 class Emoji {
-  final String name;
   final String code;
+  final String name;
+  final String shortName;
 
   Emoji({
-    required this.name,
     required this.code,
+    required this.name,
+    required this.shortName,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
       'code': code,
+      'name': name,
+      'shortName': shortName,
     };
   }
 
   factory Emoji.fromJson(Map<String, dynamic> json) {
     return Emoji(
-      name: json['name'] as String,
       code: json['code'] as String,
+      name: json['name'] as String,
+      shortName: json['shortName'] as String,
     );
   }
 
@@ -29,8 +33,9 @@ class Emoji {
     final randomEmoji = _collection[Random().nextInt(_collection.length)];
 
     return Emoji(
-      name: randomEmoji.name,
       code: randomEmoji.emoji,
+      name: randomEmoji.name,
+      shortName: randomEmoji.shortName,
     );
   }
 
@@ -56,9 +61,10 @@ class Emoji {
       identical(this, other) ||
       other is Emoji &&
           runtimeType == other.runtimeType &&
+          code == other.code &&
           name == other.name &&
-          code == other.code;
+          shortName == other.shortName;
 
   @override
-  int get hashCode => name.hashCode ^ code.hashCode;
+  int get hashCode => code.hashCode ^ name.hashCode ^ shortName.hashCode;
 }

@@ -10,6 +10,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
+import '../widgets/layout.dart';
 import '../widgets/message_list.dart';
 import '../widgets/user_info_loader.dart';
 
@@ -151,56 +152,25 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
       body: SafeArea(
-        child: _buildLayoutBuilder(),
-      ),
-    );
-  }
-
-  Widget _buildLayoutBuilder() {
-    return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth >= 600) {
-        return Align(
-          alignment: Alignment.center,
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(24),
+        child: Layout(
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Expanded(
+                child: MessageList(
+                  focusNode: focusNode,
+                  scrollController: scrollController,
+                  messages: _messages,
+                ),
               ),
-              border: Border.all(color: theme.colorScheme.secondaryContainer),
-            ),
-            constraints: const BoxConstraints(minWidth: 324, maxWidth: 576),
-            child: _buildColumn(),
-          ),
-        );
-      } else {
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-          ),
-          child: _buildColumn(),
-        );
-      }
-    });
-  }
-
-  Widget _buildColumn() {
-    return Column(
-      children: [
-        const SizedBox(height: 10),
-        Expanded(
-          child: MessageList(
-            focusNode: focusNode,
-            scrollController: scrollController,
-            messages: _messages,
+              Input(
+                focusNode: focusNode,
+                chat: _chat,
+              ),
+            ],
           ),
         ),
-        Input(
-          focusNode: focusNode,
-          chat: _chat,
-        ),
-      ],
+      ),
     );
   }
 }

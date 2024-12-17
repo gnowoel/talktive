@@ -71,7 +71,7 @@ class _ChatsPageState extends State<ChatsPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Chats'),
+        title: const Text('Recent chats'),
       ),
       body: SafeArea(
         child: _chats.isEmpty

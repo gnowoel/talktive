@@ -169,20 +169,11 @@ class _HomePageState extends State<HomePage> {
                       style: theme.textTheme.bodyLarge,
                     ),
                   if (!_user!.isNew) const SizedBox(height: 6),
-                  newMessageCountTotal > 0
-                      ? TextButton(
-                          onPressed: _chatsPage,
-                          child: Badge(
-                            label: Text('$newMessageCountTotal',
-                                style: TextStyle(fontSize: 14)),
-                            backgroundColor: theme.colorScheme.error,
-                          ),
-                        )
-                      : IconButton(
-                          onPressed: _changeAvatar,
-                          icon: const Icon(Icons.refresh),
-                          tooltip: 'Change avatar',
-                        ),
+                  IconButton(
+                    onPressed: _changeAvatar,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'Change avatar',
+                  ),
                   const SizedBox(height: 8),
                   FilledButton(
                     onPressed: _usersPage,
@@ -194,11 +185,20 @@ class _HomePageState extends State<HomePage> {
                     child: const Text('Chats'),
                   ),
                   const SizedBox(height: 8),
-                  IconButton(
-                    onPressed: _updateProfile,
-                    icon: const Icon(Icons.sentiment_satisfied_outlined),
-                    tooltip: 'Update profile',
-                  ),
+                  newMessageCountTotal > 0
+                      ? TextButton(
+                          onPressed: _chatsPage,
+                          child: Badge(
+                            label: Text('$newMessageCountTotal',
+                                style: TextStyle(fontSize: 14)),
+                            backgroundColor: theme.colorScheme.error,
+                          ),
+                        )
+                      : IconButton(
+                          onPressed: _updateProfile,
+                          icon: const Icon(Icons.sentiment_satisfied_outlined),
+                          tooltip: 'Update profile',
+                        ),
                 ],
               ),
             ),

@@ -184,19 +184,14 @@ class _HomePageState extends State<HomePage> {
                           tooltip: 'Change avatar',
                         ),
                   const SizedBox(height: 8),
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      FilledButton(
-                        onPressed: _chatsPage,
-                        child: const Text('Chats'),
-                      ),
-                    ],
+                  FilledButton(
+                    onPressed: _usersPage,
+                    child: const Text('Users'),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: _usersPage,
-                    child: const Text('Users'),
+                    onPressed: _chatsPage,
+                    child: const Text('Chats'),
                   ),
                   const SizedBox(height: 8),
                   IconButton(

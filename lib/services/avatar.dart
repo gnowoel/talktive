@@ -13,9 +13,11 @@ class Avatar extends ChangeNotifier {
 
   Emoji _emoji = Emoji.random();
 
+  String get code => _emoji.code;
+
   String get name => _emoji.name;
 
-  String get code => _emoji.code;
+  String get shortName => _emoji.shortName;
 
   void refresh() {
     final emoji = _getNewEmoji();

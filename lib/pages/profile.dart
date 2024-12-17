@@ -6,6 +6,7 @@ import '../models/user.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../widgets/layout.dart';
 
 class ProfilePage extends StatefulWidget {
   final User? user;
@@ -162,86 +163,92 @@ class _ProfilePageState extends State<ProfilePage> {
     final isNew = widget.user == null ? true : widget.user!.isNew;
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: isNew ? const Text('Introduce Yourself') : const Text('Profile'),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Center(
-                child: Text(
-                  _photoURL,
-                  style: const TextStyle(fontSize: 64),
+      body: SafeArea(
+        child: Layout(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      _photoURL,
+                      style: const TextStyle(fontSize: 64),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48),
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _displayNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Display Name',
-                      hintText: 'What do people call you?',
-                    ),
-                    validator: _validateDisplayName,
-                    textInputAction: TextInputAction.next,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _displayNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Display Name',
+                          hintText: 'What do people call you?',
+                        ),
+                        validator: _validateDisplayName,
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          hintText: 'Tell us a bit about yourself',
+                        ),
+                        validator: _validateDescription,
+                        minLines: 1,
+                        maxLines: 3,
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Gender',
+                        ),
+                        value: _selectedGender,
+                        items: _genderOptions
+                            .map((option) => DropdownMenuItem(
+                                  value: option['value'],
+                                  child: Text(option['label']!),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedGender = value);
+                        },
+                        validator: _validateGender,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Tell us a bit about yourself',
-                    ),
-                    validator: _validateDescription,
-                    minLines: 1,
-                    maxLines: 3,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
-                    ),
-                    value: _selectedGender,
-                    items: _genderOptions
-                        .map((option) => DropdownMenuItem(
-                              value: option['value'],
-                              child: Text(option['label']!),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedGender = value);
-                    },
-                    validator: _validateGender,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: FilledButton(
-                  onPressed: _isProcessing ? null : _submit,
-                  child: _isProcessing
-                      ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 3,
-                          ),
-                        )
-                      : isNew
-                          ? const Text('Continue')
-                          : const Text('Save'),
                 ),
-              ),
+                Expanded(
+                  child: Center(
+                    child: FilledButton(
+                      onPressed: _isProcessing ? null : _submit,
+                      child: _isProcessing
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : isNew
+                              ? const Text('Continue')
+                              : const Text('Save'),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

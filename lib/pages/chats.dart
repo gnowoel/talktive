@@ -65,7 +65,7 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = ['Your recent chats', 'will appear here.', ''];
+    const lines = ['Please add some', 'more users first.', ''];
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,

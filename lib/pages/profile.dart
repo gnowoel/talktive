@@ -10,12 +10,10 @@ import '../widgets/layout.dart';
 
 class ProfilePage extends StatefulWidget {
   final User? user;
-  final VoidCallback? onComplete;
 
   const ProfilePage({
     super.key,
     this.user,
-    this.onComplete,
   });
 
   @override
@@ -137,7 +135,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (mounted) {
           Navigator.pop(context);
-          widget.onComplete?.call();
         }
       } on AppException catch (e) {
         if (mounted) {

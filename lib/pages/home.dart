@@ -156,12 +156,11 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(fontSize: 64),
                   ),
                   const SizedBox(height: 8),
-                  if (!_user!.isNew)
-                    Text(
-                      _user!.displayName ?? avatar.name,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  if (!_user!.isNew) const SizedBox(height: 6),
+                  Text(
+                    _user!.displayName ?? avatar.shortName,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 6),
                   IconButton(
                     onPressed: _changeAvatar,
                     icon: const Icon(Icons.refresh),

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2.0.3+21
+
+- Request push notification permission with a custom dialog
+- Navigate to specific chats when notifications are tapped
+
 ## 2.0.2+20
 
 - Fix a bug where new message count could be negative

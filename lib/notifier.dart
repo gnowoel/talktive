@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/models/user.dart';
@@ -8,6 +10,7 @@ import 'pages/home.dart';
 import 'services/cache.dart';
 import 'services/firedata.dart';
 import 'services/messaging.dart';
+import 'services/settings.dart';
 
 class Notifier extends StatefulWidget {
   const Notifier({super.key});
@@ -45,7 +48,7 @@ class _NotifierState extends State<Notifier> {
 
   Future<void> _firstTimeSetup() async {
     try {
-      // await _requestPermission();
+      await _requestPermission();
       await _storeFcmToken();
       await _localSetup();
       await _addListeners();
@@ -54,17 +57,54 @@ class _NotifierState extends State<Notifier> {
     }
   }
 
-  // Future<void> _requestPermission() async {
-  //   try {
-  //     await messaging.instance.requestPermission(
-  //       alert: true,
-  //       badge: true,
-  //       sound: true,
-  //     );
-  //   } catch (e) {
-  //     // Ignore on unsupported platforms
-  //   }
-  // }
+  Future<void> _requestPermission() async {
+    // Only proceed on Android 13+ where runtime permission is needed
+    if (!Platform.isAndroid) return;
+
+    final hasRequested = await Settings.hasRequestedNotificationPermission();
+    if (hasRequested) return;
+
+    // Wait a bit before showing the permission request
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Show custom dialog first
+    if (!mounted) return;
+    final shouldRequest = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Stay Connected'),
+            content: const Text(
+              'Enable notifications to never miss messages from your chat partners.',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Not Now'),
+                onPressed: () => Navigator.pop(context, false),
+              ),
+              TextButton(
+                child: const Text('Enable'),
+                onPressed: () => Navigator.pop(context, true),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!shouldRequest) return;
+
+    // Request system permission
+    final status = await messaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    await Settings.markNotificationPermissionRequested();
+
+    if (status.authorizationStatus == AuthorizationStatus.authorized) {
+      // Permission granted
+    }
+  }
 
   Future<void> _storeFcmToken() async {
     try {

@@ -246,6 +246,24 @@ class Firedata {
     }
   }
 
+  Future<Chat?> fetchChat(String userId, String chatId) async {
+    try {
+      final ref = instance.ref('chats/$userId/$chatId');
+      final snapshot = await ref.get();
+
+      if (!snapshot.exists) {
+        return null;
+      }
+
+      final value = snapshot.value;
+      final json = Map<String, dynamic>.from(value as Map);
+      final stub = ChatStub.fromJson(json);
+      return Chat.fromStub(key: chatId, value: stub);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Stream<List<Message>> subscribeToMessages(String chatId) {
     final messages = <Message>[];
 

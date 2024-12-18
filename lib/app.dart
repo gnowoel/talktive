@@ -34,6 +34,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Cache()),
       ],
       child: MaterialApp(
+        navigatorKey: Messaging.navigationKey,
         debugShowCheckedModeBanner: false,
         title: 'Talktive',
         theme: getTheme(context),

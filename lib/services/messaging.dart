@@ -56,7 +56,6 @@ class Messaging {
   void _handleNotificationData(Map<String, dynamic> data) {
     final chatId = data['chatId'];
     if (chatId != null) {
-      // Navigate to specific chat
       GoRouter.of(_navigationKey.currentContext!).push('/chat/$chatId');
     }
   }

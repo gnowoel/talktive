@@ -96,7 +96,41 @@ class _UsersPageState extends State<UsersPage> {
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
-            : Layout(child: UserList(users: _users, hideUser: _hideUser)),
+            : Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    color: theme.colorScheme.secondaryContainer,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline,
+                          size: 16,
+                          color: theme.colorScheme.onSecondaryContainer,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Tap the "Wave Hand" button to say hi to everyone!',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSecondaryContainer,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Layout(
+                      child: UserList(users: _users, hideUser: _hideUser),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

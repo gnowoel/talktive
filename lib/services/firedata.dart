@@ -401,6 +401,8 @@ class Firedata {
   Future<void> greetUsers(User self, List<User> others) async {
     List<Chat> chats = [];
 
+    final message = "Hi! I'm ${self.displayName!}. ${self.description}";
+
     for (final other in others) {
       final chat = await createPair(self.id, other);
       chats.add(chat);
@@ -412,7 +414,7 @@ class Firedata {
         self.id,
         self.displayName!,
         self.photoURL!,
-        "Hi! I'm ${self.displayName!}.",
+        message,
       );
 
       await updateChat(

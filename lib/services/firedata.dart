@@ -147,7 +147,6 @@ class Firedata {
     required String displayName,
     required String description,
     required String gender,
-    bool hasUpdated = false,
   }) async {
     try {
       final ref = instance.ref('users/$userId');
@@ -158,7 +157,6 @@ class Firedata {
         'displayName': displayName,
         'description': description,
         'gender': gender,
-        'hasUpdated': hasUpdated,
         'updatedAt': ServerValue.timestamp,
         'filter': null, // Remove the `temp-*` or `perm-*` marker
       });

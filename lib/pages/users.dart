@@ -96,40 +96,44 @@ class _UsersPageState extends State<UsersPage> {
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
-            : Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                    color: theme.colorScheme.secondaryContainer,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.lightbulb_outline,
-                          size: 16,
-                          color: theme.colorScheme.onSecondaryContainer,
+            : Layout(
+                child: Column(
+                  children: [
+                    Card(
+                      elevation: 0,
+                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      color: theme.colorScheme.tertiaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Tap the "Wave Hand" button to say hi to everyone!',
-                            style: TextStyle(
-                              color: theme.colorScheme.onSecondaryContainer,
-                              fontSize: 13,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.lightbulb_outline,
+                              size: 16,
+                              color: theme.colorScheme.onTertiaryContainer,
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Tap the Hand button to say hi to everyone!',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSecondaryContainer,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Layout(
+                    Expanded(
                       child: UserList(users: _users, hideUser: _hideUser),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
       ),
     );

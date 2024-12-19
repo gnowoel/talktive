@@ -65,8 +65,8 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
-  void _greetAll() {
-    debugPrint('Say hi to everyone');
+  Future<void> _greetUsers() async {
+    await firedata.greetUsers(cache.user!, _users);
   }
 
   @override
@@ -86,7 +86,7 @@ class _UsersPageState extends State<UsersPage> {
               color: theme.colorScheme.tertiary,
             ),
             tooltip: 'Say hi to everyone',
-            onPressed: _users.isEmpty ? null : _greetAll,
+            onPressed: _users.isEmpty ? null : _greetUsers,
           ),
           const SizedBox(width: 8),
         ],

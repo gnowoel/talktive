@@ -397,4 +397,29 @@ class Firedata {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> greetUsers(User self, List<User> others) async {
+    List<Chat> chats = [];
+
+    for (final other in others) {
+      final chat = await createPair(self.id, other);
+      chats.add(chat);
+    }
+
+    for (final chat in chats) {
+      await sendTextMessage(
+        chat,
+        self.id,
+        self.displayName!,
+        self.photoURL!,
+        "Hi! I'm ${self.displayName!}.",
+      );
+
+      await updateChat(
+        self.id,
+        chat.id,
+        readMessageCount: 1,
+      );
+    }
+  }
 }

@@ -74,7 +74,33 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _greetUsers(List<User> users) async {
-    await firedata.greetUsers(cache.user!, users);
+    if (!mounted) return;
+
+    final user = cache.user!;
+    final message = "Hi! I'm ${user.displayName!}. ${user.description}";
+
+    final shouldSend = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Say hi to everyone?'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                child: const Text('Not Now'),
+                onPressed: () => Navigator.pop(context, false),
+              ),
+              TextButton(
+                child: const Text('Send'),
+                onPressed: () => Navigator.pop(context, true),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!shouldSend) return;
+
+    await firedata.greetUsers(user, users, message);
   }
 
   @override
@@ -94,9 +120,9 @@ class _UsersPageState extends State<UsersPage> {
           IconButton(
             icon: Icon(
               Icons.waving_hand,
-              color: theme.colorScheme.tertiary,
+              // color: theme.colorScheme.tertiary,
             ),
-            tooltip: 'Say hi to everyone',
+            tooltip: 'Greet all',
             onPressed: users.isEmpty ? null : () => _greetUsers(users),
           ),
           const SizedBox(width: 8),

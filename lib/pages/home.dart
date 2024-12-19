@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _user!.displayName ?? avatar.shortName,
+                    _user!.displayName ?? avatar.name,
                     style: theme.textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 6),

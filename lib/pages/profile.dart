@@ -58,11 +58,11 @@ class _ProfilePageState extends State<ProfilePage> {
     avatar = Provider.of<Avatar>(context, listen: false);
 
     _photoURL = widget.user?.photoURL ?? avatar.code;
-    _displayNameController = TextEditingController(
-        text: widget.user?.displayName ?? avatar.shortName);
+    _displayNameController =
+        TextEditingController(text: widget.user?.displayName);
     _descriptionController =
-        TextEditingController(text: widget.user?.description ?? avatar.name);
-    _selectedGender = widget.user?.gender ?? 'X';
+        TextEditingController(text: widget.user?.description);
+    _selectedGender = widget.user?.gender;
   }
 
   @override

@@ -5,19 +5,16 @@ import 'package:unicode_emojis/unicode_emojis.dart' as emojis;
 class Emoji {
   final String code;
   final String name;
-  final String shortName;
 
   Emoji({
     required this.code,
     required this.name,
-    required this.shortName,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'code': code,
       'name': name,
-      'shortName': shortName,
     };
   }
 
@@ -25,7 +22,6 @@ class Emoji {
     return Emoji(
       code: json['code'] as String,
       name: json['name'] as String,
-      shortName: json['shortName'] as String,
     );
   }
 
@@ -35,7 +31,6 @@ class Emoji {
     return Emoji(
       code: randomEmoji.emoji,
       name: randomEmoji.name,
-      shortName: randomEmoji.shortName,
     );
   }
 
@@ -62,9 +57,8 @@ class Emoji {
       other is Emoji &&
           runtimeType == other.runtimeType &&
           code == other.code &&
-          name == other.name &&
-          shortName == other.shortName;
+          name == other.name;
 
   @override
-  int get hashCode => code.hashCode ^ name.hashCode ^ shortName.hashCode;
+  int get hashCode => code.hashCode ^ name.hashCode;
 }

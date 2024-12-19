@@ -179,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Card(
                     elevation: 0,
                     margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    color: theme.colorScheme.tertiaryContainer,
+                    color: theme.colorScheme.secondaryContainer,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         vertical: 12,
@@ -190,7 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           Icon(
                             Icons.lightbulb_outline,
                             size: 16,
-                            color: theme.colorScheme.onTertiaryContainer,
+                            color: theme.colorScheme.onSecondaryContainer,
                           ),
                           const SizedBox(width: 8),
                           Expanded(

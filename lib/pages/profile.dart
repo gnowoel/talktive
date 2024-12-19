@@ -160,11 +160,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isNew = widget.user == null ? true : widget.user!.isNew;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('My profile'),
+        title: isNew ? const Text('About you') : const Text('My profile'),
       ),
       body: SafeArea(
         child: Layout(
@@ -173,6 +175,37 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (isNew)
+                  Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    color: theme.colorScheme.tertiaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline,
+                            size: 16,
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Make it easy for other people to find you.',
+                              style: TextStyle(
+                                color: theme.colorScheme.onSecondaryContainer,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 Expanded(
                   child: Center(
                     child: Text(
@@ -238,7 +271,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 strokeWidth: 3,
                               ),
                             )
-                          : const Text('Save'),
+                          : isNew
+                              ? const Text('Continue')
+                              : const Text('Save'),
                     ),
                   ),
                 ),

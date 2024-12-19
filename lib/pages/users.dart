@@ -65,6 +65,10 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
+  void _greetAll() {
+    debugPrint('Say hi to everyone');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -75,6 +79,17 @@ class _UsersPageState extends State<UsersPage> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('Top users'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.waving_hand,
+              color: theme.colorScheme.tertiary,
+            ),
+            tooltip: 'Say hi to everyone',
+            onPressed: _users.isEmpty ? null : _greetAll,
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: _users.isEmpty

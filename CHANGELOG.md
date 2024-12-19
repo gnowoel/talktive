@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.4+22
+
+- Greet everyone on the list with one tap
+
 ## 2.0.3+21
 
 - Request push notification permission with a custom dialog

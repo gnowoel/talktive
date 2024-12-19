@@ -47,6 +47,14 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
+  List<User> _filterUsers(List<Chat> chats) {
+    final knownUserIds = _knownUserIds(chats);
+    final users = _users.where((user) {
+      return !knownUserIds.contains(user.id);
+    }).toList();
+    return users;
+  }
+
   List<String> _knownUserIds(List<Chat> chats) {
     final userId = fireauth.instance.currentUser!.uid;
     final partnerIds = _partnerIds(userId, chats);
@@ -65,14 +73,17 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
-  Future<void> _greetUsers() async {
-    await firedata.greetUsers(cache.user!, _users);
+  Future<void> _greetUsers(List<User> users) async {
+    await firedata.greetUsers(cache.user!, users);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try once again.', ''];
+
+    final chats = context.select((Cache cache) => cache.chats);
+    final users = _filterUsers(chats);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -86,13 +97,13 @@ class _UsersPageState extends State<UsersPage> {
               color: theme.colorScheme.tertiary,
             ),
             tooltip: 'Say hi to everyone',
-            onPressed: _users.isEmpty ? null : _greetUsers,
+            onPressed: users.isEmpty ? null : () => _greetUsers(users),
           ),
           const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
-        child: _users.isEmpty
+        child: users.isEmpty
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
@@ -130,7 +141,7 @@ class _UsersPageState extends State<UsersPage> {
                       ),
                     ),
                     Expanded(
-                      child: UserList(users: _users, hideUser: _hideUser),
+                      child: UserList(users: users, hideUser: _hideUser),
                     ),
                   ],
                 ),

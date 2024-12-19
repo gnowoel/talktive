@@ -214,7 +214,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTip() {
     final colorScheme = Theme.of(context).colorScheme;
-    final hasUpdated = _user!.hasUpdated ?? false;
 
     return Center(
       child: TextButton.icon(
@@ -224,9 +223,7 @@ class _HomePageState extends State<HomePage> {
           size: 16,
         ),
         label: Text(
-          !hasUpdated
-              ? "Don't forget to update your profile"
-              : "Inactive chats will expire in 3 days",
+          "Inactive chats will expire in 3 days",
           style: TextStyle(
             color: colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w400,

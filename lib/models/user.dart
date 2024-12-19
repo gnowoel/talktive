@@ -8,7 +8,6 @@ class User {
   final String? description;
   final String? gender;
   final String? fcmToken;
-  final bool? hasUpdated;
 
   User({
     required this.id,
@@ -20,7 +19,6 @@ class User {
     this.description,
     this.gender,
     this.fcmToken,
-    this.hasUpdated,
   });
 
   Map<String, dynamic> toJson() {
@@ -34,7 +32,6 @@ class User {
       'description': description,
       'gender': gender,
       'fcmToken': fcmToken,
-      'hasUpdated': hasUpdated,
     };
   }
 
@@ -52,7 +49,6 @@ class User {
       description: value.description,
       gender: value.gender,
       fcmToken: value.fcmToken,
-      hasUpdated: value.hasUpdated,
     );
   }
 
@@ -74,7 +70,6 @@ class UserStub {
   final String? description;
   final String? gender;
   final String? fcmToken;
-  final bool? hasUpdated;
 
   UserStub({
     required this.createdAt,
@@ -85,7 +80,6 @@ class UserStub {
     this.description,
     this.gender,
     this.fcmToken,
-    this.hasUpdated,
   });
 
   Map<String, dynamic> toJson() {
@@ -98,7 +92,6 @@ class UserStub {
       'description': description,
       'gender': gender,
       'fcmToken': fcmToken,
-      'hasUpdated': hasUpdated,
     };
   }
 
@@ -112,7 +105,6 @@ class UserStub {
       description: json['description'] as String?,
       gender: json['gender'] as String?,
       fcmToken: json['fcmToken'] as String?,
-      hasUpdated: json['hasUpdated'] as bool?,
     );
   }
 }

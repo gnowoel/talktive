@@ -92,16 +92,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> _usersPage() async {
     await _doAction(() async {
       if (_user!.isNew) {
-        await firedata.updateProfile(
-          userId: _user!.id,
-          languageCode: languageCode,
-          photoURL: avatar.code,
-          displayName: avatar.shortName,
-          description: avatar.name,
-          gender: 'X',
+        await _enterPage(
+          ProfilePage(
+            user: _user,
+            onComplete: () async => await _enterPage(UsersPage()),
+          ),
         );
+      } else {
+        await _enterPage(UsersPage());
       }
-      await _enterPage(UsersPage());
     });
   }
 

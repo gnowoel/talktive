@@ -170,114 +170,119 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: SafeArea(
         child: Layout(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isNew)
-                  Card(
-                    elevation: 0,
-                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    color: theme.colorScheme.secondaryContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.lightbulb_outline,
-                            size: 16,
-                            color: theme.colorScheme.onSecondaryContainer,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isNew)
+                      Card(
+                        elevation: 0,
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        color: theme.colorScheme.secondaryContainer,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Make it easy for other people to find you.',
-                              style: TextStyle(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.lightbulb_outline,
+                                size: 16,
                                 color: theme.colorScheme.onSecondaryContainer,
-                                fontSize: 13,
                               ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Make it easy for other people to find you.',
+                                  style: TextStyle(
+                                    color:
+                                        theme.colorScheme.onSecondaryContainer,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    SizedBox(
+                      height: 120,
+                      child: Center(
+                        child: Text(
+                          _photoURL,
+                          style: const TextStyle(fontSize: 64),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 48),
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _displayNameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Display Name',
+                              hintText: 'What do people call you?',
+                            ),
+                            validator: _validateDisplayName,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _descriptionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              hintText: 'Tell us a bit about yourself',
+                            ),
+                            validator: _validateDescription,
+                            minLines: 1,
+                            maxLines: 3,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            decoration: const InputDecoration(
+                              labelText: 'Gender',
+                            ),
+                            value: _selectedGender,
+                            items: _genderOptions
+                                .map((option) => DropdownMenuItem(
+                                      value: option['value'],
+                                      child: Text(option['label']!),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() => _selectedGender = value);
+                            },
+                            validator: _validateGender,
+                          ),
+                          const SizedBox(height: 32),
+                          Center(
+                            child: FilledButton(
+                              onPressed: _isProcessing ? null : _submit,
+                              child: _isProcessing
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : Text(isNew ? 'Continue' : 'Save'),
                             ),
                           ),
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
-                  ),
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      _photoURL,
-                      style: const TextStyle(fontSize: 64),
-                    ),
-                  ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 48),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _displayNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Display Name',
-                          hintText: 'What do people call you?',
-                        ),
-                        validator: _validateDisplayName,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          hintText: 'Tell us a bit about yourself',
-                        ),
-                        validator: _validateDescription,
-                        minLines: 1,
-                        maxLines: 3,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          labelText: 'Gender',
-                        ),
-                        value: _selectedGender,
-                        items: _genderOptions
-                            .map((option) => DropdownMenuItem(
-                                  value: option['value'],
-                                  child: Text(option['label']!),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => _selectedGender = value);
-                        },
-                        validator: _validateGender,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: FilledButton(
-                      onPressed: _isProcessing ? null : _submit,
-                      child: _isProcessing
-                          ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                              ),
-                            )
-                          : isNew
-                              ? const Text('Continue')
-                              : const Text('Save'),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

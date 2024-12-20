@@ -78,12 +78,14 @@ class _UsersPageState extends State<UsersPage> {
 
     final user = cache.user!;
     final message = "Hi! I'm ${user.displayName!}. ${user.description}";
+    final info =
+        "The following message will be sent. Change the content by updating your profile.\n\n> $message";
 
     final shouldSend = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Say Hi to Everyone'),
-            content: Text(message),
+            title: const Text('Say hi to everyone'),
+            content: Text(info),
             actions: [
               TextButton(
                 child: const Text('Not Now'),

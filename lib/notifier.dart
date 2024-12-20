@@ -72,7 +72,7 @@ class _NotifierState extends State<Notifier> {
     final shouldRequest = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Stay Connected'),
+            title: const Text('Stay connected'),
             content: const Text(
               'Enable notifications to never miss messages from your chat partners.',
             ),

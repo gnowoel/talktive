@@ -82,7 +82,7 @@ class _UsersPageState extends State<UsersPage> {
     final shouldSend = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Say hi to everyone?'),
+            title: const Text('Say Hi to Everyone'),
             content: Text(message),
             actions: [
               TextButton(
@@ -138,7 +138,7 @@ class _UsersPageState extends State<UsersPage> {
                   children: [
                     Card(
                       elevation: 0,
-                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                       color: theme.colorScheme.secondaryContainer,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(

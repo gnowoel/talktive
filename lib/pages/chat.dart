@@ -135,6 +135,112 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void _showReportMenu(BuildContext context) {
+    final theme = Theme.of(context);
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(1000, 0, 0, 0),
+      items: [
+        PopupMenuItem(
+          child: ListTile(
+            leading: Icon(
+              Icons.report_outlined,
+              color: theme.colorScheme.error,
+            ),
+            title: Text(
+              'Report chat',
+              style: TextStyle(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ),
+          onTap: () {
+            if (mounted) {
+              _showReportDialog();
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showReportDialog() {
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.report_outlined,
+          color: theme.colorScheme.error,
+          size: 32,
+        ),
+        title: const Text('Report this chat?'),
+        content: const Text(
+            'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.'),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: Text(
+              'Report',
+              style: TextStyle(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _reportChat();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _reportChat() async {
+    final theme = Theme.of(context);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      final partnerId = _chat.id.replaceFirst(userId, '');
+
+      // Add report to database
+      await firedata.reportChat(
+        userId: userId,
+        chatId: _chat.id,
+        partnerId: partnerId,
+      );
+
+      // Mute the chat
+      await firedata.updateChat(
+        userId,
+        _chat.id,
+        mute: true,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: theme.colorScheme.errorContainer,
+          content: Text(
+            'Thank you for your report. We will review it shortly.',
+            style: TextStyle(
+              color: theme.colorScheme.onErrorContainer,
+            ),
+          ),
+        ),
+      );
+    } on AppException catch (e) {
+      if (!mounted) return;
+      ErrorHandler.showSnackBarMessage(context, e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,7 +254,11 @@ class _ChatPageState extends State<ChatPage> {
           RepaintBoundary(
             child: Hearts(chat: _chat),
           ),
-          const SizedBox(width: 16),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () => _showReportMenu(context),
+            tooltip: 'More options',
+          ),
         ],
       ),
       body: SafeArea(

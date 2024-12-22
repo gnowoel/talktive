@@ -59,6 +59,11 @@
       "$expireId": {
         ".write": "auth !== null"
       }
+    },
+    "reports": {
+      "$reportId": {
+        ".write": "auth !== null && auth.uid === newData.child('userId').val()"
+      }
     }
   }
 }

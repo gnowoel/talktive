@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.5+23
+
+- Add a report button to comply with the Child Safety Standards policy
+
 ## 2.0.4+22
 
 - Greet everyone on the list with one tap

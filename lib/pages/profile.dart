@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
+import '../models/admin.dart';
 import '../models/user.dart';
 import '../services/avatar.dart';
 import '../services/fireauth.dart';
@@ -167,6 +169,23 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: isNew ? const Text('About you') : const Text('My profile'),
+        actions: [
+          FutureBuilder<Admin?>(
+            future: firedata.fetchAdmin(widget.user!.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return IconButton(
+                  icon: const Icon(Icons.admin_panel_settings),
+                  onPressed: () {
+                    context.push('/admin/reports');
+                  },
+                  tooltip: 'Admin Panel',
+                );
+              }
+              return const SizedBox();
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Layout(

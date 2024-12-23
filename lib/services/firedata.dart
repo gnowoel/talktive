@@ -4,8 +4,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
 import '../helpers/exception.dart';
+import '../models/admin.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
+import '../models/report.dart';
 import '../models/text_message.dart';
 import '../models/user.dart';
 
@@ -438,6 +440,59 @@ class Firedata {
         chat.id,
         readMessageCount: 1,
       );
+    }
+  }
+
+  Future<Admin?> fetchAdmin(String userId) async {
+    try {
+      final ref = instance.ref('admins/$userId');
+      final snapshot = await ref.get();
+
+      if (!snapshot.exists) return null;
+
+      final json = Map<String, dynamic>.from(snapshot.value as Map);
+      return Admin.fromJson({'id': userId, ...json});
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Stream<List<Report>> subscribeToReports() {
+    final ref = instance.ref('reports');
+
+    return ref.onValue.map((event) {
+      final snapshot = event.snapshot;
+
+      if (!snapshot.exists) return [];
+
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+
+      final reports = data.entries.map((entry) {
+        return Report.fromJson(
+            entry.key, Map<String, dynamic>.from(entry.value as Map));
+      }).toList();
+
+      reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return reports;
+    });
+  }
+
+  Future<void> resolveReport({
+    required String reportId,
+    required String adminId,
+    required String resolution,
+  }) async {
+    try {
+      final ref = instance.ref('reports/$reportId');
+
+      await ref.update({
+        'status': 'resolved',
+        'resolution': resolution,
+        'adminId': adminId,
+        'resolvedAt': ServerValue.timestamp,
+      });
+    } catch (e) {
+      throw AppException(e.toString());
     }
   }
 }

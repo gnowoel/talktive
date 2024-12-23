@@ -60,9 +60,47 @@
         ".write": "auth !== null"
       }
     },
+    "admins": {
+      ".read": "auth !== null",
+      ".write": false,
+      "$userId": {
+        ".read": "auth !== null && auth.uid === $userId"
+      }
+    },
     "reports": {
+      ".read": "auth !== null && root.child('admins').child(auth.uid).exists()",
+      ".indexOn": [
+        "status",
+        "createdAt"
+      ],
       "$reportId": {
-        ".write": "auth !== null && auth.uid === newData.child('userId').val()"
+        ".read": "auth !== null && (data.child('userId').val() === auth.uid || root.child('admins').child(auth.uid).exists())",
+        ".write": "auth !== null && ((!data.exists() && newData.child('userId').val() === auth.uid) || (data.exists() && root.child('admins').child(auth.uid).exists()))",
+        ".validate": "newData.hasChildren(['userId', 'chatId', 'partnerId', 'createdAt', 'status'])",
+        "userId": {
+          ".validate": "newData.isString()"
+        },
+        "chatId": {
+          ".validate": "newData.isString()"
+        },
+        "partnerId": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "status": {
+          ".validate": "newData.isString() && (newData.val() === 'pending' || newData.val() === 'resolved')"
+        },
+        "resolution": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 1000)"
+        },
+        "adminId": {
+          ".validate": "!newData.exists() || (newData.isString() && root.child('admins').child(newData.val()).exists())"
+        },
+        "resolvedAt": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        }
       }
     }
   }

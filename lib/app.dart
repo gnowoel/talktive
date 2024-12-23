@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'auth.dart';
 import 'models/chat.dart';
 import 'pages/chat.dart';
+import 'pages/reports.dart';
 import 'services/avatar.dart';
 import 'services/cache.dart';
 import 'services/fireauth.dart';
@@ -19,6 +20,16 @@ import 'theme.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
+
+  Future<bool> _checkAdminAccess(BuildContext context) async {
+    final firedata = Provider.of<Firedata>(context, listen: false);
+    final fireauth = Provider.of<Fireauth>(context, listen: false);
+
+    final userId = fireauth.instance.currentUser!.uid;
+    final admin = await firedata.fetchAdmin(userId);
+
+    return admin != null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +66,23 @@ class App extends StatelessWidget {
               },
             );
           },
+        ),
+        GoRoute(
+          path: '/admin/reports',
+          builder: (context, state) => FutureBuilder(
+            future: _checkAdminAccess(context),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data == true) {
+                return const ReportsPage();
+              }
+              // Return unauthorized or loading state
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
         ),
       ],
     );

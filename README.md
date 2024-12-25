@@ -1,10 +1,8 @@
 # Talktive
 
-A simple anonymous group chat app for comfortably talking to strangers.
+A simple anonymous group chat app for comfortably talking to strangers. Try the [web app](https://open.talktive.app/) or get the Android version from Google Play.
 
-<br />
-
-[![button_open-the-app](https://github.com/user-attachments/assets/13c64934-2123-4829-bc8f-6a729b4dfd3d)](https://open.talktive.app/)
+[![google-play-badge](https://github.com/user-attachments/assets/bb22e307-7b4d-4871-ad1a-57d1d4b3b809)](https://play.google.com/store/apps/details?id=app.talktive)
 
 ## Screenshots
 

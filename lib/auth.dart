@@ -3,11 +3,12 @@ import 'package:provider/provider.dart';
 
 import 'pages/empty.dart';
 import 'pages/error.dart';
-import 'streams.dart';
 import 'services/fireauth.dart';
 
 class Auth extends StatefulWidget {
-  const Auth({super.key});
+  final Widget child;
+
+  const Auth({super.key, required this.child});
 
   @override
   State<Auth> createState() => _AuthState();
@@ -39,7 +40,7 @@ class _AuthState extends State<Auth> {
           );
         }
 
-        return const Streams();
+        return widget.child;
       },
     );
   }

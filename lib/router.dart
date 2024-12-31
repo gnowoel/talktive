@@ -4,19 +4,80 @@ import 'package:provider/provider.dart';
 
 import 'bootstrap.dart';
 import 'models/chat.dart';
+import 'navigation.dart';
 import 'pages/chat.dart';
+import 'pages/chats.dart';
+import 'pages/profile.dart';
 import 'pages/reports.dart';
+import 'pages/shares.dart';
+import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
-import 'services/messaging.dart';
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _sharesNavigatorKey = GlobalKey<NavigatorState>();
+final _chatsNavigatorKey = GlobalKey<NavigatorState>();
+final _usersNavigatorKey = GlobalKey<NavigatorState>();
+final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
-  navigatorKey: Messaging.navigationKey,
-  initialLocation: '/',
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/shares',
   routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const Bootstrap(),
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return Navigation(navigationShell: navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(
+          navigatorKey: _sharesNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/shares',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: SharesPage(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: _chatsNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/chats',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: ChatsPage(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: _usersNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/users',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: UsersPage(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: _profileNavigatorKey,
+          routes: [
+            GoRoute(
+              path: '/profile',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: ProfilePage(),
+              ),
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/chat/:id',

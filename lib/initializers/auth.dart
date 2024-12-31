@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'pages/empty.dart';
-import 'pages/error.dart';
-import 'services/fireauth.dart';
+import '../pages/empty.dart';
+import '../pages/error.dart';
+import '../services/fireauth.dart';
 
 class Auth extends StatefulWidget {
   final Widget child;

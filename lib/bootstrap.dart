@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'auth.dart';
-import 'notifier.dart';
+import 'initializers/auth.dart';
+import 'initializers/notifier.dart';
+import 'initializers/streams.dart';
 import 'pages/home.dart';
-import 'streams.dart';
 
 class Bootstrap extends StatelessWidget {
   const Bootstrap({super.key});

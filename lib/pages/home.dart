@@ -149,6 +149,10 @@ class _HomePageState extends State<HomePage> {
 
     final newMessageCountTotal = chatsUnreadMessageCount(_chats);
 
+    return _buildScaffold(newMessageCountTotal);
+  }
+
+  Scaffold _buildScaffold(int newMessageCountTotal) {
     return Scaffold(
       body: SafeArea(
         child: Column(

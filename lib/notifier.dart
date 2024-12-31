@@ -6,14 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/models/user.dart';
 
-import 'pages/home.dart';
 import 'services/cache.dart';
 import 'services/firedata.dart';
 import 'services/messaging.dart';
 import 'services/settings.dart';
 
 class Notifier extends StatefulWidget {
-  const Notifier({super.key});
+  final Widget child;
+
+  const Notifier({super.key, required this.child});
 
   @override
   State<Notifier> createState() => _NotifierState();
@@ -147,6 +148,6 @@ class _NotifierState extends State<Notifier> {
 
   @override
   Widget build(BuildContext context) {
-    return const HomePage();
+    return widget.child;
   }
 }

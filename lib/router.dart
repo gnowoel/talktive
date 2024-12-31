@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'auth.dart';
+import 'bootstrap.dart';
 import 'models/chat.dart';
 import 'pages/chat.dart';
 import 'pages/reports.dart';
@@ -16,7 +16,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const Auth(),
+      builder: (context, state) => const Bootstrap(),
     ),
     GoRoute(
       path: '/chat/:id',

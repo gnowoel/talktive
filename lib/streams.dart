@@ -6,10 +6,11 @@ import 'package:provider/provider.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import 'notifier.dart';
 
 class Streams extends StatefulWidget {
-  const Streams({super.key});
+  final Widget child;
+
+  const Streams({super.key, required this.child});
 
   @override
   State<Streams> createState() => _StreamsState();
@@ -55,6 +56,6 @@ class _StreamsState extends State<Streams> {
 
   @override
   Widget build(BuildContext context) {
-    return const Notifier();
+    return widget.child;
   }
 }

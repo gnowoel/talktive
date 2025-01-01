@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'app.dart';
+import 'providers.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
 
@@ -35,5 +35,5 @@ Future<void> main() async {
 
   Avatar().init();
   debugRepaintRainbowEnabled = false;
-  runApp(const App());
+  runApp(const Providers());
 }

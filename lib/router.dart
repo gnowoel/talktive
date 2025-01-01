@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'bootstrap.dart';
 import 'models/chat.dart';
 import 'navigation.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
+import 'pages/home.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
 import 'pages/shares.dart';
@@ -22,11 +22,11 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/shares',
+  initialLocation: '/',
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const Bootstrap(),
+      builder: (context, state) => const HomePage(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

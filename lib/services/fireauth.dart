@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 
 import '../helpers/helpers.dart';
 
@@ -16,16 +16,16 @@ class Fireauth {
         await currentUser.reload(); // Touch the server to check connection
         return currentUser;
       } else {
-        if (kDebugMode) {
-          final userCredential = await instance.createUserWithEmailAndPassword(
-            email: generateEmail(),
-            password: generatePassword(),
-          );
-          return userCredential.user!;
-        } else {
-          final userCredential = await instance.signInAnonymously();
-          return userCredential.user!;
-        }
+        // if (kDebugMode) {
+        //   final userCredential = await instance.createUserWithEmailAndPassword(
+        //     email: generateEmail(),
+        //     password: generatePassword(),
+        //   );
+        //   return userCredential.user!;
+        // } else {
+        final userCredential = await instance.signInAnonymously();
+        return userCredential.user!;
+        // }
       }
     } on FirebaseAuthException catch (e) {
       if (e.code != 'network-request-failed') {

@@ -144,7 +144,7 @@ class _UserItemState extends State<UserItem> {
               ],
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right),
+              icon: const Icon(Icons.add_circle),
               onPressed: _enterChat,
               tooltip: 'Chat',
             ),

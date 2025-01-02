@@ -6,17 +6,16 @@ import '../helpers/helpers.dart';
 import '../models/admin.dart';
 import '../models/user.dart';
 import '../services/avatar.dart';
+import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../widgets/layout.dart';
 
 class ProfilePage extends StatefulWidget {
-  final User? user;
   final VoidCallback? onComplete;
 
   const ProfilePage({
     super.key,
-    this.user,
     this.onComplete,
   });
 
@@ -30,6 +29,9 @@ class _ProfilePageState extends State<ProfilePage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
+  late Cache cache;
+
+  User? _user;
 
   late String _photoURL;
   late TextEditingController _displayNameController;
@@ -55,16 +57,18 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
-    avatar = Provider.of<Avatar>(context, listen: false);
 
-    _photoURL = widget.user?.photoURL ?? avatar.code;
-    _displayNameController =
-        TextEditingController(text: widget.user?.displayName);
-    _descriptionController =
-        TextEditingController(text: widget.user?.description);
-    _selectedGender = widget.user?.gender;
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+    avatar = context.read<Avatar>();
+    cache = context.read<Cache>();
+
+    _user = cache.user;
+
+    _photoURL = _user?.photoURL ?? avatar.code;
+    _displayNameController = TextEditingController(text: _user?.displayName);
+    _descriptionController = TextEditingController(text: _user?.description);
+    _selectedGender = _user?.gender;
   }
 
   @override
@@ -162,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isNew = widget.user == null ? true : widget.user!.isNew;
+    final isNew = _user == null ? true : _user!.isNew;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -171,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
         title: isNew ? const Text('About you') : const Text('My profile'),
         actions: [
           FutureBuilder<Admin?>(
-            future: firedata.fetchAdmin(widget.user!.id),
+            future: firedata.fetchAdmin(_user!.id),
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
                 return IconButton(

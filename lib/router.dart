@@ -8,21 +8,19 @@ import 'pages/chats.dart';
 import 'pages/home.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
-import 'pages/shares.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
 import 'widgets/navigation.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _sharesNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
 final _usersNavigatorKey = GlobalKey<NavigatorState>();
 final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/shares',
+  initialLocation: '/users',
   routes: [
     GoRoute(
       path: '/',
@@ -34,12 +32,12 @@ final router = GoRouter(
       },
       branches: [
         StatefulShellBranch(
-          navigatorKey: _sharesNavigatorKey,
+          navigatorKey: _usersNavigatorKey,
           routes: [
             GoRoute(
-              path: '/shares',
+              path: '/users',
               pageBuilder: (context, state) => const NoTransitionPage(
-                child: SharesPage(),
+                child: UsersPage(),
               ),
             ),
           ],
@@ -51,17 +49,6 @@ final router = GoRouter(
               path: '/chats',
               pageBuilder: (context, state) => const NoTransitionPage(
                 child: ChatsPage(),
-              ),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          navigatorKey: _usersNavigatorKey,
-          routes: [
-            GoRoute(
-              path: '/users',
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: UsersPage(),
               ),
             ),
           ],

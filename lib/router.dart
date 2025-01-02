@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'models/chat.dart';
-import 'navigation.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/home.dart';
@@ -13,6 +12,7 @@ import 'pages/shares.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
+import 'widgets/navigation.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sharesNavigatorKey = GlobalKey<NavigatorState>();
@@ -22,7 +22,7 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
+  initialLocation: '/shares',
   routes: [
     GoRoute(
       path: '/',

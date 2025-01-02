@@ -5,8 +5,13 @@ class SharesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Shares'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Shares'),
+      ),
+      body: const Center(
+        child: Text('Shares'),
+      ),
     );
   }
 }

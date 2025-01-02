@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
-import '../pages/chat.dart';
+// import '../pages/chat.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -46,15 +47,14 @@ class _UserItemState extends State<UserItem> {
 
   Future<void> _enterChat() async {
     _doAction(() async {
-      final userId = fireauth.instance.currentUser!.uid;
-      final partner = widget.user;
-      final chat = await firedata.createPair(userId, partner);
+      // final userId = fireauth.instance.currentUser!.uid;
+      // final partner = widget.user;
+      // final chat = await firedata.createPair(userId, partner);
       widget.hideUser(widget.user);
       if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ChatPage(chat: chat)),
-        );
+        context.go('/chats');
+        context.push('/shares');
+        // context.go('/chat/${chat.id}');
       }
     });
   }

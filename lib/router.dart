@@ -8,6 +8,7 @@ import 'pages/chats.dart';
 import 'pages/home.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
+import 'pages/shares.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -65,6 +66,14 @@ final router = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: '/shares',
+      builder: (context, state) {
+        return const Scaffold(
+          body: SharesPage(),
+        );
+      },
     ),
     GoRoute(
       path: '/chat/:id',

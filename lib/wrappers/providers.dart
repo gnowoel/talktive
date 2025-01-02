@@ -5,19 +5,17 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'app.dart';
-import 'initializers/auth.dart';
-import 'initializers/notifier.dart';
-import 'initializers/streams.dart';
-import 'services/avatar.dart';
-import 'services/cache.dart';
-import 'services/fireauth.dart';
-import 'services/firedata.dart';
-import 'services/messaging.dart';
-import 'services/storage.dart';
+import '../services/avatar.dart';
+import '../services/cache.dart';
+import '../services/fireauth.dart';
+import '../services/firedata.dart';
+import '../services/messaging.dart';
+import '../services/storage.dart';
 
 class Providers extends StatelessWidget {
-  const Providers({super.key});
+  final Widget child;
+
+  const Providers({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +33,7 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => Cache()),
       ],
-      child: const Auth(
-        child: Streams(
-          child: Notifier(
-            child: App(),
-          ),
-        ),
-      ),
+      child: child,
     );
   }
 }

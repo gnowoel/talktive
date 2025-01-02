@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/models/user.dart';
 
-import '../services/cache.dart';
-import '../services/firedata.dart';
-import '../services/messaging.dart';
-import '../services/settings.dart';
+import '../../services/cache.dart';
+import '../../services/firedata.dart';
+import '../../services/messaging.dart';
+import '../../services/settings.dart';
 
 class Notifier extends StatefulWidget {
   final Widget child;

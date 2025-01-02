@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/cache.dart';
-import '../services/fireauth.dart';
-import '../services/firedata.dart';
+import '../../services/cache.dart';
+import '../../services/fireauth.dart';
+import '../../services/firedata.dart';
 
 class Streams extends StatefulWidget {
   final Widget child;

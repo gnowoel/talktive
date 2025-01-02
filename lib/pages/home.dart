@@ -94,7 +94,6 @@ class _HomePageState extends State<HomePage> {
       if (_user!.isNew) {
         await _enterPage(
           ProfilePage(
-            user: _user,
             onComplete: () async => await _enterPage(UsersPage()),
           ),
         );
@@ -106,7 +105,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _updateProfile() async {
     await _doAction(() async {
-      await _enterPage(ProfilePage(user: _user));
+      await _enterPage(ProfilePage());
     });
   }
 

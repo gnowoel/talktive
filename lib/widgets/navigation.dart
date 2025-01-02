@@ -21,16 +21,12 @@ class Navigation extends StatelessWidget {
         selectedIndex: navigationShell.currentIndex,
         destinations: const [
           NavigationDestination(
-            label: 'Shares',
-            icon: Icon(Icons.forum),
+            label: 'Users',
+            icon: Icon(Icons.person_add),
           ),
           NavigationDestination(
             label: 'Chats',
             icon: Icon(Icons.chat),
-          ),
-          NavigationDestination(
-            label: 'Users',
-            icon: Icon(Icons.person_add),
           ),
           NavigationDestination(
             label: 'Profile',

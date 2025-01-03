@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
-import '../pages/chat.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -47,11 +47,15 @@ class _ChatItemState extends State<ChatItem> {
 
   Future<void> _enterChat() async {
     _doAction(() async {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChatPage(chat: widget.chat),
-        ),
+      final chat = widget.chat;
+      final partner = chat.partner;
+
+      context.go('/chats');
+      context.push(
+        '/chats/${chat.id}',
+        extra: <String, String>{
+          'partnerDisplayName': partner.displayName!,
+        },
       );
     });
   }

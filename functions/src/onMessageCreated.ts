@@ -115,7 +115,9 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
 
     if (!isActive) return;
 
-    const token = await getFcmToken(otherId);
+    const other = await getUser(otherId);
+    const token = other.fcmToken;
+    const partnerDisplayName = other.displayName;
 
     if (!token) return;
 
@@ -123,9 +125,26 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
     const body = message.content;
 
     const pushMessage: admin.messaging.Message = {
-      notification: { title, body },
-      data: { senderId: userId, userId: otherId, chatId },
-      token
+      token,
+      notification: {
+        title,
+        body
+      },
+      data: {
+        senderId: userId,
+        userId: otherId,
+        chatId,
+        partnerDisplayName
+      },
+      android: {
+        priority: 'high',
+        notification: {
+          channelId: 'high_importance_channel',
+          priority: 'high',
+          defaultSound: true,
+          defaultVibrateTimings: true,
+        }
+      }
     };
 
     await admin.messaging().send(pushMessage);
@@ -166,7 +185,7 @@ const isChatMuted = (chat: Chat) => {
   return !!chat.mute;
 };
 
-const getFcmToken = async (userId: string) => {
+const getUser = async (userId: string) => {
   try {
     const userRef = db.ref(`users/${userId}`);
     const snapshot = await userRef.get();
@@ -175,7 +194,7 @@ const getFcmToken = async (userId: string) => {
 
     const user = snapshot.val();
 
-    return user.fcmToken;
+    return user;
   } catch (error) {
     logger.error(error);
   }

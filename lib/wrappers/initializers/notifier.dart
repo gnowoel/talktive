@@ -104,6 +104,11 @@ class _NotifierState extends State<Notifier> {
 
     if (status.authorizationStatus == AuthorizationStatus.authorized) {
       // Permission granted
+      await messaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'models/chat.dart';
+import 'models/user.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/home.dart';
@@ -76,23 +77,31 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/chat/:id',
+      path: '/chats/:id',
       builder: (context, state) {
         final chatId = state.pathParameters['id']!;
-        return FutureBuilder(
-          future: _fetchChat(context, chatId),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return ChatPage(chat: snapshot.data as Chat);
-            }
-            // Return loading or error state
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          },
+        final params = state.extra! as Map<String, String>;
+        final partnerDisplayName = params['partnerDisplayName'];
+
+        final userStub = UserStub(
+          createdAt: 0,
+          updatedAt: 0,
+          displayName: partnerDisplayName,
         );
+
+        final chatStub = ChatStub(
+          createdAt: 0,
+          updatedAt: 0,
+          partner: userStub,
+          messageCount: 0,
+        );
+
+        final chat = Chat.fromStub(
+          key: chatId,
+          value: chatStub,
+        );
+
+        return ChatPage(chat: chat);
       },
     ),
     GoRoute(
@@ -114,14 +123,6 @@ final router = GoRouter(
     ),
   ],
 );
-
-Future<Chat?> _fetchChat(BuildContext context, String chatId) async {
-  final firedata = Provider.of<Firedata>(context, listen: false);
-  final fireauth = Provider.of<Fireauth>(context, listen: false);
-  final userId = fireauth.instance.currentUser!.uid;
-
-  return await firedata.fetchChat(userId, chatId);
-}
 
 Future<bool> _checkAdminAccess(BuildContext context) async {
   final firedata = Provider.of<Firedata>(context, listen: false);

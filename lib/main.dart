@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,16 +12,25 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
+import 'services/messaging.dart';
 import 'wrappers/initializers/initializers.dart';
 import 'wrappers/providers.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Messaging.handleBackgroundMessage(message);
+}
 
 Future<void> main() async {
   usePathUrlStrategy();
 
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   if (kDebugMode) {
     final isAndroid = defaultTargetPlatform == TargetPlatform.android;

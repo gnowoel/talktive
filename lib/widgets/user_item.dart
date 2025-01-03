@@ -47,14 +47,20 @@ class _UserItemState extends State<UserItem> {
 
   Future<void> _enterChat() async {
     _doAction(() async {
-      // final userId = fireauth.instance.currentUser!.uid;
-      // final partner = widget.user;
-      // final chat = await firedata.createPair(userId, partner);
+      final userId = fireauth.instance.currentUser!.uid;
+      final partner = widget.user;
+      final chat = await firedata.createPair(userId, partner);
+
       widget.hideUser(widget.user);
+
       if (mounted) {
         context.go('/chats');
-        context.push('/shares');
-        // context.go('/chat/${chat.id}');
+        context.push(
+          '/chats/${chat.id}',
+          extra: <String, String>{
+            'partnerDisplayName': partner.displayName!,
+          },
+        );
       }
     });
   }

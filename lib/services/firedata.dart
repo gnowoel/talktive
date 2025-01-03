@@ -56,7 +56,7 @@ class Firedata {
         createdAt: 0,
         updatedAt: 0,
         partner: UserStub.fromJson(partner.toJson()),
-        messageCount: json['messageCount'] as int,
+        messageCount: json['messageCount'] as int, // 0
       );
       final chat = Chat.fromStub(key: snapshot.key!, value: stub);
 
@@ -261,24 +261,6 @@ class Firedata {
         'createdAt': ServerValue.timestamp,
         'status': 'pending',
       });
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Future<Chat?> fetchChat(String userId, String chatId) async {
-    try {
-      final ref = instance.ref('chats/$userId/$chatId');
-      final snapshot = await ref.get();
-
-      if (!snapshot.exists) {
-        return null;
-      }
-
-      final value = snapshot.value;
-      final json = Map<String, dynamic>.from(value as Map);
-      final stub = ChatStub.fromJson(json);
-      return Chat.fromStub(key: chatId, value: stub);
     } catch (e) {
       throw AppException(e.toString());
     }

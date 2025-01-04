@@ -41,10 +41,6 @@ class Messaging {
     );
 
     // Create notification channel
-    await _createNotificationChannel();
-  }
-
-  Future<void> _createNotificationChannel() async {
     const androidNotificationChannel = AndroidNotificationChannel(
       _channelId,
       _channelName,
@@ -64,27 +60,16 @@ class Messaging {
     // Check if app was launched from notification
     final initialMessage = await instance.getInitialMessage();
     if (initialMessage != null) {
-      _handleNotificationData(initialMessage.data);
+      handleBackgroundMessage(initialMessage);
     }
 
     // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    FirebaseMessaging.onMessage.listen(handleBackgroundMessage);
 
     // Handle notification opens when app is in background
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      _handleNotificationData(message.data);
+      handleBackgroundMessage(message);
     });
-  }
-
-  Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    final notification = message.notification;
-    if (notification == null) return;
-
-    await _showLocalNotification(
-      notification.title ?? '',
-      notification.body ?? '',
-      message.data,
-    );
   }
 
   static Future<void> handleBackgroundMessage(RemoteMessage message) async {
@@ -132,24 +117,11 @@ class Messaging {
     }
   }
 
-  void _handleNotificationData(Map<String, dynamic> data) {
-    final chatId = data['chatId'];
-    final partnerDisplayName = data['partnerDisplayName'];
-
-    GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
-    GoRouter.of(rootNavigatorKey.currentContext!).push(
-      '/chats/$chatId',
-      extra: <String, String>{
-        'partnerDisplayName': partnerDisplayName,
-      },
-    );
-  }
-
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
-      final map = jsonDecode(payload) as Map<String, dynamic>;
-      final chatId = map['chatId'] as String;
-      final partnerDisplayName = map['partnerDisplayName'] as String;
+      final data = jsonDecode(payload) as Map<String, dynamic>;
+      final chatId = data['chatId'] as String;
+      final partnerDisplayName = data['partnerDisplayName'] as String;
 
       GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
       GoRouter.of(rootNavigatorKey.currentContext!).push(

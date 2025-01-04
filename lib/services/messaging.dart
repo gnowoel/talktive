@@ -60,27 +60,24 @@ class Messaging {
     // Check if app was launched from notification
     final initialMessage = await instance.getInitialMessage();
     if (initialMessage != null) {
-      handleBackgroundMessage(initialMessage);
+      handleMessage(initialMessage);
     }
 
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(handleBackgroundMessage);
-
     // Handle notification opens when app is in background
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      handleBackgroundMessage(message);
-    });
+    FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+
+    // Handle foreground messages
+    FirebaseMessaging.onMessage.listen(handleMessage);
   }
 
-  static Future<void> handleBackgroundMessage(RemoteMessage message) async {
-    final notification = message.notification;
-    if (notification == null) return;
+  static Future<void> handleMessage(RemoteMessage message) async {
+    final data = message.data;
+    final title = data['title'];
+    final body = data['body'];
 
-    await _showLocalNotification(
-      notification.title ?? '',
-      notification.body ?? '',
-      message.data,
-    );
+    if (title == null || body == null) return;
+
+    await _showLocalNotification(title, body, data);
   }
 
   static Future<void> _showLocalNotification(

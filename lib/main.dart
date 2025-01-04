@@ -18,7 +18,7 @@ import 'wrappers/providers.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Messaging.handleBackgroundMessage(message);
+  await Messaging.handleMessage(message);
 }
 
 Future<void> main() async {

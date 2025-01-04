@@ -126,24 +126,17 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
 
     const pushMessage: admin.messaging.Message = {
       token,
-      notification: {
-        title,
-        body
-      },
+      notification: {},
       data: {
-        senderId: userId,
-        userId: otherId,
+        title,
+        body,
+        senderId: userId, // TODO: Delete later
+        userId: otherId,  // TODO: Delete later
         chatId,
         partnerDisplayName
       },
       android: {
-        priority: 'high',
-        notification: {
-          channelId: 'high_importance_channel',
-          priority: 'high',
-          defaultSound: true,
-          defaultVibrateTimings: true,
-        }
+        priority: 'high'
       }
     };
 

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../helpers/helpers.dart';
 
+final auth = FirebaseAuth.instance;
+
 class Fireauth {
   final FirebaseAuth instance;
 

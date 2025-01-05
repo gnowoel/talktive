@@ -12,8 +12,8 @@ class Initializers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Auth(
-      child: Streams(
-        child: Notifier(
+      child: Notifier(
+        child: Streams(
           child: child,
         ),
       ),

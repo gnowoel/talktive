@@ -13,7 +13,6 @@ import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
 import 'services/messaging.dart';
-import 'wrappers/initializers/initializers.dart';
 import 'wrappers/providers.dart';
 
 @pragma('vm:entry-point')
@@ -54,9 +53,7 @@ Future<void> main() async {
 
   runApp(
     const Providers(
-      child: Initializers(
-        child: App(),
-      ),
+      child: App(),
     ),
   );
 }

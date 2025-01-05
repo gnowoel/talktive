@@ -55,60 +55,67 @@ class _NotifierState extends State<Notifier> {
       await _addListeners();
     } catch (e) {
       // Ignore on unsupported platforms
+      debugPrint(e.toString());
     }
   }
 
   Future<void> _requestPermission() async {
-    // Only proceed on Android 13+ where runtime permission is needed
-    if (!Platform.isAndroid) return;
+    try {
+      // Only proceed on Android 13+ where runtime permission is needed
+      if (!Platform.isAndroid) return;
 
-    final hasRequested = await Settings.hasRequestedNotificationPermission();
-    if (hasRequested) return;
+      // final hasRequested = await Settings.hasRequestedNotificationPermission();
+      // if (hasRequested) return;
 
-    // Wait a bit before showing the permission request
-    await Future.delayed(const Duration(seconds: 2));
+      // Wait a bit before showing the permission request
+      await Future.delayed(const Duration(seconds: 2));
 
-    // Show custom dialog first
-    if (!mounted) return;
-    final shouldRequest = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Stay connected'),
-            content: const Text(
-              'Enable notifications to never miss messages from your chat partners.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Not Now'),
-                onPressed: () => Navigator.pop(context, false),
-              ),
-              TextButton(
-                child: const Text('Enable'),
-                onPressed: () => Navigator.pop(context, true),
-              ),
-            ],
-          ),
-        ) ??
-        false;
+      // Show custom dialog first
+      // if (!mounted) return;
+      // final shouldRequest = await showDialog<bool>(
+      //       context: context,
+      //       builder: (context) => AlertDialog(
+      //         title: const Text('Stay connected'),
+      //         content: const Text(
+      //           'Enable notifications to never miss messages from your chat partners.',
+      //         ),
+      //         actions: [
+      //           TextButton(
+      //             child: const Text('Not Now'),
+      //             onPressed: () => Navigator.pop(context, false),
+      //           ),
+      //           TextButton(
+      //             child: const Text('Enable'),
+      //             onPressed: () => Navigator.pop(context, true),
+      //           ),
+      //         ],
+      //       ),
+      //     ) ??
+      //     false;
 
-    if (!shouldRequest) return;
+      // if (!shouldRequest) return;
 
-    // Request system permission
-    final status = await messaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+      // Request system permission
+      final status = await messaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    await Settings.markNotificationPermissionRequested();
-
-    if (status.authorizationStatus == AuthorizationStatus.authorized) {
-      // Permission granted
       await messaging.instance.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
       );
+
+      await Settings.markNotificationPermissionRequested();
+
+      if (status.authorizationStatus == AuthorizationStatus.authorized) {
+        // Permission granted
+      }
+    } catch (e) {
+      // Ignore on unsupported platforms
+      debugPrint(e.toString());
     }
   }
 
@@ -126,6 +133,7 @@ class _NotifierState extends State<Notifier> {
       });
     } catch (e) {
       // Ignore on unsupported platforms
+      debugPrint(e.toString());
     }
   }
 
@@ -134,6 +142,7 @@ class _NotifierState extends State<Notifier> {
       await messaging.localSetup();
     } catch (e) {
       // Ignore on unsupported platforms
+      debugPrint(e.toString());
     }
   }
 
@@ -142,6 +151,7 @@ class _NotifierState extends State<Notifier> {
       await messaging.addListeners();
     } catch (e) {
       // Ignore on unsupported platforms
+      debugPrint(e.toString());
     }
   }
 

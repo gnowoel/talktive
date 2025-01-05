@@ -10,6 +10,7 @@ import 'pages/home.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
 import 'pages/shares.dart';
+import 'pages/start.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -22,11 +23,15 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/users',
+  initialLocation: '/start',
   routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: '/start',
+      builder: (context, state) => const StartPage(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

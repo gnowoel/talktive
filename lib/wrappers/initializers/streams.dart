@@ -48,9 +48,9 @@ class _StreamsState extends State<Streams> {
 
   @override
   void dispose() {
-    chatsSubscription.cancel();
-    userSubscription.cancel();
-    clockSkewSubscription.cancel();
+    // chatsSubscription.cancel();
+    // userSubscription.cancel();
+    // clockSkewSubscription.cancel();
     super.dispose();
   }
 

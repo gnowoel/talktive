@@ -11,6 +11,8 @@ import '../models/report.dart';
 import '../models/text_message.dart';
 import '../models/user.dart';
 
+final database = FirebaseDatabase.instance;
+
 class Firedata {
   final FirebaseDatabase instance;
 

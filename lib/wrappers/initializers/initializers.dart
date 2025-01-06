@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'auth.dart';
 import 'notifier.dart';
-import 'streams.dart';
 
 class Initializers extends StatelessWidget {
   final Widget child;
@@ -13,9 +12,7 @@ class Initializers extends StatelessWidget {
   Widget build(BuildContext context) {
     return Auth(
       child: Notifier(
-        child: Streams(
-          child: child,
-        ),
+        child: child,
       ),
     );
   }

@@ -12,6 +12,7 @@ import 'pages/setup.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
+import 'services/settings.dart';
 import 'widgets/navigation.dart';
 import 'wrappers/initializers/initializers.dart';
 
@@ -22,7 +23,12 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/setup',
+  initialLocation: '/users',
+  redirect: (BuildContext context, GoRouterState state) async {
+    final hasCompletedSetup =
+        await Settings.getBool(Settings.hasCompletedSetup);
+    return hasCompletedSetup ? null : '/setup';
+  },
   routes: [
     // GoRoute(
     //   path: '/',

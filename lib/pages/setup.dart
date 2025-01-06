@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../services/settings.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 import 'setup/welcome_step.dart';
@@ -22,8 +23,13 @@ class _SetupPageState extends State<SetupPage> {
         _currentStep++;
       });
     } else {
-      context.go('/users');
+      _redirectTo('/users');
     }
+  }
+
+  Future<void> _redirectTo(String uri) async {
+    await Settings.setBool(Settings.hasCompletedSetup, true);
+    if (mounted) context.go(uri);
   }
 
   @override

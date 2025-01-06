@@ -43,10 +43,14 @@ class Messaging {
     );
 
     // Create notification channel
+    await _createNotificationChannel();
+  }
+
+  Future<void> _createNotificationChannel() async {
     const androidNotificationChannel = AndroidNotificationChannel(
       _channelId,
       _channelName,
-      importance: Importance.high,
+      importance: Importance.max,
       playSound: true,
       enableLights: true,
       enableVibration: true,
@@ -62,14 +66,26 @@ class Messaging {
     // Check if app was launched from notification
     final initialMessage = await instance.getInitialMessage();
     if (initialMessage != null) {
-      handleMessage(initialMessage);
+      _handleNotificationData(initialMessage.data);
     }
 
     // Handle notification opens when app is in background
-    FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _handleNotificationData(message.data);
+    });
 
     // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(handleMessage);
+    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+  }
+
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    final data = message.data;
+    final title = data['title'];
+    final body = data['body'];
+
+    if (title == null || body == null) return;
+
+    await _showLocalNotification(title, body, data);
   }
 
   static Future<void> handleMessage(RemoteMessage message) async {
@@ -90,7 +106,7 @@ class Messaging {
     final androidNotificationDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
       playSound: true,
       enableLights: true,
@@ -114,6 +130,19 @@ class Messaging {
     } catch (e) {
       debugPrint('Error showing notification: $e');
     }
+  }
+
+  void _handleNotificationData(Map<String, dynamic> data) {
+    final chatId = data['chatId'];
+    final partnerDisplayName = data['partnerDisplayName'];
+
+    GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
+    GoRouter.of(rootNavigatorKey.currentContext!).push(
+      '/chats/$chatId',
+      extra: <String, String>{
+        'partnerDisplayName': partnerDisplayName,
+      },
+    );
   }
 
   void _handleNotificationTap(String? payload) {

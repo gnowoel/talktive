@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talktive/models/user.dart';
 
-import '../../services/cache.dart';
+import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
 import '../../services/messaging.dart';
 import '../../services/settings.dart';
@@ -21,29 +20,25 @@ class Notifier extends StatefulWidget {
 }
 
 class _NotifierState extends State<Notifier> {
+  late Fireauth fireauth;
   late Firedata firedata;
   late Messaging messaging;
-  late Cache cache;
 
-  StreamSubscription? fcmTokenSubscription;
-  User? _user;
-  String? _fcmToken;
+  // StreamSubscription? fcmTokenSubscription;
+  // String? _fcmToken;
 
   @override
   void initState() {
     super.initState();
+    fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     messaging = context.read<Messaging>();
-    cache = context.read<Cache>();
-    _user = cache.user;
     _firstTimeSetup();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    cache = Provider.of<Cache>(context);
-    _user = cache.user;
     _storeFcmToken();
   }
 
@@ -68,7 +63,7 @@ class _NotifierState extends State<Notifier> {
       // if (hasRequested) return;
 
       // Wait a bit before showing the permission request
-      await Future.delayed(const Duration(seconds: 2));
+      // await Future.delayed(const Duration(seconds: 2));
 
       // Show custom dialog first
       // if (!mounted) return;
@@ -121,16 +116,20 @@ class _NotifierState extends State<Notifier> {
 
   Future<void> _storeFcmToken() async {
     try {
-      if (_user?.fcmToken == null) {
-        _fcmToken = _fcmToken ?? await messaging.instance.getToken();
-        await firedata.setUserFcmToken(_user?.id, _fcmToken);
-      }
-      fcmTokenSubscription?.cancel();
-      fcmTokenSubscription =
-          messaging.subscribeToFcmToken().listen((token) async {
-        _fcmToken = token;
-        await firedata.setUserFcmToken(_user?.id, _fcmToken);
-      });
+      final userId = fireauth.instance.currentUser!.uid;
+      final fcmToken = await messaging.instance.getToken();
+      await firedata.setUserFcmToken(userId, fcmToken);
+
+      // if (_user?.fcmToken == null) {
+      //   _fcmToken = _fcmToken ?? await messaging.instance.getToken();
+      //   await firedata.setUserFcmToken(_user?.id, _fcmToken);
+      // }
+      // fcmTokenSubscription?.cancel();
+      // fcmTokenSubscription =
+      //     messaging.subscribeToFcmToken().listen((token) async {
+      //   _fcmToken = token;
+      //   await firedata.setUserFcmToken(_user?.id, _fcmToken);
+      // });
     } catch (e) {
       // Ignore on unsupported platforms
       debugPrint(e.toString());
@@ -157,7 +156,7 @@ class _NotifierState extends State<Notifier> {
 
   @override
   void dispose() {
-    fcmTokenSubscription?.cancel();
+    // fcmTokenSubscription?.cancel();
     super.dispose();
   }
 

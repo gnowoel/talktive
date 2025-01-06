@@ -10,6 +10,7 @@ import '../models/message.dart';
 import '../models/report.dart';
 import '../models/text_message.dart';
 import '../models/user.dart';
+import 'messaging.dart';
 
 final database = FirebaseDatabase.instance;
 
@@ -169,10 +170,24 @@ class Firedata {
     }
   }
 
+  Future<void> storeFcmToken(String userId) async {
+    try {
+      final messagingService = Messaging(messaging);
+      final fcmToken = await messagingService.instance.getToken();
+      await setUserFcmToken(userId, fcmToken);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<void> setUserFcmToken(String? userId, String? fcmToken) async {
-    if (userId == null || fcmToken == null) return;
-    final ref = instance.ref('users/$userId/fcmToken');
-    await ref.set(fcmToken);
+    try {
+      if (userId == null || fcmToken == null) return;
+      final ref = instance.ref('users/$userId/fcmToken');
+      await ref.set(fcmToken);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Stream<List<Chat>> subscribeToChats(String userId) {

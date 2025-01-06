@@ -8,6 +8,7 @@ import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
+import 'pages/setup.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -21,12 +22,16 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/users',
+  initialLocation: '/setup',
   routes: [
     // GoRoute(
     //   path: '/',
     //   builder: (context, state) => const HomePage(),
     // ),
+    GoRoute(
+      path: '/setup',
+      builder: (context, state) => const SetupPage(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return Initializers(

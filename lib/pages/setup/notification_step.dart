@@ -1,7 +1,12 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class NotificationStep extends StatelessWidget {
+import '../../services/fireauth.dart';
+import '../../services/firedata.dart';
+import '../../services/messaging.dart';
+
+class NotificationStep extends StatefulWidget {
   final VoidCallback onNext;
 
   const NotificationStep({
@@ -9,27 +14,37 @@ class NotificationStep extends StatelessWidget {
     required this.onNext,
   });
 
+  @override
+  State<NotificationStep> createState() => _NotificationStepState();
+}
+
+class _NotificationStepState extends State<NotificationStep> {
   Future<void> _requestPermission() async {
     try {
-      final messaging = FirebaseMessaging.instance;
+      final fireauth = context.read<Fireauth>();
+      final firedata = context.read<Firedata>();
+      final messaging = context.read<Messaging>();
+      final userId = fireauth.instance.currentUser!.uid;
 
-      final status = await messaging.requestPermission(
+      final status = await messaging.instance.requestPermission(
         alert: true,
         badge: true,
         sound: true,
       );
 
       if (status.authorizationStatus == AuthorizationStatus.authorized) {
-        await messaging.setForegroundNotificationPresentationOptions(
+        await messaging.instance.setForegroundNotificationPresentationOptions(
           alert: true,
           badge: true,
           sound: true,
         );
       }
+
+      await firedata.storeFcmToken(userId);
     } catch (e) {
       debugPrint(e.toString());
     } finally {
-      onNext();
+      widget.onNext();
     }
   }
 
@@ -65,7 +80,7 @@ class NotificationStep extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           TextButton(
-            onPressed: onNext,
+            onPressed: widget.onNext,
             child: const Text('Skip'),
           ),
         ],

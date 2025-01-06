@@ -27,23 +27,27 @@ class Messaging {
   }
 
   Future<void> localSetup() async {
-    const initializationSettingsAndroid = AndroidInitializationSettings(
-      'app_icon',
-    );
+    try {
+      const initializationSettingsAndroid = AndroidInitializationSettings(
+        'app_icon',
+      );
 
-    const initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
+      const initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+      );
 
-    await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (details) {
-        _handleNotificationTap(details.payload);
-      },
-    );
+      await _flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (details) {
+          _handleNotificationTap(details.payload);
+        },
+      );
 
-    // Create notification channel
-    await _createNotificationChannel();
+      // Create notification channel
+      await _createNotificationChannel();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future<void> _createNotificationChannel() async {
@@ -63,19 +67,23 @@ class Messaging {
   }
 
   Future<void> addListeners() async {
-    // Check if app was launched from notification
-    final initialMessage = await instance.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationData(initialMessage.data);
+    try {
+      // Check if app was launched from notification
+      final initialMessage = await instance.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationData(initialMessage.data);
+      }
+
+      // Handle notification opens when app is in background
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        _handleNotificationData(message.data);
+      });
+
+      // Handle foreground messages
+      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    } catch (e) {
+      debugPrint(e.toString());
     }
-
-    // Handle notification opens when app is in background
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      _handleNotificationData(message.data);
-    });
-
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {

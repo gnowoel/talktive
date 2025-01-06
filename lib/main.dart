@@ -49,6 +49,11 @@ Future<void> main() async {
   }
 
   Avatar().init();
+
+  final messagingService = Messaging(messaging);
+  await messagingService.localSetup();
+  await messagingService.addListeners();
+
   debugRepaintRainbowEnabled = false;
 
   runApp(

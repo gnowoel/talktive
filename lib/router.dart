@@ -14,7 +14,7 @@ import 'services/fireauth.dart';
 import 'services/firedata.dart';
 import 'services/settings.dart';
 import 'widgets/navigation.dart';
-import 'wrappers/initializers/initializers.dart';
+import 'wrappers/auth.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
@@ -25,6 +25,7 @@ final router = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/users',
   redirect: (BuildContext context, GoRouterState state) async {
+    // await Settings.setBool(Settings.hasCompletedSetup, false);
     final hasCompletedSetup =
         await Settings.getBool(Settings.hasCompletedSetup);
     return hasCompletedSetup ? null : '/setup';
@@ -36,11 +37,15 @@ final router = GoRouter(
     // ),
     GoRoute(
       path: '/setup',
-      builder: (context, state) => const SetupPage(),
+      builder: (context, state) {
+        return const Auth(
+          child: SetupPage(),
+        );
+      },
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return Initializers(
+        return Auth(
           child: Navigation(navigationShell: navigationShell),
         );
       },

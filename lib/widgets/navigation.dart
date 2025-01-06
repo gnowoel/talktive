@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/messaging.dart';
 
 class Navigation extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -23,11 +24,13 @@ class Navigation extends StatefulWidget {
 class _NavigationState extends State<Navigation> {
   late Fireauth fireauth;
   late Firedata firedata;
+  late Messaging messaging;
   late Cache cache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
   late StreamSubscription chatsSubscription;
+  late StreamSubscription fcmTokenSubscription;
 
   @override
   void initState() {
@@ -35,6 +38,7 @@ class _NavigationState extends State<Navigation> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    messaging = context.read<Messaging>();
     cache = context.read<Cache>();
 
     final userId = fireauth.instance.currentUser!.uid;
@@ -48,6 +52,10 @@ class _NavigationState extends State<Navigation> {
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       cache.updateChats(chats);
     });
+    fcmTokenSubscription =
+        messaging.subscribeToFcmToken().listen((token) async {
+      await firedata.setUserFcmToken(userId, token);
+    });
   }
 
   @override
@@ -55,6 +63,8 @@ class _NavigationState extends State<Navigation> {
     chatsSubscription.cancel();
     userSubscription.cancel();
     clockSkewSubscription.cancel();
+    fcmTokenSubscription.cancel();
+
     super.dispose();
   }
 

@@ -6,15 +6,13 @@ import 'models/chat.dart';
 import 'models/user.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
-import 'pages/home.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
-import 'pages/shares.dart';
-import 'pages/start.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
 import 'widgets/navigation.dart';
+import 'wrappers/initializers/initializers.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
@@ -23,19 +21,17 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/start',
+  initialLocation: '/users',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomePage(),
-    ),
-    GoRoute(
-      path: '/start',
-      builder: (context, state) => const StartPage(),
-    ),
+    // GoRoute(
+    //   path: '/',
+    //   builder: (context, state) => const HomePage(),
+    // ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return Navigation(navigationShell: navigationShell);
+        return Initializers(
+          child: Navigation(navigationShell: navigationShell),
+        );
       },
       branches: [
         StatefulShellBranch(
@@ -72,14 +68,6 @@ final router = GoRouter(
           ],
         ),
       ],
-    ),
-    GoRoute(
-      path: '/shares',
-      builder: (context, state) {
-        return const Scaffold(
-          body: SharesPage(),
-        );
-      },
     ),
     GoRoute(
       path: '/chats/:id',

@@ -6,16 +6,16 @@ import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 import 'setup/welcome_step.dart';
 
-class SetupPage extends StatefulWidget {
+class Setup extends StatefulWidget {
   final Widget child;
 
-  const SetupPage({super.key, required this.child});
+  const Setup({super.key, required this.child});
 
   @override
-  State<SetupPage> createState() => _SetupPageState();
+  State<Setup> createState() => _SetupPageState();
 }
 
-class _SetupPageState extends State<SetupPage> {
+class _SetupPageState extends State<Setup> {
   int _currentStep = 0;
   final int _totalSteps = 3;
 

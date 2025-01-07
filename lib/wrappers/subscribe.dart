@@ -8,16 +8,16 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
 
-class Subscriptions extends StatefulWidget {
+class Subscribe extends StatefulWidget {
   final Widget child;
 
-  const Subscriptions({super.key, required this.child});
+  const Subscribe({super.key, required this.child});
 
   @override
-  State<Subscriptions> createState() => _SubscriptionsState();
+  State<Subscribe> createState() => _SubscribeState();
 }
 
-class _SubscriptionsState extends State<Subscriptions> {
+class _SubscribeState extends State<Subscribe> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Messaging messaging;

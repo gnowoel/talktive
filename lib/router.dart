@@ -12,7 +12,7 @@ import 'pages/setup.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
-import 'services/settings.dart';
+// import 'services/settings.dart';
 import 'widgets/navigation.dart';
 import 'wrappers/auth.dart';
 
@@ -26,9 +26,22 @@ final router = GoRouter(
   initialLocation: '/users',
   redirect: (BuildContext context, GoRouterState state) async {
     // await Settings.setBool(Settings.hasCompletedSetup, false);
-    final hasCompletedSetup =
-        await Settings.getBool(Settings.hasCompletedSetup);
-    return hasCompletedSetup ? null : '/setup';
+    // final hasCompletedSetup =
+    //     await Settings.getBool(Settings.hasCompletedSetup);
+    // return hasCompletedSetup ? null : '/setup';
+
+    final fireauth = context.read<Fireauth>();
+    final currentUser = fireauth.instance.currentUser;
+
+    if (currentUser == null) {
+      return '/login';
+    }
+
+    if (state.matchedLocation == '/login') {
+      return '/users';
+    }
+
+    return null;
   },
   routes: [
     // GoRoute(
@@ -36,16 +49,22 @@ final router = GoRouter(
     //   builder: (context, state) => const HomePage(),
     // ),
     GoRoute(
-      path: '/setup',
+      path: '/login',
       builder: (context, state) {
         return const Auth(
-          child: SetupPage(),
+          child: SizedBox(),
         );
       },
     ),
+    // GoRoute(
+    //   path: '/setup',
+    //   builder: (context, state) {
+    //     return const SetupPage();
+    //   },
+    // ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return Auth(
+        return SetupPage(
           child: Navigation(navigationShell: navigationShell),
         );
       },

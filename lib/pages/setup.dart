@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
 
-import '../services/settings.dart';
+// import '../services/settings.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 import 'setup/welcome_step.dart';
 
 class SetupPage extends StatefulWidget {
-  const SetupPage({super.key});
+  final Widget child;
+
+  const SetupPage({super.key, required this.child});
 
   @override
   State<SetupPage> createState() => _SetupPageState();
@@ -18,19 +20,19 @@ class _SetupPageState extends State<SetupPage> {
   final int _totalSteps = 3;
 
   void _nextStep() {
-    if (_currentStep < _totalSteps - 1) {
-      setState(() {
-        _currentStep++;
-      });
-    } else {
-      _redirectTo('/users');
-    }
+    // if (_currentStep < _totalSteps - 1) {
+    setState(() {
+      _currentStep++;
+    });
+    // } else {
+    //   _redirectTo('/users');
+    // }
   }
 
-  Future<void> _redirectTo(String uri) async {
-    await Settings.setBool(Settings.hasCompletedSetup, true);
-    if (mounted) context.go(uri);
-  }
+  // Future<void> _redirectTo(String uri) async {
+  //   await Settings.setBool(Settings.hasCompletedSetup, true);
+  //   if (mounted) context.go(uri);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +60,7 @@ class _SetupPageState extends State<SetupPage> {
       case 2:
         return NotificationStep(onNext: _nextStep);
       default:
-        return const SizedBox();
+        return widget.child;
     }
   }
 

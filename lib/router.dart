@@ -8,14 +8,13 @@ import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
-import 'pages/setup.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
-// import 'services/settings.dart';
 import 'widgets/navigation.dart';
 import 'wrappers/auth.dart';
-import 'wrappers/subscriptions.dart';
+import 'wrappers/setup.dart';
+import 'wrappers/subscribe.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
@@ -29,8 +28,8 @@ final router = GoRouter(
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return Auth(
-          child: SetupPage(
-            child: Subscriptions(
+          child: Setup(
+            child: Subscribe(
               child: Navigation(navigationShell: navigationShell),
             ),
           ),

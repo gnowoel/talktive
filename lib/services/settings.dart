@@ -1,25 +1,31 @@
-import 'package:shared_preferences/shared_preferences.dart' as prefs;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings {
-  static const hasCompletedSetup = 'hasCompletedSetup';
+  Settings._();
 
-  static Future<String?> getString(String key) async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    return preferences.getString(key);
+  static final Settings _instance = Settings._();
+
+  factory Settings() => _instance;
+
+  bool _hasCompletedSetup = false;
+
+  bool getHasCompletedSetup() {
+    return _hasCompletedSetup;
   }
 
-  static Future<void> setString(String key, String value) async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    await preferences.setString(key, value);
+  void setHasCompletedSetup(bool value) {
+    _hasCompletedSetup = value;
   }
+}
 
+class Prefs {
   static Future<bool> getBool(String key) async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    return preferences.getBool(key) ?? false;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(key) ?? false;
   }
 
   static Future<void> setBool(String key, bool value) async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    await preferences.setBool(key, value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
   }
 }

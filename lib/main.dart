@@ -13,7 +13,6 @@ import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
 import 'services/messaging.dart';
-import 'wrappers/providers.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -56,9 +55,5 @@ Future<void> main() async {
 
   debugRepaintRainbowEnabled = false;
 
-  runApp(
-    const Providers(
-      child: App(),
-    ),
-  );
+  runApp(const App());
 }

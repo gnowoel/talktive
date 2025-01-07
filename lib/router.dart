@@ -25,49 +25,14 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/users',
-  redirect: (BuildContext context, GoRouterState state) async {
-    // await Settings.setBool(Settings.hasCompletedSetup, false);
-    // final hasCompletedSetup =
-    //     await Settings.getBool(Settings.hasCompletedSetup);
-    // return hasCompletedSetup ? null : '/setup';
-
-    final fireauth = context.read<Fireauth>();
-    final currentUser = fireauth.instance.currentUser;
-
-    if (currentUser == null) {
-      return '/login';
-    }
-
-    if (state.matchedLocation == '/login') {
-      return '/users';
-    }
-
-    return null;
-  },
   routes: [
-    // GoRoute(
-    //   path: '/',
-    //   builder: (context, state) => const HomePage(),
-    // ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) {
-        return const Auth(
-          child: SizedBox(),
-        );
-      },
-    ),
-    // GoRoute(
-    //   path: '/setup',
-    //   builder: (context, state) {
-    //     return const SetupPage();
-    //   },
-    // ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return SetupPage(
-          child: Subscriptions(
-            child: Navigation(navigationShell: navigationShell),
+        return Auth(
+          child: SetupPage(
+            child: Subscriptions(
+              child: Navigation(navigationShell: navigationShell),
+            ),
           ),
         );
       },

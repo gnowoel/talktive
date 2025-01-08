@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-// import '../services/settings.dart';
+import '../services/settings.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 import 'setup/welcome_step.dart';
@@ -16,38 +16,57 @@ class Setup extends StatefulWidget {
 }
 
 class _SetupPageState extends State<Setup> {
+  late Settings settings;
+
   int _currentStep = 0;
   final int _totalSteps = 3;
 
-  void _nextStep() {
-    // if (_currentStep < _totalSteps - 1) {
-    setState(() {
-      _currentStep++;
-    });
-    // } else {
-    //   _redirectTo('/users');
-    // }
+  @override
+  void initState() {
+    super.initState();
+    settings = context.read<Settings>();
+    if (settings.getHasCompletedSetup()) {
+      _currentStep = _totalSteps;
+    }
   }
 
-  // Future<void> _redirectTo(String uri) async {
-  //   await Settings.setBool(Settings.hasCompletedSetup, true);
-  //   if (mounted) context.go(uri);
-  // }
+  @override
+  void dispose() {
+    debugPrint('>>');
+    debugPrint('>> Setup.dispose()');
+    debugPrint('>>');
+    super.dispose();
+  }
+
+  void _nextStep() {
+    if (_currentStep < _totalSteps - 1) {
+      setState(() {
+        _currentStep++;
+      });
+    } else {
+      Settings().setHasCompletedSetup(true);
+      setState(() {
+        _currentStep = _totalSteps;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: _buildCurrentStep(),
-            ),
-            _buildProgressDots(),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
+      body: _currentStep < _totalSteps
+          ? SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: _buildCurrentStep(),
+                  ),
+                  _buildProgressDots(),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            )
+          : _buildCurrentStep(),
     );
   }
 

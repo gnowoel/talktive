@@ -47,11 +47,12 @@ Future<void> main() async {
     FirebaseDatabase.instance.setPersistenceEnabled(true);
   }
 
-  Avatar().init();
+  final avatar = Avatar();
+  avatar.init();
 
-  final messagingService = Messaging(messaging);
-  await messagingService.localSetup();
-  await messagingService.addListeners();
+  final messaging = Messaging();
+  await messaging.localSetup();
+  await messaging.addListeners();
 
   debugRepaintRainbowEnabled = false;
 

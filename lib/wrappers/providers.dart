@@ -17,10 +17,10 @@ class Providers extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (context) => Fireauth(auth)),
-        Provider(create: (context) => Firedata(database)),
-        Provider(create: (context) => Storage(storage)),
-        Provider(create: (context) => Messaging(messaging)),
+        Provider(create: (context) => Fireauth(Fireauth.firebaseAuth)),
+        Provider(create: (context) => Firedata(Firedata.firebaseDatabase)),
+        Provider(create: (context) => Storage()),
+        Provider(create: (context) => Messaging()),
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => Cache()),
       ],

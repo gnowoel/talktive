@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/emoji.dart';
 
 class Avatar extends ChangeNotifier {
-  Avatar._() {
-    init();
-  }
+  Avatar._();
 
   static final Avatar _instance = Avatar._();
 

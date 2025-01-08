@@ -12,12 +12,12 @@ import '../models/text_message.dart';
 import '../models/user.dart';
 import 'messaging.dart';
 
-final database = FirebaseDatabase.instance;
-
 class Firedata {
   final FirebaseDatabase instance;
 
   Firedata(this.instance);
+
+  static final firebaseDatabase = FirebaseDatabase.instance;
 
   Stream<int> subscribeToClockSkew() {
     final ref = instance.ref('.info/serverTimeOffset');
@@ -172,8 +172,8 @@ class Firedata {
 
   Future<void> storeFcmToken(String userId) async {
     try {
-      final messagingService = Messaging(messaging);
-      final fcmToken = await messagingService.instance.getToken();
+      final messaging = Messaging();
+      final fcmToken = await messaging.instance.getToken();
       await setUserFcmToken(userId, fcmToken);
     } catch (e) {
       throw AppException(e.toString());

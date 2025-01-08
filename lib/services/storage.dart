@@ -3,12 +3,14 @@ import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 
-final storage = FirebaseStorage.instance;
-
 class Storage {
-  final FirebaseStorage instance;
+  Storage._();
 
-  Storage(this.instance);
+  static final Storage _instance = Storage._();
+
+  factory Storage() => _instance;
+
+  final FirebaseStorage instance = FirebaseStorage.instance;
 
   Future<String> saveFile(String path, File file) async {
     final ref = instance.ref(path);

@@ -5,8 +5,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import '../router.dart';
 
-final messaging = FirebaseMessaging.instance;
-
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -14,9 +12,13 @@ const _channelId = 'high_importance_channel';
 const _channelName = 'High Importance Notifications';
 
 class Messaging {
-  final FirebaseMessaging instance;
+  Messaging._();
 
-  Messaging(this.instance);
+  static final Messaging _instance = Messaging._();
+
+  factory Messaging() => _instance;
+
+  final FirebaseMessaging instance = FirebaseMessaging.instance;
 
   Future<String?> getToken() async {
     return await instance.getToken();

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'router.dart';
 import 'theme.dart';
 import 'wrappers/providers.dart';
-import 'wrappers/auth.dart';
+import 'wrappers/setup.dart';
 import 'wrappers/subscribe.dart';
 
 class App extends StatelessWidget {
@@ -12,7 +12,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Providers(
-      child: Auth(
+      child: Setup(
         child: Subscribe(
           child: MaterialApp.router(
             routerConfig: router,

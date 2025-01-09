@@ -38,4 +38,6 @@ class Fireauth {
       throw AppException(e.toString());
     }
   }
+
+  bool get hasSignedIn => instance.currentUser != null;
 }

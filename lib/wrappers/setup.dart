@@ -5,7 +5,7 @@ import '../services/fireauth.dart';
 import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
-import 'setup/signin_step.dart';
+// import 'setup/signin_step.dart';
 import 'setup/welcome_step.dart';
 
 class Setup extends StatefulWidget {
@@ -21,7 +21,7 @@ class _SetupPageState extends State<Setup> {
   late Fireauth fireauth;
 
   int _currentStep = 0;
-  final int _totalSteps = 4;
+  final int _totalSteps = 3; // 4
 
   @override
   void initState() {
@@ -66,11 +66,11 @@ class _SetupPageState extends State<Setup> {
     switch (_currentStep) {
       case 0:
         return WelcomeStep(onNext: _nextStep);
+      // case 1:
+      //   return SignInStep(onNext: _nextStep);
       case 1:
-        return SignInStep(onNext: _nextStep);
-      case 2:
         return ProfileStep(onNext: _nextStep);
-      case 3:
+      case 2:
         return NotificationStep(onNext: _nextStep);
       default:
         return widget.child;

@@ -12,7 +12,6 @@ import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
 import 'widgets/navigation.dart';
-import 'wrappers/setup.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
@@ -25,9 +24,7 @@ final router = GoRouter(
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return Setup(
-          child: Navigation(navigationShell: navigationShell),
-        );
+        return Navigation(navigationShell: navigationShell);
       },
       branches: [
         StatefulShellBranch(

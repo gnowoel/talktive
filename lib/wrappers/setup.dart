@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/settings.dart';
+import '../services/fireauth.dart';
+import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 import 'setup/signin_step.dart';
@@ -17,7 +18,7 @@ class Setup extends StatefulWidget {
 }
 
 class _SetupPageState extends State<Setup> {
-  late Settings settings;
+  late Fireauth fireauth;
 
   int _currentStep = 0;
   final int _totalSteps = 4;
@@ -25,49 +26,39 @@ class _SetupPageState extends State<Setup> {
   @override
   void initState() {
     super.initState();
-    settings = context.read<Settings>();
-    if (settings.getHasCompletedSetup()) {
+    fireauth = context.read<Fireauth>();
+    if (fireauth.hasSignedIn) {
       _currentStep = _totalSteps;
     }
   }
 
-  @override
-  void dispose() {
-    debugPrint('>>');
-    debugPrint('>> Setup.dispose()');
-    debugPrint('>>');
-    super.dispose();
-  }
-
   void _nextStep() {
-    if (_currentStep < _totalSteps - 1) {
-      setState(() {
-        _currentStep++;
-      });
-    } else {
-      Settings().setHasCompletedSetup(true);
-      setState(() {
-        _currentStep = _totalSteps;
-      });
-    }
+    setState(() {
+      _currentStep++;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _currentStep < _totalSteps
-          ? SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: _buildCurrentStep(),
-                  ),
-                  _buildProgressDots(),
-                  const SizedBox(height: 32),
-                ],
+    if (_currentStep >= _totalSteps) {
+      return _buildCurrentStep(); // widget.child
+    }
+
+    return MaterialApp(
+      theme: getTheme(context),
+      home: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: _buildCurrentStep(),
               ),
-            )
-          : _buildCurrentStep(),
+              _buildProgressDots(),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

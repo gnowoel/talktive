@@ -19,8 +19,13 @@ class ProfileStep extends StatefulWidget {
 }
 
 class _ProfileStepState extends State<ProfileStep> {
+  late Fireauth fireauth;
+  late Firedata firedata;
+  late Avatar avatar;
+
   late TextEditingController _displayNameController;
   late TextEditingController _descriptionController;
+
   final _formKey = GlobalKey<FormState>();
   String? _selectedGender;
   bool _isProcessing = false;
@@ -35,8 +40,18 @@ class _ProfileStepState extends State<ProfileStep> {
   @override
   void initState() {
     super.initState();
+
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+
     _displayNameController = TextEditingController();
     _descriptionController = TextEditingController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    avatar = Provider.of<Avatar>(context);
   }
 
   @override
@@ -44,6 +59,10 @@ class _ProfileStepState extends State<ProfileStep> {
     _displayNameController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  void _changeAvatar() {
+    avatar.refresh();
   }
 
   String? _validateDisplayName(String? value) {
@@ -88,10 +107,6 @@ class _ProfileStepState extends State<ProfileStep> {
       setState(() => _isProcessing = true);
 
       try {
-        final fireauth = context.read<Fireauth>();
-        final firedata = context.read<Firedata>();
-        final avatar = context.read<Avatar>();
-
         final userId = fireauth.instance.currentUser!.uid;
         var displayName = _displayNameController.text.trim();
         var description = _descriptionController.text.trim();
@@ -127,11 +142,17 @@ class _ProfileStepState extends State<ProfileStep> {
           key: _formKey,
           child: Column(
             children: [
-              const Text(
-                '😊',
+              const SizedBox(height: 32),
+              Text(
+                avatar.code,
                 style: TextStyle(fontSize: 64),
               ),
-              const SizedBox(height: 32),
+              IconButton(
+                onPressed: _changeAvatar,
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Change avatar',
+              ),
+              const SizedBox(height: 16),
               Text(
                 'Tell us about yourself',
                 style: Theme.of(context).textTheme.headlineSmall,

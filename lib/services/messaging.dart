@@ -95,7 +95,7 @@ class Messaging {
 
     if (title == null || body == null) return;
 
-    await _showLocalNotification(title, body, data);
+    // await _showLocalNotification(title, body, data);
   }
 
   static Future<void> handleMessage(RemoteMessage message) async {

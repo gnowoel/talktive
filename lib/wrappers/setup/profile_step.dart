@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/exception.dart';
+import '../../helpers/helpers.dart';
 import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
@@ -19,6 +20,7 @@ class ProfileStep extends StatefulWidget {
 }
 
 class _ProfileStepState extends State<ProfileStep> {
+  late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
@@ -51,6 +53,7 @@ class _ProfileStepState extends State<ProfileStep> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    languageCode = getLanguageCode(context);
     avatar = Provider.of<Avatar>(context);
   }
 
@@ -113,7 +116,7 @@ class _ProfileStepState extends State<ProfileStep> {
 
         await firedata.updateProfile(
           userId: userId,
-          languageCode: 'en',
+          languageCode: languageCode,
           photoURL: avatar.code,
           displayName: displayName,
           description: description,

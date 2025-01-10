@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../helpers/exception.dart';
 import '../../helpers/helpers.dart';
 import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
@@ -152,7 +151,7 @@ class _ProfileStepState extends State<ProfileStep> {
               ),
               IconButton(
                 onPressed: _changeAvatar,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.shuffle),
                 tooltip: 'Change avatar',
               ),
               const SizedBox(height: 16),

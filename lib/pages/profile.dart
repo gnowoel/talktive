@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
 import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
+// import '../models/admin.dart';
 import '../models/user.dart';
 import '../services/cache.dart';
 import '../widgets/layout.dart';
@@ -152,9 +154,33 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Layout(
-        child: _isEditing ? _buildEditProfile() : _buildShowProfile(),
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        title: const Text('My Profile'),
+        // actions: [
+        //   FutureBuilder<Admin?>(
+        //     future: firedata.fetchAdmin(_user!.id),
+        //     builder: (context, snapshot) {
+        //       if (snapshot.hasData && snapshot.data != null) {
+        //         return IconButton(
+        //           icon: const Icon(Icons.admin_panel_settings),
+        //           onPressed: () {
+        //             context.push('/admin/reports');
+        //           },
+        //           tooltip: 'Admin Panel',
+        //         );
+        //       }
+        //       return const SizedBox();
+        //     },
+        //   ),
+        // ],
+      ),
+      body: SafeArea(
+        child: Layout(
+          child: _isEditing ? _buildEditProfile() : _buildShowProfile(),
+        ),
       ),
     );
   }
@@ -205,78 +231,76 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildEditProfile() {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            const SizedBox(height: 32),
-            Text(
-              _photoURL,
-              style: TextStyle(fontSize: 64),
-            ),
-            IconButton(
-              onPressed: _changeAvatar,
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Change avatar',
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Tell us about yourself',
-              style: theme.textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 32),
-            TextFormField(
-              controller: _displayNameController,
-              decoration: const InputDecoration(
-                labelText: 'Display Name',
-                hintText: 'What do people call you?',
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              Text(
+                _photoURL,
+                style: TextStyle(fontSize: 64),
               ),
-              validator: _validateDisplayName,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'Tell us a bit about yourself',
+              const SizedBox(height: 8),
+              IconButton(
+                onPressed: _changeAvatar,
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Change avatar',
               ),
-              validator: _validateDescription,
-              minLines: 3,
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Gender',
+              const SizedBox(height: 32),
+              TextFormField(
+                controller: _displayNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Display Name',
+                  hintText: 'What do people call you?',
+                ),
+                validator: _validateDisplayName,
               ),
-              value: _selectedGender,
-              items: _genderOptions
-                  .map((option) => DropdownMenuItem(
-                        value: option['value'],
-                        child: Text(option['label']!),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() => _selectedGender = value);
-              },
-              validator: _validateGender,
-            ),
-            const SizedBox(height: 32),
-            FilledButton(
-              onPressed: _isProcessing ? null : _submit,
-              child: _isProcessing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                      ),
-                    )
-                  : const Text('Save'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Tell us a bit about yourself',
+                ),
+                validator: _validateDescription,
+                minLines: 2,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Gender',
+                ),
+                value: _selectedGender,
+                items: _genderOptions
+                    .map((option) => DropdownMenuItem(
+                          value: option['value'],
+                          child: Text(option['label']!),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() => _selectedGender = value);
+                },
+                validator: _validateGender,
+              ),
+              const SizedBox(height: 32),
+              FilledButton(
+                onPressed: _isProcessing ? null : _submit,
+                child: _isProcessing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : const Text('Save'),
+              ),
+            ],
+          ),
         ),
       ),
     );

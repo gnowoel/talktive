@@ -246,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 8),
               IconButton(
                 onPressed: _changeAvatar,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.shuffle),
                 tooltip: 'Change avatar',
               ),
               const SizedBox(height: 32),

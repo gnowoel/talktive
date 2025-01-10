@@ -149,15 +149,51 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (_isEditing == false) {
       return SafeArea(
         child: Layout(
-          child: SingleChildScrollView(
-            child: FilledButton(
-              onPressed: () {
-                setState(() => _isEditing = true);
-              },
-              child: const Text('Edit'),
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 120,
+                  child: Center(
+                    child: Text(
+                      _user?.photoURL ?? '',
+                      style: const TextStyle(fontSize: 64),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _user?.displayName ?? '',
+                  style: theme.textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _user?.description ?? '',
+                  style: theme.textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  getLongGenderDescription(_user?.gender ?? '') ?? '',
+                  style: theme.textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                FilledButton(
+                  onPressed: () {
+                    setState(() => _isEditing = true);
+                  },
+                  child: const Text('Edit'),
+                ),
+              ],
             ),
           ),
         ),
@@ -186,7 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 16),
                   Text(
                     'Tell us about yourself',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    style: theme.textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 32),
                   TextFormField(

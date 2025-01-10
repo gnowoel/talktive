@@ -48,19 +48,20 @@ class _ProfilePageState extends State<ProfilePage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     avatar = context.read<Avatar>();
-    cache = context.read<Cache>();
-
-    _user = cache.user;
-
-    _photoURL = _user?.photoURL ?? avatar.code;
-    _displayNameController = TextEditingController(text: _user?.displayName);
-    _descriptionController = TextEditingController(text: _user?.description);
-    _selectedGender = _user?.gender;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    cache = Provider.of<Cache>(context);
+
+    _user = cache.user;
+    _photoURL = _user?.photoURL ?? avatar.code;
+    _displayNameController = TextEditingController(text: _user?.displayName);
+    _descriptionController = TextEditingController(text: _user?.description);
+    _selectedGender = _user?.gender;
+
     languageCode = getLanguageCode(context);
   }
 

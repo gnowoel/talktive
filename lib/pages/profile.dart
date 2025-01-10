@@ -17,6 +17,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  late ThemeData theme;
   late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;
@@ -54,6 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    theme = Theme.of(context);
     cache = Provider.of<Cache>(context);
 
     _user = cache.user;
@@ -150,135 +152,131 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (_isEditing == false) {
-      return SafeArea(
-        child: Layout(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 120,
-                  child: Center(
-                    child: Text(
-                      _user?.photoURL ?? '',
-                      style: const TextStyle(fontSize: 64),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _user?.displayName ?? '',
-                  style: theme.textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _user?.description ?? '',
-                  style: theme.textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  getLongGenderDescription(_user?.gender ?? '') ?? '',
-                  style: theme.textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                FilledButton(
-                  onPressed: () {
-                    setState(() => _isEditing = true);
-                  },
-                  child: const Text('Edit'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     return SafeArea(
       child: Layout(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const SizedBox(height: 32),
-                  Text(
-                    _photoURL,
-                    style: TextStyle(fontSize: 64),
-                  ),
-                  IconButton(
-                    onPressed: _changeAvatar,
-                    icon: const Icon(Icons.refresh),
-                    tooltip: 'Change avatar',
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Tell us about yourself',
-                    style: theme.textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _displayNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Display Name',
-                      hintText: 'What do people call you?',
-                    ),
-                    validator: _validateDisplayName,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Tell us a bit about yourself',
-                    ),
-                    validator: _validateDescription,
-                    minLines: 3,
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
-                    ),
-                    value: _selectedGender,
-                    items: _genderOptions
-                        .map((option) => DropdownMenuItem(
-                              value: option['value'],
-                              child: Text(option['label']!),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedGender = value);
-                    },
-                    validator: _validateGender,
-                  ),
-                  const SizedBox(height: 32),
-                  FilledButton(
-                    onPressed: _isProcessing ? null : _submit,
-                    child: _isProcessing
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                            ),
-                          )
-                        : const Text('Save'),
-                  ),
-                ],
+        child: _isEditing ? _buildEditProfile() : _buildShowProfile(),
+      ),
+    );
+  }
+
+  Widget _buildShowProfile() {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 120,
+            child: Center(
+              child: Text(
+                _user?.photoURL ?? '',
+                style: const TextStyle(fontSize: 64),
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          Text(
+            _user?.displayName ?? '',
+            style: theme.textTheme.headlineSmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _user?.description ?? '',
+            style: theme.textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            getLongGenderDescription(_user?.gender ?? '') ?? '',
+            style: theme.textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          FilledButton(
+            onPressed: () {
+              setState(() => _isEditing = true);
+            },
+            child: const Text('Edit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditProfile() {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            Text(
+              _photoURL,
+              style: TextStyle(fontSize: 64),
+            ),
+            IconButton(
+              onPressed: _changeAvatar,
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Change avatar',
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Tell us about yourself',
+              style: theme.textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 32),
+            TextFormField(
+              controller: _displayNameController,
+              decoration: const InputDecoration(
+                labelText: 'Display Name',
+                hintText: 'What do people call you?',
+              ),
+              validator: _validateDisplayName,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Tell us a bit about yourself',
+              ),
+              validator: _validateDescription,
+              minLines: 3,
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                labelText: 'Gender',
+              ),
+              value: _selectedGender,
+              items: _genderOptions
+                  .map((option) => DropdownMenuItem(
+                        value: option['value'],
+                        child: Text(option['label']!),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() => _selectedGender = value);
+              },
+              validator: _validateGender,
+            ),
+            const SizedBox(height: 32),
+            FilledButton(
+              onPressed: _isProcessing ? null : _submit,
+              child: _isProcessing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    )
+                  : const Text('Save'),
+            ),
+          ],
         ),
       ),
     );

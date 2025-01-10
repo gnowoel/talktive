@@ -1,305 +1,69 @@
 import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
-import '../../services/avatar.dart';
-import '../../services/fireauth.dart';
-import '../../services/firedata.dart';
-// import '../models/admin.dart';
-import '../models/user.dart';
 import '../services/cache.dart';
 import '../widgets/layout.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
-  late ThemeData theme;
-  late String languageCode;
-  late Fireauth fireauth;
-  late Firedata firedata;
-  late Avatar avatar;
-  late Cache cache;
-
-  late String _photoURL;
-  late TextEditingController _displayNameController;
-  late TextEditingController _descriptionController;
-
-  final _formKey = GlobalKey<FormState>();
-
-  User? _user;
-  String? _selectedGender;
-  bool _isEditing = false;
-  bool _isProcessing = false;
-
-  final _genderOptions = [
-    {'label': 'Female', 'value': 'F'},
-    {'label': 'Male', 'value': 'M'},
-    {'label': 'Other', 'value': 'O'},
-    {'label': 'Prefer not to say', 'value': 'X'},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-
-    fireauth = context.read<Fireauth>();
-    firedata = context.read<Firedata>();
-    avatar = context.read<Avatar>();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    theme = Theme.of(context);
-    cache = Provider.of<Cache>(context);
-
-    _user = cache.user;
-    _photoURL = _user?.photoURL ?? avatar.code;
-    _displayNameController = TextEditingController(text: _user?.displayName);
-    _descriptionController = TextEditingController(text: _user?.description);
-    _selectedGender = _user?.gender;
-
-    languageCode = getLanguageCode(context);
-  }
-
-  @override
-  void dispose() {
-    _displayNameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  void _changeAvatar() {
-    avatar.refresh();
-    setState(() => _photoURL = avatar.code);
-  }
-
-  String? _validateDisplayName(String? value) {
-    value = value?.trim();
-    if (value == null || value.isEmpty) {
-      return 'Please enter a display name';
-    }
-    if (value.length < 2) {
-      return 'Must be at least 2 characters';
-    }
-    if (value.length > 30) {
-      return 'Must be less than 30 characters';
-    }
-    return null;
-  }
-
-  String? _validateDescription(String? value) {
-    value = value?.trim();
-    if (value == null || value.isEmpty) {
-      return 'Please enter a brief description';
-    }
-    if (value.length < 10) {
-      return 'Must be at least 10 characters';
-    }
-    if (value.length > 200) {
-      return 'Must be less than 200 characters';
-    }
-    return null;
-  }
-
-  String? _validateGender(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please select an option';
-    }
-    return null;
-  }
-
-  Future<void> _submit() async {
-    if (_isProcessing) return;
-
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isProcessing = true);
-
-      try {
-        final userId = fireauth.instance.currentUser!.uid;
-        var displayName = _displayNameController.text.trim();
-        var description = _descriptionController.text.trim();
-
-        await firedata.updateProfile(
-          userId: userId,
-          languageCode: languageCode,
-          photoURL: _photoURL,
-          displayName: displayName,
-          description: description,
-          gender: _selectedGender!,
-        );
-
-        setState(() => _isEditing = false);
-      } on AppException catch (e) {
-        if (mounted) {
-          ErrorHandler.showSnackBarMessage(context, e);
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isProcessing = false;
-            _isEditing = false;
-          });
-        }
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final user = context.select((Cache cache) => cache.user);
+
     return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('My Profile'),
-        // actions: [
-        //   FutureBuilder<Admin?>(
-        //     future: firedata.fetchAdmin(_user!.id),
-        //     builder: (context, snapshot) {
-        //       if (snapshot.hasData && snapshot.data != null) {
-        //         return IconButton(
-        //           icon: const Icon(Icons.admin_panel_settings),
-        //           onPressed: () {
-        //             context.push('/admin/reports');
-        //           },
-        //           tooltip: 'Admin Panel',
-        //         );
-        //       }
-        //       return const SizedBox();
-        //     },
-        //   ),
-        // ],
-      ),
-      body: SafeArea(
-        child: Layout(
-          child: _isEditing ? _buildEditProfile() : _buildShowProfile(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShowProfile() {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 120,
-            child: Center(
-              child: Text(
-                _user?.photoURL ?? '',
-                style: const TextStyle(fontSize: 64),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _user?.displayName ?? '',
-            style: theme.textTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _user?.description ?? '',
-            style: theme.textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            getLongGenderDescription(_user?.gender ?? '') ?? '',
-            style: theme.textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          FilledButton(
-            onPressed: () {
-              setState(() => _isEditing = true);
-            },
-            child: const Text('Edit'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => context.push('/profile/edit'),
+            tooltip: 'Edit profile',
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildEditProfile() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              Text(
-                _photoURL,
-                style: TextStyle(fontSize: 64),
-              ),
-              const SizedBox(height: 8),
-              IconButton(
-                onPressed: _changeAvatar,
-                icon: const Icon(Icons.shuffle),
-                tooltip: 'Change avatar',
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _displayNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Display Name',
-                  hintText: 'What do people call you?',
+      body: SafeArea(
+        child: Layout(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 120,
+                  child: Center(
+                    child: Text(
+                      user?.photoURL ?? '',
+                      style: const TextStyle(fontSize: 64),
+                    ),
+                  ),
                 ),
-                validator: _validateDisplayName,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  hintText: 'Tell us a bit about yourself',
+                const SizedBox(height: 16),
+                Text(
+                  user?.displayName ?? '',
+                  style: theme.textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
                 ),
-                validator: _validateDescription,
-                minLines: 2,
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Gender',
+                const SizedBox(height: 16),
+                Text(
+                  user?.description ?? '',
+                  style: theme.textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
                 ),
-                value: _selectedGender,
-                items: _genderOptions
-                    .map((option) => DropdownMenuItem(
-                          value: option['value'],
-                          child: Text(option['label']!),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() => _selectedGender = value);
-                },
-                validator: _validateGender,
-              ),
-              const SizedBox(height: 32),
-              FilledButton(
-                onPressed: _isProcessing ? null : _submit,
-                child: _isProcessing
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : const Text('Save'),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Text(
+                  getLongGenderDescription(user?.gender ?? '') ?? '',
+                  style: theme.textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),

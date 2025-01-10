@@ -6,6 +6,7 @@ import 'models/chat.dart';
 import 'models/user.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
+import 'pages/edit_profile.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
 import 'pages/users.dart';
@@ -89,6 +90,10 @@ final router = GoRouter(
 
         return ChatPage(chat: chat);
       },
+    ),
+    GoRoute(
+      path: '/profile/edit',
+      builder: (context, state) => const EditProfilePage(),
     ),
     GoRoute(
       path: '/admin/reports',

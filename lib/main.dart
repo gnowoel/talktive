@@ -49,7 +49,7 @@ Future<void> main() async {
   }
 
   final settings = Settings();
-  settings.load();
+  await settings.load();
 
   final avatar = Avatar();
   avatar.init();

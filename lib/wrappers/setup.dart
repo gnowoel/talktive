@@ -36,7 +36,7 @@ class _SetupPageState extends State<Setup> {
   }
 
   void _nextStep() {
-    if (_currentStep == _totalSteps) {
+    if (_currentStep == _totalSteps - 1) {
       settings.markSetupComplete(); // No wait
     }
     setState(() {

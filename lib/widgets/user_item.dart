@@ -56,7 +56,7 @@ class _UserItemState extends State<UserItem> {
 
       if (mounted) {
         context.go('/chats');
-        context.push(Messaging.encodeRoute(chat.id, partner.displayName!));
+        context.push(Messaging.encodeChatRoute(chat.id, partner.displayName!));
       }
     });
   }

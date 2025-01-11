@@ -148,7 +148,7 @@ class Messaging {
 
     GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
     GoRouter.of(rootNavigatorKey.currentContext!).push(
-      encodeRoute(chatId, partnerDisplayName),
+      encodeChatRoute(chatId, partnerDisplayName),
     );
   }
 
@@ -160,14 +160,19 @@ class Messaging {
 
       GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
       GoRouter.of(rootNavigatorKey.currentContext!).push(
-        encodeRoute(chatId, partnerDisplayName),
+        encodeChatRoute(chatId, partnerDisplayName),
       );
     }
   }
 
-  static String encodeRoute(String chatId, String partnerDisplayName) {
+  static String encodeChatRoute(String chatId, String partnerDisplayName) {
     final encodedName = Uri.encodeComponent(partnerDisplayName);
     return '/chats/$chatId?partnerDisplayName=$encodedName';
+  }
+
+  static String _encodeLaunchRoute(String chatId, String partnerDisplayName) {
+    final encodedName = Uri.encodeComponent(partnerDisplayName);
+    return '/launch/$chatId?partnerDisplayName=$encodedName';
   }
 
   static Future<String?> getInitialRoute() async {
@@ -183,7 +188,7 @@ class Messaging {
         final chatId = data['chatId'] as String;
         final partnerDisplayName = data['partnerDisplayName'] as String;
 
-        return encodeRoute(chatId, partnerDisplayName);
+        return _encodeLaunchRoute(chatId, partnerDisplayName);
       } catch (e) {
         debugPrint('Error parsing notification payload: $e');
       }

@@ -7,6 +7,7 @@ import 'models/user.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/edit_profile.dart';
+import 'pages/launch.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
 import 'pages/users.dart';
@@ -66,6 +67,20 @@ Future<GoRouter> initRouter() async {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/launch/:id',
+        builder: (context, state) {
+          final chatId = state.pathParameters['id']!;
+          final encodedName =
+              state.uri.queryParameters['partnerDisplayName'] ?? '';
+          final partnerDisplayName = Uri.decodeComponent(encodedName);
+
+          return LaunchPage(
+            chatId: chatId,
+            partnerDisplayName: partnerDisplayName,
+          );
+        },
       ),
       GoRoute(
         path: '/chats/:id',

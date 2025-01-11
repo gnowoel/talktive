@@ -59,7 +59,9 @@ class _SetupPageState extends State<Setup> {
               Expanded(
                 child: _buildCurrentStep(),
               ),
-              _buildProgressDots(),
+              Builder(builder: (context) {
+                return _buildProgressDots(context);
+              }),
               const SizedBox(height: 32),
             ],
           ),
@@ -83,7 +85,8 @@ class _SetupPageState extends State<Setup> {
     }
   }
 
-  Widget _buildProgressDots() {
+  Widget _buildProgressDots(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(_totalSteps, (index) {
@@ -94,8 +97,8 @@ class _SetupPageState extends State<Setup> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _currentStep == index
-                ? Theme.of(context).colorScheme.outlineVariant
-                : Theme.of(context).colorScheme.outline,
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outlineVariant,
           ),
         );
       }),

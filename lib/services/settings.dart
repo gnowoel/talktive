@@ -9,11 +9,15 @@ class Settings {
 
   bool _hasCompletedSetup = false;
 
-  bool getHasCompletedSetup() {
-    return _hasCompletedSetup;
+  bool get hasCompletedSetup => _hasCompletedSetup;
+
+  Future<void> markSetupComplete() async {
+    await Prefs.setBool('hasCompletedSetup', true);
+    _hasCompletedSetup = true;
   }
 
-  void setHasCompletedSetup(bool value) {
+  Future<void> load() async {
+    final value = await Prefs.getBool('hasCompletedSetup');
     _hasCompletedSetup = value;
   }
 }

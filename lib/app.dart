@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'router.dart';
 import 'theme.dart';
@@ -14,12 +15,25 @@ class App extends StatelessWidget {
     return Providers(
       child: Setup(
         child: Subscribe(
-          child: MaterialApp.router(
-            routerConfig: router,
-            debugShowCheckedModeBanner: false,
-            title: 'Talktive',
-            theme: getTheme(context),
-          ),
+          child: FutureBuilder<GoRouter>(
+              future: initRouter(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return MaterialApp(
+                    theme: getTheme(context),
+                    home: Scaffold(
+                      body: SizedBox(),
+                    ),
+                  );
+                }
+
+                return MaterialApp.router(
+                  routerConfig: snapshot.data,
+                  debugShowCheckedModeBanner: false,
+                  title: 'Talktive',
+                  theme: getTheme(context),
+                );
+              }),
         ),
       ),
     );

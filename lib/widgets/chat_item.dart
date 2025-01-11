@@ -8,6 +8,7 @@ import '../models/chat.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/messaging.dart';
 import 'tag.dart';
 
 class ChatItem extends StatefulWidget {
@@ -51,12 +52,7 @@ class _ChatItemState extends State<ChatItem> {
       final partner = chat.partner;
 
       context.go('/chats');
-      context.push(
-        '/chats/${chat.id}',
-        extra: <String, String>{
-          'partnerDisplayName': partner.displayName!,
-        },
-      );
+      context.push(Messaging.encodeRoute(chat.id, partner.displayName!));
     });
   }
 

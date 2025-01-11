@@ -13,6 +13,7 @@ import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
 import 'services/messaging.dart';
+import 'services/settings.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -46,6 +47,9 @@ Future<void> main() async {
   if (!kDebugMode && !kIsWeb) {
     FirebaseDatabase.instance.setPersistenceEnabled(true);
   }
+
+  final settings = Settings();
+  settings.load();
 
   final avatar = Avatar();
   avatar.init();

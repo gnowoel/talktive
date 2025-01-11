@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/fireauth.dart';
+import '../services/settings.dart';
 import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
@@ -19,6 +20,7 @@ class Setup extends StatefulWidget {
 
 class _SetupPageState extends State<Setup> {
   late Fireauth fireauth;
+  late Settings settings;
 
   int _currentStep = 0;
   final int _totalSteps = 3; // 4
@@ -27,12 +29,16 @@ class _SetupPageState extends State<Setup> {
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
-    if (fireauth.hasSignedIn) {
-      _currentStep = _totalSteps;
+    settings = context.read<Settings>();
+    if (fireauth.hasSignedIn && settings.hasCompletedSetup) {
+      _currentStep = _totalSteps; // Skip setup
     }
   }
 
   void _nextStep() {
+    if (_currentStep == _totalSteps) {
+      settings.markSetupComplete(); // No wait
+    }
     setState(() {
       _currentStep++;
     });
@@ -88,7 +94,7 @@ class _SetupPageState extends State<Setup> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _currentStep == index
-                ? Theme.of(context).colorScheme.primary
+                ? Theme.of(context).colorScheme.outlineVariant
                 : Theme.of(context).colorScheme.outline,
           ),
         );

@@ -176,7 +176,7 @@ class _ProfileStepState extends State<ProfileStep> {
                   hintText: 'Tell us a bit about yourself',
                 ),
                 validator: _validateDescription,
-                minLines: 3,
+                minLines: 2,
                 maxLines: 3,
               ),
               const SizedBox(height: 16),

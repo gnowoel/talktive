@@ -9,6 +9,7 @@ import '../models/user.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/messaging.dart';
 import 'tag.dart';
 
 class UserItem extends StatefulWidget {
@@ -55,12 +56,7 @@ class _UserItemState extends State<UserItem> {
 
       if (mounted) {
         context.go('/chats');
-        context.push(
-          '/chats/${chat.id}',
-          extra: <String, String>{
-            'partnerDisplayName': partner.displayName!,
-          },
-        );
+        context.push(Messaging.encodeRoute(chat.id, partner.displayName!));
       }
     });
   }

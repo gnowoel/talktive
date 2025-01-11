@@ -148,10 +148,7 @@ class Messaging {
 
     GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
     GoRouter.of(rootNavigatorKey.currentContext!).push(
-      '/chats/$chatId',
-      extra: <String, String>{
-        'partnerDisplayName': partnerDisplayName,
-      },
+      encodeRoute(chatId, partnerDisplayName),
     );
   }
 
@@ -163,11 +160,34 @@ class Messaging {
 
       GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
       GoRouter.of(rootNavigatorKey.currentContext!).push(
-        '/chats/$chatId',
-        extra: <String, String>{
-          'partnerDisplayName': partnerDisplayName,
-        },
+        encodeRoute(chatId, partnerDisplayName),
       );
     }
+  }
+
+  static String encodeRoute(String chatId, String partnerDisplayName) {
+    final encodedName = Uri.encodeComponent(partnerDisplayName);
+    return '/chats/$chatId?partnerDisplayName=$encodedName';
+  }
+
+  static Future<String?> getInitialRoute() async {
+    final NotificationAppLaunchDetails? details =
+        await _flutterLocalNotificationsPlugin
+            .getNotificationAppLaunchDetails();
+
+    if (details?.didNotificationLaunchApp == true &&
+        details?.notificationResponse?.payload != null) {
+      try {
+        final data = jsonDecode(details!.notificationResponse!.payload!)
+            as Map<String, dynamic>;
+        final chatId = data['chatId'] as String;
+        final partnerDisplayName = data['partnerDisplayName'] as String;
+
+        return encodeRoute(chatId, partnerDisplayName);
+      } catch (e) {
+        debugPrint('Error parsing notification payload: $e');
+      }
+    }
+    return null;
   }
 }

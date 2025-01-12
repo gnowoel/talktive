@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
+import '../../models/user.dart';
 import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
@@ -19,15 +22,20 @@ class ProfileStep extends StatefulWidget {
 }
 
 class _ProfileStepState extends State<ProfileStep> {
+  late ThemeData theme;
   late String languageCode;
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
 
+  late String _photoURL;
   late TextEditingController _displayNameController;
   late TextEditingController _descriptionController;
+  late StreamSubscription _userSubscription;
 
   final _formKey = GlobalKey<FormState>();
+
+  User? _user;
   String? _selectedGender;
   bool _isProcessing = false;
 
@@ -41,30 +49,45 @@ class _ProfileStepState extends State<ProfileStep> {
   @override
   void initState() {
     super.initState();
-
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    avatar = context.read<Avatar>();
 
-    _displayNameController = TextEditingController();
-    _descriptionController = TextEditingController();
+    final userId = fireauth.instance.currentUser!.uid;
+
+    _userSubscription = firedata.subscribeToUser(userId).listen((user) {
+      if (user != null) {
+        setState(() {
+          _user = user;
+          _photoURL = _user?.photoURL ?? avatar.code;
+          _displayNameController =
+              TextEditingController(text: _user?.displayName);
+          _descriptionController =
+              TextEditingController(text: _user?.description);
+          _selectedGender = _user?.gender;
+        });
+        _userSubscription.cancel();
+      }
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    theme = Theme.of(context);
     languageCode = getLanguageCode(context);
-    avatar = Provider.of<Avatar>(context);
   }
 
   @override
   void dispose() {
-    _displayNameController.dispose();
     _descriptionController.dispose();
+    _displayNameController.dispose();
     super.dispose();
   }
 
   void _changeAvatar() {
     avatar.refresh();
+    setState(() => _photoURL = avatar.code);
   }
 
   String? _validateDisplayName(String? value) {
@@ -109,12 +132,11 @@ class _ProfileStepState extends State<ProfileStep> {
       setState(() => _isProcessing = true);
 
       try {
-        final userId = fireauth.instance.currentUser!.uid;
         var displayName = _displayNameController.text.trim();
         var description = _descriptionController.text.trim();
 
         await firedata.updateProfile(
-          userId: userId,
+          userId: _user!.id,
           languageCode: languageCode,
           photoURL: avatar.code,
           displayName: displayName,
@@ -137,6 +159,10 @@ class _ProfileStepState extends State<ProfileStep> {
 
   @override
   Widget build(BuildContext context) {
+    if (_user == null) {
+      return const SizedBox();
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -144,9 +170,9 @@ class _ProfileStepState extends State<ProfileStep> {
           key: _formKey,
           child: Column(
             children: [
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               Text(
-                avatar.code,
+                _photoURL,
                 style: TextStyle(fontSize: 64),
               ),
               IconButton(

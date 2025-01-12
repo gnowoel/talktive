@@ -64,6 +64,12 @@ class _WelcomeStepState extends State<WelcomeStep> {
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 16),
+          Text(
+            'We deserve more ❤️',
+            style: theme.textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 48),
           FilledButton(
             onPressed: _isProcessing ? null : _signInAnonymously,

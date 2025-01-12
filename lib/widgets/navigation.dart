@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../helpers/messages.dart';
+import '../services/cache.dart';
 
 class Navigation extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -16,6 +20,8 @@ class Navigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = navigationShell.currentIndex;
+    final chats = context.select((Cache cache) => cache.chats);
+    final unreadCount = chatsUnreadMessageCount(chats);
 
     return Scaffold(
       body: navigationShell,
@@ -30,8 +36,12 @@ class Navigation extends StatelessWidget {
           ),
           NavigationDestination(
             label: 'Chats',
-            icon: Icon(
-              currentIndex == 1 ? Icons.chat : Icons.chat_outlined,
+            icon: Badge(
+              isLabelVisible: unreadCount > 0,
+              label: Text('$unreadCount'),
+              child: Icon(
+                currentIndex == 1 ? Icons.chat : Icons.chat_outlined,
+              ),
             ),
           ),
           NavigationDestination(

@@ -15,22 +15,30 @@ class Navigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = navigationShell.currentIndex;
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
-        destinations: const [
+        destinations: [
           NavigationDestination(
             label: 'Users',
-            icon: Icon(Icons.person_add),
+            icon: Icon(
+              currentIndex == 0 ? Icons.person_add : Icons.person_add_outlined,
+            ),
           ),
           NavigationDestination(
             label: 'Chats',
-            icon: Icon(Icons.chat),
+            icon: Icon(
+              currentIndex == 1 ? Icons.chat : Icons.chat_outlined,
+            ),
           ),
           NavigationDestination(
             label: 'Profile',
-            icon: Icon(Icons.face),
+            icon: Icon(
+              currentIndex == 2 ? Icons.face : Icons.face_outlined,
+            ),
           ),
         ],
         onDestinationSelected: _goBranch,

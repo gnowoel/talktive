@@ -22,7 +22,9 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () => context.push('/profile/edit'),
+            onPressed: user == null
+                ? null
+                : () => context.push('/profile/edit', extra: user),
             tooltip: 'Edit profile',
           ),
         ],

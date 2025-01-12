@@ -113,7 +113,10 @@ Future<GoRouter> initRouter() async {
       ),
       GoRoute(
         path: '/profile/edit',
-        builder: (context, state) => const EditProfilePage(),
+        builder: (context, state) {
+          final user = state.extra! as User;
+          return EditProfilePage(user: user);
+        },
       ),
       GoRoute(
         path: '/admin/reports',

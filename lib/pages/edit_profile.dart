@@ -11,7 +11,12 @@ import '../services/cache.dart';
 import '../widgets/layout.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  final User user;
+
+  const EditProfilePage({
+    super.key,
+    required this.user,
+  });
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -30,8 +35,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _descriptionController;
 
   final _formKey = GlobalKey<FormState>();
-
-  User? _user;
   String? _selectedGender;
   bool _isProcessing = false;
 
@@ -51,12 +54,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
     avatar = context.read<Avatar>();
     cache = context.read<Cache>();
 
-    _user = cache.user;
+    final user = widget.user;
 
-    _photoURL = _user?.photoURL ?? avatar.code;
-    _displayNameController = TextEditingController(text: _user?.displayName);
-    _descriptionController = TextEditingController(text: _user?.description);
-    _selectedGender = _user?.gender;
+    _photoURL = user.photoURL ?? avatar.code;
+    _displayNameController = TextEditingController(text: user.displayName);
+    _descriptionController = TextEditingController(text: user.description);
+    _selectedGender = user.gender;
   }
 
   @override
@@ -120,12 +123,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() => _isProcessing = true);
 
       try {
-        final userId = fireauth.instance.currentUser!.uid;
         var displayName = _displayNameController.text.trim();
         var description = _descriptionController.text.trim();
 
         await firedata.updateProfile(
-          userId: userId,
+          userId: widget.user.id,
           languageCode: languageCode,
           photoURL: _photoURL,
           displayName: displayName,
@@ -165,7 +167,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 40),
                     Text(
                       _photoURL,
                       style: const TextStyle(fontSize: 64),

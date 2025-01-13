@@ -7,14 +7,12 @@ class UserList extends StatelessWidget {
   final List<User> users;
   final List<String> knownUserIds;
   final List<String> seenUserIds;
-  final void Function(User) hideUser;
 
   const UserList({
     super.key,
     required this.users,
     required this.knownUserIds,
     required this.seenUserIds,
-    required this.hideUser,
   });
 
   bool _hasKnown(User user) {
@@ -36,7 +34,6 @@ class UserList extends StatelessWidget {
           user: users[index],
           hasKnown: _hasKnown(user),
           hasSeen: _hasSeen(user),
-          hideUser: hideUser,
         );
       },
     );

@@ -320,45 +320,21 @@ class Firedata {
     return stream;
   }
 
-  Future<List<User>> fetchUsers({
-    required List<String> excludedUserIds,
-  }) async {
+  Future<List<User>> fetchUsers() async {
     try {
       final users = <User>[];
       final now = DateTime.now();
       final tomorrow = now.add(const Duration(days: 1)).millisecondsSinceEpoch;
       final startAfter = -1 * tomorrow;
+      final limit = 32;
 
-      var limit = kDebugMode ? 4 : 32;
-      var minimum = kDebugMode ? 2 : 16;
-      var retries = 3;
+      final result = await _getUsers(
+        startAfter: startAfter,
+        limit: limit,
+      );
 
-      while (retries > 0) {
-        users.clear();
-
-        final result = await _getUsers(
-          startAfter: startAfter,
-          limit: limit,
-        );
-
-        if (result.length < limit) {
-          retries = 0;
-        }
-
-        for (final user in result) {
-          if (!excludedUserIds.contains(user.id)) {
-            users.add(user);
-          }
-        }
-
-        if (users.length >= minimum) {
-          retries = 0;
-        }
-
-        if (retries > 1) {
-          limit *= 2;
-          retries--;
-        }
+      for (final user in result) {
+        users.add(user);
       }
 
       users.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));

@@ -5,7 +5,6 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
-// import '../pages/chat.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -14,11 +13,15 @@ import 'tag.dart';
 
 class UserItem extends StatefulWidget {
   final User user;
+  final bool hasKnown;
+  final bool hasSeen;
   final void Function(User) hideUser;
 
   const UserItem({
     super.key,
     required this.user,
+    required this.hasKnown,
+    required this.hasSeen,
     required this.hideUser,
   });
 
@@ -52,14 +55,10 @@ class _UserItemState extends State<UserItem> {
     _doAction(() async {
       final userId = fireauth.instance.currentUser!.uid;
       final partner = widget.user;
-      final chat = await firedata.createPair(userId, partner);
+      final chatId = ([userId, partner.id]..sort()).join();
 
-      widget.hideUser(widget.user);
-
-      if (mounted) {
-        context.go('/chats');
-        context.push(Messaging.encodeChatRoute(chat.id, partner.displayName!));
-      }
+      context.go('/chats');
+      context.push(Messaging.encodeChatRoute(chatId, partner.displayName!));
     });
   }
 
@@ -89,6 +88,10 @@ class _UserItemState extends State<UserItem> {
     }
   }
 
+  void _handleTap() {
+    widget.hasKnown ? _enterChat() : _greetUser();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -113,7 +116,7 @@ class _UserItemState extends State<UserItem> {
         margin: const EdgeInsets.symmetric(vertical: 6),
         color: cardColor,
         child: GestureDetector(
-          onTap: _greetUser,
+          onTap: _handleTap,
           child: ListTile(
             leading: Text(
               widget.user.photoURL!,
@@ -163,17 +166,34 @@ class _UserItemState extends State<UserItem> {
                 ),
               ],
             ),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.waving_hand_outlined,
-                color: colorScheme.outline,
-              ),
-              onPressed: _greetUser,
-              tooltip: 'Say hi',
-            ),
+            trailing: _buildIconButton(),
           ),
         ),
       ),
+    );
+  }
+
+  IconButton _buildIconButton() {
+    if (widget.hasKnown) {
+      return IconButton(
+        icon: Icon(Icons.sentiment_satisfied_alt),
+        onPressed: _enterChat,
+        tooltip: 'Enter chat',
+      );
+    }
+
+    if (widget.hasSeen) {
+      return IconButton(
+        icon: Icon(Icons.waving_hand_outlined),
+        onPressed: _greetUser,
+        tooltip: 'Say hi',
+      );
+    }
+
+    return IconButton(
+      icon: Icon(Icons.waving_hand),
+      onPressed: _greetUser,
+      tooltip: 'Say hi',
     );
   }
 }

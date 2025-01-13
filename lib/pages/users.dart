@@ -22,6 +22,7 @@ class _UsersPageState extends State<UsersPage> {
   late Firedata firedata;
   late Cache cache;
 
+  List<User> _seenUsers = [];
   List<User> _users = [];
   bool _isPopulated = false;
 
@@ -37,20 +38,19 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _fetchUsers(List<Chat> chats) async {
-    final users = await firedata.fetchUsers(
-      excludedUserIds: _knownUserIds(chats),
-    );
+    final users = await firedata.fetchUsers();
 
     setState(() {
+      _seenUsers = _users;
       _users = users;
       _isPopulated = true;
     });
   }
 
-  List<User> _filterUsers(List<Chat> chats) {
-    final knownUserIds = _knownUserIds(chats);
+  List<User> _filterUsers() {
+    final userId = fireauth.instance.currentUser!.uid;
     final users = _users.where((user) {
-      return !knownUserIds.contains(user.id);
+      return user.id != userId;
     }).toList();
     return users;
   }
@@ -61,6 +61,10 @@ class _UsersPageState extends State<UsersPage> {
     return [userId, ...partnerIds];
   }
 
+  List<String> _seenUserIds() {
+    return _seenUsers.map((user) => user.id).toList();
+  }
+
   List<String> _partnerIds(String userId, List<Chat> chats) {
     return chats.map((chat) {
       return chat.id.replaceFirst(userId, '');
@@ -68,9 +72,9 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _hideUser(User user) {
-    setState(() {
-      _users.remove(user);
-    });
+    // setState(() {
+    //   _users.remove(user);
+    // });
   }
 
   Future<void> _greetUsers(List<User> users) async {
@@ -111,7 +115,9 @@ class _UsersPageState extends State<UsersPage> {
     const lines = ['No more users here.', 'Try once again.', ''];
 
     final chats = context.select((Cache cache) => cache.chats);
-    final users = _filterUsers(chats);
+    final knownUserIds = _knownUserIds(chats);
+    final seenUserIds = _seenUserIds();
+    final users = _filterUsers();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -134,7 +140,13 @@ class _UsersPageState extends State<UsersPage> {
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
-            : Layout(child: UserList(users: users, hideUser: _hideUser)),
+            : Layout(
+                child: UserList(
+                users: users,
+                knownUserIds: knownUserIds,
+                seenUserIds: seenUserIds,
+                hideUser: _hideUser,
+              )),
       ),
     );
   }

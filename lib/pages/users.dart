@@ -47,6 +47,11 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
+  Future<void> _refreshUsers() async {
+    cache = context.read<Cache>();
+    _fetchUsers(cache.chats);
+  }
+
   List<User> _filterUsers() {
     final userId = fireauth.instance.currentUser!.uid;
     final users = _users.where((user) {
@@ -71,38 +76,6 @@ class _UsersPageState extends State<UsersPage> {
     }).toList();
   }
 
-  Future<void> _greetUsers(List<User> users) async {
-    if (!mounted) return;
-
-    final user = cache.user!;
-    final message = "Hi! I'm ${user.displayName!}. ${user.description}";
-    final info =
-        "The following message will be sent. Change the content by updating your profile.\n\n> $message";
-
-    final shouldSend = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Say hi to everyone'),
-            content: Text(info),
-            actions: [
-              TextButton(
-                child: const Text('Not Now'),
-                onPressed: () => Navigator.pop(context, false),
-              ),
-              TextButton(
-                child: const Text('Send'),
-                onPressed: () => Navigator.pop(context, true),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (!shouldSend) return;
-
-    await firedata.greetUsers(user, users, message);
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -120,12 +93,9 @@ class _UsersPageState extends State<UsersPage> {
         title: const Text('Top users'),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.refresh,
-              // color: theme.colorScheme.tertiary,
-            ),
-            tooltip: 'Greet all',
-            onPressed: users.isEmpty ? null : () => _greetUsers(users),
+            icon: Icon(Icons.refresh),
+            tooltip: 'Refresh users',
+            onPressed: _refreshUsers,
           ),
         ],
       ),

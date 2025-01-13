@@ -86,7 +86,11 @@ class _UserItemState extends State<UserItem> {
     final updatedAt =
         DateTime.fromMillisecondsSinceEpoch(widget.user.updatedAt);
 
-    final cardColor = colorScheme.surfaceContainerHigh;
+    final cardColor = widget.hasKnown
+        ? colorScheme.surfaceContainerHigh
+        : (widget.hasSeen
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
     return Card(
@@ -167,7 +171,7 @@ class _UserItemState extends State<UserItem> {
     }
 
     return IconButton(
-      icon: Icon(Icons.waving_hand),
+      icon: Icon(Icons.waving_hand_outlined),
       onPressed: _greetUser,
       tooltip: 'Say hi',
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +27,8 @@ class _UsersPageState extends State<UsersPage> {
   List<User> _seenUsers = [];
   List<User> _users = [];
   bool _isPopulated = false;
+  bool _canRefresh = true;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -48,6 +52,17 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _refreshUsers() async {
+    if (!_canRefresh) return;
+
+    setState(() => _canRefresh = false);
+
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() => _canRefresh = true);
+      }
+    });
+
     cache = context.read<Cache>();
     _fetchUsers(cache.chats);
   }
@@ -77,6 +92,12 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try once again.', ''];
@@ -95,7 +116,7 @@ class _UsersPageState extends State<UsersPage> {
           IconButton(
             icon: Icon(Icons.refresh),
             tooltip: 'Refresh users',
-            onPressed: _refreshUsers,
+            onPressed: _canRefresh ? _refreshUsers : null,
           ),
         ],
       ),

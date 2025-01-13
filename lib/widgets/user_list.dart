@@ -5,13 +5,25 @@ import 'user_item.dart';
 
 class UserList extends StatelessWidget {
   final List<User> users;
+  final List<String> knownUserIds;
+  final List<String> seenUserIds;
   final void Function(User) hideUser;
 
   const UserList({
     super.key,
     required this.users,
+    required this.knownUserIds,
+    required this.seenUserIds,
     required this.hideUser,
   });
+
+  bool _hasKnown(User user) {
+    return knownUserIds.contains(user.id);
+  }
+
+  bool _hasSeen(User user) {
+    return seenUserIds.contains(user.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +31,13 @@ class UserList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       itemCount: users.length,
       itemBuilder: (context, index) {
-        return UserItem(user: users[index], hideUser: hideUser);
+        final user = users[index];
+        return UserItem(
+          user: users[index],
+          hasKnown: _hasKnown(user),
+          hasSeen: _hasSeen(user),
+          hideUser: hideUser,
+        );
       },
     );
   }

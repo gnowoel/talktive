@@ -191,6 +191,7 @@ class Firedata {
   }
 
   Stream<List<Chat>> subscribeToChats(String userId) {
+    // TODO: Only query active chats
     final ref = instance.ref('chats/$userId');
 
     final stream = ref.onValue.map((event) {
@@ -208,7 +209,7 @@ class Firedata {
         return Chat.fromStub(key: entry.key, value: chatStub);
       }).toList();
 
-      chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
       return chats;
     });

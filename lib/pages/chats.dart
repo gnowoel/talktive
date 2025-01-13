@@ -33,7 +33,7 @@ class _ChatsPageState extends State<ChatsPage> {
     super.didChangeDependencies();
     // TODO: Cache chats in a separate class.
     cache = Provider.of<Cache>(context);
-    _setChatsAndTimer();
+    _setChatsAgain();
   }
 
   @override
@@ -42,22 +42,20 @@ class _ChatsPageState extends State<ChatsPage> {
     super.dispose();
   }
 
-  void _setChatsAndTimer() {
+  void _setChatsAgain() {
     _chats = cache.chats.where((chat) => chat.isActive).toList();
 
     final nextTime = getNextTime(_chats);
 
     if (nextTime == null) return;
 
-    final duration = Duration(
-      milliseconds: nextTime,
-    );
+    final duration = Duration(milliseconds: nextTime);
 
     _timer?.cancel();
 
     _timer = Timer(duration, () {
       setState(() {
-        _setChatsAndTimer();
+        _setChatsAgain();
       });
     });
   }

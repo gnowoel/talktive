@@ -443,6 +443,24 @@ class Firedata {
     }
   }
 
+  Future<Chat> greetUser(User self, User other, String message) async {
+    try {
+      final chat = await createPair(self.id, other);
+
+      await sendTextMessage(
+        chat,
+        self.id,
+        self.displayName!,
+        self.photoURL!,
+        message,
+      );
+
+      return chat;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<Admin?> fetchAdmin(String userId) async {
     try {
       final ref = instance.ref('admins/$userId');

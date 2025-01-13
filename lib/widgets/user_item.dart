@@ -29,12 +29,14 @@ class UserItem extends StatefulWidget {
 class _UserItemState extends State<UserItem> {
   late Fireauth fireauth;
   late Firedata firedata;
+  late Cache cache;
 
   @override
   void initState() {
     super.initState();
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+    cache = context.read<Cache>();
   }
 
   Future<void> _createPairAndHideUser() async {
@@ -57,6 +59,22 @@ class _UserItemState extends State<UserItem> {
       if (mounted) {
         context.go('/chats');
         context.push(Messaging.encodeChatRoute(chat.id, partner.displayName!));
+      }
+    });
+  }
+
+  Future<void> _greetUser() async {
+    _doAction(() async {
+      final self = cache.user!;
+      final other = widget.user;
+      final message = "Hi! I'm ${self.displayName!}. ${self.description}";
+      final chat = await firedata.greetUser(self, other, message);
+
+      widget.hideUser(other);
+
+      if (mounted) {
+        context.go('/chats');
+        context.push(Messaging.encodeChatRoute(chat.id, other.displayName!));
       }
     });
   }
@@ -95,7 +113,7 @@ class _UserItemState extends State<UserItem> {
         margin: const EdgeInsets.symmetric(vertical: 6),
         color: cardColor,
         child: GestureDetector(
-          onTap: _enterChat,
+          onTap: _greetUser,
           child: ListTile(
             leading: Text(
               widget.user.photoURL!,
@@ -146,9 +164,9 @@ class _UserItemState extends State<UserItem> {
               ],
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.add_circle),
-              onPressed: _enterChat,
-              tooltip: 'Chat',
+              icon: const Icon(Icons.waving_hand),
+              onPressed: _greetUser,
+              tooltip: 'Say hi',
             ),
           ),
         ),

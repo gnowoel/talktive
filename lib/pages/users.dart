@@ -71,12 +71,6 @@ class _UsersPageState extends State<UsersPage> {
     }).toList();
   }
 
-  void _hideUser(User user) {
-    // setState(() {
-    //   _users.remove(user);
-    // });
-  }
-
   Future<void> _greetUsers(List<User> users) async {
     if (!mounted) return;
 
@@ -145,7 +139,6 @@ class _UsersPageState extends State<UsersPage> {
                 users: users,
                 knownUserIds: knownUserIds,
                 seenUserIds: seenUserIds,
-                hideUser: _hideUser,
               )),
       ),
     );

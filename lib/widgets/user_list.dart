@@ -16,7 +16,7 @@ class UserList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       itemCount: users.length,
       itemBuilder: (context, index) {
         return UserItem(user: users[index], hideUser: hideUser);

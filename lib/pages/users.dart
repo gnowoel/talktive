@@ -121,7 +121,7 @@ class _UsersPageState extends State<UsersPage> {
         actions: [
           IconButton(
             icon: Icon(
-              Icons.waving_hand,
+              Icons.refresh,
               // color: theme.colorScheme.tertiary,
             ),
             tooltip: 'Greet all',
@@ -134,45 +134,7 @@ class _UsersPageState extends State<UsersPage> {
             ? (_isPopulated
                 ? const Center(child: Info(lines: lines))
                 : const SizedBox())
-            : Layout(
-                child: Column(
-                  children: [
-                    Card(
-                      elevation: 0,
-                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      color: theme.colorScheme.secondaryContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.lightbulb_outline,
-                              size: 16,
-                              color: theme.colorScheme.onSecondaryContainer,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Tap the Hand button to say hi to everyone!',
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSecondaryContainer,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: UserList(users: users, hideUser: _hideUser),
-                    ),
-                  ],
-                ),
-              ),
+            : Layout(child: UserList(users: users, hideUser: _hideUser)),
       ),
     );
   }

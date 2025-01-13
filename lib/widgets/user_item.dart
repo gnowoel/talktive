@@ -164,7 +164,10 @@ class _UserItemState extends State<UserItem> {
               ],
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.waving_hand),
+              icon: Icon(
+                Icons.waving_hand_outlined,
+                color: colorScheme.outline,
+              ),
               onPressed: _greetUser,
               tooltip: 'Say hi',
             ),

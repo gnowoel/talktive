@@ -127,7 +127,6 @@ class _UsersPageState extends State<UsersPage> {
             tooltip: 'Greet all',
             onPressed: users.isEmpty ? null : () => _greetUsers(users),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(

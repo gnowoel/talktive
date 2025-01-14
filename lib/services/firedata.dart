@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:async/async.dart' show StreamGroup;
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
@@ -190,30 +191,57 @@ class Firedata {
   }
 
   Stream<List<Chat>> subscribeToChats(String userId) {
-    // TODO: Only query active chats
-    final ref = instance.ref('chats/$userId');
+    try {
+      final ref = instance.ref('chats/$userId');
+      final chats = <Chat>[];
 
-    final stream = ref.onValue.map((event) {
-      final snapshot = event.snapshot;
+      final Stream<List<Chat>> stream = StreamGroup.merge([
+        // Handle added chats
+        ref.onChildAdded.map((event) {
+          final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final chatStub = ChatStub.fromJson(json);
+          final chat = Chat.fromStub(key: event.snapshot.key!, value: chatStub);
 
-      if (!snapshot.exists) {
-        return <Chat>[];
-      }
+          final index = chats.indexWhere((c) => c.id == chat.id);
+          if (index == -1) {
+            chats.add(chat);
+          } else {
+            chats[index] = chat;
+          }
 
-      final listMap = Map<String, dynamic>.from(snapshot.value as Map);
+          chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+          return List<Chat>.from(chats);
+        }),
 
-      final chats = listMap.entries.map((entry) {
-        final entryMap = Map<String, dynamic>.from(entry.value as Map);
-        final chatStub = ChatStub.fromJson(entryMap);
-        return Chat.fromStub(key: entry.key, value: chatStub);
-      }).toList();
+        // Handle changed chats
+        ref.onChildChanged.map((event) {
+          final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final chatStub = ChatStub.fromJson(json);
+          final chat = Chat.fromStub(key: event.snapshot.key!, value: chatStub);
 
-      chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+          final index = chats.indexWhere((c) => c.id == chat.id);
+          if (index != -1) {
+            chats[index] = chat;
+          }
 
-      return chats;
-    });
+          chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+          return List<Chat>.from(chats);
+        }),
 
-    return stream;
+        // Handle removed chats
+        ref.onChildRemoved.map((event) {
+          final index = chats.indexWhere((c) => c.id == event.snapshot.key);
+          if (index != -1) {
+            chats.removeAt(index);
+          }
+          return List<Chat>.from(chats);
+        }),
+      ]);
+
+      return stream;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Stream<Chat> subscribeToChat(String userId, String chatId) {

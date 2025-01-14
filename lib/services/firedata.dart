@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 
 import '../helpers/exception.dart';
 import '../models/admin.dart';
@@ -391,31 +390,6 @@ class Firedata {
       return users;
     } catch (e) {
       throw AppException(e.toString());
-    }
-  }
-
-  Future<void> greetUsers(User self, List<User> others, String message) async {
-    List<Chat> chats = [];
-
-    for (final other in others) {
-      final chat = await createPair(self.id, other);
-      chats.add(chat);
-    }
-
-    for (final chat in chats) {
-      await sendTextMessage(
-        chat,
-        self.id,
-        self.displayName!,
-        self.photoURL!,
-        message,
-      );
-
-      await updateChat(
-        self.id,
-        chat.id,
-        readMessageCount: 1,
-      );
     }
   }
 

@@ -98,12 +98,8 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     messagesSubscription.cancel();
     chatSubscription.cancel();
-
     scrollController.dispose();
     focusNode.dispose();
-
-    _updateReadMessageCount(_chat);
-
     super.dispose();
   }
 
@@ -243,41 +239,51 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
-      appBar: AppBar(
-        title: GestureDetector(
-          onTap: () => _showUserInfo(context),
-          child: Text(_chat.partner.displayName!),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _updateReadMessageCount(_chat);
+        if (context.mounted) {
+          Navigator.pop(context, result);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        appBar: AppBar(
+          title: GestureDetector(
+            onTap: () => _showUserInfo(context),
+            child: Text(_chat.partner.displayName!),
+          ),
+          actions: [
+            RepaintBoundary(
+              child: Hearts(chat: _chat),
+            ),
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => _showReportMenu(context),
+              tooltip: 'More options',
+            ),
+          ],
         ),
-        actions: [
-          RepaintBoundary(
-            child: Hearts(chat: _chat),
-          ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () => _showReportMenu(context),
-            tooltip: 'More options',
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Layout(
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Expanded(
-                child: MessageList(
-                  focusNode: focusNode,
-                  scrollController: scrollController,
-                  messages: _messages,
+        body: SafeArea(
+          child: Layout(
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Expanded(
+                  child: MessageList(
+                    focusNode: focusNode,
+                    scrollController: scrollController,
+                    messages: _messages,
+                  ),
                 ),
-              ),
-              Input(
-                focusNode: focusNode,
-                chat: _chat,
-              ),
-            ],
+                Input(
+                  focusNode: focusNode,
+                  chat: _chat,
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,5 @@
 export { default as onUserRegistered } from './onUserRegistered';
-export { default as onUserUpdated } from './onUserUpdated';
+export { onUserUpdated, getCachedUsers } from './onUserUpdated';
 export { default as onPairCreated } from './onPairCreated';
 export { default as onPairUpdated } from './onPairUpdated';
 export { default as onChatUpdated } from './onChatUpdated';

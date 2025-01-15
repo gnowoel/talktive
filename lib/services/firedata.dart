@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 
 import '../helpers/exception.dart';
 import '../models/admin.dart';
@@ -348,6 +350,27 @@ class Firedata {
   }
 
   Future<List<User>> fetchUsers() async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('getCachedUsers');
+      final result = await callable();
+
+      if (result.data == null) {
+        return <User>[];
+      }
+
+      final userList = List<dynamic>.from(result.data as List);
+
+      return userList.map((json) {
+        final userStub = UserStub.fromJson(Map<String, dynamic>.from(json));
+        return User.fromStub(key: json['id'], value: userStub);
+      }).toList();
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<List<User>> fetchUsers2() async {
     try {
       final users = <User>[];
       final now = DateTime.now();

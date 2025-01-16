@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
@@ -349,35 +348,6 @@ class Firedata {
   }
 
   Future<List<User>> fetchUsers() async {
-    try {
-      final functions = FirebaseFunctions.instance;
-
-      // // Verify App Check token before making the call
-      // try {
-      //   await FirebaseAppCheck.instance.getToken();
-      // } catch (e) {
-      //   throw AppException('Failed to verify app authenticity');
-      // }
-
-      final callable = functions.httpsCallable('getCachedUsers');
-      final result = await callable();
-
-      if (result.data == null) {
-        return <User>[];
-      }
-
-      final userList = List<dynamic>.from(result.data as List);
-
-      return userList.map((json) {
-        final userStub = UserStub.fromJson(Map<String, dynamic>.from(json));
-        return User.fromStub(key: json['id'], value: userStub);
-      }).toList();
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Future<List<User>> fetchUsers2() async {
     try {
       final users = <User>[];
       final now = DateTime.now();

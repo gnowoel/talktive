@@ -1,8 +1,4 @@
 PODS:
-  - cloud_functions (5.3.0):
-    - Firebase/Functions (= 11.6.0)
-    - firebase_core
-    - Flutter
   - Firebase/Auth (11.6.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 11.6.0)
@@ -11,9 +7,6 @@ PODS:
   - Firebase/Database (11.6.0):
     - Firebase/CoreOnly
     - FirebaseDatabase (~> 11.6.0)
-  - Firebase/Functions (11.6.0):
-    - Firebase/CoreOnly
-    - FirebaseFunctions (~> 11.6.0)
   - Firebase/Messaging (11.6.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.6.0)
@@ -64,14 +57,6 @@ PODS:
     - FirebaseSharedSwift (~> 11.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - leveldb-library (~> 1.22)
-  - FirebaseFunctions (11.6.0):
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseAuthInterop (~> 11.0)
-    - FirebaseCore (~> 11.6.0)
-    - FirebaseCoreExtension (~> 11.6.0)
-    - FirebaseMessagingInterop (~> 11.0)
-    - FirebaseSharedSwift (~> 11.0)
-    - GTMSessionFetcher/Core (< 5.0, >= 3.4)
   - FirebaseInstallations (11.6.0):
     - FirebaseCore (~> 11.6.0)
     - GoogleUtilities/Environment (~> 8.0)
@@ -86,7 +71,6 @@ PODS:
     - GoogleUtilities/Reachability (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
-  - FirebaseMessagingInterop (11.7.0)
   - FirebaseSharedSwift (11.7.0)
   - FirebaseStorage (11.6.0):
     - FirebaseAppCheckInterop (~> 11.0)
@@ -143,7 +127,6 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
@@ -165,10 +148,8 @@ SPEC REPOS:
     - FirebaseCoreExtension
     - FirebaseCoreInternal
     - FirebaseDatabase
-    - FirebaseFunctions
     - FirebaseInstallations
     - FirebaseMessaging
-    - FirebaseMessagingInterop
     - FirebaseSharedSwift
     - FirebaseStorage
     - GoogleDataTransport
@@ -180,8 +161,6 @@ SPEC REPOS:
     - RecaptchaInterop
 
 EXTERNAL SOURCES:
-  cloud_functions:
-    :path: ".symlinks/plugins/cloud_functions/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -204,7 +183,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
-  cloud_functions: adddad6174c9353c2949d5e257c796a0971fa602
   Firebase: 374a441a91ead896215703a674d58cdb3e9d772b
   firebase_auth: 1623c3c0b4d587c35f795181b83aacff03099b84
   firebase_core: feb37e79f775c2bd08dd35e02d83678291317e10
@@ -218,10 +196,8 @@ SPEC CHECKSUMS:
   FirebaseCoreExtension: 2d77d6430c16cf43ca2b04608302ed02b3598361
   FirebaseCoreInternal: d98ab91e2d80a56d7b246856a8885443b302c0c2
   FirebaseDatabase: ce3a83a39ab50559a85c5add54f6f285544433b8
-  FirebaseFunctions: 6c4f1d143d3dc6ca1b5d9f4e042408ede2eb1016
   FirebaseInstallations: efc0946fc756e4d22d8113f7c761948120322e8c
   FirebaseMessaging: e1aca1fcc23e8b9eddb0e33f375ff90944623021
-  FirebaseMessagingInterop: b7acc94b0b65ce2df02a795b5488f698ac7d5c52
   FirebaseSharedSwift: a45efd84d60ebbfdcdbaebc66948af3630459e62
   FirebaseStorage: 52fb65a69d3e87675186881a08e2a5db86452ace
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7

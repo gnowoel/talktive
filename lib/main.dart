@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -13,7 +14,7 @@ import 'app.dart';
 import 'firebase_options.dart';
 import 'services/avatar.dart';
 import 'services/messaging.dart';
-import 'services/settings.dart';
+import 'services/settings.dart' as my;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -36,8 +37,9 @@ Future<void> main() async {
     final host = isAndroid ? '10.0.2.2' : 'localhost';
 
     try {
-      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       await FirebaseStorage.instance.useStorageEmulator(host, 9199);
     } catch (e) {
       debugPrint(e.toString());
@@ -48,7 +50,7 @@ Future<void> main() async {
     FirebaseDatabase.instance.setPersistenceEnabled(true);
   }
 
-  final settings = Settings();
+  final settings = my.Settings();
   await settings.load();
 
   final avatar = Avatar();

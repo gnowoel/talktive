@@ -100,7 +100,7 @@ class _UsersPageState extends State<UsersPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = ['No more users here.', 'Try once again.', ''];
+    const lines = ['No more users here.', 'Try again later.', ''];
 
     final chats = context.select((Cache cache) => cache.chats);
     final knownUserIds = _knownUserIds(chats);

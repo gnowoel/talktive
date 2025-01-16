@@ -1,8 +1,4 @@
 PODS:
-  - AppCheckCore (11.2.0):
-    - GoogleUtilities/Environment (~> 8.0)
-    - GoogleUtilities/UserDefaults (~> 8.0)
-    - PromisesObjC (~> 2.4)
   - cloud_functions (5.3.0):
     - Firebase/Functions (= 11.6.0)
     - firebase_core
@@ -24,11 +20,6 @@ PODS:
   - Firebase/Storage (11.6.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 11.6.0)
-  - firebase_app_check (0.3.2):
-    - Firebase/CoreOnly (~> 11.6.0)
-    - firebase_core
-    - FirebaseAppCheck (~> 11.6.0)
-    - Flutter
   - firebase_auth (5.3.4):
     - Firebase/Auth (= 11.6.0)
     - firebase_core
@@ -48,12 +39,6 @@ PODS:
     - Firebase/Storage (= 11.6.0)
     - firebase_core
     - Flutter
-  - FirebaseAppCheck (11.6.0):
-    - AppCheckCore (~> 11.0)
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseCore (~> 11.6.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GoogleUtilities/UserDefaults (~> 8.0)
   - FirebaseAppCheckInterop (11.7.0)
   - FirebaseAuth (11.6.0):
     - FirebaseAppCheckInterop (~> 11.0)
@@ -159,7 +144,6 @@ PODS:
 
 DEPENDENCIES:
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
-  - firebase_app_check (from `.symlinks/plugins/firebase_app_check/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
@@ -173,9 +157,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - AppCheckCore
     - Firebase
-    - FirebaseAppCheck
     - FirebaseAppCheckInterop
     - FirebaseAuth
     - FirebaseAuthInterop
@@ -200,8 +182,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   cloud_functions:
     :path: ".symlinks/plugins/cloud_functions/ios"
-  firebase_app_check:
-    :path: ".symlinks/plugins/firebase_app_check/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -224,16 +204,13 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
-  AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   cloud_functions: adddad6174c9353c2949d5e257c796a0971fa602
   Firebase: 374a441a91ead896215703a674d58cdb3e9d772b
-  firebase_app_check: 28939a1047b5f967efa00a71462a01f76810bbf6
   firebase_auth: 1623c3c0b4d587c35f795181b83aacff03099b84
   firebase_core: feb37e79f775c2bd08dd35e02d83678291317e10
   firebase_database: 1d30326b5dca112bd9efcb2c1b6fd3f839187eb0
   firebase_messaging: 423f0b488a40be4e897213224f228929197e0d9f
   firebase_storage: 4395729ceeff297f86fa779d00bf09fa2befea8b
-  FirebaseAppCheck: 44803909e253d677481e9e16eb719b0f58a7ddc2
   FirebaseAppCheckInterop: 2376d3ec5cb4267facad4fe754ab4f301a5a519b
   FirebaseAuth: 0304982cfe00df8d49bf533bc4becd3de36c7122
   FirebaseAuthInterop: a6973d72aa242ea88ffb6be9c9b06c65455071da

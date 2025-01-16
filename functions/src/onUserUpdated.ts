@@ -11,25 +11,29 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 const USER_LIMIT = 32;
-
-let cachedUsers: User[];
+const cachedUsers: User[] = [];
 
 export const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
   const userId = event.params.userId;
+  const userBefore = event.data.before.val();
   const user = event.data.after.val();
 
+  if (userBefore.updatedAt === user.updatedAt) return;
+
+  user.id = userId;
+
   try {
-    await updateUserPriority(userId, user);
-    await fetchUsers();
+    await updateUserPriority(user);
+    await updateCachedUsers(user);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const updateUserPriority = async (userId: string, user: User) => {
+const updateUserPriority = async (user: User) => {
   if (isNew(user)) return;
 
-  const userRef = db.ref(`users/${userId}`);
+  const userRef = db.ref(`users/${user.id}`);
 
   const priority = -1 * user.updatedAt;
 
@@ -48,17 +52,37 @@ const isNew = (user: User) => {
     !user.gender;
 };
 
+const updateCachedUsers = async (user: User) => {
+  if (cachedUsers.length === 0) {
+    await fetchUsers();
+    return;
+  }
+
+  const index = cachedUsers.findIndex((element) => element.id === user.id);
+
+  if (index > -1) {
+    cachedUsers.splice(index, 1);
+  }
+
+  cachedUsers.unshift({
+    id: user.id,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    languageCode: user.languageCode,
+    photoURL: user.photoURL,
+    displayName: user.displayName,
+    description: user.description,
+    gender: user.gender,
+  });
+
+  cachedUsers.splice(USER_LIMIT);
+}
+
 const fetchUsers = async () => {
   try {
-    const now = Date.now();
-    const tomorrow = now + 24 * 60 * 60 * 1000;
-    const startAfter = -1 * tomorrow;
-
-    // Fetch recent users
     const usersRef = db.ref('users');
     const query = usersRef
       .orderByPriority()
-      .startAfter(startAfter)
       .endBefore(0)
       .limitToFirst(USER_LIMIT);
 
@@ -68,10 +92,11 @@ const fetchUsers = async () => {
       return;
     }
 
-    const users: User[] = [];
+    cachedUsers.splice(0);
+
     snapshot.forEach((child) => {
       const user = child.val();
-      users.push({
+      cachedUsers.push({
         id: child.key,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -82,17 +107,18 @@ const fetchUsers = async () => {
         gender: user.gender,
       });
     });
-
-    cachedUsers = users;
   } catch (error) {
     logger.error(error);
   }
 };
 
 // HTTP endpoint to get cached users
-export const getCachedUsers = onCall(async () => {
-  if (!cachedUsers) {
-    await fetchUsers();
+export const getCachedUsers = onCall(
+  // { enforceAppCheck: false },
+  async () => {
+    if (cachedUsers.length === 0) {
+      await fetchUsers();
+    }
+    return cachedUsers;
   }
-  return cachedUsers;
-});
+);

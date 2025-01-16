@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:async/async.dart' show StreamGroup;
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
 
 import '../helpers/exception.dart';
 import '../models/admin.dart';
@@ -352,6 +351,14 @@ class Firedata {
   Future<List<User>> fetchUsers() async {
     try {
       final functions = FirebaseFunctions.instance;
+
+      // // Verify App Check token before making the call
+      // try {
+      //   await FirebaseAppCheck.instance.getToken();
+      // } catch (e) {
+      //   throw AppException('Failed to verify app authenticity');
+      // }
+
       final callable = functions.httpsCallable('getCachedUsers');
       final result = await callable();
 
@@ -375,7 +382,7 @@ class Firedata {
       final users = <User>[];
       final now = DateTime.now();
       final tomorrow = now.add(const Duration(days: 1)).millisecondsSinceEpoch;
-      final startAfter = -1 * tomorrow;
+      final startAfter = -1 * tomorrow; // TODO: Remove it
       final limit = 32;
 
       final result = await _getUsers(

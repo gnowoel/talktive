@@ -15,7 +15,7 @@ class Fireauth {
 
     try {
       if (currentUser != null) {
-        // await currentUser.reload(); // Touch the server to check connection
+        await currentUser.reload(); // Touch the server to check connection
         return currentUser;
       } else {
         // if (kDebugMode) {

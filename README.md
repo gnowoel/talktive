@@ -67,9 +67,11 @@ $ firebase init
 
 Select the following services:
 
-* Realtime Database
+* Firestore
 * Functions
+* Storage
 * Emulators
+* Realtime Database
 
 For "Functions", select:
 
@@ -123,10 +125,10 @@ $ flutter run
 
 ## Deployment
 
-Deploy Realtime Database Securty Rules:
+Deploy Security Rules for Realtime Database, Cloud Firestore and Firebase Storage:
 
 ```
-$ firebase deploy --only database
+$ firebase deploy --only database,firestore,storage
 ```
 
 Deploy Cloud Functions (from the `functions` directory):

@@ -66,7 +66,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
           ),
           const SizedBox(height: 16),
           Text(
-            'We deserve more ❤️',
+            '~ We deserve more ❤️ ~',
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

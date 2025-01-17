@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
+import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
@@ -14,8 +15,11 @@ import 'messaging.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
+  final cf.FirebaseFirestore firestore;
 
-  Firedata(this.instance);
+  static const String _usersCollection = 'users';
+
+  Firedata(this.instance) : firestore = cf.FirebaseFirestore.instance;
 
   static final firebaseDatabase = FirebaseDatabase.instance;
 
@@ -350,19 +354,58 @@ class Firedata {
   Future<List<User>> fetchUsers() async {
     try {
       final users = <User>[];
-      final now = DateTime.now();
-      final tomorrow = now.add(const Duration(days: 1)).millisecondsSinceEpoch;
-      final startAfter = -1 * tomorrow; // TODO: Remove it
-      final limit = 32;
 
-      final result = await _getUsers(
-        startAfter: startAfter,
-        limit: limit,
-      );
+      final snapshot = await firestore
+          .collection(_usersCollection)
+          .orderBy('updatedAt', descending: true)
+          .limit(32)
+          .get();
 
-      for (final user in result) {
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final user = User(
+          id: doc.id,
+          createdAt: data['createdAt'] as int,
+          updatedAt: data['updatedAt'] as int,
+          languageCode: data['languageCode'] as String?,
+          photoURL: data['photoURL'] as String?,
+          displayName: data['displayName'] as String?,
+          description: data['description'] as String?,
+          gender: data['gender'] as String?,
+        );
         users.add(user);
       }
+
+      if (users.isEmpty) {
+        return _fetchUsersFallback();
+      }
+
+      return users;
+    } catch (e) {
+      // Fallback to RTDB if Firestore fails
+      return _fetchUsersFallback();
+    }
+  }
+
+  Future<List<User>> _fetchUsersFallback() async {
+    try {
+      final limit = 32;
+
+      final ref = instance.ref('users');
+      final query = ref.orderByPriority().endBefore(0).limitToFirst(limit);
+      final snapshot = await query.get();
+
+      if (!snapshot.exists) {
+        return <User>[];
+      }
+
+      final listMap = Map<String, dynamic>.from(snapshot.value as Map);
+
+      final users = listMap.entries.map((entry) {
+        final entryMap = Map<String, dynamic>.from(entry.value as Map);
+        final userStub = UserStub.fromJson(entryMap);
+        return User.fromStub(key: entry.key, value: userStub);
+      }).toList();
 
       users.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -385,37 +428,6 @@ class Firedata {
       final json = Map<String, dynamic>.from(value as Map);
       final stub = UserStub.fromJson(json);
       return User.fromStub(key: userId, value: stub);
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Future<List<User>> _getUsers({
-    required int startAfter,
-    required int limit,
-  }) async {
-    try {
-      final ref = instance.ref('users');
-      final query = ref
-          .orderByPriority()
-          .startAfter(startAfter)
-          .endBefore(0)
-          .limitToFirst(limit);
-      final snapshot = await query.get();
-
-      if (!snapshot.exists) {
-        return <User>[];
-      }
-
-      final listMap = Map<String, dynamic>.from(snapshot.value as Map);
-
-      final users = listMap.entries.map((entry) {
-        final entryMap = Map<String, dynamic>.from(entry.value as Map);
-        final userStub = UserStub.fromJson(entryMap);
-        return User.fromStub(key: entry.key, value: userStub);
-      }).toList();
-
-      return users;
     } catch (e) {
       throw AppException(e.toString());
     }

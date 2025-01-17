@@ -8,24 +8,25 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+const firestore = admin.firestore();
+const USERS_COLLECTION = 'users';
 
 const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
   const userId = event.params.userId;
   const user = event.data.after.val();
 
-  user.id = userId;
-
   try {
-    await updateUserPriority(user);
+    await updateUserPriority(userId, user);
+    await updateUserCache(userId, user);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const updateUserPriority = async (user: User) => {
+const updateUserPriority = async (userId: string, user: User) => {
   if (isNew(user)) return;
 
-  const userRef = db.ref(`users/${user.id}`);
+  const userRef = db.ref(`users/${userId}`);
 
   const priority = -1 * user.updatedAt;
 
@@ -35,6 +36,26 @@ const updateUserPriority = async (user: User) => {
     }
   });
 };
+
+const updateUserCache = async (userId: string, user: User) => {
+  if (isNew(user)) return;
+
+  try {
+    const userRef = firestore.collection(USERS_COLLECTION).doc(userId);
+    await userRef.set({
+      id: userId,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      languageCode: user.languageCode,
+      photoURL: user.photoURL,
+      displayName: user.displayName,
+      description: user.description,
+      gender: user.gender,
+    }, { merge: true });
+  } catch (error) {
+    logger.error('Error updating user cache:', error);
+  }
+}
 
 const isNew = (user: User) => {
   return !user.languageCode ||

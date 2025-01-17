@@ -81,8 +81,10 @@ For "Emulators", select:
 
 * Authentication Emulator
 * Functions Emulator
+* Firestore Emulator
 * Database Emulator
 * Pub/Sub Emulator
+* Storage Emulator
 
 ## Running
 

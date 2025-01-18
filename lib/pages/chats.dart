@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../services/cache.dart';
+import '../services/message_cache.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
@@ -19,13 +21,14 @@ class ChatsPage extends StatefulWidget {
 
 class _ChatsPageState extends State<ChatsPage> {
   late Cache cache;
+  late MessageCache messageCache;
   List<Chat> _chats = [];
   Timer? _timer;
 
   @override
   initState() {
     super.initState();
-    _chats = [];
+    messageCache = context.read<MessageCache>();
   }
 
   @override
@@ -43,16 +46,30 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void _setChatsAgain() {
-    _chats = cache.chats.where((chat) => chat.isActive).toList();
+    final activeChats = <Chat>[];
+    final inactiveChats = <Chat>[];
 
+    for (final chat in cache.chats) {
+      if (chat.isActive) {
+        activeChats.add(chat);
+      } else {
+        inactiveChats.add(chat);
+      }
+    }
+
+    if (inactiveChats.isNotEmpty) {
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        final inactiveChatIds = inactiveChats.map((chat) => chat.id).toList();
+        messageCache.clear(inactiveChatIds);
+      });
+    }
+
+    _chats = activeChats;
     final nextTime = getNextTime(_chats);
-
     if (nextTime == null) return;
 
     final duration = Duration(milliseconds: nextTime);
-
     _timer?.cancel();
-
     _timer = Timer(duration, () {
       setState(() {
         _setChatsAgain();

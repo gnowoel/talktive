@@ -39,4 +39,12 @@ class MessageCache extends ChangeNotifier {
   int? getLastTimestamp(String chatId) {
     return _lastTimestamps[chatId];
   }
+
+  void clear(List<String> chatIds) {
+    for (final chatId in chatIds) {
+      _cache.remove(chatId);
+      _lastTimestamps.remove(chatId);
+    }
+    notifyListeners();
+  }
 }

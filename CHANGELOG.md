@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.0.0+24
+
+- Add a setup wizard
+- Add a bottom navigation bar
+- Make data fetching more efficient
+- Upgrade dependencies
+
 ## 2.0.5+23
 
 - Add a report button to comply with the Child Safety Standards policy

@@ -8,7 +8,7 @@ class Share {
   final int createdAt;
   final int updatedAt;
 
-  Share({
+  const Share({
     required this.id,
     required this.topic,
     required this.userId,

@@ -4,7 +4,7 @@ class Admin {
   final int createdAt;
   final int updatedAt;
 
-  Admin({
+  const Admin({
     required this.id,
     required this.role,
     required this.createdAt,

@@ -13,7 +13,7 @@ class Chat {
   final String? lastMessageContent;
   final bool? mute;
 
-  Chat({
+  const Chat({
     required this.id,
     required this.createdAt,
     required this.updatedAt,
@@ -119,7 +119,7 @@ class ChatStub {
   final String? lastMessageContent;
   final bool? mute;
 
-  ChatStub({
+  const ChatStub({
     required this.createdAt,
     required this.updatedAt,
     required this.partner,

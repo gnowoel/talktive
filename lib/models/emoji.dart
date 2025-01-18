@@ -6,7 +6,7 @@ class Emoji {
   final String code;
   final String name;
 
-  Emoji({
+  const Emoji({
     required this.code,
     required this.name,
   });

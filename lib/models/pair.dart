@@ -7,7 +7,7 @@ class Pair {
   final String? firstUserId;
   final String? lastMessageContent;
 
-  Pair({
+  const Pair({
     required this.id,
     required this.createdAt,
     required this.updatedAt,

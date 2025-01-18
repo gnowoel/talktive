@@ -9,7 +9,7 @@ class Report {
   final int createdAt;
   final int? resolvedAt;
 
-  Report({
+  const Report({
     required this.id,
     required this.userId,
     required this.chatId,

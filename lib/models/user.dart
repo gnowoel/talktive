@@ -9,7 +9,7 @@ class User {
   final String? gender;
   final String? fcmToken;
 
-  User({
+  const User({
     required this.id,
     required this.createdAt,
     required this.updatedAt,
@@ -71,7 +71,7 @@ class UserStub {
   final String? gender;
   final String? fcmToken;
 
-  UserStub({
+  const UserStub({
     required this.createdAt,
     required this.updatedAt,
     this.languageCode,

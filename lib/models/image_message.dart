@@ -1,22 +1,20 @@
 import 'message.dart';
 
 class ImageMessage extends Message {
-  String? id;
   final String userId;
   final String userDisplayName;
   final String userPhotoURL;
   final String content;
   final String uri;
-  final int createdAt;
 
-  ImageMessage({
-    this.id,
+  const ImageMessage({
+    super.id,
+    required super.createdAt,
     required this.userId,
     required this.userDisplayName,
     required this.userPhotoURL,
     required this.content,
     required this.uri,
-    required this.createdAt,
   }) : super(type: 'image');
 
   ImageMessage copyWith({

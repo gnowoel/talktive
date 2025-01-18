@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/text_message.dart';
+import '../services/message_cache.dart';
 import 'image_message_item.dart';
 import 'info.dart';
 import 'text_message_item.dart';
 
 class MessageList extends StatefulWidget {
+  final String chatId;
   final FocusNode focusNode;
   final ScrollController scrollController;
-  final List<Message> messages;
+  final void Function(int) updateMessageCount;
 
   const MessageList({
     super.key,
+    required this.chatId,
     required this.focusNode,
     required this.scrollController,
-    required this.messages,
+    required this.updateMessageCount,
   });
 
   @override
@@ -24,6 +28,8 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
+  late MessageCache messageCache;
+  List<Message> _messages = [];
   ScrollNotification? _lastNotification;
   bool _isSticky = true;
 
@@ -31,6 +37,18 @@ class _MessageListState extends State<MessageList> {
   void initState() {
     super.initState();
     widget.focusNode.addListener(_handleInputFocus);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    messageCache = Provider.of<MessageCache>(context);
+
+    final messages = messageCache.getMessages(widget.chatId);
+    if (messages.length != _messages.length) {
+      _messages = messages;
+      widget.updateMessageCount(messages.length);
+    }
   }
 
   void _handleInputFocus() {
@@ -80,7 +98,7 @@ class _MessageListState extends State<MessageList> {
   }
 
   bool _isNew() {
-    return widget.messages.isEmpty;
+    return _messages.isEmpty;
   }
 
   @override
@@ -117,9 +135,9 @@ class _MessageListState extends State<MessageList> {
   Widget _buildListView(BuildContext context) {
     return ListView.builder(
       controller: widget.scrollController,
-      itemCount: widget.messages.length,
+      itemCount: _messages.length,
       itemBuilder: (context, index) {
-        final message = widget.messages[index];
+        final message = _messages[index];
 
         if (message is ImageMessage) {
           return ImageMessageItem(

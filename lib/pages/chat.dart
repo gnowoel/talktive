@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../models/chat.dart';
-import '../models/message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/message_cache.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/layout.dart';
@@ -32,11 +32,13 @@ class _ChatPageState extends State<ChatPage> {
   late ScrollController scrollController;
   late Fireauth fireauth;
   late Firedata firedata;
+  late MessageCache messageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
 
   late Chat _chat;
-  late List<Message> _messages;
+
+  int _messageCount = 0;
 
   @override
   void initState() {
@@ -45,11 +47,11 @@ class _ChatPageState extends State<ChatPage> {
     focusNode = FocusNode();
     scrollController = ScrollController();
 
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+    messageCache = context.read<MessageCache>();
 
     _chat = widget.chat;
-    _messages = [];
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -82,9 +84,12 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    messagesSubscription =
-        firedata.subscribeToMessages(widget.chat.id).listen((messages) {
-      setState(() => _messages = messages);
+    final lastTimestamp = messageCache.getLastTimestamp(widget.chat.id);
+
+    messagesSubscription = firedata
+        .subscribeToNewMessages(widget.chat.id, lastTimestamp)
+        .listen((messages) {
+      messageCache.addMessages(widget.chat.id, messages);
     });
   }
 
@@ -117,8 +122,12 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void _updateMessageCount(int count) {
+    _messageCount = count;
+  }
+
   Future<void> _updateReadMessageCount(Chat chat) async {
-    final count = _messages.length;
+    final count = _messageCount;
 
     if (count == 0 || count == _chat.readMessageCount) {
       return;
@@ -273,9 +282,10 @@ class _ChatPageState extends State<ChatPage> {
                 const SizedBox(height: 10),
                 Expanded(
                   child: MessageList(
+                    chatId: _chat.id,
                     focusNode: focusNode,
                     scrollController: scrollController,
-                    messages: _messages,
+                    updateMessageCount: _updateMessageCount,
                   ),
                 ),
                 Input(

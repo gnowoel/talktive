@@ -315,6 +315,31 @@ class Firedata {
     }
   }
 
+  Stream<List<Message>> subscribeToNewMessages(
+    String chatId,
+    int? lastTimestamp,
+  ) {
+    final messages = <Message>[];
+    final ref = instance.ref('messages/$chatId');
+
+    Query query = ref.orderByChild('createdAt');
+    if (lastTimestamp != null) {
+      query = query.startAfter(lastTimestamp);
+    }
+
+    final stream = query.onChildAdded.map<List<Message>>((event) {
+      final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+      json['id'] = event.snapshot.key;
+      final message = Message.fromJson(json);
+
+      messages.add(message);
+
+      return List.from(messages);
+    });
+
+    return stream;
+  }
+
   Stream<List<Message>> subscribeToMessages(String chatId) {
     final messages = <Message>[];
 
@@ -327,19 +352,15 @@ class Firedata {
       final json = Map<String, dynamic>.from(value as Map);
       final message = Message.fromJson(json);
 
+      // Handle message concatenation logic
       if (messages.isNotEmpty) {
         final last = messages.last;
-        final current = message;
-
-        if (last is TextMessage && current is TextMessage) {
-          if (last.userId == current.userId) {
-            if (current.createdAt - last.createdAt < 1 * 1000) {
-              final index = messages.length - 1;
-              final content = '${last.content}\n${current.content}';
-
-              messages[index] = last.copyWith(content: content);
-
-              return messages;
+        if (last is TextMessage && message is TextMessage) {
+          if (last.userId == message.userId) {
+            if (message.createdAt - last.createdAt < 1000) {
+              messages.last =
+                  last.copyWith(content: '${last.content}\n${message.content}');
+              return List.from(messages);
             }
           }
         }

@@ -141,11 +141,13 @@ class _MessageListState extends State<MessageList> {
 
         if (message is ImageMessage) {
           return ImageMessageItem(
+            key: ValueKey(message.id),
             message: message,
           );
         }
 
         return TextMessageItem(
+          key: ValueKey(message.id),
           message: message as TextMessage,
         );
       },

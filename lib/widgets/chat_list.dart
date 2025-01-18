@@ -17,7 +17,11 @@ class ChatList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       itemCount: chats.length,
       itemBuilder: (context, index) {
-        return ChatItem(chat: chats[index]);
+        final chat = chats[index];
+        return ChatItem(
+          key: ValueKey(chat.id),
+          chat: chat,
+        );
       },
     );
   }

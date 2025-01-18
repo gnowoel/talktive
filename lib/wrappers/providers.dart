@@ -5,6 +5,7 @@ import '../services/avatar.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/message_cache.dart';
 import '../services/messaging.dart';
 import '../services/settings.dart';
 import '../services/storage.dart';
@@ -25,6 +26,7 @@ class Providers extends StatelessWidget {
         Provider(create: (context) => Settings()),
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => Cache()),
+        ChangeNotifierProvider(create: (context) => MessageCache()),
       ],
       child: child,
     );

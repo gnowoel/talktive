@@ -1,20 +1,18 @@
 import 'message.dart';
 
 class TextMessage extends Message {
-  String? id;
   final String userId;
   final String userDisplayName;
   final String userPhotoURL;
   final String content;
-  final int createdAt;
 
-  TextMessage({
-    this.id,
+  const TextMessage({
+    super.id,
+    required super.createdAt,
     required this.userId,
     required this.userDisplayName,
     required this.userPhotoURL,
     required this.content,
-    required this.createdAt,
   }) : super(type: 'text');
 
   TextMessage copyWith({

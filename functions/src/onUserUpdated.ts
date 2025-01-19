@@ -13,7 +13,10 @@ const USERS_COLLECTION = 'users';
 
 const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
   const userId = event.params.userId;
+  const userBefore = event.data.before.val();
   const user = event.data.after.val();
+
+  if (user.updatedAt == userBefore.updatedAt) return;
 
   try {
     await updateUserPriority(userId, user);

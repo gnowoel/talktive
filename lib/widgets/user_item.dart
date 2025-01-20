@@ -10,6 +10,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
 import 'tag.dart';
+import 'user_info_loader.dart';
 
 class UserItem extends StatefulWidget {
   final User user;
@@ -79,6 +80,20 @@ class _UserItemState extends State<UserItem> {
     widget.hasKnown ? _enterChat() : _greetUser();
   }
 
+  void _showUserInfo(BuildContext context) {
+    final user = widget.user;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return UserInfoLoader(
+          userId: user.id,
+          photoURL: user.photoURL ?? '',
+          displayName: user.displayName ?? '',
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -100,9 +115,12 @@ class _UserItemState extends State<UserItem> {
       child: GestureDetector(
         onTap: _handleTap,
         child: ListTile(
-          leading: Text(
-            widget.user.photoURL!,
-            style: TextStyle(fontSize: 36, color: textColor),
+          leading: GestureDetector(
+            onTap: () => _showUserInfo(context),
+            child: Text(
+              widget.user.photoURL!,
+              style: TextStyle(fontSize: 36, color: textColor),
+            ),
           ),
           title: Text(
             widget.user.displayName!,

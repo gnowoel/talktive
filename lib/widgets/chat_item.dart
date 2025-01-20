@@ -10,6 +10,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
 import 'tag.dart';
+import 'user_info_loader.dart';
 
 class ChatItem extends StatefulWidget {
   final Chat chat;
@@ -66,6 +67,20 @@ class _ChatItemState extends State<ChatItem> {
     }
   }
 
+  void _showUserInfo(BuildContext context) {
+    final userId = fireauth.instance.currentUser!.uid;
+    final otherId = widget.chat.id.replaceFirst(userId, '');
+
+    showDialog(
+      context: context,
+      builder: (context) => UserInfoLoader(
+        userId: otherId,
+        photoURL: widget.chat.partner.photoURL ?? '',
+        displayName: widget.chat.partner.displayName ?? '',
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -99,9 +114,12 @@ class _ChatItemState extends State<ChatItem> {
         child: GestureDetector(
           onTap: _enterChat,
           child: ListTile(
-            leading: Text(
-              widget.chat.partner.photoURL!,
-              style: TextStyle(fontSize: 36, color: textColor),
+            leading: GestureDetector(
+              onTap: () => _showUserInfo(context),
+              child: Text(
+                widget.chat.partner.photoURL!,
+                style: TextStyle(fontSize: 36, color: textColor),
+              ),
             ),
             title: Text(
               widget.chat.partner.displayName!,

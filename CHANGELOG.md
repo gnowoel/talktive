@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.0.1+25
+
+- Tap the avatar to view user info on the Users and Chats pages
+
 ## 3.0.0+24
 
 - Add a setup wizard

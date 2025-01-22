@@ -374,7 +374,7 @@ class Firedata {
     return stream;
   }
 
-  Future<List<User>> fetchUsers(String userId) async {
+  Future<List<User>> fetchUsers(String userId, int serverNow) async {
     try {
       final users = <User>[];
 
@@ -403,7 +403,7 @@ class Firedata {
         return _fetchUsersFallback();
       }
 
-      tryTouchUser(userId); // No wait
+      tryTouchUser(userId, serverNow); // No wait
 
       return users;
     } catch (e) {
@@ -412,18 +412,17 @@ class Firedata {
     }
   }
 
-  Future<void> tryTouchUser(String userId) async {
+  Future<void> tryTouchUser(String userId, int serverNow) async {
     try {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final shouldTouch = now >= _lastTouchedUser + 3 * 60 * 1000;
+      final shouldTouch = serverNow >= _lastTouchedUser + 3 * 60 * 1000;
 
       if (!shouldTouch) return;
 
       await firestore.collection(_usersCollection).doc(userId).set({
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': serverNow,
       }, SetOptions(merge: true));
 
-      _lastTouchedUser = now;
+      _lastTouchedUser = serverNow;
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -53,7 +53,8 @@ class _ChatItemState extends State<ChatItem> {
       final partner = chat.partner;
 
       context.go('/chats');
-      context.push(Messaging.encodeChatRoute(chat.id, partner.displayName!));
+      context
+          .push(Messaging.encodeChatRoute(chat.id, partner.displayName ?? ''));
     });
   }
 

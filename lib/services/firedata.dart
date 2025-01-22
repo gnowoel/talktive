@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:cloud_firestore/cloud_firestore.dart' as cf;
+import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction, Query;
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
@@ -15,13 +15,15 @@ import 'messaging.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
-  final cf.FirebaseFirestore firestore;
+  final FirebaseFirestore firestore;
 
   static const String _usersCollection = 'users';
 
-  Firedata(this.instance) : firestore = cf.FirebaseFirestore.instance;
+  Firedata(this.instance) : firestore = FirebaseFirestore.instance;
 
   static final firebaseDatabase = FirebaseDatabase.instance;
+
+  int _lastTouchedUser = 0;
 
   Stream<int> subscribeToClockSkew() {
     final ref = instance.ref('.info/serverTimeOffset');
@@ -372,7 +374,7 @@ class Firedata {
     return stream;
   }
 
-  Future<List<User>> fetchUsers() async {
+  Future<List<User>> fetchUsers(String userId) async {
     try {
       final users = <User>[];
 
@@ -401,10 +403,29 @@ class Firedata {
         return _fetchUsersFallback();
       }
 
+      tryTouchUser(userId); // No wait
+
       return users;
     } catch (e) {
       // Fallback to RTDB if Firestore fails
       return _fetchUsersFallback();
+    }
+  }
+
+  Future<void> tryTouchUser(String userId) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final shouldTouch = now >= _lastTouchedUser + 3 * 60 * 1000;
+
+      if (!shouldTouch) return;
+
+      await firestore.collection(_usersCollection).doc(userId).set({
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      _lastTouchedUser = now;
+    } catch (e) {
+      throw AppException(e.toString());
     }
   }
 

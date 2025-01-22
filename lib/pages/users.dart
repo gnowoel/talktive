@@ -42,7 +42,9 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _fetchUsers(List<Chat> chats) async {
-    final users = await firedata.fetchUsers();
+    final userId = fireauth.instance.currentUser!.uid;
+
+    final users = await firedata.fetchUsers(userId);
 
     setState(() {
       _seenUsers = _users;

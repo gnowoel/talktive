@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.0.2+26
+
+- Make active users easier to find by moving them up in the list
+
 ## 3.0.1+25
 
 - Tap the avatar to view user info on the Users and Chats pages

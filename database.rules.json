@@ -76,15 +76,15 @@
       "$reportId": {
         ".read": "auth !== null && (data.child('userId').val() === auth.uid || root.child('admins').child(auth.uid).exists())",
         ".write": "auth !== null && ((!data.exists() && newData.child('userId').val() === auth.uid) || (data.exists() && root.child('admins').child(auth.uid).exists()))",
-        ".validate": "newData.hasChildren(['userId', 'chatId', 'partnerId', 'createdAt', 'status'])",
+        ".validate": "newData.hasChildren(['userId', 'chatId', 'partnerDisplayName', 'createdAt', 'status'])",
         "userId": {
           ".validate": "newData.isString()"
         },
         "chatId": {
           ".validate": "newData.isString()"
         },
-        "partnerId": {
-          ".validate": "newData.isString()"
+        "partnerDisplayName": {
+          ".validate": "!newData.exists() || newData.isString()"
         },
         "createdAt": {
           ".validate": "newData.isNumber()"

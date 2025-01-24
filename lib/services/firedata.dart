@@ -492,8 +492,10 @@ class Firedata {
     }
   }
 
-  Future<Admin?> fetchAdmin(String userId) async {
+  Future<Admin?> fetchAdmin(String? userId) async {
     try {
+      if (userId == null) return null;
+
       final ref = instance.ref('admins/$userId');
       final snapshot = await ref.get();
 

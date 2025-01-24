@@ -10,6 +10,7 @@ import 'pages/edit_profile.dart';
 import 'pages/launch.dart';
 import 'pages/profile.dart';
 import 'pages/reports.dart';
+import 'pages/review.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -134,6 +135,35 @@ Future<GoRouter> initRouter() async {
             );
           },
         ),
+      ),
+      GoRoute(
+        path: '/admin/reviews/:id',
+        builder: (context, state) {
+          final chatId = state.pathParameters['id']!;
+          final encodedName =
+              state.uri.queryParameters['partnerDisplayName'] ?? '';
+          final partnerDisplayName = Uri.decodeComponent(encodedName);
+
+          final userStub = UserStub(
+            createdAt: 0,
+            updatedAt: 0,
+            displayName: partnerDisplayName,
+          );
+
+          final chatStub = ChatStub(
+            createdAt: 0,
+            updatedAt: 0,
+            partner: userStub,
+            messageCount: 0,
+          );
+
+          final chat = Chat.fromStub(
+            key: chatId,
+            value: chatStub,
+          );
+
+          return ReviewPage(chat: chat);
+        },
       ),
     ],
   );

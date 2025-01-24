@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
+import '../models/admin.dart';
 import '../services/cache.dart';
+import '../services/firedata.dart';
 import '../widgets/layout.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -12,6 +14,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final firedata = context.read<Firedata>();
     final user = context.select((Cache cache) => cache.user);
 
     return Scaffold(
@@ -26,6 +29,21 @@ class ProfilePage extends StatelessWidget {
                 ? null
                 : () => context.push('/profile/edit', extra: user),
             tooltip: 'Edit profile',
+          ),
+          FutureBuilder<Admin?>(
+            future: firedata.fetchAdmin(user?.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return IconButton(
+                  icon: const Icon(Icons.admin_panel_settings),
+                  onPressed: () {
+                    context.push('/admin/reports');
+                  },
+                  tooltip: 'Admin Panel',
+                );
+              }
+              return const SizedBox();
+            },
           ),
         ],
       ),

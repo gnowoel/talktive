@@ -199,52 +199,12 @@ class _ReviewPageState extends State<ReviewPage> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _reportChat();
+              // Do nothing for now;
             },
           ),
         ],
       ),
     );
-  }
-
-  Future<void> _reportChat() async {
-    final theme = Theme.of(context);
-
-    try {
-      final userId = fireauth.instance.currentUser!.uid;
-      final partnerId = _chat.id.replaceFirst(userId, '');
-
-      // Add report to database
-      await firedata.reportChat(
-        userId: userId,
-        chatId: _chat.id,
-        partnerId: partnerId,
-      );
-
-      // Mute the chat
-      await firedata.updateChat(
-        userId,
-        _chat.id,
-        mute: true,
-      );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: theme.colorScheme.errorContainer,
-          content: Text(
-            'Thank you for your report. We will review it shortly.',
-            style: TextStyle(
-              color: theme.colorScheme.onErrorContainer,
-            ),
-          ),
-        ),
-      );
-    } on AppException catch (e) {
-      if (!mounted) return;
-      ErrorHandler.showSnackBarMessage(context, e);
-    }
   }
 
   @override

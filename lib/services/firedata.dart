@@ -300,7 +300,7 @@ class Firedata {
   Future<void> reportChat({
     required String userId,
     required String chatId,
-    required String partnerId,
+    required String? partnerDisplayName,
   }) async {
     try {
       final ref = instance.ref('reports').push();
@@ -308,7 +308,7 @@ class Firedata {
       await ref.set({
         'userId': userId,
         'chatId': chatId,
-        'partnerId': partnerId,
+        'partnerDisplayName': partnerDisplayName,
         'createdAt': ServerValue.timestamp,
         'status': 'pending',
       });

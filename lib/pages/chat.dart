@@ -56,7 +56,7 @@ class _ChatPageState extends State<ChatPage> {
     final userId = fireauth.instance.currentUser!.uid;
 
     chatSubscription =
-        firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
+        firedata.subscribeToChat(userId, _chat.id).listen((chat) {
       if (_chat.isDummy) {
         if (chat.isDummy) {
           // Ignore to avoid being overwitten.
@@ -84,12 +84,12 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    final lastTimestamp = messageCache.getLastTimestamp(widget.chat.id);
+    final lastTimestamp = messageCache.getLastTimestamp(_chat.id);
 
     messagesSubscription = firedata
-        .subscribeToNewMessages(widget.chat.id, lastTimestamp)
+        .subscribeToNewMessages(_chat.id, lastTimestamp)
         .listen((messages) {
-      messageCache.addMessages(widget.chat.id, messages);
+      messageCache.addMessages(_chat.id, messages);
     });
   }
 
@@ -220,12 +220,12 @@ class _ChatPageState extends State<ChatPage> {
         partnerDisplayName: partnerDisplayName,
       );
 
-      // Mute the chat
-      await firedata.updateChat(
-        userId,
-        _chat.id,
-        mute: true,
-      );
+      // Mute the chat (problematic, would somehow mess up the message cache)
+      // await firedata.updateChat(
+      //   userId,
+      //   _chat.id,
+      //   mute: true,
+      // );
 
       if (!mounted) return;
 

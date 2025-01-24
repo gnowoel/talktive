@@ -510,23 +510,55 @@ class Firedata {
   }
 
   Stream<List<Report>> subscribeToReports() {
-    final ref = instance.ref('reports');
+    try {
+      final ref = instance.ref('reports');
+      final reports = <Report>[];
 
-    return ref.onValue.map((event) {
-      final snapshot = event.snapshot;
+      final Stream<List<Report>> stream = StreamGroup.merge([
+        // Handle added reports
+        ref.onChildAdded.map((event) {
+          final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final report = Report.fromJson(event.snapshot.key!, json);
 
-      if (!snapshot.exists) return [];
+          final index = reports.indexWhere((r) => r.id == report.id);
+          if (index == -1) {
+            reports.add(report);
+          } else {
+            reports[index] = report;
+          }
 
-      final data = Map<String, dynamic>.from(snapshot.value as Map);
+          reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return List<Report>.from(reports);
+        }),
 
-      final reports = data.entries.map((entry) {
-        return Report.fromJson(
-            entry.key, Map<String, dynamic>.from(entry.value as Map));
-      }).toList();
+        // Handle changed reports
+        ref.onChildChanged.map((event) {
+          final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final report = Report.fromJson(event.snapshot.key!, json);
 
-      reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return reports;
-    });
+          final index = reports.indexWhere((r) => r.id == report.id);
+          if (index != -1) {
+            reports[index] = report;
+          }
+
+          reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return List<Report>.from(reports);
+        }),
+
+        // Handle removed reports
+        ref.onChildRemoved.map((event) {
+          final index = reports.indexWhere((r) => r.id == event.snapshot.key);
+          if (index != -1) {
+            reports.removeAt(index);
+          }
+          return List<Report>.from(reports);
+        }),
+      ]);
+
+      return stream;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Future<void> resolveReport({

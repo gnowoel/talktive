@@ -14,6 +14,7 @@ class MessageList extends StatefulWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
+  final String? reporterUserId;
 
   const MessageList({
     super.key,
@@ -21,6 +22,7 @@ class MessageList extends StatefulWidget {
     required this.focusNode,
     required this.scrollController,
     required this.updateMessageCount,
+    this.reporterUserId,
   });
 
   @override
@@ -143,12 +145,14 @@ class _MessageListState extends State<MessageList> {
           return ImageMessageItem(
             key: ValueKey(message.id),
             message: message,
+            reporterUserId: widget.reporterUserId,
           );
         }
 
         return TextMessageItem(
           key: ValueKey(message.id),
           message: message as TextMessage,
+          reporterUserId: widget.reporterUserId,
         );
       },
     );

@@ -8,10 +8,12 @@ import 'user_info_loader.dart';
 
 class TextMessageItem extends StatelessWidget {
   final TextMessage message;
+  final String? reporterUserId;
 
   const TextMessageItem({
     super.key,
     required this.message,
+    this.reporterUserId,
   });
 
   bool get _isBot => message.userId == 'bot';
@@ -31,7 +33,8 @@ class TextMessageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = message.userId == currentUser.uid;
+    final byMe =
+        message.userId == currentUser.uid || message.userId == reporterUserId;
 
     // Bot messages are always shown on the left
     return byMe

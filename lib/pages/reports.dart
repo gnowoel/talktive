@@ -120,8 +120,11 @@ class ReportItem extends StatelessWidget {
                 ),
               ),
         onTap: () {
+          final userId = report.userId;
           final chatId = report.chatId;
-          context.push(Messaging.encodeReviewRoute(chatId, ''));
+          final displayName = '';
+          context
+              .push(Messaging.encodeReviewRoute(userId, chatId, displayName));
         },
       ),
     );

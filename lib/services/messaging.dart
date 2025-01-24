@@ -170,9 +170,14 @@ class Messaging {
     return '/chats/$chatId?partnerDisplayName=$encodedName';
   }
 
-  static String encodeReviewRoute(String chatId, String partnerDisplayName) {
+  static String encodeReviewRoute(
+    String userId,
+    String chatId,
+    String partnerDisplayName,
+  ) {
+    final encodeUserId = Uri.encodeComponent(userId);
     final encodedName = Uri.encodeComponent(partnerDisplayName);
-    return '/admin/reviews/$chatId?partnerDisplayName=$encodedName';
+    return '/admin/reviews/$chatId?userId=$encodeUserId&partnerDisplayName=$encodedName';
   }
 
   static String _encodeLaunchRoute(String chatId, String partnerDisplayName) {

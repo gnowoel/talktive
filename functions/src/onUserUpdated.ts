@@ -54,6 +54,7 @@ const updateUserCache = async (userId: string, user: User) => {
       displayName: user.displayName,
       description: user.description,
       gender: user.gender,
+      revivedAt: user.revivedAt,
     }, { merge: true });
   } catch (error) {
     logger.error('Error updating user cache:', error);

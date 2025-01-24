@@ -109,6 +109,10 @@ class _UserItemState extends State<UserItem> {
             : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
+    final revivedAt =
+        DateTime.fromMillisecondsSinceEpoch(widget.user.revivedAt ?? 0);
+    final alert = now.isBefore(revivedAt);
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -162,6 +166,21 @@ class _UserItemState extends State<UserItem> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (alert) ...[
+                    const SizedBox(width: 4),
+                    Tag(
+                      tooltip: 'Misconduct reported',
+                      child: Text(
+                        'alert',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onErrorContainer,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      isCritical: true,
+                    ),
+                  ],
                 ],
               ),
             ],

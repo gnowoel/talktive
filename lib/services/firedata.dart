@@ -398,6 +398,7 @@ class Firedata {
           displayName: data['displayName'] as String?,
           description: data['description'] as String?,
           gender: data['gender'] as String?,
+          revivedAt: data['revivedAt'] as int?,
         );
         users.add(user);
       }
@@ -587,7 +588,10 @@ class Firedata {
           final startAt = max(partner.revivedAt ?? 0, serverNow);
           final revivedAt = startAt + milliseconds;
 
-          await partnerRef.update({'revivedAt': revivedAt});
+          await partnerRef.update({
+            'revivedAt': revivedAt,
+            'updatedAt': serverNow, // Trigger updating Firestore cache
+          });
         }
       }
 

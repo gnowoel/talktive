@@ -8,6 +8,7 @@ export interface User {
   description?: string;
   gender?: string;
   fcmToken?: string;
+  revivedAt?: number;
 }
 
 export interface Pair {

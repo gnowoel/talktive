@@ -2,7 +2,7 @@ class Report {
   final String id;
   final String userId;
   final String chatId;
-  final String partnerId;
+  final String? partnerDisplayName;
   final String status;
   final String? resolution;
   final String? adminId;
@@ -13,7 +13,7 @@ class Report {
     required this.id,
     required this.userId,
     required this.chatId,
-    required this.partnerId,
+    this.partnerDisplayName,
     required this.status,
     this.resolution,
     this.adminId,
@@ -26,7 +26,7 @@ class Report {
       id: id,
       userId: json['userId'] as String,
       chatId: json['chatId'] as String,
-      partnerId: json['partnerId'] as String,
+      partnerDisplayName: json['partnerDisplayName'] as String?,
       status: json['status'] as String,
       resolution: json['resolution'] as String?,
       adminId: json['adminId'] as String?,

@@ -9,16 +9,17 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
 import '../widgets/hearts.dart';
-import '../widgets/input.dart';
 import '../widgets/layout.dart';
 import '../widgets/message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ReviewPage extends StatefulWidget {
+  final String userId;
   final Chat chat;
 
   const ReviewPage({
     super.key,
+    required this.userId,
     required this.chat,
   });
 
@@ -53,7 +54,7 @@ class _ReviewPageState extends State<ReviewPage> {
 
     _chat = widget.chat;
 
-    final userId = fireauth.instance.currentUser!.uid;
+    final userId = widget.userId;
 
     chatSubscription =
         firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
@@ -287,10 +288,6 @@ class _ReviewPageState extends State<ReviewPage> {
                     scrollController: scrollController,
                     updateMessageCount: _updateMessageCount,
                   ),
-                ),
-                Input(
-                  focusNode: focusNode,
-                  chat: _chat,
                 ),
               ],
             ),

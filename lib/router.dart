@@ -140,8 +140,10 @@ Future<GoRouter> initRouter() async {
         path: '/admin/reviews/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
+          final encodedUserId = state.uri.queryParameters['userId'] ?? '';
           final encodedName =
               state.uri.queryParameters['partnerDisplayName'] ?? '';
+          final userId = Uri.decodeComponent(encodedUserId);
           final partnerDisplayName = Uri.decodeComponent(encodedName);
 
           final userStub = UserStub(
@@ -162,7 +164,7 @@ Future<GoRouter> initRouter() async {
             value: chatStub,
           );
 
-          return ReviewPage(chat: chat);
+          return ReviewPage(userId: userId, chat: chat);
         },
       ),
     ],

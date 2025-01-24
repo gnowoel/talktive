@@ -104,7 +104,8 @@ class ReportItem extends StatelessWidget {
               ? theme.colorScheme.error
               : theme.colorScheme.primary,
         ),
-        title: Text('Report #${report.id.substring(0, 8)}'),
+        title: Text(report.partnerDisplayName ??
+            'Report #${report.id.substring(0, 8)}'),
         subtitle: Text(
           'Created ${timeago.format(createdAt, clock: now)}',
         ),

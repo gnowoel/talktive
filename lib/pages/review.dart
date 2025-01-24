@@ -39,8 +39,6 @@ class _ReviewPageState extends State<ReviewPage> {
 
   late Chat _chat;
 
-  int _messageCount = 0;
-
   @override
   void initState() {
     super.initState();
@@ -123,24 +121,6 @@ class _ReviewPageState extends State<ReviewPage> {
     );
   }
 
-  void _updateMessageCount(int count) {
-    _messageCount = count;
-  }
-
-  Future<void> _updateReadMessageCount(Chat chat) async {
-    final count = _messageCount;
-
-    if (count == 0 || count == _chat.readMessageCount) {
-      return;
-    }
-
-    await firedata.updateChat(
-      fireauth.instance.currentUser!.uid,
-      chat.id,
-      readMessageCount: count,
-    );
-  }
-
   void _showReportMenu(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -209,49 +189,39 @@ class _ReviewPageState extends State<ReviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        await _updateReadMessageCount(_chat);
-        if (context.mounted) {
-          Navigator.pop(context, result);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.surfaceContainerLow,
-        appBar: AppBar(
-          title: GestureDetector(
-            onTap: () => _showUserInfo(context),
-            child: Text(_chat.partner.displayName!),
-          ),
-          actions: [
-            RepaintBoundary(
-              child: Hearts(chat: _chat),
-            ),
-            IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _showReportMenu(context),
-              tooltip: 'More options',
-            ),
-          ],
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      appBar: AppBar(
+        title: GestureDetector(
+          onTap: () => _showUserInfo(context),
+          child: Text(_chat.partner.displayName!),
         ),
-        body: SafeArea(
-          child: Layout(
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                Expanded(
-                  child: MessageList(
-                    chatId: _chat.id,
-                    focusNode: focusNode,
-                    scrollController: scrollController,
-                    updateMessageCount: _updateMessageCount,
-                    reporterUserId: widget.userId,
-                  ),
+        actions: [
+          RepaintBoundary(
+            child: Hearts(chat: _chat),
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () => _showReportMenu(context),
+            tooltip: 'More options',
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Layout(
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Expanded(
+                child: MessageList(
+                  chatId: _chat.id,
+                  focusNode: focusNode,
+                  scrollController: scrollController,
+                  updateMessageCount: (int count) {},
+                  reporterUserId: widget.userId,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

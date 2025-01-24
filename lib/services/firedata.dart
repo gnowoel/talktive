@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction, Query;
@@ -529,19 +530,35 @@ class Firedata {
   }
 
   Future<void> resolveReport({
-    required String reportId,
-    required String adminId,
+    required Report report,
     required String resolution,
+    required int serverNow,
   }) async {
     try {
-      final ref = instance.ref('reports/$reportId');
+      final chatId = report.chatId;
+      final userId = report.userId;
+      final partnerId = chatId.replaceFirst(userId, '');
+      final days = int.tryParse(resolution) ?? 0;
 
-      await ref.update({
-        'status': 'resolved',
-        'resolution': resolution,
-        'adminId': adminId,
-        'resolvedAt': ServerValue.timestamp,
-      });
+      if (days != 0) {
+        final milliseconds = days * 24 * 60 * 60 * 1000;
+
+        final partnerRef = instance.ref('users/$partnerId');
+        final snapshot = await partnerRef.get();
+
+        if (snapshot.exists) {
+          final json = Map<String, dynamic>.from(snapshot.value as Map);
+          final stub = UserStub.fromJson(json);
+          final partner = User.fromStub(key: partnerId, value: stub);
+          final startAt = max(partner.revivedAt ?? 0, serverNow);
+          final revivedAt = startAt + milliseconds;
+
+          await partnerRef.update({'revivedAt': revivedAt});
+        }
+      }
+
+      final reportRef = instance.ref('reports/${report.id}');
+      reportRef.remove();
     } catch (e) {
       throw AppException(e.toString());
     }

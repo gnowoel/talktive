@@ -211,13 +211,13 @@ class _ChatPageState extends State<ChatPage> {
 
     try {
       final userId = fireauth.instance.currentUser!.uid;
-      final partnerId = _chat.id.replaceFirst(userId, '');
+      final partnerDisplayName = _chat.partner.displayName;
 
       // Add report to database
       await firedata.reportChat(
         userId: userId,
         chatId: _chat.id,
-        partnerId: partnerId,
+        partnerDisplayName: partnerDisplayName,
       );
 
       // Mute the chat

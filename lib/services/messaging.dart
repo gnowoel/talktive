@@ -173,10 +173,10 @@ class Messaging {
   static String encodeReviewRoute(
     String userId,
     String chatId,
-    String partnerDisplayName,
+    String? partnerDisplayName,
   ) {
     final encodeUserId = Uri.encodeComponent(userId);
-    final encodedName = Uri.encodeComponent(partnerDisplayName);
+    final encodedName = Uri.encodeComponent(partnerDisplayName ?? '');
     return '/admin/reviews/$chatId?userId=$encodeUserId&partnerDisplayName=$encodedName';
   }
 

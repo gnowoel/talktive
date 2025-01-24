@@ -145,20 +145,11 @@ class ReportDetailsDialog extends StatefulWidget {
 }
 
 class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
-  final _resolutionController = TextEditingController(text: '30');
+  String _resolution = '0';
   bool _isProcessing = false;
-
-  @override
-  void dispose() {
-    _resolutionController.dispose();
-    super.dispose();
-  }
 
   Future<void> _resolve() async {
     if (_isProcessing) return;
-
-    final resolution = _resolutionController.text.trim();
-    if (resolution.isEmpty) return;
 
     setState(() => _isProcessing = true);
 
@@ -168,7 +159,7 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
 
       await firedata.resolveReport(
         report: widget.report,
-        resolution: resolution,
+        resolution: _resolution,
         serverNow: cache.now,
       );
 
@@ -199,18 +190,31 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Status: ${widget.report.status}'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text('Created: ${timeago.format(createdAt, clock: now)}'),
           const SizedBox(height: 16),
           if (widget.report.status == 'pending') ...[
-            TextField(
-              controller: _resolutionController,
-              decoration: const InputDecoration(
-                labelText: 'Resolution',
-                hintText: 'Enter resolution details',
-              ),
-              minLines: 1,
-              maxLines: 3,
+            const Text('Suspension duration:'),
+            const SizedBox(height: 16),
+            RadioListTile<String>(
+              title: const Text('No suspension'),
+              value: '0',
+              groupValue: _resolution,
+              onChanged: (value) {
+                setState(() {
+                  _resolution = value!;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('30 days'),
+              value: '30',
+              groupValue: _resolution,
+              onChanged: (value) {
+                setState(() {
+                  _resolution = value!;
+                });
+              },
             ),
           ] else ...[
             Text('Resolution: ${widget.report.resolution}'),

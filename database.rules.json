@@ -7,7 +7,7 @@
         "updatedAt"
       ],
       "$userId": {
-        ".write": "auth !== null && auth.uid === $userId"
+        ".write": "auth !== null && (auth.uid === $userId || root.child('admins').child(auth.uid).exists())"
       }
     },
     "pairs": {

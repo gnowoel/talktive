@@ -145,7 +145,7 @@ class ReportDetailsDialog extends StatefulWidget {
 }
 
 class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
-  final _resolutionController = TextEditingController();
+  final _resolutionController = TextEditingController(text: '30');
   bool _isProcessing = false;
 
   @override
@@ -164,12 +164,12 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
 
     try {
       final firedata = context.read<Firedata>();
-      final adminId = context.read<Cache>().user!.id;
+      final cache = context.read<Cache>();
 
       await firedata.resolveReport(
-        reportId: widget.report.id,
-        adminId: adminId,
+        report: widget.report,
         resolution: resolution,
+        serverNow: cache.now,
       );
 
       if (!mounted) return;
@@ -209,6 +209,7 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
                 labelText: 'Resolution',
                 hintText: 'Enter resolution details',
               ),
+              minLines: 1,
               maxLines: 3,
             ),
           ] else ...[

@@ -12,6 +12,7 @@ class Chat {
   final String? firstUserId;
   final String? lastMessageContent;
   final bool? mute;
+  final bool? reported;
 
   const Chat({
     required this.id,
@@ -23,6 +24,7 @@ class Chat {
     this.firstUserId,
     this.lastMessageContent,
     this.mute,
+    this.reported,
   });
 
   Chat copyWith({
@@ -35,6 +37,7 @@ class Chat {
     String? firstUserId,
     String? lastMessageContent,
     bool? mute,
+    bool? reported,
   }) {
     return Chat(
       id: id ?? this.id,
@@ -46,6 +49,7 @@ class Chat {
       firstUserId: firstUserId ?? this.firstUserId,
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
       mute: mute ?? this.mute,
+      reported: reported ?? this.reported,
     );
   }
 
@@ -60,6 +64,7 @@ class Chat {
       'firstUserId': firstUserId,
       'lastMessageContent': lastMessageContent,
       'mute': mute,
+      'reported': reported,
     };
   }
 
@@ -77,6 +82,7 @@ class Chat {
       firstUserId: value.firstUserId,
       lastMessageContent: value.lastMessageContent,
       mute: value.mute,
+      reported: value.reported,
     );
   }
 
@@ -118,6 +124,7 @@ class ChatStub {
   final String? firstUserId;
   final String? lastMessageContent;
   final bool? mute;
+  final bool? reported;
 
   const ChatStub({
     required this.createdAt,
@@ -128,6 +135,7 @@ class ChatStub {
     this.firstUserId,
     this.lastMessageContent,
     this.mute,
+    this.reported,
   });
 
   factory ChatStub.fromJson(Map<String, dynamic> json) {
@@ -141,6 +149,7 @@ class ChatStub {
       firstUserId: json['firstUserId'] as String?,
       lastMessageContent: json['lastMessageContent'] as String?,
       mute: json['mute'] as bool?,
+      reported: json['reported'] as bool?,
     );
   }
 }

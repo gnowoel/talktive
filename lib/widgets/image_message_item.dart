@@ -9,10 +9,12 @@ import 'user_info_loader.dart';
 
 class ImageMessageItem extends StatefulWidget {
   final ImageMessage message;
+  final String? reporterUserId;
 
   const ImageMessageItem({
     super.key,
     required this.message,
+    this.reporterUserId,
   });
 
   @override
@@ -50,7 +52,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = widget.message.userId == currentUser.uid;
+    final byMe = widget.message.userId == currentUser.uid ||
+        widget.message.userId == widget.reporterUserId;
 
     // Bot messages are always shown on the left
     return byMe

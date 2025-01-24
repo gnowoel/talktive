@@ -287,6 +287,7 @@ class _ReviewPageState extends State<ReviewPage> {
                     focusNode: focusNode,
                     scrollController: scrollController,
                     updateMessageCount: _updateMessageCount,
+                    reporterUserId: widget.userId,
                   ),
                 ),
               ],

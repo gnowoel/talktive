@@ -227,6 +227,12 @@ class _ChatPageState extends State<ChatPage> {
       //   mute: true,
       // );
 
+      await firedata.updateChat(
+        userId,
+        _chat.id,
+        reported: true,
+      );
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -268,11 +274,15 @@ class _ChatPageState extends State<ChatPage> {
             RepaintBoundary(
               child: Hearts(chat: _chat),
             ),
-            IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _showReportMenu(context),
-              tooltip: 'More options',
-            ),
+            if (_chat.reported == true) ...[
+              const SizedBox(width: 16),
+            ] else ...[
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _showReportMenu(context),
+                tooltip: 'More options',
+              ),
+            ],
           ],
         ),
         body: SafeArea(

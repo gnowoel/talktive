@@ -279,6 +279,7 @@ class Firedata {
     String chatId, {
     int? readMessageCount,
     bool? mute,
+    bool? reported,
   }) async {
     try {
       final ref = instance.ref('chats/$userId/$chatId');
@@ -290,6 +291,7 @@ class Firedata {
 
         json['readMessageCount'] = readMessageCount ?? json['readMessageCount'];
         json['mute'] = mute ?? json['mute'];
+        json['reported'] = reported ?? json['reported'];
 
         return Transaction.success(json);
       });

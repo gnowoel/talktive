@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -6,6 +7,7 @@ import '../../models/report.dart';
 import '../../services/cache.dart';
 import '../../services/firedata.dart';
 import '../../widgets/layout.dart';
+import '../services/messaging.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -117,7 +119,10 @@ class ReportItem extends StatelessWidget {
                   color: theme.colorScheme.outline,
                 ),
               ),
-        onTap: onTap,
+        onTap: () {
+          final chatId = report.chatId;
+          context.push(Messaging.encodeReviewRoute(chatId, ''));
+        },
       ),
     );
   }

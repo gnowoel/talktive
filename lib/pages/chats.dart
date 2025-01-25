@@ -77,6 +77,40 @@ class _ChatsPageState extends State<ChatsPage> {
     });
   }
 
+  void _showInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Text('Quick Tips'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'If you receive inappropriate messages, please use the report feature to help keep our community safe.',
+              style: TextStyle(height: 1.5),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'You can swipe left or right on any chat to mute it if you no longer wish to participate.',
+              style: TextStyle(height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -87,6 +121,13 @@ class _ChatsPageState extends State<ChatsPage> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('Recent chats'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _showInfoDialog,
+            tooltip: 'Help',
+          ),
+        ],
       ),
       body: SafeArea(
         child: _chats.isEmpty

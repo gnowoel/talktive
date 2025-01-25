@@ -30,21 +30,6 @@ class ProfilePage extends StatelessWidget {
                 : () => context.push('/profile/edit', extra: user),
             tooltip: 'Edit profile',
           ),
-          FutureBuilder<Admin?>(
-            future: firedata.fetchAdmin(user?.id),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                return IconButton(
-                  icon: const Icon(Icons.admin_panel_settings),
-                  onPressed: () {
-                    context.push('/admin/reports');
-                  },
-                  tooltip: 'Admin Panel',
-                );
-              }
-              return const SizedBox();
-            },
-          ),
         ],
       ),
       body: SafeArea(
@@ -86,6 +71,21 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FutureBuilder<Admin?>(
+        future: firedata.fetchAdmin(user?.id),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return IconButton(
+              icon: const Icon(Icons.admin_panel_settings),
+              onPressed: () {
+                context.push('/admin/reports');
+              },
+              tooltip: 'Admin Panel',
+            );
+          }
+          return const SizedBox();
+        },
       ),
     );
   }

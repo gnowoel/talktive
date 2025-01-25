@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../models/chat.dart';
+import '../models/user.dart';
+import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
@@ -254,6 +256,11 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final revivedAt =
+        DateTime.fromMillisecondsSinceEpoch(_chat.partner.revivedAt ?? 0);
+    final alert = now.isBefore(revivedAt);
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -290,6 +297,9 @@ class _ChatPageState extends State<ChatPage> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
+                if (alert) ...[
+                  _buildAlertBox(),
+                ],
                 Expanded(
                   child: MessageList(
                     chatId: _chat.id,
@@ -305,6 +315,39 @@ class _ChatPageState extends State<ChatPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAlertBox() {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      color: theme.colorScheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 16,
+              color: theme.colorScheme.onErrorContainer,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'This user has been reported for inappropriate behavior. Be safe!',
+                style: TextStyle(
+                  color: theme.colorScheme.onErrorContainer,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

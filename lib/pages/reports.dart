@@ -52,8 +52,8 @@ class _ReportsPageState extends State<ReportsPage> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
 
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: const Text('(Empty)'));
               }
 
               _reports = snapshot.data!;

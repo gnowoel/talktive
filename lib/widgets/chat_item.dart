@@ -5,6 +5,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
+import '../models/user.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -28,6 +29,7 @@ class _ChatItemState extends State<ChatItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late bool byMe;
+  late UserStub _partner;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _ChatItemState extends State<ChatItem> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     byMe = widget.chat.firstUserId == fireauth.instance.currentUser!.uid;
+    _partner = widget.chat.partner;
   }
 
   Future<void> _muteChat() async {
@@ -50,11 +53,10 @@ class _ChatItemState extends State<ChatItem> {
   Future<void> _enterChat() async {
     _doAction(() async {
       final chat = widget.chat;
-      final partner = chat.partner;
 
       context.go('/chats');
       context
-          .push(Messaging.encodeChatRoute(chat.id, partner.displayName ?? ''));
+          .push(Messaging.encodeChatRoute(chat.id, _partner.displayName ?? ''));
     });
   }
 
@@ -76,8 +78,8 @@ class _ChatItemState extends State<ChatItem> {
       context: context,
       builder: (context) => UserInfoLoader(
         userId: otherId,
-        photoURL: widget.chat.partner.photoURL ?? '',
-        displayName: widget.chat.partner.displayName ?? '',
+        photoURL: _partner.photoURL ?? '',
+        displayName: _partner.displayName ?? '',
       ),
     );
   }
@@ -96,8 +98,12 @@ class _ChatItemState extends State<ChatItem> {
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
     final lastMessageContent =
-        (widget.chat.lastMessageContent ?? widget.chat.partner.description!)
+        (widget.chat.lastMessageContent ?? _partner.description!)
             .replaceAll(RegExp(r'\s+'), ' ');
+
+    final revivedAt =
+        DateTime.fromMillisecondsSinceEpoch(_partner.revivedAt ?? 0);
+    final alert = now.isBefore(revivedAt);
 
     return Dismissible(
       key: Key(widget.chat.id),
@@ -118,12 +124,12 @@ class _ChatItemState extends State<ChatItem> {
             leading: GestureDetector(
               onTap: () => _showUserInfo(context),
               child: Text(
-                widget.chat.partner.photoURL!,
+                _partner.photoURL!,
                 style: TextStyle(fontSize: 36, color: textColor),
               ),
             ),
             title: Text(
-              widget.chat.partner.displayName!,
+              _partner.displayName!,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Column(
@@ -136,20 +142,18 @@ class _ChatItemState extends State<ChatItem> {
                 Row(
                   children: [
                     Tag(
-                      tooltip:
-                          '${getLongGenderName(widget.chat.partner.gender!)}',
+                      tooltip: '${getLongGenderName(_partner.gender!)}',
                       child: Text(
-                        widget.chat.partner.gender!,
+                        _partner.gender!,
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),
                     Tag(
-                      tooltip:
-                          '${getLanguageName(widget.chat.partner.languageCode!)}',
+                      tooltip: '${getLanguageName(_partner.languageCode!)}',
                       child: Text(
-                        widget.chat.partner.languageCode!,
+                        _partner.languageCode!,
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -164,6 +168,21 @@ class _ChatItemState extends State<ChatItem> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (alert) ...[
+                      const SizedBox(width: 4),
+                      Tag(
+                        tooltip: 'Misconduct reported',
+                        child: Text(
+                          'alert',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onErrorContainer,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        isCritical: true,
+                      ),
+                    ],
                   ],
                 ),
               ],

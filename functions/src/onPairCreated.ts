@@ -38,11 +38,12 @@ const copyToFollower = async (userId: string, pairId: string, pair: Pair) => {
     const partner = {
       createdAt: 0,
       updatedAt: 0,
-      languageCode: other.languageCode,
-      photoURL: other.photoURL,
-      displayName: other.displayName,
-      description: other.description,
-      gender: other.gender
+      languageCode: other.languageCode || null,
+      photoURL: other.photoURL || null,
+      displayName: other.displayName || null,
+      description: other.description || null,
+      gender: other.gender || null,
+      revivedAt: other.revivedAt || null,
       // fcmToken: ''
     };
 

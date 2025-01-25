@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.0.3+27
+
+- Remind people to stay away from those who have been reported
+
 ## 3.0.2+26
 
 - Make active users easier to find by moving them up in the list

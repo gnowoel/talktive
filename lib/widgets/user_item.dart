@@ -169,7 +169,7 @@ class _UserItemState extends State<UserItem> {
                   if (alert) ...[
                     const SizedBox(width: 4),
                     Tag(
-                      tooltip: 'Misconduct reported',
+                      tooltip: 'Reported for inappropriate behavior',
                       child: Text(
                         'alert',
                         style: TextStyle(

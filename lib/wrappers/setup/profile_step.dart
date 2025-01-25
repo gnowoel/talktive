@@ -138,7 +138,7 @@ class _ProfileStepState extends State<ProfileStep> {
         await firedata.updateProfile(
           userId: _user!.id,
           languageCode: languageCode,
-          photoURL: avatar.code,
+          photoURL: _photoURL,
           displayName: displayName,
           description: description,
           gender: _selectedGender!,

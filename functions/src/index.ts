@@ -8,3 +8,4 @@ export { default as onMessageCreated } from "./onMessageCreated";
 export { default as onAccessCreated } from "./onAccessCreated";
 export { default as onExpireCreated } from "./onExpireCreated";
 export { scheduledCleanup, requestedCleanup } from "./scheduledCleanup";
+export { default as onFirestoreUserCreated } from "./onFirestoreUserCreated";

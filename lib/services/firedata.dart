@@ -422,9 +422,9 @@ class Firedata {
 
       if (!shouldTouch) return;
 
-      await firestore.collection(_usersCollection).doc(userId).set({
+      await instance.ref('users/$userId').update({
         'updatedAt': serverNow,
-      }, SetOptions(merge: true));
+      });
 
       _lastTouchedUser = serverNow;
     } catch (e) {

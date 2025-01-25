@@ -44,18 +44,20 @@ const updateUserCache = async (userId: string, user: User) => {
   if (isNew(user)) return;
 
   try {
-    const userRef = firestore.collection(USERS_COLLECTION).doc(userId);
-    await userRef.set({
+    const userData = {
       id: userId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      languageCode: user.languageCode,
-      photoURL: user.photoURL,
-      displayName: user.displayName,
-      description: user.description,
-      gender: user.gender,
-      revivedAt: user.revivedAt,
-    }, { merge: true });
+      languageCode: user.languageCode ?? null,
+      photoURL: user.photoURL ?? null,
+      displayName: user.displayName ?? null,
+      description: user.description ?? null,
+      gender: user.gender ?? null,
+      revivedAt: user.revivedAt ?? null,
+    };
+
+    const userRef = firestore.collection(USERS_COLLECTION).doc(userId);
+    await userRef.set(userData, { merge: true });
   } catch (error) {
     logger.error('Error updating user cache:', error);
   }

@@ -66,6 +66,8 @@ class UserInfoDialog extends StatelessWidget {
 
     final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(user!.updatedAt);
+    final revivedAt = DateTime.fromMillisecondsSinceEpoch(user!.revivedAt ?? 0);
+    final alert = now.isBefore(revivedAt);
 
     return Dialog(
       child: Padding(
@@ -116,6 +118,20 @@ class UserInfoDialog extends StatelessWidget {
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
+                if (alert) ...[
+                  Tag(
+                    tooltip: 'Reported for inappropriate behavior',
+                    child: Text(
+                      'alert',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onErrorContainer,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    isCritical: true,
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 16),

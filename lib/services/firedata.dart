@@ -389,31 +389,45 @@ class Firedata {
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        final user = User(
-          id: doc.id,
-          createdAt: data['createdAt'] as int,
-          updatedAt: data['updatedAt'] as int,
-          languageCode: data['languageCode'] as String?,
-          photoURL: data['photoURL'] as String?,
-          displayName: data['displayName'] as String?,
-          description: data['description'] as String?,
-          gender: data['gender'] as String?,
-          revivedAt: data['revivedAt'] as int?,
-        );
-        users.add(user);
+
+        if (_isUserDataValid(data)) {
+          final user = User(
+            id: doc.id,
+            createdAt: data['createdAt'] as int,
+            updatedAt: data['updatedAt'] as int,
+            languageCode: data['languageCode'] as String?,
+            photoURL: data['photoURL'] as String?,
+            displayName: data['displayName'] as String?,
+            description: data['description'] as String?,
+            gender: data['gender'] as String?,
+            revivedAt: data['revivedAt'] as int?,
+          );
+          users.add(user);
+        }
       }
 
       if (users.isEmpty) {
         return _fetchUsersFallback();
       }
 
-      tryTouchUser(userId, serverNow); // No wait
-
       return users;
     } catch (e) {
       // Fallback to RTDB if Firestore fails
       return _fetchUsersFallback();
+    } finally {
+      tryTouchUser(userId, serverNow); // No wait
     }
+  }
+
+  bool _isUserDataValid(Map<String, dynamic> data) {
+    return data['createdAt'] != null &&
+        data['updatedAt'] != null &&
+        data['languageCode'] != null &&
+        data['photoURL'] != null &&
+        data['photoURL'] != null &&
+        data['displayName'] != null &&
+        data['description'] != null &&
+        data['gender'] != null;
   }
 
   Future<void> tryTouchUser(String userId, int serverNow) async {

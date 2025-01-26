@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../models/chat.dart';
-import '../models/user.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';

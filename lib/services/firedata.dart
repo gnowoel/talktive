@@ -420,14 +420,17 @@ class Firedata {
   }
 
   bool _isUserDataValid(Map<String, dynamic> data) {
-    return data['createdAt'] != null &&
-        data['updatedAt'] != null &&
-        data['languageCode'] != null &&
-        data['photoURL'] != null &&
-        data['photoURL'] != null &&
-        data['displayName'] != null &&
-        data['description'] != null &&
-        data['gender'] != null;
+    const requiredFields = [
+      'createdAt',
+      'updatedAt',
+      'languageCode',
+      'photoURL',
+      'displayName',
+      'description',
+      'gender',
+    ];
+
+    return requiredFields.every(data.containsKey);
   }
 
   Future<void> tryTouchUser(String userId, int serverNow) async {

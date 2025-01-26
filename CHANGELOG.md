@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.0.4+28
+
+- Fix a bug that would cause the Users page to be blank
+
 ## 3.0.3+27
 
 - Remind people to stay away from those who have been reported

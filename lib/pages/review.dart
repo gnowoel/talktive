@@ -108,7 +108,7 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   void _showUserInfo(BuildContext context) {
-    final userId = fireauth.instance.currentUser!.uid;
+    final userId = widget.userId;
     final otherId = _chat.id.replaceFirst(userId, '');
 
     showDialog(

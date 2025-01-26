@@ -532,11 +532,12 @@ class Firedata {
   Stream<List<Report>> subscribeToReports() {
     try {
       final ref = instance.ref('reports');
+      final query = ref.orderByChild('createdAt').limitToLast(32);
       final reports = <Report>[];
 
       final Stream<List<Report>> stream = StreamGroup.merge([
         // Handle added reports
-        ref.onChildAdded.map((event) {
+        query.onChildAdded.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
           final report = Report.fromJson(event.snapshot.key!, json);
 
@@ -552,7 +553,7 @@ class Firedata {
         }),
 
         // Handle changed reports
-        ref.onChildChanged.map((event) {
+        query.onChildChanged.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
           final report = Report.fromJson(event.snapshot.key!, json);
 
@@ -566,7 +567,7 @@ class Firedata {
         }),
 
         // Handle removed reports
-        ref.onChildRemoved.map((event) {
+        query.onChildRemoved.map((event) {
           final index = reports.indexWhere((r) => r.id == event.snapshot.key);
           if (index != -1) {
             reports.removeAt(index);

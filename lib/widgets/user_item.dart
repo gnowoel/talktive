@@ -109,9 +109,7 @@ class _UserItemState extends State<UserItem> {
             : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
-    final revivedAt =
-        DateTime.fromMillisecondsSinceEpoch(widget.user.revivedAt ?? 0);
-    final alert = now.isBefore(revivedAt);
+    final userStatus = getUserStatus(widget.user, now);
 
     return Card(
       elevation: 0,
@@ -166,9 +164,24 @@ class _UserItemState extends State<UserItem> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (alert) ...[
+                  if (userStatus == 'warning') ...[
                     const SizedBox(width: 4),
                     Tag(
+                      status: 'warning',
+                      tooltip: 'Reported for offensive messages',
+                      child: Text(
+                        'warning',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onTertiaryContainer,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ] else if (userStatus == 'alert') ...[
+                    const SizedBox(width: 4),
+                    Tag(
+                      status: 'alert',
                       tooltip: 'Reported for inappropriate behavior',
                       child: Text(
                         'alert',
@@ -178,7 +191,6 @@ class _UserItemState extends State<UserItem> {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      isCritical: true,
                     ),
                   ],
                 ],

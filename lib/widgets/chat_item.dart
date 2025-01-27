@@ -101,9 +101,8 @@ class _ChatItemState extends State<ChatItem> {
         (widget.chat.lastMessageContent ?? _partner.description!)
             .replaceAll(RegExp(r'\s+'), ' ');
 
-    final revivedAt =
-        DateTime.fromMillisecondsSinceEpoch(_partner.revivedAt ?? 0);
-    final alert = now.isBefore(revivedAt);
+    final userStatus =
+        getUserStatus(User.fromStub(key: '', value: _partner), now);
 
     return Dismissible(
       key: Key(widget.chat.id),
@@ -168,9 +167,24 @@ class _ChatItemState extends State<ChatItem> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (alert) ...[
+                    if (userStatus == 'warning') ...[
                       const SizedBox(width: 4),
                       Tag(
+                        status: 'warning',
+                        tooltip: 'Reported for offensive messages',
+                        child: Text(
+                          'warning',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onTertiaryContainer,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ] else if (userStatus == 'alert') ...[
+                      const SizedBox(width: 4),
+                      Tag(
+                        status: 'alert',
                         tooltip: 'Reported for inappropriate behavior',
                         child: Text(
                           'alert',
@@ -180,7 +194,6 @@ class _ChatItemState extends State<ChatItem> {
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        isCritical: true,
                       ),
                     ],
                   ],

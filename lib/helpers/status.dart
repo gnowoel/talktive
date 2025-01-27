@@ -9,8 +9,8 @@ String getUserStatus(User user, DateTime now) {
   }
 
   if (now.add(thirtyDays).isAfter(revivedAt)) {
-    return 'warning';
+    return 'alert';
   }
 
-  return 'alert';
+  return 'warning';
 }

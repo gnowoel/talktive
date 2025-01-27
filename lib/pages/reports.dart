@@ -207,8 +207,38 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('30 days'),
-              value: '30',
+              title: const Text('1 day'),
+              value: '1',
+              groupValue: _resolution,
+              onChanged: (value) {
+                setState(() {
+                  _resolution = value!;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('3 days'),
+              value: '3',
+              groupValue: _resolution,
+              onChanged: (value) {
+                setState(() {
+                  _resolution = value!;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('7 days'),
+              value: '7',
+              groupValue: _resolution,
+              onChanged: (value) {
+                setState(() {
+                  _resolution = value!;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('14 days'),
+              value: '14',
               groupValue: _resolution,
               onChanged: (value) {
                 setState(() {

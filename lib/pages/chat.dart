@@ -322,7 +322,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildWarningBox() {
+  Widget _buildAlertBox() {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -355,7 +355,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildAlertBox() {
+  Widget _buildWarningBox() {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),

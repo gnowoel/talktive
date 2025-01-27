@@ -16,7 +16,7 @@ class Tag extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (status == 'alert') {
+    if (status == 'warning') {
       return Tooltip(
         message: tooltip,
         child: Container(
@@ -35,7 +35,7 @@ class Tag extends StatelessWidget {
       );
     }
 
-    if (status == 'warning') {
+    if (status == 'alert') {
       return Tooltip(
         message: tooltip,
         child: Container(

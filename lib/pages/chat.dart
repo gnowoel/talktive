@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../helpers/status.dart';
 import '../models/chat.dart';
+import '../models/user.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -256,9 +258,8 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
-    final revivedAt =
-        DateTime.fromMillisecondsSinceEpoch(_chat.partner.revivedAt ?? 0);
-    final alert = now.isBefore(revivedAt);
+    final userStatus =
+        getUserStatus(User.fromStub(key: '', value: _chat.partner), now);
 
     return PopScope(
       canPop: false,
@@ -296,7 +297,9 @@ class _ChatPageState extends State<ChatPage> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
-                if (alert) ...[
+                if (userStatus == 'warning') ...[
+                  _buildWarningBox(),
+                ] else if (userStatus == 'alert') ...[
                   _buildAlertBox(),
                 ],
                 Expanded(
@@ -314,6 +317,39 @@ class _ChatPageState extends State<ChatPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWarningBox() {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      color: theme.colorScheme.tertiaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 16,
+              color: theme.colorScheme.onTertiaryContainer,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'This user has been reported for offensive messages. Be careful!',
+                style: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -339,7 +375,7 @@ class _ChatPageState extends State<ChatPage> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'This user has been reported for inappropriate behavior. Be safe!',
+                'This user has been reported for inappropriate behavior. Stay safe!',
                 style: TextStyle(
                   color: theme.colorScheme.onErrorContainer,
                   fontSize: 13,

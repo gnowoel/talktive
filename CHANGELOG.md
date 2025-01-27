@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.0.5+29
+
+- Display alerts for users reported for offensive messages
+- Display warnings for users reported for inappropriate behavior
+
 ## 3.0.4+28
 
 - Fix a bug that would cause the Users page to be blank

@@ -15,6 +15,7 @@ class MessageList extends StatefulWidget {
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
   final String? reporterUserId;
+  final bool isSticky;
 
   const MessageList({
     super.key,
@@ -23,6 +24,7 @@ class MessageList extends StatefulWidget {
     required this.scrollController,
     required this.updateMessageCount,
     this.reporterUserId,
+    this.isSticky = true,
   });
 
   @override
@@ -30,14 +32,15 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
+  late bool _isSticky;
   late MessageCache messageCache;
   List<Message> _messages = [];
   ScrollNotification? _lastNotification;
-  bool _isSticky = true;
 
   @override
   void initState() {
     super.initState();
+    _isSticky = widget.isSticky;
     widget.focusNode.addListener(_handleInputFocus);
   }
 

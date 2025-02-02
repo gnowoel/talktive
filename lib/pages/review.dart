@@ -219,6 +219,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   scrollController: scrollController,
                   updateMessageCount: (int count) {},
                   reporterUserId: widget.userId,
+                  isSticky: false,
                 ),
               ),
             ],

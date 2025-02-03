@@ -7,7 +7,7 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
-import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
 import '../widgets/user_list.dart';
@@ -21,7 +21,7 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   late Fireauth fireauth;
-  late Firedata firedata;
+  late Firestore firestore;
   late Cache cache;
 
   List<User> _seenUsers = [];
@@ -35,7 +35,7 @@ class _UsersPageState extends State<UsersPage> {
     super.initState();
 
     fireauth = context.read<Fireauth>();
-    firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     cache = context.read<Cache>();
 
     _fetchUsers(cache.chats);
@@ -45,7 +45,7 @@ class _UsersPageState extends State<UsersPage> {
     final userId = fireauth.instance.currentUser!.uid;
     final serverNow = cache.now;
 
-    final users = await firedata.fetchUsers(userId, serverNow);
+    final users = await firestore.fetchUsers(userId, serverNow);
 
     setState(() {
       _seenUsers = _users;

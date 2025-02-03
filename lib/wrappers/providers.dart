@@ -5,6 +5,7 @@ import '../services/avatar.dart';
 import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../services/message_cache.dart';
 import '../services/messaging.dart';
 import '../services/settings.dart';
@@ -21,6 +22,7 @@ class Providers extends StatelessWidget {
       providers: [
         Provider(create: (context) => Fireauth(Fireauth.firebaseAuth)),
         Provider(create: (context) => Firedata(Firedata.firebaseDatabase)),
+        Provider(create: (context) => Firestore(Firestore.firebaseFirestore)),
         Provider(create: (context) => Storage()),
         Provider(create: (context) => Messaging()),
         Provider(create: (context) => Settings()),

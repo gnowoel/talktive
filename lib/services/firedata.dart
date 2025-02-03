@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction, Query;
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
@@ -16,15 +15,10 @@ import 'messaging.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
-  final FirebaseFirestore firestore;
 
-  static const String _usersCollection = 'users';
-
-  Firedata(this.instance) : firestore = FirebaseFirestore.instance;
+  Firedata(this.instance);
 
   static final firebaseDatabase = FirebaseDatabase.instance;
-
-  int _lastTouchedUser = 0;
 
   Stream<int> subscribeToClockSkew() {
     final ref = instance.ref('.info/serverTimeOffset');
@@ -375,106 +369,6 @@ class Firedata {
     });
 
     return stream;
-  }
-
-  Future<List<User>> fetchUsers(String userId, int serverNow) async {
-    try {
-      final users = <User>[];
-
-      final snapshot = await firestore
-          .collection(_usersCollection)
-          .orderBy('updatedAt', descending: true)
-          .limit(32)
-          .get();
-
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-
-        if (_isUserDataValid(data)) {
-          final user = User(
-            id: doc.id,
-            createdAt: data['createdAt'] as int,
-            updatedAt: data['updatedAt'] as int,
-            languageCode: data['languageCode'] as String?,
-            photoURL: data['photoURL'] as String?,
-            displayName: data['displayName'] as String?,
-            description: data['description'] as String?,
-            gender: data['gender'] as String?,
-            revivedAt: data['revivedAt'] as int?,
-          );
-          users.add(user);
-        }
-      }
-
-      if (users.isEmpty) {
-        return _fetchUsersFallback();
-      }
-
-      return users;
-    } catch (e) {
-      // Fallback to RTDB if Firestore fails
-      return _fetchUsersFallback();
-    } finally {
-      tryTouchUser(userId, serverNow); // No wait
-    }
-  }
-
-  bool _isUserDataValid(Map<String, dynamic> data) {
-    const requiredFields = [
-      'createdAt',
-      'updatedAt',
-      'languageCode',
-      'photoURL',
-      'displayName',
-      'description',
-      'gender',
-    ];
-
-    return requiredFields.every(data.containsKey);
-  }
-
-  Future<void> tryTouchUser(String userId, int serverNow) async {
-    try {
-      final shouldTouch = serverNow >= _lastTouchedUser + 3 * 60 * 1000;
-
-      if (!shouldTouch) return;
-
-      await instance.ref('users/$userId').update({
-        'updatedAt': serverNow,
-      });
-
-      _lastTouchedUser = serverNow;
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Future<List<User>> _fetchUsersFallback() async {
-    try {
-      final limit = 32;
-
-      final ref = instance.ref('users');
-      final query = ref.orderByPriority().endBefore(0).limitToFirst(limit);
-      final snapshot = await query.get();
-
-      if (!snapshot.exists) {
-        return <User>[];
-      }
-
-      final listMap = Map<String, dynamic>.from(snapshot.value as Map);
-
-      final users = listMap.entries.map((entry) {
-        final entryMap = Map<String, dynamic>.from(entry.value as Map);
-        final userStub = UserStub.fromJson(entryMap);
-        return User.fromStub(key: entry.key, value: userStub);
-      }).toList();
-
-      users.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
-      return users;
-    } catch (e) {
-      throw AppException(e.toString());
-    }
   }
 
   Future<User?> fetchUser(String userId) async {

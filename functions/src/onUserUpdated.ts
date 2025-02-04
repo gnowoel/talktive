@@ -13,24 +13,23 @@ const USERS_COLLECTION = 'users';
 
 const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
   const userId = event.params.userId;
-  const userBefore = event.data.before.val();
-  const user = event.data.after.val();
-
-  if (user.updatedAt == userBefore.updatedAt) return;
+  const userBefore: User = event.data.before.val();
+  const user: User = event.data.after.val();
 
   try {
-    await updateUserPriority(userId, user);
+    await updateUserPriority(userId, user, userBefore);
     await updateUserCache(userId, user);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const updateUserPriority = async (userId: string, user: User) => {
+// TODO: Just a fallback, as we no longer use priority of a user in newer versions
+const updateUserPriority = async (userId: string, user: User, userBefore: User) => {
   if (isNew(user)) return;
+  if (user.updatedAt === userBefore.updatedAt) return;
 
   const userRef = db.ref(`users/${userId}`);
-
   const priority = -1 * user.updatedAt;
 
   await userRef.setPriority(priority, (error) => {

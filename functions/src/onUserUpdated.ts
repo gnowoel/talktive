@@ -44,6 +44,7 @@ const updateUserCache = async (userId: string, user: User) => {
   if (isNew(user)) return;
 
   try {
+    // Exclude the unnecessary `fcmToken` to save some space
     const userData = {
       id: userId,
       createdAt: user.createdAt,

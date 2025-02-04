@@ -5,9 +5,7 @@ import '../helpers/exception.dart';
 
 class Firestore {
   final FirebaseFirestore instance;
-
   Firestore(this.instance);
-
   static final firebaseFirestore = FirebaseFirestore.instance;
 
   int _lastTouchedUser = 0;
@@ -25,20 +23,12 @@ class Firestore {
       for (final doc in snapshot.docs) {
         final data = doc.data();
 
-        if (_isUserDataComplete(data)) {
-          final user = User(
-            id: doc.id,
-            createdAt: data['createdAt'] as int,
-            updatedAt: data['updatedAt'] as int,
-            languageCode: data['languageCode'] as String?,
-            photoURL: data['photoURL'] as String?,
-            displayName: data['displayName'] as String?,
-            description: data['description'] as String?,
-            gender: data['gender'] as String?,
-            revivedAt: data['revivedAt'] as int?,
-          );
-          users.add(user);
-        }
+        if (!_isUserDataComplete(data)) continue;
+
+        final userStub = UserStub.fromJson(data);
+        final user = User.fromStub(key: doc.id, value: userStub);
+
+        users.add(user);
       }
 
       return users;

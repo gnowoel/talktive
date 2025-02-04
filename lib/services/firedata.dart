@@ -500,10 +500,7 @@ class Firedata {
           final startAt = max(partner.revivedAt ?? 0, serverNow);
           final revivedAt = startAt + milliseconds;
 
-          await partnerRef.update({
-            'revivedAt': revivedAt,
-            'updatedAt': serverNow, // Trigger updating Firestore cache
-          });
+          await partnerRef.update({'revivedAt': revivedAt});
         }
       }
 

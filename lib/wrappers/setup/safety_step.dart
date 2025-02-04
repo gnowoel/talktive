@@ -41,7 +41,7 @@ class SafetyStep extends StatelessWidget {
           const SizedBox(height: 12),
           _buildSafetyPoint(
             theme,
-            'You can mute or stop any conversation that makes you uncomfortable.',
+            'You can swipe left or right to delete any chat that makes you uncomfortable.',
           ),
           const SizedBox(height: 12),
           _buildSafetyPoint(

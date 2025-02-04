@@ -487,23 +487,23 @@ class Firedata {
       final partnerId = chatId.replaceFirst(userId, '');
       final days = int.tryParse(resolution) ?? 0;
 
-      if (days == 0) return;
+      if (days != 0) {
+        final milliseconds = days * 24 * 60 * 60 * 1000;
+        final partnerRef = instance.ref('users/$partnerId');
 
-      final milliseconds = days * 24 * 60 * 60 * 1000;
-      final partnerRef = instance.ref('users/$partnerId');
+        await partnerRef.runTransaction((partner) {
+          if (partner == null) return Transaction.abort();
 
-      await partnerRef.runTransaction((partner) {
-        if (partner == null) return Transaction.abort();
+          final json = Map<String, dynamic>.from(partner as Map);
+          final revivedAt = json['revivedAt'] as int?;
+          final startAt = max(revivedAt ?? 0, serverNow);
+          final endAt = startAt + milliseconds;
 
-        final json = Map<String, dynamic>.from(partner as Map);
-        final revivedAt = json['revivedAt'] as int?;
-        final startAt = max(revivedAt ?? 0, serverNow);
-        final endAt = startAt + milliseconds;
+          json['revivedAt'] = endAt;
 
-        json['revivedAt'] = endAt;
-
-        return Transaction.success(json);
-      });
+          return Transaction.success(json);
+        });
+      }
 
       await _removeReport(reportId: report.id);
     } catch (e) {

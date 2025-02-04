@@ -487,27 +487,32 @@ class Firedata {
       final partnerId = chatId.replaceFirst(userId, '');
       final days = int.tryParse(resolution) ?? 0;
 
-      if (days != 0) {
-        final milliseconds = days * 24 * 60 * 60 * 1000;
+      if (days == 0) return;
 
-        final partnerRef = instance.ref('users/$partnerId');
-        final snapshot = await partnerRef.get();
+      final milliseconds = days * 24 * 60 * 60 * 1000;
+      final partnerRef = instance.ref('users/$partnerId');
 
-        if (snapshot.exists) {
-          final json = Map<String, dynamic>.from(snapshot.value as Map);
-          final stub = UserStub.fromJson(json);
-          final partner = User.fromStub(key: partnerId, value: stub);
-          final startAt = max(partner.revivedAt ?? 0, serverNow);
-          final revivedAt = startAt + milliseconds;
+      await partnerRef.runTransaction((partner) {
+        if (partner == null) return Transaction.abort();
 
-          await partnerRef.update({'revivedAt': revivedAt});
-        }
-      }
+        final json = Map<String, dynamic>.from(partner as Map);
+        final revivedAt = json['revivedAt'] as int?;
+        final startAt = max(revivedAt ?? 0, serverNow);
+        final endAt = startAt + milliseconds;
 
-      final reportRef = instance.ref('reports/${report.id}');
-      reportRef.remove();
+        json['revivedAt'] = endAt;
+
+        return Transaction.success(json);
+      });
+
+      await _removeReport(reportId: report.id);
     } catch (e) {
       throw AppException(e.toString());
     }
+  }
+
+  Future<void> _removeReport({required String reportId}) async {
+    final reportRef = instance.ref('reports/$reportId');
+    reportRef.remove();
   }
 }

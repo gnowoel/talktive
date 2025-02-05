@@ -505,14 +505,20 @@ class Firedata {
         });
       }
 
-      await _removeReport(reportId: report.id);
+      await _updateReportStatus(reportId: report.id);
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  Future<void> _removeReport({required String reportId}) async {
-    final reportRef = instance.ref('reports/$reportId');
-    reportRef.remove();
+  Future<void> _updateReportStatus({required String reportId}) async {
+    try {
+      final reportRef = instance.ref('reports/$reportId');
+      await reportRef.update({
+        'status': 'resolved',
+      });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 }

@@ -138,14 +138,6 @@ class Firedata {
     return stream;
   }
 
-  Future<void> updateAvatar(String userId, String userCode) async {
-    final ref = instance.ref('users/$userId');
-    await ref.update({
-      'photoURL': userCode,
-      'updatedAt': ServerValue.timestamp,
-    });
-  }
-
   Future<void> updateProfile({
     required String userId,
     required String languageCode,

@@ -74,6 +74,10 @@ export interface StatParams {
   responses?: number | object
 }
 
-export interface ReportParams {
+export interface PartnerParams {
   revivedAt?: number | object;
+}
+
+export interface ReportParams {
+  status?: string;
 }

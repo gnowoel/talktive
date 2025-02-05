@@ -14,7 +14,7 @@ const db = admin.database();
 const storage = getStorage();
 
 const timeBeforeUserDeleting = isDebugMode()
-  ? 0 // now wait
+  ? 0 // no wait
   : 30 * 24 * 3600 * 1000; // 30 days
 const timeBeforeRoomDeleting = isDebugMode()
   ? 0 // no wait
@@ -22,9 +22,12 @@ const timeBeforeRoomDeleting = isDebugMode()
 const timeBeforePairDeleting = isDebugMode()
   ? 0 // no wait
   : 96 * 3600 * 1000; // 96 hours
+const timeBeforeReportDeleting = isDebugMode()
+  ? 0 // no wait
+  : 7 * 24 * 3600 * 1000; // 7 days
 
 interface Params {
-  [userId: string]: null;
+  [id: string]: null;
 }
 
 export const scheduledCleanup = onSchedule('every hour', async (_event) => {
@@ -88,9 +91,9 @@ const migrate = async () => {
 }
 
 const migrateUsers = async () => {
-  const ref = db.ref('users');
+  const usersRef = db.ref('users');
 
-  const query = ref
+  const query = usersRef
     .orderByChild('updatedAt')
     .endBefore(0)
     .limitToFirst(1000);
@@ -104,7 +107,6 @@ const migrateUsers = async () => {
     logger.info(users);
     const userIds = Object.keys(users);
     const params: Params = {};
-    const usersRef = db.ref('users');
 
     userIds.forEach((userId) => {
       const user = users[userId];
@@ -128,6 +130,7 @@ const cleanup = async () => {
     await cleanupUsers();
     await cleanupRooms();
     await cleanupPairs();
+    await cleanupReports();
   } catch (error) {
     logger.error(error);
   }
@@ -143,10 +146,10 @@ const cleanupUsers = async () => {
 }
 
 const cleanupTempUsers = async () => {
-  const ref = db.ref('users');
+  const usersRef = db.ref('users');
   const time = new Date(new Date().getTime() - timeBeforeUserDeleting).toJSON();
 
-  const query = ref
+  const query = usersRef
     .orderByChild('filter')
     .startAt('temp-0000')
     .endAt(`temp-${time}`)
@@ -160,7 +163,6 @@ const cleanupTempUsers = async () => {
     const users = snapshot.val();
     const userIds = Object.keys(users);
     const params: Params = {};
-    const usersRef = db.ref('users');
 
     userIds.forEach((userId) => {
       params[userId] = null;
@@ -175,10 +177,10 @@ const cleanupTempUsers = async () => {
 
 // TODO: Remove this once we have fully upgraded to v2.
 const cleanupPermUsers = async () => {
-  const ref = db.ref('users');
+  const usersRef = db.ref('users');
   const time = new Date(new Date().getTime() - timeBeforeUserDeleting * 3).toJSON();
 
-  const query = ref
+  const query = usersRef
     .orderByChild('filter')
     .startAt('perm-0000')
     .endAt(`perm-${time}`)
@@ -192,7 +194,6 @@ const cleanupPermUsers = async () => {
     const users = snapshot.val();
     const userIds = Object.keys(users);
     const params: Params = {};
-    const usersRef = db.ref('users');
 
     userIds.forEach((userId) => {
       params[userId] = null;
@@ -335,3 +336,33 @@ const removePair = async (pairId: string) => {
     logger.error(error);
   }
 };
+
+const cleanupReports = async () => {
+  const reportsRef = db.ref('reports');
+
+  const now = new Date().getTime();
+  const then = now - timeBeforeReportDeleting;
+
+  const query = reportsRef
+    .orderByChild('createdAt')
+    .endBefore(then)
+    .limitToFirst(1000);
+
+  try {
+    const snapshot = await query.get();
+
+    if (!snapshot.exists()) return;
+
+    const reports = snapshot.val();
+    const reportIds = Object.keys(reports);
+    const params: Params = {};
+
+    reportIds.forEach((reportId) => {
+      params[reportId] = null;
+    });
+
+    await reportsRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+}

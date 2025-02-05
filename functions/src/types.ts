@@ -1,3 +1,11 @@
+export interface Report {
+  chatId: string;
+  createdAt: number;
+  partnerDisplayName: string;
+  status: string;
+  userId: string;
+}
+
 export interface User {
   id?: string;
   createdAt: number;
@@ -64,4 +72,8 @@ export interface StatParams {
   rooms?: number | object
   messages?: number | object
   responses?: number | object
+}
+
+export interface ReportParams {
+  revivedAt?: number | object;
 }

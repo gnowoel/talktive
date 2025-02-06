@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
 import '../models/admin.dart';
-import '../services/cache.dart';
 import '../services/firedata.dart';
+import '../services/user_cache.dart';
 import '../widgets/layout.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -15,7 +15,8 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final firedata = context.read<Firedata>();
-    final user = context.select((Cache cache) => cache.user);
+    final userCache = context.watch<UserCache>();
+    final user = userCache.user;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,

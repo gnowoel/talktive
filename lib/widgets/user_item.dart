@@ -9,6 +9,7 @@ import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
+import '../services/user_cache.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
@@ -31,14 +32,14 @@ class UserItem extends StatefulWidget {
 class _UserItemState extends State<UserItem> {
   late Fireauth fireauth;
   late Firedata firedata;
-  late Cache cache;
+  late UserCache userCache;
 
   @override
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-    cache = context.read<Cache>();
+    userCache = context.read<UserCache>();
   }
 
   Future<void> _enterChat() async {
@@ -54,7 +55,7 @@ class _UserItemState extends State<UserItem> {
 
   Future<void> _greetUser() async {
     _doAction(() async {
-      final self = cache.user!;
+      final self = userCache.user!;
       final other = widget.user;
       final message = "Hi! I'm ${self.displayName!}. ${self.description}";
       final chat = await firedata.greetUser(self, other, message);

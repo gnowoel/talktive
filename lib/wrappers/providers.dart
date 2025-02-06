@@ -10,6 +10,7 @@ import '../services/message_cache.dart';
 import '../services/messaging.dart';
 import '../services/settings.dart';
 import '../services/storage.dart';
+import '../services/user_cache.dart';
 
 class Providers extends StatelessWidget {
   final Widget child;
@@ -28,6 +29,7 @@ class Providers extends StatelessWidget {
         Provider(create: (context) => Settings()),
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => Cache()),
+        ChangeNotifierProvider(create: (context) => UserCache()),
         ChangeNotifierProvider(create: (context) => MessageCache()),
       ],
       child: child,

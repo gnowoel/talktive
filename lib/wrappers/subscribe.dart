@@ -7,6 +7,7 @@ import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
+import '../services/user_cache.dart';
 
 class Subscribe extends StatefulWidget {
   final Widget child;
@@ -22,6 +23,7 @@ class _SubscribeState extends State<Subscribe> {
   late Firedata firedata;
   late Messaging messaging;
   late Cache cache;
+  late UserCache userCache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
@@ -36,6 +38,7 @@ class _SubscribeState extends State<Subscribe> {
     firedata = context.read<Firedata>();
     messaging = context.read<Messaging>();
     cache = context.read<Cache>();
+    userCache = context.read<UserCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -43,7 +46,7 @@ class _SubscribeState extends State<Subscribe> {
       cache.updateClockSkew(clockSkew);
     });
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
-      cache.updateUser(user);
+      userCache.updateUser(user);
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       cache.updateChats(chats);

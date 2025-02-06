@@ -7,7 +7,7 @@ import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
 import '../models/user.dart';
-import '../services/cache.dart';
+import '../services/server_clock.dart';
 import '../widgets/layout.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -28,7 +28,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
-  late Cache cache;
+  late ServerClock serverClock;
 
   late String _photoURL;
   late TextEditingController _displayNameController;
@@ -52,7 +52,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     avatar = context.read<Avatar>();
-    cache = context.read<Cache>();
+    serverClock = context.read<ServerClock>();
 
     final user = widget.user;
 

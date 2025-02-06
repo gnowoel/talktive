@@ -6,10 +6,10 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
-import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
+import '../services/server_clock.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
@@ -87,7 +87,7 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt =
         DateTime.fromMillisecondsSinceEpoch(widget.chat.updatedAt);
 

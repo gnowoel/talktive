@@ -3,7 +3,7 @@ import 'package:talktive/helpers/helpers.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
-import '../services/cache.dart';
+import '../services/server_clock.dart';
 import 'tag.dart';
 
 class UserInfoDialog extends StatelessWidget {
@@ -64,7 +64,7 @@ class UserInfoDialog extends StatelessWidget {
       );
     }
 
-    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(user!.updatedAt);
     final userStatus = getUserStatus(user!, now);
 

@@ -7,10 +7,10 @@ import '../helpers/exception.dart';
 import '../helpers/status.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
-import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
+import '../services/server_clock.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/layout.dart';
@@ -257,7 +257,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final userStatus =
         getUserStatus(User.fromStub(key: '', value: _chat.partner), now);
 

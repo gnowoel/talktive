@@ -1,5 +1,5 @@
 import '../helpers/time.dart';
-import '../services/cache.dart';
+import '../services/server_clock.dart';
 import 'user.dart';
 
 class Chat {
@@ -102,7 +102,7 @@ class Chat {
   bool get isNew => firstUserId == null;
   bool get isNotNew => !isNew;
 
-  bool get isClosed => updatedAt + delay <= Cache().now;
+  bool get isClosed => updatedAt + delay <= ServerClock().now;
   bool get isNotClosed => !isClosed;
 
   // Does not exist (not created or deleted)

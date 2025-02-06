@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/cache.dart';
+import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/messaging.dart';
@@ -24,6 +25,7 @@ class _SubscribeState extends State<Subscribe> {
   late Messaging messaging;
   late Cache cache;
   late UserCache userCache;
+  late ChatCache chatCache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
@@ -39,6 +41,7 @@ class _SubscribeState extends State<Subscribe> {
     messaging = context.read<Messaging>();
     cache = context.read<Cache>();
     userCache = context.read<UserCache>();
+    chatCache = context.read<ChatCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -49,7 +52,7 @@ class _SubscribeState extends State<Subscribe> {
       userCache.updateUser(user);
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
-      cache.updateChats(chats);
+      chatCache.updateChats(chats);
     });
     fcmTokenSubscription =
         messaging.subscribeToFcmToken().listen((token) async {

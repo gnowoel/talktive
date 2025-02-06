@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/cache.dart';
+import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../widgets/info.dart';
@@ -23,6 +24,7 @@ class _UsersPageState extends State<UsersPage> {
   late Fireauth fireauth;
   late Firestore firestore;
   late Cache cache;
+  late ChatCache chatCache;
 
   List<User> _seenUsers = [];
   List<User> _users = [];
@@ -37,8 +39,9 @@ class _UsersPageState extends State<UsersPage> {
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
     cache = context.read<Cache>();
+    chatCache = context.read<ChatCache>();
 
-    _fetchUsers(cache.chats);
+    _fetchUsers(chatCache.chats);
   }
 
   Future<void> _fetchUsers(List<Chat> chats) async {
@@ -67,7 +70,7 @@ class _UsersPageState extends State<UsersPage> {
     });
 
     cache = context.read<Cache>();
-    _fetchUsers(cache.chats);
+    _fetchUsers(chatCache.chats);
   }
 
   List<User> _filterUsers() {
@@ -105,7 +108,8 @@ class _UsersPageState extends State<UsersPage> {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try again later.', ''];
 
-    final chats = context.select((Cache cache) => cache.chats);
+    final chatCache = context.watch<ChatCache>();
+    final chats = chatCache.chats;
     final knownUserIds = _knownUserIds(chats);
     final seenUserIds = _seenUserIds();
     final users = _filterUsers();

@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../helpers/messages.dart';
 import '../helpers/time.dart';
 import '../models/chat.dart';
-import '../services/cache.dart';
+import '../services/chat_cache.dart';
 
 class Navigation extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -22,19 +22,19 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  late Cache cache;
+  late ChatCache chatCache;
   List<Chat> _chats = [];
   Timer? _timer;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    cache = Provider.of<Cache>(context);
+    chatCache = Provider.of<ChatCache>(context);
     _setChatsAgain();
   }
 
   void _setChatsAgain() {
-    _chats = cache.chats.where((chat) => chat.isActive).toList();
+    _chats = chatCache.chats.where((chat) => chat.isActive).toList();
 
     final nextTime = getNextTime(_chats);
 

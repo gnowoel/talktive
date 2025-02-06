@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/avatar.dart';
 import '../services/cache.dart';
+import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
@@ -30,6 +31,7 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => Cache()),
         ChangeNotifierProvider(create: (context) => UserCache()),
+        ChangeNotifierProvider(create: (context) => ChatCache()),
         ChangeNotifierProvider(create: (context) => MessageCache()),
       ],
       child: child,

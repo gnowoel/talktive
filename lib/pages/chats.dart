@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
-import '../services/cache.dart';
+import '../services/chat_cache.dart';
 import '../services/message_cache.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
@@ -20,7 +20,7 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  late Cache cache;
+  late ChatCache chatCache;
   late MessageCache messageCache;
   List<Chat> _chats = [];
   Timer? _timer;
@@ -34,8 +34,7 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // TODO: Cache chats in a separate class.
-    cache = Provider.of<Cache>(context);
+    chatCache = Provider.of<ChatCache>(context);
     _setChatsAgain();
   }
 
@@ -49,7 +48,7 @@ class _ChatsPageState extends State<ChatsPage> {
     final activeChats = <Chat>[];
     final inactiveChats = <Chat>[];
 
-    for (final chat in cache.chats) {
+    for (final chat in chatCache.chats) {
       if (chat.isActive) {
         activeChats.add(chat);
       } else {

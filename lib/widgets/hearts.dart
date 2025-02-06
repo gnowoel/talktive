@@ -6,8 +6,8 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
-import '../services/cache.dart';
 import '../services/firedata.dart';
+import '../services/server_clock.dart';
 import 'heart_list.dart';
 
 class Hearts extends StatefulWidget {
@@ -51,14 +51,14 @@ class _HeartsState extends State<Hearts> {
       return const Duration(hours: 72);
     }
 
-    final now = Cache().now;
+    final now = ServerClock().now;
     final then = widget.chat.updatedAt;
 
     return Duration(milliseconds: now - then);
   }
 
   String _getInfoText(Chat chat) {
-    final now = Cache().now;
+    final now = ServerClock().now;
     final diff = getTimeLeft(chat, now: now);
 
     if (chat.isNew) return 'New chat';

@@ -4,10 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../models/report.dart';
-import '../../services/cache.dart';
 import '../../services/firedata.dart';
 import '../../widgets/layout.dart';
 import '../services/messaging.dart';
+import '../services/server_clock.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -90,7 +90,7 @@ class ReportItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final createdAt = DateTime.fromMillisecondsSinceEpoch(report.createdAt);
 
     return Card(
@@ -155,12 +155,12 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
 
     try {
       final firedata = context.read<Firedata>();
-      final cache = context.read<Cache>();
+      final serverClock = context.read<ServerClock>();
 
       await firedata.resolveReport(
         report: widget.report,
         resolution: _resolution,
-        serverNow: cache.now,
+        serverNow: serverClock.now,
       );
 
       if (!mounted) return;
@@ -179,7 +179,7 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.fromMillisecondsSinceEpoch(Cache().now);
+    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final createdAt =
         DateTime.fromMillisecondsSinceEpoch(widget.report.createdAt);
 

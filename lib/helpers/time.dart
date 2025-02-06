@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/chat.dart';
-import '../services/cache.dart';
+import '../services/server_clock.dart';
 
 const delay = kDebugMode
     ? 1000 * 60 * 6 // 6 minutes
     : 1000 * 60 * 60 * 72; // 3 days
 
 int getTimeLeft(Chat chat, {int? now}) {
-  now = now ?? Cache().now;
+  now = now ?? ServerClock().now;
   final then = chat.updatedAt;
   final elapsed = now - then;
   final diff = delay - elapsed;

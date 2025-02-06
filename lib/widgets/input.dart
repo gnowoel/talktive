@@ -8,10 +8,10 @@ import 'package:provider/provider.dart';
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
-import '../services/cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/storage.dart';
+import '../services/user_cache.dart';
 
 class Input extends StatefulWidget {
   final FocusNode focusNode;
@@ -217,7 +217,8 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.select((Cache cache) => cache.user);
+    final userCache = context.watch<UserCache>();
+    final user = userCache.user!;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -233,7 +234,7 @@ class _InputState extends State<Input> {
         child: Row(
           children: [
             IconButton(
-              onPressed: _enabled ? () => _sendImageMessage(user!) : null,
+              onPressed: _enabled ? () => _sendImageMessage(user) : null,
               icon: _isUploading
                   ? SizedBox(
                       width: 20,
@@ -252,7 +253,7 @@ class _InputState extends State<Input> {
               child: KeyboardListener(
                 focusNode: FocusNode(),
                 onKeyEvent:
-                    _enabled ? (event) => _handleKeyEvent(event, user!) : null,
+                    _enabled ? (event) => _handleKeyEvent(event, user) : null,
                 child: TextField(
                   enabled: _enabled,
                   focusNode: widget.focusNode,
@@ -267,7 +268,7 @@ class _InputState extends State<Input> {
               ),
             ),
             IconButton(
-              onPressed: _enabled ? () => _sendTextMessage(user!) : null,
+              onPressed: _enabled ? () => _sendTextMessage(user) : null,
               icon: Icon(
                 Icons.send,
                 color: theme.colorScheme.primary,

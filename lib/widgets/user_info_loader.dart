@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
-import '../services/cache.dart';
 import '../services/firedata.dart';
+import '../services/user_cache.dart';
 import 'user_info_dialog.dart';
 
 class UserInfoLoader extends StatefulWidget {
@@ -25,6 +25,7 @@ class UserInfoLoader extends StatefulWidget {
 
 class _UserInfoLoaderState extends State<UserInfoLoader> {
   late Firedata firedata;
+  late UserCache userCache;
   User? _user;
   String? _error;
 
@@ -32,9 +33,10 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
   void initState() {
     super.initState();
     firedata = context.read<Firedata>();
+    userCache = context.read<UserCache>();
 
-    final user = Cache().user;
-    if (widget.userId == user!.id) {
+    final user = userCache.user!;
+    if (widget.userId == user.id) {
       _user = user;
     } else {
       _loadUser();

@@ -86,7 +86,7 @@ class _ReviewPageState extends State<ReviewPage> {
     final lastTimestamp = messageCache.getLastTimestamp(widget.chat.id);
 
     messagesSubscription = firedata
-        .subscribeToNewMessages(widget.chat.id, lastTimestamp)
+        .subscribeToMessages(widget.chat.id, lastTimestamp)
         .listen((messages) {
       messageCache.addMessages(widget.chat.id, messages);
     });

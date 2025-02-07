@@ -90,7 +90,7 @@ class _ChatPageState extends State<ChatPage> {
     final lastTimestamp = messageCache.getLastTimestamp(_chat.id);
 
     messagesSubscription = firedata
-        .subscribeToNewMessages(_chat.id, lastTimestamp)
+        .subscribeToMessages(_chat.id, lastTimestamp)
         .listen((messages) {
       messageCache.addMessages(_chat.id, messages);
     });

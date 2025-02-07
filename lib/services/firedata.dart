@@ -163,21 +163,12 @@ class Firedata {
     }
   }
 
-  Future<void> storeFcmToken(String userId) async {
+  Future<void> storeFcmToken(String userId, [String? fcmToken]) async {
     try {
       final messaging = Messaging();
-      final fcmToken = await messaging.instance.getToken();
-      await setUserFcmToken(userId, fcmToken);
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Future<void> setUserFcmToken(String? userId, String? fcmToken) async {
-    try {
-      if (userId == null || fcmToken == null) return;
+      final token = fcmToken ?? await messaging.instance.getToken();
       final ref = instance.ref('users/$userId/fcmToken');
-      await ref.set(fcmToken);
+      await ref.set(token);
     } catch (e) {
       throw AppException(e.toString());
     }
@@ -286,61 +277,17 @@ class Firedata {
     }
   }
 
-  Future<void> reportChat({
-    required String userId,
-    required String chatId,
-    required String? partnerDisplayName,
-  }) async {
-    try {
-      final ref = instance.ref('reports').push();
-
-      await ref.set({
-        'userId': userId,
-        'chatId': chatId,
-        'partnerDisplayName': partnerDisplayName,
-        'createdAt': ServerValue.timestamp,
-        'status': 'pending',
-      });
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Stream<List<Message>> subscribeToNewMessages(
+  Stream<List<Message>> subscribeToMessages(
     String chatId,
     int? lastTimestamp,
   ) {
     final messages = <Message>[];
     final ref = instance.ref('messages/$chatId');
-
-    Query query = ref.orderByChild('createdAt');
-    if (lastTimestamp != null) {
-      query = query.startAfter(lastTimestamp);
-    }
+    final query = ref.orderByChild('createdAt').startAfter(lastTimestamp ?? 0);
 
     final stream = query.onChildAdded.map<List<Message>>((event) {
       final json = Map<String, dynamic>.from(event.snapshot.value as Map);
       json['id'] = event.snapshot.key;
-      final message = Message.fromJson(json);
-
-      messages.add(message);
-
-      return List.from(messages);
-    });
-
-    return stream;
-  }
-
-  Stream<List<Message>> subscribeToMessages(String chatId) {
-    final messages = <Message>[];
-
-    final ref = instance.ref('messages/$chatId');
-    final query = ref.orderByKey();
-
-    final stream = query.onChildAdded.map<List<Message>>((event) {
-      final snapshot = event.snapshot;
-      final value = snapshot.value;
-      final json = Map<String, dynamic>.from(value as Map);
       final message = Message.fromJson(json);
 
       // Handle message concatenation logic
@@ -357,7 +304,9 @@ class Firedata {
         }
       }
 
-      return messages..add(message);
+      messages.add(message);
+
+      return List.from(messages);
     });
 
     return stream;
@@ -479,6 +428,26 @@ class Firedata {
     }
   }
 
+  Future<void> reportChat({
+    required String userId,
+    required String chatId,
+    required String? partnerDisplayName,
+  }) async {
+    try {
+      final ref = instance.ref('reports').push();
+
+      await ref.set({
+        'userId': userId,
+        'chatId': chatId,
+        'partnerDisplayName': partnerDisplayName,
+        'createdAt': ServerValue.timestamp,
+        'status': 'pending',
+      });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<void> resolveReport({
     required Report report,
     required String resolution,
@@ -517,9 +486,7 @@ class Firedata {
   Future<void> _updateReportStatus({required String reportId}) async {
     try {
       final reportRef = instance.ref('reports/$reportId');
-      await reportRef.update({
-        'status': 'resolved',
-      });
+      await reportRef.update({'status': 'resolved'});
     } catch (e) {
       throw AppException(e.toString());
     }

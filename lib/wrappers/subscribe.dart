@@ -56,7 +56,7 @@ class _SubscribeState extends State<Subscribe> {
     });
     fcmTokenSubscription =
         messaging.subscribeToFcmToken().listen((token) async {
-      await firedata.setUserFcmToken(userId, token);
+      await firedata.storeFcmToken(userId, token);
     });
   }
 

@@ -15,10 +15,10 @@ import 'messaging.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
-
   Firedata(this.instance);
-
   static final firebaseDatabase = FirebaseDatabase.instance;
+
+  final _userCache = <String, _CachedUser>{};
 
   Stream<int> subscribeToClockSkew() {
     final ref = instance.ref('.info/serverTimeOffset');
@@ -365,6 +365,13 @@ class Firedata {
 
   Future<User?> fetchUser(String userId) async {
     try {
+      _removeInvalidUsersFromCache();
+
+      final cached = _userCache[userId];
+      if (cached != null && cached.isValid) {
+        return cached.user;
+      }
+
       final ref = instance.ref('users/$userId');
       final snapshot = await ref.get();
 
@@ -375,7 +382,11 @@ class Firedata {
       final value = snapshot.value;
       final json = Map<String, dynamic>.from(value as Map);
       final stub = UserStub.fromJson(json);
-      return User.fromStub(key: userId, value: stub);
+      final user = User.fromStub(key: userId, value: stub);
+
+      _userCache[userId] = _CachedUser(user);
+
+      return user;
     } catch (e) {
       throw AppException(e.toString());
     }
@@ -513,4 +524,17 @@ class Firedata {
       throw AppException(e.toString());
     }
   }
+
+  void _removeInvalidUsersFromCache() {
+    _userCache.removeWhere((_, cached) => !cached.isValid);
+  }
+}
+
+class _CachedUser {
+  final User user;
+  final DateTime timestamp;
+
+  _CachedUser(this.user) : timestamp = DateTime.now();
+
+  bool get isValid => DateTime.now().difference(timestamp).inMinutes < 10;
 }

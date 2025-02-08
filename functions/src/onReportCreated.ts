@@ -38,8 +38,10 @@ const updatePartnerRevivedAt = async (report: Report) => {
   const now = new Date().getTime();
   const then = now - 7 * oneDay;
   const startAt = Math.max(partner.revivedAt ?? 0, then);
+  const remaining = startAt - then;
+  const days = remaining === 0 ? 1 : Math.ceil(remaining / oneDay);
 
-  params.revivedAt = startAt + oneDay;
+  params.revivedAt = startAt + days * oneDay;
 
   try {
     await partnerRef.update(params);

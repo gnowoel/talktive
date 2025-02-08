@@ -10,6 +10,7 @@ import '../services/chat_cache.dart';
 import '../services/message_cache.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
+import '../widgets/info_box.dart';
 import '../widgets/layout.dart';
 
 class ChatsPage extends StatefulWidget {
@@ -90,12 +91,12 @@ class _ChatsPageState extends State<ChatsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'If you receive inappropriate messages, please use the report feature to help keep our community safe.',
+              'If you receive inappropriate messages, please use the REPORT feature to help keep our community safe.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'You can swipe left or right on any chat to mute it if you no longer wish to participate.',
+              'You can SWIPE left or right on any chat to mute it if you no longer wish to participate.',
               style: TextStyle(height: 1.5),
             ),
           ],
@@ -114,6 +115,8 @@ class _ChatsPageState extends State<ChatsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['Please add some', 'more users first.', ''];
+    const info =
+        'Please report users who send inappropriate messages. You can select Report from the drop-down menu while chatting.';
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -131,7 +134,18 @@ class _ChatsPageState extends State<ChatsPage> {
       body: SafeArea(
         child: _chats.isEmpty
             ? Center(child: Info(lines: lines))
-            : Layout(child: ChatList(chats: _chats)),
+            : Layout(
+                child: Column(
+                  children: [
+                    InfoBox(
+                      content: info,
+                    ),
+                    Expanded(
+                      child: ChatList(chats: _chats),
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }

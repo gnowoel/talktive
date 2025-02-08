@@ -16,7 +16,7 @@ class _InfoBoxState extends State<InfoBox> {
 
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       color: theme.colorScheme.tertiaryContainer,
       child: Padding(
         padding: const EdgeInsets.symmetric(

@@ -10,7 +10,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/server_clock.dart';
 import '../widgets/info.dart';
-import '../widgets/info_box.dart';
+import '../widgets/notice.dart';
 import '../widgets/layout.dart';
 import '../widgets/user_list.dart';
 
@@ -108,8 +108,7 @@ class _UsersPageState extends State<UsersPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try again later.', ''];
-    const info =
-        'Please report users with inappropriate descriptions. Tap to start chatting, and then select Report from the drop-down menu.';
+    const info = 'Please report users with inappropriate descriptions.';
 
     final chatCache = context.watch<ChatCache>();
     final chats = chatCache.chats;
@@ -138,7 +137,7 @@ class _UsersPageState extends State<UsersPage> {
             : Layout(
                 child: Column(
                   children: [
-                    InfoBox(
+                    Notice(
                       content: info,
                     ),
                     Expanded(

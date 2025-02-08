@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class InfoBox extends StatefulWidget {
+class Notice extends StatefulWidget {
   final String content;
 
-  const InfoBox({super.key, required this.content});
+  const Notice({super.key, required this.content});
 
   @override
-  State<InfoBox> createState() => _InfoBoxState();
+  State<Notice> createState() => _NoticeState();
 }
 
-class _InfoBoxState extends State<InfoBox> {
+class _NoticeState extends State<Notice> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

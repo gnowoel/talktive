@@ -10,7 +10,7 @@ import '../services/chat_cache.dart';
 import '../services/message_cache.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
-import '../widgets/info_box.dart';
+import '../widgets/notice.dart';
 import '../widgets/layout.dart';
 
 class ChatsPage extends StatefulWidget {
@@ -115,8 +115,7 @@ class _ChatsPageState extends State<ChatsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['Please add some', 'more users first.', ''];
-    const info =
-        'Please report users who send inappropriate messages. You can select Report from the drop-down menu while chatting.';
+    const info = 'Please report users who send inappropriate messages.';
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -137,7 +136,7 @@ class _ChatsPageState extends State<ChatsPage> {
             : Layout(
                 child: Column(
                   children: [
-                    InfoBox(
+                    Notice(
                       content: info,
                     ),
                     Expanded(

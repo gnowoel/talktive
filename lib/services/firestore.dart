@@ -17,7 +17,7 @@ class Firestore {
       final snapshot = await instance
           .collection('users')
           .orderBy('updatedAt', descending: true)
-          .limit(32)
+          .limit(48)
           .get();
 
       for (final doc in snapshot.docs) {

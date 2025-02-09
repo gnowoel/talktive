@@ -25,7 +25,7 @@ class Firestore {
           .limit(64);
 
       if (_lastUpdatedAt != null) {
-        query = query.startAfter([_lastUpdatedAt]);
+        query = query.endBefore([_lastUpdatedAt]);
       }
 
       final snapshot = await query.get();

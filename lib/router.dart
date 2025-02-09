@@ -73,8 +73,9 @@ Future<GoRouter> initRouter() async {
         path: '/launch/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
-          final encodedName =
-              state.uri.queryParameters['partnerDisplayName'] ?? '';
+          // final encodedName =
+          //     state.uri.queryParameters['partnerDisplayName'] ?? '';
+          final encodedName = ''; // TODO: This is just a workaround.
           final partnerDisplayName = Uri.decodeComponent(encodedName);
 
           return LaunchPage(
@@ -87,8 +88,9 @@ Future<GoRouter> initRouter() async {
         path: '/chats/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
-          final encodedName =
-              state.uri.queryParameters['partnerDisplayName'] ?? '';
+          // final encodedName =
+          //     state.uri.queryParameters['partnerDisplayName'] ?? '';
+          final encodedName = ''; // TODO: This is just a workaround.
           final partnerDisplayName = Uri.decodeComponent(encodedName);
 
           final userStub = UserStub(
@@ -141,8 +143,9 @@ Future<GoRouter> initRouter() async {
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
           final encodedUserId = state.uri.queryParameters['userId'] ?? '';
-          final encodedName =
-              state.uri.queryParameters['partnerDisplayName'] ?? '';
+          // final encodedName =
+          //     state.uri.queryParameters['partnerDisplayName'] ?? '';
+          final encodedName = ''; // TODO: This is just a workaround.
           final userId = Uri.decodeComponent(encodedUserId);
           final partnerDisplayName = Uri.decodeComponent(encodedName);
 

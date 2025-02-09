@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.0.6+30
+
+- Add info banners to remind people to report inappropriate content
+- Add an automatic report resolution mechanism in addition to manual resolution
+- Improve performance by adding some caching
+- Work around the non-ASCII encoding problem
+
 ## 3.0.5+29
 
 - Display alerts for users reported for offensive messages

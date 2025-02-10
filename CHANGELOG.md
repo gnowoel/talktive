@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.0.7+31
+
+- Improve the manual report resolution mechanism
+- Reduce the number of users in the top users list
+
 ## 3.0.6+30
 
 - Add info banners to remind people to report inappropriate content

@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions'
 import { onValueCreated } from 'firebase-functions/database';
-import { Report, User, PartnerParams, ReportParams }  from './types';
+import { Report, User, PartnerParams, ReportParams } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -13,19 +13,17 @@ const onReportCreated = onValueCreated('/reports/{reportId}', async (event) => {
   const reportId = event.params.reportId;
   const report: Report = event.data.val();
 
-  report.id = reportId;
-
   try {
-    resolveReport(report);
+    resolveReport(reportId, report);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const resolveReport = async (report: Report) => {
+const resolveReport = async (reportId: string, report: Report) => {
   const revivedAt = await getRevivedAt(report);
   await updatePartnerRevivedAt(report, revivedAt);
-  await updateReportStatusAndRevivedAt(report.id!, revivedAt);
+  await updateReportStatusAndRevivedAt(reportId, revivedAt);
 }
 
 const getRevivedAt = async (report: Report) => {
@@ -45,7 +43,8 @@ const getRevivedAt = async (report: Report) => {
   const then = now - 7 * oneDay;
   const startAt = Math.max(partner.revivedAt ?? 0, then);
   const remaining = startAt - then;
-  const days = Math.floor(remaining / (2 * oneDay));
+  let days = Math.floor(remaining / (2 * oneDay));
+  if (days > 180) days = 1;
   const revivedAt = startAt + Math.max(days, 1) * oneDay;
 
   return revivedAt;

@@ -111,7 +111,7 @@ class ReportItem extends StatelessWidget {
         ),
         trailing: TextButton(
           onPressed: onTap,
-          child: report.status == 'pending'
+          child: report.revivedAt == null
               ? const Text('Review')
               : Text(
                   '${DateTime.fromMillisecondsSinceEpoch(

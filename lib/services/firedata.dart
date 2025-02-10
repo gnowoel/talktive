@@ -458,6 +458,7 @@ class Firedata {
       final userId = report.userId;
       final partnerId = chatId.replaceFirst(userId, '');
       final days = int.tryParse(resolution) ?? 0;
+      int? revivedAt;
 
       if (days != 0) {
         final milliseconds = days * 24 * 60 * 60 * 1000;
@@ -467,26 +468,35 @@ class Firedata {
           if (partner == null) return Transaction.abort();
 
           final json = Map<String, dynamic>.from(partner as Map);
-          final revivedAt = json['revivedAt'] as int?;
-          final startAt = max(revivedAt ?? 0, serverNow);
-          final endAt = startAt + milliseconds;
+          final oldRevivedAt = json['revivedAt'] as int?;
+          final startAt = max(oldRevivedAt ?? 0, serverNow);
+          revivedAt = startAt + milliseconds;
 
-          json['revivedAt'] = endAt;
+          json['revivedAt'] = revivedAt;
 
           return Transaction.success(json);
         });
       }
 
-      await _updateReportStatus(reportId: report.id);
+      await _updateReportStatusAndRevivedAt(
+        reportId: report.id,
+        revivedAt: revivedAt,
+      );
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  Future<void> _updateReportStatus({required String reportId}) async {
+  Future<void> _updateReportStatusAndRevivedAt(
+      {required String reportId, required int? revivedAt}) async {
     try {
       final reportRef = instance.ref('reports/$reportId');
-      await reportRef.update({'status': 'resolved'});
+      await reportRef.update({
+        'status': 'resolved',
+        if (revivedAt != null) ...{
+          'revivedAt': revivedAt,
+        },
+      });
     } catch (e) {
       throw AppException(e.toString());
     }

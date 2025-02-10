@@ -1,9 +1,11 @@
 export interface Report {
+  id?: string;
   chatId: string;
   createdAt: number;
   partnerDisplayName: string;
   status: string;
   userId: string;
+  revivedAt?: number;
 }
 
 export interface User {
@@ -80,4 +82,5 @@ export interface PartnerParams {
 
 export interface ReportParams {
   status?: string;
+  revivedAt?: number;
 }

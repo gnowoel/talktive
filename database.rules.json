@@ -98,7 +98,7 @@
         "adminId": {
           ".validate": "!newData.exists() || (newData.isString() && root.child('admins').child(newData.val()).exists())"
         },
-        "resolvedAt": {
+        "revivedAt": {
           ".validate": "!newData.exists() || newData.isNumber()"
         }
       }

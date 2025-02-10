@@ -7,7 +7,7 @@ class Report {
   final String? resolution;
   final String? adminId;
   final int createdAt;
-  final int? resolvedAt;
+  final int? revivedAt;
 
   const Report({
     required this.id,
@@ -18,7 +18,7 @@ class Report {
     this.resolution,
     this.adminId,
     required this.createdAt,
-    this.resolvedAt,
+    this.revivedAt,
   });
 
   factory Report.fromJson(String id, Map<String, dynamic> json) {
@@ -31,7 +31,7 @@ class Report {
       resolution: json['resolution'] as String?,
       adminId: json['adminId'] as String?,
       createdAt: json['createdAt'] as int,
-      resolvedAt: json['resolvedAt'] as int?,
+      revivedAt: json['revivedAt'] as int?,
     );
   }
 }

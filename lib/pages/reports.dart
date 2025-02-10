@@ -109,17 +109,27 @@ class ReportItem extends StatelessWidget {
         subtitle: Text(
           'Created ${timeago.format(createdAt, clock: now)}',
         ),
-        trailing: report.status == 'pending'
-            ? TextButton(
-                onPressed: onTap,
-                child: const Text('Review'),
-              )
-            : Text(
-                'Resolved',
-                style: TextStyle(
-                  color: theme.colorScheme.outline,
+        trailing: TextButton(
+          onPressed: onTap,
+          child: report.status == 'pending'
+              ? const Text('Review')
+              : Text(
+                  '${DateTime.fromMillisecondsSinceEpoch(
+                    report.revivedAt!,
+                  ).difference(now).inDays}d',
                 ),
-              ),
+        ),
+        // trailing: report.status == 'pending'
+        //     ? TextButton(
+        //         onPressed: onTap,
+        //         child: const Text('Review'),
+        //       )
+        //     : Text(
+        //         'Resolved',
+        //         style: TextStyle(
+        //           color: theme.colorScheme.outline,
+        //         ),
+        //       ),
         onTap: () {
           final userId = report.userId;
           final chatId = report.chatId;
@@ -192,71 +202,67 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
           Text('Status: ${widget.report.status}'),
           const SizedBox(height: 16),
           Text('Created: ${timeago.format(createdAt, clock: now)}'),
-          const SizedBox(height: 16),
-          if (widget.report.status == 'pending') ...[
-            const Text('Suspension duration:'),
+          if (widget.report.revivedAt != null) ...[
             const SizedBox(height: 16),
-            RadioListTile<String>(
-              title: const Text('No suspension'),
-              value: '0',
-              groupValue: _resolution,
-              onChanged: (value) {
-                setState(() {
-                  _resolution = value!;
-                });
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('1 day'),
-              value: '1',
-              groupValue: _resolution,
-              onChanged: (value) {
-                setState(() {
-                  _resolution = value!;
-                });
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('3 days'),
-              value: '3',
-              groupValue: _resolution,
-              onChanged: (value) {
-                setState(() {
-                  _resolution = value!;
-                });
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('7 days'),
-              value: '7',
-              groupValue: _resolution,
-              onChanged: (value) {
-                setState(() {
-                  _resolution = value!;
-                });
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('14 days'),
-              value: '14',
-              groupValue: _resolution,
-              onChanged: (value) {
-                setState(() {
-                  _resolution = value!;
-                });
-              },
-            ),
-          ] else ...[
-            Text('Resolution: ${widget.report.resolution}'),
-            const SizedBox(height: 8),
-            Text('Resolved by: ${widget.report.adminId}'),
             Text(
-              'Resolved: ${timeago.format(
-                DateTime.fromMillisecondsSinceEpoch(widget.report.resolvedAt!),
-                clock: now,
-              )}',
+              'Revived: ${DateTime.fromMillisecondsSinceEpoch(
+                widget.report.revivedAt!,
+              ).difference(now).inDays}d',
             ),
           ],
+          const SizedBox(height: 16),
+          const Text('Suspension duration:'),
+          const SizedBox(height: 16),
+          RadioListTile<String>(
+            title: const Text('No suspension'),
+            value: '0',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('1 day'),
+            value: '1',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('3 days'),
+            value: '3',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('7 days'),
+            value: '7',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('14 days'),
+            value: '14',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
         ],
       ),
       actions: [
@@ -264,19 +270,18 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Close'),
         ),
-        if (widget.report.status == 'pending')
-          FilledButton(
-            onPressed: _isProcessing ? null : () => _resolve(),
-            child: _isProcessing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                    ),
-                  )
-                : const Text('Resolve'),
-          ),
+        FilledButton(
+          onPressed: _isProcessing ? null : () => _resolve(),
+          child: _isProcessing
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                  ),
+                )
+              : const Text('Resolve'),
+        ),
       ],
     );
   }

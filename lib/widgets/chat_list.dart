@@ -19,7 +19,7 @@ class ChatList extends StatelessWidget {
       itemBuilder: (context, index) {
         final chat = chats[index];
         return ChatItem(
-          key: ValueKey(chat.id),
+          // key: ValueKey(chat.id),
           chat: chat,
         );
       },

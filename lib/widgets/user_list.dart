@@ -31,7 +31,7 @@ class UserList extends StatelessWidget {
       itemBuilder: (context, index) {
         final user = users[index];
         return UserItem(
-          key: ValueKey(user.id),
+          // key: ValueKey(user.id),
           user: users[index],
           hasKnown: _hasKnown(user),
           hasSeen: _hasSeen(user),

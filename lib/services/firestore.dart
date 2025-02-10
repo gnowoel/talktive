@@ -22,7 +22,7 @@ class Firestore {
       var query = instance
           .collection('users')
           .orderBy('updatedAt', descending: true)
-          .limit(64);
+          .limit(32);
 
       if (_lastUpdatedAt != null) {
         query = query.endBefore([_lastUpdatedAt]);
@@ -49,8 +49,8 @@ class Firestore {
         _cachedUsers.addAll(fetchedUsers);
         _cachedUsers.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-        if (_cachedUsers.length > 64) {
-          _cachedUsers.removeRange(64, _cachedUsers.length);
+        if (_cachedUsers.length > 32) {
+          _cachedUsers.removeRange(32, _cachedUsers.length);
         }
 
         _lastUpdatedAt = _cachedUsers.first.updatedAt;

@@ -84,8 +84,8 @@ class Firestore {
 
   Future<void> _tryTouchUser(String userId, int serverNow) async {
     try {
-      final threeMinutes = 3 * 60 * 1000;
-      final shouldTouch = serverNow >= _lastTouchedUser + threeMinutes;
+      final oneMinute = 1 * 60 * 1000;
+      final shouldTouch = serverNow >= _lastTouchedUser + oneMinute;
 
       if (!shouldTouch) return;
 

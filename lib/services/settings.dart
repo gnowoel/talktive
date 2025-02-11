@@ -8,10 +8,17 @@ class Settings {
   factory Settings() => _instance;
 
   String? _completedSetupVersion;
+  bool _hasHiddenUsersNotice = false;
+  bool _hasHiddenChatsNotice = false;
 
   Future<void> load() async {
-    final value = await Prefs.getString('completedSetupVersion');
-    _completedSetupVersion = value;
+    final setupVersion = await Prefs.getString('completedSetupVersion');
+    final usersNotice = await Prefs.getBool('hasHiddenUsersNotice');
+    final chatsNotice = await Prefs.getBool('hasHiddenChatsNotice');
+
+    _completedSetupVersion = setupVersion;
+    _hasHiddenUsersNotice = usersNotice;
+    _hasHiddenChatsNotice = chatsNotice;
   }
 
   Future<void> markSetupComplete() async {
@@ -19,7 +26,19 @@ class Settings {
     _completedSetupVersion = wizardVersion;
   }
 
+  Future<void> hideUsersNotice() async {
+    await Prefs.setBool('hasHiddenUsersNotice', true);
+    _hasHiddenUsersNotice = true;
+  }
+
+  Future<void> hideChatsNotice() async {
+    await Prefs.setBool('hasHiddenChatsNotice', true);
+    _hasHiddenChatsNotice = true;
+  }
+
   bool get hasCompletedSetup => _completedSetupVersion == wizardVersion;
+  bool get hasHiddenUsersNotice => _hasHiddenUsersNotice;
+  bool get hasHiddenChatsNotice => _hasHiddenChatsNotice;
 }
 
 class Prefs {

@@ -119,6 +119,10 @@ class _UserItemState extends State<UserItem> {
       child: GestureDetector(
         onTap: _handleTap,
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8, // Add some vertical padding
+          ),
           leading: GestureDetector(
             onTap: () => _showUserInfo(context),
             child: Text(
@@ -136,7 +140,12 @@ class _UserItemState extends State<UserItem> {
               Text(
                 widget.user.description!,
                 overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  height: 1.2,
+                ),
+                maxLines: 3,
               ),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Tag(

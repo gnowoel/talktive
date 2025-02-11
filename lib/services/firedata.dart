@@ -345,6 +345,8 @@ class Firedata {
     try {
       final chat = await createPair(self.id, other);
 
+      await Future.delayed(const Duration(seconds: 1));
+
       await sendTextMessage(
         chat,
         self.id,

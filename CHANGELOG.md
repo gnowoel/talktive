@@ -2,6 +2,7 @@
 
 ## 3.0.8+32
 
+- Fix a bug that causes mismatched list items after reordering
 - Display the content of a user or chat item in multiple lines
 - Hide info banners in user and chat lists after closing
 - Upgrade dependencies

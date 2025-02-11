@@ -9,6 +9,7 @@ import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/server_clock.dart';
+import '../services/settings.dart';
 import '../widgets/info.dart';
 import '../widgets/notice.dart';
 import '../widgets/layout.dart';
@@ -22,6 +23,7 @@ class UsersPage extends StatefulWidget {
 }
 
 class _UsersPageState extends State<UsersPage> {
+  late Settings settings;
   late Fireauth fireauth;
   late Firestore firestore;
   late ServerClock serverClock;
@@ -37,6 +39,7 @@ class _UsersPageState extends State<UsersPage> {
   void initState() {
     super.initState();
 
+    settings = context.read<Settings>();
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
     serverClock = context.read<ServerClock>();
@@ -137,9 +140,11 @@ class _UsersPageState extends State<UsersPage> {
             : Layout(
                 child: Column(
                   children: [
-                    Notice(
-                      content: info,
-                    ),
+                    if (!settings.hasHiddenUsersNotice)
+                      Notice(
+                        content: info,
+                        onDismiss: () => settings.hideUsersNotice(),
+                      ),
                     Expanded(
                       child: UserList(
                         users: users,

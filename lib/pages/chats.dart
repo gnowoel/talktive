@@ -8,6 +8,7 @@ import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../services/chat_cache.dart';
 import '../services/message_cache.dart';
+import '../services/settings.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 import '../widgets/notice.dart';
@@ -21,6 +22,7 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
+  late Settings settings;
   late ChatCache chatCache;
   late MessageCache messageCache;
   List<Chat> _chats = [];
@@ -29,6 +31,7 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   initState() {
     super.initState();
+    settings = context.read<Settings>();
     messageCache = context.read<MessageCache>();
   }
 
@@ -136,9 +139,11 @@ class _ChatsPageState extends State<ChatsPage> {
             : Layout(
                 child: Column(
                   children: [
-                    Notice(
-                      content: info,
-                    ),
+                    if (!settings.hasHiddenChatsNotice)
+                      Notice(
+                        content: info,
+                        onDismiss: () => settings.hideChatsNotice(),
+                      ),
                     Expanded(
                       child: ChatList(chats: _chats),
                     ),

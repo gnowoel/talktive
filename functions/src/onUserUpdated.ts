@@ -53,7 +53,7 @@ const updateUserCache = async (userId: string, user: User) => {
       displayName: user.displayName ?? null,
       description: user.description ?? null,
       gender: user.gender ?? null,
-      revivedAt: user.revivedAt ?? null,
+      revivedAt: user.revivedAt ?? 0, // For easy querying with Cloud Firestore
     };
 
     const userRef = firestore.collection(USERS_COLLECTION).doc(userId);

@@ -36,6 +36,7 @@ const copyUser = async (user: User, now: Date) => {
       filter,
       createdAt: now.valueOf(),
       updatedAt: now.valueOf(),
+      revivedAt: 0, // For easy querying with Cloud Firestore
     });
   } catch (error) {
     logger.error(error);

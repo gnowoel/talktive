@@ -11,6 +11,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
 import '../services/server_clock.dart';
+import '../services/user_cache.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/layout.dart';
@@ -35,6 +36,7 @@ class _ChatPageState extends State<ChatPage> {
   late ScrollController scrollController;
   late Fireauth fireauth;
   late Firedata firedata;
+  late UserCache userCache;
   late MessageCache messageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
@@ -52,11 +54,12 @@ class _ChatPageState extends State<ChatPage> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    userCache = context.read<UserCache>();
     messageCache = context.read<MessageCache>();
 
     _chat = widget.chat;
 
-    final userId = fireauth.instance.currentUser!.uid;
+    final userId = userCache.user!.id;
 
     chatSubscription =
         firedata.subscribeToChat(userId, _chat.id).listen((chat) {
@@ -112,7 +115,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _showUserInfo(BuildContext context) {
-    final userId = fireauth.instance.currentUser!.uid;
+    final userId = userCache.user!.id;
     final otherId = _chat.id.replaceFirst(userId, '');
 
     showDialog(
@@ -131,13 +134,14 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _updateReadMessageCount(Chat chat) async {
     final count = _messageCount;
+    final userId = userCache.user!.id;
 
     if (count == 0 || count == _chat.readMessageCount) {
       return;
     }
 
     await firedata.updateChat(
-      fireauth.instance.currentUser!.uid,
+      userId,
       chat.id,
       readMessageCount: count,
     );
@@ -213,7 +217,7 @@ class _ChatPageState extends State<ChatPage> {
     final theme = Theme.of(context);
 
     try {
-      final userId = fireauth.instance.currentUser!.uid;
+      final userId = userCache.user!.id;
       final partnerDisplayName = _chat.partner.displayName;
 
       // Add report to database
@@ -281,7 +285,7 @@ class _ChatPageState extends State<ChatPage> {
             RepaintBoundary(
               child: Hearts(chat: _chat),
             ),
-            if (_chat.reported == true) ...[
+            if (_chat.reported == true || userCache.user!.withAlert) ...[
               const SizedBox(width: 16),
             ] else ...[
               IconButton(

@@ -1,3 +1,5 @@
+import '../services/server_clock.dart';
+
 class User {
   final String id;
   final int createdAt;
@@ -62,6 +64,19 @@ class User {
         displayName == null ||
         description == null ||
         gender == null;
+  }
+
+  bool get withAlert {
+    if (revivedAt == null) return false;
+    final serverNow = ServerClock().now;
+    return revivedAt! >= serverNow;
+  }
+
+  bool get withWarning {
+    if (revivedAt == null) return false;
+    final serverNow = ServerClock().now;
+    final twoWeeks = 14 * 24 * 60 * 60 * 1000;
+    return revivedAt! >= serverNow + twoWeeks;
   }
 }
 

@@ -10,6 +10,10 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
+interface Mapper {
+  [id:string]: User;
+}
+
 const onPairCreated = onValueCreated('/pairs/{pairId}', async (event) => {
   const pairId = event.params.pairId;
   const pair = event.data.val();
@@ -17,51 +21,60 @@ const onPairCreated = onValueCreated('/pairs/{pairId}', async (event) => {
   const now = new Date();
 
   try {
-    for (const follower of followers) {
-      await copyToFollower(follower, pairId, pair);
-    }
+    await copyToFollowers(followers, pairId, pair);
     updateChatStats(now);
   } catch (error) {
     logger.error(error);
   }
 });
 
-const copyToFollower = async (userId: string, pairId: string, pair: Pair) => {
+const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) => {
   try {
-    const otherId = pairId.replace(userId, '');
+    const mapper: Mapper = {};
 
-    const userRef = db.ref(`users/${otherId}`);
-    const snapshot = await userRef.get();
-    const other: User = snapshot.val();
+    for (const follower of followers) {
+      const userRef = db.ref(`users/${follower}`);
+      const snapshot = await userRef.get();
+      mapper[follower] = snapshot.val();
+    }
 
-    // Reset unused fields to save some space
-    const partner = {
-      createdAt: 0,
-      updatedAt: 0,
-      languageCode: other.languageCode ?? null,
-      photoURL: other.photoURL ?? null,
-      displayName: other.displayName ?? null,
-      description: other.description ?? null,
-      gender: other.gender ?? null,
-      revivedAt: other.revivedAt ?? null,
-      // fcmToken: ''
-    };
+    for (const follower of followers) {
+      // copyToFollower(follower, user, pairId, pair);
+      const otherId = pairId.replace(follower, '');
+      const other: User = mapper[otherId];
+      const partner = {
+        createdAt: 0,
+        updatedAt: 0,
+        languageCode: other.languageCode ?? null,
+        photoURL: other.photoURL ?? null,
+        displayName: other.displayName ?? null,
+        description: other.description ?? null,
+        gender: other.gender ?? null,
+        revivedAt: other.revivedAt ?? null,
+        // fcmToken: ''
+      };
 
-    const ref = db.ref(`chats/${userId}/${pairId}`);
-    await ref.set({
-      partner: partner,
-      firstUserId: null,
-      lastMessageContent: null,
-      messageCount: pair.messageCount, // 0
-      readMessageCount: pair.messageCount, // 0
-      mute: false,
-      createdAt: pair.createdAt,
-      updatedAt: pair.updatedAt,
-    });
+      const userRef = db.ref(`chats/${follower}/${pairId}`);
+      const now = new Date().getTime();
+      const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+      const mute = (other.revivedAt ?? 0) >= now + twoWeeks;
+
+      await userRef.set({
+        partner: partner,
+        firstUserId: null,
+        lastMessageContent: null,
+        messageCount: pair.messageCount, // 0
+        readMessageCount: pair.messageCount, // 0
+        mute,
+        createdAt: pair.createdAt,
+        updatedAt: pair.updatedAt,
+      });
+    }
+
   } catch (error) {
     logger.error(error);
   }
-};
+}
 
 const updateChatStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);

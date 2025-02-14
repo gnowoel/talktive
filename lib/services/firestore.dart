@@ -21,6 +21,8 @@ class Firestore {
 
       var query = instance
           .collection('users')
+          .where('revivedAt', isLessThan: serverNow) // Filter out banned users
+          .orderBy('revivedAt') // Required when using where() with revivedAt
           .orderBy('updatedAt', descending: true)
           .limit(32);
 

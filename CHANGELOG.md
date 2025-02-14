@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.0.9+33
+
+- Fix a bug that allows multiple taps on the Say Hi button
+- Exclude abusive users from the Active Users page
+- Prevent abusive users from reporting others
+- Prevent misbehaving users from chatting with others
+
 ## 3.0.8+32
 
 - Fix a bug that causes mismatched list items after reordering

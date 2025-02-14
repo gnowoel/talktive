@@ -34,6 +34,8 @@ class _UserItemState extends State<UserItem> {
   late Firedata firedata;
   late UserCache userCache;
 
+  bool _isProcessing = false;
+
   @override
   void initState() {
     super.initState();
@@ -69,11 +71,19 @@ class _UserItemState extends State<UserItem> {
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
     try {
       await action();
     } on AppException catch (e) {
       if (mounted) {
         ErrorHandler.showSnackBarMessage(context, e);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
       }
     }
   }

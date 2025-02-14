@@ -91,6 +91,9 @@ class Firestore {
 
       await instance.collection('users').doc(userId).set({
         'updatedAt': serverNow,
+        // Workaround to make sure `revivedAt` is not `null`.
+        // A better way would be update Realtime Database instead.
+        'revivedAt': FieldValue.increment(1),
       }, SetOptions(merge: true));
 
       _lastTouchedUser = serverNow;

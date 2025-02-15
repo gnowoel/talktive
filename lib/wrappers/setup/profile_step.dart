@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,68 @@ class _ProfileStepState extends State<ProfileStep> {
     {'label': 'Prefer not to say', 'value': 'X'},
   ];
 
+  final _adjectives = [
+    'Happy',
+    'Creative',
+    'Friendly',
+    'Curious',
+    'Gentle',
+    'Peaceful',
+    'Cheerful',
+    'Kind',
+    'Bright',
+    'Calm',
+    'Witty',
+    'Jolly',
+    'Clever',
+    'Warm',
+    'Sweet',
+  ];
+
+  final _nouns = [
+    'Penguin',
+    'Panda',
+    'Koala',
+    'Fox',
+    'Dolphin',
+    'Rabbit',
+    'Otter',
+    'Owl',
+    'Cat',
+    'Dog',
+    'Bear',
+    'Lion',
+    'Tiger',
+    'Wolf',
+    'Deer',
+  ];
+
+  final _interests = [
+    'loves exploring new ideas',
+    'enjoys meaningful conversations',
+    'interested in learning about different cultures',
+    'passionate about making new friends',
+    'likes sharing positive vibes',
+    'enjoys discovering new perspectives',
+    'interested in exchanging stories',
+    'loves meeting people from around the world',
+    'enjoys thoughtful discussions',
+    'appreciates genuine connections',
+  ];
+
+  String _getRandomDisplayName() {
+    final random = Random();
+    final adjective = _adjectives[random.nextInt(_adjectives.length)];
+    final noun = _nouns[random.nextInt(_nouns.length)];
+    return '$adjective $noun';
+  }
+
+  String _getRandomDescription() {
+    final random = Random();
+    final interest = _interests[random.nextInt(_interests.length)];
+    return 'A friendly soul who $interest. Let\'s chat and share experiences!';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -60,11 +123,13 @@ class _ProfileStepState extends State<ProfileStep> {
         setState(() {
           _user = user;
           _photoURL = _user?.photoURL ?? avatar.code;
-          _displayNameController =
-              TextEditingController(text: _user?.displayName);
-          _descriptionController =
-              TextEditingController(text: _user?.description);
-          _selectedGender = _user?.gender;
+          _displayNameController = TextEditingController(
+            text: _user?.displayName ?? _getRandomDisplayName(),
+          );
+          _descriptionController = TextEditingController(
+            text: _user?.description ?? _getRandomDescription(),
+          );
+          _selectedGender = _user?.gender ?? 'X';
         });
         _userSubscription.cancel();
       }

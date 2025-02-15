@@ -60,13 +60,13 @@ class _WelcomeStepState extends State<WelcomeStep> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Connect with people around the world and start meaningful conversations.',
+            'Chat privately, connect freely, and your messages disappear after expiration.',
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
-            '~ We deserve more ❤️ ~',
+            'Spread ❤️ and respect!',
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

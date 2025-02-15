@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.0.10+34
+
+- Combine steps in the setup wizard
+- Provide a default profile for new users
+
 ## 3.0.9+33
 
 - Fix a bug that allows multiple taps on the Say Hi button

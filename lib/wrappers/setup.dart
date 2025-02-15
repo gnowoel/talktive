@@ -7,7 +7,6 @@ import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 // import 'setup/signin_step.dart';
-import 'setup/safety_step.dart';
 import 'setup/welcome_step.dart';
 
 class Setup extends StatefulWidget {
@@ -24,7 +23,7 @@ class _SetupPageState extends State<Setup> {
   late Settings settings;
 
   int _currentStep = 0;
-  final int _totalSteps = 4; // 5
+  final int _totalSteps = 3; // 4
 
   @override
   void initState() {
@@ -81,8 +80,6 @@ class _SetupPageState extends State<Setup> {
         return ProfileStep(onNext: _nextStep);
       case 2:
         return NotificationStep(onNext: _nextStep);
-      case 3:
-        return SafetyStep(onNext: _nextStep);
       default:
         return widget.child;
     }

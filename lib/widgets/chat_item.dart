@@ -15,10 +15,14 @@ import 'user_info_loader.dart';
 
 class ChatItem extends StatefulWidget {
   final Chat chat;
+  final Function(Chat) onRemove;
+  final Function(Chat) onRestore;
 
   const ChatItem({
     super.key,
     required this.chat,
+    required this.onRemove,
+    required this.onRestore,
   });
 
   @override
@@ -47,6 +51,37 @@ class _ChatItemState extends State<ChatItem> {
         widget.chat.id,
         mute: true,
       );
+    });
+  }
+
+  void _handleDismiss(DismissDirection direction) {
+    bool undoPressed = false;
+
+    // Remove the chat from the list
+    widget.onRemove(widget.chat);
+
+    // Show snackbar with undo option
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Chat deleted'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            undoPressed = true;
+            // Restore the chat
+            widget.onRestore(widget.chat);
+          },
+        ),
+        duration: const Duration(seconds: 5),
+      ),
+    );
+
+    // Only mute the chat if undo wasn't pressed
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!undoPressed) {
+        _muteChat();
+      }
     });
   }
 
@@ -106,13 +141,17 @@ class _ChatItemState extends State<ChatItem> {
 
     return Dismissible(
       key: Key(widget.chat.id),
-      background: Icon(
-        Icons.delete,
+      background: Container(
         color: colorScheme.error,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16.0),
+        child: Icon(
+          Icons.delete,
+          color: colorScheme.onError,
+        ),
       ),
-      onDismissed: (direction) async {
-        await _muteChat();
-      },
+      direction: DismissDirection.endToStart, // Only allow right to left swipe
+      onDismissed: _handleDismiss,
       child: Card(
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 6),

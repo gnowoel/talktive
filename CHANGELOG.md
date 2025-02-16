@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.2.0+36
+
+- Add drop-down menus to select user gender and language
+
 ## 3.1.0+35
 
 - Restore a dismissed chat using the undo button

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.1.0+35
+
+- Restore a dismissed chat using the undo button
+- No longer provide defaults for the profile form
+
 ## 3.0.10+34
 
 - Combine steps in the setup wizard

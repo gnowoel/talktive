@@ -10,6 +10,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/server_clock.dart';
 import '../services/settings.dart';
+import '../widgets/filter_bar.dart';
 import '../widgets/info.dart';
 import '../widgets/notice.dart';
 import '../widgets/layout.dart';
@@ -35,6 +36,27 @@ class _UsersPageState extends State<UsersPage> {
   bool _canRefresh = true;
   Timer? _refreshTimer;
 
+  String? _selectedGender;
+  String? _selectedLanguage;
+
+  void _handleGenderChanged(String? value) {
+    if (_selectedGender == value) return;
+
+    setState(() {
+      _selectedGender = value;
+      _refreshUsers(noCache: true);
+    });
+  }
+
+  void _handleLanguageChanged(String? value) {
+    if (_selectedLanguage == value) return;
+
+    setState(() {
+      _selectedLanguage = value;
+      _refreshUsers(noCache: true);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,11 +70,20 @@ class _UsersPageState extends State<UsersPage> {
     _fetchUsers(chatCache.chats);
   }
 
-  Future<void> _fetchUsers(List<Chat> chats) async {
+  Future<void> _fetchUsers(
+    List<Chat> chats, {
+    bool noCache = false,
+  }) async {
     final userId = fireauth.instance.currentUser!.uid;
     final serverNow = serverClock.now;
 
-    final users = await firestore.fetchUsers(userId, serverNow);
+    final users = await firestore.fetchUsers(
+      userId,
+      serverNow,
+      genderFilter: _selectedGender,
+      languageFilter: _selectedLanguage,
+      noCache: noCache,
+    );
 
     setState(() {
       _seenUsers = _users;
@@ -61,7 +92,7 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
-  Future<void> _refreshUsers() async {
+  Future<void> _refreshUsers({bool noCache = false}) async {
     if (!_canRefresh) return;
 
     setState(() => _canRefresh = false);
@@ -74,7 +105,7 @@ class _UsersPageState extends State<UsersPage> {
     });
 
     serverClock = context.read<ServerClock>();
-    _fetchUsers(chatCache.chats);
+    _fetchUsers(chatCache.chats, noCache: noCache);
   }
 
   List<User> _filterUsers() {
@@ -135,7 +166,22 @@ class _UsersPageState extends State<UsersPage> {
       body: SafeArea(
         child: users.isEmpty
             ? (_isPopulated
-                ? const Center(child: Info(lines: lines))
+                ? Column(
+                    children: [
+                      FilterBar(
+                        selectedGender: _selectedGender,
+                        selectedLanguage: _selectedLanguage,
+                        onGenderChanged: _handleGenderChanged,
+                        onLanguageChanged: _handleLanguageChanged,
+                        canRefresh: _canRefresh,
+                      ),
+                      Expanded(
+                        child: const Center(
+                          child: Info(lines: lines),
+                        ),
+                      ),
+                    ],
+                  )
                 : const SizedBox())
             : Layout(
                 child: Column(
@@ -145,6 +191,13 @@ class _UsersPageState extends State<UsersPage> {
                         content: info,
                         onDismiss: () => settings.hideUsersNotice(),
                       ),
+                    FilterBar(
+                      selectedGender: _selectedGender,
+                      selectedLanguage: _selectedLanguage,
+                      onGenderChanged: _handleGenderChanged,
+                      onLanguageChanged: _handleLanguageChanged,
+                      canRefresh: _canRefresh,
+                    ),
                     Expanded(
                       child: UserList(
                         users: users,

@@ -99,7 +99,7 @@ class _ChatsPageState extends State<ChatsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'You can SWIPE left or right on any chat to mute it if you no longer wish to participate.',
+              'You can SWIPE left on any chat to mute it if you no longer wish to participate.',
               style: TextStyle(height: 1.5),
             ),
           ],

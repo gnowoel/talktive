@@ -55,31 +55,30 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   void _handleDismiss(DismissDirection direction) {
-    bool undoPressed = false;
-
     // Remove the chat from the list
     widget.onRemove(widget.chat);
 
     // Show snackbar with undo option
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Chat deleted'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            undoPressed = true;
-            // Restore the chat
-            widget.onRestore(widget.chat);
-          },
-        ),
-        duration: const Duration(seconds: 5),
-      ),
-    );
-
-    // Only mute the chat if undo wasn't pressed
-    Future.delayed(const Duration(seconds: 5), () {
-      if (!undoPressed) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: const Text('Chat deleted'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                // Restore the chat
+                widget.onRestore(widget.chat);
+              },
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        )
+        .closed
+        .then((reason) {
+      // Only mute the chat if the SnackBar was closed by timeout
+      // and not by user action (pressing undo)
+      if (reason == SnackBarClosedReason.timeout) {
         _muteChat();
       }
     });

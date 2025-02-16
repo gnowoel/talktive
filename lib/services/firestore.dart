@@ -12,16 +12,36 @@ class Firestore {
   final List<User> _cachedUsers = [];
   int? _lastUpdatedAt;
 
-  Future<List<User>> fetchUsers(String userId, int serverNow) async {
+  Future<List<User>> fetchUsers(
+    String userId,
+    int serverNow, {
+    String? genderFilter,
+    String? languageFilter,
+    bool noCache = false,
+  }) async {
     try {
       // Clear cache if it's too old
-      if (_shouldRefreshCache(serverNow)) {
+      if (noCache || _shouldRefreshCache(serverNow)) {
         clearCache();
       }
 
+      // Start building the query
       var query = instance
           .collection('users')
-          .where('revivedAt', isLessThan: serverNow) // Filter out banned users
+          .where('revivedAt', isLessThan: serverNow); // Filter out banned users
+
+      // Add gender filter if specified
+      if (genderFilter != null) {
+        query = query.where('gender', isEqualTo: genderFilter);
+      }
+
+      // Add language filter if specified
+      if (languageFilter != null) {
+        query = query.where('languageCode', isEqualTo: languageFilter);
+      }
+
+      // Complete the query with ordering and limit
+      query = query
           .orderBy('revivedAt') // Required when using where() with revivedAt
           .orderBy('updatedAt', descending: true)
           .limit(32);

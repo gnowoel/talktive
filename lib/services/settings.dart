@@ -10,15 +10,21 @@ class Settings {
   String? _completedSetupVersion;
   bool _hasHiddenUsersNotice = false;
   bool _hasHiddenChatsNotice = false;
+  String? _selectedGender;
+  String? _selectedLanguage;
 
   Future<void> load() async {
     final setupVersion = await Prefs.getString('completedSetupVersion');
     final usersNotice = await Prefs.getBool('hasHiddenUsersNotice');
     final chatsNotice = await Prefs.getBool('hasHiddenChatsNotice');
+    final selectedGender = await Prefs.getString('selectedGender');
+    final selectedLanguage = await Prefs.getString('selectedLanguage');
 
     _completedSetupVersion = setupVersion;
     _hasHiddenUsersNotice = usersNotice;
     _hasHiddenChatsNotice = chatsNotice;
+    _selectedGender = selectedGender;
+    _selectedLanguage = selectedLanguage;
   }
 
   Future<void> markSetupComplete() async {
@@ -36,9 +42,31 @@ class Settings {
     _hasHiddenChatsNotice = true;
   }
 
+  Future<void> setSelectedGender(String? value) async {
+    if (value == null) {
+      await Prefs.remove('selectedGender');
+      _selectedGender = null;
+    } else {
+      await Prefs.setString('selectedGender', value);
+      _selectedGender = value;
+    }
+  }
+
+  Future<void> setSelectedLanguage(String? value) async {
+    if (value == null) {
+      await Prefs.remove('selectedLanguage');
+      _selectedLanguage = null;
+    } else {
+      await Prefs.setString('selectedLanguage', value);
+      _selectedLanguage = value;
+    }
+  }
+
   bool get hasCompletedSetup => _completedSetupVersion == wizardVersion;
   bool get hasHiddenUsersNotice => _hasHiddenUsersNotice;
   bool get hasHiddenChatsNotice => _hasHiddenChatsNotice;
+  String? get selectedGender => _selectedGender;
+  String? get selectedLanguage => _selectedLanguage;
 }
 
 class Prefs {
@@ -60,5 +88,10 @@ class Prefs {
   static Future<void> setString(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(key, value);
+  }
+
+  static Future<void> remove(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
   }
 }

@@ -39,24 +39,6 @@ class _UsersPageState extends State<UsersPage> {
   String? _selectedGender;
   String? _selectedLanguage;
 
-  void _handleGenderChanged(String? value) {
-    if (_selectedGender == value) return;
-
-    setState(() {
-      _selectedGender = value;
-      _refreshUsers(noCache: true);
-    });
-  }
-
-  void _handleLanguageChanged(String? value) {
-    if (_selectedLanguage == value) return;
-
-    setState(() {
-      _selectedLanguage = value;
-      _refreshUsers(noCache: true);
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -67,7 +49,46 @@ class _UsersPageState extends State<UsersPage> {
     serverClock = context.read<ServerClock>();
     chatCache = context.read<ChatCache>();
 
+    _selectedGender = settings.selectedGender;
+    _selectedLanguage = settings.selectedLanguage;
+
     _fetchUsers(chatCache.chats);
+  }
+
+  void _handleGenderChanged(String? value) {
+    if (_selectedGender == value) return;
+
+    setState(() {
+      _selectedGender = value;
+      settings.setSelectedGender(value);
+      _refreshUsers(noCache: true);
+    });
+  }
+
+  void _handleLanguageChanged(String? value) {
+    if (_selectedLanguage == value) return;
+
+    setState(() {
+      _selectedLanguage = value;
+      settings.setSelectedLanguage(value);
+      _refreshUsers(noCache: true);
+    });
+  }
+
+  Future<void> _refreshUsers({bool noCache = false}) async {
+    if (!_canRefresh) return;
+
+    setState(() => _canRefresh = false);
+
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() => _canRefresh = true);
+      }
+    });
+
+    serverClock = context.read<ServerClock>();
+    _fetchUsers(chatCache.chats, noCache: noCache);
   }
 
   Future<void> _fetchUsers(
@@ -90,22 +111,6 @@ class _UsersPageState extends State<UsersPage> {
       _users = users;
       _isPopulated = true;
     });
-  }
-
-  Future<void> _refreshUsers({bool noCache = false}) async {
-    if (!_canRefresh) return;
-
-    setState(() => _canRefresh = false);
-
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() => _canRefresh = true);
-      }
-    });
-
-    serverClock = context.read<ServerClock>();
-    _fetchUsers(chatCache.chats, noCache: noCache);
   }
 
   List<User> _filterUsers() {

@@ -62,6 +62,13 @@ class Settings {
     }
   }
 
+  Future<void> resetFilters() async {
+    await Prefs.remove('selectedGender');
+    _selectedGender = null;
+    await Prefs.remove('selectedLanguage');
+    _selectedLanguage = null;
+  }
+
   bool get hasCompletedSetup => _completedSetupVersion == wizardVersion;
   bool get hasHiddenUsersNotice => _hasHiddenUsersNotice;
   bool get hasHiddenChatsNotice => _hasHiddenChatsNotice;

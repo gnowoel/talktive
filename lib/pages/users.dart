@@ -75,6 +75,15 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
+  void _resetFilters() async {
+    setState(() {
+      _selectedGender = null;
+      _selectedLanguage = null;
+    });
+    await settings.resetFilters();
+    _refreshUsers(noCache: true);
+  }
+
   Future<void> _refreshUsers({bool noCache = false}) async {
     if (!_canRefresh) return;
 
@@ -178,6 +187,7 @@ class _UsersPageState extends State<UsersPage> {
                         selectedLanguage: _selectedLanguage,
                         onGenderChanged: _handleGenderChanged,
                         onLanguageChanged: _handleLanguageChanged,
+                        onReset: _resetFilters,
                         canRefresh: _canRefresh,
                       ),
                       Expanded(
@@ -201,6 +211,7 @@ class _UsersPageState extends State<UsersPage> {
                       selectedLanguage: _selectedLanguage,
                       onGenderChanged: _handleGenderChanged,
                       onLanguageChanged: _handleLanguageChanged,
+                      onReset: _resetFilters,
                       canRefresh: _canRefresh,
                     ),
                     Expanded(

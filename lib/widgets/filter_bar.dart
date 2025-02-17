@@ -5,6 +5,7 @@ class FilterBar extends StatelessWidget {
   final String? selectedLanguage;
   final Function(String?) onGenderChanged;
   final Function(String?) onLanguageChanged;
+  final VoidCallback onReset;
   final bool canRefresh;
 
   const FilterBar({
@@ -13,6 +14,7 @@ class FilterBar extends StatelessWidget {
     required this.selectedLanguage,
     required this.onGenderChanged,
     required this.onLanguageChanged,
+    required this.onReset,
     required this.canRefresh,
   });
 
@@ -40,6 +42,8 @@ class FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final hasFilters = selectedGender != null || selectedLanguage != null;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Row(
@@ -65,6 +69,14 @@ class FilterBar extends StatelessWidget {
               canRefresh: canRefresh,
             ),
           ),
+          // if (hasFilters) ...[
+          //   const SizedBox(width: 8),
+          //   IconButton(
+          //     icon: const Icon(Icons.clear),
+          //     onPressed: canRefresh ? onReset : null,
+          //     tooltip: 'Reset filters',
+          //   ),
+          // ],
         ],
       ),
     );

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.2.1+37
+
+- Persist the gender and language filters
+
 ## 3.2.0+36
 
 - Add drop-down menus to select user gender and language

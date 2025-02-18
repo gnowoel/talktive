@@ -88,8 +88,71 @@ class _UserItemState extends State<UserItem> {
     }
   }
 
+  Future<void> _showGreetConfirmationDialog() async {
+    final self = userCache.user!;
+    final message = "Hi! I'm ${self.displayName!}. ${self.description}";
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Send Greeting'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You are about to send this message to ${widget.user.displayName}:',
+              style: TextStyle(
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                message,
+                style: TextStyle(
+                  height: 1.5,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'You can edit your profile if you want to change this message.',
+              style: TextStyle(
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Send'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _greetUser();
+    }
+  }
+
   void _handleTap() {
-    widget.hasKnown ? _enterChat() : _greetUser();
+    if (widget.hasKnown) {
+      _enterChat();
+    } else {
+      _showGreetConfirmationDialog();
+    }
   }
 
   void _showUserInfo(BuildContext context) {
@@ -235,14 +298,14 @@ class _UserItemState extends State<UserItem> {
     if (widget.hasSeen) {
       return IconButton(
         icon: Icon(Icons.waving_hand_outlined),
-        onPressed: _greetUser,
+        onPressed: _showGreetConfirmationDialog,
         tooltip: 'Say hi',
       );
     }
 
     return IconButton(
       icon: Icon(Icons.waving_hand_outlined),
-      onPressed: _greetUser,
+      onPressed: _showGreetConfirmationDialog,
       tooltip: 'Say hi',
     );
   }

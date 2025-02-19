@@ -89,46 +89,69 @@ class _UserItemState extends State<UserItem> {
   }
 
   Future<void> _showWarningDialog() async {
+    final self = userCache.user!;
+    final colorScheme = Theme.of(context).colorScheme;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Be Respectful'),
+        title: Text(
+          self.withWarning ? 'Account Restricted' : 'Be Respectful',
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Your account has been previously reported for inappropriate messages.',
-              style: TextStyle(
-                height: 1.5,
-                color: Colors.red,
+            if (self.withWarning) ...[
+              Text(
+                'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
+                style: TextStyle(
+                  height: 1.5,
+                  color: colorScheme.error,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Please be polite when chatting with ${widget.user.displayName}.',
-              style: TextStyle(
-                height: 1.5,
+              const SizedBox(height: 16),
+              const Text(
+                'You cannot start new conversations until this restriction expires.',
+                style: TextStyle(
+                  height: 1.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Continued inappropriate behavior may result in longer restrictions.',
-              style: TextStyle(
-                height: 1.5,
+            ] else ...[
+              const Text(
+                'Your account has been previously reported for inappropriate messages.',
+                style: TextStyle(
+                  height: 1.5,
+                  color: Colors.red,
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Text(
+                'Please be polite when chatting with ${widget.user.displayName}.',
+                style: TextStyle(
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Continued inappropriate behavior may result in longer restrictions.',
+                style: TextStyle(
+                  height: 1.5,
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(self.withWarning ? 'Close' : 'Cancel'),
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('I Understand'),
-          ),
+          if (!self.withWarning)
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('I Understand'),
+            ),
         ],
       ),
     );
@@ -141,7 +164,11 @@ class _UserItemState extends State<UserItem> {
   void _handleGreet() async {
     final self = userCache.user!;
 
-    if (self.withAlert) {
+    if (self.withWarning) {
+      // Show warning dialog without option to proceed
+      await _showWarningDialog();
+    } else if (self.withAlert) {
+      // Show warning dialog with option to proceed
       await _showWarningDialog();
     } else {
       await _greetUser();
@@ -288,6 +315,8 @@ class _UserItemState extends State<UserItem> {
   }
 
   IconButton _buildIconButton() {
+    final self = userCache.user!;
+
     if (widget.hasKnown) {
       return IconButton(
         icon: Icon(Icons.people_alt_outlined),
@@ -299,15 +328,17 @@ class _UserItemState extends State<UserItem> {
     if (widget.hasSeen) {
       return IconButton(
         icon: Icon(Icons.waving_hand_outlined),
-        onPressed: _handleGreet,
-        tooltip: 'Say hi',
+        // Disable the button if user is under warning restriction
+        onPressed: self.withWarning ? null : _handleGreet,
+        tooltip: self.withWarning ? 'Restricted' : 'Say hi',
       );
     }
 
     return IconButton(
       icon: Icon(Icons.waving_hand_outlined),
-      onPressed: _handleGreet,
-      tooltip: 'Say hi',
+      // Disable the button if user is under warning restriction
+      onPressed: self.withWarning ? null : _handleGreet,
+      tooltip: self.withWarning ? 'Restricted' : 'Say hi',
     );
   }
 }

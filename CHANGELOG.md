@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 3.2.2+38
+
+- Fix a serious problem that causes incorrect user query range
 - Remind reported users to be respectful of others
 - Prevent abusive users from starting new chats
 

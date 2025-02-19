@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- Remind reported users to be respectful of others
+- Prevent abusive users from starting new chats
+
 ## 3.2.1+37
 
 - Persist the gender and language filters

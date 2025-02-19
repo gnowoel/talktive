@@ -42,13 +42,14 @@ class Firestore {
 
       // Complete the query with ordering and limit
       query = query
-          .orderBy('revivedAt') // Required when using where() with revivedAt
-          .orderBy('updatedAt', descending: true)
-          .limit(32);
+          // .orderBy('revivedAt') // Required when using where() with revivedAt
+          .orderBy('updatedAt', descending: true);
 
       if (_lastUpdatedAt != null) {
         query = query.endBefore([_lastUpdatedAt]);
       }
+
+      query = query.limit(32);
 
       final snapshot = await query.get();
       final fetchedUsers = <User>[];

@@ -88,41 +88,32 @@ class _UserItemState extends State<UserItem> {
     }
   }
 
-  Future<void> _showGreetConfirmationDialog() async {
-    final self = userCache.user!;
-    final message = "Hi! I'm ${self.displayName!}. ${self.description}";
-
+  Future<void> _showWarningDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Send Greeting'),
+        title: const Text('Be Respectful'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Your account has been previously reported for inappropriate messages.',
+              style: TextStyle(
+                height: 1.5,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
-              'You are about to send this message to ${widget.user.displayName}:',
+              'Please be polite when chatting with ${widget.user.displayName}.',
               style: TextStyle(
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                message,
-                style: TextStyle(
-                  height: 1.5,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
             const Text(
-              'You can edit your profile if you want to change this message.',
+              'Continued inappropriate behavior may result in longer restrictions.',
               style: TextStyle(
                 height: 1.5,
               ),
@@ -136,7 +127,7 @@ class _UserItemState extends State<UserItem> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Send'),
+            child: const Text('I Understand'),
           ),
         ],
       ),
@@ -147,11 +138,21 @@ class _UserItemState extends State<UserItem> {
     }
   }
 
+  void _handleGreet() async {
+    final self = userCache.user!;
+
+    if (self.withAlert) {
+      await _showWarningDialog();
+    } else {
+      await _greetUser();
+    }
+  }
+
   void _handleTap() {
     if (widget.hasKnown) {
       _enterChat();
     } else {
-      _showGreetConfirmationDialog();
+      _handleGreet();
     }
   }
 
@@ -298,14 +299,14 @@ class _UserItemState extends State<UserItem> {
     if (widget.hasSeen) {
       return IconButton(
         icon: Icon(Icons.waving_hand_outlined),
-        onPressed: _showGreetConfirmationDialog,
+        onPressed: _handleGreet,
         tooltip: 'Say hi',
       );
     }
 
     return IconButton(
       icon: Icon(Icons.waving_hand_outlined),
-      onPressed: _showGreetConfirmationDialog,
+      onPressed: _handleGreet,
       tooltip: 'Say hi',
     );
   }

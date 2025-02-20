@@ -139,6 +139,7 @@ class _ChatsPageState extends State<ChatsPage> {
             : Layout(
                 child: Column(
                   children: [
+                    const SizedBox(height: 10),
                     if (!settings.hasHiddenChatsNotice)
                       Notice(
                         content: info,

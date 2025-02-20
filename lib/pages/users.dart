@@ -201,6 +201,7 @@ class _UsersPageState extends State<UsersPage> {
             : Layout(
                 child: Column(
                   children: [
+                    const SizedBox(height: 10),
                     if (!settings.hasHiddenUsersNotice)
                       Notice(
                         content: info,

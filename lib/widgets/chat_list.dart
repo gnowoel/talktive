@@ -47,7 +47,7 @@ class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
       itemCount: _chats.length,
       itemBuilder: (context, index) {
         final chat = _chats[index];

@@ -45,7 +45,7 @@ class FilterBar extends StatelessWidget {
     // final hasFilters = selectedGender != null || selectedLanguage != null;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
       child: Row(
         children: [
           Expanded(

@@ -215,15 +215,15 @@ class _UserItemState extends State<UserItem> {
 
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.only(bottom: 12),
       color: cardColor,
       child: GestureDetector(
         onTap: _handleTap,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8, // Add some vertical padding
-          ),
+          // contentPadding: const EdgeInsets.symmetric(
+          //   horizontal: 16,
+          //   vertical: 8, // Add some vertical padding
+          // ),
           leading: GestureDetector(
             onTap: () => _showUserInfo(context),
             child: Text(

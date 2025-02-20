@@ -72,7 +72,7 @@ class _NoticeState extends State<Notice> with SingleTickerProviderStateMixin {
         axisAlignment: -1.0,
         child: Card(
           elevation: 0,
-          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          margin: const EdgeInsets.fromLTRB(16, 6, 16, 10),
           color: theme.colorScheme.surfaceContainer,
           child: Padding(
             padding: const EdgeInsets.symmetric(

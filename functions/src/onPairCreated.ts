@@ -43,7 +43,7 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
       const otherId = pairId.replace(follower, '');
       const other: User = mapper[otherId];
       const partner = {
-        createdAt: 0,
+        createdAt: other.createdAt, // For checking `newcomer` status
         updatedAt: 0,
         languageCode: other.languageCode ?? null,
         photoURL: other.photoURL ?? null,

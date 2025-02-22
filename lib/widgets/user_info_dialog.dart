@@ -118,44 +118,11 @@ class UserInfoDialog extends StatelessWidget {
                   ),
                 ),
                 if (userStatus == 'warning') ...[
-                  Tag(
-                    status: 'warning',
-                    tooltip: 'Reported for inappropriate behavior',
-                    child: Text(
-                      'warning',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onErrorContainer,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  Tag(status: 'warning'),
                 ] else if (userStatus == 'alert') ...[
-                  Tag(
-                    status: 'alert',
-                    tooltip: 'Reported for offensive messages',
-                    child: Text(
-                      'alert',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onTertiaryContainer,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  Tag(status: 'alert'),
                 ] else if (userStatus == 'newcomer') ...[
-                  Tag(
-                    status: 'newcomer',
-                    tooltip: 'Created in less than 1 day',
-                    child: Text(
-                      'new',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onPrimaryContainer,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  Tag(status: 'newcomer'),
                 ],
               ],
             ),

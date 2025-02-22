@@ -10,7 +10,6 @@ import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
-import '../services/server_clock.dart';
 import '../services/user_cache.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
@@ -261,9 +260,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final userStatus =
-        getUserStatus(User.fromStub(key: '', value: _chat.partner), now);
+        getUserStatus(User.fromStub(key: '', value: _chat.partner));
 
     return PopScope(
       canPop: false,

@@ -78,6 +78,12 @@ class User {
     final twoWeeks = 14 * 24 * 60 * 60 * 1000;
     return revivedAt! >= serverNow + twoWeeks;
   }
+
+  bool get isNewcomer {
+    final serverNow = ServerClock().now;
+    final oneDay = 1 * 24 * 60 * 60 * 1000;
+    return createdAt + oneDay >= serverNow;
+  }
 }
 
 class UserStub {

@@ -40,10 +40,7 @@ class User {
     };
   }
 
-  factory User.fromStub({
-    required String key,
-    required UserStub value,
-  }) {
+  factory User.fromStub({required String key, required UserStub value}) {
     return User(
       id: key,
       createdAt: value.createdAt,
@@ -82,7 +79,7 @@ class User {
   bool get isNewcomer {
     final serverNow = ServerClock().now;
     final oneDay = 1 * 24 * 60 * 60 * 1000;
-    return createdAt + oneDay >= serverNow;
+    return serverNow - createdAt < oneDay;
   }
 }
 

@@ -64,8 +64,9 @@ class _UserItemState extends State<UserItem> {
 
       if (mounted) {
         context.go('/chats');
-        context
-            .push(Messaging.encodeChatRoute(chat.id, other.displayName ?? ''));
+        context.push(
+          Messaging.encodeChatRoute(chat.id, other.displayName ?? ''),
+        );
       }
     });
   }
@@ -88,72 +89,130 @@ class _UserItemState extends State<UserItem> {
     }
   }
 
-  Future<void> _showWarningDialog() async {
+  bool _canChatWithUser() {
     final self = userCache.user!;
+    final other = widget.user;
+
+    if (self.withWarning) return false;
+
+    if (other.gender == 'F' && other.isNewcomer) {
+      if (self.isNewcomer || self.withAlert) {
+        return false;
+      }
+    }
+
+    return !self.withWarning;
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final self = userCache.user!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    String title;
+    List<Widget> content;
+
+    if (self.withWarning) {
+      title = 'Account Restricted';
+      content = [
+        Text(
+          'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot start new conversations until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (self.withAlert) {
+      title = 'Temporarily Restricted';
+      content = [
+        Text(
+          'Due to previous reports, you cannot chat with new female users at this time.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'This restriction helps maintain a safe environment for all users.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (self.isNewcomer) {
+      title = 'Female Protection';
+      content = [
+        Text(
+          'Your account needs to be at least 24 hours old to chat with new female users. Sorry about the inconvenience.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'This restriction helps protect our community from harassment.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: content,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _showAlertDialog() async {
     final colorScheme = Theme.of(context).colorScheme;
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          self.withWarning ? 'Account Restricted' : 'Be Respectful',
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (self.withWarning) ...[
-              Text(
-                'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
-                style: TextStyle(
-                  height: 1.5,
-                  color: colorScheme.error,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Warning'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your account has been reported for inappropriate messages.',
+                  style: TextStyle(height: 1.5, color: colorScheme.error),
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  'Please be respectful when chatting with ${widget.user.displayName}.',
+                  style: const TextStyle(height: 1.5),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Further reports may result in more severe restrictions.',
+                  style: TextStyle(height: 1.5),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'You cannot start new conversations until this restriction expires.',
-                style: TextStyle(
-                  height: 1.5,
-                ),
-              ),
-            ] else ...[
-              const Text(
-                'Your account has been previously reported for inappropriate messages.',
-                style: TextStyle(
-                  height: 1.5,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Please be polite when chatting with ${widget.user.displayName}.',
-                style: TextStyle(
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Continued inappropriate behavior may result in longer restrictions.',
-                style: TextStyle(
-                  height: 1.5,
-                ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('I Understand'),
               ),
             ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(self.withWarning ? 'Close' : 'Cancel'),
           ),
-          if (!self.withWarning)
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('I Understand'),
-            ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -162,14 +221,14 @@ class _UserItemState extends State<UserItem> {
   }
 
   void _handleGreet() async {
-    final self = userCache.user!;
+    if (!_canChatWithUser()) {
+      await _showRestrictionDialog();
+      return;
+    }
 
-    if (self.withWarning) {
-      // Show warning dialog without option to proceed
-      await _showWarningDialog();
-    } else if (self.withAlert) {
-      // Show warning dialog with option to proceed
-      await _showWarningDialog();
+    final self = userCache.user!;
+    if (self.withAlert) {
+      await _showAlertDialog();
     } else {
       await _greetUser();
     }
@@ -201,14 +260,16 @@ class _UserItemState extends State<UserItem> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final updatedAt =
-        DateTime.fromMillisecondsSinceEpoch(widget.user.updatedAt);
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.user.updatedAt,
+    );
 
-    final cardColor = widget.hasKnown
-        ? colorScheme.surfaceContainerHigh
-        : (widget.hasSeen
+    final cardColor =
+        widget.hasKnown
             ? colorScheme.surfaceContainerHigh
-            : colorScheme.secondaryContainer);
+            : (widget.hasSeen
+                ? colorScheme.surfaceContainerHigh
+                : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
     final userStatus = getUserStatus(widget.user);
@@ -241,9 +302,7 @@ class _UserItemState extends State<UserItem> {
               Text(
                 widget.user.description!,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  height: 1.2,
-                ),
+                style: TextStyle(height: 1.2),
                 maxLines: 3,
               ),
               const SizedBox(height: 4),
@@ -296,8 +355,6 @@ class _UserItemState extends State<UserItem> {
   }
 
   IconButton _buildIconButton() {
-    final self = userCache.user!;
-
     if (widget.hasKnown) {
       return IconButton(
         icon: Icon(Icons.people_alt_outlined),
@@ -306,20 +363,18 @@ class _UserItemState extends State<UserItem> {
       );
     }
 
-    if (widget.hasSeen) {
+    if (!_canChatWithUser()) {
       return IconButton(
-        icon: Icon(Icons.waving_hand_outlined),
-        // Disable the button if user is under warning restriction
-        onPressed: self.withWarning ? null : _handleGreet,
-        tooltip: self.withWarning ? 'Restricted' : 'Say hi',
+        icon: const Icon(Icons.waving_hand_outlined),
+        onPressed: null,
+        tooltip: 'Restricted',
       );
     }
 
     return IconButton(
-      icon: Icon(Icons.waving_hand_outlined),
-      // Disable the button if user is under warning restriction
-      onPressed: self.withWarning ? null : _handleGreet,
-      tooltip: self.withWarning ? 'Restricted' : 'Say hi',
+      icon: const Icon(Icons.waving_hand_outlined),
+      onPressed: _handleGreet,
+      tooltip: 'Say hi',
     );
   }
 }

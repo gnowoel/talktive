@@ -117,20 +117,7 @@ class UserInfoDialog extends StatelessWidget {
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
-                if (userStatus == 'alert') ...[
-                  Tag(
-                    status: 'alert',
-                    tooltip: 'Reported for offensive messages',
-                    child: Text(
-                      'alert',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onTertiaryContainer,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ] else if (userStatus == 'warning') ...[
+                if (userStatus == 'warning') ...[
                   Tag(
                     status: 'warning',
                     tooltip: 'Reported for inappropriate behavior',
@@ -139,6 +126,19 @@ class UserInfoDialog extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: theme.colorScheme.onErrorContainer,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ] else if (userStatus == 'alert') ...[
+                  Tag(
+                    status: 'alert',
+                    tooltip: 'Reported for offensive messages',
+                    child: Text(
+                      'alert',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onTertiaryContainer,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

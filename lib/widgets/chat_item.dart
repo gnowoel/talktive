@@ -214,21 +214,7 @@ class _ChatItemState extends State<ChatItem> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (userStatus == 'alert') ...[
-                      const SizedBox(width: 4),
-                      Tag(
-                        status: 'alert',
-                        tooltip: 'Reported for offensive messages',
-                        child: Text(
-                          'alert',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onTertiaryContainer,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ] else if (userStatus == 'warning') ...[
+                    if (userStatus == 'warning') ...[
                       const SizedBox(width: 4),
                       Tag(
                         status: 'warning',
@@ -238,6 +224,20 @@ class _ChatItemState extends State<ChatItem> {
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.onErrorContainer,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ] else if (userStatus == 'alert') ...[
+                      const SizedBox(width: 4),
+                      Tag(
+                        status: 'alert',
+                        tooltip: 'Reported for offensive messages',
+                        child: Text(
+                          'alert',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onTertiaryContainer,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),

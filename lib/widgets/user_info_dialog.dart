@@ -143,6 +143,19 @@ class UserInfoDialog extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                ] else if (userStatus == 'newcomer') ...[
+                  Tag(
+                    status: 'newcomer',
+                    tooltip: 'Created in less than 1 day',
+                    child: Text(
+                      'new',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ],
             ),

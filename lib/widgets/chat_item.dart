@@ -135,8 +135,7 @@ class _ChatItemState extends State<ChatItem> {
         (widget.chat.lastMessageContent ?? _partner.description!)
             .replaceAll(RegExp(r'\s+'), ' ');
 
-    final userStatus =
-        getUserStatus(User.fromStub(key: '', value: _partner), now);
+    final userStatus = getUserStatus(User.fromStub(key: '', value: _partner));
 
     return Dismissible(
       key: Key(widget.chat.id),

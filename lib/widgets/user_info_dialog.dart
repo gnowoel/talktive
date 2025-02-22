@@ -66,7 +66,7 @@ class UserInfoDialog extends StatelessWidget {
 
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(user!.updatedAt);
-    final userStatus = getUserStatus(user!, now);
+    final userStatus = getUserStatus(user!);
 
     return Dialog(
       child: Padding(

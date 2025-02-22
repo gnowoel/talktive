@@ -277,46 +277,13 @@ class _UserItemState extends State<UserItem> {
                   ),
                   if (userStatus == 'warning') ...[
                     const SizedBox(width: 4),
-                    Tag(
-                      status: 'warning',
-                      tooltip: 'Reported for inappropriate behavior',
-                      child: Text(
-                        'warning',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onErrorContainer,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                    Tag(status: 'warning'),
                   ] else if (userStatus == 'alert') ...[
                     const SizedBox(width: 4),
-                    Tag(
-                      status: 'alert',
-                      tooltip: 'Reported for offensive messages',
-                      child: Text(
-                        'alert',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onTertiaryContainer,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                    Tag(status: 'alert'),
                   ] else if (userStatus == 'newcomer') ...[
                     const SizedBox(width: 4),
-                    Tag(
-                      status: 'newcomer',
-                      tooltip: 'Created in less than 1 day',
-                      child: Text(
-                        'new',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                    Tag(status: 'newcomer'),
                   ],
                 ],
               ),

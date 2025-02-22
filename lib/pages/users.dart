@@ -100,10 +100,7 @@ class _UsersPageState extends State<UsersPage> {
     _fetchUsers(chatCache.chats, noCache: noCache);
   }
 
-  Future<void> _fetchUsers(
-    List<Chat> chats, {
-    bool noCache = false,
-  }) async {
+  Future<void> _fetchUsers(List<Chat> chats, {bool noCache = false}) async {
     final userId = fireauth.instance.currentUser!.uid;
     final serverNow = serverClock.now;
 
@@ -124,9 +121,10 @@ class _UsersPageState extends State<UsersPage> {
 
   List<User> _filterUsers() {
     final userId = fireauth.instance.currentUser!.uid;
-    final users = _users.where((user) {
-      return user.id != userId;
-    }).toList();
+    final users =
+        _users.where((user) {
+          return user.id != userId;
+        }).toList();
     return users;
   }
 
@@ -156,7 +154,7 @@ class _UsersPageState extends State<UsersPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['No more users here.', 'Try again later.', ''];
-    const info = 'Please report users with inappropriate descriptions.';
+    const info = 'Please do not give out personal information to strangers.';
 
     final chatCache = context.watch<ChatCache>();
     final chats = chatCache.chats;
@@ -178,10 +176,34 @@ class _UsersPageState extends State<UsersPage> {
         ],
       ),
       body: SafeArea(
-        child: users.isEmpty
-            ? (_isPopulated
-                ? Column(
+        child:
+            users.isEmpty
+                ? (_isPopulated
+                    ? Column(
+                      children: [
+                        FilterBar(
+                          selectedGender: _selectedGender,
+                          selectedLanguage: _selectedLanguage,
+                          onGenderChanged: _handleGenderChanged,
+                          onLanguageChanged: _handleLanguageChanged,
+                          onReset: _resetFilters,
+                          canRefresh: _canRefresh,
+                        ),
+                        Expanded(
+                          child: const Center(child: Info(lines: lines)),
+                        ),
+                      ],
+                    )
+                    : const SizedBox())
+                : Layout(
+                  child: Column(
                     children: [
+                      const SizedBox(height: 10),
+                      if (!settings.hasHiddenUsersNotice)
+                        Notice(
+                          content: info,
+                          onDismiss: () => settings.hideUsersNotice(),
+                        ),
                       FilterBar(
                         selectedGender: _selectedGender,
                         selectedLanguage: _selectedLanguage,
@@ -191,40 +213,15 @@ class _UsersPageState extends State<UsersPage> {
                         canRefresh: _canRefresh,
                       ),
                       Expanded(
-                        child: const Center(
-                          child: Info(lines: lines),
+                        child: UserList(
+                          users: users,
+                          knownUserIds: knownUserIds,
+                          seenUserIds: seenUserIds,
                         ),
                       ),
                     ],
-                  )
-                : const SizedBox())
-            : Layout(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    if (!settings.hasHiddenUsersNotice)
-                      Notice(
-                        content: info,
-                        onDismiss: () => settings.hideUsersNotice(),
-                      ),
-                    FilterBar(
-                      selectedGender: _selectedGender,
-                      selectedLanguage: _selectedLanguage,
-                      onGenderChanged: _handleGenderChanged,
-                      onLanguageChanged: _handleLanguageChanged,
-                      onReset: _resetFilters,
-                      canRefresh: _canRefresh,
-                    ),
-                    Expanded(
-                      child: UserList(
-                        users: users,
-                        knownUserIds: knownUserIds,
-                        seenUserIds: seenUserIds,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
       ),
     );
   }

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 3.2.3+39
+
+- Remind users not to give out personal information to strangers
+- Protect new female users from harassment by some people
+- Update dependencies
+
 ## 3.2.2+38
 
 - Fix a serious problem that causes incorrect user query range

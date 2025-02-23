@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.2.4+40
+
+- Increase the suspension time for repeatedly reported users
+- Display experience level to help determine user credibility
+
 ## 3.2.3+39
 
 - Remind users not to give out personal information to strangers

@@ -334,6 +334,15 @@ class _UserItemState extends State<UserItem> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: 'Level ${widget.user.level}',
+                    child: Text(
+                      'L${widget.user.level}',
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   if (userStatus == 'warning') ...[
                     const SizedBox(width: 4),
                     Tag(status: 'warning'),

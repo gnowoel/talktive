@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../services/server_clock.dart';
 
 class User {
@@ -11,6 +13,7 @@ class User {
   final String? gender;
   final String? fcmToken;
   final int? revivedAt;
+  final int? messageCount;
 
   const User({
     required this.id,
@@ -23,6 +26,7 @@ class User {
     this.gender,
     this.fcmToken,
     this.revivedAt,
+    this.messageCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -37,6 +41,7 @@ class User {
       'gender': gender,
       'fcmToken': fcmToken,
       'revivedAt': revivedAt,
+      'messageCount': messageCount,
     };
   }
 
@@ -52,6 +57,7 @@ class User {
       gender: value.gender,
       fcmToken: value.fcmToken,
       revivedAt: value.revivedAt,
+      messageCount: value.messageCount,
     );
   }
 
@@ -81,6 +87,12 @@ class User {
     final oneDay = 1 * 24 * 60 * 60 * 1000;
     return serverNow - createdAt < oneDay;
   }
+
+  int get level {
+    if (messageCount == null) return 0;
+    if (messageCount! < 1) return 0;
+    return (log(messageCount!) / log(3)).ceil();
+  }
 }
 
 class UserStub {
@@ -93,6 +105,7 @@ class UserStub {
   final String? gender;
   final String? fcmToken;
   final int? revivedAt;
+  final int? messageCount;
 
   const UserStub({
     required this.createdAt,
@@ -104,6 +117,7 @@ class UserStub {
     this.gender,
     this.fcmToken,
     this.revivedAt,
+    this.messageCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -117,6 +131,7 @@ class UserStub {
       'gender': gender,
       'fcmToken': fcmToken,
       'revivedAt': revivedAt,
+      'messageCount': messageCount,
     };
   }
 
@@ -131,6 +146,7 @@ class UserStub {
       gender: json['gender'] as String?,
       fcmToken: json['fcmToken'] as String?,
       revivedAt: json['revivedAt'] as int?,
+      messageCount: json['messageCount'] as int?,
     );
   }
 }

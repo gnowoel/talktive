@@ -31,10 +31,7 @@ class UserInfoDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                photoURL,
-                style: const TextStyle(fontSize: 64),
-              ),
+              Text(photoURL, style: const TextStyle(fontSize: 64)),
               const SizedBox(height: 16),
               Text(
                 displayName,
@@ -48,9 +45,7 @@ class UserInfoDialog extends StatelessWidget {
                   child: SizedBox(
                     height: 16,
                     width: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 3),
                   ),
                 ),
               const SizedBox(height: 16),
@@ -74,10 +69,7 @@ class UserInfoDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              photoURL,
-              style: const TextStyle(fontSize: 64),
-            ),
+            Text(photoURL, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
             Text(
               displayName,
@@ -115,6 +107,14 @@ class UserInfoDialog extends StatelessWidget {
                   child: Text(
                     timeago.format(updatedAt, locale: 'en_short', clock: now),
                     style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+                Tag(
+                  tooltip: 'Level ${user!.level}',
+                  child: Text(
+                    'L${user!.level}',
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (userStatus == 'warning') ...[

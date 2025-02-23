@@ -51,6 +51,7 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
         description: other.description ?? null,
         gender: other.gender ?? null,
         revivedAt: other.revivedAt ?? null,
+        messageCount: other.messageCount ?? null,
         // fcmToken: ''
       };
 

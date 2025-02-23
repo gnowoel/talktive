@@ -4,7 +4,7 @@ import { onValueCreated } from 'firebase-functions/v2/database';
 import { formatDate, isDebugMode } from './helpers';
 import { ChatGPTService } from './services/chatgpt';
 import { CHATGPT_CONFIG } from './config';
-import { Chat, RoomMessage, Message, PairParams, StatParams } from './types';
+import { Chat, RoomMessage, Message, UserParams, PairParams, StatParams } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -48,7 +48,7 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
   const isPair = listId.length > 20; // Push ID is 20 characters long
 
   try {
-    await updateUserUpdatedAt(userId, now);
+    await updateUserUpdatedAtAndMessageCount(userId, now);
     if (isPair) {
       await updatePair(pairId, message, now);
       await sendPushNotification(userId, pairId, message);
@@ -62,17 +62,31 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
   }
 });
 
-const updateUserUpdatedAt = async (userId: string, now: Date) => {
+const updateUserUpdatedAtAndMessageCount = async (userId: string, now: Date) => {
   const userRef = db.ref(`users/${userId}`);
-  const updatedAt = now.valueOf();
+  const snapshot = await userRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const user = snapshot.val();
+  const params: UserParams = {};
+
+  params.updatedAt = now.valueOf();
+
+  if (isDebugMode()) {
+    params.messageCount = (user.messageCount ?? 0) + 1;
+  } else {
+    params.messageCount = admin.database.ServerValue.increment(1);
+  }
 
   try {
-    await userRef.update({ updatedAt });
+    await userRef.update(params);
   } catch (error) {
     logger.error(error);
   }
 };
 
+// TODO: Consider updating the `partner` field
 const updatePair = async (pairId: string, message: Message, now: Date) => {
   const ref = db.ref(`pairs/${pairId}`);
   const snapshot = await ref.get();

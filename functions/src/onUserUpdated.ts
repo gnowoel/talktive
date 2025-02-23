@@ -39,6 +39,7 @@ const updateUserPriority = async (userId: string, user: User, userBefore: User) 
   });
 };
 
+// TODO: Cache timestamps and execute no more than once per minute for a user
 const updateUserCache = async (userId: string, user: User) => {
   if (isNew(user)) return;
 

@@ -33,7 +33,7 @@ class _ChatItemState extends State<ChatItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late bool byMe;
-  late UserStub _partner;
+  late User _partner;
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _ChatItemState extends State<ChatItem> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     byMe = widget.chat.firstUserId == fireauth.instance.currentUser!.uid;
-    _partner = widget.chat.partner;
+    _partner = User.fromStub(key: '', value: widget.chat.partner);
   }
 
   Future<void> _muteChat() async {
@@ -76,12 +76,12 @@ class _ChatItemState extends State<ChatItem> {
         )
         .closed
         .then((reason) {
-      // Only mute the chat if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _muteChat();
-      }
-    });
+          // Only mute the chat if the SnackBar was closed by timeout
+          // and not by user action (pressing undo)
+          if (reason == SnackBarClosedReason.timeout) {
+            _muteChat();
+          }
+        });
   }
 
   Future<void> _enterChat() async {
@@ -89,8 +89,9 @@ class _ChatItemState extends State<ChatItem> {
       final chat = widget.chat;
 
       context.go('/chats');
-      context
-          .push(Messaging.encodeChatRoute(chat.id, _partner.displayName ?? ''));
+      context.push(
+        Messaging.encodeChatRoute(chat.id, _partner.displayName ?? ''),
+      );
     });
   }
 
@@ -110,11 +111,12 @@ class _ChatItemState extends State<ChatItem> {
 
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: otherId,
-        photoURL: _partner.photoURL ?? '',
-        displayName: _partner.displayName ?? '',
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: otherId,
+            photoURL: _partner.photoURL ?? '',
+            displayName: _partner.displayName ?? '',
+          ),
     );
   }
 
@@ -122,8 +124,9 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final updatedAt =
-        DateTime.fromMillisecondsSinceEpoch(widget.chat.updatedAt);
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.chat.updatedAt,
+    );
 
     final cardColor =
         byMe ? colorScheme.tertiaryContainer : colorScheme.surfaceContainerHigh;
@@ -131,11 +134,11 @@ class _ChatItemState extends State<ChatItem> {
         byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
-    final lastMessageContent =
-        (widget.chat.lastMessageContent ?? _partner.description!)
-            .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent = (widget.chat.lastMessageContent ??
+            _partner.description!)
+        .replaceAll(RegExp(r'\s+'), ' ');
 
-    final userStatus = getUserStatus(User.fromStub(key: '', value: _partner));
+    final userStatus = getUserStatus(_partner);
 
     return Dismissible(
       key: Key(widget.chat.id),
@@ -143,10 +146,7 @@ class _ChatItemState extends State<ChatItem> {
         color: colorScheme.error,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16.0),
-        child: Icon(
-          Icons.delete,
-          color: colorScheme.onError,
-        ),
+        child: Icon(Icons.delete, color: colorScheme.onError),
       ),
       direction: DismissDirection.endToStart, // Only allow right to left swipe
       onDismissed: _handleDismiss,
@@ -168,19 +168,14 @@ class _ChatItemState extends State<ChatItem> {
                 style: TextStyle(fontSize: 36, color: textColor),
               ),
             ),
-            title: Text(
-              _partner.displayName!,
-              overflow: TextOverflow.ellipsis,
-            ),
+            title: Text(_partner.displayName!, overflow: TextOverflow.ellipsis),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   lastMessageContent,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    height: 1.2,
-                  ),
+                  style: TextStyle(height: 1.2),
                   maxLines: 3,
                 ),
                 const SizedBox(height: 4),
@@ -207,8 +202,20 @@ class _ChatItemState extends State<ChatItem> {
                     Tag(
                       tooltip: 'Last updated',
                       child: Text(
-                        timeago.format(updatedAt,
-                            locale: 'en_short', clock: now),
+                        timeago.format(
+                          updatedAt,
+                          locale: 'en_short',
+                          clock: now,
+                        ),
+                        style: TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Tag(
+                      tooltip: 'Level ${_partner.level}',
+                      child: Text(
+                        'L${_partner.level}',
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -227,26 +234,25 @@ class _ChatItemState extends State<ChatItem> {
                 ),
               ],
             ),
-            trailing: newMessageCount > 0
-                ? Badge(
-                    label: Text(
-                      '$newMessageCount',
-                      style: TextStyle(
-                        fontSize: 14,
+            trailing:
+                newMessageCount > 0
+                    ? Badge(
+                      label: Text(
+                        '$newMessageCount',
+                        style: TextStyle(fontSize: 14),
                       ),
-                    ),
-                    backgroundColor: colorScheme.error,
-                  )
-                : Badge(
-                    label: Text(
-                      '$newMessageCount',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.surfaceContainerLow,
+                      backgroundColor: colorScheme.error,
+                    )
+                    : Badge(
+                      label: Text(
+                        '$newMessageCount',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colorScheme.surfaceContainerLow,
+                        ),
                       ),
+                      backgroundColor: colorScheme.outline,
                     ),
-                    backgroundColor: colorScheme.outline,
-                  ),
           ),
         ),
       ),

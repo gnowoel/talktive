@@ -43,9 +43,9 @@ const getRevivedAt = async (report: Report) => {
   const then = now - 7 * oneDay;
   const startAt = Math.max(partner.revivedAt ?? 0, then);
   const remaining = startAt - then;
-  let days = Math.floor(remaining / (2 * oneDay));
-  if (days > 180) days = 1;
-  const revivedAt = startAt + Math.max(days, 1) * oneDay;
+  let days = Math.ceil(remaining / oneDay);
+  if (days < 1 || days > 256) days = 1;
+  const revivedAt = startAt + days * oneDay;
 
   return revivedAt;
 }

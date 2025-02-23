@@ -19,6 +19,7 @@ export interface User {
   gender?: string;
   fcmToken?: string;
   revivedAt?: number;
+  messageCount?: number;
 }
 
 export interface Pair {
@@ -59,6 +60,11 @@ export interface Message {
   content: string;
   createdAt: number;
   type: string;
+}
+
+export interface UserParams {
+  updatedAt?: number;
+  messageCount?: number | object;
 }
 
 export interface PairParams {

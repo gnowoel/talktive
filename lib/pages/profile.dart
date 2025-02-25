@@ -26,9 +26,10 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: user == null
-                ? null
-                : () => context.push('/profile/edit', extra: user),
+            onPressed:
+                user == null
+                    ? null
+                    : () => context.push('/profile/edit', extra: user),
             tooltip: 'Edit profile',
           ),
         ],
@@ -55,6 +56,24 @@ class ProfilePage extends StatelessWidget {
                   style: theme.textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 8),
+                if (user != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      'Level ${user.level}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.surface,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 Text(
                   user?.description ?? '',

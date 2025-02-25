@@ -1,8 +1,8 @@
 import '../models/user.dart';
 
 String getUserStatus(User user) {
-  if (user.withWarning) return 'warning';
-  if (user.withAlert) return 'alert';
-  if (user.isNewcomer) return 'newcomer';
-  return 'normal';
+  if (user.withWarning) return 'warning'; // 'Restricted'
+  if (user.withAlert) return 'alert'; // 'Warning'
+  if (user.isNewcomer) return 'newcomer'; // 'Newcomer'
+  return 'normal'; // 'Regular'
 }

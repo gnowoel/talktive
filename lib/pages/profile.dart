@@ -95,7 +95,7 @@ class ProfilePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          getLanguageName(user.languageCode!) ?? '',
+                          getLongGenderDescription(user.gender!) ?? '',
                           style: theme.textTheme.labelSmall,
                         ),
                       ),
@@ -110,7 +110,7 @@ class ProfilePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          getLongGenderDescription(user.gender!) ?? '',
+                          getLanguageName(user.languageCode!) ?? '',
                           style: theme.textTheme.labelSmall,
                         ),
                       ),

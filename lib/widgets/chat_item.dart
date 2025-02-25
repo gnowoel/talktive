@@ -157,10 +157,7 @@ class _ChatItemState extends State<ChatItem> {
         child: GestureDetector(
           onTap: _enterChat,
           child: ListTile(
-            // contentPadding: const EdgeInsets.symmetric(
-            //   horizontal: 16,
-            //   vertical: 8, // Add some vertical padding
-            // ),
+            contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
             leading: GestureDetector(
               onTap: () => _showUserInfo(context),
               child: Text(
@@ -172,6 +169,7 @@ class _ChatItemState extends State<ChatItem> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 4),
                 Text(
                   lastMessageContent,
                   overflow: TextOverflow.ellipsis,
@@ -181,6 +179,15 @@ class _ChatItemState extends State<ChatItem> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
+                    Tag(
+                      tooltip: 'Level ${_partner.level}',
+                      child: Text(
+                        'L${_partner.level}',
+                        style: TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
                     Tag(
                       tooltip: '${getLongGenderName(_partner.gender!)}',
                       child: Text(
@@ -207,15 +214,6 @@ class _ChatItemState extends State<ChatItem> {
                           locale: 'en_short',
                           clock: now,
                         ),
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
-                      tooltip: 'Level ${_partner.level}',
-                      child: Text(
-                        'L${_partner.level}',
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),

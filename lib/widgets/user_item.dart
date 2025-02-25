@@ -281,10 +281,7 @@ class _UserItemState extends State<UserItem> {
       child: GestureDetector(
         onTap: _handleTap,
         child: ListTile(
-          // contentPadding: const EdgeInsets.symmetric(
-          //   horizontal: 16,
-          //   vertical: 8, // Add some vertical padding
-          // ),
+          contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
           leading: GestureDetector(
             onTap: () => _showUserInfo(context),
             child: Text(
@@ -299,6 +296,7 @@ class _UserItemState extends State<UserItem> {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 4),
               Text(
                 widget.user.description!,
                 overflow: TextOverflow.ellipsis,
@@ -308,6 +306,15 @@ class _UserItemState extends State<UserItem> {
               const SizedBox(height: 4),
               Row(
                 children: [
+                  Tag(
+                    tooltip: 'Level ${widget.user.level}',
+                    child: Text(
+                      'L${widget.user.level}',
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
                   Tag(
                     tooltip: '${getLongGenderName(widget.user.gender!)}',
                     child: Text(
@@ -330,15 +337,6 @@ class _UserItemState extends State<UserItem> {
                     tooltip: 'Last seen',
                     child: Text(
                       timeago.format(updatedAt, locale: 'en_short', clock: now),
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Tag(
-                    tooltip: 'Level ${widget.user.level}',
-                    child: Text(
-                      'L${widget.user.level}',
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),

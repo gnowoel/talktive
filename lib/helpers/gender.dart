@@ -5,11 +5,12 @@ const Map<String, String> genderNames = {
   'X': 'Unknown',
 };
 
+// TODO: Remove this
 const Map<String, String> genderDescriptions = {
   'F': 'Female',
   'M': 'Male',
-  'O': 'Other gender',
-  'X': 'Gender unknown',
+  'O': 'Other', // 'Other gender'
+  'X': 'Unknown', // 'Gender unknown'
 };
 
 String? getLongGenderName(String shortName) {

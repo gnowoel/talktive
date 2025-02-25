@@ -56,24 +56,6 @@ class ProfilePage extends StatelessWidget {
                   style: theme.textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
-                if (user != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      'Level ${user.level}',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.surface,
-                      ),
-                    ),
-                  ),
                 const SizedBox(height: 16),
                 Text(
                   user?.description ?? '',
@@ -81,11 +63,60 @@ class ProfilePage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  getLongGenderDescription(user?.gender ?? '') ?? '',
-                  style: theme.textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
+                if (user != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          'Level ${user.level}',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.surface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          getLanguageName(user.languageCode!) ?? '',
+                          style: theme.textTheme.labelSmall,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          getLongGenderDescription(user.gender!) ?? '',
+                          style: theme.textTheme.labelSmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 32),
               ],
             ),

@@ -95,7 +95,7 @@ class ProfilePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          getLongGenderDescription(user.gender!) ?? '',
+                          getLongGenderName(user.gender!) ?? '',
                           style: theme.textTheme.labelSmall,
                         ),
                       ),

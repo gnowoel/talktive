@@ -298,7 +298,7 @@ class _UserItemState extends State<UserItem> {
             children: [
               const SizedBox(height: 4),
               Text(
-                widget.user.description!,
+                formatText(widget.user.description),
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(height: 1.2),
                 maxLines: 3,

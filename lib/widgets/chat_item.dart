@@ -171,7 +171,7 @@ class _ChatItemState extends State<ChatItem> {
               children: [
                 const SizedBox(height: 4),
                 Text(
-                  lastMessageContent,
+                  formatText(lastMessageContent),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(height: 1.2),
                   maxLines: 3,

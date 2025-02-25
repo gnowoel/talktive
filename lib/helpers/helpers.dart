@@ -4,6 +4,5 @@ export './images.dart';
 export './language.dart';
 export './messages.dart';
 export './random.dart';
-export './status.dart';
 export './time.dart';
 export './uri.dart';

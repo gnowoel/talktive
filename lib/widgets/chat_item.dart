@@ -138,7 +138,7 @@ class _ChatItemState extends State<ChatItem> {
             _partner.description!)
         .replaceAll(RegExp(r'\s+'), ' ');
 
-    final userStatus = getUserStatus(_partner);
+    final userStatus = _partner.status;
 
     return Dismissible(
       key: Key(widget.chat.id),

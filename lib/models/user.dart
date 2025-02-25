@@ -88,6 +88,13 @@ class User {
     return serverNow - createdAt < oneDay;
   }
 
+  String get status {
+    if (withWarning) return 'warning';
+    if (withAlert) return 'alert';
+    if (isNewcomer) return 'newcomer';
+    return 'regular';
+  }
+
   int get level {
     if (messageCount == null) return 0;
     if (messageCount! < 1) return 0;

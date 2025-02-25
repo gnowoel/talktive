@@ -272,7 +272,7 @@ class _UserItemState extends State<UserItem> {
                 : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
-    final userStatus = getUserStatus(widget.user);
+    final userStatus = widget.user.status;
 
     return Card(
       elevation: 0,

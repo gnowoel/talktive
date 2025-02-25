@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../helpers/status.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
@@ -20,10 +19,7 @@ import '../widgets/user_info_loader.dart';
 class ChatPage extends StatefulWidget {
   final Chat chat;
 
-  const ChatPage({
-    super.key,
-    required this.chat,
-  });
+  const ChatPage({super.key, required this.chat});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -60,8 +56,9 @@ class _ChatPageState extends State<ChatPage> {
 
     final userId = userCache.user!.id;
 
-    chatSubscription =
-        firedata.subscribeToChat(userId, _chat.id).listen((chat) {
+    chatSubscription = firedata.subscribeToChat(userId, _chat.id).listen((
+      chat,
+    ) {
       if (_chat.isDummy) {
         if (chat.isDummy) {
           // Ignore to avoid being overwitten.
@@ -94,8 +91,8 @@ class _ChatPageState extends State<ChatPage> {
     messagesSubscription = firedata
         .subscribeToMessages(_chat.id, lastTimestamp)
         .listen((messages) {
-      messageCache.addMessages(_chat.id, messages);
-    });
+          messageCache.addMessages(_chat.id, messages);
+        });
   }
 
   @override
@@ -119,11 +116,12 @@ class _ChatPageState extends State<ChatPage> {
 
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: otherId,
-        photoURL: _chat.partner.photoURL!,
-        displayName: _chat.partner.displayName!,
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: otherId,
+            photoURL: _chat.partner.photoURL!,
+            displayName: _chat.partner.displayName!,
+          ),
     );
   }
 
@@ -139,11 +137,7 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    await firedata.updateChat(
-      userId,
-      chat.id,
-      readMessageCount: count,
-    );
+    await firedata.updateChat(userId, chat.id, readMessageCount: count);
   }
 
   void _showReportMenu(BuildContext context) {
@@ -161,9 +155,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             title: Text(
               'Report chat',
-              style: TextStyle(
-                color: theme.colorScheme.error,
-              ),
+              style: TextStyle(color: theme.colorScheme.error),
             ),
           ),
           onTap: () {
@@ -181,34 +173,34 @@ class _ChatPageState extends State<ChatPage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(
-          Icons.report_outlined,
-          color: theme.colorScheme.error,
-          size: 32,
-        ),
-        title: const Text('Report this chat?'),
-        content: const Text(
-            'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.'),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: Text(
-              'Report',
-              style: TextStyle(
-                color: theme.colorScheme.error,
-              ),
+      builder:
+          (context) => AlertDialog(
+            icon: Icon(
+              Icons.report_outlined,
+              color: theme.colorScheme.error,
+              size: 32,
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _reportChat();
-            },
+            title: const Text('Report this chat?'),
+            content: const Text(
+              'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text(
+                  'Report',
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _reportChat();
+                },
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -233,11 +225,7 @@ class _ChatPageState extends State<ChatPage> {
       //   mute: true,
       // );
 
-      await firedata.updateChat(
-        userId,
-        _chat.id,
-        reported: true,
-      );
+      await firedata.updateChat(userId, _chat.id, reported: true);
 
       if (!mounted) return;
 
@@ -246,9 +234,7 @@ class _ChatPageState extends State<ChatPage> {
           backgroundColor: theme.colorScheme.errorContainer,
           content: Text(
             'Thank you for your report. We will review it shortly.',
-            style: TextStyle(
-              color: theme.colorScheme.onErrorContainer,
-            ),
+            style: TextStyle(color: theme.colorScheme.onErrorContainer),
           ),
         ),
       );
@@ -260,8 +246,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userStatus =
-        getUserStatus(User.fromStub(key: '', value: _chat.partner));
+    final user = User.fromStub(key: '', value: _chat.partner);
+    final userStatus = user.status;
 
     return PopScope(
       canPop: false,
@@ -280,9 +266,7 @@ class _ChatPageState extends State<ChatPage> {
             child: Text(_chat.partner.displayName!),
           ),
           actions: [
-            RepaintBoundary(
-              child: Hearts(chat: _chat),
-            ),
+            RepaintBoundary(child: Hearts(chat: _chat)),
             if (_chat.reported == true || userCache.user!.withAlert) ...[
               const SizedBox(width: 16),
             ] else ...[
@@ -312,10 +296,7 @@ class _ChatPageState extends State<ChatPage> {
                     updateMessageCount: _updateMessageCount,
                   ),
                 ),
-                Input(
-                  focusNode: focusNode,
-                  chat: _chat,
-                ),
+                Input(focusNode: focusNode, chat: _chat),
               ],
             ),
           ),
@@ -330,10 +311,7 @@ class _ChatPageState extends State<ChatPage> {
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       color: theme.colorScheme.tertiaryContainer,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 16,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
           children: [
             Icon(
@@ -363,10 +341,7 @@ class _ChatPageState extends State<ChatPage> {
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       color: theme.colorScheme.errorContainer,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 16,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
           children: [
             Icon(

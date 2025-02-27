@@ -45,7 +45,14 @@ class _ReportsPageState extends State<ReportsPage> {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: const Text('(Empty)'));
+          return Scaffold(
+            backgroundColor: theme.colorScheme.surfaceContainerLow,
+            appBar: AppBar(
+              backgroundColor: theme.colorScheme.surfaceContainerLow,
+              title: Text('Reports'),
+            ),
+            body: SafeArea(child: Center(child: const Text('(Empty)'))),
+          );
         }
 
         _reports = snapshot.data!;
@@ -56,7 +63,6 @@ class _ReportsPageState extends State<ReportsPage> {
             backgroundColor: theme.colorScheme.surfaceContainerLow,
             title: Text('Reports (${_reports.length})'),
           ),
-
           body: SafeArea(
             child: Layout(
               child: ListView.builder(

@@ -104,7 +104,7 @@ class _ReportPageState extends State<ReportPage> {
     super.dispose();
   }
 
-  void _showUserInfo(BuildContext context) {
+  void _showOtherUserInfo(BuildContext context) {
     final userId = widget.userId;
     final otherId = _chat.id.replaceFirst(userId, '');
 
@@ -119,67 +119,34 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  void _showReportMenu(BuildContext context) {
-    final theme = Theme.of(context);
+  void _showSelfUserInfo(BuildContext context) {
+    final userId = widget.userId;
 
+    showDialog(
+      context: context,
+      builder:
+          (context) =>
+              UserInfoLoader(userId: userId, photoURL: '', displayName: ''),
+    );
+  }
+
+  void _showReportMenu(BuildContext context) {
     showMenu(
       context: context,
       position: RelativeRect.fromLTRB(1000, 0, 0, 0),
       items: [
         PopupMenuItem(
           child: ListTile(
-            leading: Icon(
-              Icons.report_outlined,
-              color: theme.colorScheme.error,
-            ),
-            title: Text(
-              'Report chat',
-              style: TextStyle(color: theme.colorScheme.error),
-            ),
+            leading: Icon(Icons.person_outlined),
+            title: Text('About reporter'),
           ),
           onTap: () {
             if (mounted) {
-              _showReportDialog();
+              _showSelfUserInfo(context);
             }
           },
         ),
       ],
-    );
-  }
-
-  void _showReportDialog() {
-    final theme = Theme.of(context);
-
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            icon: Icon(
-              Icons.report_outlined,
-              color: theme.colorScheme.error,
-              size: 32,
-            ),
-            title: const Text('Report this chat?'),
-            content: const Text(
-              'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              TextButton(
-                child: Text(
-                  'Report',
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  // Do nothing for now;
-                },
-              ),
-            ],
-          ),
     );
   }
 
@@ -189,7 +156,7 @@ class _ReportPageState extends State<ReportPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         title: GestureDetector(
-          onTap: () => _showUserInfo(context),
+          onTap: () => _showOtherUserInfo(context),
           child: Text(_chat.partner.displayName!),
         ),
         actions: [

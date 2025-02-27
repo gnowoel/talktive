@@ -8,6 +8,7 @@ import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/message_cache.dart';
 import '../services/messaging.dart';
+import '../services/report_message_cache.dart';
 import '../services/server_clock.dart';
 import '../services/settings.dart';
 import '../services/storage.dart';
@@ -33,6 +34,7 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserCache()),
         ChangeNotifierProvider(create: (context) => ChatCache()),
         ChangeNotifierProvider(create: (context) => MessageCache()),
+        ChangeNotifierProvider(create: (context) => ReportMessageCache()),
       ],
       child: child,
     );

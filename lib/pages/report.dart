@@ -17,11 +17,7 @@ class ReportPage extends StatefulWidget {
   final String userId;
   final Chat chat;
 
-  const ReportPage({
-    super.key,
-    required this.userId,
-    required this.chat,
-  });
+  const ReportPage({super.key, required this.userId, required this.chat});
 
   @override
   State<ReportPage> createState() => _ReportPageState();
@@ -54,8 +50,9 @@ class _ReportPageState extends State<ReportPage> {
 
     final userId = widget.userId;
 
-    chatSubscription =
-        firedata.subscribeToChat(userId, widget.chat.id).listen((chat) {
+    chatSubscription = firedata.subscribeToChat(userId, widget.chat.id).listen((
+      chat,
+    ) {
       if (_chat.isDummy) {
         if (chat.isDummy) {
           // Ignore to avoid being overwitten.
@@ -88,8 +85,8 @@ class _ReportPageState extends State<ReportPage> {
     messagesSubscription = firedata
         .subscribeToMessages(widget.chat.id, lastTimestamp)
         .listen((messages) {
-      messageCache.addMessages(widget.chat.id, messages);
-    });
+          messageCache.addMessages(widget.chat.id, messages);
+        });
   }
 
   @override
@@ -113,11 +110,12 @@ class _ReportPageState extends State<ReportPage> {
 
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: otherId,
-        photoURL: _chat.partner.photoURL!,
-        displayName: _chat.partner.displayName!,
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: otherId,
+            photoURL: _chat.partner.photoURL!,
+            displayName: _chat.partner.displayName!,
+          ),
     );
   }
 
@@ -136,9 +134,7 @@ class _ReportPageState extends State<ReportPage> {
             ),
             title: Text(
               'Report chat',
-              style: TextStyle(
-                color: theme.colorScheme.error,
-              ),
+              style: TextStyle(color: theme.colorScheme.error),
             ),
           ),
           onTap: () {
@@ -156,34 +152,34 @@ class _ReportPageState extends State<ReportPage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(
-          Icons.report_outlined,
-          color: theme.colorScheme.error,
-          size: 32,
-        ),
-        title: const Text('Report this chat?'),
-        content: const Text(
-            'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.'),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: Text(
-              'Report',
-              style: TextStyle(
-                color: theme.colorScheme.error,
-              ),
+      builder:
+          (context) => AlertDialog(
+            icon: Icon(
+              Icons.report_outlined,
+              color: theme.colorScheme.error,
+              size: 32,
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              // Do nothing for now;
-            },
+            title: const Text('Report this chat?'),
+            content: const Text(
+              'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text(
+                  'Report',
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Do nothing for now;
+                },
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -197,9 +193,7 @@ class _ReportPageState extends State<ReportPage> {
           child: Text(_chat.partner.displayName!),
         ),
         actions: [
-          RepaintBoundary(
-            child: Hearts(chat: _chat),
-          ),
+          RepaintBoundary(child: Hearts(chat: _chat)),
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () => _showReportMenu(context),

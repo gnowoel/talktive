@@ -21,11 +21,12 @@ class TextMessageItem extends StatelessWidget {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: message.userId,
-        photoURL: message.userPhotoURL,
-        displayName: message.userDisplayName,
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: message.userId,
+            photoURL: message.userPhotoURL,
+            displayName: message.userDisplayName,
+          ),
     );
   }
 
@@ -34,7 +35,9 @@ class TextMessageItem extends StatelessWidget {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
     final byMe =
-        message.userId == currentUser.uid || message.userId == reporterUserId;
+        reporterUserId == null
+            ? message.userId == currentUser.uid
+            : message.userId == reporterUserId;
 
     // Bot messages are always shown on the left
     return byMe
@@ -64,10 +67,7 @@ class TextMessageItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Flexible(
-                  child: Bubble(
-                    content: message.content,
-                    isBot: _isBot,
-                  ),
+                  child: Bubble(content: message.content, isBot: _isBot),
                 ),
               ],
             ),
@@ -89,12 +89,7 @@ class TextMessageItem extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Flexible(
-                  child: Bubble(
-                    content: message.content,
-                    byMe: true,
-                  ),
-                ),
+                Flexible(child: Bubble(content: message.content, byMe: true)),
               ],
             ),
           ),

@@ -12,6 +12,7 @@ import '../models/report.dart';
 import '../models/text_message.dart';
 import '../models/user.dart';
 import 'messaging.dart';
+import 'server_clock.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
@@ -277,10 +278,7 @@ class Firedata {
     }
   }
 
-  Stream<List<Message>> subscribeToMessages(
-    String chatId,
-    int? lastTimestamp,
-  ) {
+  Stream<List<Message>> subscribeToMessages(String chatId, int? lastTimestamp) {
     final messages = <Message>[];
     final ref = instance.ref('messages/$chatId');
     final query = ref.orderByChild('createdAt').startAfter(lastTimestamp ?? 0);
@@ -296,8 +294,9 @@ class Firedata {
         if (last is TextMessage && message is TextMessage) {
           if (last.userId == message.userId) {
             if (message.createdAt - last.createdAt < 1000) {
-              messages.last =
-                  last.copyWith(content: '${last.content}\n${message.content}');
+              messages.last = last.copyWith(
+                content: '${last.content}\n${message.content}',
+              );
               return List.from(messages);
             }
           }
@@ -380,7 +379,11 @@ class Firedata {
   Stream<List<Report>> subscribeToReports() {
     try {
       final ref = instance.ref('reports');
-      final query = ref.orderByChild('createdAt').limitToLast(32);
+      final now = ServerClock().now;
+      final twelveHoursAgo = now - 12 * 60 * 60 * 1000;
+
+      final query = ref.orderByChild('createdAt').startAt(twelveHoursAgo);
+
       final reports = <Report>[];
 
       final Stream<List<Report>> stream = StreamGroup.merge([
@@ -489,15 +492,15 @@ class Firedata {
     }
   }
 
-  Future<void> _updateReportStatusAndRevivedAt(
-      {required String reportId, required int? revivedAt}) async {
+  Future<void> _updateReportStatusAndRevivedAt({
+    required String reportId,
+    required int? revivedAt,
+  }) async {
     try {
       final reportRef = instance.ref('reports/$reportId');
       await reportRef.update({
         'status': 'resolved',
-        if (revivedAt != null) ...{
-          'revivedAt': revivedAt,
-        },
+        if (revivedAt != null) ...{'revivedAt': revivedAt},
       });
     } catch (e) {
       throw AppException(e.toString());

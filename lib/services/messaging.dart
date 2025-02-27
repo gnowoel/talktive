@@ -64,7 +64,8 @@ class Messaging {
 
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(androidNotificationChannel);
   }
 
@@ -147,9 +148,9 @@ class Messaging {
     final partnerDisplayName = data['partnerDisplayName'];
 
     GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
-    GoRouter.of(rootNavigatorKey.currentContext!).push(
-      encodeChatRoute(chatId, partnerDisplayName),
-    );
+    GoRouter.of(
+      rootNavigatorKey.currentContext!,
+    ).push(encodeChatRoute(chatId, partnerDisplayName));
   }
 
   void _handleNotificationTap(String? payload) {
@@ -159,9 +160,9 @@ class Messaging {
       final partnerDisplayName = data['partnerDisplayName'] as String;
 
       GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
-      GoRouter.of(rootNavigatorKey.currentContext!).push(
-        encodeChatRoute(chatId, partnerDisplayName),
-      );
+      GoRouter.of(
+        rootNavigatorKey.currentContext!,
+      ).push(encodeChatRoute(chatId, partnerDisplayName));
     }
   }
 
@@ -170,14 +171,15 @@ class Messaging {
     return '/chats/$chatId?partnerDisplayName=$encodedName';
   }
 
-  static String encodeReviewRoute(
+  // TODO: Not the right place to define this method
+  static String encodeReportRoute(
     String userId,
     String chatId,
     String? partnerDisplayName,
   ) {
     final encodeUserId = Uri.encodeComponent(userId);
     final encodedName = Uri.encodeComponent(partnerDisplayName ?? '');
-    return '/admin/reviews/$chatId?userId=$encodeUserId&partnerDisplayName=$encodedName';
+    return '/admin/reports/$chatId?userId=$encodeUserId&partnerDisplayName=$encodedName';
   }
 
   static String _encodeLaunchRoute(String chatId, String partnerDisplayName) {
@@ -193,8 +195,9 @@ class Messaging {
     if (details?.didNotificationLaunchApp == true &&
         details?.notificationResponse?.payload != null) {
       try {
-        final data = jsonDecode(details!.notificationResponse!.payload!)
-            as Map<String, dynamic>;
+        final data =
+            jsonDecode(details!.notificationResponse!.payload!)
+                as Map<String, dynamic>;
         final chatId = data['chatId'] as String;
         final partnerDisplayName = data['partnerDisplayName'] as String;
 

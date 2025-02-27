@@ -13,21 +13,21 @@ import '../widgets/layout.dart';
 import '../widgets/message_list.dart';
 import '../widgets/user_info_loader.dart';
 
-class ReviewPage extends StatefulWidget {
+class ReportPage extends StatefulWidget {
   final String userId;
   final Chat chat;
 
-  const ReviewPage({
+  const ReportPage({
     super.key,
     required this.userId,
     required this.chat,
   });
 
   @override
-  State<ReviewPage> createState() => _ReviewPageState();
+  State<ReportPage> createState() => _ReportPageState();
 }
 
-class _ReviewPageState extends State<ReviewPage> {
+class _ReportPageState extends State<ReportPage> {
   late ThemeData theme;
   late FocusNode focusNode;
   late ScrollController scrollController;

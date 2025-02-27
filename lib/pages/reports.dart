@@ -81,11 +81,7 @@ class ReportItem extends StatelessWidget {
   final Report report;
   final VoidCallback onTap;
 
-  const ReportItem({
-    super.key,
-    required this.report,
-    required this.onTap,
-  });
+  const ReportItem({super.key, required this.report, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -100,24 +96,23 @@ class ReportItem extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           report.status == 'pending' ? Icons.report_outlined : Icons.task_alt,
-          color: report.status == 'pending'
-              ? theme.colorScheme.error
-              : theme.colorScheme.primary,
+          color:
+              report.status == 'pending'
+                  ? theme.colorScheme.error
+                  : theme.colorScheme.primary,
         ),
-        title: Text(report.partnerDisplayName ??
-            'Report #${report.id.substring(0, 8)}'),
-        subtitle: Text(
-          'Created ${timeago.format(createdAt, clock: now)}',
+        title: Text(
+          report.partnerDisplayName ?? 'Report #${report.id.substring(0, 8)}',
         ),
+        subtitle: Text('Created ${timeago.format(createdAt, clock: now)}'),
         trailing: TextButton(
           onPressed: onTap,
-          child: report.revivedAt == null
-              ? const Text('Review')
-              : Text(
-                  '${DateTime.fromMillisecondsSinceEpoch(
-                    report.revivedAt!,
-                  ).difference(now).inDays}d',
-                ),
+          child:
+              report.revivedAt == null
+                  ? const Text('Review')
+                  : Text(
+                    '${DateTime.fromMillisecondsSinceEpoch(report.revivedAt!).difference(now).inDays}d',
+                  ),
         ),
         // trailing: report.status == 'pending'
         //     ? TextButton(
@@ -134,8 +129,9 @@ class ReportItem extends StatelessWidget {
           final userId = report.userId;
           final chatId = report.chatId;
           final displayName = report.partnerDisplayName;
-          context
-              .push(Messaging.encodeReviewRoute(userId, chatId, displayName));
+          context.push(
+            Messaging.encodeReportRoute(userId, chatId, displayName),
+          );
         },
       ),
     );
@@ -145,10 +141,7 @@ class ReportItem extends StatelessWidget {
 class ReportDetailsDialog extends StatefulWidget {
   final Report report;
 
-  const ReportDetailsDialog({
-    super.key,
-    required this.report,
-  });
+  const ReportDetailsDialog({super.key, required this.report});
 
   @override
   State<ReportDetailsDialog> createState() => _ReportDetailsDialogState();
@@ -177,9 +170,9 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -190,8 +183,9 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final createdAt =
-        DateTime.fromMillisecondsSinceEpoch(widget.report.createdAt);
+    final createdAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.report.createdAt,
+    );
 
     return AlertDialog(
       title: Text('Report Details'),
@@ -205,9 +199,7 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
           if (widget.report.revivedAt != null) ...[
             const SizedBox(height: 16),
             Text(
-              'Revived: ${DateTime.fromMillisecondsSinceEpoch(
-                widget.report.revivedAt!,
-              ).difference(now).inDays}d',
+              'Revived: ${DateTime.fromMillisecondsSinceEpoch(widget.report.revivedAt!).difference(now).inDays}d',
             ),
           ],
           const SizedBox(height: 16),
@@ -272,15 +264,14 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
         ),
         FilledButton(
           onPressed: _isProcessing ? null : () => _resolve(),
-          child: _isProcessing
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                  ),
-                )
-              : const Text('Resolve'),
+          child:
+              _isProcessing
+                  ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  )
+                  : const Text('Resolve'),
         ),
       ],
     );

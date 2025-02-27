@@ -1,7 +1,7 @@
 name: talktive
 description: "A simple anonymous group chat app"
 publish_to: 'none'
-version: 3.2.4+40
+version: 3.2.5+41
 
 environment:
   sdk: '>=3.3.4 <4.0.0'

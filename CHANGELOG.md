@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 3.2.5+41
+
+- Display user level and device language on profile page
+- Clear message cache for inactive chats
+- Improve admin reports page
+
 ## 3.2.4+40
 
 - Increase the suspension time for repeatedly reported users

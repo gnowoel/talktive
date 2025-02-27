@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chat.dart';
@@ -8,6 +9,7 @@ import '../models/user.dart';
 import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
+import '../services/message_cache.dart';
 import '../services/server_clock.dart';
 import '../services/settings.dart';
 import '../widgets/filter_bar.dart';
@@ -29,6 +31,7 @@ class _UsersPageState extends State<UsersPage> {
   late Firestore firestore;
   late ServerClock serverClock;
   late ChatCache chatCache;
+  late ChatMessageCache chatMessageCache;
 
   List<User> _seenUsers = [];
   List<User> _users = [];
@@ -48,11 +51,36 @@ class _UsersPageState extends State<UsersPage> {
     firestore = context.read<Firestore>();
     serverClock = context.read<ServerClock>();
     chatCache = context.read<ChatCache>();
+    chatMessageCache = context.read<ChatMessageCache>();
 
     _selectedGender = settings.selectedGender;
     _selectedLanguage = settings.selectedLanguage;
 
     _fetchUsers(chatCache.chats);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    chatCache = Provider.of<ChatCache>(context);
+    _cleanUpChatMessageCache();
+  }
+
+  void _cleanUpChatMessageCache() {
+    final inactiveChats = <Chat>[];
+
+    for (final chat in chatCache.chats) {
+      if (!chat.isActive) {
+        inactiveChats.add(chat);
+      }
+    }
+
+    if (inactiveChats.isNotEmpty) {
+      SchedulerBinding.instance.addPostFrameCallback((duration) {
+        final inactiveChatIds = inactiveChats.map((chat) => chat.id).toList();
+        chatMessageCache.clear(inactiveChatIds);
+      });
+    }
   }
 
   void _handleGenderChanged(String? value) {
@@ -156,7 +184,6 @@ class _UsersPageState extends State<UsersPage> {
     const lines = ['No more users here.', 'Try again later.', ''];
     const info = 'Please do not give out personal information to strangers.';
 
-    final chatCache = context.watch<ChatCache>();
     final chats = chatCache.chats;
     final knownUserIds = _knownUserIds(chats);
     final seenUserIds = _seenUserIds();

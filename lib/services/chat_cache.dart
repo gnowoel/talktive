@@ -12,7 +12,7 @@ class ChatCache extends ChangeNotifier {
   List<Chat> get chats => _chats;
 
   updateChats(List<Chat> chats) {
-    _chats = chats;
+    _chats = List<Chat>.from(chats);
     notifyListeners();
   }
 }

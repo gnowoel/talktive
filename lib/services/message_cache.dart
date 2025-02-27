@@ -6,10 +6,6 @@ class MessageCache extends ChangeNotifier {
   final Map<String, List<Message>> _cache = {};
   final Map<String, int> _lastTimestamps = {};
 
-  MessageCache._();
-  static final MessageCache _instance = MessageCache._();
-  factory MessageCache() => _instance;
-
   void addMessages(String chatId, List<Message> messages) {
     if (messages.isEmpty) return;
 
@@ -47,4 +43,16 @@ class MessageCache extends ChangeNotifier {
     }
     notifyListeners();
   }
+}
+
+class ChatMessageCache extends MessageCache {
+  ChatMessageCache._();
+  static final ChatMessageCache _instance = ChatMessageCache._();
+  factory ChatMessageCache() => _instance;
+}
+
+class ReportMessageCache extends MessageCache {
+  ReportMessageCache._();
+  static final ReportMessageCache _instance = ReportMessageCache._();
+  factory ReportMessageCache() => _instance;
 }

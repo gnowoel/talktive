@@ -32,7 +32,7 @@ class _ChatPageState extends State<ChatPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
-  late MessageCache messageCache;
+  late ChatMessageCache chatMessageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
 
@@ -50,7 +50,7 @@ class _ChatPageState extends State<ChatPage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     userCache = context.read<UserCache>();
-    messageCache = context.read<MessageCache>();
+    chatMessageCache = context.read<ChatMessageCache>();
 
     _chat = widget.chat;
 
@@ -86,12 +86,12 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    final lastTimestamp = messageCache.getLastTimestamp(_chat.id);
+    final lastTimestamp = chatMessageCache.getLastTimestamp(_chat.id);
 
     messagesSubscription = firedata
         .subscribeToMessages(_chat.id, lastTimestamp)
         .listen((messages) {
-          messageCache.addMessages(_chat.id, messages);
+          chatMessageCache.addMessages(_chat.id, messages);
         });
   }
 

@@ -16,12 +16,16 @@ class ReportMessageCache extends ChangeNotifier {
     _cache[chatId] ??= [];
     var existingMessages = _cache[chatId]!;
 
-    // Suppose there are no two messages with the same timestamp.
-    for (final message in messages) {
-      existingMessages.add(message);
+    // Add new messages and update existing ones
+    for (var message in messages) {
+      int index = existingMessages.indexWhere((m) => m.id == message.id);
+      if (index >= 0) {
+        existingMessages[index] = message;
+      } else {
+        existingMessages.add(message);
+      }
     }
 
-    // Already sorted, just in case.
     existingMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     _lastTimestamps[chatId] = existingMessages.last.createdAt;
 

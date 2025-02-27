@@ -7,7 +7,7 @@ import '../helpers/exception.dart';
 import '../models/chat.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/message_cache.dart';
+import '../services/report_message_cache.dart';
 import '../widgets/hearts.dart';
 import '../widgets/layout.dart';
 import '../widgets/message_list.dart';
@@ -29,7 +29,7 @@ class _ReportPageState extends State<ReportPage> {
   late ScrollController scrollController;
   late Fireauth fireauth;
   late Firedata firedata;
-  late MessageCache messageCache;
+  late ReportMessageCache reportMessageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
 
@@ -44,7 +44,7 @@ class _ReportPageState extends State<ReportPage> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-    messageCache = context.read<MessageCache>();
+    reportMessageCache = context.read<ReportMessageCache>();
 
     _chat = widget.chat;
 
@@ -80,12 +80,12 @@ class _ReportPageState extends State<ReportPage> {
       }
     });
 
-    final lastTimestamp = messageCache.getLastTimestamp(widget.chat.id);
+    final lastTimestamp = reportMessageCache.getLastTimestamp(widget.chat.id);
 
     messagesSubscription = firedata
         .subscribeToMessages(widget.chat.id, lastTimestamp)
         .listen((messages) {
-          messageCache.addMessages(widget.chat.id, messages);
+          reportMessageCache.addMessages(widget.chat.id, messages);
         });
   }
 

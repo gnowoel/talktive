@@ -37,28 +37,29 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Reports'),
-      ),
-      body: SafeArea(
-        child: Layout(
-          child: StreamBuilder<List<Report>>(
-            stream: firedata.subscribeToReports(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
+    return StreamBuilder<List<Report>>(
+      stream: firedata.subscribeToReports(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
 
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: const Text('(Empty)'));
-              }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: const Text('(Empty)'));
+        }
 
-              _reports = snapshot.data!;
+        _reports = snapshot.data!;
 
-              return ListView.builder(
+        return Scaffold(
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
+          appBar: AppBar(
+            backgroundColor: theme.colorScheme.surfaceContainerLow,
+            title: Text('Reports (${_reports.length})'),
+          ),
+
+          body: SafeArea(
+            child: Layout(
+              child: ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: _reports.length,
                 itemBuilder: (context, index) {
@@ -68,11 +69,11 @@ class _ReportsPageState extends State<ReportsPage> {
                     onTap: () => _showReportDetails(report),
                   );
                 },
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

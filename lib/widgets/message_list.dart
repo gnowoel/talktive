@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talktive/services/report_message_cache.dart';
 
 import '../models/image_message.dart';
 import '../models/message.dart';
@@ -34,7 +33,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   late bool _isSticky;
-  late MessageCache messageCache;
+  late ChatMessageCache chatMessageCache;
   late ReportMessageCache reportMessageCache;
   List<Message> _messages = [];
   ScrollNotification? _lastNotification;
@@ -49,12 +48,14 @@ class _MessageListState extends State<MessageList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    messageCache = Provider.of<MessageCache>(context);
+
+    // TODO: Split into two separate widgets to improve performance
+    chatMessageCache = Provider.of<ChatMessageCache>(context);
     reportMessageCache = Provider.of<ReportMessageCache>(context);
 
     final messages =
         widget.reporterUserId == null
-            ? messageCache.getMessages(widget.chatId)
+            ? chatMessageCache.getMessages(widget.chatId)
             : reportMessageCache.getMessages(widget.chatId);
     if (messages.length != _messages.length) {
       _messages = messages;

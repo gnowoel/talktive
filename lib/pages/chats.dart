@@ -24,7 +24,7 @@ class ChatsPage extends StatefulWidget {
 class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late ChatCache chatCache;
-  late MessageCache messageCache;
+  late ChatMessageCache chatMessageCache;
   List<Chat> _chats = [];
   Timer? _timer;
 
@@ -32,7 +32,7 @@ class _ChatsPageState extends State<ChatsPage> {
   initState() {
     super.initState();
     settings = context.read<Settings>();
-    messageCache = context.read<MessageCache>();
+    chatMessageCache = context.read<ChatMessageCache>();
   }
 
   @override
@@ -63,7 +63,7 @@ class _ChatsPageState extends State<ChatsPage> {
     if (inactiveChats.isNotEmpty) {
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
         final inactiveChatIds = inactiveChats.map((chat) => chat.id).toList();
-        messageCache.clear(inactiveChatIds);
+        chatMessageCache.clear(inactiveChatIds);
       });
     }
 
@@ -83,34 +83,31 @@ class _ChatsPageState extends State<ChatsPage> {
   void _showInfoDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            const Text('Quick Tips'),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'If you receive inappropriate messages, please use the REPORT feature to help keep our community safe.',
-              style: TextStyle(height: 1.5),
+      builder:
+          (context) => AlertDialog(
+            title: Row(children: [const Text('Quick Tips')]),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'If you receive inappropriate messages, please use the REPORT feature to help keep our community safe.',
+                  style: TextStyle(height: 1.5),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'You can SWIPE left on any chat to mute it if you no longer wish to participate.',
+                  style: TextStyle(height: 1.5),
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            Text(
-              'You can SWIPE left on any chat to mute it if you no longer wish to participate.',
-              style: TextStyle(height: 1.5),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Got it'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -134,23 +131,22 @@ class _ChatsPageState extends State<ChatsPage> {
         ],
       ),
       body: SafeArea(
-        child: _chats.isEmpty
-            ? Center(child: Info(lines: lines))
-            : Layout(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    if (!settings.hasHiddenChatsNotice)
-                      Notice(
-                        content: info,
-                        onDismiss: () => settings.hideChatsNotice(),
-                      ),
-                    Expanded(
-                      child: ChatList(chats: _chats),
-                    ),
-                  ],
+        child:
+            _chats.isEmpty
+                ? Center(child: Info(lines: lines))
+                : Layout(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      if (!settings.hasHiddenChatsNotice)
+                        Notice(
+                          content: info,
+                          onDismiss: () => settings.hideChatsNotice(),
+                        ),
+                      Expanded(child: ChatList(chats: _chats)),
+                    ],
+                  ),
                 ),
-              ),
       ),
     );
   }

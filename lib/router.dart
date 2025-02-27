@@ -9,8 +9,8 @@ import 'pages/chats.dart';
 import 'pages/edit_profile.dart';
 import 'pages/launch.dart';
 import 'pages/profile.dart';
+import 'pages/report.dart';
 import 'pages/reports.dart';
-import 'pages/review.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -19,8 +19,8 @@ import 'widgets/navigation.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
-final _usersNavigatorKey = GlobalKey<NavigatorState>();
 final _profileNavigatorKey = GlobalKey<NavigatorState>();
+final _usersNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<GoRouter> initRouter() async {
   final initialRoute = await Messaging.getInitialRoute();
@@ -39,9 +39,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/users',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: UsersPage(),
-                ),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: UsersPage()),
               ),
             ],
           ),
@@ -50,9 +50,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/chats',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ChatsPage(),
-                ),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: ChatsPage()),
               ),
             ],
           ),
@@ -61,9 +61,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/profile',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ProfilePage(),
-                ),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -106,10 +106,7 @@ Future<GoRouter> initRouter() async {
             messageCount: 0,
           );
 
-          final chat = Chat.fromStub(
-            key: chatId,
-            value: chatStub,
-          );
+          final chat = Chat.fromStub(key: chatId, value: chatStub);
 
           return ChatPage(chat: chat);
         },
@@ -123,23 +120,22 @@ Future<GoRouter> initRouter() async {
       ),
       GoRoute(
         path: '/admin/reports',
-        builder: (context, state) => FutureBuilder(
-          future: _checkAdminAccess(context),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data == true) {
-              return const ReportsPage();
-            }
-            // Return unauthorized or loading state
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          },
-        ),
+        builder:
+            (context, state) => FutureBuilder(
+              future: _checkAdminAccess(context),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data == true) {
+                  return const ReportsPage();
+                }
+                // Return unauthorized or loading state
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              },
+            ),
       ),
       GoRoute(
-        path: '/admin/reviews/:id',
+        path: '/admin/reports/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
           final encodedUserId = state.uri.queryParameters['userId'] ?? '';
@@ -162,12 +158,9 @@ Future<GoRouter> initRouter() async {
             messageCount: 0,
           );
 
-          final chat = Chat.fromStub(
-            key: chatId,
-            value: chatStub,
-          );
+          final chat = Chat.fromStub(key: chatId, value: chatStub);
 
-          return ReviewPage(userId: userId, chat: chat);
+          return ReportPage(userId: userId, chat: chat);
         },
       ),
     ],

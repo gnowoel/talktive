@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
@@ -49,25 +48,7 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void _setChatsAgain() {
-    final activeChats = <Chat>[];
-    final inactiveChats = <Chat>[];
-
-    for (final chat in chatCache.chats) {
-      if (chat.isActive) {
-        activeChats.add(chat);
-      } else {
-        inactiveChats.add(chat);
-      }
-    }
-
-    if (inactiveChats.isNotEmpty) {
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        final inactiveChatIds = inactiveChats.map((chat) => chat.id).toList();
-        chatMessageCache.clear(inactiveChatIds);
-      });
-    }
-
-    _chats = activeChats;
+    _chats = List<Chat>.from(chatCache.activeChats);
     final nextTime = getNextTime(_chats);
     if (nextTime == null) return;
 

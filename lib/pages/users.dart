@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chat.dart';
@@ -63,24 +62,6 @@ class _UsersPageState extends State<UsersPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     chatCache = Provider.of<ChatCache>(context);
-    _cleanUpChatMessageCache();
-  }
-
-  void _cleanUpChatMessageCache() {
-    final inactiveChats = <Chat>[];
-
-    for (final chat in chatCache.chats) {
-      if (!chat.isActive) {
-        inactiveChats.add(chat);
-      }
-    }
-
-    if (inactiveChats.isNotEmpty) {
-      SchedulerBinding.instance.addPostFrameCallback((duration) {
-        final inactiveChatIds = inactiveChats.map((chat) => chat.id).toList();
-        chatMessageCache.clear(inactiveChatIds);
-      });
-    }
   }
 
   void _handleGenderChanged(String? value) {

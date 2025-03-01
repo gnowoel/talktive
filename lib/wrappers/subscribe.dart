@@ -56,8 +56,8 @@ class _SubscribeState extends State<Subscribe> {
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       chatCache.updateChats(chats);
-      // Invalidate the message cache to avoid messing up
-      chatMessageCache.clear(chatCache.inactiveChatIds);
+      // Clean up message cache for inactive chats
+      chatMessageCache.cleanup(chatCache.activeChatIds);
     });
     fcmTokenSubscription = messaging.subscribeToFcmToken().listen((
       token,

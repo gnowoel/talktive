@@ -13,8 +13,7 @@ class ChatCache extends ChangeNotifier {
 
   List<Chat> get activeChats => _chats.where((chat) => chat.isActive).toList();
 
-  List<String> get inactiveChatIds =>
-      _chats.where((chat) => !chat.isActive).map((chat) => chat.id).toList();
+  List<String> get activeChatIds => activeChats.map((chat) => chat.id).toList();
 
   updateChats(List<Chat> chats) {
     _chats = List<Chat>.from(chats);

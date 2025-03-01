@@ -79,7 +79,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                         child: Text(
                           'Level ${user.level}',
-                          style: theme.textTheme.labelSmall?.copyWith(
+                          style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.colorScheme.surface,
                           ),
                         ),
@@ -96,7 +96,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                         child: Text(
                           getLongGenderName(user.gender!) ?? '',
-                          style: theme.textTheme.labelSmall,
+                          style: theme.textTheme.labelMedium,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -111,7 +111,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                         child: Text(
                           getLanguageName(user.languageCode!) ?? '',
-                          style: theme.textTheme.labelSmall,
+                          style: theme.textTheme.labelMedium,
                         ),
                       ),
                     ],

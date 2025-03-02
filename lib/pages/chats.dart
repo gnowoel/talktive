@@ -10,7 +10,7 @@ import '../services/message_cache.dart';
 import '../services/settings.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
-import '../widgets/notice.dart';
+import '../widgets/info_notice.dart';
 import '../widgets/layout.dart';
 
 class ChatsPage extends StatefulWidget {
@@ -120,7 +120,7 @@ class _ChatsPageState extends State<ChatsPage> {
                     children: [
                       const SizedBox(height: 10),
                       if (!settings.hasHiddenChatsNotice)
-                        Notice(
+                        InfoNotice(
                           content: info,
                           onDismiss: () => settings.hideChatsNotice(),
                         ),

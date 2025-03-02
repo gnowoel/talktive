@@ -1,3 +1,5 @@
+import '../services/server_clock.dart';
+
 class Report {
   final String id;
   final String userId;
@@ -33,5 +35,11 @@ class Report {
       createdAt: json['createdAt'] as int,
       revivedAt: json['revivedAt'] as int?,
     );
+  }
+
+  bool get isActive {
+    final now = ServerClock().now;
+    final twelveHoursAgo = now - 12 * 60 * 60 * 1000;
+    return createdAt >= twelveHoursAgo;
   }
 }

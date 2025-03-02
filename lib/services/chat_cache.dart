@@ -3,20 +3,42 @@ import 'package:flutter/foundation.dart';
 import '../models/chat.dart';
 
 class ChatCache extends ChangeNotifier {
-  List<Chat> _chats = [];
+  final Map<String, Chat> _chats = {};
 
   ChatCache._();
   static final ChatCache _instance = ChatCache._();
   factory ChatCache() => _instance;
 
-  List<Chat> get chats => _chats;
+  List<Chat> get chats => _chats.values.toList();
 
-  List<Chat> get activeChats => _chats.where((chat) => chat.isActive).toList();
+  Chat? getChat(String chatId) => _chats[chatId];
 
-  List<String> get activeChatIds => activeChats.map((chat) => chat.id).toList();
+  List<Chat> get activeChats =>
+      _chats.values.where((chat) => chat.isActive).toList();
 
-  updateChats(List<Chat> chats) {
-    _chats = List<Chat>.from(chats);
+  List<String> get activeChatIds =>
+      _chats.entries
+          .where((entry) => entry.value.isActive)
+          .map((entry) => entry.key)
+          .toList();
+
+  void updateChats(List<Chat> chats) {
+    _chats.clear();
+    for (final chat in chats) {
+      _chats[chat.id] = chat;
+    }
     notifyListeners();
   }
+
+  void updateChat(Chat chat) {
+    _chats[chat.id] = chat;
+    notifyListeners();
+  }
+
+  void removeChat(String chatId) {
+    _chats.remove(chatId);
+    notifyListeners();
+  }
+
+  bool hasChat(String chatId) => _chats.containsKey(chatId);
 }

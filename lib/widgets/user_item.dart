@@ -101,7 +101,7 @@ class _UserItemState extends State<UserItem> {
       }
     }
 
-    return !self.withWarning;
+    return true;
   }
 
   Future<void> _showRestrictionDialog() async {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talktive/widgets/status_notice.dart';
 
 import '../helpers/exception.dart';
 import '../models/chat.dart';
@@ -306,62 +307,22 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildAlertBox() {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-      color: theme.colorScheme.tertiaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: Row(
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 16,
-              color: theme.colorScheme.onTertiaryContainer,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'This user has been reported for offensive messages. Be careful!',
-                style: TextStyle(
-                  color: theme.colorScheme.onTertiaryContainer,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return StatusNotice(
+      content:
+          'This user has been reported for offensive messages. Be careful!',
+      icon: Icons.error_outline,
+      backgroundColor: theme.colorScheme.tertiaryContainer,
+      foregroundColor: theme.colorScheme.onTertiaryContainer,
     );
   }
 
   Widget _buildWarningBox() {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-      color: theme.colorScheme.errorContainer,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: Row(
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 16,
-              color: theme.colorScheme.onErrorContainer,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'This user has been reported for inappropriate behavior. Stay safe!',
-                style: TextStyle(
-                  color: theme.colorScheme.onErrorContainer,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return StatusNotice(
+      content:
+          'This user has been reported for inappropriate behavior. Stay safe!',
+      icon: Icons.error_outline,
+      backgroundColor: theme.colorScheme.errorContainer,
+      foregroundColor: theme.colorScheme.onErrorContainer,
     );
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class Notice extends StatefulWidget {
+class InfoNotice extends StatefulWidget {
   final String content;
   final VoidCallback? onDismiss;
   final Duration delay;
 
-  const Notice({
+  const InfoNotice({
     super.key,
     required this.content,
     this.onDismiss,
@@ -13,10 +13,11 @@ class Notice extends StatefulWidget {
   });
 
   @override
-  State<Notice> createState() => _NoticeState();
+  State<InfoNotice> createState() => _InfoNoticeState();
 }
 
-class _NoticeState extends State<Notice> with SingleTickerProviderStateMixin {
+class _InfoNoticeState extends State<InfoNotice>
+    with SingleTickerProviderStateMixin {
   bool _isVisible = false;
   bool _isDismissed = false;
   late AnimationController _controller;
@@ -30,10 +31,7 @@ class _NoticeState extends State<Notice> with SingleTickerProviderStateMixin {
       vsync: this,
     );
 
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
     Future.delayed(widget.delay, () {
       if (mounted && !_isDismissed) {
@@ -75,10 +73,7 @@ class _NoticeState extends State<Notice> with SingleTickerProviderStateMixin {
           margin: const EdgeInsets.fromLTRB(16, 6, 16, 10),
           color: theme.colorScheme.surfaceContainer,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 16,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Row(
               children: [
                 Icon(

@@ -180,15 +180,6 @@ class _ChatItemState extends State<ChatItem> {
                 Row(
                   children: [
                     Tag(
-                      tooltip: 'Level ${_partner.level}',
-                      child: Text(
-                        'L${_partner.level}',
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
                       tooltip: '${getLongGenderName(_partner.gender!)}',
                       child: Text(
                         _partner.gender!,
@@ -201,6 +192,15 @@ class _ChatItemState extends State<ChatItem> {
                       tooltip: '${getLanguageName(_partner.languageCode!)}',
                       child: Text(
                         _partner.languageCode!,
+                        style: TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Tag(
+                      tooltip: 'Level ${_partner.level}',
+                      child: Text(
+                        'L${_partner.level}',
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),

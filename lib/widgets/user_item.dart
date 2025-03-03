@@ -307,15 +307,6 @@ class _UserItemState extends State<UserItem> {
               Row(
                 children: [
                   Tag(
-                    tooltip: 'Level ${widget.user.level}',
-                    child: Text(
-                      'L${widget.user.level}',
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Tag(
                     tooltip: '${getLongGenderName(widget.user.gender!)}',
                     child: Text(
                       widget.user.gender!,
@@ -328,6 +319,15 @@ class _UserItemState extends State<UserItem> {
                     tooltip: '${getLanguageName(widget.user.languageCode!)}',
                     child: Text(
                       widget.user.languageCode!,
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: 'Level ${widget.user.level}',
+                    child: Text(
+                      'L${widget.user.level}',
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),

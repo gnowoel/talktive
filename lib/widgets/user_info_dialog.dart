@@ -89,14 +89,6 @@ class UserInfoDialog extends StatelessWidget {
               runSpacing: 8,
               children: [
                 Tag(
-                  tooltip: 'Level ${user!.level}',
-                  child: Text(
-                    'L${user!.level}',
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Tag(
                   tooltip: '${getLongGenderName(user!.gender!)}',
                   child: Text(
                     user!.gender!,
@@ -108,6 +100,14 @@ class UserInfoDialog extends StatelessWidget {
                   child: Text(
                     user!.languageCode!,
                     style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+                Tag(
+                  tooltip: 'Level ${user!.level}',
+                  child: Text(
+                    'L${user!.level}',
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Tag(

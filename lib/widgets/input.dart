@@ -17,11 +17,7 @@ class Input extends StatefulWidget {
   final FocusNode focusNode;
   final Chat chat;
 
-  const Input({
-    super.key,
-    required this.focusNode,
-    required this.chat,
-  });
+  const Input({super.key, required this.focusNode, required this.chat});
 
   @override
   State<Input> createState() => _InputState();
@@ -49,14 +45,11 @@ class _InputState extends State<Input> {
 
     _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
 
-    timer = Timer(
-      Duration(milliseconds: getTimeLeft(widget.chat)),
-      () {
-        setState(() {
-          _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
-        });
-      },
-    );
+    timer = Timer(Duration(milliseconds: getTimeLeft(widget.chat)), () {
+      setState(() {
+        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+      });
+    });
   }
 
   @override
@@ -75,14 +68,11 @@ class _InputState extends State<Input> {
       _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
     });
 
-    timer = Timer(
-      Duration(milliseconds: getTimeLeft(widget.chat)),
-      () {
-        setState(() {
-          _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
-        });
-      },
-    );
+    timer = Timer(Duration(milliseconds: getTimeLeft(widget.chat)), () {
+      setState(() {
+        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+      });
+    });
   }
 
   @override
@@ -200,10 +190,12 @@ class _InputState extends State<Input> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event, User user) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed =
+          event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
@@ -226,28 +218,25 @@ class _InputState extends State<Input> {
         padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerLow,
-          borderRadius: const BorderRadius.all(
-            Radius.circular(32),
-          ),
+          borderRadius: const BorderRadius.all(Radius.circular(32)),
           border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
         ),
         child: Row(
           children: [
             IconButton(
               onPressed: _enabled ? () => _sendImageMessage(user) : null,
-              icon: _isUploading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
+              icon:
+                  _isUploading
+                      ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      )
+                      : Icon(
+                        Icons.attach_file,
+                        color: theme.colorScheme.primary,
                       ),
-                    )
-                  : Icon(
-                      Icons.attach_file,
-                      color: theme.colorScheme.primary,
-                    ),
-              tooltip: 'Send picture',
+              tooltip: _enabled ? 'Send picture' : 'Chat closed',
             ),
             Expanded(
               child: KeyboardListener(
@@ -261,7 +250,7 @@ class _InputState extends State<Input> {
                   maxLines: 12,
                   controller: _controller,
                   decoration: InputDecoration.collapsed(
-                    hintText: 'Enter message',
+                    hintText: _enabled ? 'Enter message' : 'Chat closed',
                     hintStyle: TextStyle(color: theme.colorScheme.outline),
                   ),
                 ),
@@ -269,11 +258,8 @@ class _InputState extends State<Input> {
             ),
             IconButton(
               onPressed: _enabled ? () => _sendTextMessage(user) : null,
-              icon: Icon(
-                Icons.send,
-                color: theme.colorScheme.primary,
-              ),
-              tooltip: 'Send message',
+              icon: Icon(Icons.send, color: theme.colorScheme.primary),
+              tooltip: _enabled ? 'Send message' : 'Chat closed',
             ),
           ],
         ),

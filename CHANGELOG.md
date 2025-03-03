@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.2.6+42
+
+- Invalidate the message cache dynamically based on active chats
+- Add animated alerts and warning boxes for better visibility
+- Indicate closed chats by updating the input field placeholder
+- Reposition the user level tag to the right of the gender and language labels
+
 ## 3.2.5+41
 
 - Display user level and device language on profile page

@@ -59,7 +59,9 @@ class _MessageListState extends State<MessageList> {
             : reportMessageCache.getMessages(widget.chatId);
     if (messages.length != _messages.length) {
       _messages = messages;
-      widget.updateMessageCount(messages.length);
+      if (widget.reporterUserId == null) {
+        widget.updateMessageCount(messages.length);
+      }
     }
   }
 

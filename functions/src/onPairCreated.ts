@@ -48,27 +48,28 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
         languageCode: other.languageCode ?? null,
         photoURL: other.photoURL ?? null,
         displayName: other.displayName ?? null,
-        description: other.description ?? null,
+        description: '', // To save space
         gender: other.gender ?? null,
         revivedAt: other.revivedAt ?? null,
-        messageCount: other.messageCount ?? null,
+        messageCount: other.messageCount ?? null, // For calculating the level
         // fcmToken: ''
       };
 
-      const userRef = db.ref(`chats/${follower}/${pairId}`);
-      const now = new Date().getTime();
-      const twoWeeks = 14 * 24 * 60 * 60 * 1000;
-      const mute = (other.revivedAt ?? 0) >= now + twoWeeks;
+      const chatRef = db.ref(`chats/${follower}/${pairId}`);
 
-      await userRef.set({
-        partner: partner,
-        firstUserId: null,
-        lastMessageContent: null,
-        messageCount: pair.messageCount, // 0
-        readMessageCount: pair.messageCount, // 0
-        mute,
-        createdAt: pair.createdAt,
-        updatedAt: pair.updatedAt,
+      await chatRef.transaction((current) => {
+        if (current) return; // Don't overwrite existing chat
+
+        return {
+          partner: partner,
+          firstUserId: null,
+          lastMessageContent: null,
+          messageCount: pair.messageCount, // 0
+          readMessageCount: pair.messageCount, // 0
+          mute: false,
+          createdAt: pair.createdAt,
+          updatedAt: pair.updatedAt,
+        };
       });
     }
 

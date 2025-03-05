@@ -31,7 +31,54 @@ class Firedata {
     return stream;
   }
 
-  Future<Chat> createPair(String userId, User partner) async {
+  Future<Chat> _createChat(String userId, String chatId, User partner) async {
+    final chatRef = instance.ref('chats/$userId/$chatId');
+
+    // Create partner stub from the other user
+    final partnerStub = {
+      'createdAt': partner.createdAt, // For checking `newcomer` status
+      'updatedAt': 0,
+      'languageCode': partner.languageCode,
+      'photoURL': partner.photoURL,
+      'displayName': partner.displayName,
+      'description': '', // To save space
+      'gender': partner.gender,
+      'revivedAt': partner.revivedAt,
+      'messageCount': partner.messageCount, // For calculating the level
+    };
+
+    // Run transaction to ensure atomic creation
+    final result = await chatRef.runTransaction((current) {
+      if (current != null) {
+        // Chat already exists, abort to maintain idempotency
+        return Transaction.abort();
+      }
+
+      // Create new chat
+      return Transaction.success({
+        'partner': partnerStub,
+        'firstUserId': null, // Will be set when first message is sent
+        'lastMessageContent': null,
+        'messageCount': 0,
+        'readMessageCount': 0,
+        'mute': false,
+        'createdAt': ServerValue.timestamp,
+        'updatedAt': ServerValue.timestamp,
+        // 'v2': true, // Flag to indicate new version
+      });
+    }, applyLocally: false);
+
+    if (!result.committed) {
+      throw AppException('Failed to create chat');
+    }
+
+    // Convert to Chat object
+    final json = Map<String, dynamic>.from(result.snapshot.value as Map);
+    final stub = ChatStub.fromJson(json);
+    return Chat.fromStub(key: chatId, value: stub);
+  }
+
+  Future<Chat> _createPair(String userId, User partner) async {
     try {
       final userId1 = userId;
       final userId2 = partner.id;
@@ -343,9 +390,11 @@ class Firedata {
 
   Future<Chat> greetUser(User self, User other, String message) async {
     try {
-      final chat = await createPair(self.id, other);
+      // final chat = await _createPair(self.id, other);
+      // await Future.delayed(const Duration(seconds: 1));
 
-      await Future.delayed(const Duration(seconds: 1));
+      final chatId = ([self.id, other.id]..sort()).join();
+      final chat = await _createChat(self.id, chatId, other);
 
       await sendTextMessage(
         chat,

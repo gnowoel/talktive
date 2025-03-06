@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.3.0+43
+
+- Make sending the first message faster and more reliable
+- Fix discrepancy in the total and read message counts
+- Add French to the language selection
+- Update dependencies
+
 ## 3.2.6+42
 
 - Invalidate the message cache dynamically based on active chats

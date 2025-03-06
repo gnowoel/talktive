@@ -322,25 +322,19 @@ class Firedata {
         throw Exception(result['error'] ?? 'Failed to create conversation');
       }
 
-      // Get the chat object
-      final chat = await _fetchChat(self.id, chatId);
-      return chat;
+      return _createInitialDummyChat(chatId, other);
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  Future<Chat> _fetchChat(String userId, String chatId) async {
-    final ref = instance.ref('chats/$userId/$chatId');
-    final snapshot = await ref.get();
-
-    if (!snapshot.exists) {
-      throw AppException('Chat not found');
-    }
-
-    // Currently breaks on iOS, where `.value` incorrectly contains key
-    final json = Map<String, dynamic>.from(snapshot.value as Map);
-    final stub = ChatStub.fromJson(json);
+  Chat _createInitialDummyChat(String chatId, User other) {
+    final stub = ChatStub(
+      createdAt: 0,
+      updatedAt: 0,
+      partner: UserStub.fromJson(other.toJson()),
+      messageCount: 0,
+    );
     return Chat.fromStub(key: chatId, value: stub);
   }
 

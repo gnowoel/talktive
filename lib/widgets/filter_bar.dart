@@ -31,7 +31,7 @@ class FilterBar extends StatelessWidget {
     {'label': 'English', 'value': 'en'},
     {'label': 'Arabic', 'value': 'ar'},
     // {'label': 'Chinese', 'value': 'zh'},
-    // {'label': 'French', 'value': 'fr'},
+    {'label': 'French', 'value': 'fr'},
     // {'label': 'Greek', 'value': 'el'},
     // {'label': 'Hungarian', 'value': 'hu'},
     // {'label': 'Indonesian', 'value': 'id'},
@@ -101,17 +101,16 @@ class FilterBar extends StatelessWidget {
           value: value,
           isExpanded: true,
           hint: Text(hint),
-          items: items.map((item) {
-            return DropdownMenuItem(
-              value: item['value'],
-              child: Text(
-                item['label']!,
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-            );
-          }).toList(),
+          items:
+              items.map((item) {
+                return DropdownMenuItem(
+                  value: item['value'],
+                  child: Text(
+                    item['label']!,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                );
+              }).toList(),
           onChanged: canRefresh ? onChanged : null,
         ),
       ),

@@ -338,6 +338,7 @@ class Firedata {
       throw AppException('Chat not found');
     }
 
+    // Currently breaks on iOS, where `.value` incorrectly contains key
     final json = Map<String, dynamic>.from(snapshot.value as Map);
     final stub = ChatStub.fromJson(json);
     return Chat.fromStub(key: chatId, value: stub);

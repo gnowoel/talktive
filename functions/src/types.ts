@@ -12,23 +12,24 @@ export interface User {
   id?: string;
   createdAt: number;
   updatedAt: number;
-  languageCode?: string;
-  photoURL?: string;
-  displayName?: string;
+  languageCode?: string|null;
+  photoURL?: string|null;
+  displayName?: string|null;
   description?: string;
-  gender?: string;
+  gender?: string|null;
   fcmToken?: string;
-  revivedAt?: number;
-  messageCount?: number;
+  revivedAt?: number|null;
+  messageCount?: number|null;
 }
 
 export interface Pair {
   id?: string;
+  followers: [string, string];
   createdAt: number;
   updatedAt: number;
   messageCount: number;
-  firstUserId?: string;
-  lastMessageContent?: string;
+  firstUserId?: string|null;
+  lastMessageContent?: string|null;
   v2: boolean;
 }
 
@@ -39,8 +40,8 @@ export interface Chat {
   partner: User;
   messageCount: number;
   readMessageCount?: number;
-  firstUserId?: string;
-  lastMessageContent?: string;
+  firstUserId?: string|null;
+  lastMessageContent?: string|null;
   mute?: boolean;
 }
 

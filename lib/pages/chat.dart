@@ -77,7 +77,7 @@ class _ChatPageState extends State<ChatPage> {
           if (mounted) {
             ErrorHandler.showSnackBarMessage(
               context,
-              AppException('The room has been deleted.'),
+              AppException('The chat has been deleted.'),
               severe: true,
             );
           }

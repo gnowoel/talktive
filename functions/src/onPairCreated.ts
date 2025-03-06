@@ -22,13 +22,15 @@ const onPairCreated = onValueCreated('/pairs/{pairId}', async (event) => {
 
   try {
     await copyToFollowers(followers, pairId, pair);
-    updateChatStats(now);
+    await updateChatStats(now);
   } catch (error) {
     logger.error(error);
   }
 });
 
 const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) => {
+  if (pair.v2) return;
+
   try {
     const mapper: Mapper = {};
 

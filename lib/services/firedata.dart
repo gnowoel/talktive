@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart' show StreamGroup;
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
@@ -29,93 +30,6 @@ class Firedata {
     });
 
     return stream;
-  }
-
-  Future<Chat> _createChat(String userId, String chatId, User partner) async {
-    final chatRef = instance.ref('chats/$userId/$chatId');
-
-    // Create partner stub from the other user
-    final partnerStub = {
-      'createdAt': partner.createdAt, // For checking `newcomer` status
-      'updatedAt': 0,
-      'languageCode': partner.languageCode,
-      'photoURL': partner.photoURL,
-      'displayName': partner.displayName,
-      'description': '', // To save space
-      'gender': partner.gender,
-      'revivedAt': partner.revivedAt,
-      'messageCount': partner.messageCount, // For calculating the level
-    };
-
-    // Run transaction to ensure atomic creation
-    final result = await chatRef.runTransaction((current) {
-      if (current != null) {
-        // Chat already exists, abort to maintain idempotency
-        return Transaction.abort();
-      }
-
-      // Create new chat
-      return Transaction.success({
-        'partner': partnerStub,
-        'firstUserId': null, // Will be set when first message is sent
-        'lastMessageContent': null,
-        'messageCount': 0,
-        'readMessageCount': 0,
-        'mute': false,
-        'createdAt': ServerValue.timestamp,
-        'updatedAt': ServerValue.timestamp,
-        // 'v2': true, // Flag to indicate new version
-      });
-    }, applyLocally: false);
-
-    if (!result.committed) {
-      throw AppException('Failed to create chat');
-    }
-
-    // Convert to Chat object
-    final json = Map<String, dynamic>.from(result.snapshot.value as Map);
-    final stub = ChatStub.fromJson(json);
-    return Chat.fromStub(key: chatId, value: stub);
-  }
-
-  Future<Chat> _createPair(String userId, User partner) async {
-    try {
-      final userId1 = userId;
-      final userId2 = partner.id;
-      if (userId1 == userId2) {
-        throw Exception("You can't talk to yourself");
-      }
-      final pairId = ([userId1, userId2]..sort()).join();
-      final ref = instance.ref('pairs/$pairId');
-      final result = await ref.runTransaction((pair) {
-        if (pair != null) {
-          return Transaction.abort();
-        }
-        return Transaction.success({
-          'followers': [userId1, userId2],
-          'firstUserId': null,
-          'lastMessageContent': null,
-          'messageCount': 0,
-          'createdAt': ServerValue.timestamp,
-          'updatedAt': ServerValue.timestamp,
-        });
-      }, applyLocally: false);
-
-      final snapshot = result.snapshot;
-      final value = snapshot.value;
-      final json = Map<String, dynamic>.from(value as Map);
-      final stub = ChatStub(
-        createdAt: 0,
-        updatedAt: 0,
-        partner: UserStub.fromJson(partner.toJson()),
-        messageCount: json['messageCount'] as int, // 0
-      );
-      final chat = Chat.fromStub(key: snapshot.key!, value: stub);
-
-      return chat;
-    } catch (e) {
-      throw AppException(e.toString());
-    }
   }
 
   Future<void> sendTextMessage(
@@ -390,24 +304,43 @@ class Firedata {
 
   Future<Chat> greetUser(User self, User other, String message) async {
     try {
-      // final chat = await _createPair(self.id, other);
-      // await Future.delayed(const Duration(seconds: 1));
-
       final chatId = ([self.id, other.id]..sort()).join();
-      final chat = await _createChat(self.id, chatId, other);
 
-      await sendTextMessage(
-        chat,
-        self.id,
-        self.displayName!,
-        self.photoURL!,
-        message,
-      );
+      // Call the Cloud Function
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('initiateConversation');
 
+      final response = await callable.call({
+        'senderId': self.id,
+        'receiverId': other.id,
+        'message': message,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to create conversation');
+      }
+
+      // Get the chat object
+      final chat = await _fetchChat(self.id, chatId);
       return chat;
     } catch (e) {
       throw AppException(e.toString());
     }
+  }
+
+  Future<Chat> _fetchChat(String userId, String chatId) async {
+    final ref = instance.ref('chats/$userId/$chatId');
+    final snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      throw AppException('Chat not found');
+    }
+
+    final json = Map<String, dynamic>.from(snapshot.value as Map);
+    final stub = ChatStub.fromJson(json);
+    return Chat.fromStub(key: chatId, value: stub);
   }
 
   Future<Admin?> fetchAdmin(String? userId) async {

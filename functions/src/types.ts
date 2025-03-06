@@ -29,6 +29,7 @@ export interface Pair {
   messageCount: number;
   firstUserId?: string;
   lastMessageContent?: string;
+  v2: boolean;
 }
 
 export interface Chat {

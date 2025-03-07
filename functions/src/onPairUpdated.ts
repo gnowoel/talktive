@@ -29,7 +29,8 @@ const updateFollower = async (userId: string, pairId: string, pair: Pair) => {
     await ref.update({
       updatedAt: pair.updatedAt,
       messageCount: pair.messageCount,
-      firstUserId: pair.firstUserId,
+      // Quick fix of the `undefined` error that might be caused by older versions of the app
+      firstUserId: pair.firstUserId ?? null,
       lastMessageContent: pair.lastMessageContent,
     });
   } catch (error) {

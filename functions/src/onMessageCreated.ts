@@ -176,12 +176,14 @@ const getChat = async (userId: string, chatId: string) => {
 };
 
 const isChatActive = (chat: Chat) => {
-  return !isChatNew(chat) && !isChatClosed(chat) && !isChatMuted(chat);
+  // return !isChatNew(chat) && !isChatClosed(chat) && !isChatMuted(chat);
+  return !isChatClosed(chat) && !isChatMuted(chat);
 };
 
-const isChatNew = (chat: Chat) => {
-  return !chat.firstUserId;
-};
+// TODO: New chat should also be notified. It should be deleted after a certain time.
+// const isChatNew = (chat: Chat) => {
+//   return !chat.firstUserId;
+// };
 
 const isChatClosed = (chat: Chat) => {
   const now = new Date().getTime();

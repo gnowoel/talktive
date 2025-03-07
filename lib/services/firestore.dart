@@ -12,6 +12,41 @@ class Firestore {
   final List<User> _cachedUsers = [];
   int? _lastUpdatedAt;
 
+  final _userCache = <String, _CachedUser>{};
+
+  Future<User?> fetchUser(String userId) async {
+    try {
+      _removeInvalidUsersFromCache();
+
+      final cached = _userCache[userId];
+      if (cached != null && cached.isValid) {
+        return cached.user;
+      }
+
+      final doc = await instance.collection('users').doc(userId).get();
+
+      if (!doc.exists) {
+        return null;
+      }
+
+      final data = doc.data()!;
+      if (!_isUserDataComplete(data)) {
+        return null;
+      }
+
+      final userStub = UserStub.fromJson(data);
+      final user = User.fromStub(key: doc.id, value: userStub);
+
+      return user;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  void _removeInvalidUsersFromCache() {
+    _userCache.removeWhere((_, cached) => !cached.isValid);
+  }
+
   Future<List<User>> fetchUsers(
     String userId,
     int serverNow, {
@@ -124,4 +159,13 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+}
+
+class _CachedUser {
+  final User user;
+  final DateTime timestamp;
+
+  _CachedUser(this.user) : timestamp = DateTime.now();
+
+  bool get isValid => DateTime.now().difference(timestamp).inMinutes < 10;
 }

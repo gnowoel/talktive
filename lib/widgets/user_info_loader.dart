@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
-import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../services/user_cache.dart';
 import 'user_info_dialog.dart';
 
@@ -24,7 +24,7 @@ class UserInfoLoader extends StatefulWidget {
 }
 
 class _UserInfoLoaderState extends State<UserInfoLoader> {
-  late Firedata firedata;
+  late Firestore firestore;
   late UserCache userCache;
   User? _user;
   String? _error;
@@ -32,7 +32,7 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
   @override
   void initState() {
     super.initState();
-    firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     userCache = context.read<UserCache>();
 
     final user = userCache.user!;
@@ -45,7 +45,7 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
 
   Future<void> _loadUser() async {
     try {
-      final user = await firedata.fetchUser(widget.userId);
+      final user = await firestore.fetchUser(widget.userId);
       if (mounted) {
         setState(() => _user = user);
       }

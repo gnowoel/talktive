@@ -58,6 +58,9 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
       };
 
       const chatRef = db.ref(`chats/${follower}/${pairId}`);
+      const now = Date.now();
+      const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+      const mute = (other.revivedAt ?? 0) >= now + twoWeeks;
 
       await chatRef.transaction((current) => {
         if (current) return; // Don't overwrite existing chat
@@ -68,7 +71,7 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
           lastMessageContent: null,
           messageCount: pair.messageCount, // 0
           readMessageCount: pair.messageCount, // 0
-          mute: false,
+          mute,
           createdAt: pair.createdAt,
           updatedAt: pair.updatedAt,
         };

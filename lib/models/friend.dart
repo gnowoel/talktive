@@ -1,0 +1,25 @@
+class Friend {
+  final String id;
+  final String userPhotoURL;
+  final String userDisplayName;
+  final String userDescription;
+  final int createdAt;
+
+  const Friend({
+    required this.id,
+    required this.userPhotoURL,
+    required this.userDisplayName,
+    required this.userDescription,
+    required this.createdAt,
+  });
+
+  factory Friend.fromJson(Map<String, dynamic> json) {
+    return Friend(
+      id: json['id'] as String,
+      userPhotoURL: json['userPhotoUrl'] as String,
+      userDisplayName: json['userDisplayName'] as String,
+      userDescription: json['userDescription'] as String,
+      createdAt: json['createdAt'] as int,
+    );
+  }
+}

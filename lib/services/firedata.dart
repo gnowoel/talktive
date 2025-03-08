@@ -8,6 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../helpers/exception.dart';
 import '../models/admin.dart';
 import '../models/chat.dart';
+import '../models/friend.dart';
 import '../models/message.dart';
 import '../models/report.dart';
 // import '../models/text_message.dart';
@@ -452,5 +453,29 @@ class Firedata {
     } catch (e) {
       throw AppException(e.toString());
     }
+  }
+
+  Future<Friend> createFriend(User self, User other) async {
+    final friendRef = instance.ref('friends/${self.id}/${other.id}');
+
+    final result = await friendRef.runTransaction((current) {
+      if (current != null) {
+        return Transaction.abort();
+      }
+
+      return Transaction.success({
+        'userPhotoURL': other.photoURL ?? '',
+        'userDisplayName': other.displayName ?? '',
+        'userDescription': other.description ?? '',
+        'createdAt': ServerValue.timestamp,
+      });
+    }, applyLocally: false);
+
+    if (!result.committed) {
+      throw AppException('Failed to create friend');
+    }
+
+    final json = Map<String, dynamic>.from(result.snapshot.value as Map);
+    return Friend.fromJson({'id': result.snapshot.key, ...json});
   }
 }

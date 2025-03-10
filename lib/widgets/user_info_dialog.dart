@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:talktive/helpers/helpers.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
+import '../services/firedata.dart';
 import '../services/server_clock.dart';
+import '../services/user_cache.dart';
 import 'tag.dart';
 
-class UserInfoDialog extends StatelessWidget {
+class UserInfoDialog extends StatefulWidget {
   final String photoURL;
   final String displayName;
   final User? user;
   final String? error;
+  final bool isFriend;
 
   const UserInfoDialog({
     super.key,
@@ -18,28 +22,60 @@ class UserInfoDialog extends StatelessWidget {
     required this.displayName,
     this.user,
     this.error,
+    this.isFriend = false,
   });
+
+  @override
+  State<UserInfoDialog> createState() => _UserInfoDialogState();
+}
+
+class _UserInfoDialogState extends State<UserInfoDialog> {
+  late Firedata firedata;
+  late UserCache userCache;
+
+  @override
+  void initState() {
+    super.initState();
+    firedata = context.read<Firedata>();
+    userCache = context.read<UserCache>();
+  }
+
+  Future<void> _addFriend() async {
+    final user = widget.user;
+
+    if (user == null) return;
+
+    try {
+      final self = userCache.user!;
+      await firedata.createFriend(self, user);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on AppException catch (e) {
+      if (!mounted) return;
+      ErrorHandler.showSnackBarMessage(context, e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (user == null) {
+    if (widget.user == null) {
       return Dialog(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(photoURL, style: const TextStyle(fontSize: 64)),
+              Text(widget.photoURL, style: const TextStyle(fontSize: 64)),
               const SizedBox(height: 16),
               Text(
-                displayName,
+                widget.displayName,
                 style: theme.textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              if (error == null)
+              if (widget.error == null)
                 Padding(
                   padding: const EdgeInsets.only(top: 24, bottom: 8),
                   child: SizedBox(
@@ -60,8 +96,10 @@ class UserInfoDialog extends StatelessWidget {
     }
 
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final updatedAt = DateTime.fromMillisecondsSinceEpoch(user!.updatedAt);
-    final userStatus = user!.status;
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.user!.updatedAt,
+    );
+    final userStatus = widget.user!.status;
 
     return Dialog(
       child: Padding(
@@ -69,16 +107,16 @@ class UserInfoDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(photoURL, style: const TextStyle(fontSize: 64)),
+            Text(widget.photoURL, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
             Text(
-              displayName,
+              widget.displayName,
               style: theme.textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              user!.description!,
+              widget.user!.description!,
               style: theme.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -89,23 +127,23 @@ class UserInfoDialog extends StatelessWidget {
               runSpacing: 8,
               children: [
                 Tag(
-                  tooltip: '${getLongGenderName(user!.gender!)}',
+                  tooltip: '${getLongGenderName(widget.user!.gender!)}',
                   child: Text(
-                    user!.gender!,
+                    widget.user!.gender!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
-                  tooltip: '${getLanguageName(user!.languageCode!)}',
+                  tooltip: '${getLanguageName(widget.user!.languageCode!)}',
                   child: Text(
-                    user!.languageCode!,
+                    widget.user!.languageCode!,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 Tag(
-                  tooltip: 'Level ${user!.level}',
+                  tooltip: 'Level ${widget.user!.level}',
                   child: Text(
-                    'L${user!.level}',
+                    'L${widget.user!.level}',
                     style: TextStyle(fontSize: 12),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -126,7 +164,11 @@ class UserInfoDialog extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _addFriend,
+              child: const Text('Add Friend'),
+            ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Close'),

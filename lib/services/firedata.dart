@@ -463,10 +463,17 @@ class Firedata {
         return Transaction.abort();
       }
 
+      final friend = Friend(
+        id: '',
+        userPhotoURL: other.photoURL ?? '',
+        userDisplayName: other.displayName ?? '',
+        userDescription: other.description ?? '',
+        createdAt: 0,
+      );
+
       return Transaction.success({
-        'userPhotoURL': other.photoURL ?? '',
-        'userDisplayName': other.displayName ?? '',
-        'userDescription': other.description ?? '',
+        ...friend.toJson(),
+        'id': null,
         'createdAt': ServerValue.timestamp,
       });
     }, applyLocally: false);

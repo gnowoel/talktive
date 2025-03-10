@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:talktive/pages/friends.dart';
 
 import 'models/chat.dart';
 import 'models/user.dart';
@@ -18,9 +19,10 @@ import 'services/messaging.dart';
 import 'widgets/navigation.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
-final _chatsNavigatorKey = GlobalKey<NavigatorState>();
-final _profileNavigatorKey = GlobalKey<NavigatorState>();
 final _usersNavigatorKey = GlobalKey<NavigatorState>();
+final _chatsNavigatorKey = GlobalKey<NavigatorState>();
+final _friendsNavigatorKey = GlobalKey<NavigatorState>();
+final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<GoRouter> initRouter() async {
   final initialRoute = await Messaging.getInitialRoute();
@@ -53,6 +55,17 @@ Future<GoRouter> initRouter() async {
                 pageBuilder:
                     (context, state) =>
                         const NoTransitionPage(child: ChatsPage()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _friendsNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/friends',
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: FriendsPage()),
               ),
             ],
           ),

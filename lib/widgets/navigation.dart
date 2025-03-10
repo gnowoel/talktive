@@ -12,10 +12,7 @@ import '../services/chat_cache.dart';
 class Navigation extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
 
-  const Navigation({
-    super.key,
-    required this.navigationShell,
-  });
+  const Navigation({super.key, required this.navigationShell});
 
   @override
   State<Navigation> createState() => _NavigationState();
@@ -82,16 +79,18 @@ class _NavigationState extends State<Navigation> {
             icon: Badge(
               isLabelVisible: unreadCount > 0,
               label: Text('$unreadCount'),
-              child: Icon(
-                currentIndex == 1 ? Icons.chat : Icons.chat_outlined,
-              ),
+              child: Icon(currentIndex == 1 ? Icons.chat : Icons.chat_outlined),
+            ),
+          ),
+          NavigationDestination(
+            label: 'Friends',
+            icon: Icon(
+              currentIndex == 2 ? Icons.loyalty : Icons.loyalty_outlined,
             ),
           ),
           NavigationDestination(
             label: 'Profile',
-            icon: Icon(
-              currentIndex == 2 ? Icons.face : Icons.face_outlined,
-            ),
+            icon: Icon(currentIndex == 3 ? Icons.face : Icons.face_outlined),
           ),
         ],
         onDestinationSelected: _goBranch,

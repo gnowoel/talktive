@@ -487,4 +487,48 @@ class Firedata {
     final json = Map<String, dynamic>.from(result.snapshot.value as Map);
     return Friend.fromJson({'id': result.snapshot.key, ...json});
   }
+
+  Stream<List<Friend>> subscribeToFriends(String userId) {
+    final ref = instance.ref('friends/$userId');
+    final friends = <Friend>[];
+
+    final Stream<List<Friend>> stream = StreamGroup.merge([
+      ref.onChildAdded.map((event) {
+        final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+        final friend = Friend.fromJson({'id': event.snapshot.key, ...json});
+
+        final index = friends.indexWhere((f) => f.id == friend.id);
+        if (index == -1) {
+          friends.add(friend);
+        } else {
+          friends[index] = friend;
+        }
+
+        friends.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return List<Friend>.from(friends);
+      }),
+      ref.onChildChanged.map((event) {
+        final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+        final friend = Friend.fromJson({'id': event.snapshot.key, ...json});
+
+        final index = friends.indexWhere((f) => f.id == friend.id);
+        if (index != -1) {
+          friends[index] = friend;
+        }
+
+        // We never change `createdAt`, so sorting is not really necessary.
+        friends.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return List<Friend>.from(friends);
+      }),
+      ref.onChildRemoved.map((event) {
+        final index = friends.indexWhere((f) => f.id == event.snapshot.key);
+        if (index != -1) {
+          friends.removeAt(index);
+        }
+        return List<Friend>.from(friends);
+      }),
+    ]);
+
+    return stream;
+  }
 }

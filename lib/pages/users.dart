@@ -174,7 +174,7 @@ class _UsersPageState extends State<UsersPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Active users'),
+        title: const Text('Active Users'),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),

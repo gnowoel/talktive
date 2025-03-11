@@ -469,12 +469,14 @@ class Firedata {
         userDisplayName: other.displayName ?? '',
         userDescription: other.description ?? '',
         createdAt: 0,
+        updatedAt: 0,
       );
 
       return Transaction.success({
         ...friend.toJson(),
         'id': null,
         'createdAt': ServerValue.timestamp,
+        'updatedAt': ServerValue.timestamp,
       });
     }, applyLocally: false);
 

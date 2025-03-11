@@ -11,6 +11,7 @@ class ChatCache extends ChangeNotifier {
 
   List<Chat> get chats => _chats.values.toList();
 
+  // TODO: Use this in the chat page
   Chat? getChat(String chatId) => _chats[chatId];
 
   List<Chat> get activeChats =>

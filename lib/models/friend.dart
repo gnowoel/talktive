@@ -4,6 +4,7 @@ class Friend {
   final String userDisplayName;
   final String userDescription;
   final int createdAt;
+  final int updatedAt;
 
   const Friend({
     required this.id,
@@ -11,6 +12,7 @@ class Friend {
     required this.userDisplayName,
     required this.userDescription,
     required this.createdAt,
+    required this.updatedAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +22,7 @@ class Friend {
       'userDisplayName': userDisplayName,
       'userDescription': userDescription,
       'createdAt': createdAt,
+      'updatedAt': updatedAt,
     };
   }
 
@@ -30,6 +33,7 @@ class Friend {
       userDisplayName: json['userDisplayName'] as String,
       userDescription: json['userDescription'] as String,
       createdAt: json['createdAt'] as int,
+      updatedAt: json['updatedAt'] as int,
     );
   }
 }

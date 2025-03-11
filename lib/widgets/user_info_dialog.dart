@@ -126,10 +126,10 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 if (isFriend) ...[
                   Icon(
                     Icons.loyalty,
-                    size: 16,
+                    size: 20,
                     color: customColors.friendIndicator,
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 5),
                 ],
                 Text(
                   widget.displayName,

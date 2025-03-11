@@ -188,12 +188,20 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 ],
               ],
             ),
-            const SizedBox(height: 24),
-            if (!isFriend)
-              FilledButton(
+            const SizedBox(height: 16),
+            if (!isFriend) ...[
+              const SizedBox(height: 8),
+              FilledButton.icon(
                 onPressed: _addFriend,
-                child: const Text('Add Friend'),
+                icon: const Icon(Icons.loyalty),
+                label: const Text('Add Friend'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondaryContainer,
+                  foregroundColor: theme.colorScheme.onSecondaryContainer,
+                  elevation: 0, // Remove shadow for an even softer look
+                ),
               ),
+            ],
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Close'),

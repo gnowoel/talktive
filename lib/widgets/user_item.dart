@@ -7,9 +7,11 @@ import '../helpers/helpers.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/friend_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
+import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
@@ -33,6 +35,8 @@ class _UserItemState extends State<UserItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
+  late FriendCache friendCache;
+  late bool isFriend;
 
   bool _isProcessing = false;
 
@@ -42,6 +46,13 @@ class _UserItemState extends State<UserItem> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     userCache = context.read<UserCache>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    friendCache = Provider.of<FriendCache>(context);
+    isFriend = friendCache.isFriend(widget.user.id);
   }
 
   Future<void> _enterChat() async {
@@ -258,7 +269,9 @@ class _UserItemState extends State<UserItem> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final customColors = theme.extension<CustomColors>()!;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(
       widget.user.updatedAt,
@@ -289,9 +302,19 @@ class _UserItemState extends State<UserItem> {
               style: TextStyle(fontSize: 36, color: textColor),
             ),
           ),
-          title: Text(
-            widget.user.displayName!,
-            overflow: TextOverflow.ellipsis,
+          title: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (isFriend) ...[
+                Icon(
+                  Icons.loyalty,
+                  size: 16,
+                  color: customColors.friendIndicator,
+                ),
+                const SizedBox(width: 4),
+              ],
+              Text(widget.user.displayName!, overflow: TextOverflow.ellipsis),
+            ],
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

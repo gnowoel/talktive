@@ -11,6 +11,8 @@ class FriendCache extends ChangeNotifier {
 
   List<Friend> get friends => _friends.values.toList();
 
+  bool isFriend(String userId) => _friends.containsKey(userId);
+
   void updateFriends(List<Friend> friends) {
     _friends.clear();
     for (final friend in friends) {

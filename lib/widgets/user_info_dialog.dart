@@ -5,8 +5,10 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
 import '../services/firedata.dart';
+import '../services/friend_cache.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
+import '../theme.dart';
 import 'tag.dart';
 
 class UserInfoDialog extends StatefulWidget {
@@ -32,6 +34,7 @@ class UserInfoDialog extends StatefulWidget {
 class _UserInfoDialogState extends State<UserInfoDialog> {
   late Firedata firedata;
   late UserCache userCache;
+  late FriendCache friendCache;
 
   @override
   void initState() {
@@ -40,10 +43,16 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     userCache = context.read<UserCache>();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    friendCache = Provider.of<FriendCache>(context);
+  }
+
   Future<void> _addFriend() async {
     final user = widget.user;
 
-    if (user == null) return;
+    if (user == null || friendCache.isFriend(user.id)) return;
 
     try {
       final self = userCache.user!;
@@ -59,6 +68,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final customColors = theme.extension<CustomColors>()!;
 
     if (widget.user == null) {
       return Dialog(
@@ -100,6 +110,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
       widget.user!.updatedAt,
     );
     final userStatus = widget.user!.status;
+    final isFriend = friendCache.isFriend(widget.user!.id);
 
     return Dialog(
       child: Padding(
@@ -109,10 +120,23 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
           children: [
             Text(widget.photoURL, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            Text(
-              widget.displayName,
-              style: theme.textTheme.titleLarge,
-              textAlign: TextAlign.center,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isFriend) ...[
+                  Icon(
+                    Icons.loyalty,
+                    size: 16,
+                    color: customColors.friendIndicator,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Text(
+                  widget.displayName,
+                  style: theme.textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
@@ -165,10 +189,11 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               ],
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _addFriend,
-              child: const Text('Add Friend'),
-            ),
+            if (!isFriend)
+              FilledButton(
+                onPressed: _addFriend,
+                child: const Text('Add Friend'),
+              ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Close'),

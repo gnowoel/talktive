@@ -8,8 +8,10 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/friend_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
+import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
@@ -32,16 +34,30 @@ class ChatItem extends StatefulWidget {
 class _ChatItemState extends State<ChatItem> {
   late Fireauth fireauth;
   late Firedata firedata;
+  late FriendCache friendCache;
   late bool byMe;
-  late User _partner;
+  late User partner;
+  late bool isFriend;
 
   @override
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-    byMe = widget.chat.firstUserId == fireauth.instance.currentUser!.uid;
-    _partner = User.fromStub(key: '', value: widget.chat.partner);
+
+    final chatId = widget.chat.id;
+    final selfId = fireauth.instance.currentUser!.uid;
+    final otherId = chatId.replaceFirst(selfId, '');
+
+    byMe = widget.chat.firstUserId == selfId;
+    partner = User.fromStub(key: otherId, value: widget.chat.partner);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    friendCache = Provider.of<FriendCache>(context);
+    isFriend = friendCache.isFriend(partner.id);
   }
 
   Future<void> _muteChat() async {
@@ -90,7 +106,7 @@ class _ChatItemState extends State<ChatItem> {
 
       context.go('/chats');
       context.push(
-        Messaging.encodeChatRoute(chat.id, _partner.displayName ?? ''),
+        Messaging.encodeChatRoute(chat.id, partner.displayName ?? ''),
       );
     });
   }
@@ -114,15 +130,17 @@ class _ChatItemState extends State<ChatItem> {
       builder:
           (context) => UserInfoLoader(
             userId: otherId,
-            photoURL: _partner.photoURL ?? '',
-            displayName: _partner.displayName ?? '',
+            photoURL: partner.photoURL ?? '',
+            displayName: partner.displayName ?? '',
           ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final customColors = theme.extension<CustomColors>()!;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(
       widget.chat.updatedAt,
@@ -135,10 +153,10 @@ class _ChatItemState extends State<ChatItem> {
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
     final lastMessageContent = (widget.chat.lastMessageContent ??
-            _partner.description!)
+            partner.description!)
         .replaceAll(RegExp(r'\s+'), ' ');
 
-    final userStatus = _partner.status;
+    final userStatus = partner.status;
 
     return Dismissible(
       key: Key(widget.chat.id),
@@ -161,11 +179,24 @@ class _ChatItemState extends State<ChatItem> {
             leading: GestureDetector(
               onTap: () => _showUserInfo(context),
               child: Text(
-                _partner.photoURL!,
+                partner.photoURL!,
                 style: TextStyle(fontSize: 36, color: textColor),
               ),
             ),
-            title: Text(_partner.displayName!, overflow: TextOverflow.ellipsis),
+            title: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (isFriend) ...[
+                  Icon(
+                    Icons.loyalty,
+                    size: 16,
+                    color: customColors.friendIndicator,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Text(partner.displayName!, overflow: TextOverflow.ellipsis),
+              ],
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -180,27 +211,27 @@ class _ChatItemState extends State<ChatItem> {
                 Row(
                   children: [
                     Tag(
-                      tooltip: '${getLongGenderName(_partner.gender!)}',
+                      tooltip: '${getLongGenderName(partner.gender!)}',
                       child: Text(
-                        _partner.gender!,
+                        partner.gender!,
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),
                     Tag(
-                      tooltip: '${getLanguageName(_partner.languageCode!)}',
+                      tooltip: '${getLanguageName(partner.languageCode!)}',
                       child: Text(
-                        _partner.languageCode!,
+                        partner.languageCode!,
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),
                     Tag(
-                      tooltip: 'Level ${_partner.level}',
+                      tooltip: 'Level ${partner.level}',
                       child: Text(
-                        'L${_partner.level}',
+                        'L${partner.level}',
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),

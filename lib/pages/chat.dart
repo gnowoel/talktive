@@ -277,7 +277,7 @@ class _ChatPageState extends State<ChatPage> {
             onTap: () => _showUserInfo(context),
             child: Row(
               children: [
-                if (isFriend) ...[
+                if (isFriend && _chat.partner.displayName!.isNotEmpty) ...[
                   Icon(
                     Icons.loyalty,
                     size: 20,

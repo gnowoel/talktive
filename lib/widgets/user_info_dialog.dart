@@ -49,14 +49,31 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     friendCache = Provider.of<FriendCache>(context);
   }
 
-  Future<void> _addFriend() async {
-    final user = widget.user;
+  bool get isNull {
+    final other = widget.user;
+    return other == null;
+  }
 
-    if (user == null || friendCache.isFriend(user.id)) return;
+  bool get isSelf {
+    final self = userCache.user!;
+    final other = widget.user;
+    return other != null && other.id == self.id;
+  }
+
+  bool get isFriend {
+    final other = widget.user;
+    return other != null && friendCache.isFriend(other.id);
+  }
+
+  Future<void> _addFriend() async {
+    final self = userCache.user!;
+    final other = widget.user;
 
     try {
-      final self = userCache.user!;
-      await firedata.createFriend(self, user);
+      if (!isNull && !isSelf && !isFriend) {
+        await firedata.createFriend(self, other!);
+      }
+
       if (!mounted) return;
       Navigator.of(context).pop();
     } on AppException catch (e) {
@@ -110,7 +127,6 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
       widget.user!.updatedAt,
     );
     final userStatus = widget.user!.status;
-    final isFriend = friendCache.isFriend(widget.user!.id);
 
     return Dialog(
       child: Padding(
@@ -189,7 +205,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            if (!isFriend) ...[
+            if (!isSelf && !isFriend) ...[
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: _addFriend,

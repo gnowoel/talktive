@@ -456,6 +456,10 @@ class Firedata {
   }
 
   Future<Friend> createFriend(User self, User other) async {
+    if (self.id == other.id) {
+      throw AppException('Can not add yourself as a friend');
+    }
+
     final friendRef = instance.ref('friends/${self.id}/${other.id}');
 
     final result = await friendRef.runTransaction((current) {

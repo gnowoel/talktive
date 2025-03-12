@@ -6,6 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/friend.dart';
 import '../services/fireauth.dart';
+import '../services/friend_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
@@ -15,10 +16,7 @@ import 'user_info_loader.dart';
 class FriendItem extends StatefulWidget {
   final Friend friend;
 
-  const FriendItem({
-    super.key,
-    required this.friend,
-  });
+  const FriendItem({super.key, required this.friend});
 
   @override
   State<FriendItem> createState() => _FriendItemState();
@@ -26,11 +24,20 @@ class FriendItem extends StatefulWidget {
 
 class _FriendItemState extends State<FriendItem> {
   late Fireauth fireauth;
+  late FriendCache friendCache;
+  late bool isFriend;
 
   @override
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    friendCache = Provider.of<FriendCache>(context);
+    isFriend = friendCache.isFriend(widget.friend.id);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -52,9 +59,7 @@ class _FriendItemState extends State<FriendItem> {
     final chatId = ([userId, friend.id]..sort()).join();
 
     context.go('/chats');
-    context.push(
-      Messaging.encodeChatRoute(chatId, friend.userDisplayName),
-    );
+    context.push(Messaging.encodeChatRoute(chatId, friend.userDisplayName));
   }
 
   @override
@@ -63,8 +68,9 @@ class _FriendItemState extends State<FriendItem> {
     final colorScheme = theme.colorScheme;
     final customColors = theme.extension<CustomColors>()!;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final createdAt =
-        DateTime.fromMillisecondsSinceEpoch(widget.friend.createdAt);
+    final createdAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.friend.createdAt,
+    );
 
     return Card(
       elevation: 0,
@@ -82,12 +88,14 @@ class _FriendItemState extends State<FriendItem> {
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              Icons.loyalty,
-              size: 16,
-              color: customColors.friendIndicator,
-            ),
-            const SizedBox(width: 4),
+            if (isFriend) ...[
+              Icon(
+                Icons.loyalty,
+                size: 16,
+                color: customColors.friendIndicator,
+              ),
+              const SizedBox(width: 4),
+            ],
             Text(
               widget.friend.userDisplayName,
               overflow: TextOverflow.ellipsis,

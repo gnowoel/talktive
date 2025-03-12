@@ -5,10 +5,13 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/friend.dart';
-import '../services/fireauth.dart';
+import '../models/user.dart';
+import '../services/chat_cache.dart';
+import '../services/firedata.dart';
 import '../services/friend_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
+import '../services/user_cache.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
@@ -23,14 +26,20 @@ class FriendItem extends StatefulWidget {
 }
 
 class _FriendItemState extends State<FriendItem> {
-  late Fireauth fireauth;
+  late Firedata firedata;
+  late UserCache userCache;
+  late ChatCache chatCache;
   late FriendCache friendCache;
   late bool isFriend;
+
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+    userCache = context.read<UserCache>();
+    chatCache = context.read<ChatCache>();
   }
 
   @override
@@ -53,13 +62,68 @@ class _FriendItemState extends State<FriendItem> {
     );
   }
 
-  void _enterChat() {
-    final userId = fireauth.instance.currentUser!.uid;
-    final friend = widget.friend;
-    final chatId = ([userId, friend.id]..sort()).join();
+  Future<void> _enterChat() async {
+    _doAction(() async {
+      final userId = userCache.user!.id;
+      final friend = widget.friend;
+      final chatId = ([userId, friend.id]..sort()).join();
 
-    context.go('/chats');
-    context.push(Messaging.encodeChatRoute(chatId, friend.userDisplayName));
+      context.go('/chats');
+      context.push(Messaging.encodeChatRoute(chatId, friend.userDisplayName));
+    });
+  }
+
+  Future<void> _greetUser() async {
+    _doAction(() async {
+      final self = userCache.user!;
+      final other = User(
+        id: widget.friend.id,
+        createdAt: 0,
+        updatedAt: 0,
+        photoURL: widget.friend.userPhotoURL,
+        displayName: widget.friend.userDisplayName,
+        description: widget.friend.userDescription,
+      );
+
+      final message = "Hi! I'm ${self.displayName!}. ${self.description}";
+      final chat = await firedata.greetUser(self, other, message);
+
+      if (mounted) {
+        context.go('/chats');
+        context.push(
+          Messaging.encodeChatRoute(chat.id, other.displayName ?? ''),
+        );
+      }
+    });
+  }
+
+  Future<void> _doAction(Future<void> Function() action) async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    try {
+      await action();
+    } on AppException catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context, e);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
+  }
+
+  void _handleTap() {
+    final userId = userCache.user!.id;
+    final chatId = ([userId, widget.friend.id]..sort()).join();
+
+    if (chatCache.hasChat(chatId)) {
+      _enterChat();
+    } else {
+      _greetUser();
+    }
   }
 
   @override
@@ -129,7 +193,7 @@ class _FriendItemState extends State<FriendItem> {
         ),
         trailing: IconButton(
           icon: Icon(Icons.chat_outlined),
-          onPressed: _enterChat,
+          onPressed: _handleTap,
           tooltip: 'Chat',
         ),
       ),

@@ -9,8 +9,10 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/friend_cache.dart';
 import '../services/message_cache.dart';
 import '../services/user_cache.dart';
+import '../theme.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/layout.dart';
@@ -33,6 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
+  late FriendCache friendCache;
   late ChatMessageCache chatMessageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
@@ -55,9 +58,9 @@ class _ChatPageState extends State<ChatPage> {
 
     _chat = widget.chat;
 
-    final userId = userCache.user!.id;
+    final selfId = userCache.user!.id;
 
-    chatSubscription = firedata.subscribeToChat(userId, _chat.id).listen((
+    chatSubscription = firedata.subscribeToChat(selfId, _chat.id).listen((
       chat,
     ) {
       if (_chat.isDummy) {
@@ -100,6 +103,7 @@ class _ChatPageState extends State<ChatPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
+    friendCache = Provider.of<FriendCache>(context);
   }
 
   @override
@@ -112,8 +116,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _showUserInfo(BuildContext context) {
-    final userId = userCache.user!.id;
-    final otherId = _chat.id.replaceFirst(userId, '');
+    final selfId = userCache.user!.id;
+    final otherId = _chat.id.replaceFirst(selfId, '');
 
     showDialog(
       context: context,
@@ -132,13 +136,13 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _updateReadMessageCount(Chat chat) async {
     final count = _messageCount;
-    final userId = userCache.user!.id;
+    final selfId = userCache.user!.id;
 
     if (count == 0 || count == _chat.readMessageCount) {
       return;
     }
 
-    await firedata.updateChat(userId, chat.id, readMessageCount: count);
+    await firedata.updateChat(selfId, chat.id, readMessageCount: count);
   }
 
   void _showReportMenu(BuildContext context) {
@@ -209,12 +213,12 @@ class _ChatPageState extends State<ChatPage> {
     final theme = Theme.of(context);
 
     try {
-      final userId = userCache.user!.id;
+      final selfId = userCache.user!.id;
       final partnerDisplayName = _chat.partner.displayName;
 
       // Add report to database
       await firedata.reportChat(
-        userId: userId,
+        userId: selfId,
         chatId: _chat.id,
         partnerDisplayName: partnerDisplayName,
       );
@@ -226,7 +230,7 @@ class _ChatPageState extends State<ChatPage> {
       //   mute: true,
       // );
 
-      await firedata.updateChat(userId, _chat.id, reported: true);
+      await firedata.updateChat(selfId, _chat.id, reported: true);
 
       if (!mounted) return;
 
@@ -247,8 +251,15 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = User.fromStub(key: '', value: _chat.partner);
-    final userStatus = user.status;
+    final customColors = theme.extension<CustomColors>()!;
+
+    final chatId = _chat.id;
+    final selfId = userCache.user!.id;
+    final otherId = chatId.replaceFirst(selfId, '');
+    final partner = User.fromStub(key: otherId, value: _chat.partner);
+
+    final partnerStatus = partner.status;
+    final isFriend = friendCache.isFriend(partner.id);
 
     return PopScope(
       canPop: false,
@@ -264,7 +275,19 @@ class _ChatPageState extends State<ChatPage> {
         appBar: AppBar(
           title: GestureDetector(
             onTap: () => _showUserInfo(context),
-            child: Text(_chat.partner.displayName!),
+            child: Row(
+              children: [
+                if (isFriend) ...[
+                  Icon(
+                    Icons.loyalty,
+                    size: 20,
+                    color: customColors.friendIndicator,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+                Text(_chat.partner.displayName!),
+              ],
+            ),
           ),
           actions: [
             RepaintBoundary(child: Hearts(chat: _chat)),
@@ -284,9 +307,9 @@ class _ChatPageState extends State<ChatPage> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
-                if (userStatus == 'warning') ...[
+                if (partnerStatus == 'warning') ...[
                   _buildWarningBox(),
-                ] else if (userStatus == 'alert') ...[
+                ] else if (partnerStatus == 'alert') ...[
                   _buildAlertBox(),
                 ],
                 Expanded(

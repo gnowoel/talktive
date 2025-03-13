@@ -469,11 +469,11 @@ class Firedata {
 
       final friend = Friend(
         id: '',
-        userLanguageCode: other.languageCode ?? '',
-        userPhotoURL: other.photoURL ?? '',
-        userDisplayName: other.displayName ?? '',
-        userDescription: other.description ?? '',
-        userGender: other.gender ?? '',
+        languageCode: other.languageCode ?? '',
+        photoURL: other.photoURL ?? '',
+        displayName: other.displayName ?? '',
+        description: other.description ?? '',
+        gender: other.gender ?? '',
         createdAt: 0,
         updatedAt: 0,
       );

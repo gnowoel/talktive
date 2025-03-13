@@ -55,8 +55,8 @@ class _FriendItemState extends State<FriendItem> {
       builder: (context) {
         return UserInfoLoader(
           userId: widget.friend.id,
-          photoURL: widget.friend.userPhotoURL,
-          displayName: widget.friend.userDisplayName,
+          photoURL: widget.friend.photoURL,
+          displayName: widget.friend.displayName,
         );
       },
     );
@@ -69,7 +69,7 @@ class _FriendItemState extends State<FriendItem> {
       final chatId = ([userId, friend.id]..sort()).join();
 
       context.go('/chats');
-      context.push(Messaging.encodeChatRoute(chatId, friend.userDisplayName));
+      context.push(Messaging.encodeChatRoute(chatId, friend.displayName));
     });
   }
 
@@ -80,9 +80,9 @@ class _FriendItemState extends State<FriendItem> {
         id: widget.friend.id,
         createdAt: 0,
         updatedAt: 0,
-        photoURL: widget.friend.userPhotoURL,
-        displayName: widget.friend.userDisplayName,
-        description: widget.friend.userDescription,
+        photoURL: widget.friend.photoURL,
+        displayName: widget.friend.displayName,
+        description: widget.friend.description,
       );
 
       final message = "Hi! I'm ${self.displayName!}. ${self.description}";
@@ -144,10 +144,7 @@ class _FriendItemState extends State<FriendItem> {
         contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
         leading: GestureDetector(
           onTap: () => _showUserInfo(context),
-          child: Text(
-            widget.friend.userPhotoURL,
-            style: TextStyle(fontSize: 36),
-          ),
+          child: Text(widget.friend.photoURL, style: TextStyle(fontSize: 36)),
         ),
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -160,10 +157,7 @@ class _FriendItemState extends State<FriendItem> {
               ),
               const SizedBox(width: 4),
             ],
-            Text(
-              widget.friend.userDisplayName,
-              overflow: TextOverflow.ellipsis,
-            ),
+            Text(widget.friend.displayName, overflow: TextOverflow.ellipsis),
           ],
         ),
         subtitle: Column(
@@ -171,7 +165,7 @@ class _FriendItemState extends State<FriendItem> {
           children: [
             const SizedBox(height: 4),
             Text(
-              formatText(widget.friend.userDescription),
+              formatText(widget.friend.description),
               overflow: TextOverflow.ellipsis,
               style: TextStyle(height: 1.2),
               maxLines: 2,

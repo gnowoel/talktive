@@ -467,22 +467,20 @@ class Firedata {
         return Transaction.abort();
       }
 
-      final friend = Friend(
-        id: '',
+      final partner = UserStub(
+        createdAt: other.createdAt,
+        updatedAt: other.updatedAt,
         languageCode: other.languageCode ?? '',
         photoURL: other.photoURL ?? '',
         displayName: other.displayName ?? '',
         description: other.description ?? '',
         gender: other.gender ?? '',
-        createdAt: 0,
-        updatedAt: 0,
       );
 
       return Transaction.success({
-        ...friend.toJson(),
-        'id': null,
         'createdAt': ServerValue.timestamp,
         'updatedAt': ServerValue.timestamp,
+        'partner': partner.toJson(),
       });
     }, applyLocally: false);
 

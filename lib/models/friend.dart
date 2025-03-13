@@ -1,20 +1,20 @@
 class Friend {
   final String id;
-  final String userLanguageCode;
-  final String userPhotoURL;
-  final String userDisplayName;
-  final String userDescription;
-  final String userGender;
+  final String languageCode;
+  final String photoURL;
+  final String displayName;
+  final String description;
+  final String gender;
   final int createdAt;
   final int updatedAt;
 
   const Friend({
     required this.id,
-    required this.userLanguageCode,
-    required this.userPhotoURL,
-    required this.userDisplayName,
-    required this.userDescription,
-    required this.userGender,
+    required this.languageCode,
+    required this.photoURL,
+    required this.displayName,
+    required this.description,
+    required this.gender,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -22,11 +22,11 @@ class Friend {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'userLanguageCode': userLanguageCode,
-      'userPhotoURL': userPhotoURL,
-      'userDisplayName': userDisplayName,
-      'userDescription': userDescription,
-      'userGender': userGender,
+      'userLanguageCode': languageCode,
+      'userPhotoURL': photoURL,
+      'userDisplayName': displayName,
+      'userDescription': description,
+      'userGender': gender,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -35,11 +35,11 @@ class Friend {
   factory Friend.fromJson(Map<String, dynamic> json) {
     return Friend(
       id: json['id'] as String,
-      userLanguageCode: json['userLanguageCode'] as String,
-      userPhotoURL: json['userPhotoURL'] as String,
-      userDisplayName: json['userDisplayName'] as String,
-      userDescription: json['userDescription'] as String,
-      userGender: json['userGender'] as String,
+      languageCode: json['userLanguageCode'] as String,
+      photoURL: json['userPhotoURL'] as String,
+      displayName: json['userDisplayName'] as String,
+      description: json['userDescription'] as String,
+      gender: json['userGender'] as String,
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
     );

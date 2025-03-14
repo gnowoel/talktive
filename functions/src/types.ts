@@ -92,3 +92,21 @@ export interface ReportParams {
   status?: string;
   revivedAt?: number;
 }
+
+export interface Follow {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  user: {
+    photoURL: string | null;
+    displayName: string | null;
+    description: string | null;
+    languageCode: string | null;
+    gender: string | null;
+  };
+}
+
+export interface FollowRequest {
+  followerId: string;
+  followeeId: string;
+}

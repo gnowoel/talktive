@@ -119,14 +119,151 @@ class _FriendItemState extends State<FriendItem> {
     }
   }
 
-  void _handleTap() {
-    final userId = userCache.user!.id;
-    final chatId = ([userId, widget.friend.id]..sort()).join();
+  bool _canChatWithUser() {
+    final self = userCache.user!;
+    final other = User.fromStub(
+      key: widget.friend.id,
+      value: widget.friend.partner,
+    );
 
-    if (chatCache.hasChat(chatId)) {
-      _enterChat();
+    if (self.withWarning) return false;
+
+    if (other.gender == 'F' && other.isNewcomer) {
+      if (self.isNewcomer || self.withAlert) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final self = userCache.user!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    String title;
+    List<Widget> content;
+
+    if (self.withWarning) {
+      title = 'Account Restricted';
+      content = [
+        Text(
+          'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot start new conversations until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (self.withAlert) {
+      title = 'Temporarily Restricted';
+      content = [
+        Text(
+          'Due to previous reports, you cannot chat with new female users at this time.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'This restriction helps maintain a safe environment for all users.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (self.isNewcomer) {
+      title = 'Female Protection';
+      content = [
+        Text(
+          'Your account needs to be at least 24 hours old to chat with new female users. Sorry about the inconvenience.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'This restriction helps protect our community from harassment.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
     } else {
-      _greetUser();
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: content,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _showAlertDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Warning'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your account has been reported for inappropriate messages.',
+                  style: TextStyle(height: 1.5, color: colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Please be respectful when chatting with ${widget.friend.partner.displayName}.',
+                  style: const TextStyle(height: 1.5),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Further reports may result in more severe restrictions.',
+                  style: TextStyle(height: 1.5),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('I Understand'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      await _greetUser();
+    }
+  }
+
+  void _handleGreet() async {
+    if (!_canChatWithUser()) {
+      await _showRestrictionDialog();
+      return;
+    }
+
+    final self = userCache.user!;
+    if (self.withAlert) {
+      await _showAlertDialog();
+    } else {
+      await _greetUser();
     }
   }
 
@@ -195,12 +332,35 @@ class _FriendItemState extends State<FriendItem> {
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: Icon(Icons.chat_outlined),
-          onPressed: _handleTap,
-          tooltip: 'Chat',
-        ),
+        trailing: _buildIconButton(),
       ),
+    );
+  }
+
+  IconButton _buildIconButton() {
+    final userId = userCache.user!.id;
+    final chatId = ([userId, widget.friend.id]..sort()).join();
+
+    if (chatCache.hasChat(chatId)) {
+      return IconButton(
+        icon: Icon(Icons.chat_outlined),
+        onPressed: _enterChat,
+        tooltip: 'Chat',
+      );
+    }
+
+    if (!_canChatWithUser()) {
+      return IconButton(
+        icon: Icon(Icons.chat_outlined),
+        onPressed: null,
+        tooltip: 'Restricted',
+      );
+    }
+
+    return IconButton(
+      icon: Icon(Icons.chat_outlined),
+      onPressed: _handleGreet,
+      tooltip: 'Chat',
     );
   }
 }

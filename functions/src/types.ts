@@ -98,6 +98,8 @@ export interface Follow {
   createdAt: number;
   updatedAt: number;
   user: {
+    createdAt: number;
+    updatedAt: number;
     photoURL: string | null;
     displayName: string | null;
     description: string | null;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/friend.dart';
-import '../services/friend_cache.dart';
+import '../models/follow.dart';
+import '../services/follow_cache.dart';
 import '../widgets/friend_list.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
@@ -15,15 +15,15 @@ class FriendsPage extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<FriendsPage> {
-  late FriendCache friendCache;
+  late FollowCache followCache;
 
-  List<Friend> _friends = [];
+  List<Follow> _friends = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    friendCache = Provider.of<FriendCache>(context);
-    _friends = friendCache.friends;
+    followCache = Provider.of<FollowCache>(context);
+    _friends = followCache.followees;
   }
 
   @override

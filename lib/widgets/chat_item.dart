@@ -8,7 +8,7 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/friend_cache.dart';
+import '../services/follow_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
@@ -34,7 +34,7 @@ class ChatItem extends StatefulWidget {
 class _ChatItemState extends State<ChatItem> {
   late Fireauth fireauth;
   late Firedata firedata;
-  late FriendCache friendCache;
+  late FollowCache followCache;
   late bool byMe;
   late User partner;
   late bool isFriend;
@@ -56,8 +56,8 @@ class _ChatItemState extends State<ChatItem> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    friendCache = Provider.of<FriendCache>(context);
-    isFriend = friendCache.isFriend(partner.id);
+    followCache = Provider.of<FollowCache>(context);
+    isFriend = followCache.isFollowing(partner.id);
   }
 
   Future<void> _muteChat() async {

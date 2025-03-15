@@ -41,7 +41,6 @@ export const follow = onCall<FollowRequest>(async (request) => {
     const follower = followerDoc.data() as User;
 
     const newFollowee: Follow = {
-      id: followeeId,
       createdAt: now,
       updatedAt: now,
       user: {
@@ -56,7 +55,6 @@ export const follow = onCall<FollowRequest>(async (request) => {
     };
 
     const newFollower: Follow = {
-      id: followerId,
       createdAt: now,
       updatedAt: now,
       user: {

@@ -94,7 +94,7 @@ export interface ReportParams {
 }
 
 export interface Follow {
-  id: string;
+  id?: string;
   createdAt: number;
   updatedAt: number;
   user: {

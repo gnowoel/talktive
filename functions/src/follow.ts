@@ -99,3 +99,43 @@ export const follow = onCall<FollowRequest>(async (request) => {
     };
   }
 });
+
+export const unfollow = onCall<FollowRequest>(async (request) => {
+  try {
+    const { followerId, followeeId } = request.data;
+
+    if (!followerId || !followeeId) {
+      return {
+        success: false,
+        error: 'Missing required fields'
+      };
+    }
+
+    await firestore.runTransaction(async (transaction) => {
+      const followeeRef = firestore
+        .collection('users')
+        .doc(followerId)
+        .collection('followees')
+        .doc(followeeId);
+
+      const followerRef = firestore
+        .collection('users')
+        .doc(followeeId)
+        .collection('followers')
+        .doc(followerId);
+
+      transaction.delete(followeeRef);
+      transaction.delete(followerRef);
+    });
+
+    return {
+      success: true
+    };
+  } catch (error) {
+    logger.error('Error unfollowing user:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+});

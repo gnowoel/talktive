@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
+import '../models/follow.dart';
 import '../models/user.dart';
 import '../helpers/exception.dart';
 
@@ -77,8 +79,8 @@ class Firestore {
 
       // Complete the query with ordering and limit
       query = query
-          // .orderBy('revivedAt') // Required when using where() with revivedAt
-          .orderBy('updatedAt', descending: true);
+      // .orderBy('revivedAt') // Required when using where() with revivedAt
+      .orderBy('updatedAt', descending: true);
 
       if (_lastUpdatedAt != null) {
         query = query.endBefore([_lastUpdatedAt]);
@@ -102,8 +104,11 @@ class Firestore {
 
       // Merge fetched users with cached users
       if (fetchedUsers.isNotEmpty) {
-        _cachedUsers.removeWhere((cachedUser) =>
-            fetchedUsers.any((fetchedUser) => fetchedUser.id == cachedUser.id));
+        _cachedUsers.removeWhere(
+          (cachedUser) => fetchedUsers.any(
+            (fetchedUser) => fetchedUser.id == cachedUser.id,
+          ),
+        );
         _cachedUsers.addAll(fetchedUsers);
         _cachedUsers.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -155,6 +160,72 @@ class Firestore {
       }, SetOptions(merge: true));
 
       _lastTouchedUser = serverNow;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Stream<List<Follow>> subscribeToFollowees(String userId) {
+    return instance
+        .collection('users')
+        .doc(userId)
+        .collection('followees')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => Follow.fromJson({'id': doc.id, ...doc.data()}))
+                  .toList(),
+        );
+  }
+
+  Stream<List<Follow>> subscribeToFollowers(String userId) {
+    return instance
+        .collection('users')
+        .doc(userId)
+        .collection('followers')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => Follow.fromJson({'id': doc.id, ...doc.data()}))
+                  .toList(),
+        );
+  }
+
+  Future<void> followUser(String followerId, String followeeId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('follow');
+
+      final result = await callable.call({
+        'followerId': followerId,
+        'followeeId': followeeId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to follow user');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<void> unfollowUser(String followerId, String followeeId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('unfollow');
+
+      final result = await callable.call({
+        'followerId': followerId,
+        'followeeId': followeeId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to unfollow user');
+      }
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -9,4 +9,5 @@ export { default as onExpireCreated } from './onExpireCreated';
 export { default as onReportCreated } from './onReportCreated';
 export { default as onFirestoreUserCreated } from './onFirestoreUserCreated';
 export { initiateConversation } from './initiateConversation';
+export { follow, unfollow } from './follow';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';

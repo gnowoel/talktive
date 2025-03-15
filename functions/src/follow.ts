@@ -45,6 +45,8 @@ export const follow = onCall<FollowRequest>(async (request) => {
       createdAt: now,
       updatedAt: now,
       user: {
+        createdAt: followee.createdAt,
+        updatedAt: followee.updatedAt,
         photoURL: followee.photoURL ?? null,
         displayName: followee.displayName ?? null,
         description: followee.description ?? null,
@@ -58,6 +60,8 @@ export const follow = onCall<FollowRequest>(async (request) => {
       createdAt: now,
       updatedAt: now,
       user: {
+        createdAt: follower.createdAt,
+        updatedAt: follower.updatedAt,
         photoURL: follower.photoURL ?? null,
         displayName: follower.displayName ?? null,
         description: follower.description ?? null,

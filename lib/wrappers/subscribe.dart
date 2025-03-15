@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/friend_cache.dart';
+import '../services/firestore.dart';
+import '../services/follow_cache.dart';
 import '../services/message_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
@@ -24,16 +25,17 @@ class Subscribe extends StatefulWidget {
 class _SubscribeState extends State<Subscribe> {
   late Fireauth fireauth;
   late Firedata firedata;
+  late Firestore firestore;
   late Messaging messaging;
   late ServerClock serverClock;
   late UserCache userCache;
-  late FriendCache friendCache;
+  late FollowCache followCache;
   late ChatCache chatCache;
   late ChatMessageCache chatMessageCache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
-  late StreamSubscription friendsSubscription;
+  late StreamSubscription followeesSubscription;
   late StreamSubscription chatsSubscription;
   late StreamSubscription fcmTokenSubscription;
 
@@ -43,10 +45,11 @@ class _SubscribeState extends State<Subscribe> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     messaging = context.read<Messaging>();
     serverClock = context.read<ServerClock>();
     userCache = context.read<UserCache>();
-    friendCache = context.read<FriendCache>();
+    followCache = context.read<FollowCache>();
     chatCache = context.read<ChatCache>();
     chatMessageCache = context.read<ChatMessageCache>();
 
@@ -58,8 +61,10 @@ class _SubscribeState extends State<Subscribe> {
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
       userCache.updateUser(user);
     });
-    friendsSubscription = firedata.subscribeToFriends(userId).listen((friends) {
-      friendCache.updateFriends(friends);
+    followeesSubscription = firestore.subscribeToFollowees(userId).listen((
+      followees,
+    ) {
+      followCache.updateFollowees(followees);
     });
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       chatCache.updateChats(chats);
@@ -77,10 +82,9 @@ class _SubscribeState extends State<Subscribe> {
   void dispose() {
     fcmTokenSubscription.cancel();
     chatsSubscription.cancel();
-    friendsSubscription.cancel();
+    followeesSubscription.cancel();
     userSubscription.cancel();
     clockSkewSubscription.cancel();
-
     super.dispose();
   }
 

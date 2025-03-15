@@ -4,8 +4,8 @@ import 'package:talktive/helpers/helpers.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
-import '../services/firedata.dart';
-import '../services/friend_cache.dart';
+import '../services/firestore.dart';
+import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -32,21 +32,21 @@ class UserInfoDialog extends StatefulWidget {
 }
 
 class _UserInfoDialogState extends State<UserInfoDialog> {
-  late Firedata firedata;
+  late Firestore firestore;
   late UserCache userCache;
-  late FriendCache friendCache;
+  late FollowCache followCache;
 
   @override
   void initState() {
     super.initState();
-    firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     userCache = context.read<UserCache>();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    friendCache = Provider.of<FriendCache>(context);
+    followCache = Provider.of<FollowCache>(context);
   }
 
   bool get isNull {
@@ -60,18 +60,18 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     return other != null && other.id == self.id;
   }
 
-  bool get isFriend {
+  bool get isFollowing {
     final other = widget.user;
-    return other != null && friendCache.isFriend(other.id);
+    return other != null && followCache.isFollowing(other.id);
   }
 
-  Future<void> _addFriend() async {
+  Future<void> _followUser() async {
     final self = userCache.user!;
     final other = widget.user;
 
     try {
-      if (!isNull && !isSelf && !isFriend) {
-        await firedata.createFriend(self, other!);
+      if (!isNull && !isSelf && !isFollowing) {
+        await firestore.followUser(self.id, other!.id);
       }
 
       if (!mounted) return;
@@ -139,7 +139,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (isFriend) ...[
+                if (isFollowing) ...[
                   Icon(
                     Icons.loyalty,
                     size: 20,
@@ -205,16 +205,16 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            if (!isSelf && !isFriend) ...[
+            if (!isSelf && !isFollowing) ...[
               const SizedBox(height: 8),
               FilledButton.icon(
-                onPressed: _addFriend,
+                onPressed: _followUser,
                 icon: const Icon(Icons.loyalty),
                 label: const Text('Add Friend'),
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.colorScheme.secondaryContainer,
                   foregroundColor: theme.colorScheme.onSecondaryContainer,
-                  elevation: 0, // Remove shadow for an even softer look
+                  elevation: 0,
                 ),
               ),
             ],

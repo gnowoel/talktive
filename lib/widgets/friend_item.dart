@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
-import '../models/friend.dart';
+import '../models/follow.dart';
 import '../models/user.dart';
 import '../services/chat_cache.dart';
 import '../services/firedata.dart';
-import '../services/friend_cache.dart';
+import '../services/follow_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
@@ -17,7 +17,7 @@ import 'tag.dart';
 import 'user_info_loader.dart';
 
 class FriendItem extends StatefulWidget {
-  final Friend friend;
+  final Follow friend;
 
   const FriendItem({super.key, required this.friend});
 
@@ -29,7 +29,7 @@ class _FriendItemState extends State<FriendItem> {
   late Firedata firedata;
   late UserCache userCache;
   late ChatCache chatCache;
-  late FriendCache friendCache;
+  late FollowCache followCache;
   late bool isFriend;
 
   bool _isProcessing = false;
@@ -45,8 +45,8 @@ class _FriendItemState extends State<FriendItem> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    friendCache = Provider.of<FriendCache>(context);
-    isFriend = friendCache.isFriend(widget.friend.id);
+    followCache = Provider.of<FollowCache>(context);
+    isFriend = followCache.isFollowing(widget.friend.id);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -55,8 +55,8 @@ class _FriendItemState extends State<FriendItem> {
       builder: (context) {
         return UserInfoLoader(
           userId: widget.friend.id,
-          photoURL: widget.friend.partner.photoURL ?? '',
-          displayName: widget.friend.partner.displayName ?? '',
+          photoURL: widget.friend.user.photoURL ?? '',
+          displayName: widget.friend.user.displayName ?? '',
         );
       },
     );
@@ -70,7 +70,7 @@ class _FriendItemState extends State<FriendItem> {
 
       context.go('/chats');
       context.push(
-        Messaging.encodeChatRoute(chatId, friend.partner.displayName ?? ''),
+        Messaging.encodeChatRoute(chatId, friend.user.displayName ?? ''),
       );
     });
   }
@@ -82,11 +82,11 @@ class _FriendItemState extends State<FriendItem> {
         id: widget.friend.id,
         createdAt: 0,
         updatedAt: 0,
-        languageCode: widget.friend.partner.languageCode ?? '',
-        photoURL: widget.friend.partner.photoURL ?? '',
-        displayName: widget.friend.partner.displayName ?? '',
-        description: widget.friend.partner.description ?? '',
-        gender: widget.friend.partner.gender ?? '',
+        languageCode: widget.friend.user.languageCode ?? '',
+        photoURL: widget.friend.user.photoURL ?? '',
+        displayName: widget.friend.user.displayName ?? '',
+        description: widget.friend.user.description ?? '',
+        gender: widget.friend.user.gender ?? '',
       );
 
       final message = "Hi! I'm ${self.displayName!}. ${self.description}";
@@ -123,7 +123,7 @@ class _FriendItemState extends State<FriendItem> {
     final self = userCache.user!;
     final other = User.fromStub(
       key: widget.friend.id,
-      value: widget.friend.partner,
+      value: widget.friend.user,
     );
 
     if (self.withWarning) return false;
@@ -225,7 +225,7 @@ class _FriendItemState extends State<FriendItem> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Please be respectful when chatting with ${widget.friend.partner.displayName}.',
+                  'Please be respectful when chatting with ${widget.friend.user.displayName}.',
                   style: const TextStyle(height: 1.5),
                 ),
                 const SizedBox(height: 16),
@@ -286,7 +286,7 @@ class _FriendItemState extends State<FriendItem> {
         leading: GestureDetector(
           onTap: () => _showUserInfo(context),
           child: Text(
-            widget.friend.partner.photoURL ?? '',
+            widget.friend.user.photoURL ?? '',
             style: TextStyle(fontSize: 36),
           ),
         ),
@@ -302,7 +302,7 @@ class _FriendItemState extends State<FriendItem> {
               const SizedBox(width: 4),
             ],
             Text(
-              widget.friend.partner.displayName ?? '',
+              widget.friend.user.displayName ?? '',
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -312,7 +312,7 @@ class _FriendItemState extends State<FriendItem> {
           children: [
             const SizedBox(height: 4),
             Text(
-              formatText(widget.friend.partner.description ?? ''),
+              formatText(widget.friend.user.description ?? ''),
               overflow: TextOverflow.ellipsis,
               style: TextStyle(height: 1.2),
               maxLines: 2,

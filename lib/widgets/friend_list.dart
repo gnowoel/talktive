@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:talktive/models/friend.dart';
+import 'package:talktive/models/follow.dart';
 
 import 'friend_item.dart';
 
 class FriendList extends StatelessWidget {
-  final List<Friend> friends;
+  final List<Follow> friends;
 
   const FriendList({super.key, required this.friends});
 

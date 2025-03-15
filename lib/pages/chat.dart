@@ -9,7 +9,7 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/friend_cache.dart';
+import '../services/follow_cache.dart';
 import '../services/message_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -35,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
-  late FriendCache friendCache;
+  late FollowCache followCache;
   late ChatMessageCache chatMessageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
@@ -103,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
-    friendCache = Provider.of<FriendCache>(context);
+    followCache = Provider.of<FollowCache>(context);
   }
 
   @override
@@ -259,7 +259,7 @@ class _ChatPageState extends State<ChatPage> {
     final partner = User.fromStub(key: otherId, value: _chat.partner);
 
     final partnerStatus = partner.status;
-    final isFriend = friendCache.isFriend(partner.id);
+    final isFriend = followCache.isFollowing(partner.id);
 
     return PopScope(
       canPop: false,

@@ -7,7 +7,7 @@ import '../helpers/helpers.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/friend_cache.dart';
+import '../services/follow_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
@@ -35,7 +35,7 @@ class _UserItemState extends State<UserItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
-  late FriendCache friendCache;
+  late FollowCache followCache;
   late bool isFriend;
 
   bool _isProcessing = false;
@@ -51,8 +51,8 @@ class _UserItemState extends State<UserItem> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    friendCache = Provider.of<FriendCache>(context);
-    isFriend = friendCache.isFriend(widget.user.id);
+    followCache = Provider.of<FollowCache>(context);
+    isFriend = followCache.isFollowing(widget.user.id);
   }
 
   Future<void> _enterChat() async {

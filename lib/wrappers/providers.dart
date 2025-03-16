@@ -25,7 +25,10 @@ class Providers extends StatelessWidget {
       providers: [
         Provider(create: (context) => Fireauth(Fireauth.firebaseAuth)),
         Provider(create: (context) => Firedata(Firedata.firebaseDatabase)),
-        Provider(create: (context) => Firestore(Firestore.firebaseFirestore)),
+        Provider(
+          create: (context) => Firestore(Firestore.firebaseFirestore),
+          dispose: (context, firestore) => firestore.dispose(),
+        ),
         Provider(create: (context) => Storage()),
         Provider(create: (context) => Messaging()),
         Provider(create: (context) => Settings()),

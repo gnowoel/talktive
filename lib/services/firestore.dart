@@ -16,6 +16,10 @@ class Firestore {
   StreamController<List<Follow>>? _followeesController;
   StreamSubscription? _followeesSubscription;
 
+  final Map<String, Follow> _followersCache = {};
+  StreamController<List<Follow>>? _followersController;
+  StreamSubscription? _followersSubscription;
+
   int _lastTouchedUser = 0;
   final List<User> _cachedUsers = [];
   int? _lastUpdatedAt;
@@ -213,26 +217,63 @@ class Firestore {
     return _followeesController!.stream;
   }
 
-  void dispose() {
+  void _disposeFollowees() {
     _followeesSubscription?.cancel();
     _followeesController?.close();
     _followeesCache.clear();
   }
 
-  // TODO: Should be optimized by using cache.
   Stream<List<Follow>> subscribeToFollowers(String userId) {
-    return instance
+    _followersController?.close();
+    _followersController = StreamController<List<Follow>>();
+
+    _followersSubscription?.cancel();
+
+    _followersSubscription = instance
         .collection('users')
         .doc(userId)
         .collection('followers')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map(
-          (snapshot) =>
-              snapshot.docs
-                  .map((doc) => Follow.fromJson({'id': doc.id, ...doc.data()}))
-                  .toList(),
-        );
+        .listen((event) {
+          for (final change in event.docChanges) {
+            final follow = Follow.fromJson({
+              'id': change.doc.id,
+              ...change.doc.data()!,
+            });
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                _followersCache[follow.id] = follow;
+                break;
+              case DocumentChangeType.modified:
+                _followersCache[follow.id] = follow;
+                break;
+              case DocumentChangeType.removed:
+                _followersCache.removeWhere((id, _) => id == follow.id);
+                break;
+            }
+          }
+
+          final followers =
+              _followersCache.values.toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+          _followersController?.add(followers);
+        });
+
+    return _followersController!.stream;
+  }
+
+  void _disposeFollowers() {
+    _followersSubscription?.cancel();
+    _followersController?.close();
+    _followersCache.clear();
+  }
+
+  void dispose() {
+    _disposeFollowers();
+    _disposeFollowees();
   }
 
   Future<void> followUser(String followerId, String followeeId) async {

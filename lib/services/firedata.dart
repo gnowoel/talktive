@@ -8,7 +8,6 @@ import 'package:firebase_database/firebase_database.dart';
 import '../helpers/exception.dart';
 import '../models/admin.dart';
 import '../models/chat.dart';
-import '../models/friend.dart';
 import '../models/message.dart';
 import '../models/report.dart';
 // import '../models/text_message.dart';
@@ -453,86 +452,5 @@ class Firedata {
     } catch (e) {
       throw AppException(e.toString());
     }
-  }
-
-  Future<Friend> createFriend(User self, User other) async {
-    if (self.id == other.id) {
-      throw AppException('Can not add yourself as a friend');
-    }
-
-    final friendRef = instance.ref('friends/${self.id}/${other.id}');
-
-    final result = await friendRef.runTransaction((current) {
-      if (current != null) {
-        return Transaction.abort();
-      }
-
-      final partner = UserStub(
-        createdAt: other.createdAt,
-        updatedAt: other.updatedAt,
-        languageCode: other.languageCode ?? '',
-        photoURL: other.photoURL ?? '',
-        displayName: other.displayName ?? '',
-        description: other.description ?? '',
-        gender: other.gender ?? '',
-      );
-
-      return Transaction.success({
-        'createdAt': ServerValue.timestamp,
-        'updatedAt': ServerValue.timestamp,
-        'partner': partner.toJson(),
-      });
-    }, applyLocally: false);
-
-    if (!result.committed) {
-      throw AppException('Failed to create friend');
-    }
-
-    final json = Map<String, dynamic>.from(result.snapshot.value as Map);
-    return Friend.fromJson({'id': result.snapshot.key, ...json});
-  }
-
-  Stream<List<Friend>> subscribeToFriends(String userId) {
-    final ref = instance.ref('friends/$userId');
-    final friends = <Friend>[];
-
-    final Stream<List<Friend>> stream = StreamGroup.merge([
-      ref.onChildAdded.map((event) {
-        final json = Map<String, dynamic>.from(event.snapshot.value as Map);
-        final friend = Friend.fromJson({'id': event.snapshot.key, ...json});
-
-        final index = friends.indexWhere((f) => f.id == friend.id);
-        if (index == -1) {
-          friends.add(friend);
-        } else {
-          friends[index] = friend;
-        }
-
-        friends.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        return List<Friend>.from(friends);
-      }),
-      ref.onChildChanged.map((event) {
-        final json = Map<String, dynamic>.from(event.snapshot.value as Map);
-        final friend = Friend.fromJson({'id': event.snapshot.key, ...json});
-
-        final index = friends.indexWhere((f) => f.id == friend.id);
-        if (index != -1) {
-          friends[index] = friend;
-        }
-
-        // We never change `createdAt`, so sorting is not really necessary.
-        friends.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        return List<Friend>.from(friends);
-      }),
-      ref.onChildRemoved.map((event) {
-        final index = friends.indexWhere((f) => f.id == event.snapshot.key);
-        if (index != -1) {
-          friends.removeAt(index);
-        }
-        return List<Friend>.from(friends);
-      }),
-    ]);
-
-    return stream;
   }
 }

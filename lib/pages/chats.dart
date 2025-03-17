@@ -66,18 +66,18 @@ class _ChatsPageState extends State<ChatsPage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Row(children: [const Text('Quick Tips')]),
+            title: const Text('Quick Tips'),
             content: const Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'If you receive inappropriate messages, please use the REPORT feature to help keep our community safe.',
+                  'Chats expire over time and all messages are permanently deleted to protect your privacy.',
                   style: TextStyle(height: 1.5),
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'You can SWIPE left on any chat to mute it if you no longer wish to participate.',
+                  'SWIPE left on any chat to mute it if you no longer wish to participate.',
                   style: TextStyle(height: 1.5),
                 ),
               ],

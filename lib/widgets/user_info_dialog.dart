@@ -36,6 +36,8 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
   late UserCache userCache;
   late FollowCache followCache;
 
+  bool _isProcessing = false;
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +68,9 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
   }
 
   Future<void> _followUser() async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = false);
+
     final self = userCache.user!;
     final other = widget.user;
 
@@ -79,10 +84,17 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     } on AppException catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(context, e);
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     }
   }
 
   Future<void> _unfollowUser() async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = false);
+
     final self = userCache.user!;
     final other = widget.user;
 
@@ -96,6 +108,10 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     } on AppException catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(context, e);
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     }
   }
 

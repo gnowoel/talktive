@@ -82,6 +82,23 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     }
   }
 
+  Future<void> _unfollowUser() async {
+    final self = userCache.user!;
+    final other = widget.user;
+
+    try {
+      if (!isNull && !isSelf && isFollowing) {
+        await firestore.unfollowUser(self.id, other!.id);
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on AppException catch (e) {
+      if (!mounted) return;
+      ErrorHandler.showSnackBarMessage(context, e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -214,6 +231,18 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.colorScheme.secondaryContainer,
                   foregroundColor: theme.colorScheme.onSecondaryContainer,
+                  elevation: 0,
+                ),
+              ),
+            ] else if (!isSelf && isFollowing) ...[
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                onPressed: _unfollowUser,
+                icon: const Icon(Icons.loyalty),
+                label: const Text('Delete Friend'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.errorContainer,
+                  foregroundColor: theme.colorScheme.onErrorContainer,
                   elevation: 0,
                 ),
               ),

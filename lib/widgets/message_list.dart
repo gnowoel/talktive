@@ -71,7 +71,7 @@ class _MessageListState extends State<MessageList> {
 
       // We don't update the read message count in admin reports
       if (widget.reporterUserId == null) {
-        widget.updateMessageCount(messages.length);
+        widget.updateMessageCount(filteredMessages.length);
       }
     }
   }

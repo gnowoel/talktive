@@ -77,11 +77,13 @@ export interface PairParams {
 }
 
 export interface StatParams {
-  users?: number | object
-  chats?: number | object
-  rooms?: number | object
-  messages?: number | object
-  responses?: number | object
+  users?: number | object;
+  chats?: number | object;
+  rooms?: number | object;
+  messages?: number | object;
+  responses?: number | object;
+  follows?: number | object;
+  unfollows?: number | object;
 }
 
 export interface PartnerParams {

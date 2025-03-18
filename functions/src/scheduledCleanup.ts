@@ -75,6 +75,8 @@ const setupDailyStats = async (timestamp: Date) => {
         rooms: 0,
         messages: 0,
         responses: 0,
+        follows: 0,
+        unfollows: 0
       });
     }
   } catch (error) {

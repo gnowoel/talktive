@@ -1,12 +1,14 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
-import { Follow, FollowRequest, User } from './types';
+import { Follow, FollowRequest, User, StatParams } from './types';
+import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.app.length) {
   admin.initializeApp();
 }
 
+const db = admin.database();
 const firestore = admin.firestore();
 
 export const follow = onCall<FollowRequest>(async (request) => {
@@ -90,6 +92,8 @@ export const follow = onCall<FollowRequest>(async (request) => {
       transaction.set(followerRef, newFollower);
     });
 
+    await updateFollowStats();
+
     return {
       success: true
     };
@@ -130,6 +134,8 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
       transaction.delete(followerRef);
     });
 
+    await updateUnfollowStats();
+
     return {
       success: true
     };
@@ -141,3 +147,39 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
     };
   }
 });
+
+const updateFollowStats = async () => {
+  await updateFriendStats('follows');
+}
+
+const updateUnfollowStats = async () => {
+  await updateFriendStats('unfollows');
+}
+
+const updateFriendStats = async (type: string) => {
+  if (type !== 'follows' && type !== 'unfollows') {
+    return;
+  }
+
+  const now = new Date();
+  const statRef = db.ref(`stats/${formatDate(now)}`);
+  const snapshot = await statRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const stat = snapshot.val();
+  const params: StatParams = {};
+
+  // `ServerValue` doesn't work with Emulators Suite
+  if (isDebugMode()) {
+    params[type] = (stat[type] ?? 0) + 1;
+  } else {
+    params[type] = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await statRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+}

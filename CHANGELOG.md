@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.4.0+44
+
+- Added support for adding and removing friends
+- Fixed a bug where the first message's push notification might be skipped
+- Resolved an issue where outdated messages from the local cache were displayed
+- Optimized performance for retrieving user information
+
 ## 3.3.0+43
 
 - Make sending the first message faster and more reliable

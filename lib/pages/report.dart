@@ -175,7 +175,7 @@ class _ReportPageState extends State<ReportPage> {
               const SizedBox(height: 10),
               Expanded(
                 child: MessageList(
-                  chatId: _chat.id,
+                  chat: _chat,
                   focusNode: focusNode,
                   scrollController: scrollController,
                   updateMessageCount: (int count) {},

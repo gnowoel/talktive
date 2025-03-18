@@ -37,12 +37,12 @@ class _FriendsPageState extends State<FriendsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'If you want to talk to your partner again later, add them as a friend!',
+                  'Add your partners as friends to stay connected, even after chats expire.',
                   style: TextStyle(height: 1.5),
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Friends will always be available here until you remove them.',
+                  'Friends will always be available here until you remove them manually.',
                   style: TextStyle(height: 1.5),
                 ),
               ],

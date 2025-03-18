@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/chat.dart';
 import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/text_message.dart';
@@ -10,7 +11,7 @@ import 'info.dart';
 import 'text_message_item.dart';
 
 class MessageList extends StatefulWidget {
-  final String chatId;
+  final Chat chat;
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
@@ -19,7 +20,7 @@ class MessageList extends StatefulWidget {
 
   const MessageList({
     super.key,
-    required this.chatId,
+    required this.chat,
     required this.focusNode,
     required this.scrollController,
     required this.updateMessageCount,
@@ -55,8 +56,8 @@ class _MessageListState extends State<MessageList> {
 
     final messages =
         widget.reporterUserId == null
-            ? chatMessageCache.getMessages(widget.chatId)
-            : reportMessageCache.getMessages(widget.chatId);
+            ? chatMessageCache.getMessages(widget.chat.id)
+            : reportMessageCache.getMessages(widget.chat.id);
     if (messages.length != _messages.length) {
       _messages = messages;
       if (widget.reporterUserId == null) {
@@ -113,7 +114,7 @@ class _MessageListState extends State<MessageList> {
   }
 
   bool _isNew() {
-    return _messages.isEmpty;
+    return widget.chat.isDummy || _messages.isEmpty;
   }
 
   @override

@@ -314,7 +314,7 @@ class _ChatPageState extends State<ChatPage> {
                 ],
                 Expanded(
                   child: MessageList(
-                    chatId: _chat.id,
+                    chat: _chat,
                     focusNode: focusNode,
                     scrollController: scrollController,
                     updateMessageCount: _updateMessageCount,

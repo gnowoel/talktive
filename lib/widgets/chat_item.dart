@@ -194,7 +194,12 @@ class _ChatItemState extends State<ChatItem> {
                   ),
                   const SizedBox(width: 4),
                 ],
-                Text(partner.displayName!, overflow: TextOverflow.ellipsis),
+                Expanded(
+                  child: Text(
+                    partner.displayName!,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
             subtitle: Column(

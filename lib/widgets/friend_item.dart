@@ -301,9 +301,11 @@ class _FriendItemState extends State<FriendItem> {
               ),
               const SizedBox(width: 4),
             ],
-            Text(
-              widget.friend.user.displayName ?? '',
-              overflow: TextOverflow.ellipsis,
+            Expanded(
+              child: Text(
+                widget.friend.user.displayName ?? '',
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

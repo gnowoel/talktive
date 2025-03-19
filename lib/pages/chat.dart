@@ -285,7 +285,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   const SizedBox(width: 5),
                 ],
-                Text(_chat.partner.displayName!),
+                Expanded(child: Text(_chat.partner.displayName!)),
               ],
             ),
           ),

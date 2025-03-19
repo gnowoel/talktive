@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.4.1+45
+
+- Fixed an issue where new message might be counted incorrectly
+- Prevented interface overflow caused by long usersnames
+- Prevented multiple tapping on the Add and Remove User buttons
+- Updated help text on Friends page to explain how to add friends
+
 ## 3.4.0+44
 
 - Added support for adding and removing friends

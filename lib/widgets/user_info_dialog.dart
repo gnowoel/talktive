@@ -244,7 +244,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
             if (!isSelf && !isFollowing) ...[
               const SizedBox(height: 8),
               FilledButton.icon(
-                onPressed: _followUser,
+                onPressed: _isProcessing ? null : _followUser,
                 icon: const Icon(Icons.loyalty),
                 label: const Text('Add Friend'),
                 style: FilledButton.styleFrom(
@@ -256,7 +256,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
             ] else if (!isSelf && isFollowing) ...[
               const SizedBox(height: 8),
               FilledButton.icon(
-                onPressed: _unfollowUser,
+                onPressed: _isProcessing ? null : _unfollowUser,
                 icon: const Icon(Icons.loyalty),
                 label: const Text('Delete Friend'),
                 style: FilledButton.styleFrom(

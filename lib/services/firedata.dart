@@ -247,22 +247,6 @@ class Firedata {
       json['id'] = event.snapshot.key;
       final message = Message.fromJson(json);
 
-      // TODO: Should move to a view helper, or the message count might be incorrect
-      // Handle message concatenation logic
-      // if (messages.isNotEmpty) {
-      //   final last = messages.last;
-      //   if (last is TextMessage && message is TextMessage) {
-      //     if (last.userId == message.userId) {
-      //       if (message.createdAt - last.createdAt < 1000) {
-      //         messages.last = last.copyWith(
-      //           content: '${last.content}\n${message.content}',
-      //         );
-      //         return List.from(messages);
-      //       }
-      //     }
-      //   }
-      // }
-
       messages.add(message);
 
       return List.from(messages);

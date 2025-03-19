@@ -313,7 +313,12 @@ class _UserItemState extends State<UserItem> {
                 ),
                 const SizedBox(width: 4),
               ],
-              Text(widget.user.displayName!, overflow: TextOverflow.ellipsis),
+              Expanded(
+                child: Text(
+                  widget.user.displayName!,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
           subtitle: Column(

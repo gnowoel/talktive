@@ -180,10 +180,13 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                   ),
                   const SizedBox(width: 5),
                 ],
-                Text(
-                  widget.displayName,
-                  style: theme.textTheme.titleLarge,
-                  textAlign: TextAlign.center,
+                Expanded(
+                  child: Text(
+                    widget.displayName,
+                    style: theme.textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

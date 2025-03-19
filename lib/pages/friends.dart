@@ -60,7 +60,11 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lines = ['No friends yet. Add some', 'friends to chat with!', ''];
+    final lines = [
+      'Add some friends by tapping',
+      'on your partner\'s avatar.',
+      '',
+    ];
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,

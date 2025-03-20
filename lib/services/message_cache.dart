@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/chat.dart';
 import '../models/message.dart';
 
 class MessageCache extends ChangeNotifier {
@@ -28,7 +29,21 @@ class MessageCache extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Message> getMessages(String chatId) {
+  List<Message> getMessages(Chat chat) {
+    final chatId = chat.id;
+    final messages = _cache[chatId] ?? [];
+
+    // Filter out messages that are older than the chat, which may come from the
+    // Firebase offline cache.
+    final filteredMessages =
+        messages
+            .where((message) => message.createdAt >= chat.createdAt)
+            .toList();
+
+    return List.unmodifiable(filteredMessages);
+  }
+
+  List<Message> getMessages2(String chatId) {
     return List.unmodifiable(_cache[chatId] ?? []);
   }
 

@@ -95,10 +95,8 @@ class _ChatPageState extends State<ChatPage> {
     messagesSubscription = firedata
         .subscribeToMessages(_chat.id, lastTimestamp)
         .listen((messages) {
-          // Do not save outdated records from Firebase offline cache
-          if (!_chat.isDummy) {
-            chatMessageCache.addMessages(_chat.id, messages);
-          }
+          // There might be obsolete records from Friebase offline cache.
+          chatMessageCache.addMessages(_chat.id, messages);
         });
   }
 

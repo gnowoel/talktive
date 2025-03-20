@@ -69,7 +69,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
 
   Future<void> _followUser() async {
     if (_isProcessing) return;
-    setState(() => _isProcessing = false);
+    setState(() => _isProcessing = true);
 
     final self = userCache.user!;
     final other = widget.user;
@@ -93,7 +93,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
 
   Future<void> _unfollowUser() async {
     if (_isProcessing) return;
-    setState(() => _isProcessing = false);
+    setState(() => _isProcessing = true);
 
     final self = userCache.user!;
     final other = widget.user;

@@ -4,6 +4,9 @@
 
 - Fixed a persistent issue where outdated messages from a previous chat were displayed
 - Resolved a UI bug that caused the friend indicator to appear in the wrong location
+- Added a null check for the user when displaying the Users page
+- Added a loading indicator while fetching users
+- Updated dependencies
 
 ## 3.4.1+45
 

@@ -1,12 +1,18 @@
 # CHANGELOG
 
-## 3.4.2+46
+## 3.4.3+47
 
 - Fixed a persistent issue where outdated messages from a previous chat were displayed
 - Resolved a UI bug that caused the friend indicator to appear in the wrong location
+- Disabled the Add and Remove User buttons while processing
 - Added a null check for the user when displaying the Users page
 - Added a loading indicator while fetching users
 - Updated dependencies
+
+## 3.4.2+46 (rejected)
+
+- Fixed a persistent issue where outdated messages from a previous chat were displayed
+- Resolved a UI bug that caused the friend indicator to appear in the wrong location
 
 ## 3.4.1+45
 

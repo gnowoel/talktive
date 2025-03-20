@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.4.2+46
+
+- Fixed a persistent issue where outdated messages from a previous chat were displayed
+- Resolved a UI bug that caused the friend indicator to appear in the wrong location
+
 ## 3.4.1+45
 
 - Fixed an issue where new message might be counted incorrectly

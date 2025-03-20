@@ -56,22 +56,15 @@ class _MessageListState extends State<MessageList> {
 
     final messages =
         widget.reporterUserId == null
-            ? chatMessageCache.getMessages(widget.chat.id)
-            : reportMessageCache.getMessages(widget.chat.id);
+            ? chatMessageCache.getMessages(widget.chat)
+            : reportMessageCache.getMessages(widget.chat);
 
-    // Filter out messages that are older than the chat, which may come from the
-    // Firestore offline cache.
-    final filteredMessages =
-        messages
-            .where((message) => message.createdAt >= widget.chat.createdAt)
-            .toList();
-
-    if (filteredMessages.length != _messages.length) {
-      _messages = filteredMessages;
+    if (messages.length != _messages.length) {
+      _messages = messages;
 
       // We don't update the read message count in admin reports
       if (widget.reporterUserId == null) {
-        widget.updateMessageCount(filteredMessages.length);
+        widget.updateMessageCount(messages.length);
       }
     }
   }

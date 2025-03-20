@@ -238,21 +238,65 @@ class Firedata {
   }
 
   Stream<List<Message>> subscribeToMessages(String chatId, int? lastTimestamp) {
-    final messages = <Message>[];
-    final ref = instance.ref('messages/$chatId');
-    final query = ref.orderByChild('createdAt').startAfter(lastTimestamp ?? 0);
+    try {
+      final messages = <Message>[];
+      final ref = instance.ref('messages/$chatId');
+      final query = ref
+          .orderByChild('createdAt')
+          .startAfter(lastTimestamp ?? 0);
 
-    final stream = query.onChildAdded.map<List<Message>>((event) {
-      final json = Map<String, dynamic>.from(event.snapshot.value as Map);
-      json['id'] = event.snapshot.key;
-      final message = Message.fromJson(json);
+      final Stream<List<Message>> stream = StreamGroup.merge([
+        // Handle added messages
+        query.onChildAdded.map((event) {
+          final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final message = Message.fromJson({
+            'id': event.snapshot.key!,
+            ...json,
+          });
 
-      messages.add(message);
+          final index = messages.indexWhere((m) => m.id == message.id);
+          if (index == -1) {
+            messages.add(message);
+          } else {
+            messages[index] = message;
+          }
 
-      return List.from(messages);
-    });
+          messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+          return List<Message>.from(messages);
+        }),
 
-    return stream;
+        // Handle changed messages (We may need this for hiding messages.)
+        query.onChildChanged.map((event) {
+          final json = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final message = Message.fromJson({
+            'id': event.snapshot.key!,
+            ...json,
+          });
+
+          final index = messages.indexWhere((m) => m.id == message.id);
+          if (index != -1) {
+            messages[index] = message;
+          }
+
+          messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+          return List<Message>.from(messages);
+        }),
+
+        // Handle removed messages (We need this to remove outdated data fetched
+        // from Firebase offline cache.)
+        query.onChildRemoved.map((event) {
+          final index = messages.indexWhere((m) => m.id == event.snapshot.key);
+          if (index != -1) {
+            messages.removeAt(index);
+          }
+          return List<Message>.from(messages);
+        }),
+      ]);
+
+      return stream;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Future<Chat> greetUser(User self, User other, String message) async {

@@ -101,8 +101,10 @@ class _UserItemState extends State<UserItem> {
   }
 
   bool _canChatWithUser() {
-    final self = userCache.user!;
+    final self = userCache.user;
     final other = widget.user;
+
+    if (self == null) return false;
 
     if (self.withWarning) return false;
 

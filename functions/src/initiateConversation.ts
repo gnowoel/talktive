@@ -70,13 +70,17 @@ export const initiateConversation = onCall(async (request) => {
     const sender: User = senderSnapshot.val();
     const receiver: User = receiverSnapshot.val();
     const chatId = ([senderId, receiverId].sort()).join('');
+    const now = Date.now();
 
-    await createFullConversation(chatId, senderId, receiverId, sender, receiver);
+    await createFullConversation(chatId, senderId, receiverId, sender, receiver, now);
+
+    // TODO: Send the first message from the client side, to make the UI more responsive
     await sendFirstMessage(chatId, senderId, sender, message);
 
     return {
       success: true,
-      chatId: chatId
+      chatId: chatId,
+      chatCreatedAt: now
     };
   } catch (error) {
     logger.error('Error initiating conversation:', error);
@@ -93,10 +97,9 @@ async function createFullConversation(
   senderId: string,
   receiverId: string,
   sender: User,
-  receiver: User
+  receiver: User,
+  now: number
 ): Promise<void> {
-  const now = Date.now();
-
   // Create partner stubs (only include necessary fields to save space)
   const senderStub = createPartnerStub(sender);
   const receiverStub = createPartnerStub(receiver);

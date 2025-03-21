@@ -68,10 +68,7 @@ class Chat {
     };
   }
 
-  factory Chat.fromStub({
-    required String key,
-    required ChatStub value,
-  }) {
+  factory Chat.fromStub({required String key, required ChatStub value}) {
     return Chat(
       id: key,
       createdAt: value.createdAt,
@@ -91,10 +88,7 @@ class Chat {
       id: 'id',
       createdAt: 0,
       updatedAt: 0,
-      partner: UserStub(
-        createdAt: 0,
-        updatedAt: 0,
-      ),
+      partner: UserStub(createdAt: 0, updatedAt: 0),
       messageCount: 0,
     );
   }
@@ -106,7 +100,7 @@ class Chat {
   bool get isNotClosed => !isClosed;
 
   // Does not exist (not created or deleted)
-  bool get isDummy => createdAt == 0 && updatedAt == 0;
+  bool get isDummy => updatedAt == 0;
   bool get isNotDummy => !isDummy;
 
   bool get isMuted => mute ?? false;
@@ -142,8 +136,9 @@ class ChatStub {
     return ChatStub(
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int,
-      partner:
-          UserStub.fromJson(Map<String, dynamic>.from(json['partner'] as Map)),
+      partner: UserStub.fromJson(
+        Map<String, dynamic>.from(json['partner'] as Map),
+      ),
       messageCount: json['messageCount'] as int,
       readMessageCount: json['readMessageCount'] as int?,
       firstUserId: json['firstUserId'] as String?,

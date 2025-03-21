@@ -86,39 +86,28 @@ Future<GoRouter> initRouter() async {
         path: '/launch/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
-          // final encodedName =
-          //     state.uri.queryParameters['partnerDisplayName'] ?? '';
-          final encodedName = ''; // TODO: This is just a workaround.
-          final partnerDisplayName = Uri.decodeComponent(encodedName);
+          final encodedChatCreatedAt =
+              state.uri.queryParameters['chatCreatedAt'] ?? '0';
+          final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
 
-          return LaunchPage(
-            chatId: chatId,
-            partnerDisplayName: partnerDisplayName,
-          );
+          return LaunchPage(chatId: chatId, chatCreatedAt: chatCreatedAt);
         },
       ),
       GoRoute(
         path: '/chats/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
-          // final encodedName =
-          //     state.uri.queryParameters['partnerDisplayName'] ?? '';
-          final encodedName = ''; // TODO: This is just a workaround.
-          final partnerDisplayName = Uri.decodeComponent(encodedName);
+          final encodedChatCreatedAt =
+              state.uri.queryParameters['chatCreatedAt'] ?? '0';
+          final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
 
-          final userStub = UserStub(
-            createdAt: 0,
-            updatedAt: 0,
-            displayName: partnerDisplayName,
-          );
-
+          final userStub = UserStub(createdAt: 0, updatedAt: 0);
           final chatStub = ChatStub(
-            createdAt: 0,
+            createdAt: int.tryParse(chatCreatedAt) ?? 0,
             updatedAt: 0,
             partner: userStub,
             messageCount: 0,
           );
-
           final chat = Chat.fromStub(key: chatId, value: chatStub);
 
           return ChatPage(chat: chat);
@@ -151,26 +140,21 @@ Future<GoRouter> initRouter() async {
         path: '/admin/reports/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
+
           final encodedUserId = state.uri.queryParameters['userId'] ?? '';
-          // final encodedName =
-          //     state.uri.queryParameters['partnerDisplayName'] ?? '';
-          final encodedName = ''; // TODO: This is just a workaround.
           final userId = Uri.decodeComponent(encodedUserId);
-          final partnerDisplayName = Uri.decodeComponent(encodedName);
 
-          final userStub = UserStub(
-            createdAt: 0,
-            updatedAt: 0,
-            displayName: partnerDisplayName,
-          );
+          final encodedChatCreatedAt =
+              state.uri.queryParameters['chatCreatedAt'] ?? '0';
+          final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
 
+          final userStub = UserStub(createdAt: 0, updatedAt: 0);
           final chatStub = ChatStub(
-            createdAt: 0,
+            createdAt: int.tryParse(chatCreatedAt) ?? 0,
             updatedAt: 0,
             partner: userStub,
             messageCount: 0,
           );
-
           final chat = Chat.fromStub(key: chatId, value: chatStub);
 
           return ReportPage(userId: userId, chat: chat);

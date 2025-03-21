@@ -145,46 +145,46 @@ class Messaging {
 
   void _handleNotificationData(Map<String, dynamic> data) {
     final chatId = data['chatId'];
-    final partnerDisplayName = data['partnerDisplayName'];
+    final chatCreatedAt = data['chatCreatedAt'];
 
     GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
     GoRouter.of(
       rootNavigatorKey.currentContext!,
-    ).push(encodeChatRoute(chatId, partnerDisplayName));
+    ).push(encodeChatRoute(chatId, chatCreatedAt));
   }
 
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
       final data = jsonDecode(payload) as Map<String, dynamic>;
       final chatId = data['chatId'] as String;
-      final partnerDisplayName = data['partnerDisplayName'] as String;
+      final chatCreatedAt = data['chatCreatedAt'] as String;
 
       GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
       GoRouter.of(
         rootNavigatorKey.currentContext!,
-      ).push(encodeChatRoute(chatId, partnerDisplayName));
+      ).push(encodeChatRoute(chatId, chatCreatedAt));
     }
   }
 
-  static String encodeChatRoute(String chatId, String partnerDisplayName) {
-    final encodedName = Uri.encodeComponent(partnerDisplayName);
-    return '/chats/$chatId?partnerDisplayName=$encodedName';
+  static String encodeChatRoute(String chatId, String chatCreatedAt) {
+    final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt);
+    return '/chats/$chatId?chatCreatedAt=$encodedChatCreatedAt';
   }
 
   // TODO: Not the right place to define this method
   static String encodeReportRoute(
     String userId,
     String chatId,
-    String? partnerDisplayName,
+    String? chatCreatedAt,
   ) {
-    final encodeUserId = Uri.encodeComponent(userId);
-    final encodedName = Uri.encodeComponent(partnerDisplayName ?? '');
-    return '/admin/reports/$chatId?userId=$encodeUserId&partnerDisplayName=$encodedName';
+    final encodedUserId = Uri.encodeComponent(userId);
+    final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt ?? '0');
+    return '/admin/reports/$chatId?userId=$encodedUserId&chatCreatedAt=$encodedChatCreatedAt';
   }
 
-  static String _encodeLaunchRoute(String chatId, String partnerDisplayName) {
-    final encodedName = Uri.encodeComponent(partnerDisplayName);
-    return '/launch/$chatId?partnerDisplayName=$encodedName';
+  static String _encodeLaunchRoute(String chatId, String chatCreatedAt) {
+    final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt);
+    return '/launch/$chatId?chatCreatedAt=$encodedChatCreatedAt';
   }
 
   static Future<String?> getInitialRoute() async {
@@ -199,9 +199,9 @@ class Messaging {
             jsonDecode(details!.notificationResponse!.payload!)
                 as Map<String, dynamic>;
         final chatId = data['chatId'] as String;
-        final partnerDisplayName = data['partnerDisplayName'] as String;
+        final chatCreatedAt = data['chatCreatedAt'] as String;
 
-        return _encodeLaunchRoute(chatId, partnerDisplayName);
+        return _encodeLaunchRoute(chatId, chatCreatedAt);
       } catch (e) {
         debugPrint('Error parsing notification payload: $e');
       }

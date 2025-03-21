@@ -7,12 +7,12 @@ import '../theme.dart';
 
 class LaunchPage extends StatefulWidget {
   final String chatId;
-  final String partnerDisplayName;
+  final String chatCreatedAt;
 
   const LaunchPage({
     super.key,
     required this.chatId,
-    required this.partnerDisplayName,
+    required this.chatCreatedAt,
   });
 
   @override
@@ -26,7 +26,7 @@ class _LaunchPageState extends State<LaunchPage> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       final initialRoute = Messaging.encodeChatRoute(
         widget.chatId,
-        widget.partnerDisplayName,
+        widget.chatCreatedAt,
       );
       context.go('/chats');
       context.push(initialRoute);
@@ -37,9 +37,8 @@ class _LaunchPageState extends State<LaunchPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: getTheme(context),
-      home: Scaffold(
-        body: SizedBox(),
-      ),
+      // TODO: Show circular progress indicator
+      home: Scaffold(body: SizedBox()),
     );
   }
 }

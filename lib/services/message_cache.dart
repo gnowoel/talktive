@@ -31,7 +31,7 @@ class MessageCache extends ChangeNotifier {
 
   List<Message> getMessages(Chat chat) {
     final chatId = chat.id;
-    final messages = _cache[chatId] ?? [];
+    final messages = _cache[chatId] ?? <Message>[];
 
     // Filter out messages that are older than the chat, which may come from the
     // Firebase offline cache.

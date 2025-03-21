@@ -63,7 +63,6 @@ class _ReportPageState extends State<ReportPage> {
         if (chat.isDummy) {
           setState(() {
             _chat = _chat.copyWith(
-              createdAt: chat.createdAt, // 0
               updatedAt: chat.updatedAt, // 0
             );
           });
@@ -85,7 +84,14 @@ class _ReportPageState extends State<ReportPage> {
     messagesSubscription = firedata
         .subscribeToMessages(widget.chat.id, lastTimestamp)
         .listen((messages) {
-          reportMessageCache.addMessages(widget.chat.id, messages);
+          // There might be obsolete records from Friebase offline cache.
+          reportMessageCache.addMessages(_chat.id, messages);
+          final filteredMessages =
+              messages
+                  .where((message) => message.createdAt >= _chat.createdAt)
+                  .toList();
+
+          reportMessageCache.addMessages(widget.chat.id, filteredMessages);
         });
   }
 

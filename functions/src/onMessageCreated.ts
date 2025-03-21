@@ -136,7 +136,10 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
     const pushMessage: admin.messaging.Message = {
       token,
       notification: {},
-      data: { title, body, chatId, chatCreatedAt },
+      data: {
+        title, body, chatId, chatCreatedAt,
+        partnerDisplayName: '' // TODO: Remove later
+      },
       android: {
         priority: 'high'
       }

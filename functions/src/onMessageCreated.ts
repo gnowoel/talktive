@@ -121,18 +121,14 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
     const otherId = pairId.replace(userId, '');
     const chatId = pairId;
 
-    const chat = await getChat(otherId, chatId);
-
+    const chat: Chat = await getChat(otherId, chatId);
     if (!chat) return;
-
     const isActive = isChatActive(chat);
-
     if (!isActive) return;
+    const chatCreatedAt = chat.createdAt.toString();
 
     const other = await getUser(otherId);
     const token = other.fcmToken;
-    const partnerDisplayName = other.displayName;
-
     if (!token) return;
 
     const title = `${message.userPhotoURL} ${message.userDisplayName}`;
@@ -144,10 +140,8 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
       data: {
         title,
         body,
-        senderId: userId, // TODO: Delete later
-        userId: otherId,  // TODO: Delete later
         chatId,
-        partnerDisplayName
+        chatCreatedAt
       },
       android: {
         priority: 'high'

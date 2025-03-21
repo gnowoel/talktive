@@ -319,15 +319,21 @@ class Firedata {
         throw Exception(result['error'] ?? 'Failed to create conversation');
       }
 
-      return _createInitialDummyChat(chatId, other);
+      final chatCreatedAt = result['chatCreatedAt'];
+
+      return _createInitialDummyChat(chatId, chatCreatedAt, other);
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  Chat _createInitialDummyChat(String chatId, User other) {
+  Chat _createInitialDummyChat(
+    String chatId,
+    String chatCreatedAt,
+    User other,
+  ) {
     final stub = ChatStub(
-      createdAt: 0,
+      createdAt: int.tryParse(chatCreatedAt) ?? 0,
       updatedAt: 0,
       partner: UserStub.fromJson(other.toJson()),
       messageCount: 0,

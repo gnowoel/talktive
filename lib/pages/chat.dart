@@ -73,7 +73,6 @@ class _ChatPageState extends State<ChatPage> {
         if (chat.isDummy) {
           setState(() {
             _chat = _chat.copyWith(
-              createdAt: chat.createdAt, // 0
               updatedAt: chat.updatedAt, // 0
             );
           });
@@ -96,7 +95,12 @@ class _ChatPageState extends State<ChatPage> {
         .subscribeToMessages(_chat.id, lastTimestamp)
         .listen((messages) {
           // There might be obsolete records from Friebase offline cache.
-          chatMessageCache.addMessages(_chat.id, messages);
+          final filteredMessages =
+              messages
+                  .where((message) => message.createdAt >= _chat.createdAt)
+                  .toList();
+
+          chatMessageCache.addMessages(_chat.id, filteredMessages);
         });
   }
 

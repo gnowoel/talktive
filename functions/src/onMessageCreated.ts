@@ -125,24 +125,18 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
     if (!chat) return;
     const isActive = isChatActive(chat);
     if (!isActive) return;
-    const chatCreatedAt = chat.createdAt.toString();
 
-    const other = await getUser(otherId);
-    const token = other.fcmToken;
+    const token = await getUserFcmToken(otherId);
     if (!token) return;
 
     const title = `${message.userPhotoURL} ${message.userDisplayName}`;
     const body = message.content;
+    const chatCreatedAt = chat.createdAt.toString();
 
     const pushMessage: admin.messaging.Message = {
       token,
       notification: {},
-      data: {
-        title,
-        body,
-        chatId,
-        chatCreatedAt
-      },
+      data: { title, body, chatId, chatCreatedAt },
       android: {
         priority: 'high'
       }
@@ -188,10 +182,10 @@ const isChatMuted = (chat: Chat) => {
   return !!chat.mute;
 };
 
-const getUser = async (userId: string) => {
+const getUserFcmToken = async (userId: string) => {
   try {
-    const userRef = db.ref(`users/${userId}`);
-    const snapshot = await userRef.get();
+    const tokenRef = db.ref(`users/${userId}/fcmToken`);
+    const snapshot = await tokenRef.get();
 
     if (!snapshot.exists()) return null;
 

@@ -103,11 +103,10 @@ class _ChatItemState extends State<ChatItem> {
   Future<void> _enterChat() async {
     _doAction(() async {
       final chat = widget.chat;
+      final chatCreatedAt = chat.createdAt.toString();
 
       context.go('/chats');
-      context.push(
-        Messaging.encodeChatRoute(chat.id, partner.displayName ?? ''),
-      );
+      context.push(Messaging.encodeChatRoute(chat.id, chatCreatedAt));
     });
   }
 

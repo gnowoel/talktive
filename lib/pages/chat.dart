@@ -58,7 +58,7 @@ class _ChatPageState extends State<ChatPage> {
 
     _chat = widget.chat;
 
-    final selfId = userCache.user!.id;
+    final selfId = fireauth.instance.currentUser!.uid;
 
     chatSubscription = firedata.subscribeToChat(selfId, _chat.id).listen((
       chat,
@@ -108,6 +108,7 @@ class _ChatPageState extends State<ChatPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
+    userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
   }
 
@@ -121,7 +122,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _showUserInfo(BuildContext context) {
-    final selfId = userCache.user!.id;
+    final selfId = fireauth.instance.currentUser!.uid;
     final otherId = _chat.id.replaceFirst(selfId, '');
 
     showDialog(
@@ -141,7 +142,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _updateReadMessageCount(Chat chat) async {
     final count = _messageCount;
-    final selfId = userCache.user!.id;
+    final selfId = fireauth.instance.currentUser!.uid;
 
     if (count == 0 || count == _chat.readMessageCount) {
       return;
@@ -218,7 +219,7 @@ class _ChatPageState extends State<ChatPage> {
     final theme = Theme.of(context);
 
     try {
-      final selfId = userCache.user!.id;
+      final selfId = fireauth.instance.currentUser!.uid;
       final partnerDisplayName = _chat.partner.displayName;
 
       // Add report to database
@@ -259,7 +260,7 @@ class _ChatPageState extends State<ChatPage> {
     final customColors = theme.extension<CustomColors>()!;
 
     final chatId = _chat.id;
-    final selfId = userCache.user!.id;
+    final selfId = fireauth.instance.currentUser!.uid;
     final otherId = chatId.replaceFirst(selfId, '');
     final partner = User.fromStub(key: otherId, value: _chat.partner);
 
@@ -299,7 +300,8 @@ class _ChatPageState extends State<ChatPage> {
           ),
           actions: [
             RepaintBoundary(child: Hearts(chat: _chat)),
-            if (_chat.reported == true || userCache.user!.withAlert) ...[
+            if (_chat.reported == true ||
+                (userCache.user != null && userCache.user!.withAlert)) ...[
               const SizedBox(width: 16),
             ] else ...[
               IconButton(

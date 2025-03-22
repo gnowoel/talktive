@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'router.dart';
 import 'theme.dart';
+import 'wrappers/current_user.dart';
 import 'wrappers/providers.dart';
 import 'wrappers/setup.dart';
 import 'wrappers/subscribe.dart';
@@ -15,25 +16,25 @@ class App extends StatelessWidget {
     return Providers(
       child: Setup(
         child: Subscribe(
-          child: FutureBuilder<GoRouter>(
+          child: CurrentUser(
+            child: FutureBuilder<GoRouter>(
               future: initRouter(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return MaterialApp(
                     theme: getTheme(context),
-                    home: Scaffold(
-                      body: SizedBox(),
-                    ),
+                    home: Scaffold(body: const SizedBox.shrink()),
                   );
                 }
-
                 return MaterialApp.router(
                   routerConfig: snapshot.data,
                   debugShowCheckedModeBanner: false,
                   title: 'Talktive',
                   theme: getTheme(context),
                 );
-              }),
+              },
+            ),
+          ),
         ),
       ),
     );

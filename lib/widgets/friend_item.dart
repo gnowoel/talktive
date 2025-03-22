@@ -67,11 +67,11 @@ class _FriendItemState extends State<FriendItem> {
       final userId = userCache.user!.id;
       final friend = widget.friend;
       final chatId = ([userId, friend.id]..sort()).join();
+      final chat = chatCache.getChat(chatId);
+      final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
       context.go('/chats');
-      context.push(
-        Messaging.encodeChatRoute(chatId, friend.user.displayName ?? ''),
-      );
+      context.push(Messaging.encodeChatRoute(chatId, chatCreatedAt));
     });
   }
 
@@ -91,12 +91,11 @@ class _FriendItemState extends State<FriendItem> {
 
       final message = "Hi! I'm ${self.displayName!}. ${self.description}";
       final chat = await firedata.greetUser(self, other, message);
+      final chatCreatedAt = chat.createdAt.toString();
 
       if (mounted) {
         context.go('/chats');
-        context.push(
-          Messaging.encodeChatRoute(chat.id, other.displayName ?? ''),
-        );
+        context.push(Messaging.encodeChatRoute(chat.id, chatCreatedAt));
       }
     });
   }

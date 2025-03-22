@@ -144,8 +144,8 @@ class Messaging {
   }
 
   void _handleNotificationData(Map<String, dynamic> data) {
-    final chatId = data['chatId'];
-    final chatCreatedAt = data['chatCreatedAt'];
+    final chatId = data['chatId'] as String;
+    final chatCreatedAt = data['chatCreatedAt'] as String;
 
     GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
     GoRouter.of(

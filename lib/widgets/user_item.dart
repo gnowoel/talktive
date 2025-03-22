@@ -5,6 +5,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
+import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
@@ -35,6 +36,7 @@ class _UserItemState extends State<UserItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
+  late ChatCache chatCache;
   late FollowCache followCache;
   late bool isFriend;
 
@@ -46,6 +48,7 @@ class _UserItemState extends State<UserItem> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     userCache = context.read<UserCache>();
+    chatCache = context.read<ChatCache>();
   }
 
   @override
@@ -60,11 +63,11 @@ class _UserItemState extends State<UserItem> {
       final userId = fireauth.instance.currentUser!.uid;
       final partner = widget.user;
       final chatId = ([userId, partner.id]..sort()).join();
+      final chat = chatCache.getChat(chatId);
+      final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
       context.go('/chats');
-      context.push(
-        Messaging.encodeChatRoute(chatId, partner.displayName ?? ''),
-      );
+      context.push(Messaging.encodeChatRoute(chatId, chatCreatedAt));
     });
   }
 
@@ -74,12 +77,11 @@ class _UserItemState extends State<UserItem> {
       final other = widget.user;
       final message = "Hi! I'm ${self.displayName!}. ${self.description}";
       final chat = await firedata.greetUser(self, other, message);
+      final chatCreatedAt = chat.createdAt.toString();
 
       if (mounted) {
         context.go('/chats');
-        context.push(
-          Messaging.encodeChatRoute(chat.id, other.displayName ?? ''),
-        );
+        context.push(Messaging.encodeChatRoute(chat.id, chatCreatedAt));
       }
     });
   }

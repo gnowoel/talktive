@@ -129,8 +129,8 @@ class _ChatPageState extends State<ChatPage> {
       builder:
           (context) => UserInfoLoader(
             userId: otherId,
-            photoURL: _chat.partner.photoURL!,
-            displayName: _chat.partner.displayName!,
+            photoURL: _chat.partner.photoURL ?? '',
+            displayName: _chat.partner.displayName ?? '',
           ),
     );
   }
@@ -263,6 +263,7 @@ class _ChatPageState extends State<ChatPage> {
     final otherId = chatId.replaceFirst(selfId, '');
     final partner = User.fromStub(key: otherId, value: _chat.partner);
 
+    final partnerDisplayName = partner.displayName;
     final partnerStatus = partner.status;
     final isFriend = followCache.isFollowing(partner.id);
 
@@ -282,7 +283,9 @@ class _ChatPageState extends State<ChatPage> {
             onTap: () => _showUserInfo(context),
             child: Row(
               children: [
-                if (isFriend && _chat.partner.displayName!.isNotEmpty) ...[
+                if (isFriend &&
+                    partnerDisplayName != null &&
+                    partnerDisplayName.isNotEmpty) ...[
                   Icon(
                     Icons.loyalty,
                     size: 20,
@@ -290,7 +293,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   const SizedBox(width: 5),
                 ],
-                Expanded(child: Text(_chat.partner.displayName!)),
+                Expanded(child: Text(partnerDisplayName ?? '')),
               ],
             ),
           ),

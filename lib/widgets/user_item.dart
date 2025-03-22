@@ -62,7 +62,9 @@ class _UserItemState extends State<UserItem> {
       final chatId = ([userId, partner.id]..sort()).join();
 
       context.go('/chats');
-      context.push(Messaging.encodeChatRoute(chatId, partner.displayName!));
+      context.push(
+        Messaging.encodeChatRoute(chatId, partner.displayName ?? ''),
+      );
     });
   }
 

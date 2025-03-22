@@ -119,8 +119,8 @@ class _ReportPageState extends State<ReportPage> {
       builder:
           (context) => UserInfoLoader(
             userId: otherId,
-            photoURL: _chat.partner.photoURL!,
-            displayName: _chat.partner.displayName!,
+            photoURL: _chat.partner.photoURL ?? '',
+            displayName: _chat.partner.displayName ?? '',
           ),
     );
   }
@@ -163,7 +163,7 @@ class _ReportPageState extends State<ReportPage> {
       appBar: AppBar(
         title: GestureDetector(
           onTap: () => _showOtherUserInfo(context),
-          child: Text(_chat.partner.displayName!),
+          child: Text(_chat.partner.displayName ?? ''),
         ),
         actions: [
           RepaintBoundary(child: Hearts(chat: _chat)),

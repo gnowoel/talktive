@@ -80,7 +80,7 @@ export const initiateConversation = onCall(async (request) => {
     return {
       success: true,
       chatId: chatId,
-      chatCreatedAt: now
+      chatCreatedAt: now.toString(),
     };
   } catch (error) {
     logger.error('Error initiating conversation:', error);

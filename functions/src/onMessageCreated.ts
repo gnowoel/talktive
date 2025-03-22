@@ -22,6 +22,11 @@ interface RoomParams {
   filter?: string
 }
 
+interface MessagingError extends Error {
+  code: string;
+  message: string;
+}
+
 const db = admin.database();
 
 const timeBeforeClosing = isDebugMode() ?
@@ -35,6 +40,15 @@ const BOT = {
   userName: 'assistant',
   userCode: '\u{1f916}', // Robot
 };
+
+function isMessagingError(error: unknown): error is MessagingError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as MessagingError).code === 'string'
+  );
+}
 
 const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) => {
   const now = new Date();
@@ -145,9 +159,28 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
       }
     };
 
-    await admin.messaging().send(pushMessage);
+
+    try {
+      await admin.messaging().send(pushMessage);
+    } catch (error) {
+      if (isMessagingError(error)) {
+        // Check if the error is due to an invalid token
+        if (
+          error.code === 'messaging/registration-token-not-registered' ||
+          error.code === 'messaging/invalid-argument' ||
+          error.code === 'messaging/invalid-registration-token'
+        ) {
+          // Remove the invalid token from the database
+          await db.ref(`users/${otherId}/fcmToken`).remove();
+          logger.info(`Removed invalid FCM token for user ${otherId}`);
+        }
+      }
+      // Don't rethrow the error as it's not critical
+      logger.warn('Push notification failed:', error);
+    }
   } catch (error) {
-    logger.error(error);
+    // Log other errors that might occur during the process
+    logger.error('Error in snedPushNotification:', error);
   }
 };
 

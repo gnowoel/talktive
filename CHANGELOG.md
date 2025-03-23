@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.5.0+48
+
+- Added a new push notification payload variable for limiting message ranges
+- Enhanced push notification mechanism to remove invalid FCM tokens
+- Introduced an initialization step to ensure current user is ready before proceeding
+- Optimized the main method to offload heavy initialization tasks
+
 ## 3.4.3+47
 
 - Fixed a persistent issue where outdated messages from a previous chat were displayed

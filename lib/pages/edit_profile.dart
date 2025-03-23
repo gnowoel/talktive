@@ -13,10 +13,7 @@ import '../widgets/layout.dart';
 class EditProfilePage extends StatefulWidget {
   final User user;
 
-  const EditProfilePage({
-    super.key,
-    required this.user,
-  });
+  const EditProfilePage({super.key, required this.user});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -168,10 +165,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 40),
-                    Text(
-                      _photoURL,
-                      style: const TextStyle(fontSize: 64),
-                    ),
+                    Text(_photoURL, style: const TextStyle(fontSize: 64)),
                     const SizedBox(height: 8),
                     IconButton(
                       onPressed: _changeAvatar,
@@ -200,16 +194,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: 'Gender',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Gender'),
                       value: _selectedGender,
-                      items: _genderOptions
-                          .map((option) => DropdownMenuItem(
-                                value: option['value'],
-                                child: Text(option['label']!),
-                              ))
-                          .toList(),
+                      items:
+                          _genderOptions
+                              .map(
+                                (option) => DropdownMenuItem(
+                                  value: option['value'],
+                                  child: Text(option['label']!),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         setState(() => _selectedGender = value);
                       },
@@ -218,15 +213,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     const SizedBox(height: 32),
                     FilledButton(
                       onPressed: _isProcessing ? null : _submit,
-                      child: _isProcessing
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                              ),
-                            )
-                          : const Text('Save'),
+                      child:
+                          _isProcessing
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
+                              )
+                              : const Text('Save'),
                     ),
                   ],
                 ),

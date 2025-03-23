@@ -38,7 +38,7 @@ class _LaunchPageState extends State<LaunchPage> {
     return MaterialApp(
       theme: getTheme(context),
       // TODO: Show circular progress indicator
-      home: Scaffold(body: SizedBox()),
+      home: const Scaffold(body: SizedBox.shrink()),
     );
   }
 }

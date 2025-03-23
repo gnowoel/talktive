@@ -131,7 +131,9 @@ Future<GoRouter> initRouter() async {
                 }
                 // Return unauthorized or loading state
                 return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
+                  body: Center(
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
                 );
               },
             ),

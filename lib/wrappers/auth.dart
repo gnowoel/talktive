@@ -27,15 +27,14 @@ class _AuthState extends State<Auth> {
       future: fireauth.signInAnonymously(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return SizedBox();
+          return const SizedBox.shrink();
           // return const EmptyPage(
           //   hasAppBar: false,
-          //   child: SizedBox(), // CircularProgressIndicator()
+          //   child: SizedBox.shrink(), // CircularProgressIndicator(strokeWidth: 3)
           // );
         }
-
         if (snapshot.hasError) {
-          return SizedBox();
+          return const SizedBox.shrink();
           // return ErrorPage(
           //   message: '${snapshot.error}',
           //   refresh: refresh,

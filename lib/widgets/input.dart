@@ -227,7 +227,7 @@ class _InputState extends State<Input> {
               onPressed: _enabled ? () => _sendImageMessage(user) : null,
               icon:
                   _isUploading
-                      ? SizedBox(
+                      ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3),

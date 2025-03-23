@@ -52,3 +52,6 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 firepit-log.txt
+
+# Emacs related
+.projectile-cache.eld

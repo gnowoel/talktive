@@ -132,14 +132,13 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
         ),
         FilledButton(
           onPressed: _isProcessing ? null : () => _resolve(),
-          child:
-              _isProcessing
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  )
-                  : const Text('Resolve'),
+          child: _isProcessing
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                )
+              : const Text('Resolve'),
         ),
       ],
     );

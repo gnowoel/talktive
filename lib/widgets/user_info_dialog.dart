@@ -138,7 +138,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               if (widget.error == null)
                 Padding(
                   padding: const EdgeInsets.only(top: 24, bottom: 8),
-                  child: SizedBox(
+                  child: const SizedBox(
                     height: 16,
                     width: 16,
                     child: CircularProgressIndicator(strokeWidth: 3),

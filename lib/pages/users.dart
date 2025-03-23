@@ -202,7 +202,9 @@ class _UsersPageState extends State<UsersPage> {
                         ),
                       ],
                     )
-                    : Center(child: CircularProgressIndicator(strokeWidth: 3)))
+                    : const Center(
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    ))
                 : Layout(
                   child: Column(
                     children: [

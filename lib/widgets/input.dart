@@ -12,6 +12,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/storage.dart';
 import '../services/user_cache.dart';
+import 'status_notice.dart';
 
 class Input extends StatefulWidget {
   final FocusNode focusNode;
@@ -190,12 +191,10 @@ class _InputState extends State<Input> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event, User user) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed =
-          HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed =
-          event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
@@ -207,63 +206,92 @@ class _InputState extends State<Input> {
     return KeyEventResult.ignored;
   }
 
+  Widget _buildStatusNotice() {
+    String message;
+
+    if (widget.chat.isDummy) {
+      message =
+          'This chat has been deleted to protect your privacy. You can start a new conversation with your partner anytime.';
+    } else if (widget.chat.isClosed) {
+      message =
+          'This chat has expired and will be automatically deleted soon. Once deleted, you can start a new conversation with your partner again.';
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    return StatusNotice(
+      content: message,
+      icon: Icons.info_outline,
+      backgroundColor: theme.colorScheme.surfaceContainerHighest,
+      foregroundColor: theme.colorScheme.onSurface,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userCache = context.watch<UserCache>();
     final user = userCache.user!;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerLow,
-          borderRadius: const BorderRadius.all(Radius.circular(32)),
-          border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: _enabled ? () => _sendImageMessage(user) : null,
-              icon:
-                  _isUploading
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 3),
-                      )
-                      : Icon(
-                        Icons.attach_file,
-                        color: theme.colorScheme.primary,
-                      ),
-              tooltip: _enabled ? 'Send picture' : 'Chat closed',
-            ),
-            Expanded(
-              child: KeyboardListener(
-                focusNode: FocusNode(),
-                onKeyEvent:
-                    _enabled ? (event) => _handleKeyEvent(event, user) : null,
-                child: TextField(
-                  enabled: _enabled,
-                  focusNode: widget.focusNode,
-                  minLines: 1,
-                  maxLines: 12,
-                  controller: _controller,
-                  decoration: InputDecoration.collapsed(
-                    hintText: _enabled ? 'Enter message' : 'Chat closed',
-                    hintStyle: TextStyle(color: theme.colorScheme.outline),
-                  ),
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!_enabled) _buildStatusNotice(),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: const BorderRadius.all(Radius.circular(32)),
+              border: Border.all(
+                color: theme.colorScheme.surfaceContainerHighest,
               ),
             ),
-            IconButton(
-              onPressed: _enabled ? () => _sendTextMessage(user) : null,
-              icon: Icon(Icons.send, color: theme.colorScheme.primary),
-              tooltip: _enabled ? 'Send message' : 'Chat closed',
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: _enabled ? () => _sendImageMessage(user) : null,
+                  icon: _isUploading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        )
+                      : Icon(
+                          Icons.attach_file,
+                          color: theme.colorScheme.primary,
+                        ),
+                  tooltip: _enabled ? 'Send picture' : 'Chat closed',
+                ),
+                Expanded(
+                  child: KeyboardListener(
+                    focusNode: FocusNode(),
+                    onKeyEvent: _enabled
+                        ? (event) => _handleKeyEvent(event, user)
+                        : null,
+                    child: TextField(
+                      enabled: _enabled,
+                      focusNode: widget.focusNode,
+                      minLines: 1,
+                      maxLines: 12,
+                      controller: _controller,
+                      decoration: InputDecoration.collapsed(
+                        hintText: _enabled ? 'Enter message' : 'Chat closed',
+                        hintStyle: TextStyle(color: theme.colorScheme.outline),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: _enabled ? () => _sendTextMessage(user) : null,
+                  icon: Icon(Icons.send, color: theme.colorScheme.primary),
+                  tooltip: _enabled ? 'Send message' : 'Chat closed',
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

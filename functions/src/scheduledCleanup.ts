@@ -13,18 +13,10 @@ if (!admin.apps.length) {
 const db = admin.database();
 const storage = getStorage();
 
-const timeBeforeUserDeleting = isDebugMode()
-  ? 0 // no wait
-  : 30 * 24 * 3600 * 1000; // 30 days
-const timeBeforeRoomDeleting = isDebugMode()
-  ? 0 // no wait
-  : 72 * 3600 * 1000; // 72 hours
-const timeBeforePairDeleting = isDebugMode()
-  ? 0 // no wait
-  : 96 * 3600 * 1000; // 96 hours
-const timeBeforeReportDeleting = isDebugMode()
-  ? 0 // no wait
-  : 7 * 24 * 3600 * 1000; // 7 days
+const timeBeforeUserDeleting = isDebugMode() ? 0 : 30 * 24 * 3600 * 1000;
+const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * 24 * 3600 * 1000;
+const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * 24 * 3600 * 1000;
+const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * 24 * 3600 * 1000;
 
 interface Params {
   [id: string]: null;

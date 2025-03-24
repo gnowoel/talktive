@@ -84,6 +84,7 @@ const migrate = async () => {
   }
 }
 
+// TODO: Remove later
 const migrateUsers = async () => {
   const usersRef = db.ref('users');
 
@@ -133,7 +134,7 @@ const cleanup = async () => {
 const cleanupUsers = async () => {
   try {
     await cleanupTempUsers();
-    await cleanupPermUsers();
+    await cleanupLegacyPermUsers();
   } catch (error) {
     logger.error(error);
   }
@@ -162,15 +163,15 @@ const cleanupTempUsers = async () => {
       params[userId] = null;
     });
 
-    await getAuth().deleteUsers(userIds);
     await usersRef.update(params);
+    await getAuth().deleteUsers(userIds);
   } catch (error) {
     logger.error(error);
   }
 };
 
 // TODO: Remove this once we have fully upgraded to v2.
-const cleanupPermUsers = async () => {
+const cleanupLegacyPermUsers = async () => {
   const usersRef = db.ref('users');
   const time = new Date(new Date().getTime() - timeBeforeUserDeleting * 3).toJSON();
 
@@ -193,12 +194,15 @@ const cleanupPermUsers = async () => {
       params[userId] = null;
     });
 
-    await getAuth().deleteUsers(userIds);
     await usersRef.update(params);
+    await getAuth().deleteUsers(userIds);
   } catch (error) {
     logger.error(error);
   }
 };
+
+// TODO: Firestore, RTDB (chats/pairs/messages/images, friends, users), Auth
+// const cleanUpPermUsers = async () => {};
 
 // Rooms, messages & images
 const cleanupRooms = async () => {
@@ -259,6 +263,7 @@ const removeRoom = async (roomId: string) => {
 };
 
 // Pairs, chats, messages & images
+// TODO: Try to remove orphaned messages and images (Maybe we should move the data to Cloud Firestore)
 const cleanupPairs = async () => {
   try {
     const ref = db.ref('pairs');

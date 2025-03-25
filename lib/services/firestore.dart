@@ -49,6 +49,8 @@ class Firestore {
       final userStub = UserStub.fromJson(data);
       final user = User.fromStub(key: doc.id, value: userStub);
 
+      _userCache[userId] = _CachedUser(user);
+
       return user;
     } catch (e) {
       throw AppException(e.toString());

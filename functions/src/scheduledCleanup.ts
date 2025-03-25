@@ -11,6 +11,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+const firestore = admin.firestore();
 const storage = getStorage();
 
 const timeBeforeUserDeleting = isDebugMode() ? 0 : 30 * 24 * 3600 * 1000;
@@ -20,6 +21,50 @@ const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * 24 * 3600 * 1000;
 
 interface Params {
   [id: string]: null;
+}
+
+interface RtdbUpdate {
+  [path: string]: null | number; // Can be null for deletion or number for updatedAt
+}
+
+class SafeBatch {
+  private batch: FirebaseFirestore.WriteBatch;
+  private operationCount = 0;
+
+  constructor(firestore: FirebaseFirestore.Firestore) {
+    this.batch = firestore.batch();
+  }
+
+  delete(ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>): void {
+    this.batch.delete(ref);
+    this.operationCount++;
+  }
+
+  set(
+    ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
+    data: FirebaseFirestore.DocumentData
+  ): void {
+    this.batch.set(ref, data);
+    this.operationCount++;
+  }
+
+  update(
+    ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
+    data: FirebaseFirestore.UpdateData<FirebaseFirestore.DocumentData>
+  ): void {
+    this.batch.update(ref, data);
+    this.operationCount++;
+  }
+
+  async commit(): Promise<void> {
+    if (this.operationCount > 0) {
+      await this.batch.commit();
+    }
+  }
+
+  hasOperations(): boolean {
+    return this.operationCount > 0;
+  }
 }
 
 export const scheduledCleanup = onSchedule('every hour', async (_event) => {
@@ -135,6 +180,7 @@ const cleanupUsers = async () => {
   try {
     await cleanupTempUsers();
     await cleanupLegacyPermUsers();
+    await cleanupPermUsers();
   } catch (error) {
     logger.error(error);
   }
@@ -201,8 +247,163 @@ const cleanupLegacyPermUsers = async () => {
   }
 };
 
-// TODO: Firestore, RTDB (chats/pairs/messages/images, friends, users), Auth
-// const cleanUpPermUsers = async () => {};
+const cleanupPermUsers = async () => {
+  const usersRef = db.ref('users');
+  const now = Date.now();
+  const thirtyDaysAgo = now - timeBeforeUserDeleting;
+
+  // Query oldest users from RTDB
+  const query = usersRef
+    .orderByChild('updatedAt')
+    .endAt(thirtyDaysAgo)
+    .limitToFirst(1000);
+
+  try {
+    const snapshot = await query.get();
+    if (!snapshot.exists()) return;
+
+    const users = snapshot.val();
+    const userIds = Object.keys(users);
+
+    logger.info(`Found ${userIds.length} potentially inactive users`);
+
+    // Process users in smaller batches to avoid memory issues
+    const batchSize = 100;
+    for (let i = 0; i < userIds.length; i += batchSize) {
+      const batch = userIds.slice(i, i + batchSize);
+      await processUserBatch(batch);
+    }
+  } catch (error) {
+    logger.error('Error in cleanupPermUsers:', error);
+  }
+};
+
+// TODO: 3 months, <=, half -> rtdb
+
+const processUserBatch = async (userIds: string[]) => {
+  const firestoreBatch = new SafeBatch(firestore);
+  const rtdbUpdates: RtdbUpdate = {};
+  const usersToDelete: string[] = [];
+
+  for (const userId of userIds) {
+    try {
+      // Check Firestore version
+      const firestoreDoc = await firestore.collection('users').doc(userId).get();
+
+      if (!firestoreDoc.exists) {
+        // If no Firestore record exists, proceed with deletion
+        usersToDelete.push(userId);
+        continue;
+      }
+
+      const firestoreData = firestoreDoc.data();
+      if (!firestoreData) {
+        // Handle the case where data is undefined
+        logger.warn(`No data found for user ${userId} in Firestore`);
+        continue;
+      }
+
+      const firestoreUpdatedAt = firestoreData.updatedAt;
+      if (typeof firestoreUpdatedAt !== 'number') {
+        // Handle invalid updatedAt value
+        logger.warn(`Invalid updatedAt value for user ${userId}`);
+        continue;
+      }
+
+      if (firestoreData.updatedAt < Date.now() - timeBeforeUserDeleting) {
+        // User is truly inactive, process for deletion
+        await cleanupUserConnections(userId, firestoreBatch);
+        firestoreBatch.delete(firestoreDoc.ref);
+        rtdbUpdates[`users/${userId}`] = null;
+        usersToDelete.push(userId);
+      } else {
+        // User is actually active, update RTDB
+        rtdbUpdates[`users/${userId}/updatedAt`] = firestoreData.updatedAt;
+      }
+    } catch (error) {
+      logger.error(`Error processing user ${userId}:`, error);
+    }
+  }
+
+  try {
+    // Execute all Firestore operations
+    if (firestoreBatch.hasOperations()) {
+      await firestoreBatch.commit();
+    }
+
+    // Execute all RTDB oprations
+    if (Object.keys(rtdbUpdates).length > 0) {
+      await db.ref().update(rtdbUpdates);
+    }
+
+    // Delete Authentication records
+    if (usersToDelete.length > 0) {
+      try {
+        await getAuth().deleteUsers(usersToDelete);
+        logger.info(`Successfully deleted ${usersToDelete.length} users`);
+      } catch (error) {
+        logger.error('Error deleting authentication records:', error);
+      }
+    }
+  } catch (error) {
+    logger.error('Error committing batch operations:', error);
+  }
+}
+
+const cleanupUserConnections = async (
+  userId: string,
+  batch: SafeBatch
+) => {
+  try {
+    // Get user's followees and followers
+    const followeesSnapshot = await firestore
+      .collection('users')
+      .doc(userId)
+      .collection('followees')
+      .get();
+
+    const followersSnapshot = await firestore
+      .collection('users')
+      .doc(userId)
+      .collection('followers')
+      .get();
+
+    // Remove user from followees' followers lists
+    for (const doc of followeesSnapshot.docs) {
+      const followeeId = doc.id;
+      batch.delete(
+        firestore
+          .collection('users')
+          .doc(followeeId)
+          .collection('followers')
+          .doc(userId)
+      );
+    }
+
+    // Remove user from followers' followees lists
+    for (const doc of followersSnapshot.docs) {
+      const followerId = doc.id;
+      batch.delete(
+        firestore
+          .collection('users')
+          .doc(followerId)
+          .collection('followees')
+          .doc(userId)
+      );
+    }
+
+    // Delete user's own followees and followers collections
+    for (const doc of followeesSnapshot.docs) {
+      batch.delete(doc.ref);
+    }
+    for (const doc of followersSnapshot.docs) {
+      batch.delete(doc.ref);
+    }
+  } catch (error) {
+    logger.error(`Error cleaning up connections for user ${userId}:`, error);
+    throw error; // Propagate error to handle it in the calling function
+  }
+};
 
 // Rooms, messages & images
 const cleanupRooms = async () => {

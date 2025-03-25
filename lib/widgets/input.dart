@@ -17,8 +17,14 @@ import 'status_notice.dart';
 class Input extends StatefulWidget {
   final FocusNode focusNode;
   final Chat chat;
+  final bool chatPopulated;
 
-  const Input({super.key, required this.focusNode, required this.chat});
+  const Input({
+    super.key,
+    required this.focusNode,
+    required this.chat,
+    required this.chatPopulated,
+  });
 
   @override
   State<Input> createState() => _InputState();
@@ -191,10 +197,12 @@ class _InputState extends State<Input> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event, User user) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed =
+          event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
@@ -235,7 +243,7 @@ class _InputState extends State<Input> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!_enabled) _buildStatusNotice(),
+        if (widget.chatPopulated && !_enabled) _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Container(
@@ -251,24 +259,26 @@ class _InputState extends State<Input> {
               children: [
                 IconButton(
                   onPressed: _enabled ? () => _sendImageMessage(user) : null,
-                  icon: _isUploading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 3),
-                        )
-                      : Icon(
-                          Icons.attach_file,
-                          color: theme.colorScheme.primary,
-                        ),
+                  icon:
+                      _isUploading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 3),
+                          )
+                          : Icon(
+                            Icons.attach_file,
+                            color: theme.colorScheme.primary,
+                          ),
                   tooltip: _enabled ? 'Send picture' : 'Chat closed',
                 ),
                 Expanded(
                   child: KeyboardListener(
                     focusNode: FocusNode(),
-                    onKeyEvent: _enabled
-                        ? (event) => _handleKeyEvent(event, user)
-                        : null,
+                    onKeyEvent:
+                        _enabled
+                            ? (event) => _handleKeyEvent(event, user)
+                            : null,
                     child: TextField(
                       enabled: _enabled,
                       focusNode: widget.focusNode,

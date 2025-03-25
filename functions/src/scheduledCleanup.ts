@@ -14,10 +14,12 @@ const db = admin.database();
 const firestore = admin.firestore();
 const storage = getStorage();
 
-const timeBeforeUserDeleting = isDebugMode() ? 0 : 30 * 24 * 3600 * 1000;
-const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * 24 * 3600 * 1000;
-const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * 24 * 3600 * 1000;
-const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * 24 * 3600 * 1000;
+const day = 24 * 60 * 60 * 1000;
+
+const timeBeforeUserDeleting = isDebugMode() ? 0 : 100 * day;
+const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * day;
+const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day;
+const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * day;
 
 interface Params {
   [id: string]: null;
@@ -278,8 +280,6 @@ const cleanupPermUsers = async () => {
   }
 };
 
-// TODO: 3 months, <=, half -> rtdb
-
 const processUserBatch = async (userIds: string[]) => {
   const firestoreBatch = new SafeBatch(firestore);
   const rtdbUpdates: RtdbUpdate = {};
@@ -292,25 +292,26 @@ const processUserBatch = async (userIds: string[]) => {
 
       if (!firestoreDoc.exists) {
         // If no Firestore record exists, proceed with deletion
+        rtdbUpdates[`users/${userId}`] = null;
         usersToDelete.push(userId);
         continue;
       }
 
       const firestoreData = firestoreDoc.data();
       if (!firestoreData) {
-        // Handle the case where data is undefined
+        // Handle the case where data is undefined, which wouldn't happen
         logger.warn(`No data found for user ${userId} in Firestore`);
         continue;
       }
 
       const firestoreUpdatedAt = firestoreData.updatedAt;
       if (typeof firestoreUpdatedAt !== 'number') {
-        // Handle invalid updatedAt value
+        // Handle invalid updatedAt value, which wouldn't happen
         logger.warn(`Invalid updatedAt value for user ${userId}`);
         continue;
       }
 
-      if (firestoreData.updatedAt < Date.now() - timeBeforeUserDeleting) {
+      if (firestoreData.updatedAt <= Date.now() - timeBeforeUserDeleting) {
         // User is truly inactive, process for deletion
         await cleanupUserConnections(userId, firestoreBatch);
         firestoreBatch.delete(firestoreDoc.ref);

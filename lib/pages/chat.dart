@@ -43,6 +43,7 @@ class _ChatPageState extends State<ChatPage> {
   late Chat _chat;
 
   int _messageCount = 0;
+  bool _chatPopulated = false;
 
   @override
   void initState() {
@@ -67,7 +68,10 @@ class _ChatPageState extends State<ChatPage> {
         if (chat.isDummy) {
           // Ignore to avoid being overwitten.
         } else {
-          setState(() => _chat = chat);
+          setState(() {
+            _chat = chat;
+            _chatPopulated = true;
+          });
         }
       } else {
         if (chat.isDummy) {
@@ -84,7 +88,10 @@ class _ChatPageState extends State<ChatPage> {
             );
           }
         } else {
-          setState(() => _chat = chat);
+          setState(() {
+            _chat = chat;
+            _chatPopulated = true;
+          });
         }
       }
     });
@@ -330,7 +337,11 @@ class _ChatPageState extends State<ChatPage> {
                     updateMessageCount: _updateMessageCount,
                   ),
                 ),
-                Input(focusNode: focusNode, chat: _chat),
+                Input(
+                  focusNode: focusNode,
+                  chat: _chat,
+                  chatPopulated: _chatPopulated,
+                ),
               ],
             ),
           ),

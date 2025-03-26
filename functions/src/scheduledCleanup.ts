@@ -16,7 +16,7 @@ const storage = getStorage();
 
 const day = 24 * 60 * 60 * 1000;
 
-const timeBeforeUserDeleting = isDebugMode() ? 0 : 100 * day;
+const timeBeforeUserDeleting = isDebugMode() ? 0 * day : 200 * day;
 const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * day;
 const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day;
 const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * day;

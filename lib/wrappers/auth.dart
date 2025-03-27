@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// import '../../pages/empty.dart';
-// import '../../pages/error.dart';
+import '../../pages/error.dart';
 import '../../services/fireauth.dart';
+import '../theme.dart';
 
 class Auth extends StatefulWidget {
   final Widget child;
@@ -15,30 +15,42 @@ class Auth extends StatefulWidget {
 }
 
 class _AuthState extends State<Auth> {
+  late Fireauth fireauth;
+
+  @override
+  void initState() {
+    super.initState();
+    fireauth = context.read<Fireauth>();
+  }
+
   void refresh() {
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final fireauth = Provider.of<Fireauth>(context);
+    if (fireauth.instance.currentUser == null) {
+      return widget.child;
+    }
 
     return FutureBuilder(
       future: fireauth.signInAnonymously(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const SizedBox.shrink();
-          // return const EmptyPage(
-          //   hasAppBar: false,
-          //   child: SizedBox.shrink(), // CircularProgressIndicator(strokeWidth: 3)
-          // );
+          return MaterialApp(
+            theme: getTheme(context),
+            home: const Scaffold(
+              body: SafeArea(
+                child: Center(child: CircularProgressIndicator(strokeWidth: 3)),
+              ),
+            ),
+          );
         }
         if (snapshot.hasError) {
-          return const SizedBox.shrink();
-          // return ErrorPage(
-          //   message: '${snapshot.error}',
-          //   refresh: refresh,
-          // );
+          return MaterialApp(
+            theme: getTheme(context),
+            home: ErrorPage(message: '${snapshot.error}', refresh: refresh),
+          );
         }
 
         return widget.child;

@@ -15,7 +15,8 @@ class Fireauth {
 
     try {
       if (currentUser != null) {
-        await currentUser.reload(); // Touch the server to check connection
+        // Touch the server to check connection, would raise "internal-error" if failed
+        await currentUser.reload();
         return currentUser;
       } else {
         // if (kDebugMode) {
@@ -30,6 +31,7 @@ class Fireauth {
         // }
       }
     } on FirebaseAuthException catch (e) {
+      // if (e.code == 'internal-error' || e.code == 'user-not-found') {
       if (e.code != 'network-request-failed') {
         await instance.signOut();
       }

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 3.6.0+49
+
+- Added a scheduled task to remove inactive users and their associated records
+- Introduced a verification step to ensure a logged-in user still exists
+- Fixed a bug that prevented user info from being cached properly
+- Updated the scheduled task to delete chats immediately upon expiration
+- Enhanced the input field to display help text when disabled
+
 ## 3.5.0+48
 
 - Added a new push notification payload variable for limiting message ranges

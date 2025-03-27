@@ -5,16 +5,16 @@ import '../../pages/error.dart';
 import '../../services/fireauth.dart';
 import '../theme.dart';
 
-class Auth extends StatefulWidget {
+class VerifyUser extends StatefulWidget {
   final Widget child;
 
-  const Auth({super.key, required this.child});
+  const VerifyUser({super.key, required this.child});
 
   @override
-  State<Auth> createState() => _AuthState();
+  State<VerifyUser> createState() => _VerifyUserState();
 }
 
-class _AuthState extends State<Auth> {
+class _VerifyUserState extends State<VerifyUser> {
   late Fireauth fireauth;
 
   @override

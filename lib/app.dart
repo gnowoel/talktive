@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'router.dart';
 import 'theme.dart';
-import 'wrappers/auth.dart';
+import 'wrappers/verify_user.dart';
 import 'wrappers/current_user.dart';
 import 'wrappers/initialize.dart';
 import 'wrappers/providers.dart';
@@ -17,7 +17,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return Initialize(
       child: Providers(
-        child: Auth(
+        child: VerifyUser(
           child: Setup(
             child: Subscribe(
               child: CurrentUser(

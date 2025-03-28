@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,22 +23,25 @@ class ImageMessageItem extends StatefulWidget {
 }
 
 class _ImageMessageItemState extends State<ImageMessageItem> {
-  late ImageProvider _imageProvider;
+  late CachedNetworkImageProvider _imageProvider;
+  late String _imageUrl;
 
   @override
   void initState() {
     super.initState();
-    _imageProvider = getImageProvder(convertUri(widget.message.uri));
+    _imageUrl = convertUri(widget.message.uri);
+    _imageProvider = getCachedImageProvider(widget.message.uri);
   }
 
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: widget.message.userId,
-        photoURL: widget.message.userPhotoURL,
-        displayName: widget.message.userDisplayName,
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: widget.message.userId,
+            photoURL: widget.message.userPhotoURL,
+            displayName: widget.message.userDisplayName,
+          ),
     );
   }
 
@@ -52,7 +56,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   Widget build(BuildContext context) {
     final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = widget.message.userId == currentUser.uid ||
+    final byMe =
+        widget.message.userId == currentUser.uid ||
         widget.message.userId == widget.reporterUserId;
 
     // Bot messages are always shown on the left
@@ -61,51 +66,71 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
         : _buildMessageItemLeft(context);
   }
 
+  Widget _buildCachedImage(BuildContext context, BoxConstraints constraints) {
+    final halfWidth = constraints.maxWidth / 2;
+    final theme = Theme.of(context);
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: halfWidth, maxHeight: halfWidth),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          onTap: () => _showImageViewer(context),
+          child: CachedNetworkImage(
+            imageUrl: _imageUrl,
+            imageBuilder:
+                (context, imageProvider) =>
+                    Image(image: imageProvider, fit: BoxFit.contain),
+            placeholder:
+                (context, url) =>
+                    getImagePlaceholder(color: theme.colorScheme.primary),
+            errorWidget: (context, url, error) => getImageErrorWidget(),
+            cacheKey: widget.message.uri, // Use original URI as cache key
+            // Enable memory caching
+            memCacheWidth:
+                (halfWidth * MediaQuery.of(context).devicePixelRatio).round(),
+            // Set cache refresh strategy
+            cacheManager: null, // Use default cache manager
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMessageItemLeft(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        GestureDetector(
-          onTap: () => _showUserInfo(context),
-          child: Tooltip(
-            message: widget.message.userDisplayName,
-            child: Text(
-              widget.message.userPhotoURL,
-              style: const TextStyle(fontSize: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () => _showUserInfo(context),
+            child: Tooltip(
+              message: widget.message.userDisplayName,
+              child: Text(
+                widget.message.userPhotoURL,
+                style: const TextStyle(fontSize: 24),
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(
-                child: LayoutBuilder(builder: (context, constraints) {
-                  final halfWidth = constraints.maxWidth / 2;
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: halfWidth,
-                      maxHeight: halfWidth,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: GestureDetector(
-                        onTap: () => _showImageViewer(context),
-                        child: Image(
-                          fit: BoxFit.contain,
-                          image: _imageProvider,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: LayoutBuilder(
+                    builder:
+                        (context, constraints) =>
+                            _buildCachedImage(context, constraints),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(width: 32),
-      ]),
+          const SizedBox(width: 32),
+        ],
+      ),
     );
   }
 
@@ -121,25 +146,11 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Flexible(
-                  child: LayoutBuilder(builder: (context, constraints) {
-                    final halfWidth = constraints.maxWidth / 2;
-                    return ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: halfWidth,
-                        maxHeight: halfWidth,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: GestureDetector(
-                          onTap: () => _showImageViewer(context),
-                          child: Image(
-                            fit: BoxFit.contain,
-                            image: _imageProvider,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
+                  child: LayoutBuilder(
+                    builder:
+                        (context, constraints) =>
+                            _buildCachedImage(context, constraints),
+                  ),
                 ),
               ],
             ),

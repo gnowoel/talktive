@@ -84,6 +84,11 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
             placeholder:
                 (context, url) =>
                     getImagePlaceholder(color: theme.colorScheme.primary),
+            // progressIndicatorBuilder:
+            //     (context, url, downloadProgress) => getProgressIndicator(
+            //       downloadProgress,
+            //       color: theme.colorScheme.primary,
+            //     ),
             errorWidget: (context, url, error) => getImageErrorWidget(),
             cacheKey: widget.message.uri, // Use original URI as cache key
             // Enable memory caching

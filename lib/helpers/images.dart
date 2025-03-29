@@ -38,6 +38,14 @@ Widget getImagePlaceholder({Color? color}) {
   );
 }
 
+Widget getProgressIndicator(DownloadProgress downloadProgress, {Color? color}) {
+  return CircularProgressIndicator(
+    strokeWidth: 2,
+    value: downloadProgress.progress,
+    color: color,
+  );
+}
+
 Widget getImageErrorWidget() {
   return Icon(Icons.broken_image_rounded, size: 40, color: Colors.grey[400]);
 }

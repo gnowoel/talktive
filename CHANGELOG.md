@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.7.0+50
+
+- Implemented caching for network images to improve performance
+
 ## 3.6.0+49
 
 - Added a scheduled task to remove inactive users and their associated records

@@ -170,9 +170,9 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
           error.code === 'messaging/invalid-argument' ||
           error.code === 'messaging/invalid-registration-token'
         ) {
-          // TODO: Remove the invalid token from the database
-          // await db.ref(`users/${otherId}/fcmToken`).remove();
-          // logger.info(`Removed invalid FCM token for user ${otherId}`);
+          // Remove the invalid token from the database
+          await db.ref(`users/${otherId}/fcmToken`).remove();
+          logger.info(`Removed invalid FCM token for user ${otherId}`);
         }
       }
       // Don't rethrow the error as it's not critical

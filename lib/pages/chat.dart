@@ -295,7 +295,7 @@ class _ChatPageState extends State<ChatPage> {
                     partnerDisplayName != null &&
                     partnerDisplayName.isNotEmpty) ...[
                   Icon(
-                    Icons.loyalty,
+                    Icons.grade,
                     size: 20,
                     color: customColors.friendIndicator,
                   ),

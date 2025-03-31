@@ -187,7 +187,7 @@ class _ChatItemState extends State<ChatItem> {
               children: [
                 if (isFriend) ...[
                   Icon(
-                    Icons.loyalty,
+                    Icons.grade,
                     size: 16,
                     color: customColors.friendIndicator,
                   ),

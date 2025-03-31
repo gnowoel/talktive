@@ -313,7 +313,7 @@ class _UserItemState extends State<UserItem> {
             children: [
               if (isFriend) ...[
                 Icon(
-                  Icons.loyalty,
+                  Icons.grade,
                   size: 16,
                   color: customColors.friendIndicator,
                 ),

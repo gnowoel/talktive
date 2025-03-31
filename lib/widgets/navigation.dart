@@ -84,9 +84,7 @@ class _NavigationState extends State<Navigation> {
           ),
           NavigationDestination(
             label: 'Friends',
-            icon: Icon(
-              currentIndex == 2 ? Icons.loyalty : Icons.loyalty_outlined,
-            ),
+            icon: Icon(currentIndex == 2 ? Icons.grade : Icons.grade_outlined),
           ),
           NavigationDestination(
             label: 'Profile',

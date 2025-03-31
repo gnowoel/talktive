@@ -174,7 +174,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               children: [
                 if (isFollowing) ...[
                   Icon(
-                    Icons.loyalty,
+                    Icons.grade,
                     size: 20,
                     color: customColors.friendIndicator,
                   ),
@@ -245,7 +245,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: _isProcessing ? null : _followUser,
-                icon: const Icon(Icons.loyalty),
+                icon: const Icon(Icons.grade),
                 label: const Text('Add Friend'),
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.colorScheme.secondaryContainer,
@@ -257,7 +257,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: _isProcessing ? null : _unfollowUser,
-                icon: const Icon(Icons.loyalty),
+                icon: const Icon(Icons.grade),
                 label: const Text('Delete Friend'),
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.colorScheme.errorContainer,

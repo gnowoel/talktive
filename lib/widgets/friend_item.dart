@@ -293,11 +293,7 @@ class _FriendItemState extends State<FriendItem> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (isFriend) ...[
-              Icon(
-                Icons.loyalty,
-                size: 16,
-                color: customColors.friendIndicator,
-              ),
+              Icon(Icons.grade, size: 16, color: customColors.friendIndicator),
               const SizedBox(width: 4),
             ],
             Expanded(

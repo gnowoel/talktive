@@ -4,29 +4,29 @@ class Bubble extends StatelessWidget {
   final String content;
   final bool byMe;
   final bool isBot;
+  final bool recalled;
 
   const Bubble({
     super.key,
     required this.content,
     this.byMe = false,
     this.isBot = false,
+    this.recalled = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final containerColor =
-        isBot
-            ? colorScheme.secondaryContainer
-            : (byMe
-                ? colorScheme.primaryContainer
-                : colorScheme.surfaceContainerHigh);
+    final containerColor = isBot
+        ? colorScheme.secondaryContainer
+        : (byMe
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerHigh);
 
-    final textColor =
-        isBot
-            ? colorScheme.onSecondaryContainer
-            : (byMe ? colorScheme.onPrimaryContainer : colorScheme.onSurface);
+    final textColor = isBot
+        ? colorScheme.onSecondaryContainer
+        : (byMe ? colorScheme.onPrimaryContainer : colorScheme.onSurface);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -34,7 +34,14 @@ class Bubble extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         color: containerColor,
       ),
-      child: Text(content, style: TextStyle(fontSize: 16, color: textColor)),
+      child: Text(
+        content,
+        style: TextStyle(
+          fontSize: 16,
+          color: textColor,
+          fontStyle: recalled ? FontStyle.italic : null,
+        ),
+      ),
     );
   }
 }

@@ -487,4 +487,13 @@ class Firedata {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> recallMessage(String chatId, String messageId) async {
+    try {
+      final ref = instance.ref('messages/$chatId/$messageId');
+      await ref.update({'recalled': true});
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }

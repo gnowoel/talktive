@@ -13,6 +13,7 @@ class TextMessage extends Message {
     required this.userDisplayName,
     required this.userPhotoURL,
     required this.content,
+    super.recalled = false,
   }) : super(type: 'text');
 
   TextMessage copyWith({
@@ -22,6 +23,7 @@ class TextMessage extends Message {
     String? userPhotoURL,
     String? content,
     int? createdAt,
+    bool? recalled,
   }) {
     return TextMessage(
       id: id ?? this.id,
@@ -30,6 +32,7 @@ class TextMessage extends Message {
       userPhotoURL: userPhotoURL ?? this.userPhotoURL,
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
+      recalled: recalled ?? this.recalled,
     );
   }
 
@@ -42,6 +45,7 @@ class TextMessage extends Message {
       'content': content,
       'type': type,
       'createdAt': createdAt,
+      'recalled': recalled,
     };
   }
 
@@ -53,6 +57,7 @@ class TextMessage extends Message {
       userPhotoURL: json['userPhotoURL'] as String,
       content: json['content'] as String,
       createdAt: json['createdAt'] as int,
+      recalled: json['recalled'] as bool? ?? false,
     );
   }
 }

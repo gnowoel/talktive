@@ -54,14 +54,13 @@ class _MessageListState extends State<MessageList> {
     chatMessageCache = Provider.of<ChatMessageCache>(context);
     reportMessageCache = Provider.of<ReportMessageCache>(context);
 
-    final messages =
-        widget.reporterUserId == null
-            ? chatMessageCache.getMessages(widget.chat)
-            : reportMessageCache.getMessages(widget.chat);
+    final messages = widget.reporterUserId == null
+        ? chatMessageCache.getMessages(widget.chat)
+        : reportMessageCache.getMessages(widget.chat);
+
+    _messages = messages;
 
     if (messages.length != _messages.length) {
-      _messages = messages;
-
       // We don't update the read message count in admin reports
       if (widget.reporterUserId == null) {
         widget.updateMessageCount(messages.length);
@@ -166,6 +165,7 @@ class _MessageListState extends State<MessageList> {
 
         return TextMessageItem(
           key: ValueKey(message.id),
+          chatId: widget.chat.id,
           message: message as TextMessage,
           reporterUserId: widget.reporterUserId,
         );

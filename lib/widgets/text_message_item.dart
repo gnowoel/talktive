@@ -4,15 +4,18 @@ import 'package:provider/provider.dart';
 
 import '../models/text_message.dart';
 import '../services/fireauth.dart';
+import '../services/firedata.dart';
 import 'bubble.dart';
 import 'user_info_loader.dart';
 
 class TextMessageItem extends StatefulWidget {
+  final String chatId;
   final TextMessage message;
   final String? reporterUserId;
 
   const TextMessageItem({
     super.key,
+    required this.chatId,
     required this.message,
     this.reporterUserId,
   });
@@ -22,21 +25,66 @@ class TextMessageItem extends StatefulWidget {
 }
 
 class _TextMessageItemState extends State<TextMessageItem> {
+  late Fireauth fireauth;
+  late Firedata firedata;
   bool get _isBot => widget.message.userId == 'bot';
+
+  @override
+  void initState() {
+    super.initState();
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+  }
 
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: widget.message.userId,
-            photoURL: widget.message.userPhotoURL,
-            displayName: widget.message.userDisplayName,
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: widget.message.userId,
+        photoURL: widget.message.userPhotoURL,
+        displayName: widget.message.userDisplayName,
+      ),
     );
   }
 
   void _showContextMenu(BuildContext context, Offset position) {
+    final currentUser = fireauth.instance.currentUser!;
+    final byMe = widget.reporterUserId == null
+        ? widget.message.userId == currentUser.uid
+        : widget.message.userId == widget.reporterUserId;
+
+    final menuItems = <PopupMenuEntry>[];
+
+    // Always show Copy option
+    menuItems.add(
+      PopupMenuItem(
+        child: Row(
+          children: const [
+            Icon(Icons.copy, size: 20),
+            SizedBox(width: 8),
+            Text('Copy'),
+          ],
+        ),
+        onTap: () => _copyToClipboard(context),
+      ),
+    );
+
+    // Show Recall option only for own messages that haven't been recalled
+    if (byMe && !widget.message.recalled) {
+      menuItems.add(
+        PopupMenuItem(
+          child: Row(
+            children: const [
+              Icon(Icons.replay, size: 20),
+              SizedBox(width: 8),
+              Text('Recall'),
+            ],
+          ),
+          onTap: () => _showRecallDialog(context),
+        ),
+      );
+    }
+
     showMenu(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -45,18 +93,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
         position.dx + 1,
         position.dy + 1,
       ),
-      items: [
-        PopupMenuItem(
-          child: Row(
-            children: [
-              const Icon(Icons.copy, size: 20),
-              const SizedBox(width: 8),
-              const Text('Copy'),
-            ],
-          ),
-          onTap: () => _copyToClipboard(context),
-        ),
-      ],
+      items: menuItems,
     );
   }
 
@@ -64,7 +101,11 @@ class _TextMessageItemState extends State<TextMessageItem> {
     // Capture the BuildContext before the async gap
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    await Clipboard.setData(ClipboardData(text: widget.message.content));
+    await Clipboard.setData(ClipboardData(
+      text: widget.message.recalled
+          ? '- Message recalled -'
+          : widget.message.content,
+    ));
     if (!mounted) return;
 
     scaffoldMessenger.showSnackBar(
@@ -75,26 +116,71 @@ class _TextMessageItemState extends State<TextMessageItem> {
     );
   }
 
+  void _showRecallDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Recall Message?'),
+        content: const Text(
+            'This message will be recalled for everyone in the chat. This action cannot be undone.'),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: const Text('Recall'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _recallMessage(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _recallMessage(BuildContext context) async {
+    try {
+      await firedata.recallMessage(widget.chatId, widget.message.id!);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   Widget _buildMessageBox({
     required String content,
     bool byMe = false,
     bool isBot = false,
   }) {
     return GestureDetector(
-      onLongPressStart:
-          (details) => _showContextMenu(context, details.globalPosition),
-      child: Bubble(content: content, byMe: byMe, isBot: isBot),
+      onLongPressStart: (details) =>
+          _showContextMenu(context, details.globalPosition),
+      child: widget.message.recalled
+          ? Bubble(
+              content: '- Message recalled -',
+              byMe: byMe,
+              isBot: isBot,
+              recalled: true,
+            )
+          : Bubble(
+              content: content,
+              byMe: byMe,
+              isBot: isBot,
+            ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final fireauth = Provider.of<Fireauth>(context, listen: false);
     final currentUser = fireauth.instance.currentUser!;
-    final byMe =
-        widget.reporterUserId == null
-            ? widget.message.userId == currentUser.uid
-            : widget.message.userId == widget.reporterUserId;
+    final byMe = widget.reporterUserId == null
+        ? widget.message.userId == currentUser.uid
+        : widget.message.userId == widget.reporterUserId;
 
     // Bot messages are always shown on the left
     return byMe

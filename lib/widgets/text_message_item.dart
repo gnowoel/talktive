@@ -39,19 +39,21 @@ class _TextMessageItemState extends State<TextMessageItem> {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: widget.message.userId,
-        photoURL: widget.message.userPhotoURL,
-        displayName: widget.message.userDisplayName,
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: widget.message.userId,
+            photoURL: widget.message.userPhotoURL,
+            displayName: widget.message.userDisplayName,
+          ),
     );
   }
 
   void _showContextMenu(BuildContext context, Offset position) {
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = widget.reporterUserId == null
-        ? widget.message.userId == currentUser.uid
-        : widget.message.userId == widget.reporterUserId;
+    final byMe =
+        widget.reporterUserId == null
+            ? widget.message.userId == currentUser.uid
+            : widget.message.userId == widget.reporterUserId;
 
     final menuItems = <PopupMenuEntry>[];
 
@@ -101,11 +103,14 @@ class _TextMessageItemState extends State<TextMessageItem> {
     // Capture the BuildContext before the async gap
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    await Clipboard.setData(ClipboardData(
-      text: widget.message.recalled
-          ? '- Message recalled -'
-          : widget.message.content,
-    ));
+    await Clipboard.setData(
+      ClipboardData(
+        text:
+            widget.message.recalled
+                ? '- Message recalled -'
+                : widget.message.content,
+      ),
+    );
     if (!mounted) return;
 
     scaffoldMessenger.showSnackBar(
@@ -119,24 +124,26 @@ class _TextMessageItemState extends State<TextMessageItem> {
   void _showRecallDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Recall Message?'),
-        content: const Text(
-            'This message will be recalled for everyone in the chat. This action cannot be undone.'),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Recall Message?'),
+            content: const Text(
+              'This message will be removed from the chat. The action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: const Text('Recall'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _recallMessage(context);
+                },
+              ),
+            ],
           ),
-          TextButton(
-            child: const Text('Recall'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _recallMessage(context);
-            },
-          ),
-        ],
-      ),
     );
   }
 
@@ -145,9 +152,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -157,30 +164,29 @@ class _TextMessageItemState extends State<TextMessageItem> {
     bool byMe = false,
     bool isBot = false,
   }) {
+    if (widget.message.recalled) {
+      return Bubble(
+        content: '- Message recalled -',
+        byMe: byMe,
+        isBot: isBot,
+        recalled: true,
+      );
+    }
+
     return GestureDetector(
-      onLongPressStart: (details) =>
-          _showContextMenu(context, details.globalPosition),
-      child: widget.message.recalled
-          ? Bubble(
-              content: '- Message recalled -',
-              byMe: byMe,
-              isBot: isBot,
-              recalled: true,
-            )
-          : Bubble(
-              content: content,
-              byMe: byMe,
-              isBot: isBot,
-            ),
+      onLongPressStart:
+          (details) => _showContextMenu(context, details.globalPosition),
+      child: Bubble(content: content, byMe: byMe, isBot: isBot),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = widget.reporterUserId == null
-        ? widget.message.userId == currentUser.uid
-        : widget.message.userId == widget.reporterUserId;
+    final byMe =
+        widget.reporterUserId == null
+            ? widget.message.userId == currentUser.uid
+            : widget.message.userId == widget.reporterUserId;
 
     // Bot messages are always shown on the left
     return byMe

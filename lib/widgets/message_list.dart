@@ -54,9 +54,10 @@ class _MessageListState extends State<MessageList> {
     chatMessageCache = Provider.of<ChatMessageCache>(context);
     reportMessageCache = Provider.of<ReportMessageCache>(context);
 
-    final messages = widget.reporterUserId == null
-        ? chatMessageCache.getMessages(widget.chat)
-        : reportMessageCache.getMessages(widget.chat);
+    final messages =
+        widget.reporterUserId == null
+            ? chatMessageCache.getMessages(widget.chat)
+            : reportMessageCache.getMessages(widget.chat);
 
     _messages = messages;
 
@@ -158,6 +159,7 @@ class _MessageListState extends State<MessageList> {
         if (message is ImageMessage) {
           return ImageMessageItem(
             key: ValueKey(message.id),
+            chatId: widget.chat.id,
             message: message,
             reporterUserId: widget.reporterUserId,
           );

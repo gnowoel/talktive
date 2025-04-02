@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.8.0+51
+
+- Added a Recall button to the context menu for messages and images
+- Added a Copy button to the context menu for messages
+- Updated the friends indicator with a new icon
+- Upgraded dependencies
+
 ## 3.7.0+50
 
 - Implemented caching for network images to improve performance
@@ -21,8 +28,7 @@
 
 ## 3.4.3+47
 
-- Fixed a persistent issue where outdated messages from a previous chat were displayed
-- Resolved a UI bug that caused the friend indicator to appear in the wrong location
+- (what's in 3.4.2+46)
 - Disabled the Add and Remove User buttons while processing
 - Added a null check for the user when displaying the Users page
 - Added a loading indicator while fetching users

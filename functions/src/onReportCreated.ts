@@ -37,7 +37,21 @@ const resolveReport = async (reportId: string, report: Report) => {
   const newUserStatus = getUserStatus(now, newRevivedAt);
 
   if (oldUserStatus !== newUserStatus) {
-    // TODO: Update partner's chats
+    const chatId = report.chatId;
+    const userId = report.userId;
+    const partnerId = chatId.replace(userId, '');
+    const chatIds = await getUserChatIds(partnerId);
+
+    const updatePromises = chatIds.map(async (chatId) => {
+      const partnerPartnerId = chatId.replace(partnerId, '');
+      await updateChatPartnerRevivedAt(partnerPartnerId, chatId, newRevivedAt);
+    });
+
+    try {
+      await Promise.all(updatePromises);
+    } catch (error) {
+      logger.error('Error updating chat partner revivedAt:', error);
+    }
   }
 }
 
@@ -76,6 +90,41 @@ const getUserStatus = (now: number, revivedAt: number) => {
   if (revivedAt >= now + 14 * oneDay) return 'warning';
   if (revivedAt >= now) return 'alert';
   return 'regular';
+}
+
+const getUserChatIds = async (userId: string): Promise<string[]> => {
+  const userChatsRef = db.ref(`chats/${userId}`);
+
+  try {
+    const snapshot = await userChatsRef
+      .orderByKey()
+      .get();
+
+    if (!snapshot.exists()) return [];
+
+    const chatIds = Object.keys(snapshot.val());
+    return chatIds;
+  } catch (error) {
+    logger.error('Error fetching user chat IDs:', error);
+    return [];
+  }
+}
+
+const updateChatPartnerRevivedAt = async (
+  userId: string,
+  chatId: string,
+  revivedAt: number
+): Promise<void> => {
+  const chatRef = db.ref(`chats/${userId}/${chatId}`);
+
+  try {
+    const snapshot = await chatRef.get();
+    if (!snapshot.exists()) return;
+
+    await chatRef.child('partner').update({ revivedAt });
+  } catch (error) {
+    logger.error(`Error updating chat ${chatId} for user ${userId}:`, error);
+  }
 }
 
 const updatePartnerRevivedAt = async (report: Report, revivedAt: number | null) => {

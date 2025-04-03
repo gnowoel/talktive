@@ -136,6 +136,10 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       return Bubble(content: '- Image recalled -', byMe: byMe, recalled: true);
     }
 
+    if (widget.reporterUserId != null) {
+      return _buildCachedImage(context, constraints);
+    }
+
     if (byMe) {
       return GestureDetector(
         onLongPressStart:

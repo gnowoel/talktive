@@ -173,6 +173,10 @@ class _TextMessageItemState extends State<TextMessageItem> {
       );
     }
 
+    if (widget.reporterUserId != null) {
+      return Bubble(content: content, byMe: byMe, isBot: isBot);
+    }
+
     return GestureDetector(
       onLongPressStart:
           (details) => _showContextMenu(context, details.globalPosition),

@@ -39,6 +39,8 @@ class _InputState extends State<Input> {
   late Timer timer;
 
   bool _isUploading = false;
+  bool _isRecording = false;
+  Offset _slideToCancelStart = Offset.zero;
 
   final _controller = TextEditingController();
 
@@ -235,6 +237,99 @@ class _InputState extends State<Input> {
     );
   }
 
+  // Add recording related controllers/services here later
+
+  Widget _buildMessageInput(User user) {
+    return Expanded(
+      child: KeyboardListener(
+        focusNode: FocusNode(),
+        onKeyEvent: _enabled ? (event) => _handleKeyEvent(event, user) : null,
+        child: TextField(
+          enabled: _enabled,
+          focusNode: widget.focusNode,
+          minLines: 1,
+          maxLines: 12,
+          controller: _controller,
+          decoration: InputDecoration.collapsed(
+            hintText: _enabled ? 'Enter message' : 'Chat closed',
+            hintStyle: TextStyle(color: theme.colorScheme.outline),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVoiceButton() {
+    return GestureDetector(
+      onLongPressStart: _enabled ? _startRecording : null,
+      onLongPressEnd: _enabled ? _stopRecording : null,
+      onLongPressMoveUpdate: _enabled ? _handleRecordingSlide : null,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color:
+              _isRecording
+                  ? theme.colorScheme.errorContainer
+                  : theme.colorScheme.primaryContainer,
+        ),
+        child: Icon(
+          _isRecording ? Icons.mic : Icons.mic_none,
+          color:
+              _isRecording
+                  ? theme.colorScheme.onErrorContainer
+                  : theme.colorScheme.onPrimaryContainer,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecordingUI() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(Icons.mic, color: theme.colorScheme.error),
+          const SizedBox(width: 8),
+          Text(
+            'Recording... Slide left to cancel',
+            style: TextStyle(color: theme.colorScheme.onSurface),
+          ),
+          Expanded(
+            child: LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation(theme.colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _startRecording(LongPressStartDetails details) {
+    setState(() {
+      _isRecording = true;
+      _slideToCancelStart = details.globalPosition;
+    });
+    // Start actual recording
+  }
+
+  void _stopRecording(LongPressEndDetails details) {
+    if (_isRecording) {
+      // Stop recording and send voice message
+      setState(() => _isRecording = false);
+    }
+  }
+
+  void _handleRecordingSlide(LongPressMoveUpdateDetails details) {
+    final distance = details.globalPosition.dx - _slideToCancelStart.dx;
+    // Cancel threshold
+    if (distance < -50) {
+      setState(() => _isRecording = false);
+      // Cancel recording
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userCache = context.watch<UserCache>();
@@ -255,50 +350,46 @@ class _InputState extends State<Input> {
                 color: theme.colorScheme.surfaceContainerHighest,
               ),
             ),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: _enabled ? () => _sendImageMessage(user) : null,
-                  icon:
-                      _isUploading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 3),
-                          )
-                          : Icon(
-                            Icons.attach_file,
-                            color: theme.colorScheme.primary,
-                          ),
-                  tooltip: _enabled ? 'Send picture' : 'Chat closed',
-                ),
-                Expanded(
-                  child: KeyboardListener(
-                    focusNode: FocusNode(),
-                    onKeyEvent:
-                        _enabled
-                            ? (event) => _handleKeyEvent(event, user)
-                            : null,
-                    child: TextField(
-                      enabled: _enabled,
-                      focusNode: widget.focusNode,
-                      minLines: 1,
-                      maxLines: 12,
-                      controller: _controller,
-                      decoration: InputDecoration.collapsed(
-                        hintText: _enabled ? 'Enter message' : 'Chat closed',
-                        hintStyle: TextStyle(color: theme.colorScheme.outline),
-                      ),
+            child:
+                _isRecording
+                    ? _buildRecordingUI()
+                    : Row(
+                      children: [
+                        IconButton(
+                          onPressed:
+                              _enabled ? () => _sendImageMessage(user) : null,
+                          icon:
+                              _isUploading
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                  : Icon(
+                                    Icons.attach_file,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                          tooltip: _enabled ? 'Send picture' : 'Chat closed',
+                        ),
+                        _buildMessageInput(user),
+                        _controller.text.isEmpty
+                            ? _buildVoiceButton()
+                            : IconButton(
+                              onPressed:
+                                  _enabled
+                                      ? () => _sendTextMessage(user)
+                                      : null,
+                              icon: Icon(
+                                Icons.send,
+                                color: theme.colorScheme.primary,
+                              ),
+                              tooltip:
+                                  _enabled ? 'Send message' : 'Chat closed',
+                            ),
+                      ],
                     ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: _enabled ? () => _sendTextMessage(user) : null,
-                  icon: Icon(Icons.send, color: theme.colorScheme.primary),
-                  tooltip: _enabled ? 'Send message' : 'Chat closed',
-                ),
-              ],
-            ),
           ),
         ),
       ],

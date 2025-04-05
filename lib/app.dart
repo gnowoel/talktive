@@ -10,12 +10,15 @@ import 'wrappers/providers.dart';
 import 'wrappers/setup.dart';
 import 'wrappers/subscribe.dart';
 
+const useEmulators = true;
+
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Initialize(
+      useEmulators: useEmulators,
       child: Providers(
         child: VerifyUser(
           child: Setup(

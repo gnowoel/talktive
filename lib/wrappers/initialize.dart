@@ -12,9 +12,10 @@ import '../services/settings.dart' as my;
 import '../theme.dart';
 
 class Initialize extends StatefulWidget {
+  final bool useEmulators;
   final Widget child;
 
-  const Initialize({super.key, required this.child});
+  const Initialize({super.key, this.useEmulators = true, required this.child});
 
   @override
   State<Initialize> createState() => _InitializeState();
@@ -32,14 +33,14 @@ class _InitializeState extends State<Initialize> {
 
   Future<void> _initializeApp() async {
     try {
-      if (kDebugMode) {
+      if (kDebugMode && widget.useEmulators) {
         final isAndroid = defaultTargetPlatform == TargetPlatform.android;
         final host = isAndroid ? '10.0.2.2' : 'localhost';
 
-        await Future.wait([_initializeEmulators(host), _initializeServices()]);
-      } else {
-        await _initializeServices();
+        await _initializeEmulators(host);
       }
+
+      await _initializeServices();
 
       if (mounted) {
         setState(() => _initialized = true);

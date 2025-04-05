@@ -59,14 +59,14 @@ class _MessageListState extends State<MessageList> {
             ? chatMessageCache.getMessages(widget.chat)
             : reportMessageCache.getMessages(widget.chat);
 
-    _messages = messages;
-
     if (messages.length != _messages.length) {
       // We don't update the read message count in admin reports
       if (widget.reporterUserId == null) {
         widget.updateMessageCount(messages.length);
       }
     }
+
+    _messages = messages;
   }
 
   void _handleInputFocus() {

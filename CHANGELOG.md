@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.8.1+52
+
+- Fixed an annoying bug that prevented the read message count from being updated
+- Notified all partners in active chats when a user was reported and confirmed
+
 ## 3.8.0+51
 
 - Added a Recall button to the context menu for messages and images

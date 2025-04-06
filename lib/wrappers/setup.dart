@@ -7,6 +7,7 @@ import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 // import 'setup/signin_step.dart';
+import 'setup/signin_step.dart';
 import 'setup/welcome_step.dart';
 
 class Setup extends StatefulWidget {
@@ -24,6 +25,7 @@ class _SetupPageState extends State<Setup> {
 
   int _currentStep = 0;
   final int _totalSteps = 3; // 4
+  bool _restoreAccount = false;
 
   @override
   void initState() {
@@ -44,6 +46,10 @@ class _SetupPageState extends State<Setup> {
     });
   }
 
+  void _enableRestoreAccount() {
+    setState(() => _restoreAccount = true);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_currentStep >= _totalSteps) {
@@ -56,12 +62,12 @@ class _SetupPageState extends State<Setup> {
         body: SafeArea(
           child: Column(
             children: [
-              Expanded(
-                child: _buildCurrentStep(),
+              Expanded(child: _buildCurrentStep()),
+              Builder(
+                builder: (context) {
+                  return _buildProgressDots(context);
+                },
               ),
-              Builder(builder: (context) {
-                return _buildProgressDots(context);
-              }),
               const SizedBox(height: 32),
             ],
           ),
@@ -73,11 +79,16 @@ class _SetupPageState extends State<Setup> {
   Widget _buildCurrentStep() {
     switch (_currentStep) {
       case 0:
-        return WelcomeStep(onNext: _nextStep);
+        return WelcomeStep(
+          onNext: _nextStep,
+          enableRestoreAccount: _enableRestoreAccount,
+        );
       // case 1:
       //   return SignInStep(onNext: _nextStep);
       case 1:
-        return ProfileStep(onNext: _nextStep);
+        return _restoreAccount
+            ? SigninStep(onNext: _nextStep)
+            : ProfileStep(onNext: _nextStep);
       case 2:
         return NotificationStep(onNext: _nextStep);
       default:
@@ -96,9 +107,10 @@ class _SetupPageState extends State<Setup> {
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _currentStep == index
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outlineVariant,
+            color:
+                _currentStep == index
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outlineVariant,
           ),
         );
       }),

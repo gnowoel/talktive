@@ -41,5 +41,34 @@ class Fireauth {
     }
   }
 
+  Future<void> convertAnonymousAccount(String email, String password) async {
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+
+      await instance.currentUser?.linkWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<User> signInWithEmail(String email, String password) async {
+    try {
+      final userCredential = await instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user!;
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   bool get hasSignedIn => instance.currentUser != null;
 }

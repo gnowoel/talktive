@@ -4,19 +4,16 @@ import 'package:provider/provider.dart';
 import '../../helpers/helpers.dart';
 import '../../services/fireauth.dart';
 
-class SignInStep extends StatefulWidget {
+class SigninStep extends StatefulWidget {
   final VoidCallback onNext;
 
-  const SignInStep({
-    super.key,
-    required this.onNext,
-  });
+  const SigninStep({super.key, required this.onNext});
 
   @override
-  State<SignInStep> createState() => _SignInStepState();
+  State<SigninStep> createState() => _SigninStepState();
 }
 
-class _SignInStepState extends State<SignInStep> {
+class _SigninStepState extends State<SigninStep> {
   bool _isProcessing = false;
 
   Future<void> _signInWithGoogle() async {
@@ -70,10 +67,7 @@ class _SignInStepState extends State<SignInStep> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            '🔐',
-            style: TextStyle(fontSize: 64),
-          ),
+          const Text('🔐', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 32),
           Text(
             'Secure Your Data',
@@ -90,15 +84,14 @@ class _SignInStepState extends State<SignInStep> {
           FilledButton.icon(
             onPressed: _isProcessing ? null : _signInWithGoogle,
             icon: const Icon(Icons.login),
-            label: _isProcessing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                    ),
-                  )
-                : const Text('Sign in with Google'),
+            label:
+                _isProcessing
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    )
+                    : const Text('Sign in with Google'),
           ),
           const SizedBox(height: 16),
           TextButton(

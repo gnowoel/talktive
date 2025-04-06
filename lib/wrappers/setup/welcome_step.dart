@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
@@ -7,8 +6,13 @@ import '../../services/fireauth.dart';
 
 class WelcomeStep extends StatefulWidget {
   final VoidCallback onNext;
+  final VoidCallback enableRestoreAccount;
 
-  const WelcomeStep({super.key, required this.onNext});
+  const WelcomeStep({
+    super.key,
+    required this.onNext,
+    required this.enableRestoreAccount,
+  });
 
   @override
   State<WelcomeStep> createState() => _WelcomeStepState();
@@ -25,6 +29,25 @@ class _WelcomeStepState extends State<WelcomeStep> {
     try {
       final fireauth = context.read<Fireauth>();
       await fireauth.signInAnonymously();
+      widget.onNext();
+    } on AppException catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context, e);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
+  }
+
+  Future<void> _restoreAccount() async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    try {
+      widget.enableRestoreAccount();
       widget.onNext();
     } on AppException catch (e) {
       if (mounted) {
@@ -70,9 +93,10 @@ class _WelcomeStepState extends State<WelcomeStep> {
             onPressed: _isProcessing ? null : _signInAnonymously,
             child: const Text('Get Started'),
           ),
+          const SizedBox(height: 16),
           TextButton(
-            onPressed: () => context.push('/signin'),
-            child: const Text('Sign in with existing account'),
+            onPressed: _isProcessing ? null : _restoreAccount,
+            child: const Text('Restore your account'),
           ),
         ],
       ),

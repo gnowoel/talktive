@@ -13,6 +13,7 @@ import 'pages/launch.dart';
 import 'pages/profile.dart';
 import 'pages/report.dart';
 import 'pages/reports.dart';
+import 'pages/signin.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -167,6 +168,7 @@ Future<GoRouter> initRouter() async {
         path: '/profile/backup',
         builder: (context, state) => const BackupAccountPage(),
       ),
+      GoRoute(path: '/signin', builder: (context, state) => const SignInPage()),
     ],
   );
 }

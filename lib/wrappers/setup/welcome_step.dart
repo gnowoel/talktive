@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
@@ -7,10 +8,7 @@ import '../../services/fireauth.dart';
 class WelcomeStep extends StatefulWidget {
   final VoidCallback onNext;
 
-  const WelcomeStep({
-    super.key,
-    required this.onNext,
-  });
+  const WelcomeStep({super.key, required this.onNext});
 
   @override
   State<WelcomeStep> createState() => _WelcomeStepState();
@@ -48,10 +46,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            '👋',
-            style: TextStyle(fontSize: 64),
-          ),
+          const Text('👋', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 32),
           Text(
             'Welcome to Talktive',
@@ -74,6 +69,10 @@ class _WelcomeStepState extends State<WelcomeStep> {
           FilledButton(
             onPressed: _isProcessing ? null : _signInAnonymously,
             child: const Text('Get Started'),
+          ),
+          TextButton(
+            onPressed: () => context.push('/signin'),
+            child: const Text('Sign in with existing account'),
           ),
         ],
       ),

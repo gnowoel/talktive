@@ -5,6 +5,7 @@ import 'package:talktive/pages/friends.dart';
 
 import 'models/chat.dart';
 import 'models/user.dart';
+import 'pages/backup_account.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/edit_profile.dart';
@@ -161,6 +162,10 @@ Future<GoRouter> initRouter() async {
 
           return ReportPage(userId: userId, chat: chat);
         },
+      ),
+      GoRoute(
+        path: '/profile/backup',
+        builder: (context, state) => const BackupAccountPage(),
       ),
     ],
   );

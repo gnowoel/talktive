@@ -118,6 +118,11 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () => context.push('/profile/backup'),
+                  child: const Text('Backup Account'),
+                ),
+                const SizedBox(height: 32),
               ],
             ),
           ),

@@ -41,8 +41,11 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account backup created successfully'),
+            SnackBar(
+              content: Text(
+                'Account backup created! Save this email to restore your account later: ${_emailController.text.trim()}',
+              ),
+              duration: const Duration(seconds: 10),
             ),
           );
           context.pop();

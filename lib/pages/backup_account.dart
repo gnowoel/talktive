@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
@@ -13,108 +12,80 @@ class BackupAccountPage extends StatefulWidget {
 }
 
 class _BackupAccountPageState extends State<BackupAccountPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   bool _isProcessing = false;
+  String? _token;
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
+  Future<void> _generateToken() async {
     if (_isProcessing) return;
 
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isProcessing = true);
+    setState(() => _isProcessing = true);
 
-      try {
-        final fireauth = context.read<Fireauth>();
+    try {
+      final fireauth = context.read<Fireauth>();
+      final token = await fireauth.createRecoveryToken();
 
-        await fireauth.convertAnonymousAccount(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Account backup created! Save this email to restore your account later: ${_emailController.text.trim()}',
-              ),
-              duration: const Duration(seconds: 10),
-            ),
-          );
-          context.pop();
-        }
-      } on AppException catch (e) {
-        if (mounted) {
-          ErrorHandler.showSnackBarMessage(context, e);
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _isProcessing = false);
-        }
+      setState(() => _token = token.toString());
+    } on AppException catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context, e);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Backup Account')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Text(
-                'Create backup credentials to restore your account later',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
+      body: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('🔐', style: theme.textTheme.displayLarge),
+            const SizedBox(height: 32),
+            Text(
+              'Create Recovery Token',
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Save this token somewhere safe. You\'ll need it to restore your account if you reinstall the app.',
+              style: theme.textTheme.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            if (_token != null) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter an email';
-                  }
-                  if (!value!.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
+                child: SelectableText(
+                  _token!,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontFamily: 'monospace',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Create a password',
+              Text(
+                'Copy and save this token!',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.error,
                 ),
-                obscureText: true,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter a password';
-                  }
-                  if (value!.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 32),
+            ] else ...[
               FilledButton(
-                onPressed: _isProcessing ? null : _submit,
+                onPressed: _isProcessing ? null : _generateToken,
                 child:
                     _isProcessing
                         ? const SizedBox(
@@ -122,10 +93,10 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 3),
                         )
-                        : const Text('Create Backup'),
+                        : const Text('Generate Recovery Token'),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

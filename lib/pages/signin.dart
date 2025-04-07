@@ -14,34 +14,26 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _tokenController = TextEditingController();
   bool _isProcessing = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _tokenController.dispose();
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
-    value = value?.trim();
+  String? _validateToken(String? value) {
+    value = value?.trim().toLowerCase();
     if (value == null || value.isEmpty) {
-      return 'Please enter your email';
+      return 'Please enter your recovery token';
     }
-    if (!value.contains('@')) {
-      return 'Please enter a valid email';
+    // _emailLength + _passwordLength
+    if (value.length != 16) {
+      return 'Invalid token length';
     }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your password';
-    }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+    if (!RegExp(r'^[0-9][a-z0-9]+$').hasMatch(value)) {
+      return 'Invalid token format';
     }
     return null;
   }
@@ -54,16 +46,10 @@ class _SignInPageState extends State<SignInPage> {
 
       try {
         final fireauth = context.read<Fireauth>();
-
-        await fireauth.signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
+        await fireauth.signInWithToken(_tokenController.text.trim());
 
         if (mounted) {
-          // Go to the next setup step
-          context.pop(); // Close the sign-in page
-          context.go('/users'); // Navigate to main app
+          context.go('/users');
         }
       } on AppException catch (e) {
         if (mounted) {
@@ -82,72 +68,51 @@ class _SignInPageState extends State<SignInPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Sign In'),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 32),
-                Text(
-                  'Welcome back!',
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
+      appBar: AppBar(title: const Text('Restore Account')),
+      body: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('🔑', style: theme.textTheme.displayLarge),
+              const SizedBox(height: 32),
+              Text(
+                'Welcome Back!',
+                style: theme.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Enter your recovery token to restore your account',
+                style: theme.textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              TextFormField(
+                controller: _tokenController,
+                decoration: const InputDecoration(
+                  labelText: 'Recovery Token',
+                  hintText: 'Enter your token',
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Sign in to restore your account',
-                  style: theme.textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 48),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email',
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  validator: _validateEmail,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
-                  ),
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _submit(),
-                  validator: _validatePassword,
-                ),
-                const SizedBox(height: 32),
-                FilledButton(
-                  onPressed: _isProcessing ? null : _submit,
-                  child:
-                      _isProcessing
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 3),
-                          )
-                          : const Text('Sign In'),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: const Text('Create new account instead'),
-                ),
-              ],
-            ),
+                validator: _validateToken,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: 32),
+              FilledButton(
+                onPressed: _isProcessing ? null : _submit,
+                child:
+                    _isProcessing
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        )
+                        : const Text('Restore Account'),
+              ),
+            ],
           ),
         ),
       ),

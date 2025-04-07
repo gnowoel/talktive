@@ -36,80 +36,83 @@ class ProfilePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Layout(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 32),
-                // Avatar section
-                Text(
-                  user?.photoURL ?? '',
-                  style: const TextStyle(fontSize: 64),
-                ),
-                const SizedBox(height: 24),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Avatar section
+                          Text(
+                            user?.photoURL ?? '',
+                            style: const TextStyle(fontSize: 64),
+                          ),
+                          const SizedBox(height: 24),
 
-                // Name and description
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    children: [
-                      Text(
-                        user?.displayName ?? '',
-                        style: theme.textTheme.headlineSmall,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        user?.description ?? '',
-                        style: theme.textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
+                          // Name and description
+                          Text(
+                            user?.displayName ?? '',
+                            style: theme.textTheme.headlineSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            user?.description ?? '',
+                            style: theme.textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
 
-                // Badges
-                if (user != null) ...[
-                  const SizedBox(height: 24),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _Badge(
-                          label: 'Level ${user.level}',
-                          backgroundColor: theme.colorScheme.primary,
-                          textColor: theme.colorScheme.onPrimary,
-                        ),
-                        const SizedBox(width: 8),
-                        _Badge(
-                          label: getLongGenderName(user.gender!) ?? '',
-                          backgroundColor:
-                              theme.colorScheme.surfaceContainerHigh,
-                        ),
-                        const SizedBox(width: 8),
-                        _Badge(
-                          label: getLanguageName(user.languageCode!) ?? '',
-                          backgroundColor:
-                              theme.colorScheme.surfaceContainerHigh,
-                        ),
-                      ],
+                          // Badges
+                          if (user != null) ...[
+                            const SizedBox(height: 24),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _Badge(
+                                    label: 'Level ${user.level}',
+                                    backgroundColor: theme.colorScheme.primary,
+                                    textColor: theme.colorScheme.onPrimary,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _Badge(
+                                    label:
+                                        getLongGenderName(user.gender!) ?? '',
+                                    backgroundColor:
+                                        theme.colorScheme.surfaceContainerHigh,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _Badge(
+                                    label:
+                                        getLanguageName(user.languageCode!) ??
+                                        '',
+                                    backgroundColor:
+                                        theme.colorScheme.surfaceContainerHigh,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          // Backup account button
+                          const SizedBox(height: 32),
+                          ElevatedButton(
+                            onPressed: () => context.push('/profile/backup'),
+                            child: const Text('Backup Account'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-
-                // Backup account button
-                const SizedBox(height: 32),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: ElevatedButton(
-                    onPressed: () => context.push('/profile/backup'),
-                    child: const Text('Backup Account'),
-                  ),
                 ),
-                const SizedBox(height: 32),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

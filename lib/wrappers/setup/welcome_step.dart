@@ -78,7 +78,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Chat privately, connect freely, and your messages disappear after expiration.',
+            'Connect anonymously and chat privately. All messages are permanently deleted after expiration.',
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -88,15 +88,15 @@ class _WelcomeStepState extends State<WelcomeStep> {
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 36),
           FilledButton(
             onPressed: _isProcessing ? null : _signInAnonymously,
             child: const Text('Get Started'),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
           TextButton(
             onPressed: _isProcessing ? null : _restoreAccount,
-            child: const Text('Restore your account'),
+            child: const Text('Restore account'),
           ),
         ],
       ),

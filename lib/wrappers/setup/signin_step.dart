@@ -14,46 +14,49 @@ class SigninStep extends StatefulWidget {
 }
 
 class _SigninStepState extends State<SigninStep> {
+  final _formKey = GlobalKey<FormState>();
+  final _tokenController = TextEditingController();
   bool _isProcessing = false;
 
-  Future<void> _signInWithGoogle() async {
-    if (_isProcessing) return;
-
-    setState(() => _isProcessing = true);
-
-    try {
-      final fireauth = context.read<Fireauth>();
-      // TODO: implement Google sign-in
-      await Future.delayed(const Duration(seconds: 1)); // Temporary
-      await fireauth.signInAnonymously();
-      widget.onNext();
-    } on AppException catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
-    }
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
   }
 
-  Future<void> _signInAnonymously() async {
+  String? _validateToken(String? value) {
+    value = value?.trim().toLowerCase();
+    if (value == null || value.isEmpty) {
+      return 'Please enter your recovery token';
+    }
+    // _emailLength + _passwordLength
+    if (value.length != 16) {
+      return 'Invalid token length';
+    }
+    if (!RegExp(r'^[0-9][a-z0-9]+$').hasMatch(value)) {
+      return 'Invalid token format';
+    }
+    return null;
+  }
+
+  Future<void> _submit() async {
     if (_isProcessing) return;
 
-    setState(() => _isProcessing = true);
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isProcessing = true);
 
-    try {
-      final fireauth = context.read<Fireauth>();
-      await fireauth.signInAnonymously();
-      widget.onNext();
-    } on AppException catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
+      try {
+        final fireauth = context.read<Fireauth>();
+        await fireauth.signInWithToken(_tokenController.text.trim());
+        widget.onNext();
+      } on AppException catch (e) {
+        if (mounted) {
+          ErrorHandler.showSnackBarMessage(context, e);
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isProcessing = false);
+        }
       }
     }
   }
@@ -62,43 +65,54 @@ class _SigninStepState extends State<SigninStep> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('🔐', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 32),
-          Text(
-            'Secure Your Data',
-            style: theme.textTheme.headlineSmall,
-            textAlign: TextAlign.center,
+    return Scaffold(
+      appBar: AppBar(title: const Text('Restore Account')),
+      body: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('🔑', style: theme.textTheme.displayLarge),
+              const SizedBox(height: 32),
+              Text(
+                'Welcome Back!',
+                style: theme.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Enter your recovery token to restore your account',
+                style: theme.textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              TextFormField(
+                controller: _tokenController,
+                decoration: const InputDecoration(
+                  labelText: 'Recovery Token',
+                  hintText: 'Enter your token',
+                ),
+                validator: _validateToken,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: 32),
+              FilledButton(
+                onPressed: _isProcessing ? null : _submit,
+                child:
+                    _isProcessing
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        )
+                        : const Text('Restore Account'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Sign in to save your chat history and preferences. We only use your account to secure your data and don\'t share any personal information.',
-            style: theme.textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 48),
-          FilledButton.icon(
-            onPressed: _isProcessing ? null : _signInWithGoogle,
-            icon: const Icon(Icons.login),
-            label:
-                _isProcessing
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    )
-                    : const Text('Sign in with Google'),
-          ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: _isProcessing ? null : _signInAnonymously,
-            child: const Text('Continue without signing in'),
-          ),
-        ],
+        ),
       ),
     );
   }

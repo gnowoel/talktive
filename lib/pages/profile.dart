@@ -36,91 +36,76 @@ class ProfilePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Layout(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
+          child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 120,
-                  child: Center(
-                    child: Text(
-                      user?.photoURL ?? '',
-                      style: const TextStyle(fontSize: 64),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
+                // Avatar section
                 Text(
-                  user?.displayName ?? '',
-                  style: theme.textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
+                  user?.photoURL ?? '',
+                  style: const TextStyle(fontSize: 64),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  user?.description ?? '',
-                  style: theme.textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                if (user != null) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                const SizedBox(height: 24),
+
+                // Name and description
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          'Level ${user.level}',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.surface,
-                          ),
-                        ),
+                      Text(
+                        user?.displayName ?? '',
+                        style: theme.textTheme.headlineSmall,
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          getLongGenderName(user.gender!) ?? '',
-                          style: theme.textTheme.labelMedium,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          getLanguageName(user.languageCode!) ?? '',
-                          style: theme.textTheme.labelMedium,
-                        ),
+                      const SizedBox(height: 16),
+                      Text(
+                        user?.description ?? '',
+                        style: theme.textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
+                ),
+
+                // Badges
+                if (user != null) ...[
+                  const SizedBox(height: 24),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _Badge(
+                          label: 'Level ${user.level}',
+                          backgroundColor: theme.colorScheme.primary,
+                          textColor: theme.colorScheme.onPrimary,
+                        ),
+                        const SizedBox(width: 8),
+                        _Badge(
+                          label: getLongGenderName(user.gender!) ?? '',
+                          backgroundColor:
+                              theme.colorScheme.surfaceContainerHigh,
+                        ),
+                        const SizedBox(width: 8),
+                        _Badge(
+                          label: getLanguageName(user.languageCode!) ?? '',
+                          backgroundColor:
+                              theme.colorScheme.surfaceContainerHigh,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
+
+                // Backup account button
                 const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: () => context.push('/profile/backup'),
-                  child: const Text('Backup Account'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: ElevatedButton(
+                    onPressed: () => context.push('/profile/backup'),
+                    child: const Text('Backup Account'),
+                  ),
                 ),
                 const SizedBox(height: 32),
               ],
@@ -132,16 +117,43 @@ class ProfilePage extends StatelessWidget {
         future: firedata.fetchAdmin(user?.id),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            return IconButton(
-              icon: const Icon(Icons.admin_panel_settings),
-              onPressed: () {
-                context.push('/admin/reports');
-              },
+            return FloatingActionButton(
+              onPressed: () => context.push('/admin/reports'),
               tooltip: 'Admin Panel',
+              child: const Icon(Icons.admin_panel_settings),
             );
           }
           return const SizedBox();
         },
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final String label;
+  final Color backgroundColor;
+  final Color? textColor;
+
+  const _Badge({
+    required this.label,
+    required this.backgroundColor,
+    this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelMedium?.copyWith(color: textColor),
       ),
     );
   }

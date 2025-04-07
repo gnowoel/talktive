@@ -29,11 +29,10 @@ class _SigninStepState extends State<SigninStep> {
     if (value == null || value.isEmpty) {
       return 'Please enter your recovery token';
     }
-    // _emailLength + _passwordLength
-    if (value.length != 16) {
+    if (value.length != 20) {
       return 'Invalid token length';
     }
-    if (!RegExp(r'^[0-9][a-z0-9]+$').hasMatch(value)) {
+    if (!RegExp(r'^[a-z0-9]+$').hasMatch(value)) {
       return 'Invalid token format';
     }
     return null;

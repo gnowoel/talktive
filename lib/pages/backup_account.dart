@@ -15,13 +15,6 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
   bool _isProcessing = false;
   String? _token;
 
-  @override
-  void initState() {
-    super.initState();
-    final fireauth = context.read<Fireauth>();
-    _token = fireauth.getStoredToken();
-  }
-
   Future<void> _generateToken() async {
     if (_isProcessing) return;
 
@@ -47,6 +40,11 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
         setState(() => _isProcessing = false);
       }
     }
+  }
+
+  Future<void> _showToken() async {
+    final fireauth = context.read<Fireauth>();
+    setState(() => _token = fireauth.getStoredToken());
   }
 
   @override
@@ -112,6 +110,11 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
                           child: CircularProgressIndicator(strokeWidth: 3),
                         )
                         : const Text('Generate Recovery Token'),
+              ),
+            ] else ...[
+              FilledButton(
+                onPressed: _isProcessing ? null : _showToken,
+                child: const Text('Show Recovery Token'),
               ),
             ],
           ],

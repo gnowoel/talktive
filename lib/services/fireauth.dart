@@ -43,35 +43,6 @@ class Fireauth {
     }
   }
 
-  Future<void> convertAnonymousAccount(String email, String password) async {
-    try {
-      final credential = EmailAuthProvider.credential(
-        email: email,
-        password: password,
-      );
-
-      await instance.currentUser?.linkWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
-      throw AppException(e.code);
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  Future<User> signInWithEmail(String email, String password) async {
-    try {
-      final userCredential = await instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return userCredential.user!;
-    } on FirebaseAuthException catch (e) {
-      throw AppException(e.code);
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
   Future<RecoveryToken> createRecoveryToken() async {
     try {
       final token = RecoveryToken.generate();
@@ -82,6 +53,7 @@ class Fireauth {
       );
 
       await instance.currentUser?.linkWithCredential(credential);
+      await instance.currentUser?.updateDisplayName(token.toString());
       return token;
     } on FirebaseAuthException catch (e) {
       throw AppException(e.code);
@@ -99,10 +71,16 @@ class Fireauth {
         password: recoveryToken.password,
       );
       return userCredential.user!;
-    } on FirebaseAuthException catch (e) {
-      throw AppException(e.code);
+    } on FirebaseAuthException catch (_) {
+      throw AppException('Something went wrong. Please try later again.');
     } catch (e) {
       throw AppException(e.toString());
     }
   }
+
+  String? getStoredToken() {
+    return instance.currentUser?.displayName;
+  }
+
+  bool get hasBackup => !instance.currentUser!.isAnonymous;
 }

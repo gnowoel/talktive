@@ -78,7 +78,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Connect anonymously and chat privately. All messages are permanently deleted after expiration.',
+            'Anonymous. Private. Gone without a trace.',
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -96,7 +96,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
           const SizedBox(height: 4),
           TextButton(
             onPressed: _isProcessing ? null : _restoreAccount,
-            child: const Text('Restore account'),
+            child: const Text('Restore account?'),
           ),
         ],
       ),

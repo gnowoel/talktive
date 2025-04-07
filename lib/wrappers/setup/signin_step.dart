@@ -65,52 +65,73 @@ class _SigninStepState extends State<SigninStep> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Restore Account')),
-      body: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('🔑', style: theme.textTheme.displayLarge),
-              const SizedBox(height: 32),
-              Text(
-                'Welcome Back!',
-                style: theme.textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Enter your recovery token to restore your account',
-                style: theme.textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _tokenController,
-                decoration: const InputDecoration(
-                  labelText: 'Recovery Token',
-                  hintText: 'Enter your token',
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        title: const Text('Restore Account'),
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('🔑', style: theme.textTheme.displayLarge),
+                          const SizedBox(height: 32),
+                          Text(
+                            'Welcome Back!',
+                            style: theme.textTheme.headlineSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Enter your recovery token to restore your account',
+                            style: theme.textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 300),
+                            child: TextFormField(
+                              controller: _tokenController,
+                              decoration: const InputDecoration(
+                                labelText: 'Recovery Token',
+                                hintText: 'Enter your token',
+                              ),
+                              validator: _validateToken,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _submit(),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          FilledButton(
+                            onPressed: _isProcessing ? null : _submit,
+                            child:
+                                _isProcessing
+                                    ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                    : const Text('Restore Account'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                validator: _validateToken,
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _submit(),
               ),
-              const SizedBox(height: 32),
-              FilledButton(
-                onPressed: _isProcessing ? null : _submit,
-                child:
-                    _isProcessing
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 3),
-                        )
-                        : const Text('Restore Account'),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

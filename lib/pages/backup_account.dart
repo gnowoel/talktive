@@ -15,6 +15,13 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
   bool _isProcessing = false;
   String? _token;
 
+  @override
+  void initState() {
+    super.initState();
+    final fireauth = context.read<Fireauth>();
+    _token = fireauth.getStoredToken();
+  }
+
   Future<void> _generateToken() async {
     if (_isProcessing) return;
 
@@ -22,9 +29,15 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
 
     try {
       final fireauth = context.read<Fireauth>();
-      final token = await fireauth.createRecoveryToken();
 
-      setState(() => _token = token.toString());
+      if (fireauth.hasBackup) {
+        // If already backed up, just show the stored token
+        setState(() => _token = fireauth.getStoredToken());
+      } else {
+        // Generate new token
+        final token = await fireauth.createRecoveryToken();
+        setState(() => _token = token.toString());
+      }
     } on AppException catch (e) {
       if (mounted) {
         ErrorHandler.showSnackBarMessage(context, e);
@@ -39,6 +52,7 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final fireauth = context.watch<Fireauth>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Backup Account')),
@@ -50,13 +64,17 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
             Text('🔐', style: theme.textTheme.displayLarge),
             const SizedBox(height: 32),
             Text(
-              'Create Recovery Token',
+              fireauth.hasBackup
+                  ? 'Your Recovery Token'
+                  : 'Create Recovery Token',
               style: theme.textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Save this token somewhere safe. You\'ll need it to restore your account if you reinstall the app.',
+              fireauth.hasBackup
+                  ? 'Keep this token safe to restore your account later'
+                  : 'Save this token somewhere safe. You\'ll need it to restore your account if you reinstall the app.',
               style: theme.textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
@@ -83,7 +101,7 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
                   color: theme.colorScheme.error,
                 ),
               ),
-            ] else ...[
+            ] else if (!fireauth.hasBackup) ...[
               FilledButton(
                 onPressed: _isProcessing ? null : _generateToken,
                 child:

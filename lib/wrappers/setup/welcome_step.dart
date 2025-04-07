@@ -78,7 +78,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Anonymous. Private. Gone without a trace.',
+            'Connect anonymously. Chat privately. All without leaving a trace.',
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

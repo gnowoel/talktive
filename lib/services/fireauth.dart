@@ -10,6 +10,8 @@ class Fireauth {
 
   static final firebaseAuth = FirebaseAuth.instance;
 
+  bool get hasSignedIn => instance.currentUser != null;
+
   Future<User> signInAnonymously() async {
     final currentUser = instance.currentUser;
 
@@ -70,5 +72,37 @@ class Fireauth {
     }
   }
 
-  bool get hasSignedIn => instance.currentUser != null;
+  Future<RecoveryToken> createRecoveryToken() async {
+    try {
+      final token = RecoveryToken.generate();
+
+      final credential = EmailAuthProvider.credential(
+        email: token.email,
+        password: token.password,
+      );
+
+      await instance.currentUser?.linkWithCredential(credential);
+      return token;
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<User> signInWithToken(String token) async {
+    try {
+      final recoveryToken = RecoveryToken.fromString(token);
+
+      final userCredential = await instance.signInWithEmailAndPassword(
+        email: recoveryToken.email,
+        password: recoveryToken.password,
+      );
+      return userCredential.user!;
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }

@@ -6,7 +6,6 @@ import '../services/settings.dart';
 import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
-// import 'setup/signin_step.dart';
 import 'setup/signin_step.dart';
 import 'setup/welcome_step.dart';
 
@@ -32,6 +31,11 @@ class _SetupPageState extends State<Setup> {
     super.initState();
     fireauth = context.read<Fireauth>();
     settings = context.read<Settings>();
+
+    if (!fireauth.hasSignedIn) {
+      settings.clearSetupCompletion();
+    }
+
     if (fireauth.hasSignedIn && settings.hasCompletedSetup) {
       _currentStep = _totalSteps; // Skip setup
     }

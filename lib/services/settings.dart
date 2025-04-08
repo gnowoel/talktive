@@ -32,6 +32,11 @@ class Settings {
     _completedSetupVersion = wizardVersion;
   }
 
+  Future<void> clearSetupCompletion() async {
+    await Prefs.remove('completedSetupVersion');
+    _completedSetupVersion = null;
+  }
+
   Future<void> hideUsersNotice() async {
     await Prefs.setBool('hasHiddenUsersNotice', true);
     _hasHiddenUsersNotice = true;

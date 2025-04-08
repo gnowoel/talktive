@@ -75,7 +75,7 @@ class _UserItemState extends State<UserItem> {
     _doAction(() async {
       final self = userCache.user!;
       final other = widget.user;
-      final message = "Hi! I'm ${self.displayName!}. ${self.description}";
+      final message = '${self.description}';
       final chat = await firedata.greetUser(self, other, message);
       final chatCreatedAt = chat.createdAt.toString();
 

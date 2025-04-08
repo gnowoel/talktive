@@ -12,31 +12,34 @@ class Fireauth {
 
   bool get hasSignedIn => instance.currentUser != null;
 
-  Future<User> signInAnonymously() async {
+  Future<User> reloadCurrentUser() async {
     final currentUser = instance.currentUser;
 
+    if (currentUser == null) {
+      throw AppException('Current user is not available');
+    }
+
     try {
-      if (currentUser != null) {
-        // Touch the server to check connection, would raise "internal-error" if failed
-        await currentUser.reload();
-        return currentUser;
-      } else {
-        // if (kDebugMode) {
-        //   final userCredential = await instance.createUserWithEmailAndPassword(
-        //     email: generateEmail(),
-        //     password: generatePassword(),
-        //   );
-        //   return userCredential.user!;
-        // } else {
-        final userCredential = await instance.signInAnonymously();
-        return userCredential.user!;
-        // }
-      }
+      // Touch the server to check connection
+      await currentUser.reload();
+      return currentUser;
     } on FirebaseAuthException catch (e) {
-      // if (e.code == 'internal-error' || e.code == 'user-not-found') {
-      if (e.code != 'network-request-failed') {
+      // I got "internal-error" on iOS. Fixed it by selecting "Device > Erase all
+      // content and settings" in the Simulator.
+      if (e.code == 'user-not-found') {
         await instance.signOut();
       }
+      throw AppException(e.code);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<User> signInAnonymously() async {
+    try {
+      final userCredential = await instance.signInAnonymously();
+      return userCredential.user!;
+    } on FirebaseAuthException catch (e) {
       throw AppException(e.code);
     } catch (e) {
       throw AppException(e.toString());
@@ -72,7 +75,7 @@ class Fireauth {
       );
       return userCredential.user!;
     } on FirebaseAuthException catch (_) {
-      throw AppException('Something went wrong. Please try later again.');
+      throw AppException('Oops, something went wrong. Please try again later.');
     } catch (e) {
       throw AppException(e.toString());
     }

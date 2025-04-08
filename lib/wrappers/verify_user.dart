@@ -34,7 +34,7 @@ class _VerifyUserState extends State<VerifyUser> {
     }
 
     return FutureBuilder(
-      future: fireauth.signInAnonymously(),
+      future: fireauth.reloadCurrentUser(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return MaterialApp(

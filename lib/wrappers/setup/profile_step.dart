@@ -12,10 +12,7 @@ import '../../services/firedata.dart';
 class ProfileStep extends StatefulWidget {
   final VoidCallback onNext;
 
-  const ProfileStep({
-    super.key,
-    required this.onNext,
-  });
+  const ProfileStep({super.key, required this.onNext});
 
   @override
   State<ProfileStep> createState() => _ProfileStepState();
@@ -60,10 +57,12 @@ class _ProfileStepState extends State<ProfileStep> {
         setState(() {
           _user = user;
           _photoURL = _user?.photoURL ?? avatar.code;
-          _displayNameController =
-              TextEditingController(text: _user?.displayName);
-          _descriptionController =
-              TextEditingController(text: _user?.description);
+          _displayNameController = TextEditingController(
+            text: _user?.displayName,
+          );
+          _descriptionController = TextEditingController(
+            text: _user?.description,
+          );
           _selectedGender = _user?.gender;
         });
         _userSubscription.cancel();
@@ -163,82 +162,90 @@ class _ProfileStepState extends State<ProfileStep> {
       return const SizedBox();
     }
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                _photoURL,
-                style: TextStyle(fontSize: 64),
-              ),
-              IconButton(
-                onPressed: _changeAvatar,
-                icon: const Icon(Icons.shuffle),
-                tooltip: 'Change avatar',
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Tell us about yourself',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _displayNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Display Name',
-                  hintText: 'What do people call you?',
-                ),
-                validator: _validateDisplayName,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  hintText: 'Tell us a bit about yourself',
-                ),
-                validator: _validateDescription,
-                minLines: 2,
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Gender',
-                ),
-                value: _selectedGender,
-                items: _genderOptions
-                    .map((option) => DropdownMenuItem(
-                          value: option['value'],
-                          child: Text(option['label']!),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() => _selectedGender = value);
-                },
-                validator: _validateGender,
-              ),
-              const SizedBox(height: 32),
-              FilledButton(
-                onPressed: _isProcessing ? null : _submit,
-                child: _isProcessing
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      Text(_photoURL, style: TextStyle(fontSize: 64)),
+                      IconButton(
+                        onPressed: _changeAvatar,
+                        icon: const Icon(Icons.shuffle),
+                        tooltip: 'Change avatar',
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Tell us about yourself',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 32),
+                      TextFormField(
+                        controller: _displayNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Display Name',
+                          hintText: 'What do people call you?',
                         ),
-                      )
-                    : const Text('Continue'),
+                        validator: _validateDisplayName,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          hintText: 'Tell us a bit about yourself',
+                        ),
+                        validator: _validateDescription,
+                        minLines: 2,
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: 'Gender'),
+                        value: _selectedGender,
+                        items:
+                            _genderOptions
+                                .map(
+                                  (option) => DropdownMenuItem(
+                                    value: option['value'],
+                                    child: Text(option['label']!),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedGender = value);
+                        },
+                        validator: _validateGender,
+                      ),
+                      const SizedBox(height: 32),
+                      FilledButton(
+                        onPressed: _isProcessing ? null : _submit,
+                        child:
+                            _isProcessing
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                                : const Text('Continue'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

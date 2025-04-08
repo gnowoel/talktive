@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
@@ -44,6 +45,24 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
   Future<void> _showToken() async {
     final fireauth = context.read<Fireauth>();
     setState(() => _token = fireauth.getStoredToken());
+  }
+
+  Future<void> _copyToClipboard() async {
+    if (_token == null) return;
+
+    // Capture the BuildContext before the async gap
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    await Clipboard.setData(ClipboardData(text: _token!));
+
+    if (!mounted) return;
+
+    scaffoldMessenger.showSnackBar(
+      const SnackBar(
+        content: Text('Recovery token copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -104,10 +123,13 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Copy and save this token!',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.error,
+                  TextButton(
+                    onPressed: _copyToClipboard,
+                    child: Text(
+                      'Copy and save this token!',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
                     ),
                   ),
                 ] else if (!fireauth.hasBackup) ...[

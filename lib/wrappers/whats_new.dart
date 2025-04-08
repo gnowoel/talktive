@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/fireauth.dart';
 import '../services/settings.dart';
+import '../theme.dart';
 
 class WhatsNew extends StatefulWidget {
   final Widget child;
@@ -41,43 +42,52 @@ class _WhatsNewState extends State<WhatsNew> {
       return widget.child;
     }
 
-    final theme = Theme.of(context);
-
     return MaterialApp(
-      theme: theme,
+      theme: getTheme(context),
       home: Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('✨', style: TextStyle(fontSize: 64)),
-                const SizedBox(height: 32),
-                Text(
-                  "What's New in Talktive",
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('✨', style: TextStyle(fontSize: 64)),
+                          const SizedBox(height: 32),
+                          Text(
+                            "What's New",
+                            style: Theme.of(context).textTheme.headlineMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          _buildFeatureCard(
+                            Theme.of(context),
+                            '🔑 Account Recovery',
+                            'Now you can restore your account after reinstalling the app using a recovery token. Generate your token from Profile > Generate Recovery Token.',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureCard(
+                            Theme.of(context),
+                            '🐛 Bug Fixes',
+                            'Various improvements and bug fixes to enhance your chat experience.',
+                          ),
+                          const SizedBox(height: 48),
+                          FilledButton(
+                            onPressed: _continue,
+                            child: const Text('Continue'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 32),
-                _buildFeatureCard(
-                  theme,
-                  '🔑 Account Recovery',
-                  'Now you can restore your account after reinstalling the app using a recovery token. Generate your token from Profile > Generate Recovery Token.',
-                ),
-                const SizedBox(height: 16),
-                _buildFeatureCard(
-                  theme,
-                  '🐛 Bug Fixes',
-                  'Various improvements and bug fixes to enhance your chat experience.',
-                ),
-                const SizedBox(height: 48),
-                FilledButton(
-                  onPressed: _continue,
-                  child: const Text('Continue'),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -98,14 +108,14 @@ Widget _buildFeatureCard(ThemeData theme, String title, String description) {
       children: [
         Text(
           title,
-          style: theme.textTheme.titleLarge?.copyWith(
+          style: theme.textTheme.titleMedium?.copyWith(
             color: theme.colorScheme.primary,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           description,
-          style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+          style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
         ),
       ],
     ),

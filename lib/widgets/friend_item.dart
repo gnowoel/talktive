@@ -89,7 +89,7 @@ class _FriendItemState extends State<FriendItem> {
         gender: widget.friend.user.gender ?? '',
       );
 
-      final message = "Hi! I'm ${self.displayName!}. ${self.description}";
+      final message = '${self.description}';
       final chat = await firedata.greetUser(self, other, message);
       final chatCreatedAt = chat.createdAt.toString();
 

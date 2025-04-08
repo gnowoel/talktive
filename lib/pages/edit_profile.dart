@@ -95,7 +95,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? _validateDescription(String? value) {
     value = value?.trim();
     if (value == null || value.isEmpty) {
-      return 'Please enter a brief description';
+      return 'Please introduce yourself';
     }
     if (value.length < 10) {
       return 'Must be at least 10 characters';
@@ -185,7 +185,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     TextFormField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
-                        labelText: 'Description',
+                        labelText: 'Self Introduction',
                         hintText: 'Tell us a bit about yourself',
                       ),
                       validator: _validateDescription,

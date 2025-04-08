@@ -9,6 +9,7 @@ import 'wrappers/initialize.dart';
 import 'wrappers/providers.dart';
 import 'wrappers/setup.dart';
 import 'wrappers/subscribe.dart';
+import 'wrappers/whats_new.dart';
 
 const useEmulators = true;
 
@@ -21,25 +22,27 @@ class App extends StatelessWidget {
       useEmulators: useEmulators,
       child: Providers(
         child: VerifyUser(
-          child: Setup(
-            child: Subscribe(
-              child: CurrentUser(
-                child: FutureBuilder<GoRouter>(
-                  future: initRouter(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return MaterialApp(
+          child: WhatsNew(
+            child: Setup(
+              child: Subscribe(
+                child: CurrentUser(
+                  child: FutureBuilder<GoRouter>(
+                    future: initRouter(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return MaterialApp(
+                          theme: getTheme(context),
+                          home: Scaffold(body: const SizedBox.shrink()),
+                        );
+                      }
+                      return MaterialApp.router(
+                        routerConfig: snapshot.data,
+                        debugShowCheckedModeBanner: false,
+                        title: 'Talktive',
                         theme: getTheme(context),
-                        home: Scaffold(body: const SizedBox.shrink()),
                       );
-                    }
-                    return MaterialApp.router(
-                      routerConfig: snapshot.data,
-                      debugShowCheckedModeBanner: false,
-                      title: 'Talktive',
-                      theme: getTheme(context),
-                    );
-                  },
+                    },
+                  ),
                 ),
               ),
             ),

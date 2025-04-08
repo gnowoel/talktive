@@ -31,6 +31,10 @@ const copyUser = async (user: User, now: Date) => {
   const createdAt = now.toJSON();
   const filter = `temp-${createdAt}`;
 
+  // Do not override the existing user after link the email/password account.
+  const snapshot = await userRef.get();
+  if (snapshot.exists()) return;
+
   try {
     await userRef.set({
       filter,

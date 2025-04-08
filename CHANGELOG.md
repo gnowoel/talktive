@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 3.9.0+53
+
+- Enabled account restoration using a recovery token
+- Displayed a "What’s New" page after app upgrades
+- Renamed "Description" to "Self Introduction"
+- Fixed a layout issue that caused some pages to overflow
+- Fixed various other bugs
+
 ## 3.8.1+52
 
 - Fixed an annoying bug that prevented the read message count from being updated

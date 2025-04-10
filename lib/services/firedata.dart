@@ -211,11 +211,19 @@ class Firedata {
     return stream;
   }
 
+  Future<void> muteChat(String userId, String chatId) async {
+    try {
+      final ref = instance.ref('chats/$userId/$chatId');
+      await ref.update({'mute': true});
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<void> updateChat(
     String userId,
     String chatId, {
     int? readMessageCount,
-    bool? mute,
     bool? reported,
   }) async {
     try {
@@ -227,7 +235,6 @@ class Firedata {
         final json = Map<String, dynamic>.from(chat as Map);
 
         json['readMessageCount'] = readMessageCount ?? json['readMessageCount'];
-        json['mute'] = mute ?? json['mute'];
         json['reported'] = reported ?? json['reported'];
 
         return Transaction.success(json);

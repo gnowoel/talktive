@@ -62,10 +62,9 @@ class _ChatItemState extends State<ChatItem> {
 
   Future<void> _muteChat() async {
     _doAction(() async {
-      await firedata.updateChat(
+      await firedata.muteChat(
         fireauth.instance.currentUser!.uid,
         widget.chat.id,
-        mute: true,
       );
     });
   }

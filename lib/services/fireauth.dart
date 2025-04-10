@@ -24,9 +24,15 @@ class Fireauth {
       await currentUser.reload();
       return currentUser;
     } on FirebaseAuthException catch (e) {
-      // I got "internal-error" on iOS. Fixed it by selecting "Device > Erase all
-      // content and settings" in the Simulator.
-      if (e.code == 'user-not-found') {
+      // I got "internal-error" on iOS. Fixed it by selecting "Device > Erase
+      // all content and settings" in the Simulator.
+      //
+      // I also got "invalid-user-token" for linked users. On iOS, it seems that
+      // the user will be signed out automatically.
+      //
+      // See also:
+      // https://pub.dev/documentation/firebase_auth/latest/firebase_auth/FirebaseAuth/signInWithEmailAndPassword.html
+      if (e.code == 'user-not-found' || e.code == 'invalid-user-token') {
         await instance.signOut();
       }
       throw AppException(e.code);

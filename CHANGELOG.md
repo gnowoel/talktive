@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.9.1+54
+
+- Fixed a bug that would corrupt user records during recovery token generation
+- Cleared all notifications when app enters foreground
+- Improved performance when deleting chats
+- Fixed various other bugs
+
 ## 3.9.0+53
 
 - Enabled account restoration using a recovery token

@@ -75,6 +75,7 @@ class _InitializeState extends State<Initialize> {
 
     final messaging = Messaging();
     await messaging.localSetup();
+    await messaging.clearAllNotifications(); // Clear existing notifications
     await messaging.addListeners();
   }
 

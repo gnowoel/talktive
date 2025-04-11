@@ -32,7 +32,9 @@ class Fireauth {
       //
       // See also:
       // https://pub.dev/documentation/firebase_auth/latest/firebase_auth/FirebaseAuth/signInWithEmailAndPassword.html
-      if (e.code == 'user-not-found' || e.code == 'invalid-user-token') {
+      if (e.code == 'user-not-found' ||
+          e.code == 'invalid-user-token' ||
+          e.code == 'internal-error') {
         await instance.signOut();
       }
       throw AppException(e.code);

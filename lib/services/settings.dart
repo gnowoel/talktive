@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-final whatsNewVersion = '3.9.0+53';
+final whatsNewVersion = '3.9.1+54';
 final wizardVersion = '3.0.4+28';
 
 class Settings {

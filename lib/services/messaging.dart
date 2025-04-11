@@ -18,7 +18,6 @@ class Messaging {
   factory Messaging() => _instance;
 
   final FirebaseMessaging instance = FirebaseMessaging.instance;
-  StreamSubscription? _foregroundSubscription;
 
   Future<String?> getToken() async {
     return await instance.getToken();
@@ -92,32 +91,9 @@ class Messaging {
 
       // Handle foreground messages
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-      // Add listener for app foreground events
-      await _setupForegroundHandler();
     } catch (e) {
       debugPrint(e.toString());
     }
-  }
-
-  Future<void> _setupForegroundHandler() async {
-    await _foregroundSubscription?.cancel();
-
-    // Clear notifications when app comes to foreground
-    final appStateStream = Stream.periodic(
-      const Duration(seconds: 1),
-    ).map((_) => WidgetsBinding.instance.lifecycleState);
-
-    _foregroundSubscription = appStateStream.listen((state) {
-      if (state == AppLifecycleState.resumed) {
-        clearAllNotifications();
-      }
-    });
-  }
-
-  Future<void> dispose() async {
-    await _foregroundSubscription?.cancel();
-    _foregroundSubscription = null;
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {

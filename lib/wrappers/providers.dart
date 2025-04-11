@@ -30,7 +30,10 @@ class Providers extends StatelessWidget {
           dispose: (context, firestore) => firestore.dispose(),
         ),
         Provider(create: (context) => Storage()),
-        Provider(create: (context) => Messaging()),
+        Provider(
+          create: (context) => Messaging(),
+          dispose: (context, messaging) => messaging.dispose(),
+        ),
         Provider(create: (context) => Settings()),
         Provider(create: (context) => ServerClock()),
         ChangeNotifierProvider(create: (context) => Avatar()),

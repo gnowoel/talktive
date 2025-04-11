@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
+import '../helpers/platform.dart';
 import '../router.dart';
 
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -24,6 +25,11 @@ class Messaging {
   }
 
   Stream<String> subscribeToFcmToken() {
+    if (!isAndroid) {
+      // TODO: Support other platforms
+      return const Stream.empty();
+    }
+
     return instance.onTokenRefresh;
   }
 

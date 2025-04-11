@@ -6,6 +6,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../helpers/exception.dart';
+import '../helpers/platform.dart';
 import '../models/admin.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
@@ -124,6 +125,8 @@ class Firedata {
   }
 
   Future<void> storeFcmToken(String userId, [String? fcmToken]) async {
+    if (!isAndroid) return; // TODO: Support other platforms
+
     try {
       final messaging = Messaging();
       final token = fcmToken ?? await messaging.instance.getToken();

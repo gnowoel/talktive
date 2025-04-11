@@ -67,8 +67,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🔑 Account Recovery',
-                            'Now you can restore your account after reinstalling the app using a recovery token. Generate your token from Profile > Generate Recovery Token.',
+                            '🔔 Improved Notifications',
+                            'Notifications are now automatically cleared when you open the app, keeping your notification shade clean and organized.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(

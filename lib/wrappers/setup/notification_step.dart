@@ -2,17 +2,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/fireauth.dart';
-import '../../services/firedata.dart';
 import '../../services/messaging.dart';
 
 class NotificationStep extends StatefulWidget {
   final VoidCallback onNext;
 
-  const NotificationStep({
-    super.key,
-    required this.onNext,
-  });
+  const NotificationStep({super.key, required this.onNext});
 
   @override
   State<NotificationStep> createState() => _NotificationStepState();
@@ -21,10 +16,7 @@ class NotificationStep extends StatefulWidget {
 class _NotificationStepState extends State<NotificationStep> {
   Future<void> _requestPermission() async {
     try {
-      final fireauth = context.read<Fireauth>();
-      final firedata = context.read<Firedata>();
       final messaging = context.read<Messaging>();
-      final userId = fireauth.instance.currentUser!.uid;
 
       final status = await messaging.instance.requestPermission(
         alert: true,
@@ -39,8 +31,6 @@ class _NotificationStepState extends State<NotificationStep> {
           sound: true,
         );
       }
-
-      await firedata.storeFcmToken(userId);
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -57,10 +47,7 @@ class _NotificationStepState extends State<NotificationStep> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            '🔔',
-            style: TextStyle(fontSize: 64),
-          ),
+          const Text('🔔', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 32),
           Text(
             'Stay Connected',
@@ -79,10 +66,7 @@ class _NotificationStepState extends State<NotificationStep> {
             child: const Text('Enable Notifications'),
           ),
           const SizedBox(height: 16),
-          TextButton(
-            onPressed: widget.onNext,
-            child: const Text('Skip'),
-          ),
+          TextButton(onPressed: widget.onNext, child: const Text('Skip')),
         ],
       ),
     );

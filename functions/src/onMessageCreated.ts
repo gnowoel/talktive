@@ -180,7 +180,7 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
     }
   } catch (error) {
     // Log other errors that might occur during the process
-    logger.error('Error in snedPushNotification:', error);
+    logger.error('Error in sendPushNotification:', error);
   }
 };
 
@@ -225,9 +225,9 @@ const getUserFcmToken = async (userId: string) => {
 
     if (!snapshot.exists()) return null;
 
-    const user = snapshot.val();
+    const token = snapshot.val();
 
-    return user;
+    return token;
   } catch (error) {
     logger.error(error);
   }

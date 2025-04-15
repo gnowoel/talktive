@@ -30,11 +30,15 @@ class Fireauth {
       // I also got "invalid-user-token" for linked users. On iOS, it seems that
       // the user will be signed out automatically.
       //
+      // Sometimes, I got "unknown" error on Andoid, when the underlying user
+      // record has been deleted.
+      //
       // See also:
       // https://pub.dev/documentation/firebase_auth/latest/firebase_auth/FirebaseAuth/signInWithEmailAndPassword.html
       if (e.code == 'user-not-found' ||
           e.code == 'invalid-user-token' ||
-          e.code == 'internal-error') {
+          e.code == 'internal-error' ||
+          e.code == "unknown") {
         await instance.signOut();
       }
       throw AppException(e.code);

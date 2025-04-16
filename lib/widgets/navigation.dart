@@ -73,7 +73,7 @@ class _NavigationState extends State<Navigation> {
             icon: Icon(currentIndex == 0 ? Icons.face : Icons.face_outlined),
           ),
           NavigationDestination(
-            label: 'Shouts',
+            label: 'Topics',
             icon: Icon(
               currentIndex == 1 ? Icons.workspaces : Icons.workspaces_outlined,
             ),

@@ -13,7 +13,7 @@ import 'pages/launch.dart';
 import 'pages/profile.dart';
 import 'pages/report.dart';
 import 'pages/reports.dart';
-import 'pages/shouts.dart';
+import 'pages/topics.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -22,7 +22,7 @@ import 'widgets/navigation.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _usersNavigatorKey = GlobalKey<NavigatorState>();
-final _shoutsNavigatorKey = GlobalKey<NavigatorState>();
+final _topicsNavigatorKey = GlobalKey<NavigatorState>();
 final _chatsNavigatorKey = GlobalKey<NavigatorState>();
 final _friendsNavigatorKey = GlobalKey<NavigatorState>();
 final _profileNavigatorKey = GlobalKey<NavigatorState>();
@@ -51,13 +51,13 @@ Future<GoRouter> initRouter() async {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _shoutsNavigatorKey,
+            navigatorKey: _topicsNavigatorKey,
             routes: [
               GoRoute(
-                path: '/shouts',
+                path: '/topics',
                 pageBuilder:
                     (context, state) =>
-                        const NoTransitionPage(child: ShoutsPage()),
+                        const NoTransitionPage(child: TopicsPage()),
               ),
             ],
           ),

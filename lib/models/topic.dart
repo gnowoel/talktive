@@ -1,16 +1,16 @@
 import 'user.dart';
 
-class Shout {
+class Topic {
   final String id;
-  final String topic;
+  final String title;
   final int createdAt;
   final int updatedAt;
   final UserStub user;
   final int messageCount;
 
-  const Shout({
+  const Topic({
     required this.id,
-    required this.topic,
+    required this.title,
     required this.createdAt,
     required this.updatedAt,
     required this.user,

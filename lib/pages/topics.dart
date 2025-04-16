@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class ShoutsPage extends StatelessWidget {
-  const ShoutsPage({super.key});
+class TopicsPage extends StatelessWidget {
+  const TopicsPage({super.key});
 
-  void _showCreateShoutDialog(BuildContext context) {
+  void _showCreateTopicDialog(BuildContext context) {
     final controller = TextEditingController();
     showDialog(
       context: context,
@@ -13,8 +13,8 @@ class ShoutsPage extends StatelessWidget {
             content: TextField(
               controller: controller,
               decoration: const InputDecoration(
-                labelText: 'Topic',
-                hintText: 'Enter shout topic...',
+                labelText: 'Title',
+                hintText: 'Enter topic title...',
               ),
             ),
             actions: [
@@ -41,15 +41,15 @@ class ShoutsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Public Shouts'),
+        title: const Text('Shared Topics'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _showCreateShoutDialog(context),
+            onPressed: () => _showCreateTopicDialog(context),
           ),
         ],
       ),
-      body: const Center(child: Text('Public Shouts')),
+      body: const Center(child: Text('Shared Topics')),
     );
   }
 }

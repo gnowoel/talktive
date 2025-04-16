@@ -75,20 +75,26 @@ class _NavigationState extends State<Navigation> {
             ),
           ),
           NavigationDestination(
+            label: 'Shouts',
+            icon: Icon(
+              currentIndex == 1 ? Icons.campaign : Icons.campaign_outlined,
+            ),
+          ),
+          NavigationDestination(
             label: 'Chats',
             icon: Badge(
               isLabelVisible: unreadCount > 0,
               label: Text('$unreadCount'),
-              child: Icon(currentIndex == 1 ? Icons.chat : Icons.chat_outlined),
+              child: Icon(currentIndex == 2 ? Icons.chat : Icons.chat_outlined),
             ),
           ),
           NavigationDestination(
             label: 'Friends',
-            icon: Icon(currentIndex == 2 ? Icons.grade : Icons.grade_outlined),
+            icon: Icon(currentIndex == 3 ? Icons.grade : Icons.grade_outlined),
           ),
           NavigationDestination(
             label: 'Profile',
-            icon: Icon(currentIndex == 3 ? Icons.face : Icons.face_outlined),
+            icon: Icon(currentIndex == 4 ? Icons.face : Icons.face_outlined),
           ),
         ],
         onDestinationSelected: _goBranch,

@@ -70,14 +70,12 @@ class _NavigationState extends State<Navigation> {
         destinations: [
           NavigationDestination(
             label: 'Users',
-            icon: Icon(
-              currentIndex == 0 ? Icons.person_add : Icons.person_add_outlined,
-            ),
+            icon: Icon(currentIndex == 0 ? Icons.face : Icons.face_outlined),
           ),
           NavigationDestination(
             label: 'Shouts',
             icon: Icon(
-              currentIndex == 1 ? Icons.campaign : Icons.campaign_outlined,
+              currentIndex == 1 ? Icons.workspaces : Icons.workspaces_outlined,
             ),
           ),
           NavigationDestination(
@@ -90,11 +88,17 @@ class _NavigationState extends State<Navigation> {
           ),
           NavigationDestination(
             label: 'Friends',
-            icon: Icon(currentIndex == 3 ? Icons.grade : Icons.grade_outlined),
+            icon: Icon(
+              currentIndex == 3 ? Icons.polyline : Icons.polyline_outlined,
+            ),
           ),
           NavigationDestination(
             label: 'Profile',
-            icon: Icon(currentIndex == 4 ? Icons.face : Icons.face_outlined),
+            icon: Icon(
+              currentIndex == 4
+                  ? Icons.account_circle
+                  : Icons.account_circle_outlined,
+            ),
           ),
         ],
         onDestinationSelected: _goBranch,

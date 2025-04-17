@@ -10,4 +10,5 @@ export { default as onReportCreated } from './onReportCreated';
 export { default as onFirestoreUserCreated } from './onFirestoreUserCreated';
 export { initiateConversation } from './initiateConversation';
 export { follow, unfollow } from './follow';
+export { createTopic } from './createTopic';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';

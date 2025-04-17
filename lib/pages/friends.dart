@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/follow.dart';
+import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../widgets/friend_list.dart';
 import '../widgets/info.dart';
@@ -15,9 +17,16 @@ class FriendsPage extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<FriendsPage> {
+  late Firestore firestore;
   late FollowCache followCache;
 
   List<Follow> _friends = [];
+
+  @override
+  void initState() {
+    super.initState();
+    firestore = context.read<Firestore>();
+  }
 
   @override
   void didChangeDependencies() {
@@ -57,46 +66,6 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  void _showCreateTopicDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Start a Topic'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    hintText: 'Enter topic title...',
-                  ),
-                  maxLength: 100,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'This topic will be visible to all your friends.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Handle create topic
-                  Navigator.pop(context);
-                },
-                child: const Text('Start'),
-              ),
-            ],
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -123,7 +92,7 @@ class _FriendsPageState extends State<FriendsPage> {
           _friends.isEmpty
               ? null
               : FloatingActionButton(
-                onPressed: () => _showCreateTopicDialog(context),
+                onPressed: () => context.push('/topics/create'),
                 tooltip: 'Start a topic',
                 child: const Icon(Icons.add_comment),
               ),

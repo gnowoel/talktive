@@ -8,6 +8,7 @@ import 'models/user.dart';
 import 'pages/backup_account.dart';
 import 'pages/chat.dart';
 import 'pages/chats.dart';
+import 'pages/create_topic.dart';
 import 'pages/edit_profile.dart';
 import 'pages/launch.dart';
 import 'pages/profile.dart';
@@ -179,6 +180,10 @@ Future<GoRouter> initRouter() async {
       GoRoute(
         path: '/profile/backup',
         builder: (context, state) => const BackupAccountPage(),
+      ),
+      GoRoute(
+        path: '/topics/create',
+        builder: (context, state) => const CreateTopicPage(),
       ),
     ],
   );

@@ -313,6 +313,29 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> createTopic({
+    required String userId,
+    required String title,
+    required String message,
+  }) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('createTopic');
+
+      final result = await callable.call({
+        'userId': userId,
+        'title': title,
+        'message': message,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to create topic');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

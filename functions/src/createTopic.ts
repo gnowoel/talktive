@@ -28,38 +28,81 @@ export const createTopic = onCall(async (request) => {
       };
     }
 
-    const user = userDoc.data() as User;
     const now = Date.now();
+    const user = userDoc.data() as User;
+    const creator = {
+      id: userId,
+      createdAt: 0,
+      updatedAt: 0,
+      photoURL: user.photoURL,
+      displayName: user.displayName,
+      languageCode: user.languageCode,
+      gender: user.gender
+    };
 
     const topicRef = await firestore.collection('topics').add({
       title,
+      creator,
       createdAt: now,
       updatedAt: now,
-      user: {
-        id: userId,
-        createdAt: 0,
-        updatedAt: 0,
-        photoURL: user.photoURL,
-        displayName: user.displayName,
-        languageCode: user.languageCode,
-        gender: user.gender,
-      },
       messageCount: 1,
     });
 
-    await firestore.collection('topics').doc(topicRef.id)
-      .collection('messages').add({
-        type: 'text',
-        userId,
-        userDisplayName: user.displayName ?? '',
-        userPhotoURL: user.photoURL ?? '',
-        content: message,
-        createdAt: now,
-      });
+    const topicId = topicRef.id;
+
+    // Use a batch write for atomic operations
+    const batch = firestore.batch();
+
+    // Add first message
+    const messageRef = firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('messages')
+      .doc();
+
+    batch.set(messageRef, {
+      type: 'text',
+      userId,
+      userDisplayName: user.displayName ?? '',
+      userPhotoURL: user.photoURL ?? '',
+      content: message,
+      createdAt: now,
+    });
+
+    // Add creator to followers collection
+    const followerRef = firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('followers')
+      .doc(userId)
+
+    batch.set(followerRef, {
+      muted: false,
+    });
+
+    // Add topic reference to user's topics collection
+    const userTopicRef = firestore
+      .collection('users')
+      .doc(userId)
+      .collection('topics')
+      .doc(topicId);
+
+    batch.set(userTopicRef, {
+      title,
+      creator,
+      createdAt: now,
+      updatedAt: now,
+      messageCount: 1,
+      readMessageCount: 1, // Creator has read their own message
+      lastMessageContent: message
+    });
+
+    // Commit all operations
+    await batch.commit();
 
     return {
       success: true,
-      topicId: topicRef.id,
+      topicId,
     };
   } catch (error) {
     logger.error('Error creating topic:', error);

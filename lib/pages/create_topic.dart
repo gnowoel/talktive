@@ -1,9 +1,9 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../services/firestore.dart';
 import '../services/user_cache.dart';
 
 class CreateTopicPage extends StatefulWidget {
@@ -14,39 +14,47 @@ class CreateTopicPage extends StatefulWidget {
 }
 
 class _CreateTopicPageState extends State<CreateTopicPage> {
+  late Firestore firestore;
+  late UserCache userCache;
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    firestore = context.read<Firestore>();
+    userCache = context.read<UserCache>();
+  }
+
   Future<void> _createTopic() async {
+    if (_isLoading) return;
+
     if (_titleController.text.isEmpty || _messageController.text.isEmpty) {
       return;
     }
 
+    final userId = userCache.user?.id;
+    final title = _titleController.text;
+    final message = _messageController.text;
+
+    if (userId == null) return;
+
     setState(() => _isLoading = true);
 
     try {
-      final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('createTopic');
+      await firestore.createTopic(
+        userId: userId,
+        title: title,
+        message: message,
+      );
 
-      final result = await callable.call({
-        'userId': context.read<UserCache>().user!.id,
-        'title': _titleController.text,
-        'message': _messageController.text,
-      });
-
-      if (result.data['success'] == true) {
-        if (mounted) {
-          context.go('/topics');
-        }
-      } else {
-        throw AppException(result.data['error'] ?? 'Failed to create topic');
+      if (mounted) {
+        context.go('/topics');
       }
     } on AppException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        ErrorHandler.showSnackBarMessage(context, e);
       }
     } finally {
       if (mounted) {

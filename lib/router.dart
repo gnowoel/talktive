@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/pages/friends.dart';
 
-import 'models/chat.dart';
+import 'models/private_chat.dart';
 import 'models/user.dart';
 import 'pages/backup_account.dart';
 import 'pages/chat.dart';
@@ -45,9 +45,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/users',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: UsersPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: UsersPage()),
               ),
             ],
           ),
@@ -56,9 +55,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/topics',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: TopicsPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: TopicsPage()),
               ),
             ],
           ),
@@ -67,9 +65,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/chats',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: ChatsPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ChatsPage()),
               ),
             ],
           ),
@@ -78,9 +75,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/friends',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: FriendsPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: FriendsPage()),
               ),
             ],
           ),
@@ -89,9 +85,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/profile',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: ProfilePage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -123,7 +118,7 @@ Future<GoRouter> initRouter() async {
             partner: userStub,
             messageCount: 0,
           );
-          final chat = Chat.fromStub(key: chatId, value: chatStub);
+          final chat = PrivateChat.fromStub(key: chatId, value: chatStub);
 
           return ChatPage(chat: chat);
         },
@@ -137,21 +132,20 @@ Future<GoRouter> initRouter() async {
       ),
       GoRoute(
         path: '/admin/reports',
-        builder:
-            (context, state) => FutureBuilder(
-              future: _checkAdminAccess(context),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data == true) {
-                  return const ReportsPage();
-                }
-                // Return unauthorized or loading state
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  ),
-                );
-              },
-            ),
+        builder: (context, state) => FutureBuilder(
+          future: _checkAdminAccess(context),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data == true) {
+              return const ReportsPage();
+            }
+            // Return unauthorized or loading state
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+            );
+          },
+        ),
       ),
       GoRoute(
         path: '/admin/reports/:id',
@@ -172,7 +166,7 @@ Future<GoRouter> initRouter() async {
             partner: userStub,
             messageCount: 0,
           );
-          final chat = Chat.fromStub(key: chatId, value: chatStub);
+          final chat = PrivateChat.fromStub(key: chatId, value: chatStub);
 
           return ReportPage(userId: userId, chat: chat);
         },

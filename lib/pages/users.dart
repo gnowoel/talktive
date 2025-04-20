@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../models/user.dart';
 import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
@@ -109,7 +109,10 @@ class _UsersPageState extends State<UsersPage> {
     _fetchUsers(chatCache.chats, noCache: noCache);
   }
 
-  Future<void> _fetchUsers(List<Chat> chats, {bool noCache = false}) async {
+  Future<void> _fetchUsers(
+    List<PrivateChat> chats, {
+    bool noCache = false,
+  }) async {
     final userId = fireauth.instance.currentUser!.uid;
     final serverNow = serverClock.now;
 
@@ -130,14 +133,13 @@ class _UsersPageState extends State<UsersPage> {
 
   List<User> _filterUsers() {
     final userId = fireauth.instance.currentUser!.uid;
-    final users =
-        _users.where((user) {
-          return user.id != userId;
-        }).toList();
+    final users = _users.where((user) {
+      return user.id != userId;
+    }).toList();
     return users;
   }
 
-  List<String> _knownUserIds(List<Chat> chats) {
+  List<String> _knownUserIds(List<PrivateChat> chats) {
     final userId = fireauth.instance.currentUser!.uid;
     final partnerIds = _partnerIds(userId, chats);
     return [userId, ...partnerIds];
@@ -147,7 +149,7 @@ class _UsersPageState extends State<UsersPage> {
     return _seenUsers.map((user) => user.id).toList();
   }
 
-  List<String> _partnerIds(String userId, List<Chat> chats) {
+  List<String> _partnerIds(String userId, List<PrivateChat> chats) {
     return chats.map((chat) {
       return chat.id.replaceFirst(userId, '');
     }).toList();
@@ -184,36 +186,10 @@ class _UsersPageState extends State<UsersPage> {
         ],
       ),
       body: SafeArea(
-        child:
-            users.isEmpty
-                ? (_isPopulated
-                    ? Column(
-                      children: [
-                        FilterBar(
-                          selectedGender: _selectedGender,
-                          selectedLanguage: _selectedLanguage,
-                          onGenderChanged: _handleGenderChanged,
-                          onLanguageChanged: _handleLanguageChanged,
-                          onReset: _resetFilters,
-                          canRefresh: _canRefresh,
-                        ),
-                        Expanded(
-                          child: const Center(child: Info(lines: lines)),
-                        ),
-                      ],
-                    )
-                    : const Center(
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    ))
-                : Layout(
-                  child: Column(
+        child: users.isEmpty
+            ? (_isPopulated
+                ? Column(
                     children: [
-                      const SizedBox(height: 10),
-                      if (!settings.hasHiddenUsersNotice)
-                        InfoNotice(
-                          content: info,
-                          onDismiss: () => settings.hideUsersNotice(),
-                        ),
                       FilterBar(
                         selectedGender: _selectedGender,
                         selectedLanguage: _selectedLanguage,
@@ -223,15 +199,40 @@ class _UsersPageState extends State<UsersPage> {
                         canRefresh: _canRefresh,
                       ),
                       Expanded(
-                        child: UserList(
-                          users: users,
-                          knownUserIds: knownUserIds,
-                          seenUserIds: seenUserIds,
-                        ),
+                        child: const Center(child: Info(lines: lines)),
                       ),
                     ],
-                  ),
+                  )
+                : const Center(
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ))
+            : Layout(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    if (!settings.hasHiddenUsersNotice)
+                      InfoNotice(
+                        content: info,
+                        onDismiss: () => settings.hideUsersNotice(),
+                      ),
+                    FilterBar(
+                      selectedGender: _selectedGender,
+                      selectedLanguage: _selectedLanguage,
+                      onGenderChanged: _handleGenderChanged,
+                      onLanguageChanged: _handleLanguageChanged,
+                      onReset: _resetFilters,
+                      canRefresh: _canRefresh,
+                    ),
+                    Expanded(
+                      child: UserList(
+                        users: users,
+                        knownUserIds: knownUserIds,
+                        seenUserIds: seenUserIds,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
       ),
     );
   }

@@ -2,7 +2,7 @@ import '../helpers/time.dart';
 import '../services/server_clock.dart';
 import 'user.dart';
 
-class Chat {
+class PrivateChat {
   final String id;
   final int createdAt;
   final int updatedAt;
@@ -14,7 +14,7 @@ class Chat {
   final bool? mute;
   final bool? reported;
 
-  const Chat({
+  const PrivateChat({
     required this.id,
     required this.createdAt,
     required this.updatedAt,
@@ -27,7 +27,7 @@ class Chat {
     this.reported,
   });
 
-  Chat copyWith({
+  PrivateChat copyWith({
     String? id,
     int? createdAt,
     int? updatedAt,
@@ -39,7 +39,7 @@ class Chat {
     bool? mute,
     bool? reported,
   }) {
-    return Chat(
+    return PrivateChat(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -68,8 +68,8 @@ class Chat {
     };
   }
 
-  factory Chat.fromStub({required String key, required ChatStub value}) {
-    return Chat(
+  factory PrivateChat.fromStub({required String key, required ChatStub value}) {
+    return PrivateChat(
       id: key,
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
@@ -84,7 +84,7 @@ class Chat {
   }
 
   static dummy() {
-    return Chat(
+    return PrivateChat(
       id: 'id',
       createdAt: 0,
       updatedAt: 0,

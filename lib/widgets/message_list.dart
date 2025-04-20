@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/chat.dart';
 import '../models/image_message.dart';
 import '../models/message.dart';
+import '../models/private_chat.dart';
 import '../models/text_message.dart';
 import '../services/message_cache.dart';
 import 'image_message_item.dart';
@@ -11,7 +11,7 @@ import 'info.dart';
 import 'text_message_item.dart';
 
 class MessageList extends StatefulWidget {
-  final Chat chat;
+  final PrivateChat chat;
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
@@ -54,10 +54,9 @@ class _MessageListState extends State<MessageList> {
     chatMessageCache = Provider.of<ChatMessageCache>(context);
     reportMessageCache = Provider.of<ReportMessageCache>(context);
 
-    final messages =
-        widget.reporterUserId == null
-            ? chatMessageCache.getMessages(widget.chat)
-            : reportMessageCache.getMessages(widget.chat);
+    final messages = widget.reporterUserId == null
+        ? chatMessageCache.getMessages(widget.chat)
+        : reportMessageCache.getMessages(widget.chat);
 
     if (messages.length != _messages.length) {
       // We don't update the read message count in admin reports

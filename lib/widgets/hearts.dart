@@ -5,18 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../services/firedata.dart';
 import '../services/server_clock.dart';
 import 'heart_list.dart';
 
 class Hearts extends StatefulWidget {
-  final Chat chat;
+  final PrivateChat chat;
 
-  const Hearts({
-    super.key,
-    required this.chat,
-  });
+  const Hearts({super.key, required this.chat});
 
   @override
   State<Hearts> createState() => _HeartsState();
@@ -57,7 +54,7 @@ class _HeartsState extends State<Hearts> {
     return Duration(milliseconds: now - then);
   }
 
-  String _getInfoText(Chat chat) {
+  String _getInfoText(PrivateChat chat) {
     final now = ServerClock().now;
     final diff = getTimeLeft(chat, now: now);
 

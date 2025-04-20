@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../services/chat_cache.dart';
 import '../services/message_cache.dart';
 import '../services/settings.dart';
@@ -24,7 +24,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late ChatCache chatCache;
   late ChatMessageCache chatMessageCache;
-  List<Chat> _chats = [];
+  List<PrivateChat> _chats = [];
   Timer? _timer;
 
   @override
@@ -48,7 +48,7 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void _setChatsAgain() {
-    _chats = List<Chat>.from(chatCache.activeChats);
+    _chats = List<PrivateChat>.from(chatCache.activeChats);
     final nextTime = getNextTime(_chats);
     if (nextTime == null) return;
 
@@ -64,31 +64,30 @@ class _ChatsPageState extends State<ChatsPage> {
   void _showInfoDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Quick Tips'),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Chats expire over time and all messages are permanently deleted to protect your privacy.',
-                  style: TextStyle(height: 1.5),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'SWIPE left on any chat to mute it if you no longer wish to participate.',
-                  style: TextStyle(height: 1.5),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Quick Tips'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Chats expire over time and all messages are permanently deleted to protect your privacy.',
+              style: TextStyle(height: 1.5),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Got it'),
-              ),
-            ],
+            SizedBox(height: 16),
+            Text(
+              'SWIPE left on any chat to mute it if you no longer wish to participate.',
+              style: TextStyle(height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
           ),
+        ],
+      ),
     );
   }
 
@@ -112,22 +111,21 @@ class _ChatsPageState extends State<ChatsPage> {
         ],
       ),
       body: SafeArea(
-        child:
-            _chats.isEmpty
-                ? Center(child: Info(lines: lines))
-                : Layout(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      if (!settings.hasHiddenChatsNotice)
-                        InfoNotice(
-                          content: info,
-                          onDismiss: () => settings.hideChatsNotice(),
-                        ),
-                      Expanded(child: ChatList(chats: _chats)),
-                    ],
-                  ),
+        child: _chats.isEmpty
+            ? Center(child: Info(lines: lines))
+            : Layout(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    if (!settings.hasHiddenChatsNotice)
+                      InfoNotice(
+                        content: info,
+                        onDismiss: () => settings.hideChatsNotice(),
+                      ),
+                    Expanded(child: ChatList(chats: _chats)),
+                  ],
                 ),
+              ),
       ),
     );
   }

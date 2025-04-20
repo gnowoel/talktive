@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
@@ -15,7 +15,7 @@ import '../widgets/user_info_loader.dart';
 
 class ReportPage extends StatefulWidget {
   final String userId;
-  final Chat chat;
+  final PrivateChat chat;
 
   const ReportPage({super.key, required this.userId, required this.chat});
 
@@ -33,7 +33,7 @@ class _ReportPageState extends State<ReportPage> {
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
 
-  late Chat _chat;
+  late PrivateChat _chat;
 
   @override
   void initState() {
@@ -84,15 +84,14 @@ class _ReportPageState extends State<ReportPage> {
     messagesSubscription = firedata
         .subscribeToMessages(widget.chat.id, lastTimestamp)
         .listen((messages) {
-          // There might be obsolete records from Friebase offline cache.
-          reportMessageCache.addMessages(_chat.id, messages);
-          final filteredMessages =
-              messages
-                  .where((message) => message.createdAt >= _chat.createdAt)
-                  .toList();
+      // There might be obsolete records from Friebase offline cache.
+      reportMessageCache.addMessages(_chat.id, messages);
+      final filteredMessages = messages
+          .where((message) => message.createdAt >= _chat.createdAt)
+          .toList();
 
-          reportMessageCache.addMessages(widget.chat.id, filteredMessages);
-        });
+      reportMessageCache.addMessages(widget.chat.id, filteredMessages);
+    });
   }
 
   @override
@@ -116,12 +115,11 @@ class _ReportPageState extends State<ReportPage> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: otherId,
-            photoURL: _chat.partner.photoURL ?? '',
-            displayName: _chat.partner.displayName ?? '',
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: otherId,
+        photoURL: _chat.partner.photoURL ?? '',
+        displayName: _chat.partner.displayName ?? '',
+      ),
     );
   }
 
@@ -130,9 +128,8 @@ class _ReportPageState extends State<ReportPage> {
 
     showDialog(
       context: context,
-      builder:
-          (context) =>
-              UserInfoLoader(userId: userId, photoURL: '', displayName: ''),
+      builder: (context) =>
+          UserInfoLoader(userId: userId, photoURL: '', displayName: ''),
     );
   }
 

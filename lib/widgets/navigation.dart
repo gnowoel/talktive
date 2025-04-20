@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/messages.dart';
 import '../helpers/time.dart';
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../services/chat_cache.dart';
 
 class Navigation extends StatefulWidget {
@@ -20,7 +20,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   late ChatCache chatCache;
-  List<Chat> _chats = [];
+  List<PrivateChat> _chats = [];
   Timer? _timer;
 
   @override

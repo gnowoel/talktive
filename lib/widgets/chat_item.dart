@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -16,9 +16,9 @@ import 'tag.dart';
 import 'user_info_loader.dart';
 
 class ChatItem extends StatefulWidget {
-  final Chat chat;
-  final Function(Chat) onRemove;
-  final Function(Chat) onRestore;
+  final PrivateChat chat;
+  final Function(PrivateChat) onRemove;
+  final Function(PrivateChat) onRestore;
 
   const ChatItem({
     super.key,
@@ -91,12 +91,12 @@ class _ChatItemState extends State<ChatItem> {
         )
         .closed
         .then((reason) {
-          // Only mute the chat if the SnackBar was closed by timeout
-          // and not by user action (pressing undo)
-          if (reason == SnackBarClosedReason.timeout) {
-            _muteChat();
-          }
-        });
+      // Only mute the chat if the SnackBar was closed by timeout
+      // and not by user action (pressing undo)
+      if (reason == SnackBarClosedReason.timeout) {
+        _muteChat();
+      }
+    });
   }
 
   Future<void> _enterChat() async {
@@ -125,12 +125,11 @@ class _ChatItemState extends State<ChatItem> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: otherId,
-            photoURL: partner.photoURL ?? '',
-            displayName: partner.displayName ?? '',
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: otherId,
+        photoURL: partner.photoURL ?? '',
+        displayName: partner.displayName ?? '',
+      ),
     );
   }
 
@@ -150,9 +149,9 @@ class _ChatItemState extends State<ChatItem> {
         byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
-    final lastMessageContent = (widget.chat.lastMessageContent ??
-            partner.description!)
-        .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent =
+        (widget.chat.lastMessageContent ?? partner.description!)
+            .replaceAll(RegExp(r'\s+'), ' ');
 
     final userStatus = partner.status;
 
@@ -266,25 +265,24 @@ class _ChatItemState extends State<ChatItem> {
                 ),
               ],
             ),
-            trailing:
-                newMessageCount > 0
-                    ? Badge(
-                      label: Text(
-                        '$newMessageCount',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      backgroundColor: colorScheme.error,
-                    )
-                    : Badge(
-                      label: Text(
-                        '$newMessageCount',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colorScheme.surfaceContainerLow,
-                        ),
-                      ),
-                      backgroundColor: colorScheme.outline,
+            trailing: newMessageCount > 0
+                ? Badge(
+                    label: Text(
+                      '$newMessageCount',
+                      style: TextStyle(fontSize: 14),
                     ),
+                    backgroundColor: colorScheme.error,
+                  )
+                : Badge(
+                    label: Text(
+                      '$newMessageCount',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.surfaceContainerLow,
+                      ),
+                    ),
+                    backgroundColor: colorScheme.outline,
+                  ),
           ),
         ),
       ),

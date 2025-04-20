@@ -1,29 +1,28 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 
 class ChatCache extends ChangeNotifier {
-  final Map<String, Chat> _chats = {};
+  final Map<String, PrivateChat> _chats = {};
 
   ChatCache._();
   static final ChatCache _instance = ChatCache._();
   factory ChatCache() => _instance;
 
-  List<Chat> get chats => _chats.values.toList();
+  List<PrivateChat> get chats => _chats.values.toList();
 
   // TODO: Use this in the chat page
-  Chat? getChat(String chatId) => _chats[chatId];
+  PrivateChat? getChat(String chatId) => _chats[chatId];
 
-  List<Chat> get activeChats =>
+  List<PrivateChat> get activeChats =>
       _chats.values.where((chat) => chat.isActive).toList();
 
-  List<String> get activeChatIds =>
-      _chats.entries
-          .where((entry) => entry.value.isActive)
-          .map((entry) => entry.key)
-          .toList();
+  List<String> get activeChatIds => _chats.entries
+      .where((entry) => entry.value.isActive)
+      .map((entry) => entry.key)
+      .toList();
 
-  void updateChats(List<Chat> chats) {
+  void updateChats(List<PrivateChat> chats) {
     _chats.clear();
     for (final chat in chats) {
       _chats[chat.id] = chat;
@@ -31,7 +30,7 @@ class ChatCache extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateChat(Chat chat) {
+  void updateChat(PrivateChat chat) {
     _chats[chat.id] = chat;
     notifyListeners();
   }

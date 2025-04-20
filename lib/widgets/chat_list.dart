@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import 'chat_item.dart';
 
 class ChatList extends StatefulWidget {
-  final List<Chat> chats;
+  final List<PrivateChat> chats;
 
-  const ChatList({
-    super.key,
-    required this.chats,
-  });
+  const ChatList({super.key, required this.chats});
 
   @override
   State<ChatList> createState() => _ChatListState();
 }
 
 class _ChatListState extends State<ChatList> {
-  late List<Chat> _chats;
+  late List<PrivateChat> _chats;
 
   @override
   void initState() {
@@ -32,13 +29,13 @@ class _ChatListState extends State<ChatList> {
     }
   }
 
-  void _removeChat(Chat chat) {
+  void _removeChat(PrivateChat chat) {
     setState(() {
       _chats.remove(chat);
     });
   }
 
-  void _restoreChat(Chat chat, int index) {
+  void _restoreChat(PrivateChat chat, int index) {
     setState(() {
       _chats.insert(index, chat);
     });

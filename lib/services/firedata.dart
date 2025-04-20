@@ -8,8 +8,8 @@ import 'package:firebase_database/firebase_database.dart';
 import '../helpers/exception.dart';
 import '../helpers/platform.dart';
 import '../models/admin.dart';
-import '../models/chat.dart';
 import '../models/message.dart';
+import '../models/private_chat.dart';
 import '../models/report.dart';
 // import '../models/text_message.dart';
 import '../models/user.dart';
@@ -32,7 +32,7 @@ class Firedata {
   }
 
   Future<void> sendTextMessage(
-    Chat chat,
+    PrivateChat chat,
     String userId,
     String userDisplayName,
     String userPhotoURL,
@@ -55,7 +55,7 @@ class Firedata {
   }
 
   Future<void> sendImageMessage(
-    Chat chat,
+    PrivateChat chat,
     String userId,
     String userDisplayName,
     String userPhotoURL,
@@ -137,17 +137,20 @@ class Firedata {
     }
   }
 
-  Stream<List<Chat>> subscribeToChats(String userId) {
+  Stream<List<PrivateChat>> subscribeToChats(String userId) {
     try {
       final ref = instance.ref('chats/$userId');
-      final chats = <Chat>[];
+      final chats = <PrivateChat>[];
 
-      final Stream<List<Chat>> stream = StreamGroup.merge([
+      final Stream<List<PrivateChat>> stream = StreamGroup.merge([
         // Handle added chats
         ref.onChildAdded.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
           final chatStub = ChatStub.fromJson(json);
-          final chat = Chat.fromStub(key: event.snapshot.key!, value: chatStub);
+          final chat = PrivateChat.fromStub(
+            key: event.snapshot.key!,
+            value: chatStub,
+          );
 
           final index = chats.indexWhere((c) => c.id == chat.id);
           if (index == -1) {
@@ -157,14 +160,17 @@ class Firedata {
           }
 
           chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          return List<Chat>.from(chats);
+          return List<PrivateChat>.from(chats);
         }),
 
         // Handle changed chats
         ref.onChildChanged.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
           final chatStub = ChatStub.fromJson(json);
-          final chat = Chat.fromStub(key: event.snapshot.key!, value: chatStub);
+          final chat = PrivateChat.fromStub(
+            key: event.snapshot.key!,
+            value: chatStub,
+          );
 
           final index = chats.indexWhere((c) => c.id == chat.id);
           if (index != -1) {
@@ -172,7 +178,7 @@ class Firedata {
           }
 
           chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          return List<Chat>.from(chats);
+          return List<PrivateChat>.from(chats);
         }),
 
         // Handle removed chats
@@ -181,7 +187,7 @@ class Firedata {
           if (index != -1) {
             chats.removeAt(index);
           }
-          return List<Chat>.from(chats);
+          return List<PrivateChat>.from(chats);
         }),
       ]);
 
@@ -191,11 +197,11 @@ class Firedata {
     }
   }
 
-  Stream<Chat> subscribeToChat(String userId, String chatId) {
+  Stream<PrivateChat> subscribeToChat(String userId, String chatId) {
     final ref = instance.ref('chats/$userId/$chatId');
 
     final stream = ref.onValue.map((event) {
-      late Chat chat;
+      late PrivateChat chat;
 
       final snapshot = event.snapshot;
 
@@ -203,9 +209,9 @@ class Firedata {
         final value = snapshot.value;
         final json = Map<String, dynamic>.from(value as Map);
         final stub = ChatStub.fromJson(json);
-        chat = Chat.fromStub(key: chatId, value: stub);
+        chat = PrivateChat.fromStub(key: chatId, value: stub);
       } else {
-        chat = Chat.dummy();
+        chat = PrivateChat.dummy();
       }
 
       return chat;
@@ -251,9 +257,8 @@ class Firedata {
     try {
       final messages = <Message>[];
       final ref = instance.ref('messages/$chatId');
-      final query = ref
-          .orderByChild('createdAt')
-          .startAfter(lastTimestamp ?? 0);
+      final query =
+          ref.orderByChild('createdAt').startAfter(lastTimestamp ?? 0);
 
       final Stream<List<Message>> stream = StreamGroup.merge([
         // Handle added messages
@@ -309,7 +314,7 @@ class Firedata {
     }
   }
 
-  Future<Chat> greetUser(User self, User other, String message) async {
+  Future<PrivateChat> greetUser(User self, User other, String message) async {
     try {
       final chatId = ([self.id, other.id]..sort()).join();
 
@@ -337,7 +342,7 @@ class Firedata {
     }
   }
 
-  Chat _createInitialDummyChat(
+  PrivateChat _createInitialDummyChat(
     String chatId,
     String chatCreatedAt,
     User other,
@@ -348,7 +353,7 @@ class Firedata {
       partner: UserStub.fromJson(other.toJson()),
       messageCount: 0,
     );
-    return Chat.fromStub(key: chatId, value: stub);
+    return PrivateChat.fromStub(key: chatId, value: stub);
   }
 
   Future<Admin?> fetchAdmin(String? userId) async {

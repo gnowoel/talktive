@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:talktive/widgets/status_notice.dart';
 
 import '../helpers/exception.dart';
-import '../models/chat.dart';
+import '../models/private_chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -20,7 +20,7 @@ import '../widgets/message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ChatPage extends StatefulWidget {
-  final Chat chat;
+  final PrivateChat chat;
 
   const ChatPage({super.key, required this.chat});
 
@@ -40,7 +40,7 @@ class _ChatPageState extends State<ChatPage> {
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
 
-  late Chat _chat;
+  late PrivateChat _chat;
 
   int _messageCount = 0;
   bool _chatPopulated = false;
@@ -101,14 +101,13 @@ class _ChatPageState extends State<ChatPage> {
     messagesSubscription = firedata
         .subscribeToMessages(_chat.id, lastTimestamp)
         .listen((messages) {
-          // There might be obsolete records from Friebase offline cache.
-          final filteredMessages =
-              messages
-                  .where((message) => message.createdAt >= _chat.createdAt)
-                  .toList();
+      // There might be obsolete records from Friebase offline cache.
+      final filteredMessages = messages
+          .where((message) => message.createdAt >= _chat.createdAt)
+          .toList();
 
-          chatMessageCache.addMessages(_chat.id, filteredMessages);
-        });
+      chatMessageCache.addMessages(_chat.id, filteredMessages);
+    });
   }
 
   @override
@@ -134,12 +133,11 @@ class _ChatPageState extends State<ChatPage> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: otherId,
-            photoURL: _chat.partner.photoURL ?? '',
-            displayName: _chat.partner.displayName ?? '',
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: otherId,
+        photoURL: _chat.partner.photoURL ?? '',
+        displayName: _chat.partner.displayName ?? '',
+      ),
     );
   }
 
@@ -147,7 +145,7 @@ class _ChatPageState extends State<ChatPage> {
     _messageCount = count;
   }
 
-  Future<void> _updateReadMessageCount(Chat chat) async {
+  Future<void> _updateReadMessageCount(PrivateChat chat) async {
     final count = _messageCount;
     final selfId = fireauth.instance.currentUser!.uid;
 
@@ -191,34 +189,33 @@ class _ChatPageState extends State<ChatPage> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            icon: Icon(
-              Icons.report_outlined,
-              color: theme.colorScheme.error,
-              size: 32,
-            ),
-            title: const Text('Report this chat?'),
-            content: const Text(
-              'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              TextButton(
-                child: Text(
-                  'Report',
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _reportChat();
-                },
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.report_outlined,
+          color: theme.colorScheme.error,
+          size: 32,
+        ),
+        title: const Text('Report this chat?'),
+        content: const Text(
+          'If you believe this chat contains inappropriate content or violates our community guidelines, you can report it for review. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
+          TextButton(
+            child: Text(
+              'Report',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _reportChat();
+            },
+          ),
+        ],
+      ),
     );
   }
 

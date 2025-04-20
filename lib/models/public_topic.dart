@@ -1,6 +1,6 @@
 import 'user.dart';
 
-class Topic {
+class PublicTopic {
   final String id;
   final String title;
   final int createdAt;
@@ -8,7 +8,7 @@ class Topic {
   final UserStub creator;
   final int messageCount;
 
-  const Topic({
+  const PublicTopic({
     required this.id,
     required this.title,
     required this.createdAt,
@@ -28,8 +28,8 @@ class Topic {
     };
   }
 
-  factory Topic.fromJson(String id, Map<String, dynamic> json) {
-    return Topic(
+  factory PublicTopic.fromJson(String id, Map<String, dynamic> json) {
+    return PublicTopic(
       id: id,
       title: json['title'] as String,
       createdAt: json['createdAt'] as int,

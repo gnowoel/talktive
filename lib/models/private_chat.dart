@@ -1,8 +1,9 @@
 import '../helpers/time.dart';
 import '../services/server_clock.dart';
+import 'chat.dart';
 import 'user.dart';
 
-class PrivateChat {
+class PrivateChat extends Chat {
   final String id;
   final int createdAt;
   final int updatedAt;
@@ -25,7 +26,7 @@ class PrivateChat {
     this.lastMessageContent,
     this.mute,
     this.reported,
-  });
+  }) : super(type: 'chat');
 
   PrivateChat copyWith({
     String? id,

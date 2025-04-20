@@ -1,6 +1,7 @@
+import 'chat.dart';
 import 'user.dart';
 
-class PublicTopic {
+class PublicTopic extends Chat {
   final String id;
   final String title;
   final int createdAt;
@@ -15,7 +16,7 @@ class PublicTopic {
     required this.updatedAt,
     required this.creator,
     required this.messageCount,
-  });
+  }) : super(type: 'topic');
 
   Map<String, dynamic> toJson() {
     return {

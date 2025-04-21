@@ -11,6 +11,7 @@ import '../services/follow_cache.dart';
 import '../services/message_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
+import '../services/topic_cache.dart';
 import '../services/user_cache.dart';
 
 class Subscribe extends StatefulWidget {
@@ -32,12 +33,14 @@ class _SubscribeState extends State<Subscribe> {
   late FollowCache followCache;
   late ChatCache chatCache;
   late ChatMessageCache chatMessageCache;
+  late TopicCache topicCache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
   late StreamSubscription followeesSubscription;
   late StreamSubscription chatsSubscription;
   late StreamSubscription fcmTokenSubscription;
+  late StreamSubscription topicsSubscription;
 
   @override
   void initState() {
@@ -52,25 +55,34 @@ class _SubscribeState extends State<Subscribe> {
     followCache = context.read<FollowCache>();
     chatCache = context.read<ChatCache>();
     chatMessageCache = context.read<ChatMessageCache>();
+    topicCache = context.read<TopicCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
     clockSkewSubscription = firedata.subscribeToClockSkew().listen((clockSkew) {
       serverClock.updateClockSkew(clockSkew);
     });
+
     userSubscription = firedata.subscribeToUser(userId).listen((user) {
       userCache.updateUser(user);
     });
+
     followeesSubscription = firestore.subscribeToFollowees(userId).listen((
       followees,
     ) {
       followCache.updateFollowees(followees);
     });
+
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       chatCache.updateChats(chats);
       // Clean up message cache for inactive chats
       chatMessageCache.cleanup(chatCache.activeChatIds);
     });
+
+    topicsSubscription = firestore.subscribeToTopics().listen((topics) {
+      topicCache.updateTopics(topics);
+    });
+
     fcmTokenSubscription = messaging.subscribeToFcmToken().listen((
       token,
     ) async {
@@ -81,6 +93,7 @@ class _SubscribeState extends State<Subscribe> {
   @override
   void dispose() {
     fcmTokenSubscription.cancel();
+    topicsSubscription.cancel();
     chatsSubscription.cancel();
     followeesSubscription.cancel();
     userSubscription.cancel();

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
 import '../models/follow.dart';
+import '../models/public_topic.dart';
 import '../models/user.dart';
 import '../helpers/exception.dart';
 
@@ -332,6 +333,35 @@ class Firestore {
       if (result.data['success'] != true) {
         throw Exception(result.data['error'] ?? 'Failed to create topic');
       }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Stream<List<PublicTopic>> subscribeToTopics() {
+    try {
+      final ref = instance.collection('topics');
+      final topics = <PublicTopic>[];
+
+      final Stream<List<PublicTopic>> stream = ref
+          .orderBy('updatedAt', descending: true)
+          .limit(32)
+          .snapshots()
+          .map((snapshot) {
+            topics.clear();
+
+            for (final doc in snapshot.docs) {
+              final topic = PublicTopic.fromJson(
+                doc.id,
+                Map<String, dynamic>.from(doc.data()),
+              );
+              topics.add(topic);
+            }
+
+            return topics;
+          });
+
+      return stream;
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../helpers/routes.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
 
@@ -34,6 +35,10 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       return;
     }
 
+    final user = userCache.user;
+
+    if (user == null) return;
+
     final userId = userCache.user?.id;
     final title = _titleController.text;
     final message = _messageController.text;
@@ -43,14 +48,16 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     setState(() => _isLoading = true);
 
     try {
-      await firestore.createTopic(
-        userId: userId,
+      final topic = await firestore.createTopic(
+        user: user,
         title: title,
         message: message,
       );
+      final topicCreatedAt = topic.createdAt.toString();
 
       if (mounted) {
-        context.go('/topics');
+        context.go('/chats');
+        context.push(encodeTopicRoute(topic.id, topicCreatedAt));
       }
     } on AppException catch (e) {
       if (mounted) {

@@ -184,6 +184,11 @@ class Messaging {
     return '/chats/$chatId?chatCreatedAt=$encodedChatCreatedAt';
   }
 
+  static String encodeTopicRoute(String topicId, String topicCreatedAt) {
+    final encodedTopicCreatedAt = Uri.encodeComponent(topicCreatedAt);
+    return '/topics/$topicId?chatCreatedAt=$encodedTopicCreatedAt';
+  }
+
   // TODO: Not the right place to define this method
   static String encodeReportRoute(
     String userId,

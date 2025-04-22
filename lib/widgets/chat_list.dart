@@ -1,43 +1,46 @@
 import 'package:flutter/material.dart';
 
+import '../models/chat.dart';
 import '../models/private_chat.dart';
-import 'chat_item.dart';
+import '../models/public_topic.dart';
+import 'private_chat_item.dart';
+import 'public_topic_item.dart';
 
 class ChatList extends StatefulWidget {
-  final List<PrivateChat> chats;
+  final List<Chat> items;
 
-  const ChatList({super.key, required this.chats});
+  const ChatList({super.key, required this.items});
 
   @override
   State<ChatList> createState() => _ChatListState();
 }
 
 class _ChatListState extends State<ChatList> {
-  late List<PrivateChat> _chats;
+  late List<Chat> _items;
 
   @override
   void initState() {
     super.initState();
-    _chats = List.from(widget.chats);
+    _items = List.from(widget.items);
   }
 
   @override
   void didUpdateWidget(ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.chats != oldWidget.chats) {
-      _chats = List.from(widget.chats);
+    if (widget.items != oldWidget.items) {
+      _items = List.from(widget.items);
     }
   }
 
-  void _removeChat(PrivateChat chat) {
+  void _removeItem(Chat item) {
     setState(() {
-      _chats.remove(chat);
+      _items.remove(item);
     });
   }
 
-  void _restoreChat(PrivateChat chat, int index) {
+  void _restoreItem(Chat item, int index) {
     setState(() {
-      _chats.insert(index, chat);
+      _items.insert(index, item);
     });
   }
 
@@ -45,15 +48,27 @@ class _ChatListState extends State<ChatList> {
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
-      itemCount: _chats.length,
+      itemCount: _items.length,
       itemBuilder: (context, index) {
-        final chat = _chats[index];
-        return ChatItem(
-          key: ValueKey(chat.id),
-          chat: chat,
-          onRemove: _removeChat,
-          onRestore: (chat) => _restoreChat(chat, index),
-        );
+        final item = _items[index];
+
+        if (item is PrivateChat) {
+          return PrivateChatItem(
+            key: ValueKey(item.id),
+            chat: item,
+            onRemove: _removeItem,
+            onRestore: (chat) => _restoreItem(chat, index),
+          );
+        } else if (item is PublicTopic) {
+          return PublicTopicItem(
+            key: ValueKey(item.id),
+            topic: item,
+            onRemove: _removeItem,
+            onRestore: (topic) => _restoreItem(topic, index),
+          );
+        }
+
+        return const SizedBox.shrink();
       },
     );
   }

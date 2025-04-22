@@ -79,7 +79,7 @@ class _SubscribeState extends State<Subscribe> {
       chatMessageCache.cleanup(chatCache.activeChatIds);
     });
 
-    topicsSubscription = firestore.subscribeToTopics().listen((topics) {
+    topicsSubscription = firestore.subscribeToTopics(userId).listen((topics) {
       topicCache.updateTopics(topics);
     });
 

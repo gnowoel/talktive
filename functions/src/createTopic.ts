@@ -107,6 +107,7 @@ export const createTopic = onCall(async (request) => {
     return {
       success: true,
       topicId,
+      topicCreatedAt: now.toString(), // TODO: We don't actually need it for topics
     };
   } catch (error) {
     logger.error('Error creating topic:', error);

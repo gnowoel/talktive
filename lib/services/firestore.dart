@@ -338,14 +338,14 @@ class Firestore {
     }
   }
 
-  Stream<List<PublicTopic>> subscribeToTopics() {
+  Stream<List<PublicTopic>> subscribeToTopics(String userId) {
     try {
-      final ref = instance.collection('topics');
+      final ref = instance.collection('users').doc(userId).collection('topics');
+
       final topics = <PublicTopic>[];
 
       final Stream<List<PublicTopic>> stream = ref
           .orderBy('updatedAt', descending: true)
-          .limit(32)
           .snapshots()
           .map((snapshot) {
             topics.clear();

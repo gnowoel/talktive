@@ -9,7 +9,6 @@ import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
-import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -67,7 +66,7 @@ class _UserItemState extends State<UserItem> {
       final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
       context.go('/chats');
-      context.push(Messaging.encodeChatRoute(chatId, chatCreatedAt));
+      context.push(encodeChatRoute(chatId, chatCreatedAt));
     });
   }
 
@@ -81,7 +80,7 @@ class _UserItemState extends State<UserItem> {
 
       if (mounted) {
         context.go('/chats');
-        context.push(Messaging.encodeChatRoute(chat.id, chatCreatedAt));
+        context.push(encodeChatRoute(chat.id, chatCreatedAt));
       }
     });
   }

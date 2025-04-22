@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import '../helpers/platform.dart';
+import '../helpers/routes.dart';
 import '../router.dart';
 
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -179,32 +180,6 @@ class Messaging {
     }
   }
 
-  static String encodeChatRoute(String chatId, String chatCreatedAt) {
-    final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt);
-    return '/chats/$chatId?chatCreatedAt=$encodedChatCreatedAt';
-  }
-
-  static String encodeTopicRoute(String topicId, String topicCreatedAt) {
-    final encodedTopicCreatedAt = Uri.encodeComponent(topicCreatedAt);
-    return '/topics/$topicId?chatCreatedAt=$encodedTopicCreatedAt';
-  }
-
-  // TODO: Not the right place to define this method
-  static String encodeReportRoute(
-    String userId,
-    String chatId,
-    String? chatCreatedAt,
-  ) {
-    final encodedUserId = Uri.encodeComponent(userId);
-    final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt ?? '0');
-    return '/admin/reports/$chatId?userId=$encodedUserId&chatCreatedAt=$encodedChatCreatedAt';
-  }
-
-  static String _encodeLaunchRoute(String chatId, String chatCreatedAt) {
-    final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt);
-    return '/launch/$chatId?chatCreatedAt=$encodedChatCreatedAt';
-  }
-
   static Future<String?> getInitialRoute() async {
     final NotificationAppLaunchDetails? details =
         await _flutterLocalNotificationsPlugin
@@ -219,7 +194,7 @@ class Messaging {
         final chatId = data['chatId'] as String;
         final chatCreatedAt = data['chatCreatedAt'] as String;
 
-        return _encodeLaunchRoute(chatId, chatCreatedAt);
+        return encodeLaunchRoute(chatId, chatCreatedAt);
       } catch (e) {
         debugPrint('Error parsing notification payload: $e');
       }

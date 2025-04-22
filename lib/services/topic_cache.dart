@@ -10,6 +10,14 @@ class TopicCache extends ChangeNotifier {
   factory TopicCache() => _instance;
 
   List<PublicTopic> get topics => _topics.values.toList();
+  List<PublicTopic> get activeTopics =>
+      _topics.values.where((topic) => topic.isActive).toList();
+
+  List<String> get activeTopicIds =>
+      _topics.entries
+          .where((entry) => entry.value.isActive)
+          .map((entry) => entry.key)
+          .toList();
 
   PublicTopic? getTopic(String topicId) => _topics[topicId];
 
@@ -26,7 +34,7 @@ class TopicCache extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTopc(String topicId) {
+  void removeTopic(String topicId) {
     _topics.remove(topicId);
     notifyListeners();
   }

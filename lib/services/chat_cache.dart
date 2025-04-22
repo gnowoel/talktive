@@ -10,17 +10,17 @@ class ChatCache extends ChangeNotifier {
   factory ChatCache() => _instance;
 
   List<PrivateChat> get chats => _chats.values.toList();
-
-  // TODO: Use this in the chat page
-  PrivateChat? getChat(String chatId) => _chats[chatId];
-
   List<PrivateChat> get activeChats =>
       _chats.values.where((chat) => chat.isActive).toList();
 
-  List<String> get activeChatIds => _chats.entries
-      .where((entry) => entry.value.isActive)
-      .map((entry) => entry.key)
-      .toList();
+  List<String> get activeChatIds =>
+      _chats.entries
+          .where((entry) => entry.value.isActive)
+          .map((entry) => entry.key)
+          .toList();
+
+  // TODO: Use this in the chat page
+  PrivateChat? getChat(String chatId) => _chats[chatId];
 
   void updateChats(List<PrivateChat> chats) {
     _chats.clear();

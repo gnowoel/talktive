@@ -86,7 +86,6 @@ export const initiateConversation = onCall(async (request) => {
     logger.error('Error initiating conversation:', error);
     return {
       success: false,
-      chatId: '',
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }

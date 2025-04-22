@@ -315,8 +315,8 @@ class Firestore {
     }
   }
 
-  Future<void> createTopic({
-    required String userId,
+  Future<PublicTopic> createTopic({
+    required User user,
     required String title,
     required String message,
   }) async {
@@ -324,18 +324,40 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable('createTopic');
 
-      final result = await callable.call({
-        'userId': userId,
+      final response = await callable.call({
+        'userId': user.id,
         'title': title,
         'message': message,
       });
 
-      if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to create topic');
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to create topic');
       }
+
+      final topicId = result['topicId'];
+      final topicCreatedAt = result['topicCreatedAt'];
+
+      return _createInitialDummyTopic(topicId, topicCreatedAt, user);
     } catch (e) {
       throw AppException(e.toString());
     }
+  }
+
+  PublicTopic _createInitialDummyTopic(
+    String topicId,
+    String topicCreatedAt,
+    User user,
+  ) {
+    return PublicTopic(
+      id: topicId,
+      createdAt: int.tryParse(topicCreatedAt) ?? 0,
+      updatedAt: 0,
+      title: '',
+      creator: user,
+      messageCount: 1,
+    );
   }
 
   Stream<List<PublicTopic>> subscribeToTopics(String userId) {

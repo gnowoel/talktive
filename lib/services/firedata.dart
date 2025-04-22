@@ -351,7 +351,7 @@ class Firedata {
       createdAt: int.tryParse(chatCreatedAt) ?? 0,
       updatedAt: 0,
       partner: UserStub.fromJson(other.toJson()),
-      messageCount: 0,
+      messageCount: 1,
     );
     return PrivateChat.fromStub(key: chatId, value: stub);
   }

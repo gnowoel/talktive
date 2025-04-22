@@ -37,7 +37,9 @@ export const createTopic = onCall(async (request) => {
       photoURL: user.photoURL,
       displayName: user.displayName,
       languageCode: user.languageCode,
-      gender: user.gender
+      gender: user.gender,
+      revivedAt: user.revivedAt,
+      messageCount: user.messageCount,
     };
 
     const topicRef = await firestore.collection('topics').add({
@@ -45,7 +47,8 @@ export const createTopic = onCall(async (request) => {
       creator,
       createdAt: now,
       updatedAt: now,
-      messageCount: 1,
+      messageCount: 1, // Copy to downstream
+      lastMessageContent: message, // Copy to downstream
     });
 
     const topicId = topicRef.id;
@@ -92,9 +95,10 @@ export const createTopic = onCall(async (request) => {
       creator,
       createdAt: now,
       updatedAt: now,
-      messageCount: 1,
+      messageCount: 1, // Copy from upstream
       readMessageCount: 1, // Creator has read their own message
-      lastMessageContent: message
+      lastMessageContent: message, // Copy from upstream
+      mute: false,
     });
 
     // Commit all operations

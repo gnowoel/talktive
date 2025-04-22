@@ -4,24 +4,19 @@ import 'chat.dart';
 import 'user.dart';
 
 class PrivateChat extends Chat {
-  final String id;
-  final int createdAt;
-  final int updatedAt;
   final UserStub partner;
-  final int messageCount;
-  final int? readMessageCount;
   final String? firstUserId;
   final String? lastMessageContent;
   final bool? mute;
   final bool? reported;
 
   const PrivateChat({
-    required this.id,
-    required this.createdAt,
-    required this.updatedAt,
+    required super.id,
+    required super.createdAt,
+    required super.updatedAt,
+    required super.messageCount,
     required this.partner,
-    required this.messageCount,
-    this.readMessageCount,
+    super.readMessageCount,
     this.firstUserId,
     this.lastMessageContent,
     this.mute,
@@ -94,6 +89,7 @@ class PrivateChat extends Chat {
     );
   }
 
+  // TODO: Handled on server side, can be removed in future releases
   bool get isNew => firstUserId == null;
   bool get isNotNew => !isNew;
 

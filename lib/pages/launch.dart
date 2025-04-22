@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 
-import '../services/messaging.dart';
+import '../helpers/routes.dart';
 import '../theme.dart';
 
 class LaunchPage extends StatefulWidget {
@@ -24,10 +24,7 @@ class _LaunchPageState extends State<LaunchPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      final initialRoute = Messaging.encodeChatRoute(
-        widget.chatId,
-        widget.chatCreatedAt,
-      );
+      final initialRoute = encodeChatRoute(widget.chatId, widget.chatCreatedAt);
       context.go('/chats');
       context.push(initialRoute);
     });

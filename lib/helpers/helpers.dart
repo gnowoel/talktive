@@ -5,6 +5,7 @@ export './language.dart';
 export './messages.dart';
 export './platform.dart';
 export './random.dart';
+export './routes.dart';
 export './text.dart';
 export './time.dart';
 export './token.dart';

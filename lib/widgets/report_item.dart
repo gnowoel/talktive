@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../helpers/routes.dart';
 import '../models/report.dart';
-import '../services/messaging.dart';
 import '../services/server_clock.dart';
 
 class ReportItem extends StatelessWidget {
@@ -58,9 +58,7 @@ class ReportItem extends StatelessWidget {
           final userId = report.userId;
           final chatId = report.chatId;
           final chatCreatedAt = '0';
-          context.push(
-            Messaging.encodeReportRoute(userId, chatId, chatCreatedAt),
-          );
+          context.push(encodeReportRoute(userId, chatId, chatCreatedAt));
         },
       ),
     );

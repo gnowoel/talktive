@@ -9,18 +9,17 @@ import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
-import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
-class ChatItem extends StatefulWidget {
+class PrivateChatItem extends StatefulWidget {
   final PrivateChat chat;
   final Function(PrivateChat) onRemove;
   final Function(PrivateChat) onRestore;
 
-  const ChatItem({
+  const PrivateChatItem({
     super.key,
     required this.chat,
     required this.onRemove,
@@ -28,10 +27,10 @@ class ChatItem extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _ChatItemState();
+  State<StatefulWidget> createState() => _PrivateChatItemState();
 }
 
-class _ChatItemState extends State<ChatItem> {
+class _PrivateChatItemState extends State<PrivateChatItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late FollowCache followCache;
@@ -78,7 +77,7 @@ class _ChatItemState extends State<ChatItem> {
     ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: const Text('Chat deleted'),
+            content: const Text('Left chat'),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
@@ -91,12 +90,12 @@ class _ChatItemState extends State<ChatItem> {
         )
         .closed
         .then((reason) {
-      // Only mute the chat if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _muteChat();
-      }
-    });
+          // Only mute the chat if the SnackBar was closed by timeout
+          // and not by user action (pressing undo)
+          if (reason == SnackBarClosedReason.timeout) {
+            _muteChat();
+          }
+        });
   }
 
   Future<void> _enterChat() async {
@@ -105,7 +104,7 @@ class _ChatItemState extends State<ChatItem> {
       final chatCreatedAt = chat.createdAt.toString();
 
       context.go('/chats');
-      context.push(Messaging.encodeChatRoute(chat.id, chatCreatedAt));
+      context.push(encodeChatRoute(chat.id, chatCreatedAt));
     });
   }
 
@@ -125,11 +124,12 @@ class _ChatItemState extends State<ChatItem> {
 
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: otherId,
-        photoURL: partner.photoURL ?? '',
-        displayName: partner.displayName ?? '',
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: otherId,
+            photoURL: partner.photoURL ?? '',
+            displayName: partner.displayName ?? '',
+          ),
     );
   }
 
@@ -149,9 +149,9 @@ class _ChatItemState extends State<ChatItem> {
         byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
 
     final newMessageCount = chatUnreadMessageCount(widget.chat);
-    final lastMessageContent =
-        (widget.chat.lastMessageContent ?? partner.description!)
-            .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent = (widget.chat.lastMessageContent ??
+            partner.description!)
+        .replaceAll(RegExp(r'\s+'), ' ');
 
     final userStatus = partner.status;
 
@@ -265,24 +265,25 @@ class _ChatItemState extends State<ChatItem> {
                 ),
               ],
             ),
-            trailing: newMessageCount > 0
-                ? Badge(
-                    label: Text(
-                      '$newMessageCount',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    backgroundColor: colorScheme.error,
-                  )
-                : Badge(
-                    label: Text(
-                      '$newMessageCount',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.surfaceContainerLow,
+            trailing:
+                newMessageCount > 0
+                    ? Badge(
+                      label: Text(
+                        '$newMessageCount',
+                        style: TextStyle(fontSize: 14),
                       ),
+                      backgroundColor: colorScheme.error,
+                    )
+                    : Badge(
+                      label: Text(
+                        '$newMessageCount',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colorScheme.surfaceContainerLow,
+                        ),
+                      ),
+                      backgroundColor: colorScheme.outline,
                     ),
-                    backgroundColor: colorScheme.outline,
-                  ),
           ),
         ),
       ),

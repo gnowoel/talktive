@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../helpers/time.dart';
 import '../services/server_clock.dart';
 import 'chat.dart';
@@ -25,8 +27,8 @@ class PublicTopic extends Chat {
     return {
       'id': id,
       'title': title,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'createdAt': Timestamp.fromMillisecondsSinceEpoch(createdAt),
+      'updatedAt': Timestamp.fromMillisecondsSinceEpoch(updatedAt),
       'creator': creator.toJson(),
       'messageCount': messageCount,
       'readMessageCount': readMessageCount,
@@ -45,8 +47,8 @@ class PublicTopic extends Chat {
     return PublicTopic(
       id: id,
       title: json['title'] as String,
-      createdAt: json['createdAt'] as int,
-      updatedAt: json['updatedAt'] as int,
+      createdAt: (json['createdAt'] as Timestamp).millisecondsSinceEpoch,
+      updatedAt: (json['updatedAt'] as Timestamp).millisecondsSinceEpoch,
       creator: creator,
       messageCount: json['messageCount'] as int,
       readMessageCount: json['readMessageCount'] as int?,

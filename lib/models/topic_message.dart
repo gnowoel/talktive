@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../services/server_clock.dart';
+
 abstract class TopicMessage {
   final String? id;
   final String userId;
@@ -47,13 +49,21 @@ class TopicTextMessage extends TopicMessage {
   }
 
   factory TopicTextMessage.fromJson(Map<String, dynamic> json) {
+    final timestamp = json['createdAt'];
+    final createdAt =
+        timestamp is Timestamp
+            ? timestamp
+            : Timestamp.fromMillisecondsSinceEpoch(
+              ServerClock().now,
+            ); // Fallback to local timestamp if null
+
     return TopicTextMessage(
       id: json['id'] as String?,
       userId: json['userId'] as String,
       userDisplayName: json['userDisplayName'] as String,
       userPhotoURL: json['userPhotoURL'] as String,
       content: json['content'] as String,
-      createdAt: json['createdAt'] as Timestamp,
+      createdAt: createdAt,
       recalled: json['recalled'] as bool? ?? false,
     );
   }
@@ -89,6 +99,14 @@ class TopicImageMessage extends TopicMessage {
   }
 
   factory TopicImageMessage.fromJson(Map<String, dynamic> json) {
+    final timestamp = json['createdAt'];
+    final createdAt =
+        timestamp is Timestamp
+            ? timestamp
+            : Timestamp.fromMillisecondsSinceEpoch(
+              ServerClock().now,
+            ); // Fallback to local timestamp if null
+
     return TopicImageMessage(
       id: json['id'] as String?,
       userId: json['userId'] as String,
@@ -96,7 +114,7 @@ class TopicImageMessage extends TopicMessage {
       userPhotoURL: json['userPhotoURL'] as String,
       uri: json['uri'] as String,
       content: json['content'] as String,
-      createdAt: json['createdAt'] as Timestamp,
+      createdAt: createdAt,
       recalled: json['recalled'] as bool? ?? false,
     );
   }

@@ -14,6 +14,7 @@ import 'pages/launch.dart';
 import 'pages/profile.dart';
 import 'pages/report.dart';
 import 'pages/reports.dart';
+import 'pages/topic.dart';
 import 'pages/topics.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
@@ -178,6 +179,13 @@ Future<GoRouter> initRouter() async {
       GoRoute(
         path: '/topics/create',
         builder: (context, state) => const CreateTopicPage(),
+      ),
+      GoRoute(
+        path: '/topics/:id',
+        builder: (context, state) {
+          final topicId = state.pathParameters['id']!;
+          return TopicPage(topicId: topicId);
+        },
       ),
     ],
   );

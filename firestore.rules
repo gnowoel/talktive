@@ -2,23 +2,92 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    match /{document=**} {
-      allow read: if request.auth != null;
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidTopic() {
+      let data = request.resource.data;
+      return data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 100 &&
+             data.creator.id == request.auth.uid &&
+             data.createdAt is number &&
+             data.updatedAt is number &&
+             data.messageCount is number;
+    }
+
+    function isValidMessage() {
+      let data = request.resource.data;
+      return data.type in ['text', 'image'] &&
+             data.userId == request.auth.uid &&
+             data.userDisplayName is string &&
+             data.userPhotoURL is string &&
+             data.content is string &&
+             data.content.size() <= 1024 &&
+             data.createdAt is timestamp;
+    }
+
+    // User document and subcollections
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+
+      // User's personal topics collection
+      match /topics/{topicId} {
+        allow read: if isSignedIn();
+        allow create, update: if isOwner(userId) &&
+          get(/databases/$(database)/documents/topics/$(topicId)).data.creator.id == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // User's follwees collection
+      match /followees/{followeeId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId);
+      }
+
+      // User's follwees collection
+      match /followers/{followerId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId);
+      }
+    }
+
+    // Global topics collection
+    match /topics/{topicId} {
+      // Anyone can read topics
+      allow read: if isSignedIn();
+
+      // Anyone can create a topic with valid data
+      allow create: if isSignedIn() && isValidTopic();
+
+      // Only creator can update their topic
+      allow update: if isSignedIn() &&
+        resource.data.creator.id == request.auth.uid;
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isSignedIn();
+
+        // Anyone can create a message with valid data
+        allow create: if isSignedIn() && isValidMessage();
+
+        // Only message owner can update/delete their message
+        allow update, delete: if isSignedIn() &&
+          resource.data.userId == request.auth.uid;
+      }
+
+      // Followers subcollection
+      match /followers/{userId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId);
+      }
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../models/follow.dart';
 import '../models/public_topic.dart';
+import '../models/topic_message.dart';
 import '../models/user.dart';
 import '../helpers/exception.dart';
 
@@ -384,6 +385,78 @@ class Firestore {
           });
 
       return stream;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Stream<PublicTopic> subscribeToTopic(String userId, String topicId) {
+    try {
+      return instance
+          .collection('users')
+          .doc(userId)
+          .collection('topics')
+          .doc(topicId)
+          .snapshots()
+          .map((doc) {
+            if (!doc.exists) {
+              throw AppException('Topic not found');
+            }
+            return PublicTopic.fromJson(
+              doc.id,
+              Map<String, dynamic>.from(doc.data()!),
+            );
+          });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Stream<List<TopicMessage>> subscribeToTopicMessages(String topicId) {
+    try {
+      return instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .orderBy('createdAt')
+          .snapshots()
+          .map((snapshot) {
+            return snapshot.docs.map((doc) {
+              final data = doc.data();
+              final type = data['type'] as String;
+
+              if (type == 'image') {
+                return TopicImageMessage.fromJson({'id': doc.id, ...data});
+              }
+
+              return TopicTextMessage.fromJson({'id': doc.id, ...data});
+            }).toList();
+          });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<void> sendTopicMessage({
+    required String topicId,
+    required String userId,
+    required String userDisplayName,
+    required String userPhotoURL,
+    required String content,
+  }) async {
+    try {
+      await instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .add({
+            'type': 'text',
+            'userId': userId,
+            'userDisplayName': userDisplayName,
+            'userPhotoURL': userPhotoURL,
+            'content': content,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       throw AppException(e.toString());
     }

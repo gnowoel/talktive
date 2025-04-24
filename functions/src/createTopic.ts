@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
 import { User } from './types';
@@ -28,7 +29,7 @@ export const createTopic = onCall(async (request) => {
       };
     }
 
-    const now = Date.now();
+    const now = Timestamp.now();
     const user = userDoc.data() as User;
     const creator = {
       id: userId,
@@ -107,7 +108,7 @@ export const createTopic = onCall(async (request) => {
     return {
       success: true,
       topicId,
-      topicCreatedAt: now.toString(), // TODO: We don't actually need it for topics
+      topicCreatedAt: now.toMillis().toString(), // TODO: We don't actually need it for topics
     };
   } catch (error) {
     logger.error('Error creating topic:', error);

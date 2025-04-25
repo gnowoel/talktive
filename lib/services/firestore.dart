@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/follow.dart';
 import '../models/public_topic.dart';
@@ -359,6 +360,27 @@ class Firestore {
       creator: user,
       messageCount: 1,
     );
+  }
+
+  Future<List<PublicTopic>> fetchPublicTopics(int serverNow) async {
+    try {
+      final twelveHoursAgo = serverNow - 12 * 60 * 60 * 1000;
+      final timestamp = Timestamp.fromMillisecondsSinceEpoch(twelveHoursAgo);
+
+      final snapshot =
+          await instance
+              .collection('topics')
+              .where('updatedAt', isGreaterThanOrEqualTo: timestamp)
+              .orderBy('updatedAt', descending: true)
+              .limit(50)
+              .get();
+
+      return snapshot.docs.map((doc) {
+        return PublicTopic.fromJson(doc.id, doc.data());
+      }).toList();
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Stream<List<PublicTopic>> subscribeToTopics(String userId) {

@@ -89,6 +89,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   }
 
   Future<void> _copyToClipboard(BuildContext context) async {
+    // Capture the ScaffoldMessenger before the async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     await Clipboard.setData(
       ClipboardData(
         text:
@@ -100,7 +103,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    // Use the captured ScaffoldMessenger instead of getting it from context
+    scaffoldMessenger.showSnackBar(
       const SnackBar(
         content: Text('Message copied to clipboard'),
         duration: Duration(seconds: 2),

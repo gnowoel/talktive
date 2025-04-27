@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter/foundation.dart';
 
 import '../models/follow.dart';
 import '../models/public_topic.dart';
@@ -386,27 +385,45 @@ class Firestore {
   Stream<List<PublicTopic>> subscribeToTopics(String userId) {
     try {
       final ref = instance.collection('users').doc(userId).collection('topics');
-
       final topics = <PublicTopic>[];
 
-      final Stream<List<PublicTopic>> stream = ref
-          .orderBy('updatedAt', descending: true)
-          .snapshots()
-          .map((snapshot) {
-            topics.clear();
+      final controller = StreamController<List<PublicTopic>>();
 
-            for (final doc in snapshot.docs) {
-              final topic = PublicTopic.fromJson(
-                doc.id,
-                Map<String, dynamic>.from(doc.data()),
-              );
-              topics.add(topic);
-            }
+      ref.orderBy('updatedAt', descending: true).snapshots().listen((snapshot) {
+        for (final change in snapshot.docChanges) {
+          final topic = PublicTopic.fromJson(
+            change.doc.id,
+            Map<String, dynamic>.from(change.doc.data()!),
+          );
 
-            return topics;
-          });
+          switch (change.type) {
+            case DocumentChangeType.added:
+              final index = topics.indexWhere((t) => t.id == topic.id);
+              if (index == -1) {
+                topics.add(topic);
+              } else {
+                topics[index] = topic;
+              }
+              break;
 
-      return stream;
+            case DocumentChangeType.modified:
+              final index = topics.indexWhere((t) => t.id == topic.id);
+              if (index != -1) {
+                topics[index] = topic;
+              }
+              break;
+
+            case DocumentChangeType.removed:
+              topics.removeWhere((t) => t.id == topic.id);
+              break;
+          }
+
+          topics.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+          controller.add(List<PublicTopic>.from(topics));
+        }
+      });
+
+      return controller.stream;
     } catch (e) {
       throw AppException(e.toString());
     }

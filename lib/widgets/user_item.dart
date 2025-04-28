@@ -397,7 +397,7 @@ class _UserItemState extends State<UserItem> {
   IconButton _buildIconButton() {
     if (widget.hasKnown) {
       return IconButton(
-        icon: Icon(Icons.people_alt_outlined),
+        icon: const Icon(Icons.people_alt_outlined),
         onPressed: _enterChat,
         tooltip: 'Enter chat',
       );

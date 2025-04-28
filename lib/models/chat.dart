@@ -14,4 +14,6 @@ abstract class Chat {
     required this.type,
     this.readMessageCount,
   });
+
+  int get unreadCount => (messageCount - (readMessageCount ?? 0));
 }

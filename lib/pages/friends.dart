@@ -94,7 +94,7 @@ class _FriendsPageState extends State<FriendsPage> {
               : FloatingActionButton(
                 onPressed: () => context.push('/topics/create'),
                 tooltip: 'Start a topic',
-                child: const Icon(Icons.add_comment),
+                child: const Icon(Icons.campaign),
               ),
       body: SafeArea(
         child:

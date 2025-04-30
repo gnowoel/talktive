@@ -265,6 +265,34 @@ class _FriendItemState extends State<FriendItem> {
     }
   }
 
+  Widget _buildRelationshipTag() {
+    final theme = Theme.of(context);
+    final isMutual = followCache.isMutualFriend(widget.friend.id);
+    final isFollowing = followCache.isFollowing(widget.friend.id);
+    final isFollower = followCache.isFollowedBy(widget.friend.id);
+
+    IconData icon;
+    String tooltip;
+
+    if (isMutual) {
+      icon = Icons.sync_alt;
+      tooltip = 'Mutual Friend';
+    } else if (isFollowing) {
+      icon = Icons.arrow_forward;
+      tooltip = 'Following';
+    } else if (isFollower) {
+      icon = Icons.arrow_back;
+      tooltip = 'Follower';
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    return Tag(
+      tooltip: tooltip,
+      child: Icon(icon, size: 16, color: theme.colorScheme.primary),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -324,6 +352,8 @@ class _FriendItemState extends State<FriendItem> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
+                _buildRelationshipTag(),
               ],
             ),
           ],

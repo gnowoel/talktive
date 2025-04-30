@@ -23,7 +23,9 @@ class Subscribe extends StatefulWidget {
   State<Subscribe> createState() => _SubscribeState();
 }
 
-class _SubscribeState extends State<Subscribe> {
+class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
+  List<StreamSubscription> _subscriptions = [];
+
   late Fireauth fireauth;
   late Firedata firedata;
   late Firestore firestore;
@@ -46,6 +48,34 @@ class _SubscribeState extends State<Subscribe> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeSubscriptions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _cancelSubscriptions();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Pause subscriptions when app goes to background
+      for (final subscription in _subscriptions) {
+        subscription.pause();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      // Resume subscriptions when app comes to foreground
+      for (final subscription in _subscriptions) {
+        subscription.resume();
+      }
+    }
+  }
+
+  void _initializeSubscriptions() {
+    super.initState();
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
@@ -60,53 +90,44 @@ class _SubscribeState extends State<Subscribe> {
 
     final userId = fireauth.instance.currentUser!.uid;
 
-    clockSkewSubscription = firedata.subscribeToClockSkew().listen((clockSkew) {
-      serverClock.updateClockSkew(clockSkew);
-    });
+    _subscriptions = [
+      firedata.subscribeToClockSkew().listen((clockSkew) {
+        serverClock.updateClockSkew(clockSkew);
+      }),
 
-    userSubscription = firedata.subscribeToUser(userId).listen((user) {
-      userCache.updateUser(user);
-    });
+      firedata.subscribeToUser(userId).listen((user) {
+        userCache.updateUser(user);
+      }),
 
-    followeesSubscription = firestore.subscribeToFollowees(userId).listen((
-      followees,
-    ) {
-      followCache.updateFollowees(followees);
-    });
+      firestore.subscribeToFollowees(userId).listen((followees) {
+        followCache.updateFollowees(followees);
+      }),
 
-    followersSubscription = firestore.subscribeToFollowers(userId).listen((
-      followers,
-    ) {
-      followCache.updateFollowers(followers);
-    });
+      firestore.subscribeToFollowers(userId).listen((followers) {
+        followCache.updateFollowers(followers);
+      }),
 
-    chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
-      chatCache.updateChats(chats);
-      // Clean up message cache for inactive chats
-      chatMessageCache.cleanup(chatCache.activeChatIds);
-    });
+      firedata.subscribeToChats(userId).listen((chats) {
+        chatCache.updateChats(chats);
+        // Clean up message cache for inactive chats
+        chatMessageCache.cleanup(chatCache.activeChatIds);
+      }),
 
-    topicsSubscription = firestore.subscribeToTopics(userId).listen((topics) {
-      topicCache.updateTopics(topics);
-    });
+      firestore.subscribeToTopics(userId).listen((topics) {
+        topicCache.updateTopics(topics);
+      }),
 
-    fcmTokenSubscription = messaging.subscribeToFcmToken().listen((
-      token,
-    ) async {
-      await firedata.storeFcmToken(userId, token);
-    });
+      messaging.subscribeToFcmToken().listen((token) async {
+        await firedata.storeFcmToken(userId, token);
+      }),
+    ];
   }
 
-  @override
-  void dispose() {
-    fcmTokenSubscription.cancel();
-    topicsSubscription.cancel();
-    chatsSubscription.cancel();
-    followersSubscription.cancel();
-    followeesSubscription.cancel();
-    userSubscription.cancel();
-    clockSkewSubscription.cancel();
-    super.dispose();
+  void _cancelSubscriptions() {
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    _subscriptions.clear();
   }
 
   @override

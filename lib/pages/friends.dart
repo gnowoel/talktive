@@ -32,7 +32,7 @@ class _FriendsPageState extends State<FriendsPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     followCache = Provider.of<FollowCache>(context);
-    _friends = followCache.followees;
+    _friends = followCache.getMergedFriends();
   }
 
   void _showInfoDialog() {

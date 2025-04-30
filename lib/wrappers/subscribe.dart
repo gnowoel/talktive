@@ -38,6 +38,7 @@ class _SubscribeState extends State<Subscribe> {
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
   late StreamSubscription followeesSubscription;
+  late StreamSubscription followersSubscription;
   late StreamSubscription chatsSubscription;
   late StreamSubscription fcmTokenSubscription;
   late StreamSubscription topicsSubscription;
@@ -73,6 +74,12 @@ class _SubscribeState extends State<Subscribe> {
       followCache.updateFollowees(followees);
     });
 
+    followersSubscription = firestore.subscribeToFollowers(userId).listen((
+      followers,
+    ) {
+      followCache.updateFollowers(followers);
+    });
+
     chatsSubscription = firedata.subscribeToChats(userId).listen((chats) {
       chatCache.updateChats(chats);
       // Clean up message cache for inactive chats
@@ -95,6 +102,7 @@ class _SubscribeState extends State<Subscribe> {
     fcmTokenSubscription.cancel();
     topicsSubscription.cancel();
     chatsSubscription.cancel();
+    followersSubscription.cancel();
     followeesSubscription.cancel();
     userSubscription.cancel();
     clockSkewSubscription.cancel();

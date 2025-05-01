@@ -11,7 +11,7 @@ class FollowCache extends ChangeNotifier {
   factory FollowCache() => _instance;
 
   List<Follow> get followees => _followees.values.toList();
-  List<Follow> get foloowers => _followers.values.toList();
+  List<Follow> get followers => _followers.values.toList();
 
   bool isFollowing(String userId) => _followees.containsKey(userId);
   bool isFollowedBy(String userId) => _followers.containsKey(userId);

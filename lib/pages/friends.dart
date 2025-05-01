@@ -42,7 +42,9 @@ class _FriendsPageState extends State<FriendsPage> {
     final user = userCache.user;
     if (user == null) return false;
 
-    return !user.isNewcomer && followCache.followers.isNotEmpty;
+    return !user.isNewcomer &&
+        !user.withAlert &&
+        followCache.followers.isNotEmpty;
   }
 
   Future<void> _showRestrictionDialog() async {
@@ -52,7 +54,20 @@ class _FriendsPageState extends State<FriendsPage> {
     String title;
     List<Widget> content;
 
-    if (user.isNewcomer) {
+    if (user.withAlert) {
+      title = 'Temporarily Restricted';
+      content = [
+        Text(
+          'Your account has been restricted due to reported inappropriate behavior.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot create topics until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (user.isNewcomer) {
       title = 'Account Too New';
       content = [
         Text(
@@ -167,9 +182,11 @@ class _FriendsPageState extends State<FriendsPage> {
         tooltip:
             _canCreateTopic()
                 ? 'Start a topic'
-                : (userCache.user?.isNewcomer == true
-                    ? 'Account too new'
-                    : 'Need followers'),
+                : (userCache.user?.withAlert == true
+                    ? 'Account restricted'
+                    : (userCache.user?.isNewcomer == true
+                        ? 'Account too new'
+                        : 'Need followers')),
         child: const Icon(Icons.campaign),
       ),
       body: SafeArea(

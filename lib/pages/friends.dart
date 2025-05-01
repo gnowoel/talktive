@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/follow.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/user_cache.dart';
 import '../widgets/friend_list.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
@@ -19,6 +20,7 @@ class FriendsPage extends StatefulWidget {
 class _FriendsPageState extends State<FriendsPage> {
   late Firestore firestore;
   late FollowCache followCache;
+  late UserCache userCache;
 
   List<Follow> _friends = [];
 
@@ -26,6 +28,7 @@ class _FriendsPageState extends State<FriendsPage> {
   void initState() {
     super.initState();
     firestore = context.read<Firestore>();
+    userCache = context.read<UserCache>();
   }
 
   @override
@@ -33,6 +36,77 @@ class _FriendsPageState extends State<FriendsPage> {
     super.didChangeDependencies();
     followCache = Provider.of<FollowCache>(context);
     _friends = followCache.getMergedFriends();
+  }
+
+  bool _canCreateTopic() {
+    final user = userCache.user;
+    if (user == null) return false;
+
+    return !user.isNewcomer && followCache.followers.isNotEmpty;
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final user = userCache.user!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    String title;
+    List<Widget> content;
+
+    if (user.isNewcomer) {
+      title = 'Account Too New';
+      content = [
+        Text(
+          'Your account needs to be at least 24 hours old to create topics.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'This restriction helps maintain quality discussions in our community.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else {
+      title = 'No Followers Yet';
+      content = [
+        Text(
+          'You need at least one follower to create topics.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Make some friend first! Topics are meant for sharing with your followers.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: content,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Got it'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _handleCreateTopic() {
+    if (!_canCreateTopic()) {
+      _showRestrictionDialog();
+      return;
+    }
+
+    context.push('/topics/create');
   }
 
   void _showInfoDialog() {
@@ -88,14 +162,16 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ],
       ),
-      floatingActionButton:
-          _friends.isEmpty
-              ? null
-              : FloatingActionButton(
-                onPressed: () => context.push('/topics/create'),
-                tooltip: 'Start a topic',
-                child: const Icon(Icons.campaign),
-              ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _handleCreateTopic,
+        tooltip:
+            _canCreateTopic()
+                ? 'Start a topic'
+                : (userCache.user?.isNewcomer == true
+                    ? 'Account too new'
+                    : 'Need followers'),
+        child: const Icon(Icons.campaign),
+      ),
       body: SafeArea(
         child:
             _friends.isEmpty

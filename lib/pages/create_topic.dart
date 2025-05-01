@@ -6,6 +6,7 @@ import '../helpers/exception.dart';
 import '../helpers/routes.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
+import '../widgets/layout.dart';
 
 class CreateTopicPage extends StatefulWidget {
   const CreateTopicPage({super.key});
@@ -15,11 +16,14 @@ class CreateTopicPage extends StatefulWidget {
 }
 
 class _CreateTopicPageState extends State<CreateTopicPage> {
+  late ThemeData theme;
   late Firestore firestore;
   late UserCache userCache;
+
+  final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
-  bool _isLoading = false;
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -28,44 +32,69 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     userCache = context.read<UserCache>();
   }
 
-  Future<void> _createTopic() async {
-    if (_isLoading) return;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
+  }
 
-    if (_titleController.text.isEmpty || _messageController.text.isEmpty) {
-      return;
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  String? _validateTitle(String? value) {
+    value = value?.trim();
+    if (value == null || value.isEmpty) {
+      return 'Please enter a title';
     }
+    if (value.length < 3) {
+      return 'Title must be at least 3 characters';
+    }
+    return null;
+  }
 
-    final user = userCache.user;
+  String? _validateMessage(String? value) {
+    value = value?.trim();
+    if (value == null || value.isEmpty) {
+      return 'Please enter a message';
+    }
+    if (value.length < 10) {
+      return 'Message must be at least 10 characters';
+    }
+    return null;
+  }
 
-    if (user == null) return;
+  Future<void> _submit() async {
+    if (_isProcessing) return;
 
-    final userId = userCache.user?.id;
-    final title = _titleController.text;
-    final message = _messageController.text;
+    if (_formKey.currentState!.validate()) {
+      final user = userCache.user;
+      if (user == null) return;
 
-    if (userId == null) return;
+      setState(() => _isProcessing = true);
 
-    setState(() => _isLoading = true);
+      try {
+        final topic = await firestore.createTopic(
+          user: user,
+          title: _titleController.text.trim(),
+          message: _messageController.text.trim(),
+        );
 
-    try {
-      final topic = await firestore.createTopic(
-        user: user,
-        title: title,
-        message: message,
-      );
-      final topicCreatedAt = topic.createdAt.toString();
-
-      if (mounted) {
-        context.go('/chats');
-        context.push(encodeTopicRoute(topic.id, topicCreatedAt));
-      }
-    } on AppException catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          context.go('/chats');
+          context.push(encodeTopicRoute(topic.id, topic.createdAt.toString()));
+        }
+      } on AppException catch (e) {
+        if (mounted) {
+          ErrorHandler.showSnackBarMessage(context, e);
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isProcessing = false);
+        }
       }
     }
   }
@@ -73,37 +102,76 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Start a Topic')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _titleController,
-            decoration: const InputDecoration(
-              labelText: 'Topic Title',
-              hintText: 'Enter a title for your topic...',
-            ),
-            maxLength: 100,
+      backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        title: const Text('Start a Topic'),
+      ),
+      body: SafeArea(
+        child: Layout(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 40),
+                            Text(
+                              'Create a New Topic',
+                              style: theme.textTheme.headlineSmall,
+                            ),
+                            const SizedBox(height: 32),
+                            TextFormField(
+                              controller: _titleController,
+                              decoration: const InputDecoration(
+                                labelText: 'Topic Title',
+                                hintText: 'What would you like to discuss?',
+                              ),
+                              validator: _validateTitle,
+                              maxLength: 100,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _messageController,
+                              decoration: const InputDecoration(
+                                labelText: 'First Message',
+                                hintText: 'Start the conversation...',
+                              ),
+                              validator: _validateMessage,
+                              minLines: 3,
+                              maxLines: 5,
+                              maxLength: 500,
+                            ),
+                            const SizedBox(height: 32),
+                            FilledButton(
+                              onPressed: _isProcessing ? null : _submit,
+                              child:
+                                  _isProcessing
+                                      ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 3,
+                                        ),
+                                      )
+                                      : const Text('Create Topic'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _messageController,
-            decoration: const InputDecoration(
-              labelText: 'First Message',
-              hintText: 'Start the discussion...',
-            ),
-            maxLines: 3,
-            maxLength: 500,
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _createTopic,
-            child:
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Create Topic'),
-          ),
-        ],
+        ),
       ),
     );
   }

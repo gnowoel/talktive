@@ -122,6 +122,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                         child: Column(
                           children: [
                             const SizedBox(height: 40),
+                            Icon(
+                              Icons.campaign,
+                              size: 64,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(height: 48),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,

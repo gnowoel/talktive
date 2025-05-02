@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 
@@ -7,6 +7,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+const db = admin.database();
 const firestore = admin.firestore();
 
 interface TopicMessage {
@@ -18,11 +19,27 @@ interface TopicMessage {
   createdAt: Timestamp;
 }
 
+interface MessagingError extends Error {
+  code: string;
+  message: string;
+}
+
+
+function isMessagingError(error: unknown): error is MessagingError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as MessagingError).code === 'string'
+  );
+}
+
 export const onTopicMessageCreated = onDocumentCreated(
   'topics/{topicId}/messages/{messageId}',
   async (event) => {
     const message = event.data?.data() as TopicMessage;
     const topicId = event.params.topicId;
+    // const messageId = event.params.messageId;
     const now = Timestamp.now();
 
     try {
@@ -33,8 +50,9 @@ export const onTopicMessageCreated = onDocumentCreated(
       const topicRef = firestore.collection('topics').doc(topicId);
       batch.update(topicRef, {
         updatedAt: now,
-        messageCount: admin.firestore.FieldValue.increment(1),
-        lastMessageContent: message.content,
+        messageCount: FieldValue.increment(1),
+        // Always show the first messages in the Topics tab
+        // lastMessageContent: message.content,
       });
 
       // Get topic data to find followers
@@ -44,7 +62,7 @@ export const onTopicMessageCreated = onDocumentCreated(
         return;
       }
 
-      // const topic = topicDoc.data()!;
+      const topic = topicDoc.data()!;
 
       // Get all followers
       const followersSnapshot = await topicRef
@@ -52,19 +70,40 @@ export const onTopicMessageCreated = onDocumentCreated(
         .where('muted', '==', false)
         .get();
 
+      // A list of promises for sending notifications
+      const notificationPromises: Promise<any>[] = [];
+
       // Update each follower's personal topic copy
       followersSnapshot.docs.forEach((doc) => {
+        const followerId = doc.id;
+
+        // Don't send notification to message author
+        const shouldNotify = followerId !== message.userId;
+
         const userTopicRef = firestore
           .collection('users')
-          .doc(doc.id)
+          .doc(followerId)
           .collection('topics')
           .doc(topicId);
 
         batch.update(userTopicRef, {
           updatedAt: now,
-          messageCount: admin.firestore.FieldValue.increment(1),
+          messageCount: FieldValue.increment(1),
           lastMessageContent: message.content,
         });
+
+        // Add notification task for this follower
+        if (shouldNotify) {
+          notificationPromises.push(
+            sendPushNotification(
+              followerId,
+              topicId,
+              topic.title,
+              message,
+              // messageId
+            )
+          );
+        }
       });
 
       // TODO: Send push notifications to followers
@@ -75,3 +114,98 @@ export const onTopicMessageCreated = onDocumentCreated(
     }
   }
 );
+
+const getUserFcmToken = async (userId: string) => {
+  try {
+    const tokenRef = db.ref(`users/${userId}/fcmToken`);
+    const snapshot = await tokenRef.get();
+
+    if (!snapshot.exists()) return null;
+
+    const token = snapshot.val();
+
+    return token;
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+/**
+ * Send push notification to a user about a new topic message
+ */
+async function sendPushNotification(
+  userId: string,
+  topicId: string,
+  topicTitle: string,
+  message: TopicMessage,
+  // messageId: string
+): Promise<void> {
+  try {
+    // Get user's FCM token
+    const userDoc = await firestore.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      logger.warn(`User ${userId} not found for notification`);
+      return;
+    }
+
+    const fcmToken = await getUserFcmToken(userId);
+
+    if (!fcmToken) {
+      // User doesn't have a token, skip notification
+      return;
+    }
+
+    // Construct the notification
+    const title = `${message.userDisplayName} in "${topicTitle}"`;
+    const body = message.content;
+
+    const pushMessage: admin.messaging.Message = {
+      token: fcmToken,
+      notification: {},
+      data: {
+        // type: 'topic',
+        title,
+        body,
+        topicId,
+        // messageId,
+        // senderId: message.userId,
+        // senderName: message.userDisplayName,
+        // createdAt: message.createdAt.toMillis().toString()
+      },
+      android: {
+        priority: 'high',
+        // notification: {
+        //   channelId: 'topic_messages'
+        // }
+      },
+      // apns: {
+      //   payload: {
+      //     aps: {
+      //       contentAvailable: true
+      //     }
+      //   }
+      // }
+    };
+
+    // Send the notification
+    await admin.messaging().send(pushMessage);
+
+  } catch (error) {
+    if (isMessagingError(error)) {
+      // Check if the error is due to an invalid token
+      if (
+        error.code === 'messaging/registration-token-not-registered' ||
+        error.code === 'messaging/invalid-argument' ||
+        error.code === 'messaging/invalid-registration-token'
+      ) {
+        // Remove the invalid token from the database
+        await db.ref(`users/${userId}/fcmToken`).remove();
+        logger.info(`Removed invalid FCM token for user ${userId}`);
+      }
+    }
+
+    // Log but don't rethrow as it's not critical
+    logger.warn('Push notification failed:', error);
+  }
+}

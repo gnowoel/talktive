@@ -96,10 +96,9 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
   Future<void> _enterTopic() async {
     _doAction(() async {
       final topic = widget.topic;
-      final topicCreatedAt = topic.createdAt.toString();
 
       context.go('/chats');
-      context.push(encodeTopicRoute(topic.id, topicCreatedAt));
+      context.push(encodeTopicRoute(topic.id));
     });
   }
 

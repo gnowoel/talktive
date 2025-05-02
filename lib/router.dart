@@ -46,8 +46,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/users',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: UsersPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: UsersPage()),
               ),
             ],
           ),
@@ -56,8 +57,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/topics',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: TopicsPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: TopicsPage()),
               ),
             ],
           ),
@@ -66,8 +68,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/chats',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ChatsPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: ChatsPage()),
               ),
             ],
           ),
@@ -76,8 +79,9 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/friends',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: FriendsPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: FriendsPage()),
               ),
             ],
           ),
@@ -86,22 +90,31 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/profile',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ProfilePage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
         ],
       ),
       GoRoute(
-        path: '/launch/:id',
+        path: '/launch/chat/:id',
         builder: (context, state) {
           final chatId = state.pathParameters['id']!;
           final encodedChatCreatedAt =
               state.uri.queryParameters['chatCreatedAt'] ?? '0';
           final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
 
-          return LaunchPage(chatId: chatId, chatCreatedAt: chatCreatedAt);
+          return LaunchChatPage(chatId: chatId, chatCreatedAt: chatCreatedAt);
+        },
+      ),
+      GoRoute(
+        path: '/launch/topic/:id',
+        builder: (context, state) {
+          final topicId = state.pathParameters['id']!;
+
+          return LaunchTopicPage(topicId: topicId);
         },
       ),
       GoRoute(
@@ -133,20 +146,21 @@ Future<GoRouter> initRouter() async {
       ),
       GoRoute(
         path: '/admin/reports',
-        builder: (context, state) => FutureBuilder(
-          future: _checkAdminAccess(context),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data == true) {
-              return const ReportsPage();
-            }
-            // Return unauthorized or loading state
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
-            );
-          },
-        ),
+        builder:
+            (context, state) => FutureBuilder(
+              future: _checkAdminAccess(context),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data == true) {
+                  return const ReportsPage();
+                }
+                // Return unauthorized or loading state
+                return const Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
+                );
+              },
+            ),
       ),
       GoRoute(
         path: '/admin/reports/:id',

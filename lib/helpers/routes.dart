@@ -3,9 +3,8 @@ String encodeChatRoute(String chatId, String chatCreatedAt) {
   return '/chats/$chatId?chatCreatedAt=$encodedChatCreatedAt';
 }
 
-String encodeTopicRoute(String topicId, String topicCreatedAt) {
-  final encodedTopicCreatedAt = Uri.encodeComponent(topicCreatedAt);
-  return '/topics/$topicId?chatCreatedAt=$encodedTopicCreatedAt';
+String encodeTopicRoute(String topicId) {
+  return '/topics/$topicId';
 }
 
 String encodeReportRoute(String userId, String chatId, String? chatCreatedAt) {
@@ -14,7 +13,11 @@ String encodeReportRoute(String userId, String chatId, String? chatCreatedAt) {
   return '/admin/reports/$chatId?userId=$encodedUserId&chatCreatedAt=$encodedChatCreatedAt';
 }
 
-String encodeLaunchRoute(String chatId, String chatCreatedAt) {
+String encodeChatLaunchRoute(String chatId, String chatCreatedAt) {
   final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt);
-  return '/launch/$chatId?chatCreatedAt=$encodedChatCreatedAt';
+  return '/launch/chat/$chatId?chatCreatedAt=$encodedChatCreatedAt';
+}
+
+String encodeTopicLaunchRoute(String topicId) {
+  return '/launch/topic/$topicId';
 }

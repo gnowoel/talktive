@@ -5,26 +5,56 @@ import 'package:go_router/go_router.dart';
 import '../helpers/routes.dart';
 import '../theme.dart';
 
-class LaunchPage extends StatefulWidget {
+class LaunchChatPage extends StatefulWidget {
   final String chatId;
   final String chatCreatedAt;
 
-  const LaunchPage({
+  const LaunchChatPage({
     super.key,
     required this.chatId,
     required this.chatCreatedAt,
   });
 
   @override
-  State<LaunchPage> createState() => _LaunchPageState();
+  State<LaunchChatPage> createState() => _LaunchChatPageState();
 }
 
-class _LaunchPageState extends State<LaunchPage> {
+class _LaunchChatPageState extends State<LaunchChatPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       final initialRoute = encodeChatRoute(widget.chatId, widget.chatCreatedAt);
+      context.go('/chats');
+      context.push(initialRoute);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: getTheme(context),
+      // TODO: Show circular progress indicator
+      home: const Scaffold(body: SizedBox.shrink()),
+    );
+  }
+}
+
+class LaunchTopicPage extends StatefulWidget {
+  final String topicId;
+
+  const LaunchTopicPage({super.key, required this.topicId});
+
+  @override
+  State<LaunchTopicPage> createState() => _LaunchTopicPageState();
+}
+
+class _LaunchTopicPageState extends State<LaunchTopicPage> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      final initialRoute = encodeTopicRoute(widget.topicId);
       context.go('/chats');
       context.push(initialRoute);
     });

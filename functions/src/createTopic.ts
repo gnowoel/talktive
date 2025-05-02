@@ -102,6 +102,47 @@ export const createTopic = onCall(async (request) => {
       mute: false,
     });
 
+    // Get the creator's followers
+    const followersSnapshot = await firestore
+      .collection('users')
+      .doc(userId)
+      .collection('followers')
+      .get();
+
+    // Add each follower to the topic's followers and add the topic to each follower's topics collection
+    for (const followerDoc of followersSnapshot.docs) {
+      const followerId = followerDoc.id;
+
+      // Add follower to topic's followers collection
+      const topicFollowerRef = firestore
+        .collection('topics')
+        .doc(topicId)
+        .collection('followers')
+        .doc(followerId);
+
+      batch.set(topicFollowerRef, {
+        muted: false,
+      });
+
+      // Add topic to follower's topics collection
+      const followerTopicRef = firestore
+        .collection('users')
+        .doc(followerId)
+        .collection('topics')
+        .doc(topicId);
+
+      batch.set(followerTopicRef, {
+        title,
+        creator,
+        createdAt: now,
+        updatedAt: now,
+        messageCount: 1, // Copy from upstream
+        readMessageCount: 0, // Follower hasn't read the first message yet
+        lastMessageContent: message, // Copy from upstream
+        mute: false,
+      });
+    }
+
     // Commit all operations
     await batch.commit();
 

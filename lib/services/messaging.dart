@@ -158,18 +158,7 @@ class Messaging {
   }
 
   void _handleNotificationData(Map<String, dynamic> data) {
-    final chatId = data['chatId'] as String;
-    final chatCreatedAt = data['chatCreatedAt'] as String;
-
-    GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
-    GoRouter.of(
-      rootNavigatorKey.currentContext!,
-    ).push(encodeChatRoute(chatId, chatCreatedAt));
-  }
-
-  void _handleNotificationTap(String? payload) {
-    if (payload != null) {
-      final data = jsonDecode(payload) as Map<String, dynamic>;
+    if (data['type'] == 'chat') {
       final chatId = data['chatId'] as String;
       final chatCreatedAt = data['chatCreatedAt'] as String;
 
@@ -177,6 +166,36 @@ class Messaging {
       GoRouter.of(
         rootNavigatorKey.currentContext!,
       ).push(encodeChatRoute(chatId, chatCreatedAt));
+    } else {
+      final topicId = data['topicId'] as String;
+
+      GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
+      GoRouter.of(
+        rootNavigatorKey.currentContext!,
+      ).push(encodeTopicRoute(topicId));
+    }
+  }
+
+  void _handleNotificationTap(String? payload) {
+    if (payload != null) {
+      final data = jsonDecode(payload) as Map<String, dynamic>;
+
+      if (data['type'] == 'chat') {
+        final chatId = data['chatId'] as String;
+        final chatCreatedAt = data['chatCreatedAt'] as String;
+
+        GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
+        GoRouter.of(
+          rootNavigatorKey.currentContext!,
+        ).push(encodeChatRoute(chatId, chatCreatedAt));
+      } else {
+        final topicId = data['topicId'] as String;
+
+        GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
+        GoRouter.of(
+          rootNavigatorKey.currentContext!,
+        ).push(encodeTopicRoute(topicId));
+      }
     }
   }
 
@@ -191,10 +210,17 @@ class Messaging {
         final data =
             jsonDecode(details!.notificationResponse!.payload!)
                 as Map<String, dynamic>;
-        final chatId = data['chatId'] as String;
-        final chatCreatedAt = data['chatCreatedAt'] as String;
 
-        return encodeLaunchRoute(chatId, chatCreatedAt);
+        if (data['type'] == 'chat') {
+          final chatId = data['chatId'] as String;
+          final chatCreatedAt = data['chatCreatedAt'] as String;
+
+          return encodeChatLaunchRoute(chatId, chatCreatedAt);
+        } else {
+          final topicId = data['topicId'] as String;
+
+          return encodeTopicLaunchRoute(topicId);
+        }
       } catch (e) {
         debugPrint('Error parsing notification payload: $e');
       }

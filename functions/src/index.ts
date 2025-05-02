@@ -8,6 +8,7 @@ export { default as onAccessCreated } from './onAccessCreated';
 export { default as onExpireCreated } from './onExpireCreated';
 export { default as onReportCreated } from './onReportCreated';
 export { default as onFirestoreUserCreated } from './onFirestoreUserCreated';
+export { onTopicMessageCreated } from './onTopicMessageCreated';
 export { initiateConversation } from './initiateConversation';
 export { follow, unfollow } from './follow';
 export { createTopic } from './createTopic';

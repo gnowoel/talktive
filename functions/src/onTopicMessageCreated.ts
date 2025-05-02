@@ -164,7 +164,7 @@ async function sendPushNotification(
       token: fcmToken,
       notification: {},
       data: {
-        // type: 'topic',
+        type: 'topic',
         title,
         body,
         topicId,
@@ -175,9 +175,9 @@ async function sendPushNotification(
       },
       android: {
         priority: 'high',
-        // notification: {
-        //   channelId: 'topic_messages'
-        // }
+        notification: {
+          channelId: 'topic_messages'
+        }
       },
       // apns: {
       //   payload: {

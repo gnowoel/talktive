@@ -151,11 +151,15 @@ const sendPushNotification = async (userId: string, pairId: string, message: Mes
       token,
       notification: {},
       data: {
+        type: 'chat',
         title, body, chatId, chatCreatedAt,
         partnerDisplayName: '' // TODO: Remove later
       },
       android: {
-        priority: 'high'
+        priority: 'high',
+        notification: {
+          channelId: 'chat_messages'
+        }
       }
     };
 

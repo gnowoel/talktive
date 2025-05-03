@@ -48,7 +48,7 @@ export const createTopic = onCall(async (request) => {
       creator,
       createdAt: now,
       updatedAt: now,
-      messageCount: 1, // Copy to downstream
+      messageCount: 0, // Copy to downstream
       lastMessageContent: message, // Copy to downstream
     });
 
@@ -96,7 +96,7 @@ export const createTopic = onCall(async (request) => {
       creator,
       createdAt: now,
       updatedAt: now,
-      messageCount: 1, // Copy from upstream
+      messageCount: 0, // Copy from upstream
       readMessageCount: 1, // Creator has read their own message
       lastMessageContent: message, // Copy from upstream
       mute: false,
@@ -136,7 +136,7 @@ export const createTopic = onCall(async (request) => {
         creator,
         createdAt: now,
         updatedAt: now,
-        messageCount: 1, // Copy from upstream
+        messageCount: 0, // Copy from upstream
         readMessageCount: 0, // Follower hasn't read the first message yet
         lastMessageContent: message, // Copy from upstream
         mute: false,

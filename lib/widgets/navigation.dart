@@ -27,10 +27,10 @@ class _NavigationState extends State<Navigation> {
     super.didChangeDependencies();
     chatCache = Provider.of<ChatCache>(context);
     topicCache = Provider.of<TopicCache>(context);
-    _setChatsAgain();
+    _refreshActiveItems();
   }
 
-  void _setChatsAgain() {
+  void _refreshActiveItems() {
     final nextTime = getNextTime(
       chatCache.getTimeLeft(),
       topicCache.getTimeLeft(),
@@ -44,7 +44,7 @@ class _NavigationState extends State<Navigation> {
 
     _timer = Timer(duration, () {
       setState(() {
-        _setChatsAgain();
+        _refreshActiveItems();
       });
     });
   }

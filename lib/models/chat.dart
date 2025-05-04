@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import '../helpers/time.dart';
+import '../services/server_clock.dart';
+
 abstract class Chat {
   final String id;
   final int createdAt;
@@ -18,4 +21,13 @@ abstract class Chat {
   });
 
   int get unreadCount => max(messageCount - (readMessageCount ?? 0), 0);
+
+  int getTimeLeft({int? now}) {
+    now = now ?? ServerClock().now;
+
+    final then = updatedAt;
+    final elapsed = max(now - then, 0);
+
+    return max(delay - elapsed, 0);
+  }
 }

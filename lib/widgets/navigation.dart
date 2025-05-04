@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/time.dart';
-import '../models/private_chat.dart';
 import '../services/chat_cache.dart';
 import '../services/topic_cache.dart';
 
@@ -21,7 +20,6 @@ class Navigation extends StatefulWidget {
 class _NavigationState extends State<Navigation> {
   late ChatCache chatCache;
   late TopicCache topicCache;
-  List<PrivateChat> _chats = [];
   Timer? _timer;
 
   @override
@@ -33,9 +31,10 @@ class _NavigationState extends State<Navigation> {
   }
 
   void _setChatsAgain() {
-    _chats = chatCache.chats.where((chat) => chat.isActive).toList();
-
-    final nextTime = getNextTime(_chats);
+    final nextTime = getNextTime(
+      chatCache.getTimeLeft(),
+      topicCache.getTimeLeft(),
+    );
 
     if (nextTime == null) return;
 

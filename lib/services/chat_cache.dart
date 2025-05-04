@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/private_chat.dart';
+import 'server_clock.dart';
 
 class ChatCache extends ChangeNotifier {
   final Map<String, PrivateChat> _chats = {};
@@ -46,5 +47,16 @@ class ChatCache extends ChangeNotifier {
     return activeChats
         .map((chat) => chat.unreadCount)
         .fold<int>(0, (sum, count) => sum + count);
+  }
+
+  int? getTimeLeft({int? now}) {
+    final chats = activeChats;
+    if (chats.isEmpty) return null;
+
+    now = now ?? ServerClock().now;
+    final times = chats.map((chat) => chat.getTimeLeft(now: now)).toList();
+
+    times.sort();
+    return times.first;
   }
 }

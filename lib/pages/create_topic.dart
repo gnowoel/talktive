@@ -121,7 +121,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                         key: _formKey,
                         child: Column(
                           children: [
-                            const SizedBox(height: 40),
                             Icon(
                               Icons.campaign,
                               size: 64,

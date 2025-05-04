@@ -1,102 +1,161 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../helpers/routes.dart';
 import '../helpers/text.dart';
 import '../models/public_topic.dart';
+import '../services/fireauth.dart';
+import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
+import '../theme.dart';
 import 'tag.dart';
+import 'user_info_loader.dart';
 
-class TopicItem extends StatelessWidget {
+class TopicItem extends StatefulWidget {
   final PublicTopic topic;
 
   const TopicItem({super.key, required this.topic});
 
-  void _handleTap(BuildContext context) {
-    // Navigate to topic detail page
-    context.push('/topics/${topic.id}');
+  @override
+  State<TopicItem> createState() => _TopicItemState();
+}
+
+class _TopicItemState extends State<TopicItem> {
+  late Fireauth fireauth;
+  late FollowCache followCache;
+  late bool byMe;
+  late bool isFriend;
+
+  @override
+  void initState() {
+    super.initState();
+    fireauth = context.read<Fireauth>();
+    byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    followCache = Provider.of<FollowCache>(context);
+    isFriend = followCache.isFollowing(widget.topic.creator.id);
+  }
+
+  void _joinTopic(BuildContext context) {
+    context.go('/chats');
+    context.push(encodeTopicRoute(widget.topic.id));
+  }
+
+  void _showCreatorInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => UserInfoLoader(
+        userId: widget.topic.creator.id,
+        photoURL: widget.topic.creator.photoURL ?? '',
+        displayName: widget.topic.creator.displayName ?? '',
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final customColors = theme.extension<CustomColors>()!;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final updatedAt = DateTime.fromMillisecondsSinceEpoch(topic.updatedAt);
+    final updatedAt =
+        DateTime.fromMillisecondsSinceEpoch(widget.topic.updatedAt);
 
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
       color: colorScheme.surfaceContainerHigh,
       clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        onTap: () => _handleTap(context),
-        child: ListTile(
-          contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
-          leading: GestureDetector(
-            onTap: () {}, // _showUserInfo(context)
-            child: Text(
-              topic.creator.photoURL ?? '',
-              style: TextStyle(fontSize: 36),
-            ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
+        leading: GestureDetector(
+          onTap: () => _showCreatorInfo(context),
+          child: Text(
+            widget.topic.creator.photoURL ?? '',
+            style: TextStyle(fontSize: 36),
           ),
-          title: Text(topic.title, overflow: TextOverflow.ellipsis),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                formatText(topic.lastMessageContent), // firstMessageContent
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(height: 1.2),
-                maxLines: 3,
+        ),
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (byMe || isFriend) ...[
+              Icon(
+                Icons.grade,
+                size: 16,
+                color: customColors.friendIndicator,
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Tag(
-                    tooltip: 'Messages',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.message_outlined, size: 12),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${topic.messageCount}',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Tag(
-                    tooltip: 'Last updated',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.schedule, size: 12),
-                        const SizedBox(width: 4),
-                        Text(
-                          timeago.format(
-                            updatedAt,
-                            locale: 'en_short',
-                            clock: now,
-                          ),
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              const SizedBox(width: 4),
             ],
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.keyboard_arrow_right),
-            // icon: const Icon(Icons.keyboard_double_arrow_right),
-            onPressed: () {},
-            tooltip: 'Join topic',
-          ),
+            Expanded(
+              child: Text(
+                widget.topic.title,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              formatText(
+                  widget.topic.lastMessageContent), // firstMessageContent
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(height: 1.2),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Tag(
+                  tooltip: 'Messages',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.message_outlined, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${widget.topic.messageCount}',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Tag(
+                  tooltip: 'Last updated',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.schedule, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        timeago.format(
+                          updatedAt,
+                          locale: 'en_short',
+                          clock: now,
+                        ),
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.keyboard_arrow_right),
+          // icon: const Icon(Icons.keyboard_double_arrow_right),
+          onPressed: () => _joinTopic(context),
+          tooltip: 'Join topic',
         ),
       ),
     );

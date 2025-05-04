@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/messages.dart';
 import '../helpers/time.dart';
 import '../models/private_chat.dart';
 import '../services/chat_cache.dart';
+import '../services/topic_cache.dart';
 
 class Navigation extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -20,6 +20,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   late ChatCache chatCache;
+  late TopicCache topicCache;
   List<PrivateChat> _chats = [];
   Timer? _timer;
 
@@ -27,6 +28,7 @@ class _NavigationState extends State<Navigation> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     chatCache = Provider.of<ChatCache>(context);
+    topicCache = Provider.of<TopicCache>(context);
     _setChatsAgain();
   }
 
@@ -61,7 +63,7 @@ class _NavigationState extends State<Navigation> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = widget.navigationShell.currentIndex;
-    final unreadCount = chatsUnreadMessageCount(_chats);
+    final unreadCount = chatCache.unreadCount + topicCache.unreadCount;
 
     return Scaffold(
       body: widget.navigationShell,

@@ -2,7 +2,6 @@ export './exception.dart';
 export './gender.dart';
 export './images.dart';
 export './language.dart';
-export './messages.dart';
 export './platform.dart';
 export './random.dart';
 export './routes.dart';

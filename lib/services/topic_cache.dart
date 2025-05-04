@@ -40,4 +40,10 @@ class TopicCache extends ChangeNotifier {
   }
 
   bool hasTopic(String topicId) => _topics.containsKey(topicId);
+
+  int get unreadCount {
+    return activeTopics
+        .map((topic) => topic.unreadCount)
+        .fold<int>(0, (sum, count) => sum + count);
+  }
 }

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/helpers.dart';
+import '../helpers/time.dart';
 import '../models/chat.dart';
 import '../services/chat_cache.dart';
 import '../services/message_cache.dart';
@@ -57,19 +57,10 @@ class _ChatsPageState extends State<ChatsPage> {
     _items = [...activeChats, ...activeTopics]
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-    // Get next expration time from both chats and topics
-    final nextChatTime = getNextTime(activeChats);
-    final nextTopicTime = getNextTime(activeTopics);
-
-    // Use the earlier of the two times
-    final nextTime =
-        nextChatTime == null
-            ? nextTopicTime
-            : (nextTopicTime == null
-                ? nextChatTime
-                : (nextChatTime < nextTopicTime
-                    ? nextChatTime
-                    : nextTopicTime));
+    final nextTime = getNextTime(
+      chatCache.getTimeLeft(),
+      topicCache.getTimeLeft(),
+    );
 
     if (nextTime == null) return;
 

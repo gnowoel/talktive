@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../helpers/helpers.dart';
 import '../models/private_chat.dart';
 import '../services/firedata.dart';
 import '../services/server_clock.dart';
@@ -56,7 +55,7 @@ class _HeartsState extends State<Hearts> {
 
   String _getInfoText(PrivateChat chat) {
     final now = ServerClock().now;
-    final diff = getTimeLeft(chat, now: now);
+    final diff = chat.getTimeLeft(now: now);
 
     if (chat.isNew) return 'New chat';
 

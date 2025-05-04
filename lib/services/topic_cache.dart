@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/public_topic.dart';
+import 'server_clock.dart';
 
 class TopicCache extends ChangeNotifier {
   final Map<String, PublicTopic> _topics = {};
@@ -45,5 +46,16 @@ class TopicCache extends ChangeNotifier {
     return activeTopics
         .map((topic) => topic.unreadCount)
         .fold<int>(0, (sum, count) => sum + count);
+  }
+
+  int? getTimeLeft({int? now}) {
+    final topics = activeTopics;
+    if (topics.isEmpty) return null;
+
+    now = now ?? ServerClock().now;
+    final times = topics.map((topic) => topic.getTimeLeft(now: now)).toList();
+
+    times.sort();
+    return times.first;
   }
 }

@@ -139,7 +139,7 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
     final textColor =
         byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
 
-    final newMessageCount = chatUnreadMessageCount(widget.topic);
+    final newMessageCount = widget.topic.unreadCount;
     final lastMessageContent = (widget.topic.lastMessageContent ?? '')
         .replaceAll(RegExp(r'\s+'), ' ');
 

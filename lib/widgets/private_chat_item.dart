@@ -148,7 +148,7 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
     final textColor =
         byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
 
-    final newMessageCount = chatUnreadMessageCount(widget.chat);
+    final newMessageCount = widget.chat.unreadCount;
     final lastMessageContent = (widget.chat.lastMessageContent ??
             partner.description!)
         .replaceAll(RegExp(r'\s+'), ' ');

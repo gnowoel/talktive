@@ -1,3 +1,5 @@
+import 'dart:math';
+
 abstract class Chat {
   final String id;
   final int createdAt;
@@ -15,5 +17,5 @@ abstract class Chat {
     this.readMessageCount,
   });
 
-  int get unreadCount => (messageCount - (readMessageCount ?? 0));
+  int get unreadCount => max(messageCount - (readMessageCount ?? 0), 0);
 }

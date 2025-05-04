@@ -41,4 +41,10 @@ class ChatCache extends ChangeNotifier {
   }
 
   bool hasChat(String chatId) => _chats.containsKey(chatId);
+
+  int get unreadCount {
+    return activeChats
+        .map((chat) => chat.unreadCount)
+        .fold<int>(0, (sum, count) => sum + count);
+  }
 }

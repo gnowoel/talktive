@@ -41,9 +41,7 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
     super.initState();
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-
-    final selfId = fireauth.instance.currentUser!.uid;
-    byMe = widget.topic.creator.id == selfId;
+    byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
   }
 
   @override
@@ -134,10 +132,8 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
       widget.topic.updatedAt,
     );
 
-    final cardColor =
-        byMe ? colorScheme.tertiaryContainer : colorScheme.surfaceContainerHigh;
-    final textColor =
-        byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
+    final cardColor = colorScheme.surfaceContainerHigh;
+    final textColor = colorScheme.onSurface;
 
     final newMessageCount = widget.topic.unreadCount;
     final lastMessageContent = (widget.topic.lastMessageContent ?? '')
@@ -145,7 +141,6 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
 
     final topic = widget.topic;
     final creator = topic.creator;
-    final userStatus = creator.status;
 
     return Dismissible(
       key: Key(topic.id),
@@ -161,21 +156,22 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
         elevation: 0,
         margin: const EdgeInsets.only(bottom: 12),
         color: cardColor,
-        child: GestureDetector(
+        clipBehavior: Clip.hardEdge,
+        child: InkWell(
           onTap: _enterTopic,
           child: ListTile(
             contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
             leading: GestureDetector(
               onTap: () => _showCreatorInfo(context),
               child: Text(
-                creator.photoURL!,
+                creator.photoURL ?? '',
                 style: TextStyle(fontSize: 36, color: textColor),
               ),
             ),
             title: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (isFriend) ...[
+                if (byMe || isFriend) ...[
                   Icon(
                     Icons.grade,
                     size: 16,
@@ -185,7 +181,7 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
                 ],
                 Expanded(
                   child: Text(
-                    creator.displayName!,
+                    widget.topic.title,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -205,54 +201,38 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
                 Row(
                   children: [
                     Tag(
-                      tooltip: '${getLongGenderName(creator.gender!)}',
-                      child: Text(
-                        creator.gender!,
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
-                      tooltip: '${getLanguageName(creator.languageCode!)}',
-                      child: Text(
-                        creator.languageCode!,
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
-                      tooltip: 'Level ${creator.level}',
-                      child: Text(
-                        'L${creator.level}',
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
+                      tooltip: 'Messages',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.message_outlined, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${widget.topic.messageCount}',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 4),
                     Tag(
                       tooltip: 'Last updated',
-                      child: Text(
-                        timeago.format(
-                          updatedAt,
-                          locale: 'en_short',
-                          clock: now,
-                        ),
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.schedule, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            timeago.format(
+                              updatedAt,
+                              locale: 'en_short',
+                              clock: now,
+                            ),
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
-                    if (userStatus == 'warning') ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'warning'),
-                    ] else if (userStatus == 'alert') ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'alert'),
-                    ] else if (userStatus == 'newcomer') ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'newcomer'),
-                    ],
                   ],
                 ),
               ],

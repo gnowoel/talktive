@@ -143,10 +143,8 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
       widget.chat.updatedAt,
     );
 
-    final cardColor =
-        byMe ? colorScheme.tertiaryContainer : colorScheme.surfaceContainerHigh;
-    final textColor =
-        byMe ? colorScheme.onTertiaryContainer : colorScheme.onSurface;
+    final cardColor = colorScheme.tertiaryContainer;
+    final textColor = colorScheme.onTertiaryContainer;
 
     final newMessageCount = widget.chat.unreadCount;
     final lastMessageContent = (widget.chat.lastMessageContent ??
@@ -183,7 +181,7 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
             title: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (isFriend) ...[
+                if (byMe || isFriend) ...[
                   Icon(
                     Icons.grade,
                     size: 16,

@@ -24,7 +24,9 @@ class Firestore {
 
   int _lastTouchedUser = 0;
   final List<User> _cachedUsers = [];
-  int? _lastUpdatedAt;
+  final List<PublicTopic> _cachedTopics = [];
+  int? _lastUserUpdatedAt;
+  int? _lastTopicUpdatedAt;
 
   final _userCache = <String, _CachedUser>{};
 
@@ -72,8 +74,8 @@ class Firestore {
   }) async {
     try {
       // Clear cache if it's too old
-      if (noCache || _shouldRefreshCache(serverNow)) {
-        clearCache();
+      if (noCache || _shouldRefreshUsersCache(serverNow)) {
+        clearUsersCache();
       }
 
       // Start building the query
@@ -96,8 +98,9 @@ class Firestore {
       // .orderBy('revivedAt') // Required when using where() with revivedAt
       .orderBy('updatedAt', descending: true);
 
-      if (_lastUpdatedAt != null) {
-        query = query.endBefore([_lastUpdatedAt]);
+      if (_lastUserUpdatedAt != null) {
+        // query = query.where('updatedAt', isGreaterThan: _lastUserUpdatedAt);
+        query = query.endBefore([_lastUserUpdatedAt]);
       }
 
       query = query.limit(32);
@@ -130,7 +133,9 @@ class Firestore {
           _cachedUsers.removeRange(32, _cachedUsers.length);
         }
 
-        _lastUpdatedAt = _cachedUsers.first.updatedAt;
+        if (_cachedUsers.isNotEmpty) {
+          _lastUserUpdatedAt = _cachedUsers.first.updatedAt;
+        }
       }
 
       return List<User>.from(_cachedUsers);
@@ -141,17 +146,17 @@ class Firestore {
     }
   }
 
-  void clearCache() {
+  void clearUsersCache() {
     _cachedUsers.clear();
-    _lastUpdatedAt = null;
+    _lastUserUpdatedAt = null;
   }
 
-  bool _shouldRefreshCache(int serverNow) {
+  bool _shouldRefreshUsersCache(int serverNow) {
     if (_cachedUsers.isEmpty) return true;
 
-    final twelveHours = 1 * 60 * 60 * 1000;
-    final lastCacheTime = _lastUpdatedAt ?? 0;
-    return serverNow >= lastCacheTime + twelveHours;
+    final oneHour = 1 * 60 * 60 * 1000;
+    final lastCacheTime = _lastUserUpdatedAt ?? 0;
+    return serverNow >= lastCacheTime + oneHour;
   }
 
   bool _isUserDataComplete(Map<String, dynamic> data) {
@@ -361,25 +366,92 @@ class Firestore {
     );
   }
 
-  Future<List<PublicTopic>> fetchPublicTopics(int serverNow) async {
+  Future<List<PublicTopic>> fetchPublicTopics(
+    int serverNow, {
+    bool noCache = false,
+  }) async {
     try {
+      // Clear cache if it's too old or explicitly requested
+      if (noCache || _shouldRefreshTopicsCache(serverNow)) {
+        clearTopicsCache();
+      }
+
+      // Define the time threshold for active topics
       final twelveHoursAgo = serverNow - 12 * 60 * 60 * 1000;
       final timestamp = Timestamp.fromMillisecondsSinceEpoch(twelveHoursAgo);
 
-      final snapshot =
-          await instance
-              .collection('topics')
-              .where('updatedAt', isGreaterThanOrEqualTo: timestamp)
-              .orderBy('updatedAt', descending: true)
-              .limit(50)
-              .get();
+      // Start building the query
+      var query = instance
+          .collection('topics')
+          .where('updatedAt', isGreaterThanOrEqualTo: timestamp);
 
-      return snapshot.docs.map((doc) {
-        return PublicTopic.fromJson(doc.id, doc.data());
-      }).toList();
+      // Add order and pagination
+      query = query.orderBy('updatedAt', descending: true);
+
+      // If we have cached data, only fetch topics updated since our last fetch
+      if (_lastTopicUpdatedAt != null) {
+        final lastTimestamp = Timestamp.fromMillisecondsSinceEpoch(
+          _lastTopicUpdatedAt!,
+        );
+        query = query.where('updatedAt', isGreaterThan: lastTimestamp);
+      }
+
+      // Limit the result set size
+      query = query.limit(32);
+
+      // Execute the query
+      final snapshot = await query.get();
+      final fetchedTopics =
+          snapshot.docs.map((doc) {
+            return PublicTopic.fromJson(doc.id, doc.data());
+          }).toList();
+
+      // Merge fetched topics with cached topics
+      if (fetchedTopics.isNotEmpty) {
+        // Remove any topics from cache that have been updated
+        _cachedTopics.removeWhere(
+          (cachedTopic) => fetchedTopics.any(
+            (fetchedTopic) => fetchedTopic.id == cachedTopic.id,
+          ),
+        );
+
+        // Add the new topics to cache
+        _cachedTopics.addAll(fetchedTopics);
+
+        // Sort by most recent first
+        _cachedTopics.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+        // Limit cache size
+        if (_cachedTopics.length > 32) {
+          _cachedTopics.removeRange(32, _cachedTopics.length);
+        }
+
+        // Update the timestamp of the most recently updated topic
+        if (_cachedTopics.isNotEmpty) {
+          _lastTopicUpdatedAt = _cachedTopics.first.updatedAt;
+        }
+      }
+
+      // Filter out topics that are older than 12 hours
+      return _cachedTopics
+          .where((topic) => topic.updatedAt >= twelveHoursAgo)
+          .toList();
     } catch (e) {
       throw AppException(e.toString());
     }
+  }
+
+  void clearTopicsCache() {
+    _cachedTopics.clear();
+    _lastTopicUpdatedAt = null;
+  }
+
+  bool _shouldRefreshTopicsCache(int serverNow) {
+    if (_cachedTopics.isEmpty) return true;
+
+    final oneHour = 1 * 60 * 60 * 1000;
+    final lastCacheTime = _lastTopicUpdatedAt ?? 0;
+    return serverNow >= lastCacheTime + oneHour;
   }
 
   Stream<List<PublicTopic>> subscribeToTopics(String userId) {

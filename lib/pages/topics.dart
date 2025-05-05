@@ -84,12 +84,12 @@ class _TopicsPageState extends State<TopicsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'These are topics shared by your friends. Join any topic to participate in the discussion.',
+                  'Topics are public spaces where anyone can join the conversation.',
                   style: TextStyle(height: 1.5),
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'To start your own topic, go to the Friends tab.',
+                  'To create your own topic, head over to the Friends tab.',
                   style: TextStyle(height: 1.5),
                 ),
               ],

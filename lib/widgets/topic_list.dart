@@ -6,15 +6,21 @@ import 'topic_item.dart';
 class TopicList extends StatelessWidget {
   final List<PublicTopic> topics;
   final List<String> joinedTopicIds;
+  final List<String> seenTopicIds;
 
   const TopicList({
     super.key,
     required this.topics,
     required this.joinedTopicIds,
+    required this.seenTopicIds,
   });
 
   bool _hasJoined(PublicTopic topic) {
     return joinedTopicIds.contains(topic.id);
+  }
+
+  bool _hasSeen(PublicTopic topic) {
+    return seenTopicIds.contains(topic.id);
   }
 
   @override
@@ -28,6 +34,7 @@ class TopicList extends StatelessWidget {
           key: ValueKey(topic.id),
           topic: topic,
           hasJoined: _hasJoined(topic),
+          hasSeen: _hasSeen(topic),
         );
       },
     );

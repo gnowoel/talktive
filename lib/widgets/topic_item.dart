@@ -16,8 +16,14 @@ import 'user_info_loader.dart';
 class TopicItem extends StatefulWidget {
   final PublicTopic topic;
   final bool hasJoined;
+  final bool hasSeen;
 
-  const TopicItem({super.key, required this.topic, required this.hasJoined});
+  const TopicItem({
+    super.key,
+    required this.topic,
+    required this.hasJoined,
+    required this.hasSeen,
+  });
 
   @override
   State<TopicItem> createState() => _TopicItemState();
@@ -73,7 +79,9 @@ class _TopicItemState extends State<TopicItem> {
     final cardColor =
         widget.hasJoined
             ? colorScheme.surfaceContainerHigh
-            : colorScheme.surfaceContainer;
+            : (widget.hasSeen
+                ? colorScheme.surfaceContainerHigh
+                : colorScheme.surfaceContainer);
     final textColor = colorScheme.onSurface;
 
     return Card(

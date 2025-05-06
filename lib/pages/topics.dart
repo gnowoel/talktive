@@ -24,6 +24,7 @@ class _TopicsPageState extends State<TopicsPage> {
   late Firestore firestore;
   late TopicCache topicCache;
 
+  List<PublicTopic> _seenTopics = [];
   List<PublicTopic> _topics = [];
   bool _isPopulated = false;
   bool _canRefresh = true;
@@ -59,6 +60,7 @@ class _TopicsPageState extends State<TopicsPage> {
 
       if (mounted) {
         setState(() {
+          _seenTopics = _topics;
           _topics = topics;
           _isPopulated = true;
         });
@@ -117,6 +119,7 @@ class _TopicsPageState extends State<TopicsPage> {
     ];
 
     final joinedTopicIds = topicCache.topicIds;
+    final seenTopicIds = _seenTopics.map((topic) => topic.id).toList();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -152,6 +155,7 @@ class _TopicsPageState extends State<TopicsPage> {
                         child: TopicList(
                           topics: _topics,
                           joinedTopicIds: joinedTopicIds,
+                          seenTopicIds: seenTopicIds,
                         ),
                       ),
                     ],

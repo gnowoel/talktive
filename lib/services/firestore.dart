@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../helpers/time.dart';
 import '../models/follow.dart';
 import '../models/public_topic.dart';
 import '../models/topic_message.dart';
@@ -377,13 +378,13 @@ class Firestore {
       }
 
       // Define the time threshold for active topics
-      final twelveHoursAgo = serverNow - 12 * 60 * 60 * 1000;
-      final timestamp = Timestamp.fromMillisecondsSinceEpoch(twelveHoursAgo);
+      final threeDaysAgo = serverNow - activeThreshold;
+      final timestamp = Timestamp.fromMillisecondsSinceEpoch(threeDaysAgo);
 
       // Start building the query
       var query = instance
           .collection('topics')
-          .where('updatedAt', isGreaterThanOrEqualTo: timestamp);
+          .where('updatedAt', isGreaterThan: timestamp);
 
       // Add order and pagination
       query = query.orderBy('updatedAt', descending: true);
@@ -434,7 +435,7 @@ class Firestore {
 
       // Filter out topics that are older than 12 hours
       return _cachedTopics
-          .where((topic) => topic.updatedAt >= twelveHoursAgo)
+          .where((topic) => topic.updatedAt > threeDaysAgo)
           .toList();
     } catch (e) {
       throw AppException(e.toString());

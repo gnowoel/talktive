@@ -28,6 +28,6 @@ abstract class Chat {
     final then = updatedAt;
     final elapsed = max(now - then, 0);
 
-    return max(delay - elapsed, 0);
+    return max(activeThreshold - elapsed, 0);
   }
 }

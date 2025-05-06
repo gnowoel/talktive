@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-const delay = kDebugMode
+const activeThreshold = kDebugMode
     ? 1000 * 60 * 6 // 6 minutes
     : 1000 * 60 * 60 * 72; // 3 days
 

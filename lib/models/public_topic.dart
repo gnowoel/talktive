@@ -57,7 +57,7 @@ class PublicTopic extends Chat {
     );
   }
 
-  bool get isClosed => updatedAt + delay <= ServerClock().now;
+  bool get isClosed => updatedAt + activeThreshold <= ServerClock().now;
   bool get isNotClosed => !isClosed;
 
   bool get isMuted => mute ?? false;

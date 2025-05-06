@@ -14,6 +14,8 @@ class TopicCache extends ChangeNotifier {
   List<PublicTopic> get activeTopics =>
       _topics.values.where((topic) => topic.isActive).toList();
 
+  List<String> get topicIds => _topics.keys.toList();
+
   List<String> get activeTopicIds =>
       _topics.entries
           .where((entry) => entry.value.isActive)

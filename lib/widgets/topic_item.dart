@@ -15,8 +15,9 @@ import 'user_info_loader.dart';
 
 class TopicItem extends StatefulWidget {
   final PublicTopic topic;
+  final bool hasJoined;
 
-  const TopicItem({super.key, required this.topic});
+  const TopicItem({super.key, required this.topic, required this.hasJoined});
 
   @override
   State<TopicItem> createState() => _TopicItemState();
@@ -50,11 +51,12 @@ class _TopicItemState extends State<TopicItem> {
   void _showCreatorInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => UserInfoLoader(
-        userId: widget.topic.creator.id,
-        photoURL: widget.topic.creator.photoURL ?? '',
-        displayName: widget.topic.creator.displayName ?? '',
-      ),
+      builder:
+          (context) => UserInfoLoader(
+            userId: widget.topic.creator.id,
+            photoURL: widget.topic.creator.photoURL ?? '',
+            displayName: widget.topic.creator.displayName ?? '',
+          ),
     );
   }
 
@@ -64,13 +66,20 @@ class _TopicItemState extends State<TopicItem> {
     final colorScheme = theme.colorScheme;
     final customColors = theme.extension<CustomColors>()!;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    final updatedAt =
-        DateTime.fromMillisecondsSinceEpoch(widget.topic.updatedAt);
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.topic.updatedAt,
+    );
+
+    final cardColor =
+        widget.hasJoined
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.surfaceContainer;
+    final textColor = colorScheme.onSurface;
 
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
-      color: colorScheme.surfaceContainerHigh,
+      color: cardColor,
       clipBehavior: Clip.hardEdge,
       child: ListTile(
         contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
@@ -78,25 +87,18 @@ class _TopicItemState extends State<TopicItem> {
           onTap: () => _showCreatorInfo(context),
           child: Text(
             widget.topic.creator.photoURL ?? '',
-            style: TextStyle(fontSize: 36),
+            style: TextStyle(fontSize: 36, color: textColor),
           ),
         ),
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (byMe || isFriend) ...[
-              Icon(
-                Icons.grade,
-                size: 16,
-                color: customColors.friendIndicator,
-              ),
+              Icon(Icons.grade, size: 16, color: customColors.friendIndicator),
               const SizedBox(width: 4),
             ],
             Expanded(
-              child: Text(
-                widget.topic.title,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(widget.topic.title, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),
@@ -106,7 +108,8 @@ class _TopicItemState extends State<TopicItem> {
             const SizedBox(height: 4),
             Text(
               formatText(
-                  widget.topic.lastMessageContent), // firstMessageContent
+                widget.topic.lastMessageContent,
+              ), // firstMessageContent
               overflow: TextOverflow.ellipsis,
               style: TextStyle(height: 1.2),
               maxLines: 3,
@@ -151,13 +154,24 @@ class _TopicItemState extends State<TopicItem> {
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_right),
-          // icon: const Icon(Icons.keyboard_double_arrow_right),
-          onPressed: () => _joinTopic(context),
-          tooltip: 'Join topic',
-        ),
+        trailing: _buildIconButton(),
       ),
+    );
+  }
+
+  Widget _buildIconButton() {
+    if (widget.hasJoined) {
+      return IconButton(
+        icon: const Icon(Icons.keyboard_double_arrow_right),
+        onPressed: () => _joinTopic(context), // TODO: _enterTopic()
+        tooltip: 'Join topic',
+      );
+    }
+
+    return IconButton(
+      icon: const Icon(Icons.keyboard_arrow_right),
+      onPressed: () => _joinTopic(context),
+      tooltip: 'Join topic',
     );
   }
 }

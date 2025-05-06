@@ -394,7 +394,7 @@ class _UserItemState extends State<UserItem> {
     );
   }
 
-  IconButton _buildIconButton() {
+  Widget _buildIconButton() {
     if (widget.hasKnown) {
       return IconButton(
         icon: const Icon(Icons.people_alt_outlined),

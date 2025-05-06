@@ -7,6 +7,7 @@ import '../helpers/exception.dart';
 import '../models/public_topic.dart';
 import '../services/firestore.dart';
 import '../services/server_clock.dart';
+import '../services/topic_cache.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
 import '../widgets/topic_list.dart';
@@ -19,8 +20,9 @@ class TopicsPage extends StatefulWidget {
 }
 
 class _TopicsPageState extends State<TopicsPage> {
-  late Firestore firestore;
   late ServerClock serverClock;
+  late Firestore firestore;
+  late TopicCache topicCache;
 
   List<PublicTopic> _topics = [];
   bool _isPopulated = false;
@@ -30,8 +32,9 @@ class _TopicsPageState extends State<TopicsPage> {
   @override
   void initState() {
     super.initState();
-    firestore = context.read<Firestore>();
     serverClock = context.read<ServerClock>();
+    firestore = context.read<Firestore>();
+    topicCache = context.read<TopicCache>();
     _fetchTopics();
   }
 
@@ -113,6 +116,8 @@ class _TopicsPageState extends State<TopicsPage> {
       '',
     ];
 
+    final joinedTopicIds = topicCache.topicIds;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
@@ -139,7 +144,19 @@ class _TopicsPageState extends State<TopicsPage> {
                     : const Center(
                       child: CircularProgressIndicator(strokeWidth: 3),
                     ))
-                : Layout(child: TopicList(topics: _topics)),
+                : Layout(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: TopicList(
+                          topics: _topics,
+                          joinedTopicIds: joinedTopicIds,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
       ),
     );
   }

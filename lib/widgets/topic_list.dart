@@ -5,11 +5,17 @@ import 'topic_item.dart';
 
 class TopicList extends StatelessWidget {
   final List<PublicTopic> topics;
+  final List<String> joinedTopicIds;
 
   const TopicList({
     super.key,
     required this.topics,
+    required this.joinedTopicIds,
   });
+
+  bool _hasJoined(PublicTopic topic) {
+    return joinedTopicIds.contains(topic.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +27,7 @@ class TopicList extends StatelessWidget {
         return TopicItem(
           key: ValueKey(topic.id),
           topic: topic,
+          hasJoined: _hasJoined(topic),
         );
       },
     );

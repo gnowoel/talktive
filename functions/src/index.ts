@@ -12,4 +12,5 @@ export { onTopicMessageCreated } from './onTopicMessageCreated';
 export { initiateConversation } from './initiateConversation';
 export { follow, unfollow } from './follow';
 export { createTopic } from './createTopic';
+export { joinTopic } from './joinTopic';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';

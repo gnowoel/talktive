@@ -136,7 +136,7 @@ class _UserItemState extends State<UserItem> {
         ),
         const SizedBox(height: 16),
         const Text(
-          'You cannot start new conversations until this restriction expires.',
+          'You cannot start new chats until this restriction expires.',
           style: TextStyle(height: 1.5),
         ),
       ];
@@ -157,7 +157,7 @@ class _UserItemState extends State<UserItem> {
       title = 'Female Protection';
       content = [
         Text(
-          'Your account needs to be at least 24 hours old and have reached level 4 experience to chat with new female users. Sorry about the inconvenience.',
+          'Your account needs to be at least 24 hours old and reach level 4 to chat with new female users. Sorry about the inconvenience.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
@@ -203,7 +203,7 @@ class _UserItemState extends State<UserItem> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your account has been reported for inappropriate messages.',
+                  'Your account has received reports for inappropriate communications.',
                   style: TextStyle(height: 1.5, color: colorScheme.error),
                 ),
                 const SizedBox(height: 16),

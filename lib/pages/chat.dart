@@ -350,7 +350,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildAlertBox() {
     return StatusNotice(
       content:
-          'This user has been reported for offensive messages. Be careful!',
+          'This user has been reported for sending offensive messages. Be careful!',
       icon: Icons.error_outline,
       backgroundColor: theme.colorScheme.tertiaryContainer,
       foregroundColor: theme.colorScheme.onTertiaryContainer,

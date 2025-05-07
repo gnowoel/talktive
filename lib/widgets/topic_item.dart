@@ -145,7 +145,7 @@ class _TopicItemState extends State<TopicItem> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'You cannot join a topic until this restriction expires.',
+                  'You cannot join topics until this restriction expires.',
                   style: TextStyle(height: 1.5),
                 ),
               ],
@@ -167,18 +167,18 @@ class _TopicItemState extends State<TopicItem> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Warning'),
+            title: const Text('Temporarily Restricted'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your account has been reported for inappropriate messages.',
+                  'Your account has temporary restrictions due to reports of inappropriate communications.',
                   style: TextStyle(height: 1.5, color: colorScheme.error),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Please be respectful when chatting with other users.',
+                  'You can still view the conversation, but cannot post messages until this restriction expires.',
                   style: const TextStyle(height: 1.5),
                 ),
                 const SizedBox(height: 16),
@@ -213,18 +213,18 @@ class _TopicItemState extends State<TopicItem> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Notice'),
+            title: const Text('Temporarily Restricted'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your account needs to be at least 24 hours old and have reached level 4 experience to chat in a topic.',
+                  'To participate in topics, your account must be at least 24 hours old and at level 4 or above.',
                   style: TextStyle(height: 1.5, color: colorScheme.error),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'For now you can only view the conversation.',
+                  'You can still view the conversation, but cannot post messages until these requirements are met.',
                   style: const TextStyle(height: 1.5),
                 ),
               ],

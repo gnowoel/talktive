@@ -218,7 +218,7 @@ class _FriendItemState extends State<FriendItem> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your account has been reported for inappropriate messages.',
+                  'Your account has been reported for inappropriate communications.',
                   style: TextStyle(height: 1.5, color: colorScheme.error),
                 ),
                 const SizedBox(height: 16),

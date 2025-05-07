@@ -115,7 +115,7 @@ class _TopicItemState extends State<TopicItem> {
             ? colorScheme.surfaceContainerHigh
             : (widget.hasSeen
                 ? colorScheme.surfaceContainerHigh
-                : colorScheme.surfaceContainer);
+                : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
     return Card(

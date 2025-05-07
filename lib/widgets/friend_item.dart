@@ -126,8 +126,8 @@ class _FriendItemState extends State<FriendItem> {
 
     if (self.withWarning) return false;
 
-    if (other.gender == 'F' && other.isNewcomer) {
-      if (self.isNewcomer || self.withAlert) {
+    if (other.gender == 'F' && other.isTrainee) {
+      if (self.isTrainee || self.withAlert) {
         return false;
       }
     }
@@ -168,11 +168,11 @@ class _FriendItemState extends State<FriendItem> {
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (self.isNewcomer) {
+    } else if (self.isTrainee) {
       title = 'Female Protection';
       content = [
         Text(
-          'Your account needs to be at least 24 hours old to chat with new female users. Sorry about the inconvenience.',
+          'Your account needs to be at least 24 hours old and have reached level 4 experience to chat with new female users. Sorry about the inconvenience.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),

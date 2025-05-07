@@ -42,7 +42,7 @@ class _FriendsPageState extends State<FriendsPage> {
     final user = userCache.user;
     if (user == null) return false;
 
-    return !user.isNewcomer &&
+    return !user.isTrainee &&
         !user.withAlert &&
         followCache.followers.isNotEmpty;
   }
@@ -67,11 +67,11 @@ class _FriendsPageState extends State<FriendsPage> {
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (user.isNewcomer) {
+    } else if (user.isTrainee) {
       title = 'Account Too New';
       content = [
         Text(
-          'Your account needs to be at least 24 hours old to create topics.',
+          'Your account needs to be at least 24 hours old and have reached level 4 experience to create topics.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
@@ -184,7 +184,7 @@ class _FriendsPageState extends State<FriendsPage> {
                 ? 'Start a topic'
                 : (userCache.user?.withAlert == true
                     ? 'Account restricted'
-                    : (userCache.user?.isNewcomer == true
+                    : (userCache.user?.isTrainee == true
                         ? 'Account too new'
                         : 'Need followers')),
         child: const Icon(Icons.campaign),

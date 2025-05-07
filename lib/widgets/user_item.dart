@@ -403,7 +403,14 @@ class _UserItemState extends State<UserItem> {
     }
 
     return IconButton(
-      icon: const Icon(Icons.waving_hand_outlined),
+      icon:
+          _isProcessing
+              ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+              : const Icon(Icons.waving_hand_outlined),
       onPressed: _handleTap,
       tooltip: 'Say hi',
     );

@@ -111,8 +111,8 @@ class _UserItemState extends State<UserItem> {
 
     if (self.withWarning) return false;
 
-    if (other.gender == 'F' && other.isNewcomer) {
-      if (self.isNewcomer || self.withAlert) {
+    if (other.gender == 'F' && other.isTrainee) {
+      if (self.isTrainee || self.withAlert) {
         return false;
       }
     }
@@ -153,11 +153,11 @@ class _UserItemState extends State<UserItem> {
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (self.isNewcomer) {
+    } else if (self.isTrainee) {
       title = 'Female Protection';
       content = [
         Text(
-          'Your account needs to be at least 24 hours old to chat with new female users. Sorry about the inconvenience.',
+          'Your account needs to be at least 24 hours old and have reached level 4 experience to chat with new female users. Sorry about the inconvenience.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
@@ -236,7 +236,12 @@ class _UserItemState extends State<UserItem> {
     }
   }
 
-  void _handleGreet() async {
+  Future<void> _handleTap() async {
+    if (widget.hasKnown) {
+      await _enterChat();
+      return;
+    }
+
     if (!_canChatWithUser()) {
       await _showRestrictionDialog();
       return;
@@ -245,17 +250,10 @@ class _UserItemState extends State<UserItem> {
     final self = userCache.user!;
     if (self.withAlert) {
       await _showAlertDialog();
-    } else {
-      await _greetUser();
+      return;
     }
-  }
 
-  void _handleTap() {
-    if (widget.hasKnown) {
-      _enterChat();
-    } else {
-      _handleGreet();
-    }
+    await _greetUser();
   }
 
   void _showUserInfo(BuildContext context) {
@@ -296,100 +294,93 @@ class _UserItemState extends State<UserItem> {
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
       color: cardColor,
-      child: GestureDetector(
-        onTap: _handleTap,
-        child: ListTile(
-          contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
-          leading: GestureDetector(
-            onTap: () => _showUserInfo(context),
-            child: Text(
-              widget.user.photoURL!,
-              style: TextStyle(fontSize: 36, color: textColor),
-            ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
+        leading: GestureDetector(
+          onTap: () => _showUserInfo(context),
+          child: Text(
+            widget.user.photoURL!,
+            style: TextStyle(fontSize: 36, color: textColor),
           ),
-          title: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (isFriend) ...[
-                Icon(
-                  Icons.grade,
-                  size: 16,
-                  color: customColors.friendIndicator,
+        ),
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (isFriend) ...[
+              Icon(Icons.grade, size: 16, color: customColors.friendIndicator),
+              const SizedBox(width: 4),
+            ],
+            Expanded(
+              child: Text(
+                widget.user.displayName!,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              formatText(widget.user.description),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(height: 1.2),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Tag(
+                  tooltip: '${getLongGenderName(widget.user.gender!)}',
+                  child: Text(
+                    widget.user.gender!,
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const SizedBox(width: 4),
-              ],
-              Expanded(
-                child: Text(
-                  widget.user.displayName!,
-                  overflow: TextOverflow.ellipsis,
+                Tag(
+                  tooltip: '${getLanguageName(widget.user.languageCode!)}',
+                  child: Text(
+                    widget.user.languageCode!,
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                formatText(widget.user.description),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(height: 1.2),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Tag(
-                    tooltip: '${getLongGenderName(widget.user.gender!)}',
-                    child: Text(
-                      widget.user.gender!,
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                const SizedBox(width: 4),
+                Tag(
+                  tooltip: 'Level ${widget.user.level}',
+                  child: Text(
+                    'L${widget.user.level}',
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ),
+                const SizedBox(width: 4),
+                Tag(
+                  tooltip: 'Last seen',
+                  child: Text(
+                    timeago.format(updatedAt, locale: 'en_short', clock: now),
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (userStatus == 'warning') ...[
                   const SizedBox(width: 4),
-                  Tag(
-                    tooltip: '${getLanguageName(widget.user.languageCode!)}',
-                    child: Text(
-                      widget.user.languageCode!,
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  Tag(status: 'warning'),
+                ] else if (userStatus == 'alert') ...[
                   const SizedBox(width: 4),
-                  Tag(
-                    tooltip: 'Level ${widget.user.level}',
-                    child: Text(
-                      'L${widget.user.level}',
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  Tag(status: 'alert'),
+                ] else if (userStatus == 'newcomer') ...[
                   const SizedBox(width: 4),
-                  Tag(
-                    tooltip: 'Last seen',
-                    child: Text(
-                      timeago.format(updatedAt, locale: 'en_short', clock: now),
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (userStatus == 'warning') ...[
-                    const SizedBox(width: 4),
-                    Tag(status: 'warning'),
-                  ] else if (userStatus == 'alert') ...[
-                    const SizedBox(width: 4),
-                    Tag(status: 'alert'),
-                  ] else if (userStatus == 'newcomer') ...[
-                    const SizedBox(width: 4),
-                    Tag(status: 'newcomer'),
-                  ],
+                  Tag(status: 'newcomer'),
                 ],
-              ),
-            ],
-          ),
-          trailing: _buildIconButton(),
+              ],
+            ),
+          ],
         ),
+        trailing: _buildIconButton(),
       ),
     );
   }
@@ -398,22 +389,22 @@ class _UserItemState extends State<UserItem> {
     if (widget.hasKnown) {
       return IconButton(
         icon: const Icon(Icons.people_alt_outlined),
-        onPressed: _enterChat,
+        onPressed: _handleTap,
         tooltip: 'Enter chat',
       );
     }
 
     if (!_canChatWithUser()) {
       return IconButton(
-        icon: const Icon(Icons.waving_hand_outlined),
-        onPressed: null,
+        icon: const Icon(Icons.block_outlined),
+        onPressed: _handleTap,
         tooltip: 'Restricted',
       );
     }
 
     return IconButton(
       icon: const Icon(Icons.waving_hand_outlined),
-      onPressed: _handleGreet,
+      onPressed: _handleTap,
       tooltip: 'Say hi',
     );
   }

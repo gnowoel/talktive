@@ -11,6 +11,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
+import '../services/user_cache.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
@@ -34,6 +35,7 @@ class TopicItem extends StatefulWidget {
 class _TopicItemState extends State<TopicItem> {
   late Fireauth fireauth;
   late Firestore firestore;
+  late UserCache userCache;
   late FollowCache followCache;
   late bool byMe;
   late bool isFriend;
@@ -44,6 +46,7 @@ class _TopicItemState extends State<TopicItem> {
     super.initState();
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
+    userCache = context.read<UserCache>();
     byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
   }
 
@@ -83,9 +86,165 @@ class _TopicItemState extends State<TopicItem> {
     }
   }
 
-  void _enterTopic() {
+  bool _canJoinTopic() {
+    final self = userCache.user;
+    if (self == null) return false;
+
+    if (self.withWarning) return false;
+
+    return true;
+  }
+
+  Future<void> _handleTap() async {
+    final self = userCache.user;
+    if (self == null) return;
+
+    if (widget.hasJoined) {
+      await _enterTopic();
+      return;
+    }
+
+    if (!_canJoinTopic()) {
+      await _showRestrictionDialog();
+      return;
+    }
+
+    if (self.withAlert) {
+      await _showAlertDialog();
+      return;
+    }
+
+    if (self.isTrainee) {
+      await _showTraineeDialog();
+      return;
+    }
+
+    await _joinTopic();
+  }
+
+  Future<void> _enterTopic() async {
     context.go('/chats');
     context.push(encodeTopicRoute(widget.topic.id));
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    await showDialog<void>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Account Restricted'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
+                  style: TextStyle(height: 1.5, color: colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'You cannot join a topic until this restriction expires.',
+                  style: TextStyle(height: 1.5),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _showAlertDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Warning'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your account has been reported for inappropriate messages.',
+                  style: TextStyle(height: 1.5, color: colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Please be respectful when chatting with other users.',
+                  style: const TextStyle(height: 1.5),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Further reports may result in more severe restrictions.',
+                  style: TextStyle(height: 1.5),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('I Understand'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      await _joinTopic();
+    }
+  }
+
+  Future<void> _showTraineeDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Notice'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your account needs to be at least 24 hours old and have reached level 4 experience to chat in a topic.',
+                  style: TextStyle(height: 1.5, color: colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'For now you can only view the conversation.',
+                  style: const TextStyle(height: 1.5),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('I Understand'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      await _joinTopic();
+    }
   }
 
   void _showCreatorInfo(BuildContext context) {
@@ -205,8 +364,16 @@ class _TopicItemState extends State<TopicItem> {
     if (widget.hasJoined) {
       return IconButton(
         icon: const Icon(Icons.keyboard_double_arrow_right),
-        onPressed: () => _enterTopic(),
+        onPressed: _handleTap,
         tooltip: 'Enter topic',
+      );
+    }
+
+    if (!_canJoinTopic()) {
+      return IconButton(
+        icon: const Icon(Icons.block_outlined),
+        onPressed: _handleTap,
+        tooltip: 'Restricted',
       );
     }
 
@@ -219,7 +386,7 @@ class _TopicItemState extends State<TopicItem> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
               : const Icon(Icons.keyboard_arrow_right),
-      onPressed: _isProcessing ? null : () => _joinTopic(),
+      onPressed: _isProcessing ? null : _handleTap,
       tooltip: 'Join topic',
     );
   }

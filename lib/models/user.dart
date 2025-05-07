@@ -82,7 +82,7 @@ class User {
     return revivedAt! >= serverNow + twoWeeks;
   }
 
-  bool get isNewcomer {
+  bool get _isNewcomer {
     final serverNow = ServerClock().now;
     final oneDay = 1 * 24 * 60 * 60 * 1000;
     return serverNow - createdAt < oneDay;
@@ -93,7 +93,7 @@ class User {
   }
 
   bool get isTrainee {
-    return isNewcomer || _isNovice;
+    return _isNewcomer || _isNovice;
   }
 
   String get status {

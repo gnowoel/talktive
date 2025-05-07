@@ -573,6 +573,24 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> joinTopic(String userId, String topicId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('joinTopic');
+
+      final result = await callable.call({
+        'userId': userId,
+        'topicId': topicId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to join topic');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

@@ -3,10 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../helpers/exception.dart';
 import '../helpers/routes.dart';
 import '../helpers/text.dart';
 import '../models/public_topic.dart';
 import '../services/fireauth.dart';
+import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
@@ -31,14 +33,17 @@ class TopicItem extends StatefulWidget {
 
 class _TopicItemState extends State<TopicItem> {
   late Fireauth fireauth;
+  late Firestore firestore;
   late FollowCache followCache;
   late bool byMe;
   late bool isFriend;
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
+    firestore = context.read<Firestore>();
     byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
   }
 
@@ -49,7 +54,36 @@ class _TopicItemState extends State<TopicItem> {
     isFriend = followCache.isFollowing(widget.topic.creator.id);
   }
 
-  void _joinTopic(BuildContext context) {
+  Future<void> _joinTopic() async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      final topicId = widget.topic.id;
+
+      await firestore.joinTopic(userId, topicId);
+
+      if (mounted) {
+        context.go('/chats');
+        context.push(encodeTopicRoute(topicId));
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
+  }
+
+  void _enterTopic() {
     context.go('/chats');
     context.push(encodeTopicRoute(widget.topic.id));
   }
@@ -171,14 +205,21 @@ class _TopicItemState extends State<TopicItem> {
     if (widget.hasJoined) {
       return IconButton(
         icon: const Icon(Icons.keyboard_double_arrow_right),
-        onPressed: () => _joinTopic(context), // TODO: _enterTopic()
-        tooltip: 'Join topic',
+        onPressed: () => _enterTopic(),
+        tooltip: 'Enter topic',
       );
     }
 
     return IconButton(
-      icon: const Icon(Icons.keyboard_arrow_right),
-      onPressed: () => _joinTopic(context),
+      icon:
+          _isProcessing
+              ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+              : const Icon(Icons.keyboard_arrow_right),
+      onPressed: _isProcessing ? null : () => _joinTopic(),
       tooltip: 'Join topic',
     );
   }

@@ -13,4 +13,5 @@ export { initiateConversation } from './initiateConversation';
 export { follow, unfollow } from './follow';
 export { createTopic } from './createTopic';
 export { joinTopic } from './joinTopic';
+export { muteTopic } from './muteTopic';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
 import '../services/topic_message_cache.dart';
-import 'info.dart';
 import 'topic_text_message_item.dart';
 import 'topic_image_message_item.dart';
 

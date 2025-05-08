@@ -524,26 +524,34 @@ class Firestore {
     }
   }
 
-  Stream<List<TopicMessage>> subscribeToTopicMessages(String topicId) {
+  Stream<List<TopicMessage>> subscribeToTopicMessages(
+    String topicId,
+    int? lastTimestamp,
+  ) {
     try {
-      return instance
+      var query = instance
           .collection('topics')
           .doc(topicId)
           .collection('messages')
-          .orderBy('createdAt')
-          .snapshots()
-          .map((snapshot) {
-            return snapshot.docs.map((doc) {
-              final data = doc.data();
-              final type = data['type'] as String;
+          .orderBy('createdAt');
 
-              if (type == 'image') {
-                return TopicImageMessage.fromJson({'id': doc.id, ...data});
-              }
+      if (lastTimestamp != null) {
+        final timestamp = Timestamp.fromMillisecondsSinceEpoch(lastTimestamp);
+        query = query.where('createdAt', isGreaterThan: timestamp);
+      }
 
-              return TopicTextMessage.fromJson({'id': doc.id, ...data});
-            }).toList();
-          });
+      return query.snapshots().map((snapshot) {
+        return snapshot.docs.map((doc) {
+          final data = doc.data();
+          final type = data['type'] as String;
+
+          if (type == 'image') {
+            return TopicImageMessage.fromJson({'id': doc.id, ...data});
+          }
+
+          return TopicTextMessage.fromJson({'id': doc.id, ...data});
+        }).toList();
+      });
     } catch (e) {
       throw AppException(e.toString());
     }

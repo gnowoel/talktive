@@ -30,8 +30,6 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   late ThemeData theme;
-  late FocusNode focusNode;
-  late ScrollController scrollController;
   late Fireauth fireauth;
   late Firedata firedata;
   late UserCache userCache;
@@ -39,8 +37,10 @@ class _ChatPageState extends State<ChatPage> {
   late ChatMessageCache chatMessageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
-
   late PrivateChat _chat;
+
+  final _focusNode = FocusNode();
+  final _scrollController = ScrollController();
 
   int _messageCount = 0;
   bool _chatPopulated = false;
@@ -48,9 +48,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
-    focusNode = FocusNode();
-    scrollController = ScrollController();
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
@@ -122,8 +119,8 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     messagesSubscription.cancel();
     chatSubscription.cancel();
-    scrollController.dispose();
-    focusNode.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -329,13 +326,13 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: MessageList(
                     chat: _chat,
-                    focusNode: focusNode,
-                    scrollController: scrollController,
+                    focusNode: _focusNode,
+                    scrollController: _scrollController,
                     updateMessageCount: _updateMessageCount,
                   ),
                 ),
                 Input(
-                  focusNode: focusNode,
+                  focusNode: _focusNode,
                   chat: _chat,
                   chatPopulated: _chatPopulated,
                 ),

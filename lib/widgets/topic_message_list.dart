@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
-import '../services/firestore.dart';
+import '../services/topic_message_cache.dart';
 import 'info.dart';
 import 'topic_text_message_item.dart';
 import 'topic_image_message_item.dart';
@@ -26,7 +26,7 @@ class TopicMessageList extends StatefulWidget {
 }
 
 class _TopicMessageListState extends State<TopicMessageList> {
-  late Firestore firestore;
+  late TopicMessageCache topicMessageCache;
   List<TopicMessage> _messages = [];
   bool _isSticky = true;
   ScrollNotification? _lastNotification;
@@ -35,7 +35,13 @@ class _TopicMessageListState extends State<TopicMessageList> {
   void initState() {
     super.initState();
     widget.focusNode.addListener(_handleInputFocus);
-    firestore = context.read<Firestore>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    topicMessageCache = Provider.of<TopicMessageCache>(context);
+    _messages = topicMessageCache.getMessages(widget.topicId);
   }
 
   @override
@@ -93,52 +99,34 @@ class _TopicMessageListState extends State<TopicMessageList> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<TopicMessage>>(
-      stream: firestore.subscribeToTopicMessages(widget.topicId),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          throw snapshot.error!;
-          // return Center(child: Text('Error: ${snapshot.error}'));
-        }
+    if (_messages.isEmpty) {
+      return const Center(child: CircularProgressIndicator(strokeWidth: 3));
+    }
 
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: _handleScrollMetricsNotification,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child: ListView.builder(
+          controller: widget.scrollController,
+          itemCount: _messages.length,
+          itemBuilder: (context, index) {
+            final message = _messages[index];
 
-        _messages = snapshot.data!;
+            if (message is TopicImageMessage) {
+              return TopicImageMessageItem(
+                key: ValueKey(message.id),
+                message: message,
+              );
+            }
 
-        if (_messages.isEmpty) {
-          return const Center(
-            child: Info(lines: ['Be the first to', 'start the discussion!']),
-          );
-        }
-
-        return NotificationListener<ScrollMetricsNotification>(
-          onNotification: _handleScrollMetricsNotification,
-          child: NotificationListener<ScrollNotification>(
-            onNotification: _handleScrollNotification,
-            child: ListView.builder(
-              controller: widget.scrollController,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-
-                if (message is TopicImageMessage) {
-                  return TopicImageMessageItem(
-                    key: ValueKey(message.id),
-                    message: message,
-                  );
-                }
-
-                return TopicTextMessageItem(
-                  key: ValueKey(message.id),
-                  message: message as TopicTextMessage,
-                );
-              },
-            ),
-          ),
-        );
-      },
+            return TopicTextMessageItem(
+              key: ValueKey(message.id),
+              message: message as TopicTextMessage,
+            );
+          },
+        ),
+      ),
     );
   }
 }

@@ -12,6 +12,7 @@ import '../services/message_cache.dart';
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
+import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
 
 class Subscribe extends StatefulWidget {
@@ -36,6 +37,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
   late ChatCache chatCache;
   late ChatMessageCache chatMessageCache;
   late TopicCache topicCache;
+  late TopicMessageCache topicMessageCache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
@@ -87,6 +89,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
     chatCache = context.read<ChatCache>();
     chatMessageCache = context.read<ChatMessageCache>();
     topicCache = context.read<TopicCache>();
+    topicMessageCache = context.read<TopicMessageCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -115,6 +118,8 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
 
       firestore.subscribeToTopics(userId).listen((topics) {
         topicCache.updateTopics(topics);
+        // Clean up message cache for inactive topics
+        topicMessageCache.cleanup(topicCache.activeTopicIds);
       }),
 
       messaging.subscribeToFcmToken().listen((token) async {

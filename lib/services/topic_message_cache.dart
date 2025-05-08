@@ -1,13 +1,16 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/private_chat.dart';
-import '../models/message.dart';
+import '../models/topic_message.dart';
 
-class MessageCache extends ChangeNotifier {
-  final Map<String, List<Message>> _cache = {};
+class TopicMessageCache extends ChangeNotifier {
+  TopicMessageCache._();
+  static final TopicMessageCache _instance = TopicMessageCache._();
+  factory TopicMessageCache() => _instance;
+
+  final Map<String, List<TopicMessage>> _cache = {};
   final Map<String, int> _lastTimestamps = {};
 
-  void addMessages(String chatId, List<Message> messages) {
+  void addMessages(String chatId, List<TopicMessage> messages) {
     if (messages.isEmpty) return;
 
     _cache[chatId] ??= [];
@@ -24,23 +27,14 @@ class MessageCache extends ChangeNotifier {
     }
 
     existingMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    _lastTimestamps[chatId] = existingMessages.last.createdAt;
+    _lastTimestamps[chatId] =
+        existingMessages.last.createdAt.millisecondsSinceEpoch;
 
     notifyListeners();
   }
 
-  List<Message> getMessages(PrivateChat chat) {
-    final chatId = chat.id;
-    final messages = _cache[chatId] ?? <Message>[];
-
-    // Filter out messages that are older than the chat, which may come from the
-    // Firebase offline cache.
-    final filteredMessages =
-        messages
-            .where((message) => message.createdAt >= chat.createdAt)
-            .toList();
-
-    return List.unmodifiable(filteredMessages);
+  List<TopicMessage> getMessages(String topicId) {
+    return List.unmodifiable(_cache[topicId] ?? []);
   }
 
   int? getLastTimestamp(String chatId) {
@@ -61,16 +55,4 @@ class MessageCache extends ChangeNotifier {
     }
     notifyListeners();
   }
-}
-
-class ChatMessageCache extends MessageCache {
-  ChatMessageCache._();
-  static final ChatMessageCache _instance = ChatMessageCache._();
-  factory ChatMessageCache() => _instance;
-}
-
-class ReportMessageCache extends MessageCache {
-  ReportMessageCache._();
-  static final ReportMessageCache _instance = ReportMessageCache._();
-  factory ReportMessageCache() => _instance;
 }

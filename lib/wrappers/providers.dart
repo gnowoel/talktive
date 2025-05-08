@@ -13,6 +13,7 @@ import '../services/server_clock.dart';
 import '../services/settings.dart';
 import '../services/storage.dart';
 import '../services/topic_cache.dart';
+import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
 
 class Providers extends StatelessWidget {
@@ -41,6 +42,7 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ChatMessageCache()),
         ChangeNotifierProvider(create: (context) => ReportMessageCache()),
         ChangeNotifierProvider(create: (context) => TopicCache()),
+        ChangeNotifierProvider(create: (context) => TopicMessageCache()),
       ],
       child: child,
     );

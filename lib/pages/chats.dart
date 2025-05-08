@@ -84,12 +84,12 @@ class _ChatsPageState extends State<ChatsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Chats expire over time and all messages are permanently deleted to protect your privacy.',
+                  'Chats expire over time and are permanently deleted to protect your privacy.',
                   style: TextStyle(height: 1.5),
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'SWIPE left on any chat to mute it if you no longer wish to participate.',
+                  'SWIPE LEFT on any chat to leave it if you no longer wish to participate.',
                   style: TextStyle(height: 1.5),
                 ),
               ],
@@ -114,7 +114,7 @@ class _ChatsPageState extends State<ChatsPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Private Chats'),
+        title: const Text('My Chats'),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),

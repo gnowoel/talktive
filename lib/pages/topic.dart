@@ -8,8 +8,8 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
+import '../widgets/topic_input.dart';
 import '../widgets/topic_message_list.dart';
-import '../widgets/message_input.dart';
 
 class TopicPage extends StatefulWidget {
   final String topicId;
@@ -108,7 +108,7 @@ class _TopicPageState extends State<TopicPage> {
               updateMessageCount: _updateMessageCount,
             ),
           ),
-          MessageInput(
+          TopicInput(
             focusNode: _focusNode,
             onSendMessage: _sendMessage,
             // TODO: Implement image sending

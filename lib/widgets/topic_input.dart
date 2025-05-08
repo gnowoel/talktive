@@ -5,12 +5,12 @@ import 'package:provider/provider.dart';
 
 import '../services/storage.dart';
 
-class MessageInput extends StatefulWidget {
+class TopicInput extends StatefulWidget {
   final FocusNode focusNode;
   final Future<void> Function(String) onSendMessage;
   final Future<void> Function(String)? onSendImage;
 
-  const MessageInput({
+  const TopicInput({
     super.key,
     required this.focusNode,
     required this.onSendMessage,
@@ -18,10 +18,10 @@ class MessageInput extends StatefulWidget {
   });
 
   @override
-  State<MessageInput> createState() => _MessageInputState();
+  State<TopicInput> createState() => _TopicInputState();
 }
 
-class _MessageInputState extends State<MessageInput> {
+class _TopicInputState extends State<TopicInput> {
   late Storage storage;
   final _controller = TextEditingController();
   bool _isUploading = false;

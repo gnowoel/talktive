@@ -251,9 +251,7 @@ class _InputState extends State<Input> {
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerLow,
               borderRadius: const BorderRadius.all(Radius.circular(32)),
-              border: Border.all(
-                color: theme.colorScheme.surfaceContainerHighest,
-              ),
+              border: Border.all(color: theme.colorScheme.tertiaryContainer),
             ),
             child: Row(
               children: [
@@ -268,7 +266,7 @@ class _InputState extends State<Input> {
                           )
                           : Icon(
                             Icons.attach_file,
-                            color: theme.colorScheme.primary,
+                            color: theme.colorScheme.tertiary,
                           ),
                   tooltip: _enabled ? 'Send picture' : 'Chat closed',
                 ),
@@ -294,7 +292,7 @@ class _InputState extends State<Input> {
                 ),
                 IconButton(
                   onPressed: _enabled ? () => _sendTextMessage(user) : null,
-                  icon: Icon(Icons.send, color: theme.colorScheme.primary),
+                  icon: Icon(Icons.send, color: theme.colorScheme.tertiary),
                   tooltip: _enabled ? 'Send message' : 'Chat closed',
                 ),
               ],

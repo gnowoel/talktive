@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../helpers/time.dart';
 import '../models/chat.dart';
 import '../services/chat_cache.dart';
-import '../services/message_cache.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../widgets/chat_list.dart';
@@ -24,7 +23,6 @@ class ChatsPage extends StatefulWidget {
 class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late ChatCache chatCache;
-  late ChatMessageCache chatMessageCache;
   late TopicCache topicCache;
   List<Chat> _items = []; // Stores both chats and topics
   Timer? _timer;
@@ -33,7 +31,6 @@ class _ChatsPageState extends State<ChatsPage> {
   initState() {
     super.initState();
     settings = context.read<Settings>();
-    chatMessageCache = context.read<ChatMessageCache>();
   }
 
   @override

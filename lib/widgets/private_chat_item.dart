@@ -85,7 +85,7 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
                 widget.onRestore(widget.chat);
               },
             ),
-            duration: const Duration(seconds: 5),
+            duration: const Duration(seconds: 3),
           ),
         )
         .closed

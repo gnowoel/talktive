@@ -6,7 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/public_topic.dart';
 import '../services/fireauth.dart';
-import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
@@ -31,7 +31,7 @@ class PublicTopicItem extends StatefulWidget {
 
 class _PublicTopicItemState extends State<PublicTopicItem> {
   late Fireauth fireauth;
-  late Firedata firedata;
+  late Firestore firestore;
   late FollowCache followCache;
   late bool byMe;
   late bool isFriend;
@@ -40,7 +40,7 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
-    firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
   }
 
@@ -53,11 +53,10 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
 
   Future<void> _muteTopic() async {
     _doAction(() async {
-      // TODO: Implement ``Firestore.muteTopic()`
-      // await firedata.muteChat(
-      //   fireauth.instance.currentUser!.uid,
-      //   widget.chat.id,
-      // );
+      await firestore.muteTopic(
+        fireauth.instance.currentUser!.uid,
+        widget.topic.id,
+      );
     });
   }
 
@@ -78,7 +77,7 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
                 widget.onRestore(widget.topic);
               },
             ),
-            duration: const Duration(seconds: 5),
+            duration: const Duration(seconds: 3),
           ),
         )
         .closed

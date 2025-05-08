@@ -158,8 +158,8 @@ class _MessageInputState extends State<MessageInput> {
             ),
             IconButton(
               onPressed: _sendTextMessage,
-              icon: Icon(Icons.send, color: theme.colorScheme.primary),
-              tooltip: 'Send message',
+              icon: Icon(Icons.share, color: theme.colorScheme.primary),
+              tooltip: 'Share publicly',
             ),
           ],
         ),

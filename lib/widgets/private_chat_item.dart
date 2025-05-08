@@ -167,7 +167,8 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
         elevation: 0,
         margin: const EdgeInsets.only(bottom: 12),
         color: cardColor,
-        child: GestureDetector(
+        clipBehavior: Clip.hardEdge,
+        child: InkWell(
           onTap: _enterChat,
           child: ListTile(
             contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),

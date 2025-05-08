@@ -599,6 +599,24 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> muteTopic(String userId, String topicId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('muteTopic');
+
+      final result = await callable.call({
+        'userId': userId,
+        'topicId': topicId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to mute topic');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

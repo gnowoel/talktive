@@ -26,7 +26,7 @@ class TopicList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
       itemCount: topics.length,
       itemBuilder: (context, index) {
         final topic = topics[index];

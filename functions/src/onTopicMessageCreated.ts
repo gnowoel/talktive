@@ -62,7 +62,7 @@ export const onTopicMessageCreated = onDocumentCreated(
         return;
       }
 
-      const topic = topicDoc.data()!;
+      const topic = topicDoc.data();
 
       // Get all followers
       const followersSnapshot = await topicRef
@@ -71,7 +71,7 @@ export const onTopicMessageCreated = onDocumentCreated(
         .get();
 
       // A list of promises for sending notifications
-      const notificationPromises: Promise<any>[] = [];
+      const notificationPromises = [];
 
       // Update each follower's personal topic copy
       followersSnapshot.docs.forEach((doc) => {
@@ -98,7 +98,7 @@ export const onTopicMessageCreated = onDocumentCreated(
             sendPushNotification(
               followerId,
               topicId,
-              topic.title,
+              topic?.title ?? '',
               message,
               // messageId
             )

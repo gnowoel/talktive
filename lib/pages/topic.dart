@@ -108,6 +108,7 @@ class _TopicPageState extends State<TopicPage> {
           Expanded(
             child: TopicMessageList(
               topicId: widget.topicId,
+              topicCreatorId: widget.topicCreatorId,
               focusNode: _focusNode,
               scrollController: _scrollController,
               updateMessageCount: _updateMessageCount,

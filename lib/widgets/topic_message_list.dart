@@ -8,6 +8,7 @@ import 'topic_image_message_item.dart';
 
 class TopicMessageList extends StatefulWidget {
   final String topicId;
+  final String topicCreatorId;
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
@@ -15,6 +16,7 @@ class TopicMessageList extends StatefulWidget {
   const TopicMessageList({
     super.key,
     required this.topicId,
+    required this.topicCreatorId,
     required this.focusNode,
     required this.scrollController,
     required this.updateMessageCount,
@@ -121,6 +123,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
 
             return TopicTextMessageItem(
               key: ValueKey(message.id),
+              topicCreatorId: widget.topicCreatorId,
               message: message as TopicTextMessage,
             );
           },

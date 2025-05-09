@@ -42,7 +42,13 @@ class _TopicMessageListState extends State<TopicMessageList> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     topicMessageCache = Provider.of<TopicMessageCache>(context);
-    _messages = topicMessageCache.getMessages(widget.topicId);
+    final messages = topicMessageCache.getMessages(widget.topicId);
+
+    if (messages.length != _messages.length) {
+      widget.updateMessageCount(messages.length);
+    }
+
+    _messages = messages;
   }
 
   @override

@@ -612,6 +612,27 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> updateTopicReadMessageCount(
+    String userId,
+    String topicId, {
+    required int readMessageCount,
+  }) async {
+    try {
+      final ref = instance
+          .collection('users')
+          .doc(userId)
+          .collection('topics')
+          .doc(topicId);
+
+      await ref.set({
+        'readMessageCount': readMessageCount,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

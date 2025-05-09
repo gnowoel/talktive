@@ -44,11 +44,16 @@ class PublicTopic extends Chat {
       value: UserStub.fromJson(creatorMap),
     );
 
+    final timestamp = json['updatedAt'];
+    final updatedAt = timestamp is Timestamp
+        ? timestamp.millisecondsSinceEpoch
+        : ServerClock().now; // Fallback to local timestamp if null
+
     return PublicTopic(
       id: id,
       title: json['title'] as String,
       createdAt: (json['createdAt'] as Timestamp).millisecondsSinceEpoch,
-      updatedAt: (json['updatedAt'] as Timestamp).millisecondsSinceEpoch,
+      updatedAt: updatedAt,
       creator: creator,
       messageCount: json['messageCount'] as int,
       readMessageCount: json['readMessageCount'] as int?,

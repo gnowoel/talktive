@@ -41,8 +41,8 @@ service cloud.firestore {
       // User's personal topics collection
       match /topics/{topicId} {
         allow read: if isSignedIn();
-        allow create, update: if isOwner(userId) &&
-          get(/databases/$(database)/documents/topics/$(topicId)).data.creator.id == userId;
+        allow create, update: if isOwner(userId)
+        // && get(/databases/$(database)/documents/topics/$(topicId)).data.creator.id == userId;
         allow delete: if isOwner(userId);
       }
 

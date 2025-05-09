@@ -9,9 +9,14 @@ import 'bubble.dart';
 import 'user_info_loader.dart';
 
 class TopicTextMessageItem extends StatefulWidget {
+  final String topicCreatorId;
   final TopicTextMessage message;
 
-  const TopicTextMessageItem({super.key, required this.message});
+  const TopicTextMessageItem({
+    super.key,
+    required this.topicCreatorId,
+    required this.message,
+  });
 
   @override
   State<TopicTextMessageItem> createState() => _TopicTextMessageItemState();
@@ -142,7 +147,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     // TODO: Implement recall message
   }
 
-  Widget _buildMessageBox({required String content, bool byMe = false}) {
+  Widget _buildMessageBox({
+    required String content,
+    bool byMe = false,
+    bool byOp = false,
+  }) {
     if (widget.message.recalled!) {
       return Bubble(
         content: '- Message recalled -',
@@ -154,7 +163,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     return GestureDetector(
       onLongPressStart:
           (details) => _showContextMenu(context, details.globalPosition),
-      child: Bubble(content: content, byMe: byMe),
+      child: Bubble(content: content, byMe: byMe, byOp: byOp),
     );
   }
 
@@ -169,6 +178,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   }
 
   Widget _buildMessageItemLeft(BuildContext context) {
+    final byOp = widget.message.userId == widget.topicCreatorId;
+
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -190,7 +201,10 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Flexible(
-                  child: _buildMessageBox(content: widget.message.content),
+                  child: _buildMessageBox(
+                    content: widget.message.content,
+                    byOp: byOp,
+                  ),
                 ),
               ],
             ),

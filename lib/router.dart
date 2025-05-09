@@ -113,8 +113,14 @@ Future<GoRouter> initRouter() async {
         path: '/launch/topic/:id',
         builder: (context, state) {
           final topicId = state.pathParameters['id']!;
+          final encodedTopicCreatorId =
+              state.uri.queryParameters['topicCreatorId'] ?? '';
+          final topicCreatorId = Uri.decodeComponent(encodedTopicCreatorId);
 
-          return LaunchTopicPage(topicId: topicId);
+          return LaunchTopicPage(
+            topicId: topicId,
+            topicCreatorId: topicCreatorId,
+          );
         },
       ),
       GoRoute(
@@ -198,7 +204,11 @@ Future<GoRouter> initRouter() async {
         path: '/topics/:id',
         builder: (context, state) {
           final topicId = state.pathParameters['id']!;
-          return TopicPage(topicId: topicId);
+          final encodedTopicCreatorId =
+              state.uri.queryParameters['topicCreatorId'] ?? '';
+          final topicCreatorId = Uri.decodeComponent(encodedTopicCreatorId);
+
+          return TopicPage(topicId: topicId, topicCreatorId: topicCreatorId);
         },
       ),
     ],

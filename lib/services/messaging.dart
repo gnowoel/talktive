@@ -168,11 +168,12 @@ class Messaging {
       ).push(encodeChatRoute(chatId, chatCreatedAt));
     } else {
       final topicId = data['topicId'] as String;
+      final topicCreatorId = data['topicCreatorId'] as String;
 
       GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
       GoRouter.of(
         rootNavigatorKey.currentContext!,
-      ).push(encodeTopicRoute(topicId));
+      ).push(encodeTopicRoute(topicId, topicCreatorId));
     }
   }
 
@@ -190,11 +191,12 @@ class Messaging {
         ).push(encodeChatRoute(chatId, chatCreatedAt));
       } else {
         final topicId = data['topicId'] as String;
+        final topicCreatorId = data['topicCreatorId'] as String;
 
         GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
         GoRouter.of(
           rootNavigatorKey.currentContext!,
-        ).push(encodeTopicRoute(topicId));
+        ).push(encodeTopicRoute(topicId, topicCreatorId));
       }
     }
   }
@@ -218,8 +220,9 @@ class Messaging {
           return encodeChatLaunchRoute(chatId, chatCreatedAt);
         } else {
           final topicId = data['topicId'] as String;
+          final topicCreatorId = data['topicCreatorId'] as String;
 
-          return encodeTopicLaunchRoute(topicId);
+          return encodeTopicLaunchRoute(topicId, topicCreatorId);
         }
       } catch (e) {
         debugPrint('Error parsing notification payload: $e');

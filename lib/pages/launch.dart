@@ -42,8 +42,13 @@ class _LaunchChatPageState extends State<LaunchChatPage> {
 
 class LaunchTopicPage extends StatefulWidget {
   final String topicId;
+  final String topicCreatorId;
 
-  const LaunchTopicPage({super.key, required this.topicId});
+  const LaunchTopicPage({
+    super.key,
+    required this.topicId,
+    required this.topicCreatorId,
+  });
 
   @override
   State<LaunchTopicPage> createState() => _LaunchTopicPageState();
@@ -54,7 +59,10 @@ class _LaunchTopicPageState extends State<LaunchTopicPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      final initialRoute = encodeTopicRoute(widget.topicId);
+      final initialRoute = encodeTopicRoute(
+        widget.topicId,
+        widget.topicCreatorId,
+      );
       context.go('/chats');
       context.push(initialRoute);
     });

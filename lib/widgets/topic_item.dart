@@ -65,12 +65,13 @@ class _TopicItemState extends State<TopicItem> {
     try {
       final userId = fireauth.instance.currentUser!.uid;
       final topicId = widget.topic.id;
+      final topicCreatorId = widget.topic.creator.id;
 
       await firestore.joinTopic(userId, topicId);
 
       if (mounted) {
         context.go('/chats');
-        context.push(encodeTopicRoute(topicId));
+        context.push(encodeTopicRoute(topicId, topicCreatorId));
       }
     } catch (e) {
       if (mounted) {
@@ -124,7 +125,7 @@ class _TopicItemState extends State<TopicItem> {
 
   Future<void> _enterTopic() async {
     context.go('/chats');
-    context.push(encodeTopicRoute(widget.topic.id));
+    context.push(encodeTopicRoute(widget.topic.id, widget.topic.creator.id));
   }
 
   Future<void> _showRestrictionDialog() async {

@@ -99,6 +99,7 @@ export const onTopicMessageCreated = onDocumentCreated(
               followerId,
               topicId,
               topic?.title ?? '',
+              topic?.creator?.id ?? '',
               message,
               // messageId
             )
@@ -137,6 +138,7 @@ async function sendPushNotification(
   userId: string,
   topicId: string,
   topicTitle: string,
+  topicCreatorId: string,
   message: TopicMessage,
   // messageId: string
 ): Promise<void> {
@@ -168,6 +170,7 @@ async function sendPushNotification(
         title,
         body,
         topicId,
+        topicCreatorId,
         // messageId,
         // senderId: message.userId,
         // senderName: message.userDisplayName,

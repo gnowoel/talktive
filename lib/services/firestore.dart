@@ -344,22 +344,17 @@ class Firestore {
       }
 
       final topicId = result['topicId'];
-      final topicCreatedAt = result['topicCreatedAt'];
 
-      return _createInitialDummyTopic(topicId, topicCreatedAt, user);
+      return _createInitialDummyTopic(topicId, user);
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  PublicTopic _createInitialDummyTopic(
-    String topicId,
-    String topicCreatedAt,
-    User user,
-  ) {
+  PublicTopic _createInitialDummyTopic(String topicId, User user) {
     return PublicTopic(
       id: topicId,
-      createdAt: int.tryParse(topicCreatedAt) ?? 0,
+      createdAt: 0,
       updatedAt: 0,
       title: '',
       creator: user,

@@ -149,7 +149,7 @@ export const createTopic = onCall(async (request) => {
     return {
       success: true,
       topicId,
-      topicCreatedAt: now.toMillis().toString(), // TODO: We don't actually need it for topics
+      // topicCreatorId: userId // The client already knew.
     };
   } catch (error) {
     logger.error('Error creating topic:', error);

@@ -95,7 +95,7 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
       final topic = widget.topic;
 
       context.go('/chats');
-      context.push(encodeTopicRoute(topic.id));
+      context.push(encodeTopicRoute(topic.id, topic.creator.id));
     });
   }
 

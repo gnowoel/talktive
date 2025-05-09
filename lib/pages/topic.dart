@@ -13,8 +13,13 @@ import '../widgets/topic_message_list.dart';
 
 class TopicPage extends StatefulWidget {
   final String topicId;
+  final String topicCreatorId;
 
-  const TopicPage({super.key, required this.topicId});
+  const TopicPage({
+    super.key,
+    required this.topicId,
+    required this.topicCreatorId,
+  });
 
   @override
   State<TopicPage> createState() => _TopicPageState();

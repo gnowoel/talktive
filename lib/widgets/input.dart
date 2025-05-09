@@ -283,6 +283,9 @@ class _InputState extends State<Input> {
                       minLines: 1,
                       maxLines: 12,
                       controller: _controller,
+                      style: TextStyle(
+                        color: theme.colorScheme.onTertiaryContainer,
+                      ),
                       decoration: InputDecoration.collapsed(
                         hintText: _enabled ? 'Chat privately' : 'Chat closed',
                         hintStyle: TextStyle(

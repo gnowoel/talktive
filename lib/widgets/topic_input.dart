@@ -150,7 +150,7 @@ class _TopicInputState extends State<TopicInput> {
                   maxLines: 12,
                   controller: _controller,
                   decoration: InputDecoration.collapsed(
-                    hintText: 'Enter message',
+                    hintText: 'Share publicly',
                     hintStyle: TextStyle(color: theme.colorScheme.outline),
                   ),
                 ),
@@ -158,7 +158,7 @@ class _TopicInputState extends State<TopicInput> {
             ),
             IconButton(
               onPressed: _sendTextMessage,
-              icon: Icon(Icons.share, color: theme.colorScheme.primary),
+              icon: Icon(Icons.send, color: theme.colorScheme.primary),
               tooltip: 'Share publicly',
             ),
           ],

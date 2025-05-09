@@ -37,6 +37,7 @@ class _TopicPageState extends State<TopicPage> {
   final _scrollController = ScrollController();
 
   PublicTopic? _topic;
+  int _messageCount = 0;
 
   @override
   void initState() {
@@ -96,31 +97,56 @@ class _TopicPageState extends State<TopicPage> {
   }
 
   void _updateMessageCount(int count) {
-    // TODO: Implement read message count tracking
+    _messageCount = count;
+  }
+
+  Future<void> _updateReadMessageCount() async {
+    final selfId = fireauth.instance.currentUser!.uid;
+    final count = _messageCount;
+
+    if (count == 0 || count == _topic?.readMessageCount) {
+      return;
+    }
+
+    await firestore.updateTopicReadMessageCount(
+      selfId,
+      widget.topicId,
+      readMessageCount: count,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(_topic?.title ?? '')),
-      body: Column(
-        children: [
-          Expanded(
-            child: TopicMessageList(
-              topicId: widget.topicId,
-              topicCreatorId: widget.topicCreatorId,
-              focusNode: _focusNode,
-              scrollController: _scrollController,
-              updateMessageCount: _updateMessageCount,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _updateReadMessageCount();
+        if (context.mounted) {
+          Navigator.pop(context, result);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text(_topic?.title ?? '')),
+        body: Column(
+          children: [
+            Expanded(
+              child: TopicMessageList(
+                topicId: widget.topicId,
+                topicCreatorId: widget.topicCreatorId,
+                focusNode: _focusNode,
+                scrollController: _scrollController,
+                updateMessageCount: _updateMessageCount,
+              ),
             ),
-          ),
-          TopicInput(
-            focusNode: _focusNode,
-            onSendMessage: _sendMessage,
-            // TODO: Implement image sending
-            // onSendImage: _sendImage,
-          ),
-        ],
+            TopicInput(
+              focusNode: _focusNode,
+              onSendMessage: _sendMessage,
+              // TODO: Implement image sending
+              // onSendImage: _sendImage,
+            ),
+          ],
+        ),
       ),
     );
   }

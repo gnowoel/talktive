@@ -619,16 +619,23 @@ class Firestore {
     required int readMessageCount,
   }) async {
     try {
-      final ref = instance
+      final userTopicRef = instance
           .collection('users')
           .doc(userId)
           .collection('topics')
           .doc(topicId);
 
-      await ref.set({
-        'readMessageCount': readMessageCount,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await instance.runTransaction((transaction) async {
+        final userTopicDoc = await transaction.get(userTopicRef);
+        if (!userTopicDoc.exists) {
+          return;
+        }
+
+        transaction.set(userTopicRef, {
+          'readMessageCount': readMessageCount,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      });
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -249,7 +249,7 @@ class _InputState extends State<Input> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow,
+              color: theme.colorScheme.tertiaryContainer,
               borderRadius: const BorderRadius.all(Radius.circular(32)),
               border: Border.all(color: theme.colorScheme.tertiaryContainer),
             ),
@@ -284,8 +284,10 @@ class _InputState extends State<Input> {
                       maxLines: 12,
                       controller: _controller,
                       decoration: InputDecoration.collapsed(
-                        hintText: _enabled ? 'Enter message' : 'Chat closed',
-                        hintStyle: TextStyle(color: theme.colorScheme.outline),
+                        hintText: _enabled ? 'Chat privately' : 'Chat closed',
+                        hintStyle: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ),
@@ -293,7 +295,7 @@ class _InputState extends State<Input> {
                 IconButton(
                   onPressed: _enabled ? () => _sendTextMessage(user) : null,
                   icon: Icon(Icons.send, color: theme.colorScheme.tertiary),
-                  tooltip: _enabled ? 'Send message' : 'Chat closed',
+                  tooltip: _enabled ? 'Chat privately' : 'Chat closed',
                 ),
               ],
             ),

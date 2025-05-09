@@ -71,7 +71,7 @@ class _FriendsPageState extends State<FriendsPage> {
       title = 'Account Too New';
       content = [
         Text(
-          'Your account needs to be at least 24 hours old and have reached level 4 experience to create topics.',
+          'Your account needs to be at least 24 hours old and reach level 4 to create topics.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),

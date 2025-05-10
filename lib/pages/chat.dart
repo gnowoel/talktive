@@ -154,8 +154,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _showReportMenu(BuildContext context) {
-    final theme = Theme.of(context);
-
     showMenu(
       context: context,
       position: RelativeRect.fromLTRB(1000, 0, 0, 0),
@@ -182,8 +180,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _showReportDialog() {
-    final theme = Theme.of(context);
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -217,8 +213,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _reportChat() async {
-    final theme = Theme.of(context);
-
     try {
       final selfId = fireauth.instance.currentUser!.uid;
       final partnerDisplayName = _chat.partner.displayName;

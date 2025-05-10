@@ -34,7 +34,6 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late FollowCache followCache;
-  late bool byMe;
   late User partner;
   late bool isFriend;
 
@@ -48,7 +47,6 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
     final selfId = fireauth.instance.currentUser!.uid;
     final otherId = chatId.replaceFirst(selfId, '');
 
-    byMe = widget.chat.firstUserId == selfId;
     partner = User.fromStub(key: otherId, value: widget.chat.partner);
   }
 
@@ -182,7 +180,7 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
             title: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (byMe || isFriend) ...[
+                if (isFriend) ...[
                   Icon(
                     Icons.grade,
                     size: 16,

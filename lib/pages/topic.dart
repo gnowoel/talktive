@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 import '../models/public_topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
+import '../services/follow_cache.dart';
 import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
+import '../theme.dart';
 import '../widgets/topic_input.dart';
 import '../widgets/topic_message_list.dart';
 
@@ -26,9 +28,11 @@ class TopicPage extends StatefulWidget {
 }
 
 class _TopicPageState extends State<TopicPage> {
+  late ThemeData theme;
   late Fireauth fireauth;
   late Firestore firestore;
   late UserCache userCache;
+  late FollowCache followCache;
   late TopicMessageCache topicMessageCache;
   late StreamSubscription topicSubscription;
   late StreamSubscription messagesSubscription;
@@ -45,7 +49,6 @@ class _TopicPageState extends State<TopicPage> {
 
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
-    userCache = context.read<UserCache>();
     topicMessageCache = context.read<TopicMessageCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
@@ -65,6 +68,14 @@ class _TopicPageState extends State<TopicPage> {
         .listen((messages) {
           topicMessageCache.addMessages(widget.topicId, messages);
         });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
+    userCache = Provider.of<UserCache>(context);
+    followCache = Provider.of<FollowCache>(context);
   }
 
   @override
@@ -117,6 +128,13 @@ class _TopicPageState extends State<TopicPage> {
 
   @override
   Widget build(BuildContext context) {
+    final customColors = theme.extension<CustomColors>()!;
+
+    final creator = _topic?.creator;
+    final displayName = creator?.displayName;
+    final isFriend = followCache.isFollowing(widget.topicCreatorId);
+    final byMe = widget.topicCreatorId == fireauth.instance.currentUser!.uid;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -127,7 +145,23 @@ class _TopicPageState extends State<TopicPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(_topic?.title ?? '')),
+        appBar: AppBar(
+          title: Row(
+            children: [
+              if ((byMe || isFriend) &&
+                  displayName != null &&
+                  displayName.isNotEmpty) ...[
+                Icon(
+                  Icons.grade,
+                  size: 20,
+                  color: customColors.friendIndicator,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Expanded(child: Text(_topic?.title ?? '')),
+            ],
+          ),
+        ),
         body: Column(
           children: [
             Expanded(

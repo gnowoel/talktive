@@ -12,6 +12,7 @@ import '../services/user_cache.dart';
 import '../theme.dart';
 import '../widgets/topic_input.dart';
 import '../widgets/topic_message_list.dart';
+import '../widgets/user_info_loader.dart';
 
 class TopicPage extends StatefulWidget {
   final String topicId;
@@ -126,6 +127,18 @@ class _TopicPageState extends State<TopicPage> {
     );
   }
 
+  void _showCreatorInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => UserInfoLoader(
+            userId: widget.topicCreatorId,
+            photoURL: _topic?.creator.photoURL ?? '',
+            displayName: _topic?.creator.displayName ?? '',
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final customColors = theme.extension<CustomColors>()!;
@@ -146,20 +159,23 @@ class _TopicPageState extends State<TopicPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Row(
-            children: [
-              if ((byMe || isFriend) &&
-                  displayName != null &&
-                  displayName.isNotEmpty) ...[
-                Icon(
-                  Icons.grade,
-                  size: 20,
-                  color: customColors.friendIndicator,
-                ),
-                const SizedBox(width: 5),
+          title: GestureDetector(
+            onTap: () => _showCreatorInfo(context),
+            child: Row(
+              children: [
+                if ((byMe || isFriend) &&
+                    displayName != null &&
+                    displayName.isNotEmpty) ...[
+                  Icon(
+                    Icons.grade,
+                    size: 20,
+                    color: customColors.friendIndicator,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+                Expanded(child: Text(_topic?.title ?? '')),
               ],
-              Expanded(child: Text(_topic?.title ?? '')),
-            ],
+            ),
           ),
         ),
         body: Column(

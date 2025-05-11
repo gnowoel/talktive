@@ -506,7 +506,7 @@ class Firestore {
           .snapshots()
           .map((doc) {
             if (!doc.exists) {
-              throw AppException('Topic not found');
+              return PublicTopic.dummy();
             }
             return PublicTopic.fromJson(
               doc.id,

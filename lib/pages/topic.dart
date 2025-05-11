@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/exception.dart';
 import '../models/public_topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
@@ -58,9 +59,24 @@ class _TopicPageState extends State<TopicPage> {
     topicSubscription = firestore
         .subscribeToTopic(userId, widget.topicId)
         .listen((topic) {
-          setState(() {
-            _topic = topic;
-          });
+          if (topic.isDummy) {
+            setState(() {
+              if (_topic == null) {
+                _topic = topic.copyWith(id: widget.topicId);
+              } else {
+                _topic = _topic!.copyWith(updatedAt: 0);
+              }
+            });
+            if (mounted) {
+              ErrorHandler.showSnackBarMessage(
+                context,
+                AppException('The topic has been deleted.'),
+                severe: true,
+              );
+            }
+          } else {
+            setState(() => _topic = topic);
+          }
         });
 
     final lastTimestamp = topicMessageCache.getLastTimestamp(widget.topicId);

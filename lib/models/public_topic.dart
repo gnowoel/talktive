@@ -37,6 +37,30 @@ class PublicTopic extends Chat {
     };
   }
 
+  PublicTopic copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    int? messageCount,
+    String? title,
+    User? creator,
+    int? readMessageCount,
+    String? lastMessageContent,
+    bool? mute,
+  }) {
+    return PublicTopic(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      messageCount: messageCount ?? this.messageCount,
+      title: title ?? this.title,
+      creator: creator ?? this.creator,
+      readMessageCount: readMessageCount ?? this.readMessageCount,
+      lastMessageContent: lastMessageContent ?? this.lastMessageContent,
+      mute: mute ?? this.mute,
+    );
+  }
+
   factory PublicTopic.fromJson(String id, Map<String, dynamic> json) {
     final creatorMap = Map<String, dynamic>.from(json['creator'] as Map);
     final creator = User.fromStub(
@@ -63,8 +87,25 @@ class PublicTopic extends Chat {
     );
   }
 
+  static dummy() {
+    return PublicTopic(
+      id: 'topicId',
+      createdAt: 0,
+      updatedAt: 0,
+      title: '',
+      creator: User.fromStub(
+        key: 'userId',
+        value: UserStub(createdAt: 0, updatedAt: 0),
+      ),
+      messageCount: 0,
+    );
+  }
+
   bool get isClosed => updatedAt + activePeriod <= ServerClock().now;
   bool get isNotClosed => !isClosed;
+
+  bool get isDummy => updatedAt == 0;
+  bool get isNotDummy => !isDummy;
 
   bool get isMuted => mute ?? false;
   bool get isNotMuted => !isMuted;

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../helpers/time.dart';
 import '../models/private_chat.dart';
 import '../services/server_clock.dart';
 import 'heart_list.dart';
@@ -17,42 +19,65 @@ class Hearts extends StatefulWidget {
 }
 
 class _HeartsState extends State<Hearts> {
-  late Timer _timer;
-  late Duration _elapsed;
+  late ServerClock serverClock;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
+    serverClock = context.read<ServerClock>();
+    _refreshAgain();
+  }
 
-    _elapsed = _getElapsed();
+  @override
+  void didUpdateWidget(Hearts oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.chat.updatedAt != oldWidget.chat.updatedAt) {
+      _refreshAgain();
+    }
+  }
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => _elapsed = _getElapsed());
+  void _refreshAgain() {
+    if (!_isChatReady()) return;
+
+    _refreshTimer?.cancel();
+
+    final timeLeft = _getTimeLeft();
+    if (timeLeft == 0) return;
+
+    final delay = timeLeft % refreshThreshold;
+    final duration = Duration(milliseconds: delay);
+
+    _refreshTimer = Timer(duration, () {
+      setState(() => _refreshAgain());
     });
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _refreshTimer?.cancel();
     super.dispose();
   }
 
-  Duration _getElapsed() {
-    if (widget.chat.isNew || widget.chat.isClosed || widget.chat.isDummy) {
-      return const Duration(hours: 72);
-    }
+  bool _isChatReady() {
+    return widget.chat.isNotNew &&
+        widget.chat.isNotClosed &&
+        widget.chat.isNotDummy;
+  }
 
-    final now = ServerClock().now;
-    final then = widget.chat.updatedAt;
+  int _getElapsed() {
+    return _isChatReady() ? widget.chat.getTimeElapsed() : activePeriod;
+  }
 
-    return Duration(milliseconds: now - then);
+  int _getTimeLeft() {
+    return _isChatReady() ? widget.chat.getTimeLeft() : 0;
   }
 
   String _getInfoText(PrivateChat chat) {
-    final now = ServerClock().now;
-    final timeLeft = chat.getTimeLeft(now: now);
-
     if (chat.isNew) return 'New chat';
+
+    final now = serverClock.now;
+    final timeLeft = chat.getTimeLeft(now: now);
 
     if (timeLeft == 0) return 'Chat closed';
 
@@ -73,7 +98,7 @@ class _HeartsState extends State<Hearts> {
   Widget build(BuildContext context) {
     return Tooltip(
       message: _getInfoText(widget.chat),
-      child: HeartList(elapsed: _elapsed),
+      child: HeartList(elapsed: Duration(milliseconds: _getElapsed())),
     );
   }
 }

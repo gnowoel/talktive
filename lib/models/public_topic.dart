@@ -45,9 +45,10 @@ class PublicTopic extends Chat {
     );
 
     final timestamp = json['updatedAt'];
-    final updatedAt = timestamp is Timestamp
-        ? timestamp.millisecondsSinceEpoch
-        : ServerClock().now; // Fallback to local timestamp if null
+    final updatedAt =
+        timestamp is Timestamp
+            ? timestamp.millisecondsSinceEpoch
+            : ServerClock().now; // Fallback to local timestamp if null
 
     return PublicTopic(
       id: id,
@@ -62,7 +63,7 @@ class PublicTopic extends Chat {
     );
   }
 
-  bool get isClosed => updatedAt + activeThreshold <= ServerClock().now;
+  bool get isClosed => updatedAt + activePeriod <= ServerClock().now;
   bool get isNotClosed => !isClosed;
 
   bool get isMuted => mute ?? false;

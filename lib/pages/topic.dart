@@ -10,6 +10,7 @@ import '../services/follow_cache.dart';
 import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
+import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
 import '../widgets/topic_message_list.dart';
 import '../widgets/user_info_loader.dart';
@@ -177,6 +178,10 @@ class _TopicPageState extends State<TopicPage> {
               ],
             ),
           ),
+          actions: [
+            RepaintBoundary(child: TopicHearts(topic: _topic)),
+            const SizedBox(width: 16),
+          ],
         ),
         body: Column(
           children: [

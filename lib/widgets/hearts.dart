@@ -1,11 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/private_chat.dart';
-import '../services/firedata.dart';
 import '../services/server_clock.dart';
 import 'heart_list.dart';
 
@@ -19,15 +17,12 @@ class Hearts extends StatefulWidget {
 }
 
 class _HeartsState extends State<Hearts> {
-  late Firedata firedata;
   late Timer _timer;
   late Duration _elapsed;
 
   @override
   void initState() {
     super.initState();
-
-    firedata = Provider.of<Firedata>(context, listen: false);
 
     _elapsed = _getElapsed();
 
@@ -55,14 +50,14 @@ class _HeartsState extends State<Hearts> {
 
   String _getInfoText(PrivateChat chat) {
     final now = ServerClock().now;
-    final diff = chat.getTimeLeft(now: now);
+    final timeLeft = chat.getTimeLeft(now: now);
 
     if (chat.isNew) return 'New chat';
 
-    if (diff == 0) return 'Chat closed';
+    if (timeLeft == 0) return 'Chat closed';
 
     var text = timeago.format(
-      DateTime.fromMillisecondsSinceEpoch(now - diff),
+      DateTime.fromMillisecondsSinceEpoch(now - timeLeft),
       locale: 'en_short',
       clock: DateTime.fromMillisecondsSinceEpoch(now),
     );

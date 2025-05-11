@@ -373,8 +373,8 @@ class Firestore {
       }
 
       // Define the time threshold for active topics
-      final threeDaysAgo = serverNow - activeThreshold;
-      final timestamp = Timestamp.fromMillisecondsSinceEpoch(threeDaysAgo);
+      final activePeriodAgo = serverNow - activePeriod;
+      final timestamp = Timestamp.fromMillisecondsSinceEpoch(activePeriodAgo);
 
       // Start building the query
       var query = instance
@@ -428,9 +428,8 @@ class Firestore {
         }
       }
 
-      // Filter out topics that are older than 12 hours
       return _cachedTopics
-          .where((topic) => topic.updatedAt > threeDaysAgo)
+          .where((topic) => topic.updatedAt > activePeriodAgo)
           .toList();
     } catch (e) {
       throw AppException(e.toString());

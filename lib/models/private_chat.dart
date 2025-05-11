@@ -93,7 +93,7 @@ class PrivateChat extends Chat {
   bool get isNew => firstUserId == null;
   bool get isNotNew => !isNew;
 
-  bool get isClosed => updatedAt + activeThreshold <= ServerClock().now;
+  bool get isClosed => updatedAt + activePeriod <= ServerClock().now;
   bool get isNotClosed => !isClosed;
 
   // Does not exist (not created or deleted)

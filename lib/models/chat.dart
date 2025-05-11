@@ -22,12 +22,14 @@ abstract class Chat {
 
   int get unreadCount => max(messageCount - (readMessageCount ?? 0), 0);
 
+  int getTimeElapsed({int? now}) {
+    now = now ?? ServerClock().now;
+    return max(now - updatedAt, 0);
+  }
+
   int getTimeLeft({int? now}) {
     now = now ?? ServerClock().now;
-
-    final then = updatedAt;
-    final elapsed = max(now - then, 0);
-
-    return max(activeThreshold - elapsed, 0);
+    final elapsed = getTimeElapsed(now: now);
+    return max(activePeriod - elapsed, 0);
   }
 }

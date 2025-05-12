@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../models/public_topic.dart';
 import '../services/storage.dart';
+import '../services/user_cache.dart';
 
 class TopicInput extends StatefulWidget {
   final PublicTopic? topic;
@@ -61,7 +62,9 @@ class _TopicInputState extends State<TopicInput> {
     final duration = Duration(milliseconds: timeLeft);
 
     _refreshTimer = Timer(duration, () {
-      setState(() => _enabled = false);
+      if (mounted) {
+        setState(() => _enabled = false);
+      }
     });
   }
 
@@ -152,8 +155,14 @@ class _TopicInputState extends State<TopicInput> {
     return KeyEventResult.ignored;
   }
 
-  String _showText(String text) {
-    if (_enabled) return text;
+  String _showText({required String enabledText, required bool reviewOnly}) {
+    if (_enabled) {
+      if (reviewOnly) {
+        return 'Review only';
+      } else {
+        return enabledText;
+      }
+    }
 
     final topic = widget.topic;
 
@@ -168,6 +177,9 @@ class _TopicInputState extends State<TopicInput> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final userCache = context.watch<UserCache>();
+    final user = userCache.user!;
+    final reviewOnly = user.isTrainee;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -183,7 +195,9 @@ class _TopicInputState extends State<TopicInput> {
             if (widget.onSendImage != null)
               IconButton(
                 onPressed:
-                    (!_enabled || _isUploading) ? null : _sendImageMessage,
+                    (!_enabled || reviewOnly || _isUploading)
+                        ? null
+                        : _sendImageMessage,
                 icon:
                     _isUploading
                         ? const SizedBox(
@@ -195,29 +209,38 @@ class _TopicInputState extends State<TopicInput> {
                           Icons.attach_file,
                           color: theme.colorScheme.primary,
                         ),
-                tooltip: _showText('Send picture'),
+                tooltip: _showText(
+                  enabledText: 'Send picture',
+                  reviewOnly: reviewOnly,
+                ),
               ),
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),
-                onKeyEvent: _enabled ? _handleKeyEvent : null,
+                onKeyEvent: (!_enabled || reviewOnly) ? null : _handleKeyEvent,
                 child: TextField(
-                  enabled: _enabled,
+                  enabled: _enabled && !reviewOnly,
                   focusNode: widget.focusNode,
                   minLines: 1,
                   maxLines: 12,
                   controller: _controller,
                   decoration: InputDecoration.collapsed(
-                    hintText: _showText('Share publicly'),
+                    hintText: _showText(
+                      enabledText: 'Share publicly',
+                      reviewOnly: reviewOnly,
+                    ),
                     hintStyle: TextStyle(color: theme.colorScheme.outline),
                   ),
                 ),
               ),
             ),
             IconButton(
-              onPressed: _enabled ? _sendTextMessage : null,
+              onPressed: (!_enabled || reviewOnly) ? null : _sendTextMessage,
               icon: Icon(Icons.send, color: theme.colorScheme.primary),
-              tooltip: _showText('Send message'),
+              tooltip: _showText(
+                enabledText: 'Send message',
+                reviewOnly: reviewOnly,
+              ),
             ),
           ],
         ),

@@ -39,6 +39,14 @@ class Firedata {
     String content,
   ) async {
     try {
+      if (chat.isDummy) {
+        throw AppException('The chat has been deleted.');
+      }
+
+      if (chat.isClosed) {
+        throw AppException('The chat has been closed.');
+      }
+
       final messageRef = instance.ref('messages/${chat.id}').push();
 
       await messageRef.set({

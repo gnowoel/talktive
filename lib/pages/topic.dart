@@ -107,6 +107,14 @@ class _TopicPageState extends State<TopicPage> {
 
   Future<void> _sendMessage(String content) async {
     try {
+      if (_topic?.isDummy == true) {
+        throw AppException('The topic has been deleted.');
+      }
+
+      if (_topic?.isClosed == true) {
+        throw AppException('The topic has been closed.');
+      }
+
       final user = userCache.user!;
 
       await firestore.sendTopicMessage(
@@ -118,9 +126,10 @@ class _TopicPageState extends State<TopicPage> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        ErrorHandler.showSnackBarMessage(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+          e is AppException ? e : AppException(e.toString()),
+        );
       }
     }
   }

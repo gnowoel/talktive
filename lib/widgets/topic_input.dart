@@ -1,17 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../models/public_topic.dart';
 import '../services/storage.dart';
 
 class TopicInput extends StatefulWidget {
+  final PublicTopic? topic;
   final FocusNode focusNode;
   final Future<void> Function(String) onSendMessage;
   final Future<void> Function(String)? onSendImage;
 
   const TopicInput({
     super.key,
+    required this.topic,
     required this.focusNode,
     required this.onSendMessage,
     this.onSendImage,
@@ -23,13 +28,51 @@ class TopicInput extends StatefulWidget {
 
 class _TopicInputState extends State<TopicInput> {
   late Storage storage;
+  Timer? _refreshTimer;
   final _controller = TextEditingController();
+  bool _enabled = false;
   bool _isUploading = false;
 
   @override
   void initState() {
     super.initState();
     storage = context.read<Storage>();
+    _refreshAgain();
+  }
+
+  @override
+  void didUpdateWidget(TopicInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.topic?.updatedAt != oldWidget.topic?.updatedAt) {
+      _refreshAgain();
+    }
+  }
+
+  void _refreshAgain() {
+    if (widget.topic == null) return;
+
+    _refreshTimer?.cancel();
+
+    final timeLeft = _getTimeLeft();
+    if (timeLeft == 0) return;
+
+    _enabled = true;
+
+    final duration = Duration(milliseconds: timeLeft);
+
+    _refreshTimer = Timer(duration, () {
+      setState(() => _enabled = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  int _getTimeLeft() {
+    return widget.topic?.getTimeLeft() ?? 0;
   }
 
   Future<void> _sendTextMessage() async {
@@ -109,6 +152,19 @@ class _TopicInputState extends State<TopicInput> {
     return KeyEventResult.ignored;
   }
 
+  String _showText(String text) {
+    if (_enabled) return text;
+
+    final topic = widget.topic;
+
+    if (topic != null) {
+      if (topic.isDummy) return 'Topic deleted';
+      if (topic.isClosed) return 'Topic closed';
+    }
+
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -126,7 +182,8 @@ class _TopicInputState extends State<TopicInput> {
           children: [
             if (widget.onSendImage != null)
               IconButton(
-                onPressed: _isUploading ? null : _sendImageMessage,
+                onPressed:
+                    (!_enabled || _isUploading) ? null : _sendImageMessage,
                 icon:
                     _isUploading
                         ? const SizedBox(
@@ -138,28 +195,29 @@ class _TopicInputState extends State<TopicInput> {
                           Icons.attach_file,
                           color: theme.colorScheme.primary,
                         ),
-                tooltip: 'Send picture',
+                tooltip: _showText('Send picture'),
               ),
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),
-                onKeyEvent: _handleKeyEvent,
+                onKeyEvent: _enabled ? _handleKeyEvent : null,
                 child: TextField(
+                  enabled: _enabled,
                   focusNode: widget.focusNode,
                   minLines: 1,
                   maxLines: 12,
                   controller: _controller,
                   decoration: InputDecoration.collapsed(
-                    hintText: 'Share publicly',
+                    hintText: _showText('Share publicly'),
                     hintStyle: TextStyle(color: theme.colorScheme.outline),
                   ),
                 ),
               ),
             ),
             IconButton(
-              onPressed: _sendTextMessage,
+              onPressed: _enabled ? _sendTextMessage : null,
               icon: Icon(Icons.send, color: theme.colorScheme.primary),
-              tooltip: 'Share publicly',
+              tooltip: _showText('Send message'),
             ),
           ],
         ),

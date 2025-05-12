@@ -220,6 +220,7 @@ class _TopicPageState extends State<TopicPage> {
               ),
             ),
             TopicInput(
+              topic: _topic,
               focusNode: _focusNode,
               onSendMessage: _sendMessage,
               // TODO: Implement image sending

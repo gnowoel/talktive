@@ -11,6 +11,7 @@ import '../services/follow_cache.dart';
 import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
+import '../widgets/layout.dart';
 import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
 import '../widgets/topic_message_list.dart';
@@ -208,25 +209,30 @@ class _TopicPageState extends State<TopicPage> {
             const SizedBox(width: 16),
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: TopicMessageList(
-                topicId: widget.topicId,
-                topicCreatorId: widget.topicCreatorId,
-                focusNode: _focusNode,
-                scrollController: _scrollController,
-                updateMessageCount: _updateMessageCount,
-              ),
+        body: SafeArea(
+          child: Layout(
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Expanded(
+                  child: TopicMessageList(
+                    topicId: widget.topicId,
+                    topicCreatorId: widget.topicCreatorId,
+                    focusNode: _focusNode,
+                    scrollController: _scrollController,
+                    updateMessageCount: _updateMessageCount,
+                  ),
+                ),
+                TopicInput(
+                  topic: _topic,
+                  focusNode: _focusNode,
+                  onSendMessage: _sendMessage,
+                  // TODO: Implement image sending
+                  // onSendImage: _sendImage,
+                ),
+              ],
             ),
-            TopicInput(
-              topic: _topic,
-              focusNode: _focusNode,
-              onSendMessage: _sendMessage,
-              // TODO: Implement image sending
-              // onSendImage: _sendImage,
-            ),
-          ],
+          ),
         ),
       ),
     );

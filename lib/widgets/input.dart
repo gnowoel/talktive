@@ -298,7 +298,7 @@ class _InputState extends State<Input> {
                 IconButton(
                   onPressed: _enabled ? () => _sendTextMessage(user) : null,
                   icon: Icon(Icons.send, color: theme.colorScheme.tertiary),
-                  tooltip: _enabled ? 'Chat privately' : 'Chat closed',
+                  tooltip: _enabled ? 'Send message' : 'Chat closed',
                 ),
               ],
             ),

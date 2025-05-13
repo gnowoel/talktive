@@ -665,6 +665,22 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> recallTopicMessage({
+    required String topicId,
+    required String messageId,
+  }) async {
+    try {
+      await instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'recalled': true});
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

@@ -9,11 +9,13 @@ import 'bubble.dart';
 import 'user_info_loader.dart';
 
 class TopicTextMessageItem extends StatefulWidget {
+  final String topicId;
   final String topicCreatorId;
   final TopicTextMessage message;
 
   const TopicTextMessageItem({
     super.key,
+    required this.topicId,
     required this.topicCreatorId,
     required this.message,
   });
@@ -144,7 +146,20 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   }
 
   Future<void> _recallMessage(BuildContext context) async {
-    // TODO: Implement recall message
+    if (widget.message.id == null) return;
+
+    try {
+      await firestore.recallTopicMessage(
+        topicId: widget.topicId,
+        messageId: widget.message.id!,
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
   }
 
   Widget _buildMessageBox({
@@ -156,6 +171,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
       return Bubble(
         content: '- Message recalled -',
         byMe: byMe,
+        byOp: byOp,
         recalled: true,
       );
     }

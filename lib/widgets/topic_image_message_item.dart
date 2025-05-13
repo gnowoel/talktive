@@ -11,9 +11,14 @@ import 'image_viewer.dart';
 import 'user_info_loader.dart';
 
 class TopicImageMessageItem extends StatefulWidget {
+  final String topicId;
   final TopicImageMessage message;
 
-  const TopicImageMessageItem({super.key, required this.message});
+  const TopicImageMessageItem({
+    super.key,
+    required this.topicId,
+    required this.message,
+  });
 
   @override
   State<TopicImageMessageItem> createState() => _TopicImageMessageItemState();
@@ -102,7 +107,20 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   }
 
   Future<void> _recallMessage(BuildContext context) async {
-    // TODO: Implement recall message functionality
+    if (widget.message.id == null) return;
+
+    try {
+      await firestore.recallTopicMessage(
+        topicId: widget.topicId,
+        messageId: widget.message.id!,
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
   }
 
   Widget _buildMessageBox(

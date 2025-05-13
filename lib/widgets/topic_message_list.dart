@@ -117,6 +117,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
 
             if (message is TopicImageMessage) {
               return TopicImageMessageItem(
+                topicId: widget.topicId,
                 key: ValueKey(message.id),
                 message: message,
               );
@@ -124,6 +125,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
 
             return TopicTextMessageItem(
               key: ValueKey(message.id),
+              topicId: widget.topicId,
               topicCreatorId: widget.topicCreatorId,
               message: message as TopicTextMessage,
             );

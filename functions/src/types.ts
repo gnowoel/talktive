@@ -12,14 +12,14 @@ export interface User {
   id?: string;
   createdAt: number;
   updatedAt: number;
-  languageCode?: string|null;
-  photoURL?: string|null;
-  displayName?: string|null;
+  languageCode?: string | null;
+  photoURL?: string | null;
+  displayName?: string | null;
   description?: string;
-  gender?: string|null;
+  gender?: string | null;
   fcmToken?: string;
-  revivedAt?: number|null;
-  messageCount?: number|null;
+  revivedAt?: number | null;
+  messageCount?: number | null;
 }
 
 export interface Pair {
@@ -28,8 +28,8 @@ export interface Pair {
   createdAt: number;
   updatedAt: number;
   messageCount: number;
-  firstUserId?: string|null;
-  lastMessageContent?: string|null;
+  firstUserId?: string | null;
+  lastMessageContent?: string | null;
   v2: boolean;
 }
 
@@ -40,8 +40,8 @@ export interface Chat {
   partner: User;
   messageCount: number;
   readMessageCount?: number;
-  firstUserId?: string|null;
-  lastMessageContent?: string|null;
+  firstUserId?: string | null;
+  lastMessageContent?: string | null;
   mute?: boolean;
 }
 
@@ -79,11 +79,12 @@ export interface PairParams {
 export interface StatParams {
   users?: number | object;
   chats?: number | object;
-  rooms?: number | object;
-  messages?: number | object;
-  responses?: number | object;
+  topics?: number | object;
+  chatMessages?: number | object;
+  topicMessages?: number | object;
   follows?: number | object;
   unfollows?: number | object;
+  responses?: number | object; // TODO: Will delete
 }
 
 export interface PartnerParams {

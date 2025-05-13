@@ -104,12 +104,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
     return false;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_messages.isEmpty) {
-      return const Center(child: CircularProgressIndicator(strokeWidth: 3));
-    }
-
+  Widget _buildMessageListView() {
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
       child: NotificationListener<ScrollNotification>(
@@ -135,6 +130,19 @@ class _TopicMessageListState extends State<TopicMessageList> {
           },
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_messages.isEmpty) {
+      return const Center(child: CircularProgressIndicator(strokeWidth: 3));
+    }
+
+    return Listener(
+      onPointerDown: (details) => FocusScope.of(context).unfocus(),
+      onPointerMove: (details) => FocusScope.of(context).unfocus(),
+      child: _buildMessageListView(),
     );
   }
 }

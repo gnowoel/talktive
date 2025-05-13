@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/exception.dart';
 import '../models/public_topic.dart';
 import '../services/storage.dart';
 import '../services/user_cache.dart';
@@ -12,15 +13,15 @@ import '../services/user_cache.dart';
 class TopicInput extends StatefulWidget {
   final PublicTopic? topic;
   final FocusNode focusNode;
-  final Future<void> Function(String) onSendMessage;
-  final Future<void> Function(String)? onSendImage;
+  final Future<void> Function(String) onSendTextMessage;
+  final Future<void> Function(String) onSendImageMessage;
 
   const TopicInput({
     super.key,
     required this.topic,
     required this.focusNode,
-    required this.onSendMessage,
-    this.onSendImage,
+    required this.onSendTextMessage,
+    required this.onSendImageMessage,
   });
 
   @override
@@ -80,6 +81,14 @@ class _TopicInputState extends State<TopicInput> {
 
   Future<void> _sendTextMessage() async {
     try {
+      if (widget.topic?.isDummy == true) {
+        throw AppException('The topic has been deleted.');
+      }
+
+      if (widget.topic?.isClosed == true) {
+        throw AppException('The topic has been closed.');
+      }
+
       const maxLength = 1024;
       var content = _controller.text.trim();
 
@@ -95,7 +104,7 @@ class _TopicInputState extends State<TopicInput> {
       }
 
       _controller.clear();
-      await widget.onSendMessage(content);
+      await widget.onSendTextMessage(content);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -106,9 +115,17 @@ class _TopicInputState extends State<TopicInput> {
   }
 
   Future<void> _sendImageMessage() async {
-    if (widget.onSendImage == null) return;
+    if (widget.topic == null) return;
 
     try {
+      if (widget.topic?.isDummy == true) {
+        throw AppException('The topic has been deleted.');
+      }
+
+      if (widget.topic?.isClosed == true) {
+        throw AppException('The topic has been closed.');
+      }
+
       final xFile = await ImagePicker().pickImage(
         imageQuality: 70,
         maxWidth: 1440,
@@ -121,15 +138,16 @@ class _TopicInputState extends State<TopicInput> {
       setState(() => _isUploading = true);
 
       final data = await xFile.readAsBytes();
-      final path = 'topics/${xFile.name}';
+      final path = 'topics/${widget.topic!.id}/${xFile.name}';
       final uri = await storage.saveData(path, data);
 
-      await widget.onSendImage!(uri);
+      await widget.onSendImageMessage(uri);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        ErrorHandler.showSnackBarMessage(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+          e is AppException ? e : AppException(e.toString()),
+        );
       }
     } finally {
       setState(() => _isUploading = false);
@@ -192,28 +210,27 @@ class _TopicInputState extends State<TopicInput> {
         ),
         child: Row(
           children: [
-            if (widget.onSendImage != null)
-              IconButton(
-                onPressed:
-                    (!_enabled || reviewOnly || _isUploading)
-                        ? null
-                        : _sendImageMessage,
-                icon:
-                    _isUploading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 3),
-                        )
-                        : Icon(
-                          Icons.attach_file,
-                          color: theme.colorScheme.primary,
-                        ),
-                tooltip: _showText(
-                  enabledText: 'Send picture',
-                  reviewOnly: reviewOnly,
-                ),
+            IconButton(
+              onPressed:
+                  (!_enabled || reviewOnly || _isUploading)
+                      ? null
+                      : _sendImageMessage,
+              icon:
+                  _isUploading
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      )
+                      : Icon(
+                        Icons.attach_file,
+                        color: theme.colorScheme.primary,
+                      ),
+              tooltip: _showText(
+                enabledText: 'Send picture',
+                reviewOnly: reviewOnly,
               ),
+            ),
             Expanded(
               child: KeyboardListener(
                 focusNode: FocusNode(),

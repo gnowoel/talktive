@@ -2,13 +2,15 @@ import * as admin from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
-import { User } from './types';
+import { StatParams, User } from './types';
+import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
 const firestore = admin.firestore();
+const db = admin.database();
 
 export const createTopic = onCall(async (request) => {
   try {
@@ -146,6 +148,8 @@ export const createTopic = onCall(async (request) => {
     // Commit all operations
     await batch.commit();
 
+    await updateTopicStats();
+
     return {
       success: true,
       topicId,
@@ -159,3 +163,27 @@ export const createTopic = onCall(async (request) => {
     };
   }
 });
+
+const updateTopicStats = async () => {
+  const now = new Date();
+  const statRef = db.ref(`stats/${formatDate(now)}`);
+  const snapshot = await statRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const stat = snapshot.val();
+  const params: StatParams = {};
+
+  // `ServerValue` doesn't work with Emulators Suite
+  if (isDebugMode()) {
+    params.topics = (stat.topics ?? 0) + 1;
+  } else {
+    params.topics = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await statRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+};

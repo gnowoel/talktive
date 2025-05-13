@@ -2,6 +2,8 @@ import * as admin from 'firebase-admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import { formatDate, isDebugMode } from './helpers';
+import { StatParams } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -107,9 +109,9 @@ export const onTopicMessageCreated = onDocumentCreated(
         }
       });
 
-      // TODO: Send push notifications to followers
-
       await batch.commit();
+
+      await updateTopicMessagesStats();
     } catch (error) {
       logger.error('Error in onTopicMessageCreated:', error);
     }
@@ -212,3 +214,26 @@ async function sendPushNotification(
     logger.warn('Push notification failed:', error);
   }
 }
+
+const updateTopicMessagesStats = async () => {
+  const now = new Date();
+  const statRef = db.ref(`stats/${formatDate(now)}`);
+  const snapshot = await statRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const stat = snapshot.val();
+  const params: StatParams = {};
+
+  if (isDebugMode()) {
+    params.topicMessages = (stat.topicMessages ?? 0) + 1;
+  } else {
+    params.topicMessages = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await statRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+};

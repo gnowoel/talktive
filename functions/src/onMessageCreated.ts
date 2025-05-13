@@ -293,9 +293,9 @@ const updateMessageOrResponseStats = async (now: Date, message: Message) => {
   } else {
     // `ServerValue` doesn't work with Emulators Suite
     if (isDebugMode()) {
-      params.messages = stat.messages + 1;
+      params.chatMessages = stat.chatMessages + 1;
     } else {
-      params.messages = admin.database.ServerValue.increment(1);
+      params.chatMessages = admin.database.ServerValue.increment(1);
     }
   }
 

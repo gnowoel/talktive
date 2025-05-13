@@ -111,9 +111,9 @@ const setupDailyStats = async (timestamp: Date) => {
       await statRef.set({
         users: 0,
         chats: 0,
-        rooms: 0,
-        messages: 0,
-        responses: 0,
+        topics: 0,
+        chatMessages: 0,
+        topicMessages: 0,
         follows: 0,
         unfollows: 0
       });

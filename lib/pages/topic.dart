@@ -106,24 +106,37 @@ class _TopicPageState extends State<TopicPage> {
     super.dispose();
   }
 
-  Future<void> _sendMessage(String content) async {
+  Future<void> _sendTextMessage(String content) async {
     try {
-      if (_topic?.isDummy == true) {
-        throw AppException('The topic has been deleted.');
-      }
-
-      if (_topic?.isClosed == true) {
-        throw AppException('The topic has been closed.');
-      }
-
       final user = userCache.user!;
 
-      await firestore.sendTopicMessage(
+      await firestore.sendTopicTextMessage(
         topicId: widget.topicId,
         userId: user.id,
         userDisplayName: user.displayName ?? '',
         userPhotoURL: user.photoURL ?? '',
         content: content,
+      );
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendImageMessage(String uri) async {
+    try {
+      final user = userCache.user!;
+
+      await firestore.sendTopicImageMessage(
+        topicId: widget.topicId,
+        userId: user.id,
+        userDisplayName: user.displayName ?? '',
+        userPhotoURL: user.photoURL ?? '',
+        uri: uri,
       );
     } catch (e) {
       if (mounted) {
@@ -226,9 +239,8 @@ class _TopicPageState extends State<TopicPage> {
                 TopicInput(
                   topic: _topic,
                   focusNode: _focusNode,
-                  onSendMessage: _sendMessage,
-                  // TODO: Implement image sending
-                  // onSendImage: _sendImage,
+                  onSendTextMessage: _sendTextMessage,
+                  onSendImageMessage: _sendImageMessage,
                 ),
               ],
             ),

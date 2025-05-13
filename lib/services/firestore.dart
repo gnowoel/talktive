@@ -551,7 +551,7 @@ class Firestore {
     }
   }
 
-  Future<void> sendTopicMessage({
+  Future<void> sendTopicTextMessage({
     required String topicId,
     required String userId,
     required String userDisplayName,
@@ -569,6 +569,32 @@ class Firestore {
             'userDisplayName': userDisplayName,
             'userPhotoURL': userPhotoURL,
             'content': content,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<void> sendTopicImageMessage({
+    required String topicId,
+    required String userId,
+    required String userDisplayName,
+    required String userPhotoURL,
+    required String uri,
+  }) async {
+    try {
+      await instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .add({
+            'type': 'image',
+            'userId': userId,
+            'userDisplayName': userDisplayName,
+            'userPhotoURL': userPhotoURL,
+            'content': '[Image]',
+            'uri': uri,
             'createdAt': FieldValue.serverTimestamp(),
           });
     } catch (e) {

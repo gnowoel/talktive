@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
+import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
@@ -14,12 +15,14 @@ const db = admin.database();
 const firestore = admin.firestore();
 const storage = getStorage();
 
-const day = 24 * 60 * 60 * 1000;
+const hour = 60 * 60 * 1000;
+const day = 24 * hour;
 
-const timeBeforeUserDeleting = isDebugMode() ? 0 * day : 200 * day;
-const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * day;
-const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day;
-const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * day;
+const timeBeforeUserDeleting = isDebugMode() ? 14 * day : 200 * day + 1 * hour;
+const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
+const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
+const timeBeforeTopicDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
+const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
 
 interface Params {
   [id: string]: null;
@@ -172,6 +175,7 @@ const cleanup = async () => {
     await cleanupUsers();
     await cleanupRooms();
     await cleanupPairs();
+    await cleanupTopics();
     await cleanupReports();
   } catch (error) {
     logger.error(error);
@@ -535,6 +539,127 @@ const removePair = async (pairId: string) => {
     await pairRef.remove();
   } catch (error) {
     logger.error(error);
+  }
+};
+
+const cleanupTopics = async () => {
+  try {
+    const now = Timestamp.now();
+    const cutoffTime = new Timestamp(
+      now.seconds - Math.floor(timeBeforeTopicDeleting / 1000),
+      now.nanoseconds
+    );
+
+    // Query for expired topics
+    const topicsSnapshot = await firestore
+      .collection('topics')
+      .where('updatedAt', '<=', cutoffTime)
+      .limit(100) // Process in smaller batches
+      .get();
+
+    if (topicsSnapshot.empty) return;
+
+    logger.info(`Found ${topicsSnapshot.size} expired topics to clean up`);
+
+    // Process each topic
+    for (const topicDoc of topicsSnapshot.docs) {
+      await cleanupTopic(topicDoc.id);
+    }
+  } catch (error) {
+    logger.error('Error in cleanupTopics:', error);
+  }
+};
+
+const cleanupTopic = async (topicId: string) => {
+  try {
+    // Get all followers first
+    const followersSnapshot = await firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('followers')
+      .get();
+
+    // Start a new batch
+    const batch = new SafeBatch(firestore);
+
+    // Delete topic images from Storage
+    await removeTopicImages(topicId);
+
+    // Remove personal topic copies from all followers
+    const followerIds = followersSnapshot.docs.map(doc => doc.id);
+    await removeFollowerTopics(followerIds, topicId, batch);
+
+    // Delete the topic document and its subcollections
+    await deleteTopicWithSubcollections(topicId, batch);
+
+    // Commit all Firestore operations
+    await batch.commit();
+
+    logger.info(`Successfully cleaned up topic ${topicId}`);
+  } catch (error) {
+    logger.error(`Error cleaning up topic ${topicId}:`, error);
+  }
+};
+
+const removeTopicImages = async (topicId: string) => {
+  try {
+    const bucket = storage.bucket();
+    const prefix = `topics/${topicId}/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    const deletePromises = files.map(file => file.delete());
+    await Promise.all(deletePromises);
+  } catch (error) {
+    logger.error(`Failed to remove images from topic ${topicId}:`, error);
+  }
+};
+
+const removeFollowerTopics = async (
+  followerIds: string[],
+  topicId: string,
+  batch: SafeBatch
+) => {
+  try {
+    for (const followerId of followerIds) {
+      const userTopicRef = firestore
+        .collection('users')
+        .doc(followerId)
+        .collection('topics')
+        .doc(topicId);
+
+      batch.delete(userTopicRef);
+    }
+  } catch (error) {
+    logger.error(`Error removing follower topics for topic ${topicId}:`, error);
+    throw error;
+  }
+};
+
+const deleteTopicWithSubcollections = async (
+  topicId: string,
+  batch: SafeBatch
+) => {
+  try {
+    const topicRef = firestore.collection('topics').doc(topicId);
+
+    // Delete all messages
+    const messagesSnapshot = await topicRef.collection('messages').get();
+    messagesSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete all followers
+    const followersSnapshot = await topicRef.collection('followers').get();
+    followersSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete the topic document itself
+    batch.delete(topicRef);
+  } catch (error) {
+    logger.error(`Error deleting topic ${topicId} with subcollections:`, error);
+    throw error;
   }
 };
 

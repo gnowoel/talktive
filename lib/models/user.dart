@@ -99,7 +99,7 @@ class User {
   String get status {
     if (withWarning) return 'warning';
     if (withAlert) return 'alert';
-    if (isTrainee) return 'trainee';
+    if (_isNewcomer) return 'newcomer';
     return 'regular';
   }
 

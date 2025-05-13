@@ -9,6 +9,7 @@ import '../helpers/exception.dart';
 import '../models/public_topic.dart';
 import '../services/storage.dart';
 import '../services/user_cache.dart';
+import 'status_notice.dart';
 
 class TopicInput extends StatefulWidget {
   final PublicTopic? topic;
@@ -29,6 +30,7 @@ class TopicInput extends StatefulWidget {
 }
 
 class _TopicInputState extends State<TopicInput> {
+  late ThemeData theme;
   late Storage storage;
   Timer? _refreshTimer;
   final _controller = TextEditingController();
@@ -40,6 +42,12 @@ class _TopicInputState extends State<TopicInput> {
     super.initState();
     storage = context.read<Storage>();
     _refreshAgain();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
   }
 
   @override
@@ -192,76 +200,106 @@ class _TopicInputState extends State<TopicInput> {
     return '';
   }
 
+  Widget _buildStatusNotice() {
+    String message;
+
+    if (widget.topic?.isDummy == true) {
+      message =
+          'This topic has been deleted to protect your privacy. Go to the Friends tab to start a new topic at any time';
+    } else if (widget.topic?.isClosed == true) {
+      message =
+          'This topic has expired and will be deleted soon. Go to the Friends tab to start a new topic at any time.';
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    return StatusNotice(
+      content: message,
+      icon: Icons.info_outline,
+      backgroundColor: theme.colorScheme.surfaceContainerHighest,
+      foregroundColor: theme.colorScheme.onSurface,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final userCache = context.watch<UserCache>();
     final user = userCache.user!;
     final reviewOnly = user.isTrainee;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerLow,
-          borderRadius: const BorderRadius.all(Radius.circular(32)),
-          border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed:
-                  (!_enabled || reviewOnly || _isUploading)
-                      ? null
-                      : _sendImageMessage,
-              icon:
-                  _isUploading
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 3),
-                      )
-                      : Icon(
-                        Icons.attach_file,
-                        color: theme.colorScheme.primary,
-                      ),
-              tooltip: _showText(
-                enabledText: 'Send picture',
-                reviewOnly: reviewOnly,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.topic != null && !_enabled) _buildStatusNotice(),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: const BorderRadius.all(Radius.circular(32)),
+              border: Border.all(
+                color: theme.colorScheme.surfaceContainerHighest,
               ),
             ),
-            Expanded(
-              child: KeyboardListener(
-                focusNode: FocusNode(),
-                onKeyEvent: (!_enabled || reviewOnly) ? null : _handleKeyEvent,
-                child: TextField(
-                  enabled: _enabled && !reviewOnly,
-                  focusNode: widget.focusNode,
-                  minLines: 1,
-                  maxLines: 12,
-                  controller: _controller,
-                  decoration: InputDecoration.collapsed(
-                    hintText: _showText(
-                      enabledText: 'Share publicly',
-                      reviewOnly: reviewOnly,
-                    ),
-                    hintStyle: TextStyle(color: theme.colorScheme.outline),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed:
+                      (!_enabled || reviewOnly || _isUploading)
+                          ? null
+                          : _sendImageMessage,
+                  icon:
+                      _isUploading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 3),
+                          )
+                          : Icon(
+                            Icons.attach_file,
+                            color: theme.colorScheme.primary,
+                          ),
+                  tooltip: _showText(
+                    enabledText: 'Send picture',
+                    reviewOnly: reviewOnly,
                   ),
                 ),
-              ),
+                Expanded(
+                  child: KeyboardListener(
+                    focusNode: FocusNode(),
+                    onKeyEvent:
+                        (!_enabled || reviewOnly) ? null : _handleKeyEvent,
+                    child: TextField(
+                      enabled: _enabled && !reviewOnly,
+                      focusNode: widget.focusNode,
+                      minLines: 1,
+                      maxLines: 12,
+                      controller: _controller,
+                      decoration: InputDecoration.collapsed(
+                        hintText: _showText(
+                          enabledText: 'Share publicly',
+                          reviewOnly: reviewOnly,
+                        ),
+                        hintStyle: TextStyle(color: theme.colorScheme.outline),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed:
+                      (!_enabled || reviewOnly) ? null : _sendTextMessage,
+                  icon: Icon(Icons.send, color: theme.colorScheme.primary),
+                  tooltip: _showText(
+                    enabledText: 'Send message',
+                    reviewOnly: reviewOnly,
+                  ),
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: (!_enabled || reviewOnly) ? null : _sendTextMessage,
-              icon: Icon(Icons.send, color: theme.colorScheme.primary),
-              tooltip: _showText(
-                enabledText: 'Send message',
-                reviewOnly: reviewOnly,
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

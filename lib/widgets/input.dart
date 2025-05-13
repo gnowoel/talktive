@@ -222,7 +222,7 @@ class _InputState extends State<Input> {
           'This chat has been deleted to protect your privacy. You can start a new conversation with your partner anytime.';
     } else if (widget.chat.isClosed) {
       message =
-          'This chat has expired and will be automatically deleted soon. Once deleted, you can start a new conversation with your partner again.';
+          'This chat has expired and will be deleted soon. Once deleted, you can start a new conversation with your partner again.';
     } else {
       return const SizedBox.shrink();
     }

@@ -214,7 +214,7 @@ class _TopicItemState extends State<TopicItem> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Temporarily Restricted'),
+            title: const Text('Review Only'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,

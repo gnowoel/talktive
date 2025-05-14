@@ -73,7 +73,7 @@ export const onTopicMessageCreated = onDocumentCreated(
         .get();
 
       // A list of promises for sending notifications
-      const notificationPromises = [];
+      const notificationPromises: Promise<void>[] = [];
 
       // Update each follower's personal topic copy
       followersSnapshot.docs.forEach((doc) => {
@@ -113,6 +113,7 @@ export const onTopicMessageCreated = onDocumentCreated(
 
       await updateUserUpdatedAtAndMessageCount(message.userId, message.createdAt);
       await updateTopicMessagesStats();
+      await Promise.all(notificationPromises);
     } catch (error) {
       logger.error('Error in onTopicMessageCreated:', error);
     }

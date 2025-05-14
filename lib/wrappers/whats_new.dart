@@ -67,8 +67,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🔔 Improved Notifications',
-                            'Notifications are now automatically cleared when you open the app, keeping your notification shade clean and organized.',
+                            '👥 Public Topics',
+                            'Introducing group chats where you can share your feelings and stories with the wider community. A supportive space where we can all be good listeners for each other.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(

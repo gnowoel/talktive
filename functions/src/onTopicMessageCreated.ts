@@ -3,7 +3,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { formatDate, isDebugMode } from './helpers';
-import { StatParams } from './types';
+import { StatParams, UserParams } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -111,6 +111,7 @@ export const onTopicMessageCreated = onDocumentCreated(
 
       await batch.commit();
 
+      await updateUserUpdatedAtAndMessageCount(message.userId, message.createdAt);
       await updateTopicMessagesStats();
     } catch (error) {
       logger.error('Error in onTopicMessageCreated:', error);
@@ -214,6 +215,30 @@ async function sendPushNotification(
     logger.warn('Push notification failed:', error);
   }
 }
+
+const updateUserUpdatedAtAndMessageCount = async (userId: string, now: Timestamp) => {
+  const userRef = db.ref(`users/${userId}`);
+  const snapshot = await userRef.get();
+
+  if (!snapshot.exists()) return;
+
+  const user = snapshot.val();
+  const params: UserParams = {};
+
+  params.updatedAt = now.toMillis();
+
+  if (isDebugMode()) {
+    params.messageCount = (user.messageCount ?? 0) + 1;
+  } else {
+    params.messageCount = admin.database.ServerValue.increment(1);
+  }
+
+  try {
+    await userRef.update(params);
+  } catch (error) {
+    logger.error(error);
+  }
+};
 
 const updateTopicMessagesStats = async () => {
   const now = new Date();

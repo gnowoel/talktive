@@ -33,7 +33,7 @@ export const createTopic = onCall(async (request) => {
 
     const now = Timestamp.now();
     const user = userDoc.data() as User;
-    const creator = {
+    const creator: User = {
       id: userId,
       createdAt: 0,
       updatedAt: 0,

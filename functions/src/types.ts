@@ -84,6 +84,7 @@ export interface StatParams {
   topicMessages?: number | object;
   follows?: number | object;
   unfollows?: number | object;
+  rooms?: number | object; // TODO: Will delete
   responses?: number | object; // TODO: Will delete
 }
 

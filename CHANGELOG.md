@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 4.0.0+55
+
+- Introduced group chat functionality
+- Enforced additional restrictions for low-level users
+- Enhanced page efficiency
+- Resolved various bugs
+
 ## 3.9.1+54
 
 - Fixed a bug that would corrupt user records during recovery token generation

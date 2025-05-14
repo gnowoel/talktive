@@ -33,10 +33,13 @@ class Fireauth {
       // Sometimes, I got "unknown" error on Andoid, when the underlying user
       // record has been deleted.
       //
+      // I got "invalid-refresh-token" for the web app.
+      //
       // See also:
       // https://pub.dev/documentation/firebase_auth/latest/firebase_auth/FirebaseAuth/signInWithEmailAndPassword.html
       if (e.code == 'user-not-found' ||
           e.code == 'invalid-user-token' ||
+          e.code == 'invalid-refresh-token' ||
           e.code == 'internal-error' ||
           e.code == "unknown") {
         await instance.signOut();

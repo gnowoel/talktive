@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
+import { Topic } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -38,7 +39,8 @@ export const joinTopic = onCall(async (request) => {
       };
     }
 
-    const topicData = topicDoc.data()!;
+    // Access data after checking for existence and assert its type
+    const topicData = topicDoc.data() as Topic;
 
     // Check if the user is already following this topic
     const followerRef = topicRef.collection('followers').doc(userId);

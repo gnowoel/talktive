@@ -1,3 +1,5 @@
+import * as admin from 'firebase-admin';
+
 export interface Report {
   id?: string;
   chatId: string;
@@ -41,6 +43,18 @@ export interface Chat {
   messageCount: number;
   readMessageCount?: number;
   firstUserId?: string | null;
+  lastMessageContent?: string | null;
+  mute?: boolean;
+}
+
+export interface Topic {
+  id?: string;
+  createdAt: admin.firestore.Timestamp;
+  updatedAt: admin.firestore.Timestamp;
+  title: string;
+  creator: User;
+  messageCount: number;
+  readMessageCount?: number | null;
   lastMessageContent?: string | null;
   mute?: boolean;
 }

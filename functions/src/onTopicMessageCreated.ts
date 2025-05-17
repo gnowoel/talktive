@@ -181,10 +181,7 @@ async function sendPushNotification(
         // createdAt: message.createdAt.toMillis().toString()
       },
       android: {
-        priority: 'high',
-        notification: {
-          channelId: 'topic_messages'
-        }
+        priority: 'high'
       },
       // apns: {
       //   payload: {

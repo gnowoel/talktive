@@ -4,7 +4,6 @@ class Bubble extends StatelessWidget {
   final String content;
   final bool byMe;
   final bool byOp;
-  final bool isBot;
   final bool recalled;
 
   const Bubble({
@@ -12,7 +11,6 @@ class Bubble extends StatelessWidget {
     required this.content,
     this.byMe = false,
     this.byOp = false,
-    this.isBot = false,
     this.recalled = false,
   });
 
@@ -20,23 +18,15 @@ class Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final containerColor =
-        isBot
-            ? colorScheme.secondaryContainer
-            : (byMe
-                ? colorScheme.primaryContainer
-                : (byOp
-                    ? colorScheme.tertiaryContainer
-                    : colorScheme.surfaceContainerHigh));
+    final containerColor = byMe
+        ? colorScheme.primaryContainer
+        : (byOp
+            ? colorScheme.tertiaryContainer
+            : colorScheme.surfaceContainerHigh);
 
-    final textColor =
-        isBot
-            ? colorScheme.onSecondaryContainer
-            : (byMe
-                ? colorScheme.onPrimaryContainer
-                : (byOp
-                    ? colorScheme.onTertiaryContainer
-                    : colorScheme.onSurface));
+    final textColor = byMe
+        ? colorScheme.onPrimaryContainer
+        : (byOp ? colorScheme.onTertiaryContainer : colorScheme.onSurface);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

@@ -19,7 +19,6 @@ const hour = 60 * 60 * 1000;
 const day = 24 * hour;
 
 const timeBeforeUserDeleting = isDebugMode() ? 14 * day : 200 * day + 1 * hour;
-const timeBeforeRoomDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeTopicDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
@@ -173,7 +172,6 @@ const migrateUsers = async () => {
 const cleanup = async () => {
   try {
     await cleanupUsers();
-    await cleanupRooms();
     await cleanupPairs();
     await cleanupTopics();
     await cleanupReports();
@@ -407,64 +405,6 @@ const cleanupUserConnections = async (
   } catch (error) {
     logger.error(`Error cleaning up connections for user ${userId}:`, error);
     throw error; // Propagate error to handle it in the calling function
-  }
-};
-
-// Rooms, messages & images
-const cleanupRooms = async () => {
-  const ref = db.ref('rooms');
-  const time = new Date().getTime() - timeBeforeRoomDeleting;
-  const query = ref.orderByChild('closedAt').endAt(time).limitToFirst(1000);
-
-  const snapshot = await query.get();
-
-  if (!snapshot.exists()) return;
-
-  const rooms = snapshot.val();
-  const roomIds = Object.keys(rooms);
-
-  try {
-    for (const roomId of roomIds) {
-      await removeRoomImages(roomId);
-      await removeRoomMessages(roomId);
-      await removeRoom(roomId);
-    }
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const removeRoomImages = async (roomId: string) => {
-  try {
-    const bucket = storage.bucket();
-    const prefix = `rooms/${roomId}/`;
-
-    const [files] = await bucket.getFiles({ prefix });
-
-    const deletePromises = files.map(file => file.delete());
-    await Promise.all(deletePromises);
-  } catch (error) {
-    logger.error(`Failed to remove images from room ${roomId}:`, error);
-  }
-};
-
-const removeRoomMessages = async (roomId: string) => {
-  const messagesRef = db.ref(`messages/${roomId}`);
-
-  try {
-    await messagesRef.remove();
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const removeRoom = async (roomId: string) => {
-  const roomRef = db.ref(`rooms/${roomId}`);
-
-  try {
-    await roomRef.remove();
-  } catch (error) {
-    logger.error(error);
   }
 };
 

@@ -141,7 +141,7 @@ class _InputState extends State<Input> {
         if (mounted) {
           ErrorHandler.showSnackBarMessage(
             context,
-            AppException('The room has been deleted.'),
+            AppException('The chat has been deleted.'),
             severe: true,
           );
         }
@@ -150,7 +150,7 @@ class _InputState extends State<Input> {
         if (mounted) {
           ErrorHandler.showSnackBarMessage(
             context,
-            AppException('The room has been closed.'),
+            AppException('The chat has been closed.'),
           );
         }
         return;
@@ -257,26 +257,24 @@ class _InputState extends State<Input> {
               children: [
                 IconButton(
                   onPressed: _enabled ? () => _sendImageMessage(user) : null,
-                  icon:
-                      _isUploading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 3),
-                          )
-                          : Icon(
-                            Icons.attach_file,
-                            color: theme.colorScheme.tertiary,
-                          ),
+                  icon: _isUploading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        )
+                      : Icon(
+                          Icons.attach_file,
+                          color: theme.colorScheme.tertiary,
+                        ),
                   tooltip: _enabled ? 'Send picture' : 'Chat closed',
                 ),
                 Expanded(
                   child: KeyboardListener(
                     focusNode: FocusNode(),
-                    onKeyEvent:
-                        _enabled
-                            ? (event) => _handleKeyEvent(event, user)
-                            : null,
+                    onKeyEvent: _enabled
+                        ? (event) => _handleKeyEvent(event, user)
+                        : null,
                     child: TextField(
                       enabled: _enabled,
                       focusNode: widget.focusNode,

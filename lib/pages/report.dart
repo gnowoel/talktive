@@ -69,7 +69,7 @@ class _ReportPageState extends State<ReportPage> {
           if (mounted) {
             ErrorHandler.showSnackBarMessage(
               context,
-              AppException('The room has been deleted.'),
+              AppException('The chat has been deleted.'),
               severe: true,
             );
           }
@@ -84,14 +84,14 @@ class _ReportPageState extends State<ReportPage> {
     messagesSubscription = firedata
         .subscribeToMessages(widget.chat.id, lastTimestamp)
         .listen((messages) {
-      // There might be obsolete records from Friebase offline cache.
-      reportMessageCache.addMessages(_chat.id, messages);
-      final filteredMessages = messages
-          .where((message) => message.createdAt >= _chat.createdAt)
-          .toList();
+          // There might be obsolete records from Friebase offline cache.
+          reportMessageCache.addMessages(_chat.id, messages);
+          final filteredMessages = messages
+              .where((message) => message.createdAt >= _chat.createdAt)
+              .toList();
 
-      reportMessageCache.addMessages(widget.chat.id, filteredMessages);
-    });
+          reportMessageCache.addMessages(widget.chat.id, filteredMessages);
+        });
   }
 
   @override

@@ -44,21 +44,19 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: widget.message.userId,
-            photoURL: widget.message.userPhotoURL,
-            displayName: widget.message.userDisplayName,
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: widget.message.userId,
+        photoURL: widget.message.userPhotoURL,
+        displayName: widget.message.userDisplayName,
+      ),
     );
   }
 
   void _showContextMenu(BuildContext context, Offset position) {
     final currentUser = fireauth.instance.currentUser!;
-    final byMe =
-        widget.reporterUserId == null
-            ? widget.message.userId == currentUser.uid
-            : widget.message.userId == widget.reporterUserId;
+    final byMe = widget.reporterUserId == null
+        ? widget.message.userId == currentUser.uid
+        : widget.message.userId == widget.reporterUserId;
 
     final menuItems = <PopupMenuEntry>[];
 
@@ -92,26 +90,25 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   void _showRecallDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Recall Image?'),
-            content: const Text(
-              'This image will be removed from the chat. The action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              TextButton(
-                child: const Text('Recall'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _recallMessage(context);
-                },
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Recall Image?'),
+        content: const Text(
+          'This image will be removed from the chat. The action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
+          TextButton(
+            child: const Text('Recall'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _recallMessage(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -142,8 +139,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
 
     if (byMe) {
       return GestureDetector(
-        onLongPressStart:
-            (details) => _showContextMenu(context, details.globalPosition),
+        onLongPressStart: (details) =>
+            _showContextMenu(context, details.globalPosition),
         child: _buildCachedImage(context, constraints),
       );
     }
@@ -161,11 +158,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   @override
   Widget build(BuildContext context) {
     final currentUser = fireauth.instance.currentUser!;
-    final byMe =
-        widget.message.userId == currentUser.uid ||
+    final byMe = widget.message.userId == currentUser.uid ||
         widget.message.userId == widget.reporterUserId;
 
-    // Bot messages are always shown on the left
     return byMe
         ? _buildMessageItemRight(context)
         : _buildMessageItemLeft(context);
@@ -183,12 +178,10 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
           onTap: () => _showImageViewer(context),
           child: CachedNetworkImage(
             imageUrl: _imageUrl,
-            imageBuilder:
-                (context, imageProvider) =>
-                    Image(image: imageProvider, fit: BoxFit.contain),
-            placeholder:
-                (context, url) =>
-                    getImagePlaceholder(color: theme.colorScheme.primary),
+            imageBuilder: (context, imageProvider) =>
+                Image(image: imageProvider, fit: BoxFit.contain),
+            placeholder: (context, url) =>
+                getImagePlaceholder(color: theme.colorScheme.primary),
             // progressIndicatorBuilder:
             //     (context, url, downloadProgress) => getProgressIndicator(
             //       downloadProgress,
@@ -251,9 +244,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
               children: [
                 Flexible(
                   child: LayoutBuilder(
-                    builder:
-                        (context, constrains) =>
-                            _buildMessageBox(context, constrains, byMe: true),
+                    builder: (context, constrains) =>
+                        _buildMessageBox(context, constrains, byMe: true),
                   ),
                 ),
               ],

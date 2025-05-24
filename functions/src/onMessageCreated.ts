@@ -2,24 +2,10 @@ import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onValueCreated } from 'firebase-functions/v2/database';
 import { formatDate, isDebugMode } from './helpers';
-import { ChatGPTService } from './services/chatgpt';
-import { CHATGPT_CONFIG } from './config';
-import { Chat, RoomMessage, Message, UserParams, PairParams, StatParams } from './types';
+import { Chat, Message, UserParams, PairParams, StatParams } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
-}
-
-interface Room {
-  closedAt: number
-  filter: string
-}
-
-interface RoomParams {
-  createdAt?: number
-  updatedAt?: number
-  closedAt?: number
-  filter?: string
 }
 
 interface MessagingError extends Error {
@@ -32,14 +18,6 @@ const db = admin.database();
 const timeBeforeClosing = isDebugMode() ?
   1000 * 60 * 6 : // 6 minutes
   1000 * 60 * 60 * 24 * 3; // 3 days
-
-const BOT_WAIT_TIME = 10 * 1000;
-
-const BOT = {
-  userId: 'bot',
-  userName: 'assistant',
-  userCode: '\u{1f916}', // Robot
-};
 
 function isMessagingError(error: unknown): error is MessagingError {
   return (
@@ -55,22 +33,13 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
   const listId = event.params.listId;
   const message = event.data.val();
   const userId = message.userId;
-  const messageCreatedAt = message.createdAt;
-
   const pairId = listId;
-  const roomId = listId;
-  const isPair = listId.length > 20; // Push ID is 20 characters long
 
   try {
     await updateUserUpdatedAtAndMessageCount(userId, now);
-    if (isPair) {
-      await updatePair(pairId, message, now);
-      await sendPushNotification(userId, pairId, message);
-    } else {
-      await updateRoomTimestamps(roomId, messageCreatedAt);
-    }
-    await updateMessageOrResponseStats(now, message);
-    await sendBotResponse(roomId, message);
+    await updatePair(pairId, message, now);
+    await sendPushNotification(userId, pairId, message);
+    await updateMessageOrResponseStats(now);
   } catch (error) {
     logger.error(error);
   }
@@ -234,41 +203,7 @@ const getUserFcmToken = async (userId: string) => {
   }
 };
 
-const updateRoomTimestamps = async (roomId: string, messageCreatedAt: number) => {
-  const ref = db.ref(`rooms/${roomId}`);
-
-  const snapshot = await ref.get();
-
-  if (!snapshot.exists()) return;
-
-  const room = snapshot.val();
-  const filter0 = `${room.languageCode}-1970-01-01T00:00:00.000Z`;
-  const filterC = '-cccc';
-  const params: RoomParams = {};
-
-  params.updatedAt = messageCreatedAt;
-
-  if (isRoomNew(room)) {
-    params.createdAt = messageCreatedAt;
-    params.filter = filter0;
-  }
-
-  if (!isRoomClosed(room, messageCreatedAt)) {
-    params.closedAt = messageCreatedAt + timeBeforeClosing;
-  } else {
-    if (room.filter !== filterC) {
-      params.filter = filterC;
-    }
-  }
-
-  try {
-    await ref.update(params);
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const updateMessageOrResponseStats = async (now: Date, message: Message) => {
+const updateMessageOrResponseStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);
   const snapshot = await statRef.get();
 
@@ -277,93 +212,15 @@ const updateMessageOrResponseStats = async (now: Date, message: Message) => {
   const stat = snapshot.val();
   const params: StatParams = {};
 
-  if (message.userId === BOT.userId) {
-    // Just in case that data has not migrated after upgrading
-    if (!('responses' in stat)) return;
-
-    // `ServerValue` doesn't work with Emulators Suite
-    if (isDebugMode()) {
-      params.responses = stat.responses + 1;
-    } else {
-      params.responses = admin.database.ServerValue.increment(1);
-    }
+  // `ServerValue` doesn't work with Emulators Suite
+  if (isDebugMode()) {
+    params.chatMessages = stat.chatMessages + 1;
   } else {
-    // `ServerValue` doesn't work with Emulators Suite
-    if (isDebugMode()) {
-      params.chatMessages = stat.chatMessages + 1;
-    } else {
-      params.chatMessages = admin.database.ServerValue.increment(1);
-    }
+    params.chatMessages = admin.database.ServerValue.increment(1);
   }
 
   try {
     await statRef.update(params);
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const isRoomNew = (room: Room) => {
-  return room.filter.endsWith('-nnnn');
-};
-
-const isRoomClosed = (room: Room, timestamp: number) => {
-  return room.filter === '-cccc' || room.closedAt <= timestamp;
-};
-
-const sendBotResponse = async (roomId: string, message: RoomMessage) => {
-  if (roomId !== BOT.userId) return; // Disable chatbot for now
-
-  if (message.userId === BOT.userId) return;
-
-  try {
-    await new Promise(resolve => setTimeout(resolve, BOT_WAIT_TIME));
-
-    const roomSnapshot = await db.ref(`/rooms/${roomId}`).get();
-    const room = roomSnapshot.val();
-
-    if (!room || room.filter === '-dddd' || room.filter === '-cccc') {
-      return; // Room is deleted or closed
-    }
-
-    if (room.updatedAt > message.createdAt) {
-      return; // Someone else replied
-    }
-
-    const messagesRef = db.ref(`/messages/${roomId}`);
-    const recentMessagesQuery = messagesRef
-      .orderByChild('createdAt')
-      .endAt(message.createdAt)
-      .limitToLast(CHATGPT_CONFIG.maxContextMessages + 1);
-
-    const recentMessagesSnapshot = await recentMessagesQuery.get();
-    const recentMessages: RoomMessage[] = [];
-
-    if (recentMessagesSnapshot.exists()) {
-      recentMessagesSnapshot.forEach((childSnapshot) => {
-        const msg = childSnapshot.val();
-        recentMessages.push(msg);
-      });
-    }
-
-    recentMessages.pop();
-
-    const response = await ChatGPTService.generateResponse(
-      message,
-      recentMessages
-    );
-
-    if (!response) return;
-
-    const botMessage = {
-      userId: BOT.userId,
-      userName: BOT.userName,
-      userCode: BOT.userCode,
-      content: response,
-      createdAt: Date.now(),
-    };
-
-    await db.ref(`/messages/${roomId}`).push(botMessage);
   } catch (error) {
     logger.error(error);
   }

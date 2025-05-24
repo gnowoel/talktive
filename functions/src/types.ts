@@ -59,15 +59,6 @@ export interface Topic {
   mute?: boolean;
 }
 
-export interface RoomMessage {
-  id?: string;
-  userId: string;
-  userName: string;
-  userCode: string;
-  content: string;
-  createdAt: number;
-}
-
 export interface Message {
   id?: string;
   userId: string;
@@ -98,8 +89,6 @@ export interface StatParams {
   topicMessages?: number | object;
   follows?: number | object;
   unfollows?: number | object;
-  rooms?: number | object; // TODO: Will delete
-  responses?: number | object; // TODO: Will delete
 }
 
 export interface PartnerParams {

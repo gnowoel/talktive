@@ -14,6 +14,7 @@ import '../services/settings.dart';
 import '../services/storage.dart';
 import '../services/topic_cache.dart';
 import '../services/topic_message_cache.dart';
+import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 
 class Providers extends StatelessWidget {
@@ -43,6 +44,9 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ReportMessageCache()),
         ChangeNotifierProvider(create: (context) => TopicCache()),
         ChangeNotifierProvider(create: (context) => TopicMessageCache()),
+        ChangeNotifierProvider(
+          create: (context) => TribeCache(context.read<Firestore>()),
+        ),
       ],
       child: child,
     );

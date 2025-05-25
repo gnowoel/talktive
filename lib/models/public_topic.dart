@@ -10,6 +10,7 @@ class PublicTopic extends Chat {
   final User creator;
   final String? lastMessageContent;
   final bool? mute;
+  final String? tribe;
 
   const PublicTopic({
     required super.id,
@@ -21,6 +22,7 @@ class PublicTopic extends Chat {
     super.readMessageCount,
     this.lastMessageContent,
     this.mute,
+    this.tribe,
   }) : super(type: 'topic');
 
   Map<String, dynamic> toJson() {
@@ -34,6 +36,7 @@ class PublicTopic extends Chat {
       'readMessageCount': readMessageCount,
       'lastMessageContent': lastMessageContent,
       'mute': mute,
+      'tribe': tribe,
     };
   }
 
@@ -47,6 +50,7 @@ class PublicTopic extends Chat {
     int? readMessageCount,
     String? lastMessageContent,
     bool? mute,
+    String? tribe,
   }) {
     return PublicTopic(
       id: id ?? this.id,
@@ -58,6 +62,7 @@ class PublicTopic extends Chat {
       readMessageCount: readMessageCount ?? this.readMessageCount,
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
       mute: mute ?? this.mute,
+      tribe: tribe ?? this.tribe,
     );
   }
 
@@ -84,6 +89,7 @@ class PublicTopic extends Chat {
       readMessageCount: json['readMessageCount'] as int?,
       lastMessageContent: json['lastMessageContent'] as String?,
       mute: json['mute'] as bool?,
+      tribe: json['tribe'] as String?,
     );
   }
 
@@ -98,6 +104,7 @@ class PublicTopic extends Chat {
         value: UserStub(createdAt: 0, updatedAt: 0),
       ),
       messageCount: 0,
+      tribe: null,
     );
   }
 

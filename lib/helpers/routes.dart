@@ -23,3 +23,11 @@ String encodeTopicLaunchRoute(String topicId, String topicCreatorId) {
   final encodedTopicCreatorId = Uri.encodeComponent(topicCreatorId);
   return '/launch/topic/$topicId?topicCreatorId=$encodedTopicCreatorId';
 }
+
+String encodeTribeRoute(String tribeId) {
+  return '/topics/tribe/$tribeId';
+}
+
+String encodeCreateTopicWithTribeRoute(String tribeId) {
+  return '/topics/create?tribeId=$tribeId';
+}

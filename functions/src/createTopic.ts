@@ -14,7 +14,7 @@ const db = admin.database();
 
 export const createTopic = onCall(async (request) => {
   try {
-    const { userId, title, message } = request.data;
+    const { userId, title, message, tribe } = request.data;
 
     if (!userId || !title || !message) {
       return {
@@ -52,6 +52,7 @@ export const createTopic = onCall(async (request) => {
       updatedAt: now,
       messageCount: 0, // Copy to downstream
       lastMessageContent: message, // Copy to downstream
+      tribe: tribe || null,
     });
 
     const topicId = topicRef.id;
@@ -102,6 +103,7 @@ export const createTopic = onCall(async (request) => {
       readMessageCount: 1, // Creator has read their own message
       lastMessageContent: message, // Copy from upstream
       mute: false,
+      tribe: tribe || null,
     });
 
     // Get the creator's followers
@@ -142,11 +144,21 @@ export const createTopic = onCall(async (request) => {
         readMessageCount: 0, // Follower hasn't read the first message yet
         lastMessageContent: message, // Copy from upstream
         mute: false,
+        tribe: tribe || null,
       });
     }
 
     // Commit all operations
     await batch.commit();
+
+    // If a tribe was specified, increment its topic count
+    if (tribe) {
+      const tribeRef = firestore.collection('tribes').doc(tribe);
+      await tribeRef.update({
+        topicCount: admin.firestore.FieldValue.increment(1),
+        updatedAt: now,
+      });
+    }
 
     await updateTopicStats();
 

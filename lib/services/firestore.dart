@@ -7,6 +7,7 @@ import '../helpers/time.dart';
 import '../models/follow.dart';
 import '../models/public_topic.dart';
 import '../models/topic_message.dart';
+import '../models/tribe.dart';
 import '../models/user.dart';
 import '../helpers/exception.dart';
 
@@ -326,6 +327,7 @@ class Firestore {
     required User user,
     required String title,
     required String message,
+    String? tribe,
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
@@ -335,6 +337,7 @@ class Firestore {
         'userId': user.id,
         'title': title,
         'message': message,
+        'tribe': tribe,
       });
 
       final result = response.data;
@@ -359,12 +362,86 @@ class Firestore {
       title: '',
       creator: user,
       messageCount: 1,
+      tribe: null,
     );
+  }
+
+  Future<List<Tribe>> fetchTribes() async {
+    try {
+      final snapshot = await instance
+          .collection('tribes')
+          .orderBy('topicCount', descending: true)
+          .limit(100)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => Tribe.fromJson(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<Tribe> createTribe({
+    required String name,
+    String? description,
+    String? iconEmoji,
+  }) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('createTribe');
+
+      final response = await callable.call({
+        'name': name,
+        'description': description,
+        'iconEmoji': iconEmoji,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to create tribe');
+      }
+
+      final tribeId = result['tribeId'];
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+
+      return Tribe(
+        id: tribeId,
+        name: name,
+        createdAt: timestamp,
+        topicCount: 0,
+        description: description,
+        iconEmoji: iconEmoji,
+      );
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<List<PublicTopic>> fetchTopicsByTribe(String tribeId) async {
+    try {
+      final snapshot = await instance
+          .collection('topics')
+          .where('tribe', isEqualTo: tribeId)
+          .orderBy('updatedAt', descending: true)
+          .limit(32)
+          .get();
+
+      final topics = snapshot.docs
+          .map((doc) => PublicTopic.fromJson(doc.id, doc.data()))
+          .toList();
+
+      return topics;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
   }
 
   Future<List<PublicTopic>> fetchPublicTopics(
     int serverNow, {
     bool noCache = false,
+    String? tribeId,
   }) async {
     try {
       // Clear cache if it's too old or explicitly requested

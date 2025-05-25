@@ -11,6 +11,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
+import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 import 'tag.dart';
@@ -40,6 +41,7 @@ class _TopicItemState extends State<TopicItem> {
   late bool byMe;
   late bool isFriend;
   bool _isProcessing = false;
+  late TribeCache tribeCache;
 
   @override
   void initState() {
@@ -54,6 +56,7 @@ class _TopicItemState extends State<TopicItem> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     followCache = Provider.of<FollowCache>(context);
+    tribeCache = Provider.of<TribeCache>(context);
     isFriend = followCache.isFollowing(widget.topic.creator.id);
   }
 
@@ -259,6 +262,12 @@ class _TopicItemState extends State<TopicItem> {
           ),
     );
   }
+  
+  void _onTribeTap() {
+    if (widget.topic.tribe != null) {
+      context.go('/topics/tribe/${widget.topic.tribe}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -292,15 +301,39 @@ class _TopicItemState extends State<TopicItem> {
             style: TextStyle(fontSize: 36, color: textColor),
           ),
         ),
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (byMe || isFriend) ...[
-              Icon(Icons.grade, size: 16, color: customColors.friendIndicator),
-              const SizedBox(width: 4),
-            ],
-            Expanded(
-              child: Text(widget.topic.title, overflow: TextOverflow.ellipsis),
+            if (widget.topic.tribe != null) 
+              GestureDetector(
+                onTap: _onTribeTap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  margin: const EdgeInsets.only(bottom: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    tribeCache.getTribeById(widget.topic.tribe!)?.name ?? widget.topic.tribe!,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (byMe || isFriend) ...[
+                  Icon(Icons.grade, size: 16, color: customColors.friendIndicator),
+                  const SizedBox(width: 4),
+                ],
+                Expanded(
+                  child: Text(widget.topic.title, overflow: TextOverflow.ellipsis),
+                ),
+              ],
             ),
           ],
         ),

@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
 import { StatParams, User } from './types';
@@ -155,7 +155,7 @@ export const createTopic = onCall(async (request) => {
     if (tribe) {
       const tribeRef = firestore.collection('tribes').doc(tribe);
       await tribeRef.update({
-        topicCount: admin.firestore.FieldValue.increment(1),
+        topicCount: FieldValue.increment(1),
         updatedAt: now,
       });
     }

@@ -33,6 +33,14 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    // Tribes collection
+    match /tribes/{tribeId} {
+      // Any signed-in user can read tribes
+      allow read: if isSignedIn();
+      // Only allow creation through Cloud Functions
+      allow create, update, delete: if false;
+    }
+
     // User document and subcollections
     match /users/{userId} {
       allow read: if isSignedIn();

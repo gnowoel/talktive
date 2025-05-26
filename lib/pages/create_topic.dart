@@ -12,7 +12,7 @@ import '../widgets/layout.dart';
 
 class CreateTopicPage extends StatefulWidget {
   final String? initialTribeId;
-  
+
   const CreateTopicPage({super.key, this.initialTribeId});
 
   @override
@@ -29,12 +29,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   final _tribeController = TextEditingController();
+  final _tribeFocusNode = FocusNode();
   bool _isProcessing = false;
   bool _isCreatingTribe = false;
-  
+
   List<Tribe> _filteredTribes = [];
   Tribe? _selectedTribe;
-  FocusNode _tribeFocusNode = FocusNode();
   bool _showTribeList = false;
 
   @override
@@ -45,19 +45,19 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     tribeCache = context.read<TribeCache>();
     _loadTribes();
     _tribeFocusNode.addListener(_onTribeFocusChange);
-    
+
     if (widget.initialTribeId != null) {
       _setInitialTribe();
     }
   }
-  
+
   Future<void> _loadTribes() async {
     await tribeCache.fetchTribes();
     setState(() {
       _filteredTribes = tribeCache.tribes;
     });
   }
-  
+
   Future<void> _setInitialTribe() async {
     await tribeCache.fetchTribes();
     final tribe = tribeCache.getTribeById(widget.initialTribeId!);
@@ -68,7 +68,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       });
     }
   }
-  
+
   void _onTribeFocusChange() {
     if (_tribeFocusNode.hasFocus) {
       setState(() {
@@ -113,7 +113,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     }
     return null;
   }
-  
+
   String? _validateTribe(String? value) {
     value = value?.trim();
     if (value == null || value.isEmpty) {
@@ -121,7 +121,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     }
     return null;
   }
-  
+
   void _filterTribes(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -129,12 +129,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       });
       return;
     }
-    
+
     setState(() {
       _filteredTribes = tribeCache.searchTribes(query);
     });
   }
-  
+
   void _selectTribe(Tribe tribe) {
     setState(() {
       _selectedTribe = tribe;
@@ -142,15 +142,15 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       _showTribeList = false;
     });
   }
-  
+
   Future<void> _createNewTribe() async {
     final tribeName = _tribeController.text.trim();
     if (tribeName.isEmpty) return;
-    
+
     setState(() {
       _isCreatingTribe = true;
     });
-    
+
     try {
       final tribe = await tribeCache.createTribe(tribeName);
       setState(() {
@@ -187,7 +187,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
         if (_selectedTribe == null && _tribeController.text.trim().isNotEmpty) {
           await _createNewTribe();
         }
-        
+
         final topic = await firestore.createTopic(
           user: user,
           title: _titleController.text.trim(),
@@ -265,11 +265,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         'About Topics',
                                         style: theme.textTheme.titleSmall
                                             ?.copyWith(
-                                              color:
-                                                  theme
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                            ),
+                                          color: theme
+                                              .colorScheme.onSurfaceVariant,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -285,21 +283,11 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             ),
                             const SizedBox(height: 32),
                             TextFormField(
-                              controller: _titleController,
-                              decoration: const InputDecoration(
-                                labelText: 'Topic Title',
-                                hintText: 'What would you like to discuss?',
-                              ),
-                              validator: _validateTitle,
-                              maxLength: 100,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
                               controller: _tribeController,
                               focusNode: _tribeFocusNode,
                               decoration: InputDecoration(
-                                labelText: 'Tribe',
-                                hintText: 'Search or create a tribe',
+                                labelText: 'Category',
+                                hintText: 'Search or create a category',
                                 suffixIcon: _selectedTribe != null
                                     ? IconButton(
                                         icon: const Icon(Icons.clear),
@@ -323,21 +311,32 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             if (_showTribeList) ...[
                               const SizedBox(height: 8),
                               Container(
-                                constraints: const BoxConstraints(maxHeight: 200),
+                                constraints: const BoxConstraints(
+                                  maxHeight: 200,
+                                ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: theme.colorScheme.outline),
+                                  border: Border.all(
+                                    color: theme.colorScheme.outline,
+                                  ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: _filteredTribes.isEmpty
                                     ? ListTile(
-                                        title: Text('Create "${_tribeController.text.trim()}"'),
+                                        title: Text(
+                                          'Create "${_tribeController.text.trim()}"',
+                                        ),
                                         leading: const Icon(Icons.add),
-                                        onTap: _isCreatingTribe ? null : _createNewTribe,
+                                        onTap: _isCreatingTribe
+                                            ? null
+                                            : _createNewTribe,
                                         trailing: _isCreatingTribe
                                             ? SizedBox(
                                                 width: 16,
                                                 height: 16,
-                                                child: CircularProgressIndicator(strokeWidth: 2),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                ),
                                               )
                                             : null,
                                       )
@@ -352,12 +351,15 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                 ? Text(
                                                     tribe.description!,
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   )
                                                 : null,
                                             leading: Text(
                                               tribe.iconEmoji ?? '🏷️',
-                                              style: const TextStyle(fontSize: 24),
+                                              style: const TextStyle(
+                                                fontSize: 24,
+                                              ),
                                             ),
                                             onTap: () => _selectTribe(tribe),
                                           );
@@ -365,6 +367,16 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                       ),
                               ),
                             ],
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _titleController,
+                              decoration: const InputDecoration(
+                                labelText: 'Topic Title',
+                                hintText: 'What would you like to discuss?',
+                              ),
+                              validator: _validateTitle,
+                              maxLength: 100,
+                            ),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _messageController,
@@ -380,16 +392,15 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             const SizedBox(height: 32),
                             FilledButton(
                               onPressed: _isProcessing ? null : _submit,
-                              child:
-                                  _isProcessing
-                                      ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3,
-                                        ),
-                                      )
-                                      : const Text('Create Topic'),
+                              child: _isProcessing
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Text('Create Topic'),
                             ),
                           ],
                         ),

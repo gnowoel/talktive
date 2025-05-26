@@ -80,11 +80,11 @@ class _TopicsPageState extends State<TopicsPage> {
       }
     }
   }
-  
+
   Future<void> _fetchTribes() async {
     try {
       await tribeCache.fetchTribes();
-      
+
       if (mounted) {
         setState(() {
           _tribes = tribeCache.tribes;
@@ -97,13 +97,13 @@ class _TopicsPageState extends State<TopicsPage> {
       }
     }
   }
-  
+
   void _navigateToTribe(Tribe tribe) {
-    context.go('/topics/tribe/${tribe.id}');
+    context.push('/topics/tribe/${tribe.id}');
   }
-  
+
   void _navigateToCreateTopic([String? tribeId]) {
-    final uri = tribeId != null 
+    final uri = tribeId != null
         ? Uri(path: '/topics/create', queryParameters: {'tribeId': tribeId})
         : Uri(path: '/topics/create');
     context.push(uri.toString());
@@ -181,82 +181,83 @@ class _TopicsPageState extends State<TopicsPage> {
         ],
       ),
       body: SafeArea(
-        child:
-            _topics.isEmpty
-                ? (_isPopulated
-                    ? const Center(child: Info(lines: lines))
-                    : const Center(
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    ))
-                : Layout(
-                  child: Column(
-                    children: [
-                      if (_isTribesLoaded && _tribes.isNotEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tribes',
-                                style: theme.textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                height: 100,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: _tribes.length,
-                                  itemBuilder: (context, index) {
-                                    final tribe = _tribes[index];
-                                    return Card(
-                                      margin: const EdgeInsets.only(right: 8),
-                                      color: theme.colorScheme.primaryContainer,
-                                      child: InkWell(
-                                        onTap: () => _navigateToTribe(tribe),
-                                        child: SizedBox(
-                                          width: 100,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  tribe.iconEmoji ?? '🏷️',
-                                                  style: const TextStyle(fontSize: 24),
+        child: _topics.isEmpty
+            ? (_isPopulated
+                ? const Center(child: Info(lines: lines))
+                : const Center(
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ))
+            : Layout(
+                child: Column(
+                  children: [
+                    if (_isTribesLoaded && _tribes.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Categories',
+                                style: theme.textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: 100,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _tribes.length,
+                                itemBuilder: (context, index) {
+                                  final tribe = _tribes[index];
+                                  return Card(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    color: theme.colorScheme.primaryContainer,
+                                    child: InkWell(
+                                      onTap: () => _navigateToTribe(tribe),
+                                      child: SizedBox(
+                                        width: 100,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                tribe.iconEmoji ?? '🏷️',
+                                                style: const TextStyle(
+                                                  fontSize: 24,
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  tribe.name,
-                                                  style: theme.textTheme.labelMedium,
-                                                  textAlign: TextAlign.center,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  maxLines: 2,
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                tribe.name,
+                                                style:
+                                                    theme.textTheme.labelMedium,
+                                                textAlign: TextAlign.center,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
+                                    ),
+                                  );
+                                },
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: TopicList(
-                          topics: _topics,
-                          joinedTopicIds: joinedTopicIds,
-                          seenTopicIds: seenTopicIds,
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: TopicList(
+                        topics: _topics,
+                        joinedTopicIds: joinedTopicIds,
+                        seenTopicIds: seenTopicIds,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
       ),
     );
   }

@@ -10,7 +10,7 @@ class PublicTopic extends Chat {
   final User creator;
   final String? lastMessageContent;
   final bool? mute;
-  final String? tribe;
+  final String? tribeId;
 
   const PublicTopic({
     required super.id,
@@ -22,7 +22,7 @@ class PublicTopic extends Chat {
     super.readMessageCount,
     this.lastMessageContent,
     this.mute,
-    this.tribe,
+    this.tribeId,
   }) : super(type: 'topic');
 
   Map<String, dynamic> toJson() {
@@ -36,7 +36,7 @@ class PublicTopic extends Chat {
       'readMessageCount': readMessageCount,
       'lastMessageContent': lastMessageContent,
       'mute': mute,
-      'tribe': tribe,
+      'tribeId': tribeId,
     };
   }
 
@@ -50,7 +50,7 @@ class PublicTopic extends Chat {
     int? readMessageCount,
     String? lastMessageContent,
     bool? mute,
-    String? tribe,
+    String? tribeId,
   }) {
     return PublicTopic(
       id: id ?? this.id,
@@ -62,7 +62,7 @@ class PublicTopic extends Chat {
       readMessageCount: readMessageCount ?? this.readMessageCount,
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
       mute: mute ?? this.mute,
-      tribe: tribe ?? this.tribe,
+      tribeId: tribeId ?? this.tribeId,
     );
   }
 
@@ -74,10 +74,9 @@ class PublicTopic extends Chat {
     );
 
     final timestamp = json['updatedAt'];
-    final updatedAt =
-        timestamp is Timestamp
-            ? timestamp.millisecondsSinceEpoch
-            : ServerClock().now; // Fallback to local timestamp if null
+    final updatedAt = timestamp is Timestamp
+        ? timestamp.millisecondsSinceEpoch
+        : ServerClock().now; // Fallback to local timestamp if null
 
     return PublicTopic(
       id: id,
@@ -89,7 +88,7 @@ class PublicTopic extends Chat {
       readMessageCount: json['readMessageCount'] as int?,
       lastMessageContent: json['lastMessageContent'] as String?,
       mute: json['mute'] as bool?,
-      tribe: json['tribe'] as String?,
+      tribeId: json['tribeId'] as String?,
     );
   }
 
@@ -104,7 +103,7 @@ class PublicTopic extends Chat {
         value: UserStub(createdAt: 0, updatedAt: 0),
       ),
       messageCount: 0,
-      tribe: null,
+      tribeId: null,
     );
   }
 

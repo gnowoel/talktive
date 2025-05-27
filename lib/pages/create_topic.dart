@@ -192,7 +192,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
           user: user,
           title: _titleController.text.trim(),
           message: _messageController.text.trim(),
-          tribe: _selectedTribe?.id,
+          tribeId: _selectedTribe?.id,
         );
 
         if (mounted) {
@@ -265,9 +265,10 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         'About Topics',
                                         style: theme.textTheme.titleSmall
                                             ?.copyWith(
-                                          color: theme
-                                              .colorScheme.onSurfaceVariant,
-                                        ),
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -335,8 +336,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                 height: 16,
                                                 child:
                                                     CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
+                                                      strokeWidth: 2,
+                                                    ),
                                               )
                                             : null,
                                       )

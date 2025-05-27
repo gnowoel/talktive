@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:talktive/helpers/text.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/exception.dart';
 import '../helpers/routes.dart';
-import '../helpers/text.dart';
 import '../models/public_topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
@@ -21,12 +21,14 @@ class TopicItem extends StatefulWidget {
   final PublicTopic topic;
   final bool hasJoined;
   final bool hasSeen;
+  final bool showTribeTag;
 
   const TopicItem({
     super.key,
     required this.topic,
     required this.hasJoined,
     required this.hasSeen,
+    this.showTribeTag = false,
   });
 
   @override
@@ -299,7 +301,7 @@ class _TopicItemState extends State<TopicItem> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.topic.tribeId != null)
+            if (widget.topic.tribeId != null && widget.showTribeTag) ...[
               GestureDetector(
                 onTap: _onTribeTap,
                 child: Container(
@@ -324,6 +326,7 @@ class _TopicItemState extends State<TopicItem> {
                   ),
                 ),
               ),
+            ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -348,16 +351,21 @@ class _TopicItemState extends State<TopicItem> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
-            Text(
-              formatText(
-                widget.topic.lastMessageContent,
-              ), // firstMessageContent
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(height: 1.2),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 4),
+            if (widget.showTribeTag) ...[
+              const SizedBox(height: 2),
+            ] else ...[
+              const SizedBox(height: 4),
+              Text(
+                formatText(
+                  // It's actually firstMessageContent
+                  widget.topic.lastMessageContent,
+                ),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(height: 1.2),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 4),
+            ],
             Row(
               children: [
                 Tag(

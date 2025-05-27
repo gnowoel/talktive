@@ -7,12 +7,14 @@ class TopicList extends StatelessWidget {
   final List<PublicTopic> topics;
   final List<String> joinedTopicIds;
   final List<String> seenTopicIds;
+  final bool showTribeTags;
 
   const TopicList({
     super.key,
     required this.topics,
     required this.joinedTopicIds,
     required this.seenTopicIds,
+    this.showTribeTags = false,
   });
 
   bool _hasJoined(PublicTopic topic) {
@@ -35,6 +37,7 @@ class TopicList extends StatelessWidget {
           topic: topic,
           hasJoined: _hasJoined(topic),
           hasSeen: _hasSeen(topic),
+          showTribeTag: showTribeTags,
         );
       },
     );

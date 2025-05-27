@@ -257,6 +257,7 @@ class _TopicsPageState extends State<TopicsPage> {
                         topics: _topics,
                         joinedTopicIds: joinedTopicIds,
                         seenTopicIds: seenTopicIds,
+                        showTribeTags: true,
                       ),
                     ),
                   ],

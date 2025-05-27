@@ -260,8 +260,8 @@ class _TopicItemState extends State<TopicItem> {
   }
 
   void _onTribeTap() {
-    if (widget.topic.tribe != null) {
-      context.push('/topics/tribe/${widget.topic.tribe}');
+    if (widget.topic.tribeId != null) {
+      context.push('/topics/tribe/${widget.topic.tribeId}');
     }
   }
 
@@ -299,7 +299,7 @@ class _TopicItemState extends State<TopicItem> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.topic.tribe != null)
+            if (widget.topic.tribeId != null)
               GestureDetector(
                 onTap: _onTribeTap,
                 child: Container(
@@ -315,8 +315,8 @@ class _TopicItemState extends State<TopicItem> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    tribeCache.getTribeById(widget.topic.tribe!)?.name ??
-                        widget.topic.tribe!,
+                    tribeCache.getTribeById(widget.topic.tribeId!)?.name ??
+                        widget.topic.tribeId!,
                     style: TextStyle(
                       fontSize: 12,
                       color: theme.colorScheme.onPrimaryContainer,

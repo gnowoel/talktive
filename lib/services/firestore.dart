@@ -97,8 +97,8 @@ class Firestore {
 
       // Complete the query with ordering and limit
       query = query
-      // .orderBy('revivedAt') // Required when using where() with revivedAt
-      .orderBy('updatedAt', descending: true);
+          // .orderBy('revivedAt') // Required when using where() with revivedAt
+          .orderBy('updatedAt', descending: true);
 
       if (_lastUserUpdatedAt != null) {
         // query = query.where('updatedAt', isGreaterThan: _lastUserUpdatedAt);
@@ -218,9 +218,8 @@ class Firestore {
             }
           }
 
-          final followees =
-              _followeesCache.values.toList()
-                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          final followees = _followeesCache.values.toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
           _followeesController?.add(followees);
         });
@@ -266,9 +265,8 @@ class Firestore {
             }
           }
 
-          final followers =
-              _followersCache.values.toList()
-                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          final followers = _followersCache.values.toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
           _followersController?.add(followers);
         });
@@ -327,7 +325,7 @@ class Firestore {
     required User user,
     required String title,
     required String message,
-    String? tribe,
+    String? tribeId,
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
@@ -337,7 +335,7 @@ class Firestore {
         'userId': user.id,
         'title': title,
         'message': message,
-        'tribe': tribe,
+        'tribeId': tribeId,
       });
 
       final result = response.data;
@@ -362,7 +360,7 @@ class Firestore {
       title: '',
       creator: user,
       messageCount: 1,
-      tribe: null,
+      tribeId: null,
     );
   }
 
@@ -423,7 +421,7 @@ class Firestore {
     try {
       final snapshot = await instance
           .collection('topics')
-          .where('tribe', isEqualTo: tribeId)
+          .where('tribeId', isEqualTo: tribeId)
           .orderBy('updatedAt', descending: true)
           .limit(32)
           .get();
@@ -474,10 +472,9 @@ class Firestore {
 
       // Execute the query
       final snapshot = await query.get();
-      final fetchedTopics =
-          snapshot.docs.map((doc) {
-            return PublicTopic.fromJson(doc.id, doc.data());
-          }).toList();
+      final fetchedTopics = snapshot.docs.map((doc) {
+        return PublicTopic.fromJson(doc.id, doc.data());
+      }).toList();
 
       // Merge fetched topics with cached topics
       if (fetchedTopics.isNotEmpty) {

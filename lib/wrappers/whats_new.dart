@@ -68,7 +68,7 @@ class _WhatsNewState extends State<WhatsNew> {
                           _buildFeatureCard(
                             Theme.of(context),
                             '👥 Public Topics',
-                            'Introducing group chats where you can share your feelings and stories with the wider community. A supportive space where we can all be good listeners for each other.',
+                            'Disabling group chats until a stronger reporting and moderation system is ready.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(

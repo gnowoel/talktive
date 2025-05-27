@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.1.0+56
+
+- Disable group chat functionality until a stronger moderation system is ready
+
 ## 4.0.0+55
 
 - Introduced group chat functionality

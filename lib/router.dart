@@ -47,40 +47,38 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/users',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: UsersPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: UsersPage()),
               ),
             ],
           ),
-          StatefulShellBranch(
-            navigatorKey: _topicsNavigatorKey,
-            routes: [
-              GoRoute(
-                path: '/topics',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: TopicsPage()),
-              ),
-              GoRoute(
-                path: '/topics/tribe/:id',
-                pageBuilder: (context, state) {
-                  final tribeId = state.pathParameters['id']!;
-                  return NoTransitionPage(
-                    child: TribePage(tribeId: tribeId),
-                  );
-                },
-              ),
-            ],
-          ),
+          // StatefulShellBranch(
+          //   navigatorKey: _topicsNavigatorKey,
+          //   routes: [
+          //     GoRoute(
+          //       path: '/topics',
+          //       pageBuilder:
+          //           (context, state) =>
+          //               const NoTransitionPage(child: TopicsPage()),
+          //     ),
+          //     GoRoute(
+          //       path: '/topics/tribe/:id',
+          //       pageBuilder: (context, state) {
+          //         final tribeId = state.pathParameters['id']!;
+          //         return NoTransitionPage(
+          //           child: TribePage(tribeId: tribeId),
+          //         );
+          //       },
+          //     ),
+          //   ],
+          // ),
           StatefulShellBranch(
             navigatorKey: _chatsNavigatorKey,
             routes: [
               GoRoute(
                 path: '/chats',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: ChatsPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ChatsPage()),
               ),
             ],
           ),
@@ -89,9 +87,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/friends',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: FriendsPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: FriendsPage()),
               ),
             ],
           ),
@@ -100,9 +97,8 @@ Future<GoRouter> initRouter() async {
             routes: [
               GoRoute(
                 path: '/profile',
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: ProfilePage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -162,21 +158,20 @@ Future<GoRouter> initRouter() async {
       ),
       GoRoute(
         path: '/admin/reports',
-        builder:
-            (context, state) => FutureBuilder(
-              future: _checkAdminAccess(context),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data == true) {
-                  return const ReportsPage();
-                }
-                // Return unauthorized or loading state
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  ),
-                );
-              },
-            ),
+        builder: (context, state) => FutureBuilder(
+          future: _checkAdminAccess(context),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data == true) {
+              return const ReportsPage();
+            }
+            // Return unauthorized or loading state
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+            );
+          },
+        ),
       ),
       GoRoute(
         path: '/admin/reports/:id',

@@ -97,21 +97,20 @@ class _FriendsPageState extends State<FriendsPage> {
 
     await showDialog<void>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(title),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: content,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Got it'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
           ),
+        ],
+      ),
     );
   }
 
@@ -127,31 +126,30 @@ class _FriendsPageState extends State<FriendsPage> {
   void _showInfoDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Quick Tips'),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add your partners as friends to stay connected, even after chats expire.',
-                  style: TextStyle(height: 1.5),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Friends will always be available here until you remove them manually.',
-                  style: TextStyle(height: 1.5),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Quick Tips'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Add your partners as friends to stay connected, even after chats expire.',
+              style: TextStyle(height: 1.5),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Got it'),
-              ),
-            ],
+            SizedBox(height: 16),
+            Text(
+              'Friends will always be available here until you remove them manually.',
+              style: TextStyle(height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
           ),
+        ],
+      ),
     );
   }
 
@@ -177,23 +175,22 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _handleCreateTopic,
-        tooltip:
-            _canCreateTopic()
-                ? 'Start a topic'
-                : (userCache.user?.withAlert == true
-                    ? 'Account restricted'
-                    : (userCache.user?.isTrainee == true
-                        ? 'Account too new'
-                        : 'Need followers')),
-        child: const Icon(Icons.campaign),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _handleCreateTopic,
+      //   tooltip:
+      //       _canCreateTopic()
+      //           ? 'Start a topic'
+      //           : (userCache.user?.withAlert == true
+      //               ? 'Account restricted'
+      //               : (userCache.user?.isTrainee == true
+      //                   ? 'Account too new'
+      //                   : 'Need followers')),
+      //   child: const Icon(Icons.campaign),
+      // ),
       body: SafeArea(
-        child:
-            _friends.isEmpty
-                ? Center(child: Info(lines: lines))
-                : Layout(child: FriendList(friends: _friends)),
+        child: _friends.isEmpty
+            ? Center(child: Info(lines: lines))
+            : Layout(child: FriendList(friends: _friends)),
       ),
     );
   }

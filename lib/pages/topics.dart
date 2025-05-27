@@ -208,7 +208,7 @@ class _TopicsPageState extends State<TopicsPage> {
                                   final tribe = _tribes[index];
                                   return Card(
                                     margin: const EdgeInsets.only(right: 8),
-                                    color: theme.colorScheme.primaryContainer,
+                                    color: theme.colorScheme.secondaryContainer,
                                     child: InkWell(
                                       onTap: () => _navigateToTribe(tribe),
                                       child: SizedBox(
@@ -228,8 +228,12 @@ class _TopicsPageState extends State<TopicsPage> {
                                               const SizedBox(height: 4),
                                               Text(
                                                 tribe.name,
-                                                style:
-                                                    theme.textTheme.labelMedium,
+                                                style: theme
+                                                    .textTheme.labelMedium!
+                                                    .copyWith(
+                                                  color: theme.colorScheme
+                                                      .onSecondaryContainer,
+                                                ),
                                                 textAlign: TextAlign.center,
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 2,

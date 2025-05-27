@@ -309,7 +309,7 @@ class _TopicItemState extends State<TopicItem> {
                   ),
                   margin: const EdgeInsets.only(bottom: 4),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withValues(
+                    color: theme.colorScheme.secondaryContainer.withValues(
                       alpha: 0.7,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -319,7 +319,7 @@ class _TopicItemState extends State<TopicItem> {
                         widget.topic.tribeId!,
                     style: TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onPrimaryContainer,
+                      color: theme.colorScheme.onSecondaryContainer,
                     ),
                   ),
                 ),

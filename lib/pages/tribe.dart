@@ -137,38 +137,38 @@ class _TribePageState extends State<TribePage> {
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
-        child:
-            _topics.isEmpty
-                ? (_isPopulated
-                    ? Center(child: Info(lines: lines))
-                    : const Center(
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    ))
-                : Layout(
-                  child: Column(
-                    children: [
-                      if (_tribe?.description != null) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                          child: Text(
-                            _tribe!.description!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
+        child: _topics.isEmpty
+            ? (_isPopulated
+                ? Center(child: Info(lines: lines))
+                : const Center(
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ))
+            : Layout(
+                child: Column(
+                  children: [
+                    if (_tribe?.description != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: Text(
+                          _tribe!.description!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                      ],
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: TopicList(
-                          topics: _topics,
-                          joinedTopicIds: joinedTopicIds,
-                          seenTopicIds: seenTopicIds,
                         ),
                       ),
                     ],
-                  ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: TopicList(
+                        topics: _topics,
+                        joinedTopicIds: joinedTopicIds,
+                        seenTopicIds: seenTopicIds,
+                        showTribeTags: false,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
       ),
     );
   }

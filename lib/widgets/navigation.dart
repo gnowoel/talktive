@@ -73,12 +73,12 @@ class _NavigationState extends State<Navigation> {
             label: 'Users',
             icon: Icon(currentIndex == 0 ? Icons.face : Icons.face_outlined),
           ),
-          // NavigationDestination(
-          //   label: 'Topics',
-          //   icon: Icon(
-          //     currentIndex == 1 ? Icons.workspaces : Icons.workspaces_outlined,
-          //   ),
-          // ),
+          NavigationDestination(
+            label: 'Topics',
+            icon: Icon(
+              currentIndex == 1 ? Icons.workspaces : Icons.workspaces_outlined,
+            ),
+          ),
           NavigationDestination(
             label: 'Chats',
             icon: Badge(

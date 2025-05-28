@@ -175,18 +175,17 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _handleCreateTopic,
-      //   tooltip:
-      //       _canCreateTopic()
-      //           ? 'Start a topic'
-      //           : (userCache.user?.withAlert == true
-      //               ? 'Account restricted'
-      //               : (userCache.user?.isTrainee == true
-      //                   ? 'Account too new'
-      //                   : 'Need followers')),
-      //   child: const Icon(Icons.campaign),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _handleCreateTopic,
+        tooltip: _canCreateTopic()
+            ? 'Start a topic'
+            : (userCache.user?.withAlert == true
+                  ? 'Account restricted'
+                  : (userCache.user?.isTrainee == true
+                        ? 'Account too new'
+                        : 'Need followers')),
+        child: const Icon(Icons.campaign),
+      ),
       body: SafeArea(
         child: _friends.isEmpty
             ? Center(child: Info(lines: lines))

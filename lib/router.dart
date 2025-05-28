@@ -52,26 +52,23 @@ Future<GoRouter> initRouter() async {
               ),
             ],
           ),
-          // StatefulShellBranch(
-          //   navigatorKey: _topicsNavigatorKey,
-          //   routes: [
-          //     GoRoute(
-          //       path: '/topics',
-          //       pageBuilder:
-          //           (context, state) =>
-          //               const NoTransitionPage(child: TopicsPage()),
-          //     ),
-          //     GoRoute(
-          //       path: '/topics/tribe/:id',
-          //       pageBuilder: (context, state) {
-          //         final tribeId = state.pathParameters['id']!;
-          //         return NoTransitionPage(
-          //           child: TribePage(tribeId: tribeId),
-          //         );
-          //       },
-          //     ),
-          //   ],
-          // ),
+          StatefulShellBranch(
+            navigatorKey: _topicsNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/topics',
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: TopicsPage()),
+              ),
+              GoRoute(
+                path: '/topics/tribe/:id',
+                pageBuilder: (context, state) {
+                  final tribeId = state.pathParameters['id']!;
+                  return NoTransitionPage(child: TribePage(tribeId: tribeId));
+                },
+              ),
+            ],
+          ),
           StatefulShellBranch(
             navigatorKey: _chatsNavigatorKey,
             routes: [
@@ -166,9 +163,7 @@ Future<GoRouter> initRouter() async {
             }
             // Return unauthorized or loading state
             return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
+              body: Center(child: CircularProgressIndicator(strokeWidth: 3)),
             );
           },
         ),

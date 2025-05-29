@@ -13,18 +13,32 @@ class TribeCache extends ChangeNotifier {
   List<Tribe> _tribes = [];
   bool _isLoading = false;
   DateTime? _lastFetched;
-
-  TribeCache(this._firestore);
+  
+  // Longer cache TTL since tribes are now predefined
+  static const int _cacheTtlHours = 6;
+  
+  // Singleton pattern for global access
+  TribeCache._internal(this._firestore);
+  static final TribeCache _instance = TribeCache._internal(Firestore());
+  factory TribeCache([Firestore? firestore]) => 
+      firestore != null ? TribeCache._internal(firestore) : _instance;
 
   List<Tribe> get tribes => _tribes;
+  bool get hasTribes => _tribes.isNotEmpty;
+  
+  // Initialization method to be called on app startup
+  Future<void> initialize() async {
+    await fetchTribes(forceRefresh: true);
+  }
 
-  // TODO: Cache the previous results
-  Future<void> fetchTribes() async {
+  // Improved fetch method with force refresh option
+  Future<void> fetchTribes({bool forceRefresh = false}) async {
     if (_isLoading) return;
 
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    if (_lastFetched != null &&
-        now.difference(_lastFetched!).inMinutes < 15 &&
+    if (!forceRefresh && 
+        _lastFetched != null &&
+        now.difference(_lastFetched!).inHours < _cacheTtlHours &&
         _tribes.isNotEmpty) {
       return;
     }
@@ -44,6 +58,23 @@ class TribeCache extends ChangeNotifier {
   Tribe? getTribeById(String id) {
     return _tribes.firstWhereOrNull((tribe) => tribe.id == id);
   }
+  
+  // Get tribe by name, useful for predefined tribes
+  Tribe? getTribeByName(String name) {
+    return _tribes.firstWhereOrNull(
+      (tribe) => tribe.name.toLowerCase() == name.toLowerCase()
+    );
+  }
+  
+  // Get a tribe by ID, fetching if needed
+  Future<Tribe?> ensureTribeLoaded(String id) async {
+    final tribe = getTribeById(id);
+    if (tribe != null) return tribe;
+    
+    // If tribe not found in cache, refresh and try again
+    await fetchTribes(forceRefresh: true);
+    return getTribeById(id);
+  }
 
   List<Tribe> searchTribes(String query) {
     if (query.isEmpty) return _tribes;
@@ -58,7 +89,15 @@ class TribeCache extends ChangeNotifier {
         )
         .toList();
   }
-
+  
+  // Get predefined tribes (those with sort values)
+  List<Tribe> get predefinedTribes => 
+      _tribes.where((tribe) => tribe.sort != null).toList()
+      ..sort((a, b) => (a.sort ?? 999).compareTo(b.sort ?? 999));
+  
+  // This method is kept for backward compatibility
+  // but should no longer be used as tribes are predefined
+  @Deprecated('Tribes are now predefined and cannot be created by users')
   Future<Tribe> createTribe(
     String name, {
     String? description,

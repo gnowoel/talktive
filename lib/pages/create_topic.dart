@@ -33,9 +33,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   bool _isProcessing = false;
   bool _isCreatingTribe = false;
 
-  List<Tribe> _filteredTribes = [];
+  List<Tribe> _predefinedTribes = [];
   Tribe? _selectedTribe;
-  bool _showTribeList = false;
 
   @override
   void initState() {
@@ -44,7 +43,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     userCache = context.read<UserCache>();
     tribeCache = context.read<TribeCache>();
     _loadTribes();
-    _tribeFocusNode.addListener(_onTribeFocusChange);
 
     if (widget.initialTribeId != null) {
       _setInitialTribe();
@@ -54,7 +52,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   Future<void> _loadTribes() async {
     await tribeCache.fetchTribes();
     setState(() {
-      _filteredTribes = tribeCache.tribes;
+      _predefinedTribes = tribeCache.predefinedTribes;
     });
   }
 
@@ -69,13 +67,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     }
   }
 
-  void _onTribeFocusChange() {
-    if (_tribeFocusNode.hasFocus) {
-      setState(() {
-        _showTribeList = true;
-      });
-    }
-  }
+  // No longer needed with the new UI
 
   @override
   void didChangeDependencies() {
@@ -115,24 +107,10 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   }
 
   String? _validateTribe(String? value) {
-    value = value?.trim();
-    if (value == null || value.isEmpty) {
-      return 'Please select or create a tribe';
+    if (_selectedTribe == null) {
+      return 'Please select a category';
     }
     return null;
-  }
-
-  void _filterTribes(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        _filteredTribes = tribeCache.tribes;
-      });
-      return;
-    }
-
-    setState(() {
-      _filteredTribes = tribeCache.searchTribes(query);
-    });
   }
 
   void _selectTribe(Tribe tribe) {
@@ -143,35 +121,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     });
   }
 
-  Future<void> _createNewTribe() async {
-    final tribeName = _tribeController.text.trim();
-    if (tribeName.isEmpty) return;
-
-    setState(() {
-      _isCreatingTribe = true;
-    });
-
-    try {
-      final tribe = await tribeCache.createTribe(tribeName);
-      setState(() {
-        _selectedTribe = tribe;
-        _showTribeList = false;
-      });
-    } catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(
-          context,
-          e is AppException ? e : AppException(e.toString()),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isCreatingTribe = false;
-        });
-      }
-    }
-  }
+  // Tribe creation is no longer allowed - using only predefined tribes
 
   Future<void> _submit() async {
     if (_isProcessing) return;
@@ -183,11 +133,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       setState(() => _isProcessing = true);
 
       try {
-        // If tribe doesn't exist but has a name, create it first
-        if (_selectedTribe == null && _tribeController.text.trim().isNotEmpty) {
-          await _createNewTribe();
-        }
-
         final topic = await firestore.createTopic(
           user: user,
           title: _titleController.text.trim(),
@@ -283,91 +228,93 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            TextFormField(
-                              controller: _tribeController,
-                              focusNode: _tribeFocusNode,
-                              decoration: InputDecoration(
-                                labelText: 'Category',
-                                hintText: 'Search or create a category',
-                                suffixIcon: _selectedTribe != null
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear),
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedTribe = null;
-                                            _tribeController.clear();
-                                          });
-                                        },
-                                      )
-                                    : null,
-                              ),
-                              validator: _validateTribe,
-                              onChanged: _filterTribes,
-                              onTap: () {
-                                setState(() {
-                                  _showTribeList = true;
-                                });
-                              },
-                            ),
-                            if (_showTribeList) ...[
-                              const SizedBox(height: 8),
-                              Container(
-                                constraints: const BoxConstraints(
-                                  maxHeight: 200,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Category',
+                                  style: theme.textTheme.titleMedium,
                                 ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: theme.colorScheme.outline,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: _filteredTribes.isEmpty
-                                    ? ListTile(
-                                        title: Text(
-                                          'Create "${_tribeController.text.trim()}"',
-                                        ),
-                                        leading: const Icon(Icons.add),
-                                        onTap: _isCreatingTribe
-                                            ? null
-                                            : _createNewTribe,
-                                        trailing: _isCreatingTribe
-                                            ? SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
+                                const SizedBox(height: 8),
+                                FormField<String>(
+                                  validator: _validateTribe,
+                                  builder: (FormFieldState<String> state) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: _predefinedTribes.map((tribe) {
+                                            final isSelected = _selectedTribe?.id == tribe.id;
+                                            return InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  _selectedTribe = tribe;
+                                                  _tribeController.text = tribe.name;
+                                                });
+                                                state.didChange(tribe.id);
+                                              },
+                                              borderRadius: BorderRadius.circular(16),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 12, 
+                                                  vertical: 8
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: isSelected 
+                                                    ? theme.colorScheme.primaryContainer
+                                                    : theme.colorScheme.surfaceContainerLow,
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  border: Border.all(
+                                                    color: isSelected 
+                                                      ? theme.colorScheme.primary
+                                                      : theme.colorScheme.outline.withOpacity(0.5),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      tribe.iconEmoji ?? '🏷️',
+                                                      style: const TextStyle(fontSize: 18),
                                                     ),
-                                              )
-                                            : null,
-                                      )
-                                    : ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: _filteredTribes.length,
-                                        itemBuilder: (context, index) {
-                                          final tribe = _filteredTribes[index];
-                                          return ListTile(
-                                            title: Text(tribe.name),
-                                            subtitle: tribe.description != null
-                                                ? Text(
-                                                    tribe.description!,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  )
-                                                : null,
-                                            leading: Text(
-                                              tribe.iconEmoji ?? '🏷️',
-                                              style: const TextStyle(
-                                                fontSize: 24,
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      tribe.name,
+                                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                                        color: isSelected
+                                                          ? theme.colorScheme.onPrimaryContainer
+                                                          : theme.colorScheme.onSurface,
+                                                        fontWeight: isSelected 
+                                                          ? FontWeight.bold 
+                                                          : FontWeight.normal,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                        if (state.hasError)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 8),
+                                            child: Text(
+                                              state.errorText!,
+                                              style: TextStyle(
+                                                color: theme.colorScheme.error,
+                                                fontSize: 12,
                                               ),
                                             ),
-                                            onTap: () => _selectTribe(tribe),
-                                          );
-                                        },
-                                      ),
-                              ),
-                            ],
+                                          ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _titleController,

@@ -201,8 +201,8 @@ class _TribePageState extends State<TribePage> {
     final theme = Theme.of(context);
     final tribeName = _tribe?.name ?? 'Loading...';
     final lines = [
-      'No topics in $tribeName yet.',
-      'Be the first to create one!',
+      'No topics here yet. Be',
+      'the first to create one!',
       '',
     ];
 
@@ -234,12 +234,10 @@ class _TribePageState extends State<TribePage> {
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
-        child: _topics.isEmpty
-            ? (_isPopulated
-                ? Center(child: Info(lines: lines))
-                : const Center(
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  ))
+        child: !_isPopulated
+            ? const Center(
+                child: CircularProgressIndicator(strokeWidth: 3),
+              )
             : Layout(
                 child: Column(
                   children: [
@@ -253,15 +251,17 @@ class _TribePageState extends State<TribePage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10),
                     ],
-                    const SizedBox(height: 10),
                     Expanded(
-                      child: TopicList(
-                        topics: _topics,
-                        joinedTopicIds: joinedTopicIds,
-                        seenTopicIds: seenTopicIds,
-                        showTribeTags: false,
-                      ),
+                      child: _topics.isEmpty
+                          ? Center(child: Info(lines: lines))
+                          : TopicList(
+                              topics: _topics,
+                              joinedTopicIds: joinedTopicIds,
+                              seenTopicIds: seenTopicIds,
+                              showTribeTags: false,
+                            ),
                     ),
                   ],
                 ),

@@ -208,10 +208,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         'About Topics',
                                         style: theme.textTheme.titleSmall
                                             ?.copyWith(
-                                              color: theme
-                                                  .colorScheme
-                                                  .onSurfaceVariant,
-                                            ),
+                                          color: theme
+                                              .colorScheme.onSurfaceVariant,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -238,53 +237,70 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                   validator: _validateTribe,
                                   builder: (FormFieldState<String> state) {
                                     return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Wrap(
                                           spacing: 8,
                                           runSpacing: 8,
-                                          children: _predefinedTribes.map((tribe) {
-                                            final isSelected = _selectedTribe?.id == tribe.id;
+                                          children:
+                                              _predefinedTribes.map((tribe) {
+                                            final isSelected =
+                                                _selectedTribe?.id == tribe.id;
                                             return InkWell(
                                               onTap: () {
                                                 _selectTribe(tribe);
                                                 state.didChange(tribe.id);
                                               },
-                                              borderRadius: BorderRadius.circular(16),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 12, 
-                                                  vertical: 8
-                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8),
                                                 decoration: BoxDecoration(
-                                                  color: isSelected 
-                                                    ? theme.colorScheme.primaryContainer
-                                                    : theme.colorScheme.surfaceContainerLow,
-                                                  borderRadius: BorderRadius.circular(16),
+                                                  color: isSelected
+                                                      ? theme.colorScheme
+                                                          .primaryContainer
+                                                      : theme.colorScheme
+                                                          .surfaceContainerLow,
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
                                                   border: Border.all(
-                                                    color: isSelected 
-                                                      ? theme.colorScheme.primary
-                                                      : theme.colorScheme.outline.withOpacity(0.5),
+                                                    color: isSelected
+                                                        ? theme
+                                                            .colorScheme.primary
+                                                        : theme
+                                                            .colorScheme.outline
+                                                            .withValues(
+                                                                alpha: 0.5),
                                                     width: 1,
                                                   ),
                                                 ),
                                                 child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     Text(
                                                       tribe.iconEmoji ?? '🏷️',
-                                                      style: const TextStyle(fontSize: 18),
+                                                      style: const TextStyle(
+                                                          fontSize: 18),
                                                     ),
                                                     const SizedBox(width: 8),
                                                     Text(
                                                       tribe.name,
-                                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                                      style: theme
+                                                          .textTheme.bodyMedium
+                                                          ?.copyWith(
                                                         color: isSelected
-                                                          ? theme.colorScheme.onPrimaryContainer
-                                                          : theme.colorScheme.onSurface,
-                                                        fontWeight: isSelected 
-                                                          ? FontWeight.bold 
-                                                          : FontWeight.normal,
+                                                            ? theme.colorScheme
+                                                                .onPrimaryContainer
+                                                            : theme.colorScheme
+                                                                .onSurface,
+                                                        // fontWeight: isSelected
+                                                        //     ? FontWeight.bold
+                                                        //     : FontWeight.normal,
                                                       ),
                                                     ),
                                                   ],
@@ -295,7 +311,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         ),
                                         if (state.hasError)
                                           Padding(
-                                            padding: const EdgeInsets.only(top: 8),
+                                            padding:
+                                                const EdgeInsets.only(top: 8),
                                             child: Text(
                                               state.errorText!,
                                               style: TextStyle(

@@ -8,9 +8,11 @@ import '../helpers/exception.dart';
 import '../models/public_topic.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
+import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 import '../services/tribe_cache.dart';
+import '../services/user_cache.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
 import '../widgets/topic_list.dart';
@@ -27,6 +29,8 @@ class _TopicsPageState extends State<TopicsPage> {
   late Firestore firestore;
   late TopicCache topicCache;
   late TribeCache tribeCache;
+  late FollowCache followCache;
+  late UserCache userCache;
 
   List<PublicTopic> _seenTopics = [];
   List<PublicTopic> _topics = [];
@@ -43,6 +47,8 @@ class _TopicsPageState extends State<TopicsPage> {
     firestore = context.read<Firestore>();
     topicCache = context.read<TopicCache>();
     tribeCache = context.read<TribeCache>();
+    followCache = context.read<FollowCache>();
+    userCache = context.read<UserCache>();
     _fetchTopics();
     _fetchTribes();
   }
@@ -102,11 +108,89 @@ class _TopicsPageState extends State<TopicsPage> {
     context.push('/topics/tribe/${tribe.id}');
   }
 
-  void _navigateToCreateTopic([String? tribeId]) {
-    final uri = tribeId != null
-        ? Uri(path: '/topics/create', queryParameters: {'tribeId': tribeId})
-        : Uri(path: '/topics/create');
-    context.push(uri.toString());
+  bool _canCreateTopic() {
+    final user = userCache.user;
+    if (user == null) return false;
+
+    return !user.isTrainee &&
+        !user.withAlert &&
+        followCache.followers.isNotEmpty;
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final user = userCache.user!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    String title;
+    List<Widget> content;
+
+    if (user.withAlert) {
+      title = 'Temporarily Restricted';
+      content = [
+        Text(
+          'Your account has been restricted due to reported inappropriate behavior.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot create topics until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (user.isTrainee) {
+      title = 'Account Too New';
+      content = [
+        Text(
+          'Your account needs to be at least 24 hours old and reach level 4 to create topics.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'This restriction helps maintain quality discussions in our community.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else {
+      title = 'No Followers Yet';
+      content = [
+        Text(
+          'You need at least one follower to create topics.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Make some friends first! Topics are meant for sharing with your followers.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleCreateTopic() {
+    if (!_canCreateTopic()) {
+      _showRestrictionDialog();
+      return;
+    }
+
+    context.push('/topics/create');
   }
 
   @override
@@ -130,7 +214,7 @@ class _TopicsPageState extends State<TopicsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'To create your own topic, head over to the Friends tab.',
+              'Use the + button below to create your own topic and start discussions.',
               style: TextStyle(height: 1.5),
             ),
           ],
@@ -149,8 +233,8 @@ class _TopicsPageState extends State<TopicsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = [
-      'No topics here yet. Create',
-      'one from the Friends tab.',
+      'No topics here yet. Use the',
+      '+ button to create one!',
       '',
     ];
 
@@ -164,21 +248,27 @@ class _TopicsPageState extends State<TopicsPage> {
         title: const Text('Active Topics'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _navigateToCreateTopic(),
-            tooltip: 'Create Topic',
-          ),
-          IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showInfoDialog(context),
             tooltip: 'Help',
           ),
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             tooltip: 'Refresh topics',
             onPressed: _canRefresh ? _refreshTopics : null,
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _handleCreateTopic,
+        tooltip: _canCreateTopic()
+            ? 'Create Topic'
+            : (userCache.user?.withAlert == true
+                ? 'Account restricted'
+                : (userCache.user?.isTrainee == true
+                    ? 'Account too new'
+                    : 'Need followers')),
+        child: const Icon(Icons.add),
       ),
       body: SafeArea(
         child: _topics.isEmpty

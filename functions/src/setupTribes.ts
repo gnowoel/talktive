@@ -13,6 +13,7 @@ interface TribeDefinition {
   name: string;
   description: string;
   iconEmoji: string;
+  sort: number;
 }
 
 // Predefined tribes for the application
@@ -21,41 +22,49 @@ const predefinedTribes: TribeDefinition[] = [
     name: 'Friend Finder',
     description: 'Introduce yourself and meet new people',
     iconEmoji: '👋',
+    sort: 10,
   },
   {
     name: 'Share Experiences',
     description: 'Share your life experiences and stories with others',
     iconEmoji: '📖',
+    sort: 20,
   },
   {
     name: 'Casual Chat',
     description: 'Relaxed conversations about anything and everything',
     iconEmoji: '💬',
+    sort: 30,
   },
   {
     name: 'Language Practice',
     description: 'Improve your language skills by chatting with others',
     iconEmoji: '🗣️',
+    sort: 40,
   },
   {
     name: 'Deep Discussions',
     description: 'Engage in meaningful discussions about complex topics',
     iconEmoji: '🧠',
+    sort: 50,
   },
   {
     name: 'App Feedback',
     description: 'Share your ideas to help improve this platform',
     iconEmoji: '💡',
+    sort: 60,
   },
   // {
   //   name: 'Creative Corner',
   //   description: 'Express yourself and celebrate creativity',
   //   iconEmoji: '🎨',
+  //   sort: 70,
   // },
   // {
   //   name: 'Tech Talk',
   //   description: 'Chat about the latest in technology and digital innovations',
   //   iconEmoji: '💻',
+  //   sort: 80,
   // },
 ];
 
@@ -80,6 +89,7 @@ export const setupTribes = onRequest(async (_req, res) => {
         batch.update(existingTribe.ref, {
           description: tribe.description,
           iconEmoji: tribe.iconEmoji,
+          sort: tribe.sort,
           updatedAt: now,
         });
         updatedCount++;
@@ -90,6 +100,7 @@ export const setupTribes = onRequest(async (_req, res) => {
           name: tribe.name,
           description: tribe.description,
           iconEmoji: tribe.iconEmoji,
+          sort: tribe.sort,
           createdAt: now,
           updatedAt: now,
           topicCount: 0,

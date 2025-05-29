@@ -368,7 +368,8 @@ class Firestore {
     try {
       final snapshot = await instance
           .collection('tribes')
-          .orderBy('topicCount', descending: true)
+          .orderBy('sort')  // Primary sort by sort field
+          .orderBy('topicCount', descending: true)  // Secondary sort by popularity
           .limit(100)
           .get();
 

@@ -9,6 +9,7 @@ class Tribe {
   final int topicCount;
   final String? description;
   final String? iconEmoji;
+  final int? sort;
 
   const Tribe({
     required this.id,
@@ -17,6 +18,7 @@ class Tribe {
     required this.topicCount,
     this.description,
     this.iconEmoji,
+    this.sort,
   });
 
   Map<String, dynamic> toJson() {
@@ -27,6 +29,7 @@ class Tribe {
       'topicCount': topicCount,
       'description': description,
       'iconEmoji': iconEmoji,
+      'sort': sort,
     };
   }
 
@@ -37,6 +40,7 @@ class Tribe {
     int? topicCount,
     String? description,
     String? iconEmoji,
+    int? sort,
   }) {
     return Tribe(
       id: id ?? this.id,
@@ -45,6 +49,7 @@ class Tribe {
       topicCount: topicCount ?? this.topicCount,
       description: description ?? this.description,
       iconEmoji: iconEmoji ?? this.iconEmoji,
+      sort: sort ?? this.sort,
     );
   }
 
@@ -56,15 +61,17 @@ class Tribe {
       topicCount: json['topicCount'] as int? ?? 0,
       description: json['description'] as String?,
       iconEmoji: json['iconEmoji'] as String?,
+      sort: json['sort'] as int?,
     );
   }
 
-  static dummy({required String name}) {
+  static dummy({required String name, int? sort}) {
     return Tribe(
       id: 'tribeId',
       name: name,
       createdAt: 0,
       topicCount: 0,
+      sort: sort,
     );
   }
 

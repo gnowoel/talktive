@@ -13,6 +13,7 @@ import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 import '../services/topic_message_cache.dart';
+import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 
 class Subscribe extends StatefulWidget {

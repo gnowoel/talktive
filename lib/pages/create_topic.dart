@@ -31,7 +31,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   final _tribeController = TextEditingController();
   final _tribeFocusNode = FocusNode();
   bool _isProcessing = false;
-  bool _isCreatingTribe = false;
 
   List<Tribe> _predefinedTribes = [];
   Tribe? _selectedTribe;
@@ -117,7 +116,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     setState(() {
       _selectedTribe = tribe;
       _tribeController.text = tribe.name;
-      _showTribeList = false;
     });
   }
 
@@ -249,10 +247,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                             final isSelected = _selectedTribe?.id == tribe.id;
                                             return InkWell(
                                               onTap: () {
-                                                setState(() {
-                                                  _selectedTribe = tribe;
-                                                  _tribeController.text = tribe.name;
-                                                });
+                                                _selectTribe(tribe);
                                                 state.didChange(tribe.id);
                                               },
                                               borderRadius: BorderRadius.circular(16),

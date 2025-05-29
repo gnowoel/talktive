@@ -17,11 +17,7 @@ class TribeCache extends ChangeNotifier {
   // Longer cache TTL since tribes are now predefined
   static const int _cacheTtlHours = 6;
   
-  // Singleton pattern for global access
-  TribeCache._internal(this._firestore);
-  static final TribeCache _instance = TribeCache._internal(Firestore());
-  factory TribeCache([Firestore? firestore]) => 
-      firestore != null ? TribeCache._internal(firestore) : _instance;
+  TribeCache(this._firestore);
 
   List<Tribe> get tribes => _tribes;
   bool get hasTribes => _tribes.isNotEmpty;

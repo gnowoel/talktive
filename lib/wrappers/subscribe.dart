@@ -38,6 +38,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
   late ChatMessageCache chatMessageCache;
   late TopicCache topicCache;
   late TopicMessageCache topicMessageCache;
+  late TribeCache tribeCache;
 
   late StreamSubscription clockSkewSubscription;
   late StreamSubscription userSubscription;
@@ -90,8 +91,12 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
     chatMessageCache = context.read<ChatMessageCache>();
     topicCache = context.read<TopicCache>();
     topicMessageCache = context.read<TopicMessageCache>();
+    tribeCache = context.read<TribeCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
+    
+    // Initialize tribes cache at startup
+    tribeCache.initialize();
 
     _subscriptions = [
       firedata.subscribeToClockSkew().listen((clockSkew) {

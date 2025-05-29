@@ -241,7 +241,7 @@ class _TribePageState extends State<TribePage> {
             : Layout(
                 child: Column(
                   children: [
-                    if (_tribe?.description != null) ...[
+                    if (_tribe?.description != null && _topics.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                         child: Text(
@@ -255,7 +255,21 @@ class _TribePageState extends State<TribePage> {
                     ],
                     Expanded(
                       child: _topics.isEmpty
-                          ? Center(child: Info(lines: lines))
+                          ? Center(
+                              child: _tribe?.description != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(32.0),
+                                      child: Text(
+                                        _tribe!.description!,
+                                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          height: 1.5,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    )
+                                  : Info(lines: lines),
+                            )
                           : TopicList(
                               topics: _topics,
                               joinedTopicIds: joinedTopicIds,

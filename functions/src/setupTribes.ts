@@ -18,6 +18,11 @@ interface TribeDefinition {
 // Predefined tribes for the application
 const predefinedTribes: TribeDefinition[] = [
   {
+    name: 'Friend Finder',
+    description: 'Introduce yourself and meet new people',
+    iconEmoji: '👋',
+  },
+  {
     name: 'Share Experiences',
     description: 'Share your life experiences and stories with others',
     iconEmoji: '📖',
@@ -28,19 +33,9 @@ const predefinedTribes: TribeDefinition[] = [
     iconEmoji: '💬',
   },
   {
-    name: 'Friend Finder',
-    description: 'Introduce yourself and meet new people',
-    iconEmoji: '👋',
-  },
-  {
     name: 'Language Practice',
     description: 'Improve your language skills by chatting with others',
     iconEmoji: '🗣️',
-  },
-  {
-    name: 'App Feedback',
-    description: 'Share your ideas to help improve this platform',
-    iconEmoji: '💡',
   },
   {
     name: 'Deep Discussions',
@@ -48,15 +43,20 @@ const predefinedTribes: TribeDefinition[] = [
     iconEmoji: '🧠',
   },
   {
-    name: 'Creative Corner',
-    description: 'Express yourself and celebrate creativity',
-    iconEmoji: '🎨',
+    name: 'App Feedback',
+    description: 'Share your ideas to help improve this platform',
+    iconEmoji: '💡',
   },
-  {
-    name: 'Tech Talk',
-    description: 'Chat about the latest in technology and digital innovations',
-    iconEmoji: '💻',
-  },
+  // {
+  //   name: 'Creative Corner',
+  //   description: 'Express yourself and celebrate creativity',
+  //   iconEmoji: '🎨',
+  // },
+  // {
+  //   name: 'Tech Talk',
+  //   description: 'Chat about the latest in technology and digital innovations',
+  //   iconEmoji: '💻',
+  // },
 ];
 
 export const setupTribes = onRequest(async (_req, res) => {

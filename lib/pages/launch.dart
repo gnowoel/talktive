@@ -63,8 +63,7 @@ class _LaunchTopicPageState extends State<LaunchTopicPage> {
         widget.topicId,
         widget.topicCreatorId,
       );
-      context.go('/chats');
-      context.push(initialRoute);
+      context.go(initialRoute);
     });
   }
 

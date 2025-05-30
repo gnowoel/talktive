@@ -139,8 +139,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
         );
 
         if (mounted) {
-          context.go('/chats');
-          context.push(encodeTopicRoute(topic.id, topic.creator.id));
+          context.go(encodeTopicRoute(topic.id, topic.creator.id));
         }
       } on AppException catch (e) {
         if (mounted) {

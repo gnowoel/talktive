@@ -70,8 +70,7 @@ class Messaging {
 
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(androidNotificationChannel);
   }
 
@@ -170,10 +169,9 @@ class Messaging {
       final topicId = data['topicId'] as String;
       final topicCreatorId = data['topicCreatorId'] as String;
 
-      GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
       GoRouter.of(
         rootNavigatorKey.currentContext!,
-      ).push(encodeTopicRoute(topicId, topicCreatorId));
+      ).go(encodeTopicRoute(topicId, topicCreatorId));
     }
   }
 
@@ -193,10 +191,9 @@ class Messaging {
         final topicId = data['topicId'] as String;
         final topicCreatorId = data['topicCreatorId'] as String;
 
-        GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
         GoRouter.of(
           rootNavigatorKey.currentContext!,
-        ).push(encodeTopicRoute(topicId, topicCreatorId));
+        ).go(encodeTopicRoute(topicId, topicCreatorId));
       }
     }
   }
@@ -209,9 +206,8 @@ class Messaging {
     if (details?.didNotificationLaunchApp == true &&
         details?.notificationResponse?.payload != null) {
       try {
-        final data =
-            jsonDecode(details!.notificationResponse!.payload!)
-                as Map<String, dynamic>;
+        final data = jsonDecode(details!.notificationResponse!.payload!)
+            as Map<String, dynamic>;
 
         if (data['type'] == 'chat') {
           final chatId = data['chatId'] as String;

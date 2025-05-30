@@ -76,6 +76,21 @@ Future<GoRouter> initRouter() async {
                 path: '/chats',
                 pageBuilder: (context, state) =>
                     const NoTransitionPage(child: ChatsPage()),
+                routes: [
+                  GoRoute(
+                    path: '/topics/:id',
+                    builder: (context, state) {
+                      final topicId = state.pathParameters['id']!;
+                      final encodedTopicCreatorId =
+                          state.uri.queryParameters['topicCreatorId'] ?? '';
+                      final topicCreatorId =
+                          Uri.decodeComponent(encodedTopicCreatorId);
+
+                      return TopicPage(
+                          topicId: topicId, topicCreatorId: topicCreatorId);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -201,17 +216,6 @@ Future<GoRouter> initRouter() async {
         builder: (context, state) {
           final tribeId = state.uri.queryParameters['tribeId'];
           return CreateTopicPage(initialTribeId: tribeId);
-        },
-      ),
-      GoRoute(
-        path: '/topics/:id',
-        builder: (context, state) {
-          final topicId = state.pathParameters['id']!;
-          final encodedTopicCreatorId =
-              state.uri.queryParameters['topicCreatorId'] ?? '';
-          final topicCreatorId = Uri.decodeComponent(encodedTopicCreatorId);
-
-          return TopicPage(topicId: topicId, topicCreatorId: topicCreatorId);
         },
       ),
     ],

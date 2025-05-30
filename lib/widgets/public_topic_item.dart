@@ -82,20 +82,19 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
         )
         .closed
         .then((reason) {
-          // Only mute the chat if the SnackBar was closed by timeout
-          // and not by user action (pressing undo)
-          if (reason == SnackBarClosedReason.timeout) {
-            _muteTopic();
-          }
-        });
+      // Only mute the chat if the SnackBar was closed by timeout
+      // and not by user action (pressing undo)
+      if (reason == SnackBarClosedReason.timeout) {
+        _muteTopic();
+      }
+    });
   }
 
   Future<void> _enterTopic() async {
     _doAction(() async {
       final topic = widget.topic;
 
-      context.go('/chats');
-      context.push(encodeTopicRoute(topic.id, topic.creator.id));
+      context.go(encodeTopicRoute(topic.id, topic.creator.id));
     });
   }
 
@@ -112,12 +111,11 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
   void _showCreatorInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: widget.topic.creator.id,
-            photoURL: widget.topic.creator.photoURL ?? '',
-            displayName: widget.topic.creator.displayName ?? '',
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: widget.topic.creator.id,
+        photoURL: widget.topic.creator.photoURL ?? '',
+        displayName: widget.topic.creator.displayName ?? '',
+      ),
     );
   }
 
@@ -135,8 +133,8 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
     final textColor = colorScheme.onSurface;
 
     final newMessageCount = widget.topic.unreadCount;
-    final lastMessageContent = (widget.topic.lastMessageContent ?? '')
-        .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent =
+        (widget.topic.lastMessageContent ?? '').replaceAll(RegExp(r'\s+'), ' ');
 
     final topic = widget.topic;
     final creator = topic.creator;
@@ -236,25 +234,24 @@ class _PublicTopicItemState extends State<PublicTopicItem> {
                 ),
               ],
             ),
-            trailing:
-                newMessageCount > 0
-                    ? Badge(
-                      label: Text(
-                        '$newMessageCount',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      backgroundColor: colorScheme.error,
-                    )
-                    : Badge(
-                      label: Text(
-                        '$newMessageCount',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colorScheme.surfaceContainerLow,
-                        ),
-                      ),
-                      backgroundColor: colorScheme.outline,
+            trailing: newMessageCount > 0
+                ? Badge(
+                    label: Text(
+                      '$newMessageCount',
+                      style: TextStyle(fontSize: 14),
                     ),
+                    backgroundColor: colorScheme.error,
+                  )
+                : Badge(
+                    label: Text(
+                      '$newMessageCount',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.surfaceContainerLow,
+                      ),
+                    ),
+                    backgroundColor: colorScheme.outline,
+                  ),
           ),
         ),
       ),

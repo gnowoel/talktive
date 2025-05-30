@@ -5,7 +5,7 @@ String encodeChatRoute(String chatId, String chatCreatedAt) {
 
 String encodeTopicRoute(String topicId, String topicCreatorId) {
   final encodedTopicCreatorId = Uri.encodeComponent(topicCreatorId);
-  return '/topics/$topicId?topicCreatorId=$encodedTopicCreatorId';
+  return '/chats/topics/$topicId?topicCreatorId=$encodedTopicCreatorId';
 }
 
 String encodeReportRoute(String userId, String chatId, String? chatCreatedAt) {

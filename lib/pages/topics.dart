@@ -233,8 +233,8 @@ class _TopicsPageState extends State<TopicsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = [
-      'No topics here yet. Use the',
-      '+ button to create one!',
+      'No topics here yet. Use',
+      'the + button to create one!',
       '',
     ];
 

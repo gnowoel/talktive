@@ -1,6 +1,6 @@
 String encodeChatRoute(String chatId, String chatCreatedAt) {
   final encodedChatCreatedAt = Uri.encodeComponent(chatCreatedAt);
-  return '/chats/$chatId?chatCreatedAt=$encodedChatCreatedAt';
+  return '/chats/chats/$chatId?chatCreatedAt=$encodedChatCreatedAt';
 }
 
 String encodeTopicRoute(String topicId, String topicCreatorId) {

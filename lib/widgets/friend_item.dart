@@ -69,8 +69,7 @@ class _FriendItemState extends State<FriendItem> {
       final chat = chatCache.getChat(chatId);
       final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
-      context.go('/chats');
-      context.push(encodeChatRoute(chatId, chatCreatedAt));
+      context.go(encodeChatRoute(chatId, chatCreatedAt));
     });
   }
 
@@ -93,8 +92,7 @@ class _FriendItemState extends State<FriendItem> {
       final chatCreatedAt = chat.createdAt.toString();
 
       if (mounted) {
-        context.go('/chats');
-        context.push(encodeChatRoute(chat.id, chatCreatedAt));
+        context.go(encodeChatRoute(chat.id, chatCreatedAt));
       }
     });
   }
@@ -187,21 +185,20 @@ class _FriendItemState extends State<FriendItem> {
 
     await showDialog<void>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(title),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: content,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
+        ],
+      ),
     );
   }
 
@@ -210,40 +207,39 @@ class _FriendItemState extends State<FriendItem> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Warning'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Your account has been reported for inappropriate communications.',
-                  style: TextStyle(height: 1.5, color: colorScheme.error),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Please be respectful when chatting with ${widget.friend.user.displayName}.',
-                  style: const TextStyle(height: 1.5),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Further reports may result in more severe restrictions.',
-                  style: TextStyle(height: 1.5),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Warning'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your account has been reported for inappropriate communications.',
+              style: TextStyle(height: 1.5, color: colorScheme.error),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('I Understand'),
-              ),
-            ],
+            const SizedBox(height: 16),
+            Text(
+              'Please be respectful when chatting with ${widget.friend.user.displayName}.',
+              style: const TextStyle(height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Further reports may result in more severe restrictions.',
+              style: TextStyle(height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
           ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('I Understand'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {

@@ -78,6 +78,7 @@ Future<GoRouter> initRouter() async {
                     const NoTransitionPage(child: ChatsPage()),
                 routes: [
                   GoRoute(
+                    parentNavigatorKey: rootNavigatorKey, // Hide the navigation bar
                     path: '/topics/:id',
                     builder: (context, state) {
                       final topicId = state.pathParameters['id']!;

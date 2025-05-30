@@ -65,8 +65,7 @@ class _UserItemState extends State<UserItem> {
       final chat = chatCache.getChat(chatId);
       final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
-      context.go('/chats');
-      context.push(encodeChatRoute(chatId, chatCreatedAt));
+      context.go(encodeChatRoute(chatId, chatCreatedAt));
     });
   }
 
@@ -79,8 +78,7 @@ class _UserItemState extends State<UserItem> {
       final chatCreatedAt = chat.createdAt.toString();
 
       if (mounted) {
-        context.go('/chats');
-        context.push(encodeChatRoute(chat.id, chatCreatedAt));
+        context.go(encodeChatRoute(chat.id, chatCreatedAt));
       }
     });
   }
@@ -172,21 +170,20 @@ class _UserItemState extends State<UserItem> {
 
     await showDialog<void>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(title),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: content,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
+        ],
+      ),
     );
   }
 
@@ -195,40 +192,39 @@ class _UserItemState extends State<UserItem> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Warning'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Your account has received reports for inappropriate communications.',
-                  style: TextStyle(height: 1.5, color: colorScheme.error),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Please be respectful when chatting with ${widget.user.displayName}.',
-                  style: const TextStyle(height: 1.5),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Further reports may result in more severe restrictions.',
-                  style: TextStyle(height: 1.5),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Warning'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your account has received reports for inappropriate communications.',
+              style: TextStyle(height: 1.5, color: colorScheme.error),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('I Understand'),
-              ),
-            ],
+            const SizedBox(height: 16),
+            Text(
+              'Please be respectful when chatting with ${widget.user.displayName}.',
+              style: const TextStyle(height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Further reports may result in more severe restrictions.',
+              style: TextStyle(height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
           ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('I Understand'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -280,12 +276,11 @@ class _UserItemState extends State<UserItem> {
       widget.user.updatedAt,
     );
 
-    final cardColor =
-        widget.hasKnown
+    final cardColor = widget.hasKnown
+        ? colorScheme.surfaceContainerHigh
+        : (widget.hasSeen
             ? colorScheme.surfaceContainerHigh
-            : (widget.hasSeen
-                ? colorScheme.surfaceContainerHigh
-                : colorScheme.secondaryContainer);
+            : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
     final userStatus = widget.user.status;
@@ -403,14 +398,13 @@ class _UserItemState extends State<UserItem> {
     }
 
     return IconButton(
-      icon:
-          _isProcessing
-              ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-              : const Icon(Icons.waving_hand_outlined),
+      icon: _isProcessing
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.waving_hand_outlined),
       onPressed: _handleTap,
       tooltip: 'Say hi',
     );

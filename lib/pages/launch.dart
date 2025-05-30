@@ -25,8 +25,7 @@ class _LaunchChatPageState extends State<LaunchChatPage> {
     super.didChangeDependencies();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       final initialRoute = encodeChatRoute(widget.chatId, widget.chatCreatedAt);
-      context.go('/chats');
-      context.push(initialRoute);
+      context.go(initialRoute);
     });
   }
 

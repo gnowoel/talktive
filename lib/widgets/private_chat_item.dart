@@ -88,12 +88,12 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
         )
         .closed
         .then((reason) {
-          // Only mute the chat if the SnackBar was closed by timeout
-          // and not by user action (pressing undo)
-          if (reason == SnackBarClosedReason.timeout) {
-            _muteChat();
-          }
-        });
+      // Only mute the chat if the SnackBar was closed by timeout
+      // and not by user action (pressing undo)
+      if (reason == SnackBarClosedReason.timeout) {
+        _muteChat();
+      }
+    });
   }
 
   Future<void> _enterChat() async {
@@ -101,8 +101,7 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
       final chat = widget.chat;
       final chatCreatedAt = chat.createdAt.toString();
 
-      context.go('/chats');
-      context.push(encodeChatRoute(chat.id, chatCreatedAt));
+      context.go(encodeChatRoute(chat.id, chatCreatedAt));
     });
   }
 
@@ -122,12 +121,11 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: otherId,
-            photoURL: partner.photoURL ?? '',
-            displayName: partner.displayName ?? '',
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: otherId,
+        photoURL: partner.photoURL ?? '',
+        displayName: partner.displayName ?? '',
+      ),
     );
   }
 
@@ -145,9 +143,9 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
     final textColor = colorScheme.onTertiaryContainer;
 
     final newMessageCount = widget.chat.unreadCount;
-    final lastMessageContent = (widget.chat.lastMessageContent ??
-            partner.description!)
-        .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent =
+        (widget.chat.lastMessageContent ?? partner.description!)
+            .replaceAll(RegExp(r'\s+'), ' ');
 
     final userStatus = partner.status;
 
@@ -262,25 +260,24 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
                 ),
               ],
             ),
-            trailing:
-                newMessageCount > 0
-                    ? Badge(
-                      label: Text(
-                        '$newMessageCount',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      backgroundColor: colorScheme.error,
-                    )
-                    : Badge(
-                      label: Text(
-                        '$newMessageCount',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colorScheme.surfaceContainerLow,
-                        ),
-                      ),
-                      backgroundColor: colorScheme.outline,
+            trailing: newMessageCount > 0
+                ? Badge(
+                    label: Text(
+                      '$newMessageCount',
+                      style: TextStyle(fontSize: 14),
                     ),
+                    backgroundColor: colorScheme.error,
+                  )
+                : Badge(
+                    label: Text(
+                      '$newMessageCount',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.surfaceContainerLow,
+                      ),
+                    ),
+                    backgroundColor: colorScheme.outline,
+                  ),
           ),
         ),
       ),

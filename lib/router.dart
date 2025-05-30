@@ -78,7 +78,32 @@ Future<GoRouter> initRouter() async {
                     const NoTransitionPage(child: ChatsPage()),
                 routes: [
                   GoRoute(
-                    parentNavigatorKey: rootNavigatorKey, // Hide the navigation bar
+                    parentNavigatorKey:
+                        rootNavigatorKey, // Hide the navigation bar
+                    path: '/chats/:id',
+                    builder: (context, state) {
+                      final chatId = state.pathParameters['id']!;
+                      final encodedChatCreatedAt =
+                          state.uri.queryParameters['chatCreatedAt'] ?? '0';
+                      final chatCreatedAt =
+                          Uri.decodeComponent(encodedChatCreatedAt);
+
+                      final userStub = UserStub(createdAt: 0, updatedAt: 0);
+                      final chatStub = ChatStub(
+                        createdAt: int.tryParse(chatCreatedAt) ?? 0,
+                        updatedAt: 0,
+                        partner: userStub,
+                        messageCount: 0,
+                      );
+                      final chat =
+                          PrivateChat.fromStub(key: chatId, value: chatStub);
+
+                      return ChatPage(chat: chat);
+                    },
+                  ),
+                  GoRoute(
+                    parentNavigatorKey:
+                        rootNavigatorKey, // Hide the navigation bar
                     path: '/topics/:id',
                     builder: (context, state) {
                       final topicId = state.pathParameters['id']!;
@@ -140,26 +165,6 @@ Future<GoRouter> initRouter() async {
             topicId: topicId,
             topicCreatorId: topicCreatorId,
           );
-        },
-      ),
-      GoRoute(
-        path: '/chats/:id',
-        builder: (context, state) {
-          final chatId = state.pathParameters['id']!;
-          final encodedChatCreatedAt =
-              state.uri.queryParameters['chatCreatedAt'] ?? '0';
-          final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
-
-          final userStub = UserStub(createdAt: 0, updatedAt: 0);
-          final chatStub = ChatStub(
-            createdAt: int.tryParse(chatCreatedAt) ?? 0,
-            updatedAt: 0,
-            partner: userStub,
-            messageCount: 0,
-          );
-          final chat = PrivateChat.fromStub(key: chatId, value: chatStub);
-
-          return ChatPage(chat: chat);
         },
       ),
       GoRoute(

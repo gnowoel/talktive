@@ -164,12 +164,10 @@ class _TopicInputState extends State<TopicInput> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed =
-          HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed =
-          event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
@@ -205,10 +203,10 @@ class _TopicInputState extends State<TopicInput> {
 
     if (widget.topic?.isDummy == true) {
       message =
-          'This topic has been deleted to protect your privacy. Go to the Friends tab to start a new topic at any time';
+          'This topic has been deleted to protect your privacy. Go to the Topics tab to start a new one at any time';
     } else if (widget.topic?.isClosed == true) {
       message =
-          'This topic has expired and will be deleted soon. Go to the Friends tab to start a new topic at any time.';
+          'This topic has expired and will be deleted soon. Go to the Topics tab to start a new one at any time.';
     } else {
       return const SizedBox.shrink();
     }
@@ -245,21 +243,19 @@ class _TopicInputState extends State<TopicInput> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed:
-                      (!_enabled || reviewOnly || _isUploading)
-                          ? null
-                          : _sendImageMessage,
-                  icon:
-                      _isUploading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 3),
-                          )
-                          : Icon(
-                            Icons.attach_file,
-                            color: theme.colorScheme.primary,
-                          ),
+                  onPressed: (!_enabled || reviewOnly || _isUploading)
+                      ? null
+                      : _sendImageMessage,
+                  icon: _isUploading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        )
+                      : Icon(
+                          Icons.attach_file,
+                          color: theme.colorScheme.primary,
+                        ),
                   tooltip: _showText(
                     enabledText: 'Send picture',
                     reviewOnly: reviewOnly,

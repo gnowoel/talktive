@@ -40,6 +40,7 @@ class _TopicsPageState extends State<TopicsPage> {
   bool _isTribesLoaded = false;
   bool _canRefresh = true;
   Timer? _refreshTimer;
+  final ScrollController _tribeScrollController = ScrollController();
 
   @override
   void initState() {
@@ -123,6 +124,7 @@ class _TopicsPageState extends State<TopicsPage> {
     });
 
     _fetchTopics(forceRefresh: true);
+    _scrollToSelectedTribe();
   }
 
   void _clearFilter() {
@@ -134,6 +136,45 @@ class _TopicsPageState extends State<TopicsPage> {
     });
 
     _fetchTopics(forceRefresh: true);
+    _scrollToBeginning();
+  }
+
+  void _scrollToSelectedTribe() {
+    if (_selectedTribe == null || !_tribeScrollController.hasClients) return;
+
+    final selectedIndex =
+        _tribes.indexWhere((tribe) => tribe.id == _selectedTribe!.id);
+    if (selectedIndex == -1) return;
+
+    // Calculate the scroll position
+    // Card width (100) + margin (8) = 108 pixels per card
+    const cardWidth = 108.0;
+    final scrollPosition = selectedIndex * cardWidth;
+
+    // Get the viewport width to center the selected card
+    final viewportWidth = _tribeScrollController.position.viewportDimension;
+    final centeredPosition =
+        scrollPosition - (viewportWidth / 2) + (cardWidth / 2);
+
+    // Ensure we don't scroll beyond the bounds
+    final maxScrollExtent = _tribeScrollController.position.maxScrollExtent;
+    final clampedPosition = centeredPosition.clamp(0.0, maxScrollExtent);
+
+    _tribeScrollController.animateTo(
+      clampedPosition,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollToBeginning() {
+    if (!_tribeScrollController.hasClients) return;
+
+    _tribeScrollController.animateTo(
+      0.0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   bool _canCreateTopic() {
@@ -229,6 +270,7 @@ class _TopicsPageState extends State<TopicsPage> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _tribeScrollController.dispose();
     super.dispose();
   }
 
@@ -367,6 +409,7 @@ class _TopicsPageState extends State<TopicsPage> {
                       SizedBox(
                         height: 100,
                         child: ListView.builder(
+                          controller: _tribeScrollController,
                           scrollDirection: Axis.horizontal,
                           itemCount: _tribes.length,
                           itemBuilder: (context, index) {
@@ -499,3 +542,4 @@ class _TopicsPageState extends State<TopicsPage> {
     );
   }
 }
+

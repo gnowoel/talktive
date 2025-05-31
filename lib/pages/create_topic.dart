@@ -180,7 +180,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               size: 64,
                               color: theme.colorScheme.primary,
                             ),
-                            const SizedBox(height: 48),
+                            const SizedBox(height: 32),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,

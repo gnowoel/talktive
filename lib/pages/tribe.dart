@@ -84,12 +84,16 @@ class _TribePageState extends State<TribePage> {
       }
     });
 
-    _fetchTopics();
+    _fetchTopics(forceRefresh: true);
   }
 
-  Future<void> _fetchTopics() async {
+  Future<void> _fetchTopics({bool forceRefresh = false}) async {
     try {
-      final topics = await firestore.fetchTopicsByTribe(widget.tribeId);
+      final topics = await firestore.fetchTopicsByTribe(
+        widget.tribeId,
+        serverClock.now,
+        noCache: forceRefresh,
+      );
 
       if (mounted) {
         setState(() {

@@ -72,10 +72,16 @@ class _TopicsPageState extends State<TopicsPage> {
 
   Future<void> _fetchTopics({bool forceRefresh = false}) async {
     try {
-      final topics = await firestore.fetchPublicTopics(
-        serverClock.now,
-        noCache: forceRefresh,
-      );
+      final topics = _selectedTribe != null
+          ? await firestore.fetchTopicsByTribe(
+              _selectedTribe!.id,
+              serverClock.now,
+              noCache: forceRefresh,
+            )
+          : await firestore.fetchPublicTopics(
+              serverClock.now,
+              noCache: forceRefresh,
+            );
 
       if (mounted) {
         setState(() {
@@ -109,24 +115,25 @@ class _TopicsPageState extends State<TopicsPage> {
   }
 
   void _selectTribe(Tribe tribe) {
+    if (_selectedTribe?.id == tribe.id) return;
+
     setState(() {
       _selectedTribe = tribe;
+      _isPopulated = false; // Show loading while fetching tribe topics
     });
+
+    _fetchTopics(forceRefresh: true);
   }
 
   void _clearFilter() {
+    if (_selectedTribe == null) return;
+
     setState(() {
       _selectedTribe = null;
+      _isPopulated = false; // Show loading while fetching all topics
     });
-  }
 
-  List<PublicTopic> get _filteredTopics {
-    if (_selectedTribe == null) {
-      return _topics;
-    }
-    return _topics
-        .where((topic) => topic.tribeId == _selectedTribe!.id)
-        .toList();
+    _fetchTopics(forceRefresh: true);
   }
 
   bool _canCreateTopic() {
@@ -279,7 +286,6 @@ class _TopicsPageState extends State<TopicsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filteredTopics = _filteredTopics;
 
     final lines = _selectedTribe != null
         ? [
@@ -327,176 +333,167 @@ class _TopicsPageState extends State<TopicsPage> {
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
-        child: filteredTopics.isEmpty && _isPopulated
-            ? Center(child: Info(lines: lines))
-            : !_isPopulated
-                ? const Center(
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  )
-                : Layout(
-                    child: Column(
-                      children: [
-                        if (_isTribesLoaded && _tribes.isNotEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text('Categories',
-                                        style: theme.textTheme.titleMedium),
-                                    if (_selectedTribe != null) ...[
-                                      const SizedBox(width: 8),
-                                      TextButton.icon(
-                                        onPressed: _clearFilter,
-                                        icon: const Icon(Icons.clear, size: 16),
-                                        label: const Text('Clear filter'),
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          minimumSize: const Size(0, 0),
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                SizedBox(
-                                  height: 100,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: _tribes.length,
-                                    itemBuilder: (context, index) {
-                                      final tribe = _tribes[index];
-                                      final isSelected =
-                                          _selectedTribe?.id == tribe.id;
-
-                                      return Card(
-                                        margin: const EdgeInsets.only(right: 8),
-                                        color: isSelected
-                                            ? theme.colorScheme.primaryContainer
-                                            : theme
-                                                .colorScheme.secondaryContainer,
-                                        child: InkWell(
-                                          onTap: () => _selectTribe(tribe),
-                                          child: Container(
-                                            width: 100,
-                                            decoration: isSelected
-                                                ? BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                    border: Border.all(
-                                                      color: theme
-                                                          .colorScheme.primary,
-                                                      width: 2,
-                                                    ),
-                                                  )
-                                                : null,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    tribe.iconEmoji ?? '🏷️',
-                                                    style: const TextStyle(
-                                                      fontSize: 24,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    tribe.name,
-                                                    style: theme
-                                                        .textTheme.labelMedium!
-                                                        .copyWith(
-                                                      color: isSelected
-                                                          ? theme.colorScheme
-                                                              .onPrimaryContainer
-                                                          : theme.colorScheme
-                                                              .onSecondaryContainer,
-                                                      fontWeight: isSelected
-                                                          ? FontWeight.w600
-                                                          : FontWeight.normal,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 2,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        // Show tribe description when filtered
-                        if (_selectedTribe?.description != null &&
-                            filteredTopics.isNotEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                            child: Text(
-                              _selectedTribe!.description!,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
+        child: Layout(
+          child: Column(
+            children: [
+              // Always show categories when tribes are loaded
+              if (_isTribesLoaded && _tribes.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text('Categories',
+                              style: theme.textTheme.titleMedium),
+                          if (_selectedTribe != null) ...[
+                            const SizedBox(width: 8),
+                            TextButton.icon(
+                              onPressed: _clearFilter,
+                              icon: const Icon(Icons.clear, size: 16),
+                              label: const Text('Clear filter'),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                minimumSize: const Size(0, 0),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
-                          ),
+                          ],
                         ],
-                        const SizedBox(height: 10),
-                        Expanded(
-                          child: filteredTopics.isEmpty
-                              ? Center(
-                                  child: _selectedTribe?.description != null
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(32.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                _selectedTribe!.description!,
-                                                style: theme.textTheme.bodyLarge
-                                                    ?.copyWith(
-                                                  color: theme.colorScheme
-                                                      .onSurfaceVariant,
-                                                  height: 1.5,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const SizedBox(height: 24),
-                                              const Info(lines: [
-                                                'No topics in this category yet.',
-                                                'Be the first to create one!',
-                                                '',
-                                              ]),
-                                            ],
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _tribes.length,
+                          itemBuilder: (context, index) {
+                            final tribe = _tribes[index];
+                            final isSelected = _selectedTribe?.id == tribe.id;
+
+                            return Card(
+                              margin: const EdgeInsets.only(right: 8),
+                              color: isSelected
+                                  ? theme.colorScheme.primaryContainer
+                                  : theme.colorScheme.secondaryContainer,
+                              child: InkWell(
+                                onTap: () => _selectTribe(tribe),
+                                child: Container(
+                                  width: 100,
+                                  decoration: isSelected
+                                      ? BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: theme.colorScheme.primary,
+                                            width: 2,
                                           ),
                                         )
-                                      : Info(lines: lines),
-                                )
-                              : TopicList(
-                                  topics: filteredTopics,
-                                  joinedTopicIds: joinedTopicIds,
-                                  seenTopicIds: seenTopicIds,
-                                  showTribeTags: _selectedTribe == null,
+                                      : null,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          tribe.iconEmoji ?? '🏷️',
+                                          style: const TextStyle(
+                                            fontSize: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          tribe.name,
+                                          style: theme.textTheme.labelMedium!
+                                              .copyWith(
+                                            color: isSelected
+                                                ? theme.colorScheme
+                                                    .onPrimaryContainer
+                                                : theme.colorScheme
+                                                    .onSecondaryContainer,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              // Show tribe description when filtered and topics exist
+              if (_selectedTribe?.description != null &&
+                  _topics.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Text(
+                    _selectedTribe!.description!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
+                ),
+              ],
+              const SizedBox(height: 10),
+              Expanded(
+                child: !_isPopulated
+                    ? const Center(
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      )
+                    : _topics.isEmpty
+                        ? Center(
+                            child: _selectedTribe?.description != null
+                                ? Padding(
+                                    padding: const EdgeInsets.all(32.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          _selectedTribe!.description!,
+                                          style: theme.textTheme.bodyLarge
+                                              ?.copyWith(
+                                            color: theme
+                                                .colorScheme.onSurfaceVariant,
+                                            height: 1.5,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 24),
+                                        const Info(lines: [
+                                          'No topics in this category yet.',
+                                          'Be the first to create one!',
+                                          '',
+                                        ]),
+                                      ],
+                                    ),
+                                  )
+                                : Info(lines: lines),
+                          )
+                        : TopicList(
+                            topics: _topics,
+                            joinedTopicIds: joinedTopicIds,
+                            seenTopicIds: seenTopicIds,
+                            showTribeTags: _selectedTribe == null,
+                          ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

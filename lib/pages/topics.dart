@@ -35,6 +35,7 @@ class _TopicsPageState extends State<TopicsPage> {
   List<PublicTopic> _seenTopics = [];
   List<PublicTopic> _topics = [];
   List<Tribe> _tribes = [];
+  Tribe? _selectedTribe;
   bool _isPopulated = false;
   bool _isTribesLoaded = false;
   bool _canRefresh = true;
@@ -107,8 +108,25 @@ class _TopicsPageState extends State<TopicsPage> {
     }
   }
 
-  void _navigateToTribe(Tribe tribe) {
-    context.push('/topics/tribe/${tribe.id}');
+  void _selectTribe(Tribe tribe) {
+    setState(() {
+      _selectedTribe = tribe;
+    });
+  }
+
+  void _clearFilter() {
+    setState(() {
+      _selectedTribe = null;
+    });
+  }
+
+  List<PublicTopic> get _filteredTopics {
+    if (_selectedTribe == null) {
+      return _topics;
+    }
+    return _topics
+        .where((topic) => topic.tribeId == _selectedTribe!.id)
+        .toList();
   }
 
   bool _canCreateTopic() {
@@ -193,7 +211,12 @@ class _TopicsPageState extends State<TopicsPage> {
       return;
     }
 
-    context.push('/topics/create');
+    // Pass the selected tribe ID if a category is filtered
+    final route = _selectedTribe != null
+        ? '/topics/create?tribeId=${_selectedTribe!.id}'
+        : '/topics/create';
+
+    context.push(route);
   }
 
   @override
@@ -217,7 +240,7 @@ class _TopicsPageState extends State<TopicsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'Use the + button below to create your own topic and start discussions.',
+              'Tap on a category to filter topics, or use the + button to create your own.',
               style: TextStyle(height: 1.5),
             ),
           ],
@@ -232,14 +255,43 @@ class _TopicsPageState extends State<TopicsPage> {
     );
   }
 
+  String get _appBarTitle {
+    if (_selectedTribe != null) {
+      return '${_selectedTribe!.iconEmoji ?? ''} ${_selectedTribe!.name}';
+    }
+    return 'Active Topics';
+  }
+
+  String get _fabTooltip {
+    if (!_canCreateTopic()) {
+      return userCache.user?.withAlert == true
+          ? 'Account restricted'
+          : (userCache.user?.isTrainee == true
+              ? 'Account too new'
+              : 'Need followers');
+    }
+
+    return _selectedTribe != null
+        ? 'Create Topic in ${_selectedTribe!.name}'
+        : 'Create Topic';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = [
-      'No topics here yet. Use',
-      'the + button to create one!',
-      '',
-    ];
+    final filteredTopics = _filteredTopics;
+
+    final lines = _selectedTribe != null
+        ? [
+            'No topics in this category yet.',
+            'Be the first to create one!',
+            '',
+          ]
+        : [
+            'No topics here yet. Use',
+            'the + button to create one!',
+            '',
+          ];
 
     final joinedTopicIds = topicCache.topicIds;
     final seenTopicIds = _seenTopics.map((topic) => topic.id).toList();
@@ -248,7 +300,14 @@ class _TopicsPageState extends State<TopicsPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Active Topics'),
+        title: Text(_appBarTitle),
+        leading: _selectedTribe != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: _clearFilter,
+                tooltip: 'Show all topics',
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -264,98 +323,180 @@ class _TopicsPageState extends State<TopicsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _handleCreateTopic,
-        tooltip: _canCreateTopic()
-            ? 'Create Topic'
-            : (userCache.user?.withAlert == true
-                ? 'Account restricted'
-                : (userCache.user?.isTrainee == true
-                    ? 'Account too new'
-                    : 'Need followers')),
+        tooltip: _fabTooltip,
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
-        child: _topics.isEmpty
-            ? (_isPopulated
-                ? const Center(child: Info(lines: lines))
-                : const Center(
+        child: filteredTopics.isEmpty && _isPopulated
+            ? Center(child: Info(lines: lines))
+            : !_isPopulated
+                ? const Center(
                     child: CircularProgressIndicator(strokeWidth: 3),
-                  ))
-            : Layout(
-                child: Column(
-                  children: [
-                    if (_isTribesLoaded && _tribes.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Categories',
-                                style: theme.textTheme.titleMedium),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              height: 100,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: _tribes.length,
-                                itemBuilder: (context, index) {
-                                  final tribe = _tribes[index];
-                                  return Card(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    color: theme.colorScheme.secondaryContainer,
-                                    child: InkWell(
-                                      onTap: () => _navigateToTribe(tribe),
-                                      child: SizedBox(
-                                        width: 100,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                  )
+                : Layout(
+                    child: Column(
+                      children: [
+                        if (_isTribesLoaded && _tribes.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('Categories',
+                                        style: theme.textTheme.titleMedium),
+                                    if (_selectedTribe != null) ...[
+                                      const SizedBox(width: 8),
+                                      TextButton.icon(
+                                        onPressed: _clearFilter,
+                                        icon: const Icon(Icons.clear, size: 16),
+                                        label: const Text('Clear filter'),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          minimumSize: const Size(0, 0),
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  height: 100,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _tribes.length,
+                                    itemBuilder: (context, index) {
+                                      final tribe = _tribes[index];
+                                      final isSelected =
+                                          _selectedTribe?.id == tribe.id;
+
+                                      return Card(
+                                        margin: const EdgeInsets.only(right: 8),
+                                        color: isSelected
+                                            ? theme.colorScheme.primaryContainer
+                                            : theme
+                                                .colorScheme.secondaryContainer,
+                                        child: InkWell(
+                                          onTap: () => _selectTribe(tribe),
+                                          child: Container(
+                                            width: 100,
+                                            decoration: isSelected
+                                                ? BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    border: Border.all(
+                                                      color: theme
+                                                          .colorScheme.primary,
+                                                      width: 2,
+                                                    ),
+                                                  )
+                                                : null,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    tribe.iconEmoji ?? '🏷️',
+                                                    style: const TextStyle(
+                                                      fontSize: 24,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    tribe.name,
+                                                    style: theme
+                                                        .textTheme.labelMedium!
+                                                        .copyWith(
+                                                      color: isSelected
+                                                          ? theme.colorScheme
+                                                              .onPrimaryContainer
+                                                          : theme.colorScheme
+                                                              .onSecondaryContainer,
+                                                      fontWeight: isSelected
+                                                          ? FontWeight.w600
+                                                          : FontWeight.normal,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 2,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        // Show tribe description when filtered
+                        if (_selectedTribe?.description != null &&
+                            filteredTopics.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                            child: Text(
+                              _selectedTribe!.description!,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+                        Expanded(
+                          child: filteredTopics.isEmpty
+                              ? Center(
+                                  child: _selectedTribe?.description != null
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(32.0),
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                tribe.iconEmoji ?? '🏷️',
-                                                style: const TextStyle(
-                                                  fontSize: 24,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                tribe.name,
-                                                style: theme
-                                                    .textTheme.labelMedium!
-                                                    .copyWith(
+                                                _selectedTribe!.description!,
+                                                style: theme.textTheme.bodyLarge
+                                                    ?.copyWith(
                                                   color: theme.colorScheme
-                                                      .onSecondaryContainer,
+                                                      .onSurfaceVariant,
+                                                  height: 1.5,
                                                 ),
                                                 textAlign: TextAlign.center,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 2,
                                               ),
+                                              const SizedBox(height: 24),
+                                              const Info(lines: [
+                                                'No topics in this category yet.',
+                                                'Be the first to create one!',
+                                                '',
+                                              ]),
                                             ],
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                                        )
+                                      : Info(lines: lines),
+                                )
+                              : TopicList(
+                                  topics: filteredTopics,
+                                  joinedTopicIds: joinedTopicIds,
+                                  seenTopicIds: seenTopicIds,
+                                  showTribeTags: _selectedTribe == null,
+                                ),
                         ),
-                      ),
-                    ],
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: TopicList(
-                        topics: _topics,
-                        joinedTopicIds: joinedTopicIds,
-                        seenTopicIds: seenTopicIds,
-                        showTribeTags: true,
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
       ),
     );
   }

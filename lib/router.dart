@@ -16,7 +16,6 @@ import 'pages/report.dart';
 import 'pages/reports.dart';
 import 'pages/topic.dart';
 import 'pages/topics.dart';
-import 'pages/tribe.dart';
 import 'pages/users.dart';
 import 'services/fireauth.dart';
 import 'services/firedata.dart';
@@ -59,13 +58,6 @@ Future<GoRouter> initRouter() async {
                 path: '/topics',
                 pageBuilder: (context, state) =>
                     const NoTransitionPage(child: TopicsPage()),
-              ),
-              GoRoute(
-                path: '/topics/tribe/:id',
-                pageBuilder: (context, state) {
-                  final tribeId = state.pathParameters['id']!;
-                  return NoTransitionPage(child: TribePage(tribeId: tribeId));
-                },
               ),
             ],
           ),

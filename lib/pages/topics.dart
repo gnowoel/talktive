@@ -348,14 +348,14 @@ class _TopicsPageState extends State<TopicsPage> {
                           Text('Categories',
                               style: theme.textTheme.titleMedium),
                           if (_selectedTribe != null) ...[
-                            const SizedBox(width: 8),
+                            const Spacer(),
                             TextButton.icon(
                               onPressed: _clearFilter,
                               icon: const Icon(Icons.clear, size: 16),
-                              label: const Text('Clear filter'),
+                              label: const Text('Clear'),
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                    horizontal: 8, vertical: 0),
                                 minimumSize: const Size(0, 0),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),

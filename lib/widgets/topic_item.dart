@@ -7,6 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/exception.dart';
 import '../helpers/routes.dart';
 import '../models/public_topic.dart';
+import '../models/tribe.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
@@ -22,6 +23,7 @@ class TopicItem extends StatefulWidget {
   final bool hasJoined;
   final bool hasSeen;
   final bool showTribeTag;
+  final void Function(Tribe)? onTribeSelected;
 
   const TopicItem({
     super.key,
@@ -29,6 +31,7 @@ class TopicItem extends StatefulWidget {
     required this.hasJoined,
     required this.hasSeen,
     this.showTribeTag = false,
+    this.onTribeSelected,
   });
 
   @override
@@ -260,8 +263,11 @@ class _TopicItemState extends State<TopicItem> {
   }
 
   void _onTribeTap() {
-    if (widget.topic.tribeId != null) {
-      context.push('/topics/tribe/${widget.topic.tribeId}');
+    if (widget.topic.tribeId != null && widget.onTribeSelected != null) {
+      final tribe = tribeCache.getTribeById(widget.topic.tribeId!);
+      if (tribe != null) {
+        widget.onTribeSelected!(tribe);
+      }
     }
   }
 

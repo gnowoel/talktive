@@ -489,6 +489,7 @@ class _TopicsPageState extends State<TopicsPage> {
                             joinedTopicIds: joinedTopicIds,
                             seenTopicIds: seenTopicIds,
                             showTribeTags: _selectedTribe == null,
+                            onTribeSelected: _selectTribe,
                           ),
               ),
             ],

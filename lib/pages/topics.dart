@@ -65,13 +65,16 @@ class _TopicsPageState extends State<TopicsPage> {
       }
     });
 
-    _fetchTopics();
+    _fetchTopics(forceRefresh: true);
     _fetchTribes();
   }
 
-  Future<void> _fetchTopics() async {
+  Future<void> _fetchTopics({bool forceRefresh = false}) async {
     try {
-      final topics = await firestore.fetchPublicTopics(serverClock.now);
+      final topics = await firestore.fetchPublicTopics(
+        serverClock.now,
+        noCache: forceRefresh,
+      );
 
       if (mounted) {
         setState(() {

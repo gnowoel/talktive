@@ -27,8 +27,10 @@ class Firestore {
   int _lastTouchedUser = 0;
   final List<User> _cachedUsers = [];
   final List<PublicTopic> _cachedTopics = [];
+  final Map<String, List<PublicTopic>> _cachedTopicsByTribe = {};
   int? _lastUserUpdatedAt;
   int? _lastTopicUpdatedAt;
+  final Map<String, int?> _lastTribeTopicUpdatedAt = {};
 
   final _userCache = <String, _CachedUser>{};
 
@@ -346,6 +348,12 @@ class Firestore {
 
       final topicId = result['topicId'];
 
+      // Invalidate relevant caches since a new topic was created
+      clearTopicsCache();
+      if (tribeId != null) {
+        clearTribeTopicsCache(tribeId);
+      }
+
       return _createInitialDummyTopic(topicId, user);
     } catch (e) {
       throw AppException(e.toString());
@@ -418,20 +426,72 @@ class Firestore {
     }
   }
 
-  Future<List<PublicTopic>> fetchTopicsByTribe(String tribeId) async {
+  Future<List<PublicTopic>> fetchTopicsByTribe(
+    String tribeId,
+    int serverNow, {
+    bool noCache = false,
+  }) async {
     try {
-      final snapshot = await instance
+      // Clear cache if it's too old or explicitly requested
+      if (noCache || _shouldRefreshTribeTopicsCache(tribeId, serverNow)) {
+        clearTribeTopicsCache(tribeId);
+      }
+
+      // Start building the query
+      var query = instance
           .collection('topics')
           .where('tribeId', isEqualTo: tribeId)
-          .orderBy('updatedAt', descending: true)
-          .limit(32)
-          .get();
+          .orderBy('updatedAt', descending: true);
 
-      final topics = snapshot.docs
-          .map((doc) => PublicTopic.fromJson(doc.id, doc.data()))
-          .toList();
+      // If we have cached data, only fetch topics updated since our last fetch
+      final lastTribeUpdate = _lastTribeTopicUpdatedAt[tribeId];
+      if (lastTribeUpdate != null) {
+        final lastTimestamp = Timestamp.fromMillisecondsSinceEpoch(
+          lastTribeUpdate,
+        );
+        query = query.where('updatedAt', isGreaterThan: lastTimestamp);
+      }
 
-      return topics;
+      // Limit the result set size
+      query = query.limit(32);
+
+      // Execute the query
+      final snapshot = await query.get();
+      final fetchedTopics = snapshot.docs.map((doc) {
+        return PublicTopic.fromJson(doc.id, doc.data());
+      }).toList();
+
+      // Get existing cached topics for this tribe
+      final cachedTopics = _cachedTopicsByTribe[tribeId] ?? [];
+
+      // Merge fetched topics with cached topics
+      if (fetchedTopics.isNotEmpty) {
+        // Remove any topics from cache that have been updated
+        cachedTopics.removeWhere(
+          (cachedTopic) => fetchedTopics.any(
+            (fetchedTopic) => fetchedTopic.id == cachedTopic.id,
+          ),
+        );
+
+        // Add the new topics to cache
+        cachedTopics.addAll(fetchedTopics);
+
+        // Sort by most recent first
+        cachedTopics.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+        // Limit cache size
+        if (cachedTopics.length > 32) {
+          cachedTopics.removeRange(32, cachedTopics.length);
+        }
+
+        // Update the cache and timestamp
+        _cachedTopicsByTribe[tribeId] = cachedTopics;
+        if (cachedTopics.isNotEmpty) {
+          _lastTribeTopicUpdatedAt[tribeId] = cachedTopics.first.updatedAt;
+        }
+      }
+
+      return List<PublicTopic>.from(cachedTopics);
     } catch (e) {
       throw AppException(e.toString());
     }
@@ -516,11 +576,52 @@ class Firestore {
     _lastTopicUpdatedAt = null;
   }
 
+  void clearTribeTopicsCache(String tribeId) {
+    _cachedTopicsByTribe.remove(tribeId);
+    _lastTribeTopicUpdatedAt.remove(tribeId);
+  }
+
+  void clearAllTopicsCache() {
+    clearTopicsCache();
+    _cachedTopicsByTribe.clear();
+    _lastTribeTopicUpdatedAt.clear();
+  }
+
+  /// Force refresh all topics caches
+  Future<void> refreshAllTopicsCache(int serverNow) async {
+    clearAllTopicsCache();
+  }
+
+  /// Force refresh tribe topics cache
+  Future<void> refreshTribeTopicsCache(String tribeId, int serverNow) async {
+    clearTribeTopicsCache(tribeId);
+  }
+
+  /// Get cached topics count for a specific tribe
+  int getCachedTribeTopicsCount(String tribeId) {
+    return _cachedTopicsByTribe[tribeId]?.length ?? 0;
+  }
+
+  /// Get total cached topics count across all tribes
+  int getTotalCachedTopicsCount() {
+    return _cachedTopics.length + 
+           _cachedTopicsByTribe.values.fold(0, (sum, topics) => sum + topics.length);
+  }
+
   bool _shouldRefreshTopicsCache(int serverNow) {
     if (_cachedTopics.isEmpty) return true;
 
     final oneHour = 1 * 60 * 60 * 1000;
     final lastCacheTime = _lastTopicUpdatedAt ?? 0;
+    return serverNow >= lastCacheTime + oneHour;
+  }
+
+  bool _shouldRefreshTribeTopicsCache(String tribeId, int serverNow) {
+    final cachedTopics = _cachedTopicsByTribe[tribeId];
+    if (cachedTopics == null || cachedTopics.isEmpty) return true;
+
+    final oneHour = 1 * 60 * 60 * 1000;
+    final lastCacheTime = _lastTribeTopicUpdatedAt[tribeId] ?? 0;
     return serverNow >= lastCacheTime + oneHour;
   }
 

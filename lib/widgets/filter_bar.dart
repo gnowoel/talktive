@@ -6,7 +6,6 @@ class FilterBar extends StatelessWidget {
   final Function(String?) onGenderChanged;
   final Function(String?) onLanguageChanged;
   final VoidCallback onReset;
-  final bool canRefresh;
 
   const FilterBar({
     super.key,
@@ -15,7 +14,6 @@ class FilterBar extends StatelessWidget {
     required this.onGenderChanged,
     required this.onLanguageChanged,
     required this.onReset,
-    required this.canRefresh,
   });
 
   static final _genderOptions = [
@@ -55,7 +53,6 @@ class FilterBar extends StatelessWidget {
               items: _genderOptions,
               onChanged: onGenderChanged,
               hint: 'Gender',
-              canRefresh: canRefresh,
             ),
           ),
           const SizedBox(width: 8),
@@ -66,7 +63,6 @@ class FilterBar extends StatelessWidget {
               items: _languageOptions,
               onChanged: onLanguageChanged,
               hint: 'Language',
-              canRefresh: canRefresh,
             ),
           ),
           // if (hasFilters) ...[
@@ -88,7 +84,6 @@ class FilterBar extends StatelessWidget {
     required List<Map<String, String?>> items,
     required Function(String?) onChanged,
     required String hint,
-    required bool canRefresh,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -101,17 +96,16 @@ class FilterBar extends StatelessWidget {
           value: value,
           isExpanded: true,
           hint: Text(hint),
-          items:
-              items.map((item) {
-                return DropdownMenuItem(
-                  value: item['value'],
-                  child: Text(
-                    item['label']!,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                );
-              }).toList(),
-          onChanged: canRefresh ? onChanged : null,
+          items: items.map((item) {
+            return DropdownMenuItem(
+              value: item['value'],
+              child: Text(
+                item['label']!,
+                style: const TextStyle(fontSize: 14),
+              ),
+            );
+          }).toList(),
+          onChanged: onChanged,
         ),
       ),
     );

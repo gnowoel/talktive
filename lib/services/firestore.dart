@@ -610,7 +610,7 @@ class Firestore {
   int getTotalCachedTopicsCount() {
     return _cachedTopics.length +
         _cachedTopicsByTribe.values
-            .fold(0, (sum, topics) => sum + topics.length);
+            .fold(0, (result, topics) => result + topics.length);
   }
 
   bool _shouldRefreshTopicsCache(int serverNow) {

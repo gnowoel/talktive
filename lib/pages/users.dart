@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -35,8 +33,6 @@ class _UsersPageState extends State<UsersPage> {
   List<User> _seenUsers = [];
   List<User> _users = [];
   bool _isPopulated = false;
-  bool _canRefresh = true;
-  Timer? _refreshTimer;
 
   String? _selectedGender;
   String? _selectedLanguage;
@@ -94,18 +90,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _refreshUsers({bool noCache = false}) async {
-    if (!_canRefresh) return;
-
-    setState(() => _canRefresh = false);
-
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() => _canRefresh = true);
-      }
-    });
-
-    serverClock = context.read<ServerClock>();
+    await Future.delayed(const Duration(seconds: 1));
     _fetchUsers(chatCache.chats, noCache: noCache);
   }
 
@@ -157,7 +142,6 @@ class _UsersPageState extends State<UsersPage> {
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     super.dispose();
   }
 
@@ -191,7 +175,6 @@ class _UsersPageState extends State<UsersPage> {
                           onGenderChanged: _handleGenderChanged,
                           onLanguageChanged: _handleLanguageChanged,
                           onReset: _resetFilters,
-                          canRefresh: _canRefresh,
                         ),
                         Expanded(
                           child: SingleChildScrollView(
@@ -228,7 +211,6 @@ class _UsersPageState extends State<UsersPage> {
                         onGenderChanged: _handleGenderChanged,
                         onLanguageChanged: _handleLanguageChanged,
                         onReset: _resetFilters,
-                        canRefresh: _canRefresh,
                       ),
                       Expanded(
                         child: UserList(

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -38,8 +36,7 @@ class _TopicsPageState extends State<TopicsPage> {
   Tribe? _selectedTribe;
   bool _isPopulated = false;
   bool _isTribesLoaded = false;
-  bool _canRefresh = true;
-  Timer? _refreshTimer;
+
   final ScrollController _tribeScrollController = ScrollController();
 
   @override
@@ -56,16 +53,7 @@ class _TopicsPageState extends State<TopicsPage> {
   }
 
   Future<void> _refreshTopics() async {
-    if (!_canRefresh) return;
-
-    setState(() => _canRefresh = false);
-
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() => _canRefresh = true);
-      }
-    });
+    await Future.delayed(const Duration(seconds: 1));
 
     _fetchTopics(forceRefresh: true);
     _fetchTribes();
@@ -270,7 +258,6 @@ class _TopicsPageState extends State<TopicsPage> {
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     _tribeScrollController.dispose();
     super.dispose();
   }

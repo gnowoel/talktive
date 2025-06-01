@@ -177,19 +177,51 @@ class _UsersPageState extends State<UsersPage> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('Active Users'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            tooltip: 'Refresh users',
-            onPressed: _canRefresh ? _refreshUsers : null,
-          ),
-        ],
       ),
       body: SafeArea(
-        child: users.isEmpty
-            ? (_isPopulated
-                ? Column(
+        child: RefreshIndicator(
+          onRefresh: _refreshUsers,
+          child: users.isEmpty
+              ? (_isPopulated
+                  ? Column(
+                      children: [
+                        FilterBar(
+                          selectedGender: _selectedGender,
+                          selectedLanguage: _selectedLanguage,
+                          onGenderChanged: _handleGenderChanged,
+                          onLanguageChanged: _handleLanguageChanged,
+                          onReset: _resetFilters,
+                          canRefresh: _canRefresh,
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: const Center(child: Info(lines: lines)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : const SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: 400,
+                        child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                      ),
+                    ))
+              : Layout(
+                  child: Column(
                     children: [
+                      const SizedBox(height: 10),
+                      if (!settings.hasHiddenUsersNotice)
+                        InfoNotice(
+                          content: info,
+                          onDismiss: () => settings.hideUsersNotice(),
+                        ),
                       FilterBar(
                         selectedGender: _selectedGender,
                         selectedLanguage: _selectedLanguage,
@@ -199,40 +231,16 @@ class _UsersPageState extends State<UsersPage> {
                         canRefresh: _canRefresh,
                       ),
                       Expanded(
-                        child: const Center(child: Info(lines: lines)),
+                        child: UserList(
+                          users: users,
+                          knownUserIds: knownUserIds,
+                          seenUserIds: seenUserIds,
+                        ),
                       ),
                     ],
-                  )
-                : const Center(
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  ))
-            : Layout(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    if (!settings.hasHiddenUsersNotice)
-                      InfoNotice(
-                        content: info,
-                        onDismiss: () => settings.hideUsersNotice(),
-                      ),
-                    FilterBar(
-                      selectedGender: _selectedGender,
-                      selectedLanguage: _selectedLanguage,
-                      onGenderChanged: _handleGenderChanged,
-                      onLanguageChanged: _handleLanguageChanged,
-                      onReset: _resetFilters,
-                      canRefresh: _canRefresh,
-                    ),
-                    Expanded(
-                      child: UserList(
-                        users: users,
-                        knownUserIds: knownUserIds,
-                        seenUserIds: seenUserIds,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

@@ -57,36 +57,35 @@ class _TopicPageState extends State<TopicPage> {
 
     final userId = fireauth.instance.currentUser!.uid;
 
-    topicSubscription = firestore
-        .subscribeToTopic(userId, widget.topicId)
-        .listen((topic) {
-          if (topic.isDummy) {
-            setState(() {
-              if (_topic == null) {
-                _topic = topic.copyWith(id: widget.topicId);
-              } else {
-                _topic = _topic!.copyWith(updatedAt: 0);
-              }
-            });
-            if (mounted) {
-              ErrorHandler.showSnackBarMessage(
-                context,
-                AppException('The topic has been deleted.'),
-                severe: true,
-              );
-            }
+    topicSubscription =
+        firestore.subscribeToTopic(userId, widget.topicId).listen((topic) {
+      if (topic.isDummy) {
+        setState(() {
+          if (_topic == null) {
+            _topic = topic.copyWith(id: widget.topicId);
           } else {
-            setState(() => _topic = topic);
+            _topic = _topic!.copyWith(updatedAt: 0);
           }
         });
+        if (mounted) {
+          ErrorHandler.showSnackBarMessage(
+            context,
+            AppException('The topic has been deleted.'),
+            severe: true,
+          );
+        }
+      } else {
+        setState(() => _topic = topic);
+      }
+    });
 
     final lastTimestamp = topicMessageCache.getLastTimestamp(widget.topicId);
 
     messagesSubscription = firestore
         .subscribeToTopicMessages(widget.topicId, lastTimestamp)
         .listen((messages) {
-          topicMessageCache.addMessages(widget.topicId, messages);
-        });
+      topicMessageCache.addMessages(widget.topicId, messages);
+    });
   }
 
   @override
@@ -170,12 +169,11 @@ class _TopicPageState extends State<TopicPage> {
   void _showCreatorInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: widget.topicCreatorId,
-            photoURL: _topic?.creator.photoURL ?? '',
-            displayName: _topic?.creator.displayName ?? '',
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: widget.topicCreatorId,
+        photoURL: _topic?.creator.photoURL ?? '',
+        displayName: _topic?.creator.displayName ?? '',
+      ),
     );
   }
 
@@ -192,7 +190,7 @@ class _TopicPageState extends State<TopicPage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        await _updateReadMessageCount();
+        _updateReadMessageCount(); // No wait
         if (context.mounted) {
           Navigator.pop(context, result);
         }

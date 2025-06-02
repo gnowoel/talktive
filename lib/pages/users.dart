@@ -49,8 +49,8 @@ class _UsersPageState extends State<UsersPage> {
     chatCache = context.read<ChatCache>();
     chatMessageCache = context.read<ChatMessageCache>();
 
-    _selectedGender = settings.selectedGender;
-    _selectedLanguage = settings.selectedLanguage;
+    _selectedGender = null;
+    _selectedLanguage = null;
 
     _fetchUsers(chatCache.chats);
   }
@@ -67,7 +67,6 @@ class _UsersPageState extends State<UsersPage> {
     setState(() {
       _selectedGender = value;
       _isLoadingFilters = true;
-      settings.setSelectedGender(value);
       _refreshUsers(noCache: true);
     });
   }
@@ -78,7 +77,6 @@ class _UsersPageState extends State<UsersPage> {
     setState(() {
       _selectedLanguage = value;
       _isLoadingFilters = true;
-      settings.setSelectedLanguage(value);
       _refreshUsers(noCache: true);
     });
   }
@@ -89,7 +87,6 @@ class _UsersPageState extends State<UsersPage> {
       _selectedLanguage = null;
       _isLoadingFilters = true;
     });
-    await settings.resetFilters();
     _refreshUsers(noCache: true);
   }
 

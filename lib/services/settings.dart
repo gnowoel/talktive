@@ -12,8 +12,6 @@ class Settings {
   String? _completedSetupVersion;
   bool _hasHiddenUsersNotice = false;
   bool _hasHiddenChatsNotice = false;
-  String? _selectedGender;
-  String? _selectedLanguage;
 
   Future<void> load() async {
     _seenWhatsNewVersion = await Prefs.getString('seenWhatsNewVersion');
@@ -21,14 +19,10 @@ class Settings {
     final setupVersion = await Prefs.getString('completedSetupVersion');
     final usersNotice = await Prefs.getBool('hasHiddenUsersNotice');
     final chatsNotice = await Prefs.getBool('hasHiddenChatsNotice');
-    final selectedGender = await Prefs.getString('selectedGender');
-    final selectedLanguage = await Prefs.getString('selectedLanguage');
 
     _completedSetupVersion = setupVersion;
     _hasHiddenUsersNotice = usersNotice;
     _hasHiddenChatsNotice = chatsNotice;
-    _selectedGender = selectedGender;
-    _selectedLanguage = selectedLanguage;
   }
 
   Future<void> setSeenWhatsNewVersion() async {
@@ -56,39 +50,12 @@ class Settings {
     _hasHiddenChatsNotice = true;
   }
 
-  Future<void> setSelectedGender(String? value) async {
-    if (value == null) {
-      await Prefs.remove('selectedGender');
-      _selectedGender = null;
-    } else {
-      await Prefs.setString('selectedGender', value);
-      _selectedGender = value;
-    }
-  }
 
-  Future<void> setSelectedLanguage(String? value) async {
-    if (value == null) {
-      await Prefs.remove('selectedLanguage');
-      _selectedLanguage = null;
-    } else {
-      await Prefs.setString('selectedLanguage', value);
-      _selectedLanguage = value;
-    }
-  }
-
-  Future<void> resetFilters() async {
-    await Prefs.remove('selectedGender');
-    _selectedGender = null;
-    await Prefs.remove('selectedLanguage');
-    _selectedLanguage = null;
-  }
 
   bool get hasSeenWhatsNew => _seenWhatsNewVersion == whatsNewVersion;
   bool get hasCompletedSetup => _completedSetupVersion == wizardVersion;
   bool get hasHiddenUsersNotice => _hasHiddenUsersNotice;
   bool get hasHiddenChatsNotice => _hasHiddenChatsNotice;
-  String? get selectedGender => _selectedGender;
-  String? get selectedLanguage => _selectedLanguage;
 }
 
 class Prefs {

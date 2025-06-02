@@ -44,7 +44,7 @@ const predefinedTribes: TribeDefinition[] = [
   },
   {
     name: 'Deep Discussions',
-    description: 'Engage in meaningful discussions about complex topics',
+    description: 'Meaningful discussions about complex topics',
     iconEmoji: '🧠',
     sort: 50,
   },

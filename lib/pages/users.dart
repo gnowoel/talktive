@@ -33,6 +33,7 @@ class _UsersPageState extends State<UsersPage> {
   List<User> _seenUsers = [];
   List<User> _users = [];
   bool _isPopulated = false;
+  bool _isLoadingFilters = false;
 
   String? _selectedGender;
   String? _selectedLanguage;
@@ -65,6 +66,7 @@ class _UsersPageState extends State<UsersPage> {
 
     setState(() {
       _selectedGender = value;
+      _isLoadingFilters = true;
       settings.setSelectedGender(value);
       _refreshUsers(noCache: true);
     });
@@ -75,6 +77,7 @@ class _UsersPageState extends State<UsersPage> {
 
     setState(() {
       _selectedLanguage = value;
+      _isLoadingFilters = true;
       settings.setSelectedLanguage(value);
       _refreshUsers(noCache: true);
     });
@@ -84,6 +87,7 @@ class _UsersPageState extends State<UsersPage> {
     setState(() {
       _selectedGender = null;
       _selectedLanguage = null;
+      _isLoadingFilters = true;
     });
     await settings.resetFilters();
     _refreshUsers(noCache: true);
@@ -113,7 +117,9 @@ class _UsersPageState extends State<UsersPage> {
       _seenUsers = _users;
       _users = users;
       _isPopulated = true;
+      _isLoadingFilters = false;
     });
+  
   }
 
   List<User> _filterUsers() {
@@ -174,57 +180,74 @@ class _UsersPageState extends State<UsersPage> {
                   onDismiss: () => settings.hideUsersNotice(),
                 ),
               Expanded(
-                child: users.isEmpty
-                    ? (_isPopulated
-                        ? Column(
-                            children: [
-                              FilterBar(
-                                selectedGender: _selectedGender,
-                                selectedLanguage: _selectedLanguage,
-                                onGenderChanged: _handleGenderChanged,
-                                onLanguageChanged: _handleLanguageChanged,
-                                onReset: _resetFilters,
-                              ),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  child: SizedBox(
-                                    height: MediaQuery.of(context).size.height * 0.6,
-                                    child: const Center(child: Info(lines: lines)),
+                child: _isLoadingFilters
+                    ? Column(
+                        children: [
+                          FilterBar(
+                            selectedGender: _selectedGender,
+                            selectedLanguage: _selectedLanguage,
+                            onGenderChanged: _handleGenderChanged,
+                            onLanguageChanged: _handleLanguageChanged,
+                            onReset: _resetFilters,
+                          ),
+                          const Expanded(
+                            child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 3),
+                            ),
+                          ),
+                        ],
+                      )
+                    : users.isEmpty
+                        ? (_isPopulated
+                            ? Column(
+                                children: [
+                                  FilterBar(
+                                    selectedGender: _selectedGender,
+                                    selectedLanguage: _selectedLanguage,
+                                    onGenderChanged: _handleGenderChanged,
+                                    onLanguageChanged: _handleLanguageChanged,
+                                    onReset: _resetFilters,
+                                  ),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      physics: const AlwaysScrollableScrollPhysics(),
+                                      child: SizedBox(
+                                        height: MediaQuery.of(context).size.height * 0.6,
+                                        child: const Center(child: Info(lines: lines)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const SingleChildScrollView(
+                                physics: AlwaysScrollableScrollPhysics(),
+                                child: SizedBox(
+                                  height: 400,
+                                  child: Center(
+                                    child: CircularProgressIndicator(strokeWidth: 3),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : const SingleChildScrollView(
-                            physics: AlwaysScrollableScrollPhysics(),
-                            child: SizedBox(
-                              height: 400,
-                              child: Center(
-                                child: CircularProgressIndicator(strokeWidth: 3),
-                              ),
+                              ))
+                        : Layout(
+                            child: Column(
+                              children: [
+                                FilterBar(
+                                  selectedGender: _selectedGender,
+                                  selectedLanguage: _selectedLanguage,
+                                  onGenderChanged: _handleGenderChanged,
+                                  onLanguageChanged: _handleLanguageChanged,
+                                  onReset: _resetFilters,
+                                ),
+                                Expanded(
+                                  child: UserList(
+                                    users: users,
+                                    knownUserIds: knownUserIds,
+                                    seenUserIds: seenUserIds,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ))
-                    : Layout(
-                        child: Column(
-                          children: [
-                            FilterBar(
-                              selectedGender: _selectedGender,
-                              selectedLanguage: _selectedLanguage,
-                              onGenderChanged: _handleGenderChanged,
-                              onLanguageChanged: _handleLanguageChanged,
-                              onReset: _resetFilters,
-                            ),
-                            Expanded(
-                              child: UserList(
-                                users: users,
-                                knownUserIds: knownUserIds,
-                                seenUserIds: seenUserIds,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                          ),
               ),
             ],
           ),

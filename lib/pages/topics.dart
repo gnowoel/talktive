@@ -317,9 +317,7 @@ class _TopicsPageState extends State<TopicsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final lines = _selectedTribe != null
-        ? ['No topics in this category yet.', 'Be the first to create one!', '']
-        : ['No topics here yet. Use', 'the + button to create one!', ''];
+    final lines = ['No topics here yet. Be', 'the first to create one!', ''];
 
     final joinedTopicIds = topicCache.topicIds;
     final seenTopicIds = _seenTopics.map((topic) => topic.id).toList();
@@ -470,6 +468,7 @@ class _TopicsPageState extends State<TopicsPage> {
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
@@ -509,14 +508,7 @@ class _TopicsPageState extends State<TopicsPage> {
                                                 ),
                                                 textAlign: TextAlign.center,
                                               ),
-                                              const SizedBox(height: 24),
-                                              const Info(
-                                                lines: [
-                                                  'No topics in this category yet.',
-                                                  'Be the first to create one!',
-                                                  '',
-                                                ],
-                                              ),
+                                              const SizedBox(height: 16),
                                             ],
                                           ),
                                         )

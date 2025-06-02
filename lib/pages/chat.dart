@@ -267,7 +267,7 @@ class _ChatPageState extends State<ChatPage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        await _updateReadMessageCount(_chat);
+        _updateReadMessageCount(_chat); // No wait
         if (context.mounted) {
           Navigator.pop(context, result);
         }

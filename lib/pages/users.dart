@@ -116,7 +116,6 @@ class _UsersPageState extends State<UsersPage> {
       _isPopulated = true;
       _isLoadingFilters = false;
     });
-  
   }
 
   List<User> _filterUsers() {
@@ -160,7 +159,6 @@ class _UsersPageState extends State<UsersPage> {
     final users = _filterUsers();
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('Active Users'),
@@ -207,10 +205,14 @@ class _UsersPageState extends State<UsersPage> {
                                   ),
                                   Expanded(
                                     child: SingleChildScrollView(
-                                      physics: const AlwaysScrollableScrollPhysics(),
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
                                       child: SizedBox(
-                                        height: MediaQuery.of(context).size.height * 0.6,
-                                        child: const Center(child: Info(lines: lines)),
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.6,
+                                        child: const Center(
+                                            child: Info(lines: lines)),
                                       ),
                                     ),
                                   ),
@@ -221,7 +223,8 @@ class _UsersPageState extends State<UsersPage> {
                                 child: SizedBox(
                                   height: 400,
                                   child: Center(
-                                    child: CircularProgressIndicator(strokeWidth: 3),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 3),
                                   ),
                                 ),
                               ))

@@ -275,6 +275,7 @@ class _ChatPageState extends State<ChatPage> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         appBar: AppBar(
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
           title: GestureDetector(
             onTap: () => _showUserInfo(context),
             child: Row(

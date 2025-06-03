@@ -12,7 +12,7 @@ import '../services/settings.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/info.dart';
 import '../widgets/info_notice.dart';
-import '../widgets/layout.dart';
+import '../widgets/scrollable_center.dart';
 import '../widgets/user_list.dart';
 
 class UsersPage extends StatefulWidget {
@@ -158,6 +158,8 @@ class _UsersPageState extends State<UsersPage> {
     final seenUserIds = _seenUserIds();
     final users = _filterUsers();
 
+    final isLoading = users.isEmpty && !_isPopulated || _isLoadingFilters;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -169,85 +171,39 @@ class _UsersPageState extends State<UsersPage> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              if (!settings.hasHiddenUsersNotice)
+              if (!settings.hasHiddenUsersNotice) ...[
                 InfoNotice(
                   content: info,
                   onDismiss: () => settings.hideUsersNotice(),
                 ),
+              ],
               Expanded(
-                child: _isLoadingFilters
-                    ? Column(
-                        children: [
-                          FilterBar(
-                            selectedGender: _selectedGender,
-                            selectedLanguage: _selectedLanguage,
-                            onGenderChanged: _handleGenderChanged,
-                            onLanguageChanged: _handleLanguageChanged,
-                            onReset: _resetFilters,
-                          ),
-                          const Expanded(
-                            child: Center(
+                child: Column(
+                  children: [
+                    FilterBar(
+                      selectedGender: _selectedGender,
+                      selectedLanguage: _selectedLanguage,
+                      onGenderChanged: _handleGenderChanged,
+                      onLanguageChanged: _handleLanguageChanged,
+                      onReset: _resetFilters,
+                    ),
+                    Expanded(
+                      child: isLoading
+                          ? const ScrollableCenter(
                               child: CircularProgressIndicator(strokeWidth: 3),
-                            ),
-                          ),
-                        ],
-                      )
-                    : users.isEmpty
-                        ? (_isPopulated
-                            ? Column(
-                                children: [
-                                  FilterBar(
-                                    selectedGender: _selectedGender,
-                                    selectedLanguage: _selectedLanguage,
-                                    onGenderChanged: _handleGenderChanged,
-                                    onLanguageChanged: _handleLanguageChanged,
-                                    onReset: _resetFilters,
-                                  ),
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      child: SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.6,
-                                        child: const Center(
-                                            child: Info(lines: lines)),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : const SingleChildScrollView(
-                                physics: AlwaysScrollableScrollPhysics(),
-                                child: SizedBox(
-                                  height: 400,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 3),
-                                  ),
+                            )
+                          : users.isEmpty
+                              ? const ScrollableCenter(
+                                  child: Info(lines: lines),
+                                )
+                              : UserList(
+                                  users: users,
+                                  knownUserIds: knownUserIds,
+                                  seenUserIds: seenUserIds,
                                 ),
-                              ))
-                        : Layout(
-                            child: Column(
-                              children: [
-                                FilterBar(
-                                  selectedGender: _selectedGender,
-                                  selectedLanguage: _selectedLanguage,
-                                  onGenderChanged: _handleGenderChanged,
-                                  onLanguageChanged: _handleLanguageChanged,
-                                  onReset: _resetFilters,
-                                ),
-                                Expanded(
-                                  child: UserList(
-                                    users: users,
-                                    knownUserIds: knownUserIds,
-                                    seenUserIds: seenUserIds,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

@@ -196,7 +196,9 @@ class _TopicPageState extends State<TopicPage> {
         }
       },
       child: Scaffold(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
         appBar: AppBar(
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
           title: GestureDetector(
             onTap: () => _showCreatorInfo(context),
             child: Row(

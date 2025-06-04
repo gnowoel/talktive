@@ -438,10 +438,13 @@ class Firestore {
         clearTribeTopicsCache(tribeId);
       }
 
-      // Start building the query
+      final activePeriodAgo = serverNow - activePeriod;
+      final timestamp = Timestamp.fromMillisecondsSinceEpoch(activePeriodAgo);
+
       var query = instance
           .collection('topics')
           .where('tribeId', isEqualTo: tribeId)
+          .where('updatedAt', isGreaterThan: timestamp)
           .orderBy('updatedAt', descending: true);
 
       // If we have cached data, only fetch topics updated since our last fetch
@@ -493,7 +496,10 @@ class Firestore {
       }
 
       // Filter out topics with null tribeId (redundant for tribe-specific fetch, but defensive)
-      return cachedTopics.where((topic) => topic.tribeId != null).toList();
+      return cachedTopics
+          .where((topic) =>
+              topic.updatedAt > activePeriodAgo && topic.tribeId != null)
+          .toList();
     } catch (e) {
       throw AppException(e.toString());
     }

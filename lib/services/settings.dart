@@ -16,49 +16,59 @@ class Settings {
   String? _savedChatsPageNoticeVersion;
 
   Future<void> load() async {
-    _savedWhatsNewVersion = await Prefs.getString('whatsNewVersion');
-    _savedSetupWizardVersion = await Prefs.getString('setupWizardVersion');
+    final prefs = await SharedPreferences.getInstance();
+
+    _savedWhatsNewVersion =
+        await Prefs.getString('whatsNewVersion', prefs: prefs);
+    _savedSetupWizardVersion =
+        await Prefs.getString('setupWizardVersion', prefs: prefs);
     _savedUsersPageNoticeVersion =
-        await Prefs.getString('usersPageNoticeVersion');
+        await Prefs.getString('usersPageNoticeVersion', prefs: prefs);
     _savedChatsPageNoticeVersion =
-        await Prefs.getString('chatsPageNoticeVersion');
+        await Prefs.getString('chatsPageNoticeVersion', prefs: prefs);
 
     // For migration, will delete
 
     if (_savedWhatsNewVersion == null) {
-      _savedWhatsNewVersion = await Prefs.getString('seenWhatsNewVersion');
+      _savedWhatsNewVersion =
+          await Prefs.getString('seenWhatsNewVersion', prefs: prefs);
       if (_savedWhatsNewVersion != null) {
-        await Prefs.setString('_savedWhatsNewVersion', _savedWhatsNewVersion!);
-        await Prefs.remove('seenWhatsNewVersion');
+        await Prefs.setString('_savedWhatsNewVersion', _savedWhatsNewVersion!,
+            prefs: prefs);
+        await Prefs.remove('seenWhatsNewVersion', prefs: prefs);
       }
     }
 
     if (_savedSetupWizardVersion == null) {
-      _savedSetupWizardVersion = await Prefs.getString('completedSetupVersion');
+      _savedSetupWizardVersion =
+          await Prefs.getString('completedSetupVersion', prefs: prefs);
       if (_savedSetupWizardVersion != null) {
         await Prefs.setString(
-            'savedSetupWizardVersion', _savedSetupWizardVersion!);
-        await Prefs.remove('completedSetupVersion');
+            'savedSetupWizardVersion', _savedSetupWizardVersion!,
+            prefs: prefs);
+        await Prefs.remove('completedSetupVersion', prefs: prefs);
       }
     }
 
     if (_savedUsersPageNoticeVersion == null) {
-      final oldValue = await Prefs.getBool('hasHiddenUsersNotice');
+      final oldValue =
+          await Prefs.getBool('hasHiddenUsersNotice', prefs: prefs);
       if (oldValue) {
         _savedUsersPageNoticeVersion = oldValue.toString(); // 'true'
-        await Prefs.setString(
-            'usersPageNoticeVersion', oldValue.toString()); // 'true'
-        await Prefs.remove('hasHiddenUsersNotice');
+        await Prefs.setString('usersPageNoticeVersion', oldValue.toString(),
+            prefs: prefs); // 'true'
+        await Prefs.remove('hasHiddenUsersNotice', prefs: prefs);
       }
     }
 
     if (_savedChatsPageNoticeVersion == null) {
-      final oldValue = await Prefs.getBool('hasHiddenChatsNotice');
+      final oldValue =
+          await Prefs.getBool('hasHiddenChatsNotice', prefs: prefs);
       if (oldValue) {
         _savedChatsPageNoticeVersion = oldValue.toString(); // 'true'
-        await Prefs.setString(
-            'chatsPageNoticeVersion', oldValue.toString()); // 'true'
-        await Prefs.remove('hasHiddenChatsNotice');
+        await Prefs.setString('chatsPageNoticeVersion', oldValue.toString(),
+            prefs: prefs); // 'true'
+        await Prefs.remove('hasHiddenChatsNotice', prefs: prefs);
       }
     }
   }
@@ -100,28 +110,31 @@ class Settings {
 }
 
 class Prefs {
-  static Future<bool> getBool(String key) async {
-    final prefs = await SharedPreferences.getInstance();
+  static Future<bool> getBool(String key, {SharedPreferences? prefs}) async {
+    prefs = prefs ?? await SharedPreferences.getInstance();
     return prefs.getBool(key) ?? false;
   }
 
-  static Future<void> setBool(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+  static Future<void> setBool(String key, bool value,
+      {SharedPreferences? prefs}) async {
+    prefs = prefs ?? await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
   }
 
-  static Future<String?> getString(String key) async {
-    final prefs = await SharedPreferences.getInstance();
+  static Future<String?> getString(String key,
+      {SharedPreferences? prefs}) async {
+    prefs = prefs ?? await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
 
-  static Future<void> setString(String key, String value) async {
-    final prefs = await SharedPreferences.getInstance();
+  static Future<void> setString(String key, String value,
+      {SharedPreferences? prefs}) async {
+    prefs = prefs ?? await SharedPreferences.getInstance();
     await prefs.setString(key, value);
   }
 
-  static Future<void> remove(String key) async {
-    final prefs = await SharedPreferences.getInstance();
+  static Future<void> remove(String key, {SharedPreferences? prefs}) async {
+    prefs = prefs ?? await SharedPreferences.getInstance();
     await prefs.remove(key);
   }
 }

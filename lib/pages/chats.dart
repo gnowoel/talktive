@@ -73,31 +73,30 @@ class _ChatsPageState extends State<ChatsPage> {
   void _showInfoDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Quick Tips'),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Chats expire over time and are permanently deleted to protect your privacy.',
-                  style: TextStyle(height: 1.5),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'SWIPE LEFT on any chat to leave it if you no longer wish to participate.',
-                  style: TextStyle(height: 1.5),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Quick Tips'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Chats expire over time and are permanently deleted to protect your privacy.',
+              style: TextStyle(height: 1.5),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Got it'),
-              ),
-            ],
+            SizedBox(height: 16),
+            Text(
+              'SWIPE LEFT on any chat to leave it if you no longer wish to participate.',
+              style: TextStyle(height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
           ),
+        ],
+      ),
     );
   }
 
@@ -121,22 +120,21 @@ class _ChatsPageState extends State<ChatsPage> {
         ],
       ),
       body: SafeArea(
-        child:
-            _items.isEmpty
-                ? Center(child: Info(lines: lines))
-                : Layout(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      if (!settings.hasHiddenChatsNotice)
-                        InfoNotice(
-                          content: info,
-                          onDismiss: () => settings.hideChatsNotice(),
-                        ),
-                      Expanded(child: ChatList(items: _items)),
-                    ],
-                  ),
+        child: _items.isEmpty
+            ? Center(child: Info(lines: lines))
+            : Layout(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    if (settings.shouldShowChatsPageNotice)
+                      InfoNotice(
+                        content: info,
+                        onDismiss: () => settings.saveChatsPageVersion(),
+                      ),
+                    Expanded(child: ChatList(items: _items)),
+                  ],
                 ),
+              ),
       ),
     );
   }

@@ -26,13 +26,13 @@ class _WhatsNewState extends State<WhatsNew> {
     fireauth = context.read<Fireauth>();
     settings = context.read<Settings>();
 
-    if (fireauth.hasSignedIn && !settings.hasSeenWhatsNew) {
+    if (fireauth.hasSignedIn && settings.shouldShowWhatnew) {
       _shouldShow = true;
     }
   }
 
   void _continue() async {
-    await settings.setSeenWhatsNewVersion();
+    await settings.saveWhatsNewVersion();
     setState(() => _shouldShow = false);
   }
 

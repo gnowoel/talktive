@@ -33,17 +33,17 @@ class _SetupPageState extends State<Setup> {
     settings = context.read<Settings>();
 
     if (!fireauth.hasSignedIn) {
-      settings.clearSetupCompletion();
+      settings.removeSetupWizardVersion();
     }
 
-    if (fireauth.hasSignedIn && settings.hasCompletedSetup) {
+    if (fireauth.hasSignedIn && settings.shouldHideSetupWizard) {
       _currentStep = _totalSteps; // Skip setup
     }
   }
 
   void _nextStep() {
     if (_currentStep == _totalSteps - 1) {
-      settings.markSetupComplete(); // No wait
+      settings.saveSetupWizardVersion(); // No wait
     }
     setState(() {
       _currentStep++;
@@ -111,10 +111,9 @@ class _SetupPageState extends State<Setup> {
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color:
-                _currentStep == index
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outlineVariant,
+            color: _currentStep == index
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outlineVariant,
           ),
         );
       }),

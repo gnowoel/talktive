@@ -171,10 +171,10 @@ class _UsersPageState extends State<UsersPage> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              if (!settings.hasHiddenUsersNotice) ...[
+              if (settings.shouldShowUsersPageNotice) ...[
                 InfoNotice(
                   content: info,
-                  onDismiss: () => settings.hideUsersNotice(),
+                  onDismiss: () => settings.saveUsersPageNoticeVersion(),
                 ),
               ],
               Expanded(

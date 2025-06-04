@@ -1,61 +1,102 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 final whatsNewVersion = '4.1.0+56';
-final wizardVersion = '3.0.4+28';
+final setupWizardVersion = '3.0.4+28';
+final usersPageNoticeVersion = 'true'; // Next time will use verion number
+final chatsPageNoticeVersion = 'true'; // Next time will use verion number
 
 class Settings {
   Settings._();
   static final Settings _instance = Settings._();
   factory Settings() => _instance;
 
-  String? _seenWhatsNewVersion;
-  String? _completedSetupVersion;
-  bool _hasHiddenUsersNotice = false;
-  bool _hasHiddenChatsNotice = false;
+  String? _savedWhatsNewVersion;
+  String? _savedSetupWizardVersion;
+  String? _savedUsersPageNoticeVersion;
+  String? _savedChatsPageNoticeVersion;
 
   Future<void> load() async {
-    _seenWhatsNewVersion = await Prefs.getString('seenWhatsNewVersion');
+    _savedWhatsNewVersion = await Prefs.getString('whatsNewVersion');
+    _savedSetupWizardVersion = await Prefs.getString('setupWizardVersion');
+    _savedUsersPageNoticeVersion =
+        await Prefs.getString('usersPageNoticeVersion');
+    _savedChatsPageNoticeVersion =
+        await Prefs.getString('chatsPageNoticeVersion');
 
-    final setupVersion = await Prefs.getString('completedSetupVersion');
-    final usersNotice = await Prefs.getBool('hasHiddenUsersNotice');
-    final chatsNotice = await Prefs.getBool('hasHiddenChatsNotice');
+    // For migration, will delete
 
-    _completedSetupVersion = setupVersion;
-    _hasHiddenUsersNotice = usersNotice;
-    _hasHiddenChatsNotice = chatsNotice;
+    if (_savedWhatsNewVersion == null) {
+      _savedWhatsNewVersion = await Prefs.getString('seenWhatsNewVersion');
+      if (_savedWhatsNewVersion != null) {
+        await Prefs.setString('_savedWhatsNewVersion', _savedWhatsNewVersion!);
+        await Prefs.remove('seenWhatsNewVersion');
+      }
+    }
+
+    if (_savedSetupWizardVersion == null) {
+      _savedSetupWizardVersion = await Prefs.getString('completedSetupVersion');
+      if (_savedSetupWizardVersion != null) {
+        await Prefs.setString(
+            'savedSetupWizardVersion', _savedSetupWizardVersion!);
+        await Prefs.remove('completedSetupVersion');
+      }
+    }
+
+    if (_savedUsersPageNoticeVersion == null) {
+      final oldValue = await Prefs.getBool('hasHiddenUsersNotice');
+      if (oldValue) {
+        _savedUsersPageNoticeVersion = oldValue.toString(); // 'true'
+        await Prefs.setString(
+            'usersPageNoticeVersion', oldValue.toString()); // 'true'
+        await Prefs.remove('hasHiddenUsersNotice');
+      }
+    }
+
+    if (_savedChatsPageNoticeVersion == null) {
+      final oldValue = await Prefs.getBool('hasHiddenChatsNotice');
+      if (oldValue) {
+        _savedChatsPageNoticeVersion = oldValue.toString(); // 'true'
+        await Prefs.setString(
+            'chatsPageNoticeVersion', oldValue.toString()); // 'true'
+        await Prefs.remove('hasHiddenChatsNotice');
+      }
+    }
   }
 
-  Future<void> setSeenWhatsNewVersion() async {
-    await Prefs.setString('seenWhatsNewVersion', whatsNewVersion);
-    _seenWhatsNewVersion = whatsNewVersion;
+  Future<void> saveWhatsNewVersion() async {
+    await Prefs.setString('whatsNewVersion', whatsNewVersion);
+    _savedWhatsNewVersion = whatsNewVersion;
   }
 
-  Future<void> markSetupComplete() async {
-    await Prefs.setString('completedSetupVersion', wizardVersion);
-    _completedSetupVersion = wizardVersion;
+  Future<void> saveSetupWizardVersion() async {
+    await Prefs.setString('setupWizardVersion', setupWizardVersion);
+    _savedSetupWizardVersion = setupWizardVersion;
   }
 
-  Future<void> clearSetupCompletion() async {
-    await Prefs.remove('completedSetupVersion');
-    _completedSetupVersion = null;
+  Future<void> saveUsersPageNoticeVersion() async {
+    await Prefs.setString('usersPageNoticeVersion', usersPageNoticeVersion);
+    _savedUsersPageNoticeVersion = usersPageNoticeVersion;
   }
 
-  Future<void> hideUsersNotice() async {
-    await Prefs.setBool('hasHiddenUsersNotice', true);
-    _hasHiddenUsersNotice = true;
+  Future<void> saveChatsPageVersion() async {
+    await Prefs.setString('chatsPageNoticeVersion', chatsPageNoticeVersion);
+    _savedChatsPageNoticeVersion = chatsPageNoticeVersion;
   }
 
-  Future<void> hideChatsNotice() async {
-    await Prefs.setBool('hasHiddenChatsNotice', true);
-    _hasHiddenChatsNotice = true;
+  Future<void> removeSetupWizardVersion() async {
+    await Prefs.remove('setupWizardVerions');
+    _savedSetupWizardVersion = null;
   }
 
+  bool get shouldShowWhatnew => _savedWhatsNewVersion != whatsNewVersion;
+  bool get shouldShowSetupWizard =>
+      _savedSetupWizardVersion != setupWizardVersion;
+  bool get shouldShowUsersPageNotice =>
+      _savedUsersPageNoticeVersion != usersPageNoticeVersion;
+  bool get shouldShowChatsPageNotice =>
+      _savedChatsPageNoticeVersion != chatsPageNoticeVersion;
 
-
-  bool get hasSeenWhatsNew => _seenWhatsNewVersion == whatsNewVersion;
-  bool get hasCompletedSetup => _completedSetupVersion == wizardVersion;
-  bool get hasHiddenUsersNotice => _hasHiddenUsersNotice;
-  bool get hasHiddenChatsNotice => _hasHiddenChatsNotice;
+  bool get shouldHideSetupWizard => !shouldShowSetupWizard;
 }
 
 class Prefs {

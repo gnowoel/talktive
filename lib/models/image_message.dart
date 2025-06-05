@@ -16,6 +16,7 @@ class ImageMessage extends Message {
     required this.content,
     required this.uri,
     super.recalled = false,
+    super.revivedAt,
   }) : super(type: 'image');
 
   ImageMessage copyWith({
@@ -27,6 +28,7 @@ class ImageMessage extends Message {
     String? uri,
     int? createdAt,
     bool? recalled,
+    int? revivedAt,
   }) {
     return ImageMessage(
       id: id ?? this.id,
@@ -37,6 +39,7 @@ class ImageMessage extends Message {
       uri: uri ?? this.uri,
       createdAt: createdAt ?? this.createdAt,
       recalled: recalled ?? this.recalled,
+      revivedAt: revivedAt ?? this.revivedAt,
     );
   }
 
@@ -51,6 +54,7 @@ class ImageMessage extends Message {
       'type': type,
       'createdAt': createdAt,
       'recalled': recalled,
+      'revivedAt': revivedAt,
     };
   }
 
@@ -64,6 +68,7 @@ class ImageMessage extends Message {
       uri: json['uri'] as String,
       createdAt: json['createdAt'] as int,
       recalled: json['recalled'] as bool? ?? false,
+      revivedAt: json['revivedAt'] as int?,
     );
   }
 }

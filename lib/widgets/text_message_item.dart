@@ -25,6 +25,7 @@ class TextMessageItem extends StatefulWidget {
 }
 
 class _TextMessageItemState extends State<TextMessageItem> {
+  late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
 
@@ -33,6 +34,12 @@ class _TextMessageItemState extends State<TextMessageItem> {
     super.initState();
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -80,6 +87,21 @@ class _TextMessageItemState extends State<TextMessageItem> {
             ],
           ),
           onTap: () => _showRecallDialog(context),
+        ),
+      );
+    }
+
+    if (!byMe) {
+      menuItems.add(
+        PopupMenuItem(
+          child: Row(
+            children: const [
+              Icon(Icons.report, size: 20),
+              SizedBox(width: 8),
+              Text('Report'),
+            ],
+          ),
+          onTap: () => _showReportDialog(context),
         ),
       );
     }
@@ -142,6 +164,39 @@ class _TextMessageItemState extends State<TextMessageItem> {
     );
   }
 
+  void _showReportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.report_outlined,
+          color: theme.colorScheme.error,
+          size: 32,
+        ),
+        title: const Text('Report this message?'),
+        content: const Text(
+          'If you believe this is an inappropriate message, you can report it for review. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: Text(
+              'Report',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _reportMessage(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _recallMessage(BuildContext context) async {
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
@@ -152,6 +207,10 @@ class _TextMessageItemState extends State<TextMessageItem> {
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
+  }
+
+  Future<void> _reportMessage(BuildContext context) async {
+    return; // TODO
   }
 
   Widget _buildMessageBox({

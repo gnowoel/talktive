@@ -6,12 +6,14 @@ abstract class Message {
   final int createdAt;
   final String type; // 'text' or 'image'
   final bool recalled;
+  final int? revivedAt;
 
   const Message({
     this.id,
     required this.createdAt,
     required this.type,
     this.recalled = false,
+    this.revivedAt,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {

@@ -95,6 +95,12 @@ class MessageReport {
         revivedAt.hashCode;
   }
 
+  /// Calculate the parent document ID from the creation date (YYYY-MM-DD format)
+  String getParentDocId() {
+    final dateStr = createdAt.toIso8601String().split('T')[0];
+    return dateStr; // Returns format like "2025-01-06"
+  }
+
   @override
   String toString() {
     return 'MessageReport(id: $id, chatId: $chatId, messageId: $messageId, messageAuthorId: $messageAuthorId, reporterUserId: $reporterUserId, createdAt: $createdAt, status: $status, revivedAt: $revivedAt)';

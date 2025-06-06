@@ -185,7 +185,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   Future<void> _reportMessage(BuildContext context) async {
     try {
       final currentUser = fireauth.instance.currentUser!;
-      
+
       await firestore.reportMessage(
         chatId: widget.chatId,
         messageId: widget.message.id!,

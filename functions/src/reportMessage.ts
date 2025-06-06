@@ -13,7 +13,6 @@ interface MessageData {
   createdAt: number;
   type: string;
   reportCount?: number;
-  reportStatus?: 'flagged' | 'hidden' | 'severe';
 }
 
 if (!admin.apps.length) {
@@ -25,12 +24,7 @@ const firestore = admin.firestore();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
 
-// Message report thresholds
-const MESSAGE_REPORT_THRESHOLDS = {
-  FLAG: 1,     // Flag for review after 1 report
-  HIDE: 3,     // Hide message after 3 reports
-  SEVERE: 5,   // Mark as severe after 5 reports
-};
+
 
 interface ReportMessageRequest {
   chatId: string;
@@ -185,25 +179,16 @@ const updateUserRevivedAt = async (userId: string, revivedAt: number) => {
 const updateMessageReportCount = async (chatId: string, messageId: string) => {
   try {
     const messageRef = db.ref(`messages/${chatId}/${messageId}`);
-    
+
     await messageRef.transaction((message: MessageData | null) => {
       if (message === null) return message;
-      
+
       const currentCount = message.reportCount || 0;
       const newCount = currentCount + 1;
       message.reportCount = newCount;
       
-      // Apply threshold-based actions
-      if (newCount >= MESSAGE_REPORT_THRESHOLDS.SEVERE) {
-        message.reportStatus = 'severe';
-      } else if (newCount >= MESSAGE_REPORT_THRESHOLDS.HIDE) {
-        message.reportStatus = 'hidden';
-      } else if (newCount >= MESSAGE_REPORT_THRESHOLDS.FLAG) {
-        message.reportStatus = 'flagged';
-      }
-      
-      logger.info(`Message ${messageId} report count updated to ${newCount}, status: ${message.reportStatus}`);
-      
+      logger.info(`Message ${messageId} report count updated to ${newCount}`);
+
       return message;
     });
   } catch (error) {

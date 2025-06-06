@@ -5,6 +5,17 @@ import { onCall } from 'firebase-functions/v2/https';
 import { User, Message } from './types';
 import { getDateBasedDocId } from './helpers';
 
+interface MessageData {
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL: string;
+  content: string;
+  createdAt: number;
+  type: string;
+  reportCount?: number;
+  reportStatus?: 'flagged' | 'hidden' | 'severe';
+}
+
 if (!admin.apps.length) {
   admin.initializeApp();
 }
@@ -13,6 +24,13 @@ const db = admin.database();
 const firestore = admin.firestore();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
+
+// Message report thresholds
+const MESSAGE_REPORT_THRESHOLDS = {
+  FLAG: 1,     // Flag for review after 1 report
+  HIDE: 3,     // Hide message after 3 reports
+  SEVERE: 5,   // Mark as severe after 5 reports
+};
 
 interface ReportMessageRequest {
   chatId: string;
@@ -103,8 +121,8 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
     // Update the message author's revivedAt in Realtime Database
     await updateUserRevivedAt(report.messageAuthorId, newRevivedAt);
 
-    // Update the message's revivedAt in Realtime Database
-    await updateMessageRevivedAt(report.chatId, report.messageId, newRevivedAt);
+    // Update the message's report count in Realtime Database
+    await updateMessageReportCount(report.chatId, report.messageId);
 
     // Update all chats where this user is a partner
     await updatePartnerChatsRevivedAt(report.messageAuthorId, newRevivedAt);
@@ -164,12 +182,32 @@ const updateUserRevivedAt = async (userId: string, revivedAt: number) => {
   }
 };
 
-const updateMessageRevivedAt = async (chatId: string, messageId: string, revivedAt: number) => {
+const updateMessageReportCount = async (chatId: string, messageId: string) => {
   try {
     const messageRef = db.ref(`messages/${chatId}/${messageId}`);
-    await messageRef.update({ revivedAt });
+    
+    await messageRef.transaction((message: MessageData | null) => {
+      if (message === null) return message;
+      
+      const currentCount = message.reportCount || 0;
+      const newCount = currentCount + 1;
+      message.reportCount = newCount;
+      
+      // Apply threshold-based actions
+      if (newCount >= MESSAGE_REPORT_THRESHOLDS.SEVERE) {
+        message.reportStatus = 'severe';
+      } else if (newCount >= MESSAGE_REPORT_THRESHOLDS.HIDE) {
+        message.reportStatus = 'hidden';
+      } else if (newCount >= MESSAGE_REPORT_THRESHOLDS.FLAG) {
+        message.reportStatus = 'flagged';
+      }
+      
+      logger.info(`Message ${messageId} report count updated to ${newCount}, status: ${message.reportStatus}`);
+      
+      return message;
+    });
   } catch (error) {
-    logger.error(`Error updating message ${messageId} revivedAt:`, error);
+    logger.error(`Error updating message ${messageId} report count:`, error);
   }
 };
 

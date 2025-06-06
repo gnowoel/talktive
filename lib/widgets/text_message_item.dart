@@ -215,7 +215,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
   Future<void> _reportMessage(BuildContext context) async {
     try {
       final currentUser = fireauth.instance.currentUser!;
-      
+
       await firestore.reportMessage(
         chatId: widget.chatId,
         messageId: widget.message.id!,

@@ -1,7 +1,9 @@
 import * as admin from 'firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions'
 import { onCall } from 'firebase-functions/v2/https';
 import { User, Message } from './types';
+import { getDateBasedDocId } from './helpers';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -54,18 +56,22 @@ export const reportMessage = onCall(async (request) => {
     }
 
     // Create the report in Firestore
+    const now = Timestamp.now();
     const reportData: FirestoreMessageReport = {
       chatId,
       messageId,
       messageAuthorId,
       reporterUserId,
-      createdAt: admin.firestore.Timestamp.now(),
+      createdAt: now,
       status: 'pending',
     };
 
+    // Calculate date-based parent document ID from creation time
+    const parentDocId = getDateBasedDocId(now.toDate()); // e.g., "2025-01-06"
+
     const reportRef = await firestore
       .collection('reports')
-      .doc()
+      .doc(parentDocId)
       .collection('chatMessages')
       .add(reportData);
 
@@ -103,10 +109,13 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
     // Update all chats where this user is a partner
     await updatePartnerChatsRevivedAt(report.messageAuthorId, newRevivedAt);
 
+    // Calculate parentDocId from the report's creation time
+    const parentDocId = getDateBasedDocId(report.createdAt.toDate());
+    
     // Update the report status in Firestore
     await firestore
       .collection('reports')
-      .doc()
+      .doc(parentDocId)
       .collection('chatMessages')
       .doc(reportId)
       .update({

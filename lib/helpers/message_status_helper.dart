@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/message.dart';
+import '../config/message_report_config.dart';
 
 /// Helper class for handling message status UI logic
 class MessageStatusHelper {
   MessageStatusHelper._();
 
+
+
   /// Get the appropriate visual indicator for a message's report status
   static Widget? getStatusIndicator(Message message, {double size = 16}) {
-    if (message.reportStatus == null) return null;
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    if (status == null) return null;
 
-    switch (message.reportStatus) {
+    switch (status) {
       case 'flagged':
         return Icon(
           Icons.flag_outlined,
@@ -35,20 +39,16 @@ class MessageStatusHelper {
 
   /// Check if a message should be visible to regular users
   static bool shouldShowMessage(Message message, {bool isAdmin = false}) {
-    // Admins can always see messages
-    if (isAdmin) return true;
-
-    // Hide messages marked as hidden or severe
-    if (message.reportStatus == 'hidden' || message.reportStatus == 'severe') {
-      return false;
-    }
-
-    return true;
+    return MessageReportConfig.shouldShowMessage(
+      message.reportCount ?? 0, 
+      isAdmin: isAdmin,
+    );
   }
 
   /// Get replacement content for hidden messages
   static String getHiddenMessageContent(Message message) {
-    switch (message.reportStatus) {
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    switch (status) {
       case 'hidden':
         return '- Message hidden due to reports -';
       case 'severe':
@@ -60,9 +60,10 @@ class MessageStatusHelper {
 
   /// Get the background color for messages based on status
   static Color? getMessageBackgroundColor(Message message, ThemeData theme) {
-    if (message.reportStatus == null) return null;
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    if (status == null) return null;
 
-    switch (message.reportStatus) {
+    switch (status) {
       case 'flagged':
         return theme.colorScheme.surfaceVariant.withOpacity(0.3);
       case 'hidden':
@@ -76,9 +77,10 @@ class MessageStatusHelper {
 
   /// Get border color for messages based on status
   static Color? getMessageBorderColor(Message message, ThemeData theme) {
-    if (message.reportStatus == null) return null;
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    if (status == null) return null;
 
-    switch (message.reportStatus) {
+    switch (status) {
       case 'flagged':
         return Colors.orange.withOpacity(0.5);
       case 'hidden':
@@ -92,31 +94,18 @@ class MessageStatusHelper {
 
   /// Check if message content should be blurred or obscured
   static bool shouldBlurContent(Message message) {
-    return message.reportStatus == 'flagged' && 
-           (message.reportCount ?? 0) >= 2;
+    return MessageReportConfig.shouldBlurContent(message.reportCount ?? 0);
   }
 
   /// Get tooltip text for status indicators
   static String getStatusTooltip(Message message) {
-    if (message.reportStatus == null) return '';
-
-    final count = message.reportCount ?? 0;
-    
-    switch (message.reportStatus) {
-      case 'flagged':
-        return 'Flagged for review ($count report${count == 1 ? '' : 's'})';
-      case 'hidden':
-        return 'Hidden due to reports ($count report${count == 1 ? '' : 's'})';
-      case 'severe':
-        return 'Removed for policy violation ($count report${count == 1 ? '' : 's'})';
-      default:
-        return '';
-    }
+    return MessageReportConfig.getStatusTooltip(message.reportCount ?? 0);
   }
 
   /// Create a warning banner widget for flagged messages
   static Widget? createWarningBanner(Message message, ThemeData theme) {
-    if (message.reportStatus != 'flagged') return null;
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    if (status != 'flagged') return null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -166,7 +155,8 @@ class MessageStatusHelper {
     }
 
     // Reporting actions
-    if (!isAuthor && message.reportStatus != 'severe') {
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    if (!isAuthor && status != 'severe') {
       actions.add('Report');
     }
 
@@ -175,7 +165,7 @@ class MessageStatusHelper {
       actions.addAll([
         'View Reports',
         'Moderate',
-        if (message.reportStatus != null) 'Clear Status',
+        if (status != null) 'Clear Status',
       ]);
     }
 
@@ -184,13 +174,12 @@ class MessageStatusHelper {
 
   /// Check if a message should show a content warning
   static bool shouldShowContentWarning(Message message) {
-    return message.reportStatus == 'flagged' && 
-           (message.reportCount ?? 0) >= 1;
+    return MessageReportConfig.shouldShowContentWarning(message.reportCount ?? 0);
   }
 
   /// Create a content warning widget
   static Widget createContentWarning(
-    Message message, 
+    Message message,
     ThemeData theme, {
     required VoidCallback onProceed,
   }) {
@@ -243,33 +232,12 @@ class MessageStatusHelper {
 
   /// Calculate severity level based on report count and status
   static double getSeverityLevel(Message message) {
-    if (message.reportStatus == null) return 0.0;
-
-    switch (message.reportStatus) {
-      case 'flagged':
-        return 0.3;
-      case 'hidden':
-        return 0.7;
-      case 'severe':
-        return 1.0;
-      default:
-        return 0.0;
-    }
+    return MessageReportConfig.getSeverityLevel(message.reportCount ?? 0);
   }
 
   /// Get moderation priority (higher = more urgent)
   static int getModerationPriority(Message message) {
-    final count = message.reportCount ?? 0;
-    
-    switch (message.reportStatus) {
-      case 'severe':
-        return 100 + count;
-      case 'hidden':
-        return 50 + count;
-      case 'flagged':
-        return 10 + count;
-      default:
-        return 0;
-    }
+    return MessageReportConfig.getModerationPriority(message.reportCount ?? 0);
   }
 }
+

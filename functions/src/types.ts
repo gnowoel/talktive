@@ -67,6 +67,8 @@ export interface Message {
   content: string;
   createdAt: number;
   type: string;
+  reportCount?: number;
+  reportStatus?: 'flagged' | 'hidden' | 'severe';
 }
 
 export interface UserParams {

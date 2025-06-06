@@ -15,6 +15,8 @@ class TextMessage extends Message {
     required this.content,
     super.recalled = false,
     super.revivedAt,
+    super.reportCount,
+    super.reportStatus,
   }) : super(type: 'text');
 
   TextMessage copyWith({
@@ -26,6 +28,8 @@ class TextMessage extends Message {
     int? createdAt,
     bool? recalled,
     int? revivedAt,
+    int? reportCount,
+    String? reportStatus,
   }) {
     return TextMessage(
       id: id ?? this.id,
@@ -36,6 +40,8 @@ class TextMessage extends Message {
       createdAt: createdAt ?? this.createdAt,
       recalled: recalled ?? this.recalled,
       revivedAt: revivedAt ?? this.revivedAt,
+      reportCount: reportCount ?? this.reportCount,
+      reportStatus: reportStatus ?? this.reportStatus,
     );
   }
 
@@ -50,6 +56,8 @@ class TextMessage extends Message {
       'createdAt': createdAt,
       'recalled': recalled,
       'revivedAt': revivedAt,
+      if (reportCount != null) 'reportCount': reportCount,
+      if (reportStatus != null) 'reportStatus': reportStatus,
     };
   }
 
@@ -63,6 +71,8 @@ class TextMessage extends Message {
       createdAt: json['createdAt'] as int,
       recalled: json['recalled'] as bool? ?? false,
       revivedAt: json['revivedAt'] as int?,
+      reportCount: json['reportCount'] as int?,
+      reportStatus: json['reportStatus'] as String?,
     );
   }
 }

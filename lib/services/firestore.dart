@@ -871,6 +871,31 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  Future<void> reportMessage({
+    required String chatId,
+    required String messageId,
+    required String reporterUserId,
+  }) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('reportMessage');
+
+      final response = await callable.call({
+        'chatId': chatId,
+        'messageId': messageId,
+        'reporterUserId': reporterUserId,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to report message');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

@@ -14,3 +14,4 @@ export { setupTribes } from './setupTribes';
 export { joinTopic } from './joinTopic';
 export { muteTopic } from './muteTopic';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';
+export { reportMessage } from './reportMessage';

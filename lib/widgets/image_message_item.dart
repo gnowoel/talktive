@@ -27,6 +27,7 @@ class ImageMessageItem extends StatefulWidget {
 }
 
 class _ImageMessageItemState extends State<ImageMessageItem> {
+  late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
   late CachedNetworkImageProvider _imageProvider;
@@ -39,6 +40,12 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     firedata = context.read<Firedata>();
     _imageUrl = convertUri(widget.message.uri);
     _imageProvider = getCachedImageProvider(widget.message.uri);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -71,6 +78,21 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
             ],
           ),
           onTap: () => _showRecallDialog(context),
+        ),
+      );
+    }
+
+    if (!byMe) {
+      menuItems.add(
+        PopupMenuItem(
+          child: Row(
+            children: const [
+              Icon(Icons.report, size: 20),
+              SizedBox(width: 8),
+              Text('Report'),
+            ],
+          ),
+          onTap: () => _showReportDialog(context),
         ),
       );
     }
@@ -112,6 +134,39 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     );
   }
 
+  void _showReportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.report_outlined,
+          color: theme.colorScheme.error,
+          size: 32,
+        ),
+        title: const Text('Report this message?'),
+        content: const Text(
+          'If you believe this is an inappropriate message, you can report it for review. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: Text(
+              'Report',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _reportMessage(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _recallMessage(BuildContext context) async {
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
@@ -122,6 +177,10 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
+  }
+
+  Future<void> _reportMessage(BuildContext context) async {
+    return; // TODO
   }
 
   Widget _buildMessageBox(

@@ -7,6 +7,7 @@ import '../helpers/helpers.dart';
 import '../models/image_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/firestore.dart';
 import 'image_viewer.dart';
 import 'user_info_loader.dart';
 
@@ -30,6 +31,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
+  late Firestore firestore;
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
 
@@ -38,6 +40,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     super.initState();
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     _imageUrl = convertUri(widget.message.uri);
     _imageProvider = getCachedImageProvider(widget.message.uri);
   }
@@ -180,7 +183,33 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   }
 
   Future<void> _reportMessage(BuildContext context) async {
-    return; // TODO
+    try {
+      final currentUser = fireauth.instance.currentUser!;
+      
+      await firestore.reportMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.id!,
+        reporterUserId: currentUser.uid,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: theme.colorScheme.errorContainer,
+            content: Text(
+              'Thank you for your report. We will review it shortly.',
+              style: TextStyle(color: theme.colorScheme.onErrorContainer),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
   Widget _buildMessageBox(

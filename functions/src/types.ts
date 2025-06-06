@@ -119,3 +119,14 @@ export interface FollowRequest {
   followerId: string;
   followeeId: string;
 }
+
+export interface MessageReport {
+  id?: string;
+  chatId: string;
+  messageId: string;
+  messageAuthorId: string;
+  reporterUserId: string;
+  createdAt: number;
+  status: 'pending' | 'resolved';
+  revivedAt?: number;
+}

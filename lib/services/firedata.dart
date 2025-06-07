@@ -437,26 +437,6 @@ class Firedata {
     }
   }
 
-  Future<void> reportChat({
-    required String userId,
-    required String chatId,
-    required String? partnerDisplayName,
-  }) async {
-    try {
-      final ref = instance.ref('reports').push();
-
-      await ref.set({
-        'userId': userId,
-        'chatId': chatId,
-        'partnerDisplayName': partnerDisplayName,
-        'createdAt': ServerValue.timestamp,
-        'status': 'pending',
-      });
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
   Future<void> resolveReport({
     required Report report,
     required String resolution,

@@ -25,18 +25,8 @@
         ".write": "auth !== null && auth.uid === $userId"
       }
     },
-    "rooms": {
-      ".read": "auth !== null",
-      ".indexOn": [
-        "filter",
-        "closedAt"
-      ],
-      "$roomId": {
-        ".write": "auth !== null && auth.uid === newData.child('userId').val()"
-      }
-    },
     "messages": {
-      "$roomId": {
+      "$chatId": {
         ".read": "auth !== null",
         ".indexOn": [
           "createdAt"

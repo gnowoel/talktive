@@ -8,6 +8,7 @@ import '../models/image_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
+import '../services/user_cache.dart';
 import 'image_viewer.dart';
 import 'user_info_loader.dart';
 
@@ -32,6 +33,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Firestore firestore;
+  late UserCache userCache;
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
 
@@ -49,6 +51,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
+    userCache = Provider.of<UserCache>(context);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -67,6 +70,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     final byMe = widget.reporterUserId == null
         ? widget.message.userId == currentUser.uid
         : widget.message.userId == widget.reporterUserId;
+    final isUserWithoutAlert =
+        userCache.user != null && !userCache.user!.withAlert;
 
     final menuItems = <PopupMenuEntry>[];
 
@@ -85,7 +90,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       );
     }
 
-    if (!byMe) {
+    if (!byMe && isUserWithoutAlert) {
       menuItems.add(
         PopupMenuItem(
           child: Row(

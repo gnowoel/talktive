@@ -11,7 +11,6 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
 import '../services/message_cache.dart';
-import '../services/user_cache.dart';
 import '../theme.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
@@ -32,7 +31,6 @@ class _ChatPageState extends State<ChatPage> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
-  late UserCache userCache;
   late FollowCache followCache;
   late ChatMessageCache chatMessageCache;
   late StreamSubscription chatSubscription;
@@ -51,7 +49,6 @@ class _ChatPageState extends State<ChatPage> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-    userCache = context.read<UserCache>();
     chatMessageCache = context.read<ChatMessageCache>();
 
     _chat = widget.chat;
@@ -111,7 +108,6 @@ class _ChatPageState extends State<ChatPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
-    userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
   }
 

@@ -33,6 +33,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
   late Firedata firedata;
   late Firestore firestore;
   late UserCache userCache;
+  bool _isRevealed = false;
 
   @override
   void initState() {
@@ -100,7 +101,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
       );
     }
 
-    if (!byMe && isUserWithoutAlert) {
+    if (!byMe && isUserWithoutAlert && MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -131,13 +132,14 @@ class _TextMessageItemState extends State<TextMessageItem> {
     // Capture the BuildContext before the async gap
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    await Clipboard.setData(
-      ClipboardData(
-        text: widget.message.recalled
-            ? '- Message recalled -'
-            : widget.message.content,
-      ),
-    );
+    String contentToCopy;
+    if (widget.message.recalled) {
+      contentToCopy = '- Message recalled -';
+    } else {
+      contentToCopy = MessageStatusHelper.getCopyContent(widget.message, widget.message.content);
+    }
+
+    await Clipboard.setData(ClipboardData(text: contentToCopy));
     if (!mounted) return;
 
     scaffoldMessenger.showSnackBar(
@@ -267,67 +269,48 @@ class _TextMessageItemState extends State<TextMessageItem> {
       isAdmin: false, // TODO: Add admin check if needed
     );
 
-    // Get the actual content to display
-    final displayContent = shouldShow 
-        ? content 
-        : MessageStatusHelper.getHiddenMessageContent(widget.message);
-
-    // Create the bubble widget
-    Widget bubble = Bubble(content: displayContent, byMe: byMe);
-
-    // Apply status styling if needed
-    final backgroundColor = MessageStatusHelper.getMessageBackgroundColor(widget.message, theme);
-    final borderColor = MessageStatusHelper.getMessageBorderColor(widget.message, theme);
+    // Determine what content to display
+    String displayContent;
+    bool isHidden = false;
+    bool isRemoved = MessageStatusHelper.isRemoved(widget.message);
     
-    if (backgroundColor != null || borderColor != null) {
-      bubble = Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          border: borderColor != null ? Border.all(color: borderColor) : null,
-          borderRadius: BorderRadius.circular(8),
-        ),
+    if (shouldShow) {
+      displayContent = content;
+    } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
+      isHidden = true;
+      displayContent = _isRevealed ? content : MessageStatusHelper.getHiddenMessageContent(widget.message);
+    } else {
+      displayContent = MessageStatusHelper.getHiddenMessageContent(widget.message);
+    }
+
+    // Create the bubble widget with appropriate styling
+    Widget bubble = Bubble(
+      content: displayContent, 
+      byMe: byMe,
+      recalled: isHidden || isRemoved, // Use italic styling for hidden/removed messages
+    );
+
+    // Handle tap to reveal for hidden messages
+    if (isHidden && widget.reporterUserId == null) {
+      bubble = GestureDetector(
+        onTap: () {
+          setState(() {
+            _isRevealed = !_isRevealed;
+          });
+        },
+        onLongPressStart: (details) =>
+            _showContextMenu(context, details.globalPosition),
+        child: bubble,
+      );
+    } else if (widget.reporterUserId == null) {
+      bubble = GestureDetector(
+        onLongPressStart: (details) =>
+            _showContextMenu(context, details.globalPosition),
         child: bubble,
       );
     }
 
-    // Add status indicator and warning banner
-    final children = <Widget>[];
-    
-    // Add warning banner for flagged messages
-    final warningBanner = MessageStatusHelper.createWarningBanner(widget.message, theme);
-    if (warningBanner != null) {
-      children.add(warningBanner);
-      children.add(const SizedBox(height: 4));
-    }
-
-    // Add the bubble
-    children.add(Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        bubble,
-        // Add status indicator
-        const SizedBox(width: 4),
-        MessageStatusHelper.getStatusIndicator(widget.message) ?? const SizedBox.shrink(),
-      ],
-    ));
-
-    final messageWidget = children.length == 1 
-        ? children.first 
-        : Column(
-            crossAxisAlignment: byMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          );
-
-    if (widget.reporterUserId != null) {
-      return messageWidget;
-    }
-
-    return GestureDetector(
-      onLongPressStart: (details) =>
-          _showContextMenu(context, details.globalPosition),
-      child: messageWidget,
-    );
+    return bubble;
   }
 
   @override

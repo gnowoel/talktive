@@ -6,34 +6,16 @@ import '../config/message_report_config.dart';
 class MessageStatusHelper {
   MessageStatusHelper._();
 
-  /// Get the appropriate visual indicator for a message's report status
-  static Widget? getStatusIndicator(Message message, {double size = 16}) {
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
-    if (status == null) return null;
+  /// Check if a message is hidden but can be revealed
+  static bool isHiddenButRevealable(Message message) {
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    return status == 'hidden';
+  }
 
-    switch (status) {
-      case 'flagged':
-        return Icon(
-          Icons.flag_outlined,
-          size: size,
-          color: Colors.orange,
-        );
-      case 'hidden':
-        return Icon(
-          Icons.visibility_off,
-          size: size,
-          color: Colors.red,
-        );
-      case 'severe':
-        return Icon(
-          Icons.block,
-          size: size,
-          color: Colors.red.shade900,
-        );
-      default:
-        return null;
-    }
+  /// Check if a message is removed (severe)
+  static bool isRemoved(Message message) {
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    return status == 'severe';
   }
 
   /// Check if a message should be visible to regular users
@@ -50,11 +32,24 @@ class MessageStatusHelper {
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     switch (status) {
       case 'hidden':
-        return '- Message hidden due to reports -';
+        return '- Message hidden -';
       case 'severe':
-        return '- Message removed for policy violation -';
+        return '- Message removed -';
       default:
         return '- Message unavailable -';
+    }
+  }
+
+  /// Get content for copying (original for hidden, replacement for removed)
+  static String getCopyContent(Message message, String originalContent) {
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    switch (status) {
+      case 'hidden':
+        return originalContent; // Copy original content for hidden messages
+      case 'severe':
+        return '- Message removed -'; // Copy replacement for removed messages
+      default:
+        return originalContent;
     }
   }
 
@@ -104,39 +99,11 @@ class MessageStatusHelper {
     return MessageReportConfig.getStatusTooltip(message.reportCount ?? 0);
   }
 
-  /// Create a warning banner widget for flagged messages
-  static Widget? createWarningBanner(Message message, ThemeData theme) {
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
-    if (status != 'flagged') return null;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.warning_amber,
-            size: 14,
-            color: Colors.orange.shade700,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'Under review',
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.orange.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
+  /// Check if the report option should be available in context menu
+  static bool shouldShowReportOption(Message message, bool isAuthor) {
+    if (isAuthor) return false;
+    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    return status != 'severe'; // Hide report option for removed messages
   }
 
   /// Get appropriate context menu options based on message status

@@ -8,8 +8,6 @@ class MessageReport {
   final String reporterUserId;
   final DateTime createdAt;
   final String status;
-  final int? revivedAt;
-
   const MessageReport({
     this.id,
     required this.chatId,
@@ -18,7 +16,6 @@ class MessageReport {
     required this.reporterUserId,
     required this.createdAt,
     required this.status,
-    this.revivedAt,
   });
 
   factory MessageReport.fromJson(String id, Map<String, dynamic> json) {
@@ -30,7 +27,6 @@ class MessageReport {
       reporterUserId: json['reporterUserId'] as String,
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       status: json['status'] as String,
-      revivedAt: json['revivedAt'] as int?,
     );
   }
 
@@ -42,7 +38,6 @@ class MessageReport {
       'reporterUserId': reporterUserId,
       'createdAt': Timestamp.fromDate(createdAt),
       'status': status,
-      if (revivedAt != null) 'revivedAt': revivedAt,
     };
   }
 
@@ -54,7 +49,6 @@ class MessageReport {
     String? reporterUserId,
     DateTime? createdAt,
     String? status,
-    int? revivedAt,
   }) {
     return MessageReport(
       id: id ?? this.id,
@@ -64,7 +58,6 @@ class MessageReport {
       reporterUserId: reporterUserId ?? this.reporterUserId,
       createdAt: createdAt ?? this.createdAt,
       status: status ?? this.status,
-      revivedAt: revivedAt ?? this.revivedAt,
     );
   }
 
@@ -79,8 +72,7 @@ class MessageReport {
         other.messageAuthorId == messageAuthorId &&
         other.reporterUserId == reporterUserId &&
         other.createdAt == createdAt &&
-        other.status == status &&
-        other.revivedAt == revivedAt;
+        other.status == status;
   }
 
   @override
@@ -91,8 +83,7 @@ class MessageReport {
         messageAuthorId.hashCode ^
         reporterUserId.hashCode ^
         createdAt.hashCode ^
-        status.hashCode ^
-        revivedAt.hashCode;
+        status.hashCode;
   }
 
   /// Calculate the parent document ID from the creation date (YYYY-MM-DD format)
@@ -103,6 +94,6 @@ class MessageReport {
 
   @override
   String toString() {
-    return 'MessageReport(id: $id, chatId: $chatId, messageId: $messageId, messageAuthorId: $messageAuthorId, reporterUserId: $reporterUserId, createdAt: $createdAt, status: $status, revivedAt: $revivedAt)';
+    return 'MessageReport(id: $id, chatId: $chatId, messageId: $messageId, messageAuthorId: $messageAuthorId, reporterUserId: $reporterUserId, createdAt: $createdAt, status: $status)';
   }
 }

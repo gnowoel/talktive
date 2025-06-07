@@ -39,7 +39,6 @@ interface FirestoreMessageReport {
   reporterUserId: string;
   createdAt: admin.firestore.Timestamp;
   status: 'pending' | 'resolved';
-  revivedAt?: number;
 }
 
 export const reportMessage = onCall(async (request) => {
@@ -132,7 +131,6 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
       .doc(reportId)
       .update({
         status: 'resolved',
-        revivedAt: newRevivedAt,
       });
 
   } catch (error) {

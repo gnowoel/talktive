@@ -129,5 +129,4 @@ export interface MessageReport {
   reporterUserId: string;
   createdAt: number;
   status: 'pending' | 'resolved';
-  revivedAt?: number;
 }

@@ -216,7 +216,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
     try {
       final currentUser = fireauth.instance.currentUser!;
 
-      await firestore.reportMessage(
+      // No need to wait, show snack bar message immediately
+      firestore.reportMessage(
         chatId: widget.chatId,
         messageId: widget.message.id!,
         reporterUserId: currentUser.uid,

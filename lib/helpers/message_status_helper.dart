@@ -6,11 +6,10 @@ import '../config/message_report_config.dart';
 class MessageStatusHelper {
   MessageStatusHelper._();
 
-
-
   /// Get the appropriate visual indicator for a message's report status
   static Widget? getStatusIndicator(Message message, {double size = 16}) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (status == null) return null;
 
     switch (status) {
@@ -40,14 +39,15 @@ class MessageStatusHelper {
   /// Check if a message should be visible to regular users
   static bool shouldShowMessage(Message message, {bool isAdmin = false}) {
     return MessageReportConfig.shouldShowMessage(
-      message.reportCount ?? 0, 
+      message.reportCount ?? 0,
       isAdmin: isAdmin,
     );
   }
 
   /// Get replacement content for hidden messages
   static String getHiddenMessageContent(Message message) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     switch (status) {
       case 'hidden':
         return '- Message hidden due to reports -';
@@ -60,16 +60,17 @@ class MessageStatusHelper {
 
   /// Get the background color for messages based on status
   static Color? getMessageBackgroundColor(Message message, ThemeData theme) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (status == null) return null;
 
     switch (status) {
       case 'flagged':
-        return theme.colorScheme.surfaceVariant.withOpacity(0.3);
+        return theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
       case 'hidden':
-        return theme.colorScheme.errorContainer.withOpacity(0.1);
+        return theme.colorScheme.errorContainer.withValues(alpha: 0.1);
       case 'severe':
-        return theme.colorScheme.errorContainer.withOpacity(0.2);
+        return theme.colorScheme.errorContainer.withValues(alpha: 0.2);
       default:
         return null;
     }
@@ -77,14 +78,15 @@ class MessageStatusHelper {
 
   /// Get border color for messages based on status
   static Color? getMessageBorderColor(Message message, ThemeData theme) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (status == null) return null;
 
     switch (status) {
       case 'flagged':
-        return Colors.orange.withOpacity(0.5);
+        return Colors.orange.withValues(alpha: 0.5);
       case 'hidden':
-        return theme.colorScheme.error.withOpacity(0.3);
+        return theme.colorScheme.error.withValues(alpha: 0.3);
       case 'severe':
         return theme.colorScheme.error;
       default:
@@ -104,14 +106,15 @@ class MessageStatusHelper {
 
   /// Create a warning banner widget for flagged messages
   static Widget? createWarningBanner(Message message, ThemeData theme) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (status != 'flagged') return null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        color: Colors.orange.withValues(alpha: 0.1),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -155,7 +158,8 @@ class MessageStatusHelper {
     }
 
     // Reporting actions
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (!isAuthor && status != 'severe') {
       actions.add('Report');
     }
@@ -174,7 +178,8 @@ class MessageStatusHelper {
 
   /// Check if a message should show a content warning
   static bool shouldShowContentWarning(Message message) {
-    return MessageReportConfig.shouldShowContentWarning(message.reportCount ?? 0);
+    return MessageReportConfig.shouldShowContentWarning(
+        message.reportCount ?? 0);
   }
 
   /// Create a content warning widget
@@ -186,10 +191,10 @@ class MessageStatusHelper {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant,
+        color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.orange.withOpacity(0.3),
+          color: Colors.orange.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -213,7 +218,7 @@ class MessageStatusHelper {
             'This message has been flagged by other users.',
             style: TextStyle(
               fontSize: 12,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),
@@ -240,4 +245,3 @@ class MessageStatusHelper {
     return MessageReportConfig.getModerationPriority(message.reportCount ?? 0);
   }
 }
-

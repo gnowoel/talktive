@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:talktive/widgets/bubble.dart';
 
 import '../helpers/helpers.dart';
+import '../helpers/message_status_helper.dart';
 import '../models/image_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -227,19 +228,83 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       return Bubble(content: '- Image recalled -', byMe: byMe, recalled: true);
     }
 
+    // Check if message should be shown based on report status
+    final shouldShow = MessageStatusHelper.shouldShowMessage(
+      widget.message,
+      isAdmin: false, // TODO: Add admin check if needed
+    );
+
+    Widget contentWidget;
+    
+    if (!shouldShow) {
+      // Show replacement content for hidden messages
+      final hiddenContent = MessageStatusHelper.getHiddenMessageContent(widget.message);
+      contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+    } else {
+      contentWidget = _buildCachedImage(context, constraints);
+    }
+
+    // Apply status styling if needed
+    final backgroundColor = MessageStatusHelper.getMessageBackgroundColor(widget.message, theme);
+    final borderColor = MessageStatusHelper.getMessageBorderColor(widget.message, theme);
+    
+    if (backgroundColor != null || borderColor != null) {
+      contentWidget = Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          border: borderColor != null ? Border.all(color: borderColor) : null,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: contentWidget,
+      );
+    }
+
+    // Build the final widget with status indicators
+    final children = <Widget>[];
+    
+    // Add warning banner for flagged messages
+    final warningBanner = MessageStatusHelper.createWarningBanner(widget.message, theme);
+    if (warningBanner != null) {
+      children.add(warningBanner);
+      children.add(const SizedBox(height: 4));
+    }
+
+    // Add the content widget with status indicator
+    final statusIndicator = MessageStatusHelper.getStatusIndicator(widget.message);
+    if (statusIndicator != null) {
+      children.add(Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          contentWidget,
+          const SizedBox(width: 4),
+          statusIndicator,
+        ],
+      ));
+    } else {
+      children.add(contentWidget);
+    }
+
+    final messageWidget = children.length == 1 
+        ? children.first 
+        : Column(
+            crossAxisAlignment: byMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          );
+
     if (widget.reporterUserId != null) {
-      return _buildCachedImage(context, constraints);
+      return messageWidget;
     }
 
     if (byMe) {
       return GestureDetector(
         onLongPressStart: (details) =>
             _showContextMenu(context, details.globalPosition),
-        child: _buildCachedImage(context, constraints),
+        child: messageWidget,
       );
     }
 
-    return _buildCachedImage(context, constraints);
+    return messageWidget;
   }
 
   void _showImageViewer(BuildContext context) {
@@ -276,18 +341,11 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                 Image(image: imageProvider, fit: BoxFit.contain),
             placeholder: (context, url) =>
                 getImagePlaceholder(color: theme.colorScheme.primary),
-            // progressIndicatorBuilder:
-            //     (context, url, downloadProgress) => getProgressIndicator(
-            //       downloadProgress,
-            //       color: theme.colorScheme.primary,
-            //     ),
             errorWidget: (context, url, error) => getImageErrorWidget(),
-            cacheKey: widget.message.uri, // Use original URI as cache key
-            // Enable memory caching
+            cacheKey: widget.message.uri,
             memCacheWidth:
                 (halfWidth * MediaQuery.of(context).devicePixelRatio).round(),
-            // Set cache refresh strategy
-            cacheManager: null, // Use default cache manager
+            cacheManager: null,
           ),
         ),
       ),

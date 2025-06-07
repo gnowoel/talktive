@@ -7,6 +7,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
+import '../helpers/message_status_helper.dart';
 import 'bubble.dart';
 import 'user_info_loader.dart';
 
@@ -260,14 +261,72 @@ class _TextMessageItemState extends State<TextMessageItem> {
       );
     }
 
+    // Check if message should be shown based on report status
+    final shouldShow = MessageStatusHelper.shouldShowMessage(
+      widget.message,
+      isAdmin: false, // TODO: Add admin check if needed
+    );
+
+    // Get the actual content to display
+    final displayContent = shouldShow 
+        ? content 
+        : MessageStatusHelper.getHiddenMessageContent(widget.message);
+
+    // Create the bubble widget
+    Widget bubble = Bubble(content: displayContent, byMe: byMe);
+
+    // Apply status styling if needed
+    final backgroundColor = MessageStatusHelper.getMessageBackgroundColor(widget.message, theme);
+    final borderColor = MessageStatusHelper.getMessageBorderColor(widget.message, theme);
+    
+    if (backgroundColor != null || borderColor != null) {
+      bubble = Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          border: borderColor != null ? Border.all(color: borderColor) : null,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: bubble,
+      );
+    }
+
+    // Add status indicator and warning banner
+    final children = <Widget>[];
+    
+    // Add warning banner for flagged messages
+    final warningBanner = MessageStatusHelper.createWarningBanner(widget.message, theme);
+    if (warningBanner != null) {
+      children.add(warningBanner);
+      children.add(const SizedBox(height: 4));
+    }
+
+    // Add the bubble
+    children.add(Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        bubble,
+        // Add status indicator
+        const SizedBox(width: 4),
+        MessageStatusHelper.getStatusIndicator(widget.message) ?? const SizedBox.shrink(),
+      ],
+    ));
+
+    final messageWidget = children.length == 1 
+        ? children.first 
+        : Column(
+            crossAxisAlignment: byMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          );
+
     if (widget.reporterUserId != null) {
-      return Bubble(content: content, byMe: byMe);
+      return messageWidget;
     }
 
     return GestureDetector(
       onLongPressStart: (details) =>
           _showContextMenu(context, details.globalPosition),
-      child: Bubble(content: content, byMe: byMe),
+      child: messageWidget,
     );
   }
 

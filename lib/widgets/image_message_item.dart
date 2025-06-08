@@ -222,6 +222,51 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     }
   }
 
+  Widget _buildToggleButton(bool byMe) {
+    // Only show toggle button for hidden but revealable messages
+    if (!MessageStatusHelper.isHiddenButRevealable(widget.message) ||
+        widget.reporterUserId != null ||
+        widget.message.recalled) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Align(
+        alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _isRevealed = !_isRevealed;
+            });
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _isRevealed ? Icons.visibility_off : Icons.visibility,
+                  size: 14,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _isRevealed ? 'Hide' : 'Show',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMessageBox(
     BuildContext context,
     BoxConstraints constraints, {
@@ -260,19 +305,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
           Bubble(content: hiddenContent, byMe: byMe, recalled: true);
     }
 
-    // Handle tap to reveal for hidden messages
-    if (isHidden && widget.reporterUserId == null) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            _isRevealed = !_isRevealed;
-          });
-        },
-        onLongPressStart: (details) =>
-            _showContextMenu(context, details.globalPosition),
-        child: contentWidget,
-      );
-    } else if (widget.reporterUserId == null) {
+    // Add gesture detector for context menu (no tap-to-toggle)
+    if (widget.reporterUserId == null) {
       return GestureDetector(
         onLongPressStart: (details) =>
             _showContextMenu(context, details.globalPosition),
@@ -346,10 +380,16 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(child: LayoutBuilder(builder: _buildMessageBox)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(child: LayoutBuilder(builder: _buildMessageBox)),
+                  ],
+                ),
+                _buildToggleButton(false),
               ],
             ),
           ),
@@ -363,19 +403,25 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: 32),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Flexible(
-                  child: LayoutBuilder(
-                    builder: (context, constrains) =>
-                        _buildMessageBox(context, constrains, byMe: true),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: LayoutBuilder(
+                        builder: (context, constrains) =>
+                            _buildMessageBox(context, constrains, byMe: true),
+                      ),
+                    ),
+                  ],
                 ),
+                _buildToggleButton(true),
               ],
             ),
           ),

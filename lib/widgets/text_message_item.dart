@@ -101,7 +101,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
       );
     }
 
-    if (!byMe && isUserWithoutAlert && MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
+    if (!byMe &&
+        isUserWithoutAlert &&
+        MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -136,7 +138,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
     if (widget.message.recalled) {
       contentToCopy = '- Message recalled -';
     } else {
-      contentToCopy = MessageStatusHelper.getCopyContent(widget.message, widget.message.content);
+      contentToCopy = MessageStatusHelper.getCopyContent(
+          widget.message, widget.message.content);
     }
 
     await Clipboard.setData(ClipboardData(text: contentToCopy));
@@ -220,6 +223,51 @@ class _TextMessageItemState extends State<TextMessageItem> {
     }
   }
 
+  Widget _buildToggleButton(bool byMe) {
+    // Only show toggle button for hidden but revealable messages
+    if (!MessageStatusHelper.isHiddenButRevealable(widget.message) ||
+        widget.reporterUserId != null ||
+        widget.message.recalled) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Align(
+        alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _isRevealed = !_isRevealed;
+            });
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _isRevealed ? Icons.visibility_off : Icons.visibility,
+                  size: 14,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _isRevealed ? 'Hide' : 'Show',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _reportMessage(BuildContext context) async {
     try {
       final currentUser = fireauth.instance.currentUser!;
@@ -273,36 +321,29 @@ class _TextMessageItemState extends State<TextMessageItem> {
     String displayContent;
     bool isHidden = false;
     bool isRemoved = MessageStatusHelper.isRemoved(widget.message);
-    
+
     if (shouldShow) {
       displayContent = content;
     } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
       isHidden = true;
-      displayContent = _isRevealed ? content : MessageStatusHelper.getHiddenMessageContent(widget.message);
+      displayContent = _isRevealed
+          ? content
+          : MessageStatusHelper.getHiddenMessageContent(widget.message);
     } else {
-      displayContent = MessageStatusHelper.getHiddenMessageContent(widget.message);
+      displayContent =
+          MessageStatusHelper.getHiddenMessageContent(widget.message);
     }
 
     // Create the bubble widget with appropriate styling
     Widget bubble = Bubble(
-      content: displayContent, 
+      content: displayContent,
       byMe: byMe,
-      recalled: isHidden || isRemoved, // Use italic styling for hidden/removed messages
+      recalled: isHidden ||
+          isRemoved, // Use italic styling for hidden/removed messages
     );
 
-    // Handle tap to reveal for hidden messages
-    if (isHidden && widget.reporterUserId == null) {
-      bubble = GestureDetector(
-        onTap: () {
-          setState(() {
-            _isRevealed = !_isRevealed;
-          });
-        },
-        onLongPressStart: (details) =>
-            _showContextMenu(context, details.globalPosition),
-        child: bubble,
-      );
-    } else if (widget.reporterUserId == null) {
+    // Add gesture detector for context menu (no tap-to-toggle)
+    if (widget.reporterUserId == null) {
       bubble = GestureDetector(
         onLongPressStart: (details) =>
             _showContextMenu(context, details.globalPosition),
@@ -343,14 +384,20 @@ class _TextMessageItemState extends State<TextMessageItem> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  child: _buildMessageBox(
-                    content: widget.message.content,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: _buildMessageBox(
+                        content: widget.message.content,
+                      ),
+                    ),
+                  ],
                 ),
+                _buildToggleButton(false),
               ],
             ),
           ),
@@ -364,19 +411,25 @@ class _TextMessageItemState extends State<TextMessageItem> {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: 48),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Flexible(
-                  child: _buildMessageBox(
-                    content: widget.message.content,
-                    byMe: true,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: _buildMessageBox(
+                        content: widget.message.content,
+                        byMe: true,
+                      ),
+                    ),
+                  ],
                 ),
+                _buildToggleButton(true),
               ],
             ),
           ),

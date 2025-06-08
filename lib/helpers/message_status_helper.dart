@@ -8,13 +8,15 @@ class MessageStatusHelper {
 
   /// Check if a message is hidden but can be revealed
   static bool isHiddenButRevealable(Message message) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     return status == 'hidden';
   }
 
   /// Check if a message is removed (severe)
   static bool isRemoved(Message message) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     return status == 'severe';
   }
 
@@ -28,21 +30,23 @@ class MessageStatusHelper {
 
   /// Get replacement content for hidden messages
   static String getHiddenMessageContent(Message message) {
+    final title = message.type == 'image' ? 'Image' : 'Message';
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     switch (status) {
       case 'hidden':
-        return '- Message hidden -';
+        return '- $title hidden -';
       case 'severe':
-        return '- Message removed -';
+        return '- $title removed -';
       default:
-        return '- Message unavailable -';
+        return '- $title unavailable -';
     }
   }
 
   /// Get content for copying (original for hidden, replacement for removed)
   static String getCopyContent(Message message, String originalContent) {
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     switch (status) {
       case 'hidden':
         return originalContent; // Copy original content for hidden messages
@@ -102,7 +106,8 @@ class MessageStatusHelper {
   /// Check if the report option should be available in context menu
   static bool shouldShowReportOption(Message message, bool isAuthor) {
     if (isAuthor) return false;
-    final status = MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status =
+        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     return status != 'severe'; // Hide report option for removed messages
   }
 

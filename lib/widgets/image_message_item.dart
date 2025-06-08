@@ -109,16 +109,18 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       );
     }
 
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        position.dx,
-        position.dy,
-        position.dx + 1,
-        position.dy + 1,
-      ),
-      items: menuItems,
-    );
+    if (menuItems.isNotEmpty) {
+      showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(
+          position.dx,
+          position.dy,
+          position.dx + 1,
+          position.dy + 1,
+        ),
+        items: menuItems,
+      );
+    }
   }
 
   void _showRecallDialog(BuildContext context) {

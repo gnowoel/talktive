@@ -42,12 +42,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: widget.message.userId,
-            photoURL: widget.message.userPhotoURL,
-            displayName: widget.message.userDisplayName,
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: widget.message.userId,
+        photoURL: widget.message.userPhotoURL,
+        displayName: widget.message.userDisplayName,
+      ),
     );
   }
 
@@ -83,26 +82,25 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   void _showRecallDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Recall Image?'),
-            content: const Text(
-              'This image will be removed from the topic. The action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              TextButton(
-                child: const Text('Recall'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _recallMessage(context);
-                },
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Recall Image?'),
+        content: const Text(
+          'This image will be removed from the topic. The action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
+          TextButton(
+            child: const Text('Recall'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _recallMessage(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -129,13 +127,13 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     bool byMe = false,
   }) {
     if (widget.message.recalled!) {
-      return Bubble(content: '- Image recalled -', byMe: byMe, recalled: true);
+      return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 
     if (byMe) {
       return GestureDetector(
-        onLongPressStart:
-            (details) => _showContextMenu(context, details.globalPosition),
+        onLongPressStart: (details) =>
+            _showContextMenu(context, details.globalPosition),
         child: _buildCachedImage(context, constraints),
       );
     }
@@ -162,12 +160,10 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
           onTap: () => _showImageViewer(context),
           child: CachedNetworkImage(
             imageUrl: _imageUrl,
-            imageBuilder:
-                (context, imageProvider) =>
-                    Image(image: imageProvider, fit: BoxFit.contain),
-            placeholder:
-                (context, url) =>
-                    getImagePlaceholder(color: theme.colorScheme.primary),
+            imageBuilder: (context, imageProvider) =>
+                Image(image: imageProvider, fit: BoxFit.contain),
+            placeholder: (context, url) =>
+                getImagePlaceholder(color: theme.colorScheme.primary),
             errorWidget: (context, url, error) => getImageErrorWidget(),
             cacheKey: widget.message.uri,
             memCacheWidth:
@@ -232,9 +228,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
               children: [
                 Flexible(
                   child: LayoutBuilder(
-                    builder:
-                        (context, constraints) =>
-                            _buildMessageBox(context, constraints, byMe: true),
+                    builder: (context, constraints) =>
+                        _buildMessageBox(context, constraints, byMe: true),
                   ),
                 ),
               ],

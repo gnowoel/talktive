@@ -38,12 +38,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   void _showUserInfo(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => UserInfoLoader(
-            userId: widget.message.userId,
-            photoURL: widget.message.userPhotoURL,
-            displayName: widget.message.userDisplayName,
-          ),
+      builder: (context) => UserInfoLoader(
+        userId: widget.message.userId,
+        photoURL: widget.message.userPhotoURL,
+        displayName: widget.message.userDisplayName,
+      ),
     );
   }
 
@@ -101,10 +100,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
     await Clipboard.setData(
       ClipboardData(
-        text:
-            widget.message.recalled!
-                ? '- Message recalled -'
-                : widget.message.content,
+        text: widget.message.recalled!
+            ? '- Message recalled -'
+            : widget.message.content,
       ),
     );
 
@@ -122,26 +120,25 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   void _showRecallDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Recall Message?'),
-            content: const Text(
-              'This message will be removed from the topic. The action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              TextButton(
-                child: const Text('Recall'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _recallMessage(context);
-                },
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Recall Message?'),
+        content: const Text(
+          'This message will be removed from the topic. The action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
+          TextButton(
+            child: const Text('Recall'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _recallMessage(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -172,13 +169,12 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         content: '- Message recalled -',
         byMe: byMe,
         byOp: byOp,
-        recalled: true,
       );
     }
 
     return GestureDetector(
-      onLongPressStart:
-          (details) => _showContextMenu(context, details.globalPosition),
+      onLongPressStart: (details) =>
+          _showContextMenu(context, details.globalPosition),
       child: Bubble(content: content, byMe: byMe, byOp: byOp),
     );
   }

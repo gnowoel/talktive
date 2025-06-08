@@ -273,7 +273,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     bool byMe = false,
   }) {
     if (widget.message.recalled) {
-      return Bubble(content: '- Image recalled -', byMe: byMe, recalled: true);
+      return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 
     // Check if message should be shown based on report status
@@ -284,25 +284,21 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
 
     // Determine what content to display
     Widget contentWidget;
-    bool isHidden = false;
 
     if (shouldShow) {
       contentWidget = _buildCachedImage(context, constraints);
     } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
-      isHidden = true;
       if (_isRevealed) {
         contentWidget = _buildCachedImage(context, constraints);
       } else {
         final hiddenContent =
             MessageStatusHelper.getHiddenMessageContent(widget.message);
-        contentWidget =
-            Bubble(content: hiddenContent, byMe: byMe, recalled: true);
+        contentWidget = Bubble(content: hiddenContent, byMe: byMe);
       }
     } else {
       final hiddenContent =
           MessageStatusHelper.getHiddenMessageContent(widget.message);
-      contentWidget =
-          Bubble(content: hiddenContent, byMe: byMe, recalled: true);
+      contentWidget = Bubble(content: hiddenContent, byMe: byMe);
     }
 
     // Add gesture detector for context menu (no tap-to-toggle)

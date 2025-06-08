@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/widgets/bubble.dart';
 
@@ -78,20 +77,6 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
 
     final menuItems = <PopupMenuEntry>[];
 
-    // Always show Copy option
-    menuItems.add(
-      PopupMenuItem(
-        child: Row(
-          children: const [
-            Icon(Icons.copy, size: 20),
-            SizedBox(width: 8),
-            Text('Copy'),
-          ],
-        ),
-        onTap: () => _copyToClipboard(context),
-      ),
-    );
-
     if (byMe && !widget.message.recalled) {
       menuItems.add(
         PopupMenuItem(
@@ -107,7 +92,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       );
     }
 
-    if (!byMe && isUserWithoutAlert && MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
+    if (!byMe &&
+        isUserWithoutAlert &&
+        MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -235,28 +222,6 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     }
   }
 
-  Future<void> _copyToClipboard(BuildContext context) async {
-    // Capture the BuildContext before the async gap
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    String contentToCopy;
-    if (widget.message.recalled) {
-      contentToCopy = '- Image recalled -';
-    } else {
-      contentToCopy = MessageStatusHelper.getCopyContent(widget.message, widget.message.content);
-    }
-
-    await Clipboard.setData(ClipboardData(text: contentToCopy));
-    if (!mounted) return;
-
-    scaffoldMessenger.showSnackBar(
-      const SnackBar(
-        content: Text('Image description copied to clipboard'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   Widget _buildMessageBox(
     BuildContext context,
     BoxConstraints constraints, {
@@ -283,12 +248,16 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       if (_isRevealed) {
         contentWidget = _buildCachedImage(context, constraints);
       } else {
-        final hiddenContent = MessageStatusHelper.getHiddenMessageContent(widget.message);
-        contentWidget = Bubble(content: hiddenContent, byMe: byMe, recalled: true);
+        final hiddenContent =
+            MessageStatusHelper.getHiddenMessageContent(widget.message);
+        contentWidget =
+            Bubble(content: hiddenContent, byMe: byMe, recalled: true);
       }
     } else {
-      final hiddenContent = MessageStatusHelper.getHiddenMessageContent(widget.message);
-      contentWidget = Bubble(content: hiddenContent, byMe: byMe, recalled: true);
+      final hiddenContent =
+          MessageStatusHelper.getHiddenMessageContent(widget.message);
+      contentWidget =
+          Bubble(content: hiddenContent, byMe: byMe, recalled: true);
     }
 
     // Handle tap to reveal for hidden messages
@@ -303,7 +272,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
             _showContextMenu(context, details.globalPosition),
         child: contentWidget,
       );
-    } else if (widget.reporterUserId == null && byMe) {
+    } else if (widget.reporterUserId == null) {
       return GestureDetector(
         onLongPressStart: (details) =>
             _showContextMenu(context, details.globalPosition),

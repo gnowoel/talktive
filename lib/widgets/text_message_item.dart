@@ -118,16 +118,18 @@ class _TextMessageItemState extends State<TextMessageItem> {
       );
     }
 
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        position.dx,
-        position.dy,
-        position.dx + 1,
-        position.dy + 1,
-      ),
-      items: menuItems,
-    );
+    if (menuItems.isNotEmpty) {
+      showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(
+          position.dx,
+          position.dy,
+          position.dx + 1,
+          position.dy + 1,
+        ),
+        items: menuItems,
+      );
+    }
   }
 
   Future<void> _copyToClipboard(BuildContext context) async {

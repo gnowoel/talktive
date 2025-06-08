@@ -66,8 +66,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
     final byMe = widget.reporterUserId == null
         ? widget.message.userId == currentUser.uid
         : widget.message.userId == widget.reporterUserId;
-    final isUserWithoutAlert =
-        userCache.user != null && !userCache.user!.withAlert;
+    final canReportOthers =
+        userCache.user != null && userCache.user!.canReportOthers;
 
     final menuItems = <PopupMenuEntry>[];
 
@@ -102,7 +102,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
     }
 
     if (!byMe &&
-        isUserWithoutAlert &&
+        canReportOthers &&
         MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
       menuItems.add(
         PopupMenuItem(

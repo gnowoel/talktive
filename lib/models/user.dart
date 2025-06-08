@@ -96,6 +96,8 @@ class User {
     return _isNewcomer || _isNovice;
   }
 
+  bool get canReportOthers => !withWarning;
+
   String get status {
     if (withWarning) return 'warning';
     if (withAlert) return 'alert';

@@ -111,8 +111,10 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
     const oldRevivedAt = getOldRevivedAt(now, messageAuthor);
     const newRevivedAt = await getNewRevivedAt(now, oldRevivedAt);
 
-    // Update the message author's revivedAt in Realtime Database
+    // Update the message author's revivedAt and reportCount in Realtime Database
     await updateUserRevivedAt(report.messageAuthorId, newRevivedAt);
+    
+    logger.info(`Report resolved for user ${report.messageAuthorId}, message ${report.messageId} in chat ${report.chatId}`);
 
     // Update the message's report count in Realtime Database
     await updateMessageReportCount(report.chatId, report.messageId);
@@ -168,9 +170,21 @@ const getNewRevivedAt = async (now: number, oldRevivedAt: number) => {
 const updateUserRevivedAt = async (userId: string, revivedAt: number) => {
   try {
     const userRef = db.ref(`users/${userId}`);
-    await userRef.update({ revivedAt });
+    
+    // Update both revivedAt and increment reportCount
+    await userRef.transaction((user) => {
+      if (user === null) return user;
+      
+      const currentReportCount = user.reportCount || 0;
+      user.revivedAt = revivedAt;
+      user.reportCount = currentReportCount + 1;
+      
+      logger.info(`User ${userId} reportCount updated to ${user.reportCount}`);
+      
+      return user;
+    });
   } catch (error) {
-    logger.error(`Error updating user ${userId} revivedAt:`, error);
+    logger.error(`Error updating user ${userId} revivedAt and reportCount:`, error);
   }
 };
 

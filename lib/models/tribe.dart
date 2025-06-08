@@ -65,7 +65,7 @@ class Tribe {
     );
   }
 
-  static dummy({required String name, int? sort}) {
+  static Tribe dummy({required String name, int? sort}) {
     return Tribe(
       id: 'tribeId',
       name: name,
@@ -77,5 +77,8 @@ class Tribe {
 
   bool get isDummy => createdAt == 0;
   bool get isNotDummy => !isDummy;
-  bool get isActive => isNotDummy && createdAt + activePeriod > DateTime.now().millisecondsSinceEpoch;
+  bool get isActive =>
+      isNotDummy &&
+      createdAt + activePeriod > DateTime.now().millisecondsSinceEpoch;
 }
+

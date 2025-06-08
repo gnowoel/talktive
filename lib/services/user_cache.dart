@@ -10,7 +10,7 @@ class UserCache extends ChangeNotifier {
   User? _user;
   User? get user => _user;
 
-  updateUser(User? user) {
+  void updateUser(User? user) {
     _user = user;
     notifyListeners();
   }

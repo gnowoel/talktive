@@ -92,7 +92,7 @@ class PublicTopic extends Chat {
     );
   }
 
-  static dummy() {
+  static PublicTopic dummy() {
     return PublicTopic(
       id: 'topicId',
       createdAt: 0,

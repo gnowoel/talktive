@@ -9,7 +9,7 @@ class ServerClock {
     return DateTime.now().millisecondsSinceEpoch + _clockSkew;
   }
 
-  updateClockSkew(int clockSkew) {
+  void updateClockSkew(int clockSkew) {
     _clockSkew = clockSkew;
   }
 }

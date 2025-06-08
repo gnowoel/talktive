@@ -4,14 +4,12 @@ class Bubble extends StatelessWidget {
   final String content;
   final bool byMe;
   final bool byOp;
-  final bool recalled;
 
   const Bubble({
     super.key,
     required this.content,
     this.byMe = false,
     this.byOp = false,
-    this.recalled = false,
   });
 
   @override
@@ -28,6 +26,9 @@ class Bubble extends StatelessWidget {
         ? colorScheme.onPrimaryContainer
         : (byOp ? colorScheme.onTertiaryContainer : colorScheme.onSurface);
 
+    final pattern = RegExp(r"^-.*-$");
+    final inItalics = pattern.hasMatch(content);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -39,7 +40,7 @@ class Bubble extends StatelessWidget {
         style: TextStyle(
           fontSize: 16,
           color: textColor,
-          fontStyle: recalled ? FontStyle.italic : null,
+          fontStyle: inItalics ? FontStyle.italic : null,
         ),
       ),
     );

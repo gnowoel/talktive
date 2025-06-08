@@ -304,11 +304,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
     bool byMe = false,
   }) {
     if (widget.message.recalled) {
-      return Bubble(
-        content: '- Message recalled -',
-        byMe: byMe,
-        recalled: true,
-      );
+      return Bubble(content: '- Message recalled -', byMe: byMe);
     }
 
     // Check if message should be shown based on report status
@@ -319,13 +315,10 @@ class _TextMessageItemState extends State<TextMessageItem> {
 
     // Determine what content to display
     String displayContent;
-    bool isHidden = false;
-    bool isRemoved = MessageStatusHelper.isRemoved(widget.message);
 
     if (shouldShow) {
       displayContent = content;
     } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
-      isHidden = true;
       displayContent = _isRevealed
           ? content
           : MessageStatusHelper.getHiddenMessageContent(widget.message);
@@ -335,12 +328,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
     }
 
     // Create the bubble widget with appropriate styling
-    Widget bubble = Bubble(
-      content: displayContent,
-      byMe: byMe,
-      recalled: isHidden ||
-          isRemoved, // Use italic styling for hidden/removed messages
-    );
+    Widget bubble = Bubble(content: displayContent, byMe: byMe);
 
     // Add gesture detector for context menu (no tap-to-toggle)
     if (widget.reporterUserId == null) {

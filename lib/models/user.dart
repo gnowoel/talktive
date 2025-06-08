@@ -14,6 +14,7 @@ class User {
   final String? fcmToken;
   final int? revivedAt;
   final int? messageCount;
+  final int? reportCount;
 
   const User({
     required this.id,
@@ -27,6 +28,7 @@ class User {
     this.fcmToken,
     this.revivedAt,
     this.messageCount,
+    this.reportCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -42,6 +44,7 @@ class User {
       'fcmToken': fcmToken,
       'revivedAt': revivedAt,
       'messageCount': messageCount,
+      'reportCount': reportCount,
     };
   }
 
@@ -58,6 +61,7 @@ class User {
       fcmToken: value.fcmToken,
       revivedAt: value.revivedAt,
       messageCount: value.messageCount,
+      reportCount: value.reportCount,
     );
   }
 
@@ -110,6 +114,37 @@ class User {
     if (messageCount! < 1) return 0;
     return (log(messageCount!) / log(3)).ceil();
   }
+
+  /// Calculate reputation score based on the formula: (1 - reportCount / messageCount)
+  /// Returns a value between 0.0 and 1.0, where 1.0 is perfect reputation
+  /// Returns 1.0 if messageCount is 0 or null (no messages to evaluate)
+  /// Returns 0.0 if reportCount >= messageCount (fully reported)
+  double get reputationScore {
+    if (messageCount == null || messageCount! <= 0) return 1.0;
+    if (reportCount == null || reportCount! <= 0) return 1.0;
+    
+    final ratio = reportCount! / messageCount!;
+    final score = 1.0 - ratio;
+    
+    // Ensure score is between 0.0 and 1.0
+    return score.clamp(0.0, 1.0);
+  }
+
+  /// Check if user has good reputation (score >= 0.8)
+  bool get hasGoodReputation => reputationScore >= 0.8;
+
+  /// Check if user has poor reputation (score <= 0.5)
+  bool get hasPoorReputation => reputationScore <= 0.5;
+
+  /// Get reputation level as a string for display purposes
+  String get reputationLevel {
+    final score = reputationScore;
+    if (score >= 0.9) return 'excellent';
+    if (score >= 0.8) return 'good';
+    if (score >= 0.6) return 'fair';
+    if (score >= 0.4) return 'poor';
+    return 'very_poor';
+  }
 }
 
 class UserStub {
@@ -123,6 +158,7 @@ class UserStub {
   final String? fcmToken;
   final int? revivedAt;
   final int? messageCount;
+  final int? reportCount;
 
   const UserStub({
     required this.createdAt,
@@ -135,6 +171,7 @@ class UserStub {
     this.fcmToken,
     this.revivedAt,
     this.messageCount,
+    this.reportCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -149,6 +186,7 @@ class UserStub {
       'fcmToken': fcmToken,
       'revivedAt': revivedAt,
       'messageCount': messageCount,
+      'reportCount': reportCount,
     };
   }
 
@@ -164,6 +202,7 @@ class UserStub {
       fcmToken: json['fcmToken'] as String?,
       revivedAt: json['revivedAt'] as int?,
       messageCount: json['messageCount'] as int?,
+      reportCount: json['reportCount'] as int?,
     );
   }
 }

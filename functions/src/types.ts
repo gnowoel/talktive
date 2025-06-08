@@ -22,6 +22,7 @@ export interface User {
   fcmToken?: string;
   revivedAt?: number | null;
   messageCount?: number | null;
+  reportCount?: number | null;
 }
 
 export interface Pair {

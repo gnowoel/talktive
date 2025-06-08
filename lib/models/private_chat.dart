@@ -79,7 +79,7 @@ class PrivateChat extends Chat {
     );
   }
 
-  static dummy() {
+  static PrivateChat dummy() {
     return PrivateChat(
       id: 'id',
       createdAt: 0,

@@ -88,7 +88,7 @@ String? getLanguageName(String code) {
   return languageNames[code.toLowerCase()];
 }
 
-String getLanguageCode(context) {
+String getLanguageCode(BuildContext context) {
   return kIsWeb
       ? View.of(context).platformDispatcher.locale.languageCode
       : Platform.localeName.split('_').first;

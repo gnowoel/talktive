@@ -109,11 +109,11 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
 
     const now = new Date().getTime();
     const oldRevivedAt = getOldRevivedAt(now, messageAuthor);
-    const newRevivedAt = await getNewRevivedAt(now, oldRevivedAt);
+    const newRevivedAt = await getNewRevivedAt(now, oldRevivedAt, messageAuthor);
 
     // Update the message author's revivedAt and reportCount in Realtime Database
     await updateUserRevivedAtAndReportCount(report.messageAuthorId, newRevivedAt);
-    
+
     logger.info(`Report resolved for user ${report.messageAuthorId}, message ${report.messageId} in chat ${report.chatId}`);
 
     // Update the message's report count in Realtime Database
@@ -124,7 +124,7 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
 
     // Calculate parentDocId from the report's creation time
     const parentDocId = getDateBasedDocId(report.createdAt.toDate());
-    
+
     // Update the report status in Firestore
     await firestore
       .collection('reports')
@@ -156,12 +156,16 @@ const getOldRevivedAt = (now: number, user: User) => {
   return oldRevivedAt;
 };
 
-const getNewRevivedAt = async (now: number, oldRevivedAt: number) => {
+const getNewRevivedAt = async (now: number, oldRevivedAt: number, user: User) => {
   const then = now - 7 * oneDay;
   const remaining = oldRevivedAt - then;
 
   let days = Math.ceil(remaining / oneDay);
   if (days < 1 || days > 256) days = 1;
+
+  // Calculate reputation score and apply it to scale the restriction duration
+  const reputationScore = calculateReputationScore(user);
+  days = Math.max(Math.ceil(days * (1 - reputationScore)), 1);
 
   const newRevivedAt = oldRevivedAt + days * oneDay;
   return newRevivedAt;
@@ -170,13 +174,13 @@ const getNewRevivedAt = async (now: number, oldRevivedAt: number) => {
 const updateUserRevivedAtAndReportCount = async (userId: string, revivedAt: number) => {
   try {
     const userRef = db.ref(`users/${userId}`);
-    
+
     // Update revivedAt and increment reportCount atomically
     await userRef.update({
       revivedAt,
       reportCount: admin.database.ServerValue.increment(1),
     });
-    
+
     logger.info(`User ${userId} revivedAt and reportCount updated`);
   } catch (error) {
     logger.error(`Error updating user ${userId} revivedAt and reportCount:`, error);
@@ -193,7 +197,7 @@ const updateMessageReportCount = async (chatId: string, messageId: string) => {
       const currentCount = message.reportCount || 0;
       const newCount = currentCount + 1;
       message.reportCount = newCount;
-      
+
       logger.info(`Message ${messageId} report count updated to ${newCount}`);
 
       return message;
@@ -201,6 +205,17 @@ const updateMessageReportCount = async (chatId: string, messageId: string) => {
   } catch (error) {
     logger.error(`Error updating message ${messageId} report count:`, error);
   }
+};
+
+const calculateReputationScore = (user: User): number => {
+  if (!user.messageCount || user.messageCount <= 0) return 1.0;
+  if (!user.reportCount || user.reportCount <= 0) return 1.0;
+
+  const ratio = user.reportCount / user.messageCount;
+  const score = 1.0 - ratio;
+
+  // Ensure score is between 0.0 and 1.0
+  return Math.max(0.0, Math.min(1.0, score));
 };
 
 const updatePartnerChatsRevivedAt = async (userId: string, revivedAt: number) => {

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../services/avatar.dart';
 import '../services/messaging.dart';
+import '../services/report_cache.dart';
 import '../services/settings.dart' as my;
 import '../theme.dart';
 
@@ -69,6 +70,9 @@ class _InitializeState extends State<Initialize> {
 
     final settings = my.Settings();
     await settings.load();
+
+    final reportCache = ReportCacheService();
+    await reportCache.initialize();
 
     final avatar = Avatar();
     avatar.init();

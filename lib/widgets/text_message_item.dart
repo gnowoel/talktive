@@ -61,13 +61,25 @@ class _TextMessageItemState extends State<TextMessageItem> {
     );
   }
 
-  void _showContextMenu(BuildContext context, Offset position) {
+  void _showContextMenu(BuildContext context, Offset position) async {
     final currentUser = fireauth.instance.currentUser!;
     final byMe = widget.reporterUserId == null
         ? widget.message.userId == currentUser.uid
         : widget.message.userId == widget.reporterUserId;
     final canReportOthers =
         userCache.user != null && userCache.user!.canReportOthers;
+
+    // Check report eligibility first (async operation)
+    bool canShowReport = false;
+    if (!byMe && canReportOthers && widget.message.id != null) {
+      canShowReport = await MessageStatusHelper.shouldShowReportOptionWithCache(
+        widget.message,
+        byMe,
+      );
+    }
+
+    // Build menu after async operations are complete
+    if (!mounted) return;
 
     final menuItems = <PopupMenuEntry>[];
 
@@ -101,9 +113,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
       );
     }
 
-    if (!byMe &&
-        canReportOthers &&
-        MessageStatusHelper.shouldShowReportOption(widget.message, byMe)) {
+    // Add report option if eligible
+    if (canShowReport) {
       menuItems.add(
         PopupMenuItem(
           child: Row(

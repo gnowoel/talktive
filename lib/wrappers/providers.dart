@@ -9,6 +9,7 @@ import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/message_cache.dart';
 import '../services/messaging.dart';
+import '../services/report_cache.dart';
 import '../services/server_clock.dart';
 import '../services/settings.dart';
 import '../services/storage.dart';
@@ -35,6 +36,7 @@ class Providers extends StatelessWidget {
         Provider(create: (context) => Storage()),
         Provider(create: (context) => Messaging()),
         Provider(create: (context) => Settings()),
+        Provider(create: (context) => ReportCacheService()),
         Provider(create: (context) => ServerClock()),
         ChangeNotifierProvider(create: (context) => Avatar()),
         ChangeNotifierProvider(create: (context) => UserCache()),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/message.dart';
 import '../config/message_report_config.dart';
+import '../services/report_cache.dart';
 
 /// Helper class for handling message status UI logic
 class MessageStatusHelper {
@@ -109,6 +110,23 @@ class MessageStatusHelper {
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     return status != 'severe'; // Hide report option for removed messages
+  }
+
+  /// Check if a message can be reported (not recently reported)
+  static Future<bool> canReportMessage(String messageId) async {
+    final reportCache = ReportCacheService();
+    final isRecentlyReported = await reportCache.isRecentlyReported(messageId);
+    return !isRecentlyReported;
+  }
+
+  /// Check if report option should be shown considering cache
+  static Future<bool> shouldShowReportOptionWithCache(
+    Message message,
+    bool isAuthor,
+  ) async {
+    if (!shouldShowReportOption(message, isAuthor)) return false;
+    if (message.id == null) return false;
+    return await canReportMessage(message.id!);
   }
 
   /// Get appropriate context menu options based on message status

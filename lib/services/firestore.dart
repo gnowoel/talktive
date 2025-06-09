@@ -10,6 +10,7 @@ import '../models/topic_message.dart';
 import '../models/tribe.dart';
 import '../models/user.dart';
 import '../helpers/exception.dart';
+import 'report_cache.dart';
 
 class Firestore {
   final FirebaseFirestore instance;
@@ -892,6 +893,10 @@ class Firestore {
       if (result['success'] != true) {
         throw Exception(result['error'] ?? 'Failed to report message');
       }
+
+      // Cache the reported message ID
+      final reportCache = ReportCacheService();
+      await reportCache.addReportedMessage(messageId);
     } catch (e) {
       throw AppException(e.toString());
     }

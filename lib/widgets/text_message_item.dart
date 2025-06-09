@@ -131,7 +131,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
 
     if (menuItems.isNotEmpty) {
       showMenu(
-        context: context,
+        context: this.context,
         position: RelativeRect.fromLTRB(
           position.dx,
           position.dy,

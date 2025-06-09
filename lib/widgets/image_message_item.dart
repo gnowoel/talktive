@@ -38,6 +38,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
   bool _isRevealed = false;
+  bool _isReportedRevealed = false;
 
   @override
   void initState() {
@@ -236,47 +237,57 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
   }
 
   Widget _buildToggleButton(bool byMe) {
-    // Only show toggle button for hidden but revealable messages
-    if (!MessageStatusHelper.isHiddenButRevealable(widget.message) ||
-        widget.reporterUserId != null ||
-        widget.message.recalled) {
-      return const SizedBox.shrink();
-    }
+    return FutureBuilder<bool>(
+      future: MessageStatusHelper.isReportedButRevealable(widget.message),
+      builder: (context, reportedSnapshot) {
+        final isReportedButRevealable = reportedSnapshot.data ?? false;
+        final isHiddenButRevealable = MessageStatusHelper.isHiddenButRevealable(widget.message);
+        
+        // Show toggle button for either hidden or reported but revealable messages
+        if ((!isHiddenButRevealable && !isReportedButRevealable) ||
+            widget.reporterUserId != null ||
+            widget.message.recalled) {
+          return const SizedBox.shrink();
+        }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Align(
-        alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              _isRevealed = !_isRevealed;
-            });
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  _isRevealed ? Icons.visibility_off : Icons.visibility,
-                  size: 14,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        // Determine which toggle state to use
+        final isRevealed = isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+        final toggleAction = isReportedButRevealable 
+            ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
+            : () => setState(() => _isRevealed = !_isRevealed);
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Align(
+            alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: InkWell(
+              onTap: toggleAction,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isRevealed ? Icons.visibility_off : Icons.visibility,
+                      size: 14,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isRevealed ? 'Hide' : 'Show',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  _isRevealed ? 'Hide' : 'Show',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -289,41 +300,57 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 
-    // Check if message should be shown based on report status
-    final shouldShow = MessageStatusHelper.shouldShowMessage(
-      widget.message,
-      isAdmin: false, // TODO: Add admin check if needed
+    return FutureBuilder<bool>(
+      future: MessageStatusHelper.isReportedButRevealable(widget.message),
+      builder: (context, reportedSnapshot) {
+        final isReportedButRevealable = reportedSnapshot.data ?? false;
+        
+        // Check if message should be shown based on report status
+        final shouldShow = MessageStatusHelper.shouldShowMessage(
+          widget.message,
+          isAdmin: false, // TODO: Add admin check if needed
+        );
+
+        // Determine what content to display
+        Widget contentWidget;
+
+        if (isReportedButRevealable) {
+          // Recently reported image - show placeholder or original based on toggle
+          if (_isReportedRevealed) {
+            contentWidget = _buildCachedImage(context, constraints);
+          } else {
+            final reportedContent =
+                MessageStatusHelper.getReportedMessageContent(widget.message);
+            contentWidget = Bubble(content: reportedContent, byMe: byMe);
+          }
+        } else if (shouldShow) {
+          contentWidget = _buildCachedImage(context, constraints);
+        } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
+          if (_isRevealed) {
+            contentWidget = _buildCachedImage(context, constraints);
+          } else {
+            final hiddenContent =
+                MessageStatusHelper.getHiddenMessageContent(widget.message);
+            contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+          }
+        } else {
+          final hiddenContent =
+              MessageStatusHelper.getHiddenMessageContent(widget.message);
+          contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+        }
+
+        // Add gesture detector for context menu (no tap-to-toggle)
+        if (widget.reporterUserId == null) {
+          return GestureDetector(
+            onLongPressStart: (details) =>
+                _showContextMenu(context, details.globalPosition),
+            child: contentWidget,
+          );
+        }
+
+        return contentWidget;
+      },
     );
-
-    // Determine what content to display
-    Widget contentWidget;
-
-    if (shouldShow) {
-      contentWidget = _buildCachedImage(context, constraints);
-    } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
-      if (_isRevealed) {
-        contentWidget = _buildCachedImage(context, constraints);
-      } else {
-        final hiddenContent =
-            MessageStatusHelper.getHiddenMessageContent(widget.message);
-        contentWidget = Bubble(content: hiddenContent, byMe: byMe);
-      }
-    } else {
-      final hiddenContent =
-          MessageStatusHelper.getHiddenMessageContent(widget.message);
-      contentWidget = Bubble(content: hiddenContent, byMe: byMe);
-    }
-
-    // Add gesture detector for context menu (no tap-to-toggle)
-    if (widget.reporterUserId == null) {
-      return GestureDetector(
-        onLongPressStart: (details) =>
-            _showContextMenu(context, details.globalPosition),
-        child: contentWidget,
-      );
-    }
-
-    return contentWidget;
   }
 
   void _showImageViewer(BuildContext context) {

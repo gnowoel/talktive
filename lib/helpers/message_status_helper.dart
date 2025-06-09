@@ -115,6 +115,7 @@ class MessageStatusHelper {
   /// Check if a message can be reported (not recently reported)
   static Future<bool> canReportMessage(String messageId) async {
     final reportCache = ReportCacheService();
+    await reportCache.initialize();
     final isRecentlyReported = await reportCache.isRecentlyReported(messageId);
     return !isRecentlyReported;
   }
@@ -127,6 +128,37 @@ class MessageStatusHelper {
     if (!shouldShowReportOption(message, isAuthor)) return false;
     if (message.id == null) return false;
     return await canReportMessage(message.id!);
+  }
+
+  /// Check if a message was recently reported and should show placeholder
+  static Future<bool> isRecentlyReported(Message message) async {
+    if (message.id == null) return false;
+    final reportCache = ReportCacheService();
+    await reportCache.initialize();
+    return await reportCache.isRecentlyReported(message.id!);
+  }
+
+  /// Check if message should show reported placeholder but is revealable
+  static Future<bool> isReportedButRevealable(Message message) async {
+    // Only show reported placeholder for messages that aren't already hidden/removed
+    if (isRemoved(message) || isHiddenButRevealable(message)) return false;
+    return await isRecentlyReported(message);
+  }
+
+  /// Get placeholder content for recently reported messages
+  static String getReportedMessageContent(Message message) {
+    final title = message.type == 'image' ? 'Image' : 'Message';
+    return '- $title reported -';
+  }
+
+  /// Get content for copying reported messages (always return original for text)
+  static String getReportedCopyContent(Message message, String originalContent) {
+    // For text messages, always allow copying original content
+    if (message.type == 'text') {
+      return originalContent;
+    }
+    // For other types, show reported placeholder
+    return getReportedMessageContent(message);
   }
 
   /// Get appropriate context menu options based on message status

@@ -122,10 +122,10 @@ class User {
   double get reputationScore {
     if (messageCount == null || messageCount! <= 0) return 1.0;
     if (reportCount == null || reportCount! <= 0) return 1.0;
-    
+
     final ratio = reportCount! / messageCount!;
     final score = 1.0 - ratio;
-    
+
     // Ensure score is between 0.0 and 1.0
     return score.clamp(0.0, 1.0);
   }

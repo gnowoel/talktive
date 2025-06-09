@@ -28,7 +28,7 @@ const resolveReport = async (reportId: string, report: Report) => {
 
   const now = new Date().getTime();
   const oldRevivedAt = getOldRevivedAt(now, partner);
-  const newRevivedAt = await getNewRevivedAt(now, oldRevivedAt);
+  const newRevivedAt = await getNewRevivedAt(now, oldRevivedAt, partner);
 
   await updatePartnerRevivedAt(report, newRevivedAt);
   await updateReportStatusAndRevivedAt(reportId, newRevivedAt);
@@ -75,16 +75,31 @@ const getOldRevivedAt = (now: number, partner: User) => {
   return oldRevivedAt;
 }
 
-const getNewRevivedAt = async (now: number, oldRevivedAt: number) => {
+const getNewRevivedAt = async (now: number, oldRevivedAt: number, user: User) => {
   const then = now - 7 * oneDay;
   const remaining = oldRevivedAt - then;
 
   let days = Math.ceil(remaining / oneDay);
   if (days < 1 || days > 256) days = 1;
 
+  // Calculate reputation score and apply it to scale the restriction duration
+  const reputationScore = calculateReputationScore(user);
+  days = Math.max(Math.ceil(days * (1 - reputationScore)), 1);
+
   const newRevivedAt = oldRevivedAt + days * oneDay;
   return newRevivedAt;
 }
+
+const calculateReputationScore = (user: User): number => {
+  if (!user.messageCount || user.messageCount <= 0) return 1.0;
+  if (!user.reportCount || user.reportCount <= 0) return 1.0;
+
+  const ratio = user.reportCount / user.messageCount;
+  const score = 1.0 - ratio;
+
+  // Ensure score is between 0.0 and 1.0
+  return Math.max(0.0, Math.min(1.0, score));
+};
 
 const getUserStatus = (now: number, revivedAt: number) => {
   if (revivedAt >= now + 14 * oneDay) return 'warning';

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talktive/services/report_cache.dart';
+import '../../lib/models/message.dart';
+import '../../lib/helpers/message_status_helper.dart';
 
 void main() {
   group('ReportCacheService', () {
@@ -156,6 +158,52 @@ void main() {
     // Note: Testing actual expiration (24 hours) would require mocking DateTime
     // or waiting 24+ hours, which is not practical for unit tests.
     // In a real test suite, you might use a package like clock to mock time.
+  });
+
+  group('MessageStatusHelper Content Generation', () {
+    test('should generate correct reported message content', () {
+      // Mock text message
+      final textMessage = TestMessage(id: 'text_123', type: 'text');
+      final textContent = MessageStatusHelper.getReportedMessageContent(textMessage);
+      expect(textContent, equals('- Message reported -'));
+
+      // Mock image message
+      final imageMessage = TestMessage(id: 'image_456', type: 'image');
+      final imageContent = MessageStatusHelper.getReportedMessageContent(imageMessage);
+      expect(imageContent, equals('- Image reported -'));
+    });
+
+    test('should handle copy content for reported messages', () {
+      const originalContent = 'This is the original message content';
+      
+      // Text message should allow copying original content
+      final textMessage = TestMessage(id: 'text_copy', type: 'text');
+      final textCopyContent = MessageStatusHelper.getReportedCopyContent(
+        textMessage, 
+        originalContent
+      );
+      expect(textCopyContent, equals(originalContent));
+
+      // Image message should show reported placeholder
+      final imageMessage = TestMessage(id: 'image_copy', type: 'image');
+      final imageCopyContent = MessageStatusHelper.getReportedCopyContent(
+        imageMessage, 
+        originalContent
+      );
+      expect(imageCopyContent, equals('- Image reported -'));
+    });
+  });
+}
+
+// Create a minimal Message implementation for testing
+class TestMessage extends Message {
+  const TestMessage({
+    super.id,
+    super.createdAt = 0,
+    super.type = 'text',
+    super.recalled = false,
+    super.revivedAt,
+    super.reportCount,
   });
 }
 

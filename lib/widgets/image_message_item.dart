@@ -122,7 +122,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
 
     if (menuItems.isNotEmpty) {
       showMenu(
-        context: context,
+        context: this.context,
         position: RelativeRect.fromLTRB(
           position.dx,
           position.dy,

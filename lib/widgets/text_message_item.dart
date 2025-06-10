@@ -416,12 +416,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
                 widget.onInsertMention!(widget.message.userDisplayName);
               }
             },
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
           const SizedBox(width: 8),
@@ -483,12 +480,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
                 widget.onInsertMention!(widget.message.userDisplayName);
               }
             },
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
         ],

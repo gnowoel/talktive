@@ -8,6 +8,7 @@ import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/user_cache.dart';
 import '../helpers/topic_message_status_helper.dart';
+import '../helpers/mention_helper.dart';
 import '../theme.dart';
 import 'bubble.dart';
 import 'user_info_loader.dart';
@@ -387,8 +388,19 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
               TopicMessageStatusHelper.getHiddenMessageContent(widget.message);
         }
 
+        // Check if this message mentions the current user
+        final currentUserName = userCache.user?.displayName ?? '';
+        final isMentioned = !byMe && currentUserName.isNotEmpty 
+            ? MentionHelper.containsExactMention(content, currentUserName)
+            : false;
+
         // Create the bubble widget with appropriate styling
-        Widget bubble = Bubble(content: displayContent, byMe: byMe, byOp: byOp);
+        Widget bubble = Bubble(
+          content: displayContent, 
+          byMe: byMe, 
+          byOp: byOp,
+          isMentioned: isMentioned,
+        );
 
         // Add gesture detector for context menu
         return GestureDetector(

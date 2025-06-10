@@ -8,6 +8,7 @@ import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
 import '../helpers/message_status_helper.dart';
+import '../helpers/mention_helper.dart';
 import 'bubble.dart';
 import 'user_info_loader.dart';
 
@@ -344,6 +345,12 @@ class _TextMessageItemState extends State<TextMessageItem> {
       return Bubble(content: '- Message recalled -', byMe: byMe);
     }
 
+    // Check if this message mentions the current user
+    final currentUserName = userCache.user?.displayName ?? '';
+    final isMentioned = !byMe && currentUserName.isNotEmpty 
+        ? MentionHelper.containsExactMention(content, currentUserName)
+        : false;
+
     return FutureBuilder<bool>(
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
@@ -375,7 +382,11 @@ class _TextMessageItemState extends State<TextMessageItem> {
         }
 
         // Create the bubble widget with appropriate styling
-        Widget bubble = Bubble(content: displayContent, byMe: byMe);
+        Widget bubble = Bubble(
+          content: displayContent, 
+          byMe: byMe, 
+          isMentioned: isMentioned,
+        );
 
         // Add gesture detector for context menu (no tap-to-toggle)
         if (widget.reporterUserId == null) {

@@ -65,19 +65,29 @@ class InputState extends State<Input> {
     final mention = '@$displayName ';
     final currentText = _controller.text;
     final selection = _controller.selection;
-
+    
+    // Handle invalid selection by using end of text
+    int start = selection.start;
+    int end = selection.end;
+    
+    if (start < 0 || start > currentText.length) {
+      start = currentText.length;
+    }
+    if (end < 0 || end > currentText.length) {
+      end = currentText.length;
+    }
+    if (start > end) {
+      start = end;
+    }
+    
     // Insert mention at cursor position
-    final newText = currentText.replaceRange(
-      selection.start,
-      selection.end,
-      mention,
-    );
-
+    final newText = currentText.replaceRange(start, end, mention);
+    
     _controller.text = newText;
     _controller.selection = TextSelection.collapsed(
-      offset: selection.start + mention.length,
+      offset: start + mention.length,
     );
-
+    
     // Focus the input field
     widget.focusNode.requestFocus();
   }

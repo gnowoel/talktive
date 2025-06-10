@@ -427,6 +427,17 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 2),
+                  child: Text(
+                    widget.message.userDisplayName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -452,13 +463,24 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: 48),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 4, bottom: 2),
+                  child: Text(
+                    widget.message.userDisplayName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
+import '../services/follow_cache.dart';
 import '../services/user_cache.dart';
 import '../helpers/topic_message_status_helper.dart';
+import '../theme.dart';
 import 'bubble.dart';
 import 'user_info_loader.dart';
 
@@ -14,12 +16,14 @@ class TopicTextMessageItem extends StatefulWidget {
   final String topicId;
   final String topicCreatorId;
   final TopicTextMessage message;
+  final void Function(String)? onInsertMention;
 
   const TopicTextMessageItem({
     super.key,
     required this.topicId,
     required this.topicCreatorId,
     required this.message,
+    this.onInsertMention,
   });
 
   @override
@@ -416,6 +420,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         children: [
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(
@@ -527,6 +536,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(

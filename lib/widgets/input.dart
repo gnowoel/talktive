@@ -18,19 +18,21 @@ class Input extends StatefulWidget {
   final FocusNode focusNode;
   final PrivateChat chat;
   final bool chatPopulated;
+  final void Function(String)? onInsertMention;
 
   const Input({
     super.key,
     required this.focusNode,
     required this.chat,
     required this.chatPopulated,
+    this.onInsertMention,
   });
 
   @override
-  State<Input> createState() => _InputState();
+  State<Input> createState() => InputState();
 }
 
-class _InputState extends State<Input> {
+class InputState extends State<Input> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
@@ -59,6 +61,27 @@ class _InputState extends State<Input> {
     });
   }
 
+  void insertMention(String displayName) {
+    final mention = '@$displayName ';
+    final currentText = _controller.text;
+    final selection = _controller.selection;
+
+    // Insert mention at cursor position
+    final newText = currentText.replaceRange(
+      selection.start,
+      selection.end,
+      mention,
+    );
+
+    _controller.text = newText;
+    _controller.selection = TextSelection.collapsed(
+      offset: selection.start + mention.length,
+    );
+
+    // Focus the input field
+    widget.focusNode.requestFocus();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -80,6 +103,11 @@ class _InputState extends State<Input> {
         _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
       });
     });
+
+    // Update the callback reference
+    if (widget.onInsertMention != oldWidget.onInsertMention) {
+      // Callback reference has changed, widget will handle this
+    }
   }
 
   @override
@@ -197,12 +225,10 @@ class _InputState extends State<Input> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event, User user) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed =
-          HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed =
-          event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {

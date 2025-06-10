@@ -43,6 +43,7 @@ class _TopicPageState extends State<TopicPage> {
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
+  final GlobalKey<TopicInputState> _inputKey = GlobalKey<TopicInputState>();
 
   PublicTopic? _topic;
   int _messageCount = 0;
@@ -151,6 +152,10 @@ class _TopicPageState extends State<TopicPage> {
     _messageCount = count;
   }
 
+  void _insertMention(String displayName) {
+    _inputKey.currentState?.insertMention(displayName);
+  }
+
   Future<void> _updateReadMessageCount() async {
     final selfId = fireauth.instance.currentUser!.uid;
     final count = _messageCount;
@@ -234,13 +239,16 @@ class _TopicPageState extends State<TopicPage> {
                     focusNode: _focusNode,
                     scrollController: _scrollController,
                     updateMessageCount: _updateMessageCount,
+                    onInsertMention: _insertMention,
                   ),
                 ),
                 TopicInput(
+                  key: _inputKey,
                   topic: _topic,
                   focusNode: _focusNode,
                   onSendTextMessage: _sendTextMessage,
                   onSendImageMessage: _sendImageMessage,
+                  onInsertMention: _insertMention,
                 ),
               ],
             ),

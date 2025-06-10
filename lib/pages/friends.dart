@@ -18,12 +18,46 @@ class _FriendsPageState extends State<FriendsPage> {
   late FollowCache followCache;
 
   List<Follow> _friends = [];
+  int _selectedFilterIndex = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     followCache = Provider.of<FollowCache>(context);
-    _friends = followCache.getMergedFriends();
+    _updateFriendsList();
+  }
+
+  void _updateFriendsList() {
+    switch (_selectedFilterIndex) {
+      case 0: // All
+        _friends = followCache.getMergedFriends();
+        break;
+      case 1: // Following
+        _friends = followCache.followees
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case 2: // Followers
+        _friends = followCache.followers
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case 3: // Mutual Friends
+        _friends = followCache.getMergedFriends()
+            .where((friend) => followCache.isMutualFriend(friend.id))
+            .toList()
+          ..sort((a, b) {
+            final aTime = followCache.getMutualFriendshipStartTime(a.id);
+            final bTime = followCache.getMutualFriendshipStartTime(b.id);
+            return bTime.compareTo(aTime);
+          });
+        break;
+    }
+  }
+
+  void _onFilterChanged(int index) {
+    setState(() {
+      _selectedFilterIndex = index;
+      _updateFriendsList();
+    });
   }
 
   void _showInfoDialog() {
@@ -36,12 +70,12 @@ class _FriendsPageState extends State<FriendsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Add your partners as friends to stay connected, even after chats expire.',
+              'Follow your chat partners to stay connected, even after chats expire.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Friends will always be available here until you remove them manually.',
+              'Use the filter tabs to view: Following (people you follow), Followers (people following you), or Mutual Friends (both ways).',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
@@ -65,16 +99,18 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final lines = [
-      'Add some friends by tapping',
+      'Follow some people by tapping',
       'on your partner\'s avatar.',
       '',
     ];
+
+    final filterLabels = ['All', 'Following', 'Followers', 'Mutual Friends'];
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('My Friends'),
+        title: const Text('Following & Followers'),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -84,9 +120,43 @@ class _FriendsPageState extends State<FriendsPage> {
         ],
       ),
       body: SafeArea(
-        child: _friends.isEmpty
-            ? Center(child: Info(lines: lines))
-            : Layout(child: FriendList(friends: _friends)),
+        child: Column(
+          children: [
+            // Filter tabs
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(filterLabels.length, (index) {
+                    final isSelected = _selectedFilterIndex == index;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(filterLabels[index]),
+                        selected: isSelected,
+                        onSelected: (_) => _onFilterChanged(index),
+                        selectedColor: theme.colorScheme.primaryContainer,
+                        checkmarkColor: theme.colorScheme.onPrimaryContainer,
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? theme.colorScheme.onPrimaryContainer
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+            // Friends list
+            Expanded(
+              child: _friends.isEmpty
+                  ? Center(child: Info(lines: lines))
+                  : Layout(child: FriendList(friends: _friends)),
+            ),
+          ],
+        ),
       ),
     );
   }

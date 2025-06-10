@@ -246,7 +246,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               FilledButton.icon(
                 onPressed: _isProcessing ? null : _followUser,
                 icon: const Icon(Icons.grade),
-                label: const Text('Add Friend'),
+                label: const Text('Follow'),
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.colorScheme.secondaryContainer,
                   foregroundColor: theme.colorScheme.onSecondaryContainer,
@@ -258,7 +258,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               FilledButton.icon(
                 onPressed: _isProcessing ? null : _unfollowUser,
                 icon: const Icon(Icons.grade),
-                label: const Text('Delete Friend'),
+                label: const Text('Unfollow'),
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.colorScheme.errorContainer,
                   foregroundColor: theme.colorScheme.onErrorContainer,

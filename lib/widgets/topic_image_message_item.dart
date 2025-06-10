@@ -31,6 +31,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   late Fireauth fireauth;
   late Firestore firestore;
   late UserCache userCache;
+  late FollowCache followCache;
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
   bool _isRevealed = false;
@@ -50,6 +51,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     super.didChangeDependencies();
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
+    followCache = Provider.of<FollowCache>(context);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -419,13 +421,26 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 2),
-                  child: Text(
-                    widget.message.userDisplayName,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (followCache.isFollowing(widget.message.userId)) ...[
+                        Icon(
+                          Icons.grade,
+                          size: 16,
+                          color: theme.extension<CustomColors>()!.friendIndicator,
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        widget.message.userDisplayName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Row(
@@ -457,13 +472,26 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(right: 4, bottom: 2),
-                  child: Text(
-                    widget.message.userDisplayName,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (followCache.isFollowing(widget.message.userId)) ...[
+                        Icon(
+                          Icons.grade,
+                          size: 16,
+                          color: theme.extension<CustomColors>()!.friendIndicator,
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        widget.message.userDisplayName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Row(

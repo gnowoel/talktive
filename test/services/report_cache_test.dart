@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talktive/services/report_cache.dart';
-import '../../lib/models/message.dart';
-import '../../lib/helpers/message_status_helper.dart';
+import 'package:talktive/models/message.dart';
+import 'package:talktive/helpers/message_status_helper.dart';
 
 void main() {
   group('ReportCacheService', () {
@@ -42,8 +42,10 @@ void main() {
       // Should have timestamp
       final timestamp = await reportCache.getReportTimestamp(messageId);
       expect(timestamp, isNotNull);
-      expect(timestamp!.isBefore(DateTime.now().add(Duration(seconds: 1))),
-          isTrue);
+      expect(
+        timestamp!.isBefore(DateTime.now().add(Duration(seconds: 1))),
+        isTrue,
+      );
     });
 
     test('should persist data across service instances', () async {
@@ -141,10 +143,14 @@ void main() {
 
       // Check timestamps are valid
       for (final timestamp in allReports.values) {
-        expect(timestamp.isBefore(DateTime.now().add(Duration(seconds: 1))),
-            isTrue);
-        expect(timestamp.isAfter(DateTime.now().subtract(Duration(minutes: 1))),
-            isTrue);
+        expect(
+          timestamp.isBefore(DateTime.now().add(Duration(seconds: 1))),
+          isTrue,
+        );
+        expect(
+          timestamp.isAfter(DateTime.now().subtract(Duration(minutes: 1))),
+          isTrue,
+        );
       }
     });
 
@@ -164,31 +170,35 @@ void main() {
     test('should generate correct reported message content', () {
       // Mock text message
       final textMessage = TestMessage(id: 'text_123', type: 'text');
-      final textContent = MessageStatusHelper.getReportedMessageContent(textMessage);
+      final textContent = MessageStatusHelper.getReportedMessageContent(
+        textMessage,
+      );
       expect(textContent, equals('- Message reported -'));
 
       // Mock image message
       final imageMessage = TestMessage(id: 'image_456', type: 'image');
-      final imageContent = MessageStatusHelper.getReportedMessageContent(imageMessage);
+      final imageContent = MessageStatusHelper.getReportedMessageContent(
+        imageMessage,
+      );
       expect(imageContent, equals('- Image reported -'));
     });
 
     test('should handle copy content for reported messages', () {
       const originalContent = 'This is the original message content';
-      
+
       // Text message should allow copying original content
       final textMessage = TestMessage(id: 'text_copy', type: 'text');
       final textCopyContent = MessageStatusHelper.getReportedCopyContent(
-        textMessage, 
-        originalContent
+        textMessage,
+        originalContent,
       );
       expect(textCopyContent, equals(originalContent));
 
       // Image message should show reported placeholder
       final imageMessage = TestMessage(id: 'image_copy', type: 'image');
       final imageCopyContent = MessageStatusHelper.getReportedCopyContent(
-        imageMessage, 
-        originalContent
+        imageMessage,
+        originalContent,
       );
       expect(imageCopyContent, equals('- Image reported -'));
     });
@@ -206,4 +216,3 @@ class TestMessage extends Message {
     super.reportCount,
   });
 }
-

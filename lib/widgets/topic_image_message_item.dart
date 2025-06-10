@@ -72,7 +72,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     // Check report eligibility first (async operation)
     bool canShowReport = false;
     if (!byMe && canReportOthers && widget.message.id != null) {
-      canShowReport = await TopicMessageStatusHelper.shouldShowReportOptionWithCache(
+      canShowReport =
+          await TopicMessageStatusHelper.shouldShowReportOptionWithCache(
         widget.message,
         byMe,
       );
@@ -239,8 +240,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
       future: TopicMessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
         final isReportedButRevealable = reportedSnapshot.data ?? false;
-        final isHiddenButRevealable = TopicMessageStatusHelper.isHiddenButRevealable(widget.message);
-        
+        final isHiddenButRevealable =
+            TopicMessageStatusHelper.isHiddenButRevealable(widget.message);
+
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             (widget.message.recalled ?? false)) {
@@ -248,8 +250,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         }
 
         // Determine which toggle state to use
-        final isRevealed = isReportedButRevealable ? _isReportedRevealed : _isRevealed;
-        final toggleAction = isReportedButRevealable 
+        final isRevealed =
+            isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+        final toggleAction = isReportedButRevealable
             ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
             : () => setState(() => _isRevealed = !_isRevealed);
 
@@ -275,7 +278,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                       isRevealed ? 'Hide' : 'Show',
                       style: TextStyle(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -301,7 +305,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
       future: TopicMessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
         final isReportedButRevealable = reportedSnapshot.data ?? false;
-        
+
         // Check if message should be shown based on report status
         final shouldShow = TopicMessageStatusHelper.shouldShowMessage(
           widget.message,
@@ -317,17 +321,20 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             contentWidget = _buildCachedImage(context, constraints);
           } else {
             final reportedContent =
-                TopicMessageStatusHelper.getReportedMessageContent(widget.message);
+                TopicMessageStatusHelper.getReportedMessageContent(
+                    widget.message);
             contentWidget = Bubble(content: reportedContent, byMe: byMe);
           }
         } else if (shouldShow) {
           contentWidget = _buildCachedImage(context, constraints);
-        } else if (TopicMessageStatusHelper.isHiddenButRevealable(widget.message)) {
+        } else if (TopicMessageStatusHelper.isHiddenButRevealable(
+            widget.message)) {
           if (_isRevealed) {
             contentWidget = _buildCachedImage(context, constraints);
           } else {
             final hiddenContent =
-                TopicMessageStatusHelper.getHiddenMessageContent(widget.message);
+                TopicMessageStatusHelper.getHiddenMessageContent(
+                    widget.message);
             contentWidget = Bubble(content: hiddenContent, byMe: byMe);
           }
         } else {
@@ -410,6 +417,17 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 2),
+                  child: Text(
+                    widget.message.userDisplayName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -430,13 +448,24 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: 32),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 4, bottom: 2),
+                  child: Text(
+                    widget.message.userDisplayName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -468,3 +497,4 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     );
   }
 }
+

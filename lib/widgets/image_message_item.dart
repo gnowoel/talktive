@@ -243,8 +243,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
         final isReportedButRevealable = reportedSnapshot.data ?? false;
-        final isHiddenButRevealable = MessageStatusHelper.isHiddenButRevealable(widget.message);
-        
+        final isHiddenButRevealable =
+            MessageStatusHelper.isHiddenButRevealable(widget.message);
+
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             widget.reporterUserId != null ||
@@ -253,8 +254,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
         }
 
         // Determine which toggle state to use
-        final isRevealed = isReportedButRevealable ? _isReportedRevealed : _isRevealed;
-        final toggleAction = isReportedButRevealable 
+        final isRevealed =
+            isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+        final toggleAction = isReportedButRevealable
             ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
             : () => setState(() => _isRevealed = !_isRevealed);
 
@@ -280,7 +282,8 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                       isRevealed ? 'Hide' : 'Show',
                       style: TextStyle(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -306,7 +309,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
         final isReportedButRevealable = reportedSnapshot.data ?? false;
-        
+
         // Check if message should be shown based on report status
         final shouldShow = MessageStatusHelper.shouldShowMessage(
           widget.message,
@@ -413,12 +416,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                 widget.onInsertMention!(widget.message.userDisplayName);
               }
             },
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
           const SizedBox(width: 8),
@@ -476,12 +476,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
                 widget.onInsertMention!(widget.message.userDisplayName);
               }
             },
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
         ],

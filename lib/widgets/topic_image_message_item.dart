@@ -415,12 +415,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                 widget.onInsertMention!(widget.message.userDisplayName);
               }
             },
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
           const SizedBox(width: 8),
@@ -437,7 +434,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                         Icon(
                           Icons.grade,
                           size: 16,
-                          color: theme.extension<CustomColors>()!.friendIndicator,
+                          color:
+                              theme.extension<CustomColors>()!.friendIndicator,
                         ),
                         const SizedBox(width: 4),
                       ],
@@ -446,7 +444,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -488,7 +487,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                         Icon(
                           Icons.grade,
                           size: 16,
-                          color: theme.extension<CustomColors>()!.friendIndicator,
+                          color:
+                              theme.extension<CustomColors>()!.friendIndicator,
                         ),
                         const SizedBox(width: 4),
                       ],
@@ -497,7 +497,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -526,12 +527,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                 widget.onInsertMention!(widget.message.userDisplayName);
               }
             },
-            child: Tooltip(
-              message: widget.message.userDisplayName,
-              child: Text(
-                widget.message.userPhotoURL,
-                style: const TextStyle(fontSize: 24),
-              ),
+            child: Text(
+              widget.message.userPhotoURL,
+              style: const TextStyle(fontSize: 24),
             ),
           ),
         ],
@@ -539,4 +537,3 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     );
   }
 }
-

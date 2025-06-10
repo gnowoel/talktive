@@ -7,7 +7,9 @@ import '../helpers/topic_message_status_helper.dart';
 import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
+import '../services/follow_cache.dart';
 import '../services/user_cache.dart';
+import '../theme.dart';
 import 'bubble.dart';
 import 'image_viewer.dart';
 import 'user_info_loader.dart';
@@ -15,11 +17,13 @@ import 'user_info_loader.dart';
 class TopicImageMessageItem extends StatefulWidget {
   final String topicId;
   final TopicImageMessage message;
+  final void Function(String)? onInsertMention;
 
   const TopicImageMessageItem({
     super.key,
     required this.topicId,
     required this.message,
+    this.onInsertMention,
   });
 
   @override
@@ -406,6 +410,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         children: [
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(
@@ -512,6 +521,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(

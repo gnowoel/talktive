@@ -39,6 +39,7 @@ class _ChatPageState extends State<ChatPage> {
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
+  final GlobalKey<InputState> _inputKey = GlobalKey<InputState>();
 
   int _messageCount = 0;
   bool _chatPopulated = false;
@@ -138,6 +139,10 @@ class _ChatPageState extends State<ChatPage> {
     _messageCount = count;
   }
 
+  void _insertMention(String displayName) {
+    _inputKey.currentState?.insertMention(displayName);
+  }
+
   Future<void> _updateReadMessageCount(PrivateChat chat) async {
     final count = _messageCount;
     final selfId = fireauth.instance.currentUser!.uid;
@@ -214,12 +219,15 @@ class _ChatPageState extends State<ChatPage> {
                     focusNode: _focusNode,
                     scrollController: _scrollController,
                     updateMessageCount: _updateMessageCount,
+                    onInsertMention: _insertMention,
                   ),
                 ),
                 Input(
+                  key: _inputKey,
                   focusNode: _focusNode,
                   chat: _chat,
                   chatPopulated: _chatPopulated,
+                  onInsertMention: _insertMention,
                 ),
               ],
             ),

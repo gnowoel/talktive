@@ -17,12 +17,14 @@ class ImageMessageItem extends StatefulWidget {
   final String chatId;
   final ImageMessage message;
   final String? reporterUserId;
+  final void Function(String)? onInsertMention;
 
   const ImageMessageItem({
     super.key,
     required this.chatId,
     required this.message,
     this.reporterUserId,
+    this.onInsertMention,
   });
 
   @override
@@ -406,6 +408,11 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
         children: [
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(
@@ -464,6 +471,11 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(

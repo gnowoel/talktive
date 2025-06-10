@@ -16,6 +16,7 @@ class TopicInput extends StatefulWidget {
   final FocusNode focusNode;
   final Future<void> Function(String) onSendTextMessage;
   final Future<void> Function(String) onSendImageMessage;
+  final void Function(String)? onInsertMention;
 
   const TopicInput({
     super.key,
@@ -23,13 +24,14 @@ class TopicInput extends StatefulWidget {
     required this.focusNode,
     required this.onSendTextMessage,
     required this.onSendImageMessage,
+    this.onInsertMention,
   });
 
   @override
-  State<TopicInput> createState() => _TopicInputState();
+  State<TopicInput> createState() => TopicInputState();
 }
 
-class _TopicInputState extends State<TopicInput> {
+class TopicInputState extends State<TopicInput> {
   late ThemeData theme;
   late Storage storage;
   Timer? _refreshTimer;
@@ -56,6 +58,32 @@ class _TopicInputState extends State<TopicInput> {
     if (widget.topic?.updatedAt != oldWidget.topic?.updatedAt) {
       _refreshAgain();
     }
+
+    // Update the callback reference
+    if (widget.onInsertMention != oldWidget.onInsertMention) {
+      // Callback reference has changed, widget will handle this
+    }
+  }
+
+  void insertMention(String displayName) {
+    final mention = '@$displayName ';
+    final currentText = _controller.text;
+    final selection = _controller.selection;
+    
+    // Insert mention at cursor position
+    final newText = currentText.replaceRange(
+      selection.start,
+      selection.end,
+      mention,
+    );
+    
+    _controller.text = newText;
+    _controller.selection = TextSelection.collapsed(
+      offset: selection.start + mention.length,
+    );
+    
+    // Focus the input field
+    widget.focusNode.requestFocus();
   }
 
   void _refreshAgain() {

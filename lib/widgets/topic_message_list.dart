@@ -12,6 +12,7 @@ class TopicMessageList extends StatefulWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
+  final void Function(String)? onInsertMention;
 
   const TopicMessageList({
     super.key,
@@ -20,6 +21,7 @@ class TopicMessageList extends StatefulWidget {
     required this.focusNode,
     required this.scrollController,
     required this.updateMessageCount,
+    this.onInsertMention,
   });
 
   @override
@@ -120,6 +122,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
                 topicId: widget.topicId,
                 key: ValueKey(message.id),
                 message: message,
+                onInsertMention: widget.onInsertMention,
               );
             }
 
@@ -128,6 +131,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
               topicId: widget.topicId,
               topicCreatorId: widget.topicCreatorId,
               message: message as TopicTextMessage,
+              onInsertMention: widget.onInsertMention,
             );
           },
         ),

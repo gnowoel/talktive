@@ -17,6 +17,7 @@ class MessageList extends StatefulWidget {
   final void Function(int) updateMessageCount;
   final String? reporterUserId;
   final bool isSticky;
+  final void Function(String)? onInsertMention;
 
   const MessageList({
     super.key,
@@ -26,6 +27,7 @@ class MessageList extends StatefulWidget {
     required this.updateMessageCount,
     this.reporterUserId,
     this.isSticky = true,
+    this.onInsertMention,
   });
 
   @override
@@ -161,6 +163,7 @@ class _MessageListState extends State<MessageList> {
             chatId: widget.chat.id,
             message: message,
             reporterUserId: widget.reporterUserId,
+            onInsertMention: widget.onInsertMention,
           );
         }
 
@@ -169,6 +172,7 @@ class _MessageListState extends State<MessageList> {
           chatId: widget.chat.id,
           message: message as TextMessage,
           reporterUserId: widget.reporterUserId,
+          onInsertMention: widget.onInsertMention,
         );
       },
     );

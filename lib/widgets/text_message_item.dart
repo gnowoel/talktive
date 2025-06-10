@@ -15,12 +15,14 @@ class TextMessageItem extends StatefulWidget {
   final String chatId;
   final TextMessage message;
   final String? reporterUserId;
+  final void Function(String)? onInsertMention;
 
   const TextMessageItem({
     super.key,
     required this.chatId,
     required this.message,
     this.reporterUserId,
+    this.onInsertMention,
   });
 
   @override
@@ -153,7 +155,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
       contentToCopy = '- Message recalled -';
     } else {
       // Check if message is recently reported
-      final isReported = await MessageStatusHelper.isRecentlyReported(widget.message);
+      final isReported =
+          await MessageStatusHelper.isRecentlyReported(widget.message);
       if (isReported) {
         contentToCopy = MessageStatusHelper.getReportedCopyContent(
             widget.message, widget.message.content);
@@ -249,8 +252,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
         final isReportedButRevealable = reportedSnapshot.data ?? false;
-        final isHiddenButRevealable = MessageStatusHelper.isHiddenButRevealable(widget.message);
-        
+        final isHiddenButRevealable =
+            MessageStatusHelper.isHiddenButRevealable(widget.message);
+
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             widget.reporterUserId != null ||
@@ -259,8 +263,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
         }
 
         // Determine which toggle state to use
-        final isRevealed = isReportedButRevealable ? _isReportedRevealed : _isRevealed;
-        final toggleAction = isReportedButRevealable 
+        final isRevealed =
+            isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+        final toggleAction = isReportedButRevealable
             ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
             : () => setState(() => _isRevealed = !_isRevealed);
 
@@ -286,7 +291,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
                       isRevealed ? 'Hide' : 'Show',
                       style: TextStyle(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -342,7 +348,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
         final isReportedButRevealable = reportedSnapshot.data ?? false;
-        
+
         // Check if message should be shown based on report status
         final shouldShow = MessageStatusHelper.shouldShowMessage(
           widget.message,
@@ -405,6 +411,11 @@ class _TextMessageItemState extends State<TextMessageItem> {
         children: [
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(
@@ -467,6 +478,11 @@ class _TextMessageItemState extends State<TextMessageItem> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => _showUserInfo(context),
+            onLongPress: () {
+              if (widget.onInsertMention != null) {
+                widget.onInsertMention!(widget.message.userDisplayName);
+              }
+            },
             child: Tooltip(
               message: widget.message.userDisplayName,
               child: Text(

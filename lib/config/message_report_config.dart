@@ -9,7 +9,7 @@ class MessageReportConfig {
   static const int hideThreshold = 3;
 
   /// Threshold for marking a message as severely inappropriate
-  static const int severeThreshold = 5;
+  static const int severeThreshold = 8;
 
   /// Calculate report status from report count
   static String? getReportStatus(int reportCount) {
@@ -55,7 +55,7 @@ class MessageReportConfig {
   /// Get moderation priority (higher = more urgent)
   static int getModerationPriority(int reportCount) {
     final status = getReportStatus(reportCount);
-    
+
     switch (status) {
       case 'severe':
         return 100 + reportCount;
@@ -71,7 +71,7 @@ class MessageReportConfig {
   /// Calculate severity level (0.0 to 1.0)
   static double getSeverityLevel(int reportCount) {
     final status = getReportStatus(reportCount);
-    
+
     switch (status) {
       case 'flagged':
         return 0.3;

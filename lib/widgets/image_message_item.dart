@@ -305,6 +305,9 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
       return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 
+    // Images don't have text content to check for mentions
+    final isMentioned = false;
+
     return FutureBuilder<bool>(
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
       builder: (context, reportedSnapshot) {
@@ -326,7 +329,7 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
           } else {
             final reportedContent =
                 MessageStatusHelper.getReportedMessageContent(widget.message);
-            contentWidget = Bubble(content: reportedContent, byMe: byMe);
+            contentWidget = Bubble(content: reportedContent, byMe: byMe, isMentioned: isMentioned);
           }
         } else if (shouldShow) {
           contentWidget = _buildCachedImage(context, constraints);
@@ -336,12 +339,12 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
           } else {
             final hiddenContent =
                 MessageStatusHelper.getHiddenMessageContent(widget.message);
-            contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+            contentWidget = Bubble(content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
           }
         } else {
           final hiddenContent =
               MessageStatusHelper.getHiddenMessageContent(widget.message);
-          contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+          contentWidget = Bubble(content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
         }
 
         // Add gesture detector for context menu (no tap-to-toggle)

@@ -4,23 +4,31 @@ class Bubble extends StatelessWidget {
   final String content;
   final bool byMe;
   final bool byOp;
+  final bool isMentioned;
 
   const Bubble({
     super.key,
     required this.content,
     this.byMe = false,
     this.byOp = false,
+    this.isMentioned = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final containerColor = byMe
-        ? colorScheme.primaryContainer
-        : (byOp
-            ? colorScheme.tertiaryContainer
-            : colorScheme.surfaceContainerHigh);
+    Color containerColor;
+    if (isMentioned && !byMe) {
+      // Highlight mentions with a subtle accent
+      containerColor = colorScheme.primaryContainer.withValues(alpha: 0.3);
+    } else if (byMe) {
+      containerColor = colorScheme.primaryContainer;
+    } else if (byOp) {
+      containerColor = colorScheme.tertiaryContainer;
+    } else {
+      containerColor = colorScheme.surfaceContainerHigh;
+    }
 
     final textColor = byMe
         ? colorScheme.onPrimaryContainer
@@ -34,6 +42,12 @@ class Bubble extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: containerColor,
+        border: isMentioned && !byMe
+            ? Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.4),
+                width: 1.5,
+              )
+            : null,
       ),
       child: Text(
         content,

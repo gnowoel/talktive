@@ -304,7 +304,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     bool byMe = false,
   }) {
     if (widget.message.recalled ?? false) {
-      return Bubble(content: '- Image recalled -', byMe: byMe);
+      return Bubble(content: '- Image recalled -', byMe: byMe, isMentioned: false);
     }
 
     return FutureBuilder<bool>(
@@ -318,6 +318,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
           isAdmin: false, // TODO: Add admin check if needed
         );
 
+        // Images don't have text content to check for mentions
+        final isMentioned = false;
+
         // Determine what content to display
         Widget contentWidget;
 
@@ -329,7 +332,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             final reportedContent =
                 TopicMessageStatusHelper.getReportedMessageContent(
                     widget.message);
-            contentWidget = Bubble(content: reportedContent, byMe: byMe);
+            contentWidget = Bubble(content: reportedContent, byMe: byMe, isMentioned: isMentioned);
           }
         } else if (shouldShow) {
           contentWidget = _buildCachedImage(context, constraints);
@@ -341,12 +344,12 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             final hiddenContent =
                 TopicMessageStatusHelper.getHiddenMessageContent(
                     widget.message);
-            contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+            contentWidget = Bubble(content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
           }
         } else {
           final hiddenContent =
               TopicMessageStatusHelper.getHiddenMessageContent(widget.message);
-          contentWidget = Bubble(content: hiddenContent, byMe: byMe);
+          contentWidget = Bubble(content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
         }
 
         // Add gesture detector for context menu

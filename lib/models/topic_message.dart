@@ -9,6 +9,7 @@ abstract class TopicMessage {
   final String userPhotoURL;
   final Timestamp createdAt;
   final bool? recalled;
+  final int? reportCount;
 
   const TopicMessage({
     this.id,
@@ -17,6 +18,7 @@ abstract class TopicMessage {
     required this.userPhotoURL,
     required this.createdAt,
     this.recalled = false,
+    this.reportCount,
   });
 
   Map<String, dynamic> toJson();
@@ -33,6 +35,7 @@ class TopicTextMessage extends TopicMessage {
     required super.createdAt,
     required this.content,
     super.recalled,
+    super.reportCount,
   });
 
   @override
@@ -45,6 +48,7 @@ class TopicTextMessage extends TopicMessage {
       'content': content,
       'createdAt': createdAt,
       'recalled': recalled,
+      if (reportCount != null) 'reportCount': reportCount,
     };
   }
 
@@ -65,6 +69,7 @@ class TopicTextMessage extends TopicMessage {
       content: json['content'] as String,
       createdAt: createdAt,
       recalled: json['recalled'] as bool? ?? false,
+      reportCount: json['reportCount'] as int?,
     );
   }
 }
@@ -82,6 +87,7 @@ class TopicImageMessage extends TopicMessage {
     required this.uri,
     required this.content,
     super.recalled = false,
+    super.reportCount,
   });
 
   @override
@@ -95,6 +101,7 @@ class TopicImageMessage extends TopicMessage {
       'content': content,
       'createdAt': createdAt,
       'recalled': recalled,
+      if (reportCount != null) 'reportCount': reportCount,
     };
   }
 
@@ -116,6 +123,7 @@ class TopicImageMessage extends TopicMessage {
       content: json['content'] as String,
       createdAt: createdAt,
       recalled: json['recalled'] as bool? ?? false,
+      reportCount: json['reportCount'] as int?,
     );
   }
 }

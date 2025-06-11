@@ -189,8 +189,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color:
-                                    theme.colorScheme.surfaceContainerHighest,
+                                color: theme.colorScheme.surfaceContainer,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -240,7 +239,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                   ? theme.colorScheme
                                                       .primaryContainer
                                                       .withValues(alpha: 0.5)
-                                                  : Colors.transparent,
+                                                  : theme.colorScheme
+                                                      .surfaceContainerLow,
                                               borderRadius:
                                                   const BorderRadius.only(
                                                 topLeft: Radius.circular(8),
@@ -309,7 +309,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                   ? theme.colorScheme
                                                       .primaryContainer
                                                       .withValues(alpha: 0.5)
-                                                  : Colors.transparent,
+                                                  : theme.colorScheme
+                                                      .surfaceContainerLow,
                                               borderRadius:
                                                   const BorderRadius.only(
                                                 bottomLeft: Radius.circular(8),

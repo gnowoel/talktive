@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
@@ -45,7 +45,7 @@ class _TopicPageState extends State<TopicPage> {
   final _scrollController = ScrollController();
   final GlobalKey<TopicInputState> _inputKey = GlobalKey<TopicInputState>();
 
-  PublicTopic? _topic;
+  Topic? _topic;
   int _messageCount = 0;
 
   @override

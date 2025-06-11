@@ -220,15 +220,15 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: theme
-                                            .colorScheme.outline
+                                        color: theme.colorScheme.outline
                                             .withValues(alpha: 0.3),
                                       ),
                                     ),
                                     child: Column(
                                       children: [
                                         InkWell(
-                                          onTap: () => setState(() => _isPublic = true),
+                                          onTap: () =>
+                                              setState(() => _isPublic = true),
                                           borderRadius: const BorderRadius.only(
                                             topLeft: Radius.circular(8),
                                             topRight: Radius.circular(8),
@@ -237,10 +237,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
                                               color: _isPublic
-                                                  ? theme.colorScheme.primaryContainer
+                                                  ? theme.colorScheme
+                                                      .primaryContainer
                                                       .withValues(alpha: 0.5)
                                                   : Colors.transparent,
-                                              borderRadius: const BorderRadius.only(
+                                              borderRadius:
+                                                  const BorderRadius.only(
                                                 topLeft: Radius.circular(8),
                                                 topRight: Radius.circular(8),
                                               ),
@@ -250,24 +252,35 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                 Radio<bool>(
                                                   value: true,
                                                   groupValue: _isPublic,
-                                                  onChanged: (value) => setState(() => _isPublic = true),
+                                                  onChanged: (value) =>
+                                                      setState(() =>
+                                                          _isPublic = true),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         '🌍 Public Topic',
-                                                        style: theme.textTheme.bodyMedium?.copyWith(
-                                                          fontWeight: FontWeight.w500,
+                                                        style: theme.textTheme
+                                                            .bodyMedium
+                                                            ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w500,
                                                         ),
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'Appears on Topics page for everyone to join',
-                                                        style: theme.textTheme.bodySmall?.copyWith(
-                                                          color: theme.colorScheme.onSurfaceVariant,
+                                                        'Appears on Topics tab for everyone to join',
+                                                        style: theme
+                                                            .textTheme.bodySmall
+                                                            ?.copyWith(
+                                                          color: theme
+                                                              .colorScheme
+                                                              .onSurfaceVariant,
                                                         ),
                                                       ),
                                                     ],
@@ -279,10 +292,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         ),
                                         Divider(
                                           height: 1,
-                                          color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                                          color: theme.colorScheme.outline
+                                              .withValues(alpha: 0.3),
                                         ),
                                         InkWell(
-                                          onTap: () => setState(() => _isPublic = false),
+                                          onTap: () =>
+                                              setState(() => _isPublic = false),
                                           borderRadius: const BorderRadius.only(
                                             bottomLeft: Radius.circular(8),
                                             bottomRight: Radius.circular(8),
@@ -291,10 +306,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
                                               color: !_isPublic
-                                                  ? theme.colorScheme.primaryContainer
+                                                  ? theme.colorScheme
+                                                      .primaryContainer
                                                       .withValues(alpha: 0.5)
                                                   : Colors.transparent,
-                                              borderRadius: const BorderRadius.only(
+                                              borderRadius:
+                                                  const BorderRadius.only(
                                                 bottomLeft: Radius.circular(8),
                                                 bottomRight: Radius.circular(8),
                                               ),
@@ -304,24 +321,35 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                 Radio<bool>(
                                                   value: false,
                                                   groupValue: _isPublic,
-                                                  onChanged: (value) => setState(() => _isPublic = false),
+                                                  onChanged: (value) =>
+                                                      setState(() =>
+                                                          _isPublic = false),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         '🔒 Private Topic',
-                                                        style: theme.textTheme.bodyMedium?.copyWith(
-                                                          fontWeight: FontWeight.w500,
+                                                        style: theme.textTheme
+                                                            .bodyMedium
+                                                            ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w500,
                                                         ),
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
                                                         'Only visible to your followers',
-                                                        style: theme.textTheme.bodySmall?.copyWith(
-                                                          color: theme.colorScheme.onSurfaceVariant,
+                                                        style: theme
+                                                            .textTheme.bodySmall
+                                                            ?.copyWith(
+                                                          color: theme
+                                                              .colorScheme
+                                                              .onSurfaceVariant,
                                                         ),
                                                       ),
                                                     ],
@@ -463,10 +491,11 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               controller: _messageController,
                               decoration: const InputDecoration(
                                 labelText: 'First Message',
-                                hintText: 'Start the conversation...',
+                                hintText:
+                                    'Share something personal or ask something specific...',
                               ),
                               validator: _validateMessage,
-                              minLines: 3,
+                              minLines: 2,
                               maxLines: 5,
                               maxLength: 500,
                             ),

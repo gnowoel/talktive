@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../models/conversation.dart';
 import '../models/chat.dart';
-import '../models/private_chat.dart';
-import '../models/public_topic.dart';
-import 'private_chat_item.dart';
-import 'public_topic_item.dart';
+import '../models/topic.dart';
+import 'chat_item.dart';
+import 'topic_item_card.dart';
 
 class ChatList extends StatefulWidget {
-  final List<Chat> items;
+  final List<Conversation> items;
 
   const ChatList({super.key, required this.items});
 
@@ -16,7 +16,7 @@ class ChatList extends StatefulWidget {
 }
 
 class _ChatListState extends State<ChatList> {
-  late List<Chat> _items;
+  late List<Conversation> _items;
 
   @override
   void initState() {
@@ -32,13 +32,13 @@ class _ChatListState extends State<ChatList> {
     }
   }
 
-  void _removeItem(Chat item) {
+  void _removeItem(Conversation item) {
     setState(() {
       _items.remove(item);
     });
   }
 
-  void _restoreItem(Chat item, int index) {
+  void _restoreItem(Conversation item, int index) {
     setState(() {
       _items.insert(index, item);
     });
@@ -52,15 +52,15 @@ class _ChatListState extends State<ChatList> {
       itemBuilder: (context, index) {
         final item = _items[index];
 
-        if (item is PrivateChat) {
-          return PrivateChatItem(
+        if (item is Chat) {
+          return ChatItem(
             key: ValueKey(item.id),
             chat: item,
             onRemove: _removeItem,
             onRestore: (chat) => _restoreItem(chat, index),
           );
-        } else if (item is PublicTopic) {
-          return PublicTopicItem(
+        } else if (item is Topic) {
+          return TopicItemCard(
             key: ValueKey(item.id),
             topic: item,
             onRemove: _removeItem,

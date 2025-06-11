@@ -5,12 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/time.dart';
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../services/server_clock.dart';
 import 'heart_list.dart';
 
 class TopicHearts extends StatefulWidget {
-  final PublicTopic? topic;
+  final Topic? topic;
 
   const TopicHearts({super.key, required this.topic});
 
@@ -67,7 +67,7 @@ class _TopicHeartsState extends State<TopicHearts> {
     return widget.topic?.getTimeLeft() ?? 0;
   }
 
-  String _getInfoText(PublicTopic? topic) {
+  String _getInfoText(Topic? topic) {
     if (topic == null) return 'New Topic';
 
     final now = serverClock.now;

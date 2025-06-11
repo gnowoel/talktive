@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/message_cache.dart';
@@ -15,7 +15,7 @@ import '../widgets/user_info_loader.dart';
 
 class ReportPage extends StatefulWidget {
   final String userId;
-  final PrivateChat chat;
+  final Chat chat;
 
   const ReportPage({super.key, required this.userId, required this.chat});
 
@@ -33,7 +33,7 @@ class _ReportPageState extends State<ReportPage> {
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
 
-  late PrivateChat _chat;
+  late Chat _chat;
 
   @override
   void initState() {

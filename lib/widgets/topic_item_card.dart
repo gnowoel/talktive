@@ -4,83 +4,77 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
-import '../models/private_chat.dart';
-import '../models/user.dart';
+import '../models/topic.dart';
 import '../services/fireauth.dart';
-import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
-class PrivateChatItem extends StatefulWidget {
-  final PrivateChat chat;
-  final Function(PrivateChat) onRemove;
-  final Function(PrivateChat) onRestore;
+class TopicItemCard extends StatefulWidget {
+  final Topic topic;
+  final Function(Topic) onRemove;
+  final Function(Topic) onRestore;
 
-  const PrivateChatItem({
+  const TopicItemCard({
     super.key,
-    required this.chat,
+    required this.topic,
     required this.onRemove,
     required this.onRestore,
   });
 
   @override
-  State<StatefulWidget> createState() => _PrivateChatItemState();
+  State<StatefulWidget> createState() => _TopicItemCardState();
 }
 
-class _PrivateChatItemState extends State<PrivateChatItem> {
+class _TopicItemCardState extends State<TopicItemCard> {
   late Fireauth fireauth;
-  late Firedata firedata;
+  late Firestore firestore;
   late FollowCache followCache;
-  late User partner;
+  late bool byMe;
   late bool isFriend;
 
   @override
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
-    firedata = context.read<Firedata>();
-
-    final chatId = widget.chat.id;
-    final selfId = fireauth.instance.currentUser!.uid;
-    final otherId = chatId.replaceFirst(selfId, '');
-
-    partner = User.fromStub(key: otherId, value: widget.chat.partner);
+    firestore = context.read<Firestore>();
+    byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     followCache = Provider.of<FollowCache>(context);
-    isFriend = followCache.isFollowing(partner.id);
+    isFriend = followCache.isFollowing(widget.topic.creator.id);
   }
 
-  Future<void> _muteChat() async {
+  Future<void> _muteTopic() async {
     _doAction(() async {
-      await firedata.muteChat(
+      await firestore.muteTopic(
         fireauth.instance.currentUser!.uid,
-        widget.chat.id,
+        widget.topic.id,
       );
     });
   }
 
   void _handleDismiss(DismissDirection direction) {
     // Remove the chat from the list
-    widget.onRemove(widget.chat);
+    widget.onRemove(widget.topic);
 
     // Show snackbar with undo option
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: const Text('Left chat'),
+            content: const Text('Left topic'),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
-                // Restore the chat
-                widget.onRestore(widget.chat);
+                // Restore the topic
+                widget.onRestore(widget.topic);
               },
             ),
             duration: const Duration(seconds: 3),
@@ -91,17 +85,16 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
       // Only mute the chat if the SnackBar was closed by timeout
       // and not by user action (pressing undo)
       if (reason == SnackBarClosedReason.timeout) {
-        _muteChat();
+        _muteTopic();
       }
     });
   }
 
-  Future<void> _enterChat() async {
+  Future<void> _enterTopic() async {
     _doAction(() async {
-      final chat = widget.chat;
-      final chatCreatedAt = chat.createdAt.toString();
+      final topic = widget.topic;
 
-      context.go(encodeChatRoute(chat.id, chatCreatedAt));
+      context.go(encodeTopicRoute(topic.id, topic.creator.id));
     });
   }
 
@@ -115,16 +108,13 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
     }
   }
 
-  void _showUserInfo(BuildContext context) {
-    final userId = fireauth.instance.currentUser!.uid;
-    final otherId = widget.chat.id.replaceFirst(userId, '');
-
+  void _showCreatorInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => UserInfoLoader(
-        userId: otherId,
-        photoURL: partner.photoURL ?? '',
-        displayName: partner.displayName ?? '',
+        userId: widget.topic.creator.id,
+        photoURL: widget.topic.creator.photoURL ?? '',
+        displayName: widget.topic.creator.displayName ?? '',
       ),
     );
   }
@@ -136,21 +126,21 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
     final customColors = theme.extension<CustomColors>()!;
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(
-      widget.chat.updatedAt,
+      widget.topic.updatedAt,
     );
 
-    final cardColor = colorScheme.tertiaryContainer;
-    final textColor = colorScheme.onTertiaryContainer;
+    final cardColor = colorScheme.surfaceContainerHigh;
+    final textColor = colorScheme.onSurface;
 
-    final newMessageCount = widget.chat.unreadCount;
+    final newMessageCount = widget.topic.unreadCount;
     final lastMessageContent =
-        (widget.chat.lastMessageContent ?? partner.description!)
-            .replaceAll(RegExp(r'\s+'), ' ');
+        (widget.topic.lastMessageContent ?? '').replaceAll(RegExp(r'\s+'), ' ');
 
-    final userStatus = partner.status;
+    final topic = widget.topic;
+    final creator = topic.creator;
 
     return Dismissible(
-      key: Key(widget.chat.id),
+      key: Key(topic.id),
       background: Container(
         color: colorScheme.error,
         alignment: Alignment.centerRight,
@@ -165,20 +155,20 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
         color: cardColor,
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          onTap: _enterChat,
+          onTap: _enterTopic,
           child: ListTile(
             contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
             leading: GestureDetector(
-              onTap: () => _showUserInfo(context),
+              onTap: () => _showCreatorInfo(context),
               child: Text(
-                partner.photoURL!,
+                creator.photoURL ?? '',
                 style: TextStyle(fontSize: 36, color: textColor),
               ),
             ),
             title: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (isFriend) ...[
+                if (byMe || isFriend) ...[
                   Icon(
                     Icons.grade,
                     size: 16,
@@ -188,7 +178,7 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
                 ],
                 Expanded(
                   child: Text(
-                    partner.displayName!,
+                    widget.topic.title,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -208,54 +198,38 @@ class _PrivateChatItemState extends State<PrivateChatItem> {
                 Row(
                   children: [
                     Tag(
-                      tooltip: '${getLongGenderName(partner.gender!)}',
-                      child: Text(
-                        partner.gender!,
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
-                      tooltip: '${getLanguageName(partner.languageCode!)}',
-                      child: Text(
-                        partner.languageCode!,
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
-                      tooltip: 'Level ${partner.level}',
-                      child: Text(
-                        'L${partner.level}',
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
+                      tooltip: 'Messages',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.message_outlined, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${widget.topic.messageCount}',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 4),
                     Tag(
                       tooltip: 'Last updated',
-                      child: Text(
-                        timeago.format(
-                          updatedAt,
-                          locale: 'en_short',
-                          clock: now,
-                        ),
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.schedule, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            timeago.format(
+                              updatedAt,
+                              locale: 'en_short',
+                              clock: now,
+                            ),
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
-                    if (userStatus == 'warning') ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'warning'),
-                    ] else if (userStatus == 'alert') ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'alert'),
-                    ] else if (userStatus == 'newcomer') ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'newcomer'),
-                    ],
                   ],
                 ),
               ],

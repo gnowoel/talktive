@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../models/tribe.dart';
 import 'topic_item.dart';
 
 class TopicList extends StatelessWidget {
-  final List<PublicTopic> topics;
+  final List<Topic> topics;
   final List<String> joinedTopicIds;
   final List<String> seenTopicIds;
   final bool showTribeTags;
@@ -20,11 +20,11 @@ class TopicList extends StatelessWidget {
     this.onTribeSelected,
   });
 
-  bool _hasJoined(PublicTopic topic) {
+  bool _hasJoined(Topic topic) {
     return joinedTopicIds.contains(topic.id);
   }
 
-  bool _hasSeen(PublicTopic topic) {
+  bool _hasSeen(Topic topic) {
     return seenTopicIds.contains(topic.id);
   }
 

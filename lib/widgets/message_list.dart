@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/image_message.dart';
 import '../models/message.dart';
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../models/text_message.dart';
 import '../services/message_cache.dart';
 import 'image_message_item.dart';
@@ -11,7 +11,7 @@ import 'info.dart';
 import 'text_message_item.dart';
 
 class MessageList extends StatefulWidget {
-  final PrivateChat chat;
+  final Chat chat;
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;

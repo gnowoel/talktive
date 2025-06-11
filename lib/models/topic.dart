@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../helpers/time.dart';
 import '../services/server_clock.dart';
-import 'chat.dart';
+import 'conversation.dart';
 import 'user.dart';
 
-class PublicTopic extends Chat {
+class Topic extends Conversation {
   final String title;
   final User creator;
   final String? lastMessageContent;
@@ -13,7 +13,7 @@ class PublicTopic extends Chat {
   final String? tribeId;
   final bool isPublic;
 
-  const PublicTopic({
+  const Topic({
     required super.id,
     required super.createdAt,
     required super.updatedAt,
@@ -43,7 +43,7 @@ class PublicTopic extends Chat {
     };
   }
 
-  PublicTopic copyWith({
+  Topic copyWith({
     String? id,
     int? createdAt,
     int? updatedAt,
@@ -56,7 +56,7 @@ class PublicTopic extends Chat {
     String? tribeId,
     bool? isPublic,
   }) {
-    return PublicTopic(
+    return Topic(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -71,7 +71,7 @@ class PublicTopic extends Chat {
     );
   }
 
-  factory PublicTopic.fromJson(String id, Map<String, dynamic> json) {
+  factory Topic.fromJson(String id, Map<String, dynamic> json) {
     final creatorMap = Map<String, dynamic>.from(json['creator'] as Map);
     final creator = User.fromStub(
       key: creatorMap['id'] as String,
@@ -83,7 +83,7 @@ class PublicTopic extends Chat {
         ? timestamp.millisecondsSinceEpoch
         : ServerClock().now; // Fallback to local timestamp if null
 
-    return PublicTopic(
+    return Topic(
       id: id,
       title: json['title'] as String,
       createdAt: (json['createdAt'] as Timestamp).millisecondsSinceEpoch,
@@ -98,8 +98,8 @@ class PublicTopic extends Chat {
     );
   }
 
-  static PublicTopic dummy() {
-    return PublicTopic(
+  static Topic dummy() {
+    return Topic(
       id: 'topicId',
       createdAt: 0,
       updatedAt: 0,

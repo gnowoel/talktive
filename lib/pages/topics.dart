@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
@@ -30,8 +30,8 @@ class _TopicsPageState extends State<TopicsPage> {
   late FollowCache followCache;
   late UserCache userCache;
 
-  List<PublicTopic> _seenTopics = [];
-  List<PublicTopic> _topics = [];
+  List<Topic> _seenTopics = [];
+  List<Topic> _topics = [];
   List<Tribe> _tribes = [];
   Tribe? _selectedTribe;
   bool _isPopulated = false;
@@ -67,7 +67,7 @@ class _TopicsPageState extends State<TopicsPage> {
               serverClock.now,
               noCache: forceRefresh,
             )
-          : await firestore.fetchPublicTopics(
+          : await firestore.fetchTopics(
               serverClock.now,
               noCache: forceRefresh,
             );

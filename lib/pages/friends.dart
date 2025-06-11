@@ -99,7 +99,7 @@ class _FriendsPageState extends State<FriendsPage> {
     final filterLabels = ['All', 'Following', 'Followers', 'Mutual Friends'];
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      // backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         title: const Text('My Friends'),
@@ -116,7 +116,7 @@ class _FriendsPageState extends State<FriendsPage> {
           children: [
             // Filter tabs
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(

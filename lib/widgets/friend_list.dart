@@ -11,7 +11,7 @@ class FriendList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
       itemCount: friends.length,
       itemBuilder: (context, index) {
         return FriendItem(friend: friends[index]);

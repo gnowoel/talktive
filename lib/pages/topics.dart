@@ -272,12 +272,22 @@ class _TopicsPageState extends State<TopicsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Topics are public spaces where anyone can join the conversation.',
+              'Topics are short, focused conversations — not group chats.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Tap on a category to filter topics, or use the + button to create your own.',
+              'Think of them like Q&A: one post, many replies.',
+              style: TextStyle(height: 1.5),
+            ),
+            SizedBox(height: 16),
+            Text(
+              '✅ I got a new job!\n❌ Let\'s share our happy moments',
+              style: TextStyle(height: 1.5, fontStyle: FontStyle.italic),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Tap a category to explore, or hit + to start your own topic.',
               style: TextStyle(height: 1.5),
             ),
           ],

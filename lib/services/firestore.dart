@@ -329,6 +329,7 @@ class Firestore {
     required String title,
     required String message,
     String? tribeId,
+    bool isPublic = true,
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
@@ -339,6 +340,7 @@ class Firestore {
         'title': title,
         'message': message,
         'tribeId': tribeId,
+        'isPublic': isPublic,
       });
 
       final result = response.data;
@@ -355,13 +357,13 @@ class Firestore {
         clearTribeTopicsCache(tribeId);
       }
 
-      return _createInitialDummyTopic(topicId, user);
+      return _createInitialDummyTopic(topicId, user, isPublic);
     } catch (e) {
       throw AppException(e.toString());
     }
   }
 
-  PublicTopic _createInitialDummyTopic(String topicId, User user) {
+  PublicTopic _createInitialDummyTopic(String topicId, User user, bool isPublic) {
     return PublicTopic(
       id: topicId,
       createdAt: 0,
@@ -370,6 +372,7 @@ class Firestore {
       creator: user,
       messageCount: 1,
       tribeId: null,
+      isPublic: isPublic,
     );
   }
 
@@ -446,6 +449,7 @@ class Firestore {
           .collection('topics')
           .where('tribeId', isEqualTo: tribeId)
           .where('updatedAt', isGreaterThan: timestamp)
+          .where('isPublic', isEqualTo: true)
           .orderBy('updatedAt', descending: true);
 
       // If we have cached data, only fetch topics updated since our last fetch
@@ -524,7 +528,8 @@ class Firestore {
       // Start building the query
       var query = instance
           .collection('topics')
-          .where('updatedAt', isGreaterThan: timestamp);
+          .where('updatedAt', isGreaterThan: timestamp)
+          .where('isPublic', isEqualTo: true);
 
       // Add order and pagination
       query = query.orderBy('updatedAt', descending: true);

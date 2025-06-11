@@ -11,6 +11,7 @@ class PublicTopic extends Chat {
   final String? lastMessageContent;
   final bool? mute;
   final String? tribeId;
+  final bool isPublic;
 
   const PublicTopic({
     required super.id,
@@ -23,6 +24,7 @@ class PublicTopic extends Chat {
     this.lastMessageContent,
     this.mute,
     this.tribeId,
+    this.isPublic = true,
   }) : super(type: 'topic');
 
   Map<String, dynamic> toJson() {
@@ -37,6 +39,7 @@ class PublicTopic extends Chat {
       'lastMessageContent': lastMessageContent,
       'mute': mute,
       'tribeId': tribeId,
+      'isPublic': isPublic,
     };
   }
 
@@ -51,6 +54,7 @@ class PublicTopic extends Chat {
     String? lastMessageContent,
     bool? mute,
     String? tribeId,
+    bool? isPublic,
   }) {
     return PublicTopic(
       id: id ?? this.id,
@@ -63,6 +67,7 @@ class PublicTopic extends Chat {
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
       mute: mute ?? this.mute,
       tribeId: tribeId ?? this.tribeId,
+      isPublic: isPublic ?? this.isPublic,
     );
   }
 
@@ -89,6 +94,7 @@ class PublicTopic extends Chat {
       lastMessageContent: json['lastMessageContent'] as String?,
       mute: json['mute'] as bool?,
       tribeId: json['tribeId'] as String?,
+      isPublic: json['isPublic'] as bool? ?? true,
     );
   }
 
@@ -104,6 +110,7 @@ class PublicTopic extends Chat {
       ),
       messageCount: 0,
       tribeId: null,
+      isPublic: true,
     );
   }
 

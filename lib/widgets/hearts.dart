@@ -5,12 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/time.dart';
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../services/server_clock.dart';
 import 'heart_list.dart';
 
 class Hearts extends StatefulWidget {
-  final PrivateChat chat;
+  final Chat chat;
 
   const Hearts({super.key, required this.chat});
 
@@ -73,7 +73,7 @@ class _HeartsState extends State<Hearts> {
     return _isChatReady() ? widget.chat.getTimeLeft() : 0;
   }
 
-  String _getInfoText(PrivateChat chat) {
+  String _getInfoText(Chat chat) {
     if (chat.isNew) return 'New chat';
 
     final now = serverClock.now;

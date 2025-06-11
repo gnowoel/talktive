@@ -6,7 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/exception.dart';
 import '../helpers/routes.dart';
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../models/tribe.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
@@ -19,7 +19,7 @@ import 'tag.dart';
 import 'user_info_loader.dart';
 
 class TopicItem extends StatefulWidget {
-  final PublicTopic topic;
+  final Topic topic;
   final bool hasJoined;
   final bool hasSeen;
   final bool showTribeTag;

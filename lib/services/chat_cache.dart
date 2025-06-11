@@ -1,17 +1,17 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import 'server_clock.dart';
 
 class ChatCache extends ChangeNotifier {
-  final Map<String, PrivateChat> _chats = {};
+  final Map<String, Chat> _chats = {};
 
   ChatCache._();
   static final ChatCache _instance = ChatCache._();
   factory ChatCache() => _instance;
 
-  List<PrivateChat> get chats => _chats.values.toList();
-  List<PrivateChat> get activeChats =>
+  List<Chat> get chats => _chats.values.toList();
+  List<Chat> get activeChats =>
       _chats.values.where((chat) => chat.isActive).toList();
 
   List<String> get activeChatIds =>
@@ -21,9 +21,9 @@ class ChatCache extends ChangeNotifier {
           .toList();
 
   // TODO: Use this in the chat page
-  PrivateChat? getChat(String chatId) => _chats[chatId];
+  Chat? getChat(String chatId) => _chats[chatId];
 
-  void updateChats(List<PrivateChat> chats) {
+  void updateChats(List<Chat> chats) {
     _chats.clear();
     for (final chat in chats) {
       _chats[chat.id] = chat;
@@ -31,7 +31,7 @@ class ChatCache extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateChat(PrivateChat chat) {
+  void updateChat(Chat chat) {
     _chats[chat.id] = chat;
     notifyListeners();
   }

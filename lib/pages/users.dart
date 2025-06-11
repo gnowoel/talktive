@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
@@ -96,7 +96,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _fetchUsers(
-    List<PrivateChat> chats, {
+    List<Chat> chats, {
     bool noCache = false,
   }) async {
     final userId = fireauth.instance.currentUser!.uid;
@@ -126,7 +126,7 @@ class _UsersPageState extends State<UsersPage> {
     return users;
   }
 
-  List<String> _knownUserIds(List<PrivateChat> chats) {
+  List<String> _knownUserIds(List<Chat> chats) {
     final userId = fireauth.instance.currentUser!.uid;
     final partnerIds = _partnerIds(userId, chats);
     return [userId, ...partnerIds];
@@ -136,7 +136,7 @@ class _UsersPageState extends State<UsersPage> {
     return _seenUsers.map((user) => user.id).toList();
   }
 
-  List<String> _partnerIds(String userId, List<PrivateChat> chats) {
+  List<String> _partnerIds(String userId, List<Chat> chats) {
     return chats.map((chat) {
       return chat.id.replaceFirst(userId, '');
     }).toList();

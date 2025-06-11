@@ -6,13 +6,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../services/storage.dart';
 import '../services/user_cache.dart';
 import 'status_notice.dart';
 
 class TopicInput extends StatefulWidget {
-  final PublicTopic? topic;
+  final Topic? topic;
   final FocusNode focusNode;
   final Future<void> Function(String) onSendTextMessage;
   final Future<void> Function(String) onSendImageMessage;

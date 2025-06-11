@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -16,7 +16,7 @@ import 'status_notice.dart';
 
 class Input extends StatefulWidget {
   final FocusNode focusNode;
-  final PrivateChat chat;
+  final Chat chat;
   final bool chatPopulated;
   final void Function(String)? onInsertMention;
 

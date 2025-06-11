@@ -5,7 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../helpers/time.dart';
 import '../models/follow.dart';
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import '../models/topic_message.dart';
 import '../models/tribe.dart';
 import '../models/user.dart';
@@ -27,8 +27,8 @@ class Firestore {
 
   int _lastTouchedUser = 0;
   final List<User> _cachedUsers = [];
-  final List<PublicTopic> _cachedTopics = [];
-  final Map<String, List<PublicTopic>> _cachedTopicsByTribe = {};
+  final List<Topic> _cachedTopics = [];
+  final Map<String, List<Topic>> _cachedTopicsByTribe = {};
   int? _lastUserUpdatedAt;
   int? _lastTopicUpdatedAt;
   final Map<String, int?> _lastTribeTopicUpdatedAt = {};
@@ -324,7 +324,7 @@ class Firestore {
     }
   }
 
-  Future<PublicTopic> createTopic({
+  Future<Topic> createTopic({
     required User user,
     required String title,
     required String message,
@@ -363,8 +363,8 @@ class Firestore {
     }
   }
 
-  PublicTopic _createInitialDummyTopic(String topicId, User user, bool isPublic) {
-    return PublicTopic(
+  Topic _createInitialDummyTopic(String topicId, User user, bool isPublic) {
+    return Topic(
       id: topicId,
       createdAt: 0,
       updatedAt: 0,
@@ -431,7 +431,7 @@ class Firestore {
     }
   }
 
-  Future<List<PublicTopic>> fetchTopicsByTribe(
+  Future<List<Topic>> fetchTopicsByTribe(
     String tribeId,
     int serverNow, {
     bool noCache = false,
@@ -467,7 +467,7 @@ class Firestore {
       // Execute the query
       final snapshot = await query.get();
       final fetchedTopics = snapshot.docs.map((doc) {
-        return PublicTopic.fromJson(doc.id, doc.data());
+        return Topic.fromJson(doc.id, doc.data());
       }).toList();
 
       // Get existing cached topics for this tribe
@@ -510,7 +510,7 @@ class Firestore {
     }
   }
 
-  Future<List<PublicTopic>> fetchPublicTopics(
+  Future<List<Topic>> fetchTopics(
     int serverNow, {
     bool noCache = false,
     String? tribeId,
@@ -548,7 +548,7 @@ class Firestore {
       // Execute the query
       final snapshot = await query.get();
       final fetchedTopics = snapshot.docs.map((doc) {
-        return PublicTopic.fromJson(doc.id, doc.data());
+        return Topic.fromJson(doc.id, doc.data());
       }).toList();
 
       // Merge fetched topics with cached topics
@@ -642,16 +642,16 @@ class Firestore {
     return serverNow >= lastCacheTime + oneHour;
   }
 
-  Stream<List<PublicTopic>> subscribeToTopics(String userId) {
+  Stream<List<Topic>> subscribeToTopics(String userId) {
     try {
       final ref = instance.collection('users').doc(userId).collection('topics');
-      final topics = <PublicTopic>[];
+      final topics = <Topic>[];
 
-      final controller = StreamController<List<PublicTopic>>();
+      final controller = StreamController<List<Topic>>();
 
       ref.orderBy('updatedAt', descending: true).snapshots().listen((snapshot) {
         for (final change in snapshot.docChanges) {
-          final topic = PublicTopic.fromJson(
+          final topic = Topic.fromJson(
             change.doc.id,
             Map<String, dynamic>.from(change.doc.data()!),
           );
@@ -679,7 +679,7 @@ class Firestore {
           }
 
           topics.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          controller.add(List<PublicTopic>.from(topics));
+          controller.add(List<Topic>.from(topics));
         }
       });
 
@@ -689,7 +689,7 @@ class Firestore {
     }
   }
 
-  Stream<PublicTopic> subscribeToTopic(String userId, String topicId) {
+  Stream<Topic> subscribeToTopic(String userId, String topicId) {
     try {
       return instance
           .collection('users')
@@ -699,9 +699,9 @@ class Firestore {
           .snapshots()
           .map((doc) {
         if (!doc.exists) {
-          return PublicTopic.dummy();
+          return Topic.dummy();
         }
-        return PublicTopic.fromJson(
+        return Topic.fromJson(
           doc.id,
           Map<String, dynamic>.from(doc.data()!),
         );

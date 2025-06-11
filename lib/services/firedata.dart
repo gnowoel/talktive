@@ -9,7 +9,7 @@ import '../helpers/exception.dart';
 import '../helpers/platform.dart';
 import '../models/admin.dart';
 import '../models/message.dart';
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../models/report.dart';
 // import '../models/text_message.dart';
 import '../models/user.dart';
@@ -32,7 +32,7 @@ class Firedata {
   }
 
   Future<void> sendTextMessage(
-    PrivateChat chat,
+    Chat chat,
     String userId,
     String userDisplayName,
     String userPhotoURL,
@@ -63,7 +63,7 @@ class Firedata {
   }
 
   Future<void> sendImageMessage(
-    PrivateChat chat,
+    Chat chat,
     String userId,
     String userDisplayName,
     String userPhotoURL,
@@ -145,17 +145,17 @@ class Firedata {
     }
   }
 
-  Stream<List<PrivateChat>> subscribeToChats(String userId) {
+  Stream<List<Chat>> subscribeToChats(String userId) {
     try {
       final ref = instance.ref('chats/$userId');
-      final chats = <PrivateChat>[];
+      final chats = <Chat>[];
 
-      final Stream<List<PrivateChat>> stream = StreamGroup.merge([
+      final Stream<List<Chat>> stream = StreamGroup.merge([
         // Handle added chats
         ref.onChildAdded.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
           final chatStub = ChatStub.fromJson(json);
-          final chat = PrivateChat.fromStub(
+          final chat = Chat.fromStub(
             key: event.snapshot.key!,
             value: chatStub,
           );
@@ -168,14 +168,14 @@ class Firedata {
           }
 
           chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          return List<PrivateChat>.from(chats);
+          return List<Chat>.from(chats);
         }),
 
         // Handle changed chats
         ref.onChildChanged.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
           final chatStub = ChatStub.fromJson(json);
-          final chat = PrivateChat.fromStub(
+          final chat = Chat.fromStub(
             key: event.snapshot.key!,
             value: chatStub,
           );
@@ -186,7 +186,7 @@ class Firedata {
           }
 
           chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          return List<PrivateChat>.from(chats);
+          return List<Chat>.from(chats);
         }),
 
         // Handle removed chats
@@ -195,7 +195,7 @@ class Firedata {
           if (index != -1) {
             chats.removeAt(index);
           }
-          return List<PrivateChat>.from(chats);
+          return List<Chat>.from(chats);
         }),
       ]);
 
@@ -205,11 +205,11 @@ class Firedata {
     }
   }
 
-  Stream<PrivateChat> subscribeToChat(String userId, String chatId) {
+  Stream<Chat> subscribeToChat(String userId, String chatId) {
     final ref = instance.ref('chats/$userId/$chatId');
 
     final stream = ref.onValue.map((event) {
-      late PrivateChat chat;
+      late Chat chat;
 
       final snapshot = event.snapshot;
 
@@ -217,9 +217,9 @@ class Firedata {
         final value = snapshot.value;
         final json = Map<String, dynamic>.from(value as Map);
         final stub = ChatStub.fromJson(json);
-        chat = PrivateChat.fromStub(key: chatId, value: stub);
+        chat = Chat.fromStub(key: chatId, value: stub);
       } else {
-        chat = PrivateChat.dummy();
+        chat = Chat.dummy();
       }
 
       return chat;
@@ -322,7 +322,7 @@ class Firedata {
     }
   }
 
-  Future<PrivateChat> greetUser(User self, User other, String message) async {
+  Future<Chat> greetUser(User self, User other, String message) async {
     try {
       final chatId = ([self.id, other.id]..sort()).join();
 
@@ -350,7 +350,7 @@ class Firedata {
     }
   }
 
-  PrivateChat _createInitialDummyChat(
+  Chat _createInitialDummyChat(
     String chatId,
     String chatCreatedAt,
     User other,
@@ -361,7 +361,7 @@ class Firedata {
       partner: UserStub.fromJson(other.toJson()),
       messageCount: 1,
     );
-    return PrivateChat.fromStub(key: chatId, value: stub);
+    return Chat.fromStub(key: chatId, value: stub);
   }
 
   Future<Admin?> fetchAdmin(String? userId) async {

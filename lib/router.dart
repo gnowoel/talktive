@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:talktive/pages/friends.dart';
 
-import 'models/private_chat.dart';
+import 'models/chat.dart';
 import 'models/user.dart';
 import 'pages/backup_account.dart';
 import 'pages/chat.dart';
@@ -88,7 +88,7 @@ Future<GoRouter> initRouter() async {
                         messageCount: 0,
                       );
                       final chat =
-                          PrivateChat.fromStub(key: chatId, value: chatStub);
+                          Chat.fromStub(key: chatId, value: chatStub);
 
                       return ChatPage(chat: chat);
                     },
@@ -200,7 +200,7 @@ Future<GoRouter> initRouter() async {
             partner: userStub,
             messageCount: 0,
           );
-          final chat = PrivateChat.fromStub(key: chatId, value: chatStub);
+          final chat = Chat.fromStub(key: chatId, value: chatStub);
 
           return ReportPage(userId: userId, chat: chat);
         },

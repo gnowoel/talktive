@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:talktive/widgets/status_notice.dart';
 
 import '../helpers/exception.dart';
-import '../models/private_chat.dart';
+import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -19,7 +19,7 @@ import '../widgets/message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ChatPage extends StatefulWidget {
-  final PrivateChat chat;
+  final Chat chat;
 
   const ChatPage({super.key, required this.chat});
 
@@ -35,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   late ChatMessageCache chatMessageCache;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
-  late PrivateChat _chat;
+  late Chat _chat;
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
@@ -143,7 +143,7 @@ class _ChatPageState extends State<ChatPage> {
     _inputKey.currentState?.insertMention(displayName);
   }
 
-  Future<void> _updateReadMessageCount(PrivateChat chat) async {
+  Future<void> _updateReadMessageCount(Chat chat) async {
     final count = _messageCount;
     final selfId = fireauth.instance.currentUser!.uid;
 

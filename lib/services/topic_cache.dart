@@ -1,17 +1,17 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/public_topic.dart';
+import '../models/topic.dart';
 import 'server_clock.dart';
 
 class TopicCache extends ChangeNotifier {
-  final Map<String, PublicTopic> _topics = {};
+  final Map<String, Topic> _topics = {};
 
   TopicCache._();
   static final TopicCache _instance = TopicCache._();
   factory TopicCache() => _instance;
 
-  List<PublicTopic> get topics => _topics.values.toList();
-  List<PublicTopic> get activeTopics =>
+  List<Topic> get topics => _topics.values.toList();
+  List<Topic> get activeTopics =>
       _topics.values.where((topic) => topic.isActive).toList();
 
   List<String> get topicIds => _topics.keys.toList();
@@ -22,9 +22,9 @@ class TopicCache extends ChangeNotifier {
           .map((entry) => entry.key)
           .toList();
 
-  PublicTopic? getTopic(String topicId) => _topics[topicId];
+  Topic? getTopic(String topicId) => _topics[topicId];
 
-  void updateTopics(List<PublicTopic> topics) {
+  void updateTopics(List<Topic> topics) {
     _topics.clear();
     for (final topic in topics) {
       _topics[topic.id] = topic;
@@ -32,7 +32,7 @@ class TopicCache extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateTopic(PublicTopic topic) {
+  void updateTopic(Topic topic) {
     _topics[topic.id] = topic;
     notifyListeners();
   }

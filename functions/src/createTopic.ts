@@ -14,7 +14,7 @@ const db = admin.database();
 
 export const createTopic = onCall(async (request) => {
   try {
-    const { userId, title, message, tribeId } = request.data;
+    const { userId, title, message, tribeId, isPublic } = request.data;
 
     if (!userId || !title || !message) {
       return {
@@ -53,6 +53,7 @@ export const createTopic = onCall(async (request) => {
       messageCount: 0, // Copy to downstream
       lastMessageContent: message, // Copy to downstream
       tribeId: tribeId || null,
+      isPublic: isPublic ?? true,
     });
 
     const topicId = topicRef.id;
@@ -104,6 +105,7 @@ export const createTopic = onCall(async (request) => {
       lastMessageContent: message, // Copy from upstream
       mute: false,
       tribeId: tribeId || null,
+      isPublic: isPublic ?? true,
     });
 
     // Get the creator's followers
@@ -145,6 +147,7 @@ export const createTopic = onCall(async (request) => {
         lastMessageContent: message, // Copy from upstream
         mute: false,
         tribeId: tribeId || null,
+        isPublic: isPublic ?? true,
       });
     }
 

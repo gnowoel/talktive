@@ -6,10 +6,10 @@ class MessageReportConfig {
   static const int flagThreshold = 1;
 
   /// Threshold for hiding a message from normal view
-  static const int hideThreshold = 3;
+  static const int hideThreshold = 5;
 
   /// Threshold for marking a message as severely inappropriate
-  static const int severeThreshold = 8;
+  static const int severeThreshold = 13;
 
   /// Calculate report status from report count
   static String? getReportStatus(int reportCount) {

@@ -41,7 +41,8 @@ class _FriendsPageState extends State<FriendsPage> {
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
       case 3: // Mutual Friends
-        _friends = followCache.getMergedFriends()
+        _friends = followCache
+            .getMergedFriends()
             .where((friend) => followCache.isMutualFriend(friend.id))
             .toList()
           ..sort((a, b) {
@@ -70,17 +71,12 @@ class _FriendsPageState extends State<FriendsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Follow your chat partners to stay connected, even after chats expire.',
+              'Follow people to stay connected, even after chats expire.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Use the filter tabs to view: Following (people you follow), Followers (people following you), or Mutual Friends (both ways).',
-              style: TextStyle(height: 1.5),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'To create topics and share with your followers, visit the Topics tab.',
+              'Have something to share with your followers? Head over to the Topics tab!',
               style: TextStyle(height: 1.5),
             ),
           ],
@@ -98,11 +94,7 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lines = [
-      'Follow some people by tapping',
-      'on your partner\'s avatar.',
-      '',
-    ];
+    final lines = ['Make more friends by', 'being more talk*tive!', ''];
 
     final filterLabels = ['All', 'Following', 'Followers', 'Mutual Friends'];
 
@@ -110,7 +102,7 @@ class _FriendsPageState extends State<FriendsPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Following & Followers'),
+        title: const Text('My Friends'),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),

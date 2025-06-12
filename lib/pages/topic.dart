@@ -89,7 +89,6 @@ class _TopicPageState extends State<TopicPage> {
         .subscribeToTopicMessages(widget.topicId, lastTimestamp)
         .listen((messages) {
       topicMessageCache.addMessages(widget.topicId, messages);
-      _checkUserMessageStatus();
     });
   }
 
@@ -99,6 +98,8 @@ class _TopicPageState extends State<TopicPage> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    topicMessageCache = Provider.of<TopicMessageCache>(context);
+    _userHasSentMessage = _checkUserMessageStatus();
   }
 
   @override
@@ -154,18 +155,15 @@ class _TopicPageState extends State<TopicPage> {
 
   void _updateMessageCount(int count) {
     _messageCount = count;
-    _checkUserMessageStatus();
   }
 
-  void _checkUserMessageStatus() {
+  bool _checkUserMessageStatus() {
     final userId = fireauth.instance.currentUser!.uid;
     final messages = topicMessageCache.getMessages(widget.topicId);
-    
+
     final userMessages = messages.where((msg) => msg.userId == userId).toList();
-    
-    setState(() {
-      _userHasSentMessage = userMessages.isNotEmpty;
-    });
+
+    return userMessages.isNotEmpty;
   }
 
   Future<void> _inviteFollowers() async {
@@ -175,22 +173,23 @@ class _TopicPageState extends State<TopicPage> {
 
     try {
       final userId = fireauth.instance.currentUser!.uid;
-      final result = await firestore.inviteFollowersToTopic(userId, widget.topicId);
-      
+      final result =
+          await firestore.inviteFollowersToTopic(userId, widget.topicId);
+
       if (mounted) {
         final invitedCount = result['invitedCount'] as int;
         final message = result['message'] as String;
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              invitedCount > 0 
-                ? 'Invited $invitedCount followers to join this topic!'
-                : message,
+              invitedCount > 0
+                  ? 'Invited $invitedCount followers to join this topic!'
+                  : message,
             ),
-            backgroundColor: invitedCount > 0 
-              ? theme.colorScheme.primary
-              : theme.colorScheme.surfaceVariant,
+            backgroundColor: invitedCount > 0
+                ? theme.colorScheme.primary
+                : theme.colorScheme.surfaceVariant,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -282,11 +281,13 @@ class _TopicPageState extends State<TopicPage> {
           actions: [
             if (_userHasSentMessage)
               PopupMenuButton<String>(
-                onSelected: _isInviting ? null : (value) {
-                  if (value == 'invite') {
-                    _inviteFollowers();
-                  }
-                },
+                onSelected: _isInviting
+                    ? null
+                    : (value) {
+                        if (value == 'invite') {
+                          _inviteFollowers();
+                        }
+                      },
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: 'invite',
@@ -331,7 +332,6 @@ class _TopicPageState extends State<TopicPage> {
                     onInsertMention: _insertMention,
                   ),
                 ),
-
                 TopicInput(
                   key: _inputKey,
                   topic: _topic,

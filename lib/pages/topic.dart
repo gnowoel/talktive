@@ -11,6 +11,7 @@ import '../services/follow_cache.dart';
 import '../services/topic_message_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
+
 import '../widgets/layout.dart';
 import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
@@ -47,6 +48,8 @@ class _TopicPageState extends State<TopicPage> {
 
   Topic? _topic;
   int _messageCount = 0;
+  bool _userHasSentMessage = false;
+  bool _isInviting = false;
 
   @override
   void initState() {
@@ -86,6 +89,7 @@ class _TopicPageState extends State<TopicPage> {
         .subscribeToTopicMessages(widget.topicId, lastTimestamp)
         .listen((messages) {
       topicMessageCache.addMessages(widget.topicId, messages);
+      _checkUserMessageStatus();
     });
   }
 
@@ -150,6 +154,59 @@ class _TopicPageState extends State<TopicPage> {
 
   void _updateMessageCount(int count) {
     _messageCount = count;
+    _checkUserMessageStatus();
+  }
+
+  void _checkUserMessageStatus() {
+    final userId = fireauth.instance.currentUser!.uid;
+    final messages = topicMessageCache.getMessages(widget.topicId);
+    
+    final userMessages = messages.where((msg) => msg.userId == userId).toList();
+    
+    setState(() {
+      _userHasSentMessage = userMessages.isNotEmpty;
+    });
+  }
+
+  Future<void> _inviteFollowers() async {
+    if (_isInviting) return;
+
+    setState(() => _isInviting = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      final result = await firestore.inviteFollowersToTopic(userId, widget.topicId);
+      
+      if (mounted) {
+        final invitedCount = result['invitedCount'] as int;
+        final message = result['message'] as String;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              invitedCount > 0 
+                ? 'Invited $invitedCount followers to join this topic!'
+                : message,
+            ),
+            backgroundColor: invitedCount > 0 
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surfaceVariant,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isInviting = false);
+      }
+    }
   }
 
   void _insertMention(String displayName) {
@@ -223,6 +280,38 @@ class _TopicPageState extends State<TopicPage> {
             ),
           ),
           actions: [
+            if (_userHasSentMessage)
+              PopupMenuButton<String>(
+                onSelected: _isInviting ? null : (value) {
+                  if (value == 'invite') {
+                    _inviteFollowers();
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'invite',
+                    enabled: !_isInviting,
+                    child: Row(
+                      children: [
+                        _isInviting
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    theme.colorScheme.primary,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.person_add, size: 18),
+                        const SizedBox(width: 8),
+                        Text(_isInviting ? 'Inviting...' : 'Invite Followers'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             RepaintBoundary(child: TopicHearts(topic: _topic)),
             const SizedBox(width: 16),
           ],
@@ -242,6 +331,7 @@ class _TopicPageState extends State<TopicPage> {
                     onInsertMention: _insertMention,
                   ),
                 ),
+
                 TopicInput(
                   key: _inputKey,
                   topic: _topic,

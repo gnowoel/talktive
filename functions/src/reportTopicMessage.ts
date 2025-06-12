@@ -23,6 +23,7 @@ const db = admin.database();
 const firestore = admin.firestore();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
+const TOPIC_REPORT_THRESHOLD = 5; // Topic becomes private after this many reports
 
 interface ReportTopicMessageRequest {
   topicId: string;
@@ -116,6 +117,9 @@ const resolveTopicMessageReport = async (reportId: string, report: FirestoreTopi
 
     // Update the topic message's report count in Firestore
     await updateTopicMessageReportCount(report.topicId, report.messageId);
+
+    // Update the topic's report count and check if it should be made private
+    await updateTopicReportCountAndCheckPrivacy(report.topicId);
 
     // Update all chats where this user is a partner
     await updatePartnerChatsRevivedAt(report.messageAuthorId, newRevivedAt);
@@ -220,7 +224,43 @@ const calculateReputationScore = (user: User): number => {
   return Math.max(0.0, Math.min(1.0, score));
 };
 
+const updateTopicReportCountAndCheckPrivacy = async (topicId: string) => {
+  try {
+    const topicRef = firestore.collection('topics').doc(topicId);
+
+    await firestore.runTransaction(async (transaction) => {
+      const topicDoc = await transaction.get(topicRef);
+      
+      if (!topicDoc.exists) {
+        logger.error(`Topic ${topicId} not found`);
+        return;
+      }
+
+      const topicData = topicDoc.data();
+      const currentReportCount = topicData?.reportCount || 0;
+      const newReportCount = currentReportCount + 1;
+      const isCurrentlyPublic = topicData?.isPublic ?? true;
+
+      // Always increment the report count
+      const updateData: any = { reportCount: newReportCount };
+
+      // If topic is public and exceeds threshold, make it private
+      if (isCurrentlyPublic && newReportCount >= TOPIC_REPORT_THRESHOLD) {
+        updateData.isPublic = false;
+        logger.info(`Topic ${topicId} converted to private due to ${newReportCount} reports`);
+      }
+
+      transaction.update(topicRef, updateData);
+      logger.info(`Topic ${topicId} report count updated to ${newReportCount}`);
+    });
+  } catch (error) {
+    logger.error(`Error updating topic ${topicId} report count:`, error);
+  }
+};
+
 const updatePartnerChatsRevivedAt = async (userId: string, revivedAt: number) => {
+</text>
+
   try {
     // Get all chat IDs where this user is a partner
     const userChatsRef = db.ref(`chats/${userId}`);

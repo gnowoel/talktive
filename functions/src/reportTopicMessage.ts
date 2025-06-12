@@ -23,6 +23,14 @@ const db = admin.database();
 const firestore = admin.firestore();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
+
+// Message Report Configuration (matches Dart MessageReportConfig)
+const MESSAGE_REPORT_CONFIG = {
+  flagThreshold: 1,
+  hideThreshold: 5,
+  severeThreshold: 13,
+} as const;
+
 // Topic becomes private using graduated threshold: max(1, 14 - messageCount)
 // This aligns with MessageReportConfig.severeThreshold = 13
 
@@ -196,7 +204,7 @@ const updateTopicMessageReportCount = async (topicId: string, messageId: string)
 
     await firestore.runTransaction(async (transaction) => {
       const messageDoc = await transaction.get(messageRef);
-      
+
       if (!messageDoc.exists) {
         logger.error(`Topic message ${messageId} not found in topic ${topicId}`);
         return;
@@ -231,7 +239,7 @@ const updateTopicReportCountAndCheckPrivacy = async (topicId: string) => {
 
     await firestore.runTransaction(async (transaction) => {
       const topicDoc = await transaction.get(topicRef);
-      
+
       if (!topicDoc.exists) {
         logger.error(`Topic ${topicId} not found`);
         return;
@@ -244,11 +252,11 @@ const updateTopicReportCountAndCheckPrivacy = async (topicId: string) => {
       const isCurrentlyPublic = topicData?.isPublic ?? true;
 
       // Always increment the report count
-      const updateData: any = { reportCount: newReportCount };
+      const updateData: { reportCount: number; isPublic?: boolean } = { reportCount: newReportCount };
 
-      // Calculate graduated threshold: max(1, 14 - messageCount)
-      const threshold = Math.max(1, 14 - messageCount);
-      
+      // Calculate graduated threshold: max(1, severeThreshold + 1 - messageCount)
+      const threshold = Math.max(1, MESSAGE_REPORT_CONFIG.severeThreshold + 1 - messageCount);
+
       // If topic is public and reports exceed threshold, make it private
       if (isCurrentlyPublic && messageCount > 0 && newReportCount >= threshold) {
         updateData.isPublic = false;
@@ -264,8 +272,6 @@ const updateTopicReportCountAndCheckPrivacy = async (topicId: string) => {
 };
 
 const updatePartnerChatsRevivedAt = async (userId: string, revivedAt: number) => {
-</text>
-
   try {
     // Get all chat IDs where this user is a partner
     const userChatsRef = db.ref(`chats/${userId}`);

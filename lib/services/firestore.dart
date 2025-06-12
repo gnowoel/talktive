@@ -831,6 +831,29 @@ class Firestore {
     }
   }
 
+  Future<Map<String, dynamic>> inviteFollowersToTopic(String userId, String topicId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('inviteFollowersToTopic');
+
+      final result = await callable.call({
+        'userId': userId,
+        'topicId': topicId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to invite followers to topic');
+      }
+
+      return {
+        'invitedCount': result.data['invitedCount'] ?? 0,
+        'message': result.data['message'] ?? '',
+      };
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<void> updateTopicReadMessageCount(
     String userId,
     String topicId, {

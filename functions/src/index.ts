@@ -9,6 +9,7 @@ export { onTopicMessageCreated } from './onTopicMessageCreated';
 export { initiateConversation } from './initiateConversation';
 export { follow, unfollow } from './follow';
 export { createTopic } from './createTopic';
+export { inviteFollowersToTopic } from './inviteFollowersToTopic';
 export { createTribe } from './createTribe';
 export { setupTribes } from './setupTribes';
 export { joinTopic } from './joinTopic';

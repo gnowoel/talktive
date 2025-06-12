@@ -254,8 +254,8 @@ const updateTopicReportCountAndCheckPrivacy = async (topicId: string) => {
       // Always increment the report count
       const updateData: { reportCount: number; isPublic?: boolean } = { reportCount: newReportCount };
 
-      // Calculate graduated threshold: max(1, severeThreshold + 1 - messageCount)
-      const threshold = Math.max(1, MESSAGE_REPORT_CONFIG.severeThreshold + 1 - messageCount);
+      // Calculate graduated threshold
+      const threshold = Math.max(1, MESSAGE_REPORT_CONFIG.severeThreshold + 1 - messageCount) * messageCount;
 
       // If topic is public and reports exceed threshold, make it private
       if (isCurrentlyPublic && messageCount > 0 && newReportCount >= threshold) {

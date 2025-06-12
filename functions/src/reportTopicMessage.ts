@@ -23,7 +23,8 @@ const db = admin.database();
 const firestore = admin.firestore();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
-// Topic becomes private when reportCount >= messageCount (ratio >= 1)
+// Topic becomes private using graduated threshold: max(1, 14 - messageCount)
+// This aligns with MessageReportConfig.severeThreshold = 13
 
 interface ReportTopicMessageRequest {
   topicId: string;
@@ -245,10 +246,13 @@ const updateTopicReportCountAndCheckPrivacy = async (topicId: string) => {
       // Always increment the report count
       const updateData: any = { reportCount: newReportCount };
 
-      // If topic is public and report ratio >= 1, make it private
-      if (isCurrentlyPublic && messageCount > 0 && newReportCount >= messageCount) {
+      // Calculate graduated threshold: max(1, 14 - messageCount)
+      const threshold = Math.max(1, 14 - messageCount);
+      
+      // If topic is public and reports exceed threshold, make it private
+      if (isCurrentlyPublic && messageCount > 0 && newReportCount >= threshold) {
         updateData.isPublic = false;
-        logger.info(`Topic ${topicId} converted to private due to report ratio: ${newReportCount}/${messageCount} = ${(newReportCount/messageCount).toFixed(2)}`);
+        logger.info(`Topic ${topicId} converted to private: ${newReportCount} reports >= ${threshold} threshold (${messageCount} messages)`);
       }
 
       transaction.update(topicRef, updateData);

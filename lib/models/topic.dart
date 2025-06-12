@@ -12,6 +12,7 @@ class Topic extends Conversation {
   final bool? mute;
   final String? tribeId;
   final bool isPublic;
+  final int reportCount;
 
   const Topic({
     required super.id,
@@ -25,6 +26,7 @@ class Topic extends Conversation {
     this.mute,
     this.tribeId,
     this.isPublic = true,
+    this.reportCount = 0,
   }) : super(type: 'topic');
 
   Map<String, dynamic> toJson() {
@@ -40,6 +42,7 @@ class Topic extends Conversation {
       'mute': mute,
       'tribeId': tribeId,
       'isPublic': isPublic,
+      'reportCount': reportCount,
     };
   }
 
@@ -55,6 +58,7 @@ class Topic extends Conversation {
     bool? mute,
     String? tribeId,
     bool? isPublic,
+    int? reportCount,
   }) {
     return Topic(
       id: id ?? this.id,
@@ -68,6 +72,7 @@ class Topic extends Conversation {
       mute: mute ?? this.mute,
       tribeId: tribeId ?? this.tribeId,
       isPublic: isPublic ?? this.isPublic,
+      reportCount: reportCount ?? this.reportCount,
     );
   }
 
@@ -95,6 +100,7 @@ class Topic extends Conversation {
       mute: json['mute'] as bool?,
       tribeId: json['tribeId'] as String?,
       isPublic: json['isPublic'] as bool? ?? true,
+      reportCount: json['reportCount'] as int? ?? 0,
     );
   }
 
@@ -111,6 +117,7 @@ class Topic extends Conversation {
       messageCount: 0,
       tribeId: null,
       isPublic: true,
+      reportCount: 0,
     );
   }
 

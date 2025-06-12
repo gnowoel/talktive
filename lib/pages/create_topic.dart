@@ -183,197 +183,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               color: theme.colorScheme.primary,
                             ),
                             const SizedBox(height: 32),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainer,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.visibility,
-                                        size: 20,
-                                        color:
-                                            theme.colorScheme.onSurfaceVariant,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Topic Visibility',
-                                        style: theme.textTheme.titleSmall
-                                            ?.copyWith(
-                                          color: theme
-                                              .colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: theme.colorScheme.outline
-                                            .withValues(alpha: 0.3),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        InkWell(
-                                          onTap: () =>
-                                              setState(() => _isPublic = true),
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(8),
-                                            topRight: Radius.circular(8),
-                                          ),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: _isPublic
-                                                  ? theme.colorScheme
-                                                      .primaryContainer
-                                                      .withValues(alpha: 0.5)
-                                                  : theme.colorScheme
-                                                      .surfaceContainerLow,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                topLeft: Radius.circular(8),
-                                                topRight: Radius.circular(8),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Radio<bool>(
-                                                  value: true,
-                                                  groupValue: _isPublic,
-                                                  onChanged: (value) =>
-                                                      setState(() =>
-                                                          _isPublic = true),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        '🌍 Public Topic',
-                                                        style: theme.textTheme
-                                                            .bodyMedium
-                                                            ?.copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        'Appears on Topics tab for everyone to join',
-                                                        style: theme
-                                                            .textTheme.bodySmall
-                                                            ?.copyWith(
-                                                          color: theme
-                                                              .colorScheme
-                                                              .onSurfaceVariant,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Divider(
-                                          height: 1,
-                                          color: theme.colorScheme.outline
-                                              .withValues(alpha: 0.3),
-                                        ),
-                                        InkWell(
-                                          onTap: () =>
-                                              setState(() => _isPublic = false),
-                                          borderRadius: const BorderRadius.only(
-                                            bottomLeft: Radius.circular(8),
-                                            bottomRight: Radius.circular(8),
-                                          ),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: !_isPublic
-                                                  ? theme.colorScheme
-                                                      .primaryContainer
-                                                      .withValues(alpha: 0.5)
-                                                  : theme.colorScheme
-                                                      .surfaceContainerLow,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                bottomLeft: Radius.circular(8),
-                                                bottomRight: Radius.circular(8),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Radio<bool>(
-                                                  value: false,
-                                                  groupValue: _isPublic,
-                                                  onChanged: (value) =>
-                                                      setState(() =>
-                                                          _isPublic = false),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        '🔒 Private Topic',
-                                                        style: theme.textTheme
-                                                            .bodyMedium
-                                                            ?.copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        'Only visible to your followers',
-                                                        style: theme
-                                                            .textTheme.bodySmall
-                                                            ?.copyWith(
-                                                          color: theme
-                                                              .colorScheme
-                                                              .onSurfaceVariant,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'All your followers will be notified when you create any topic.',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            buildAboutTopics(),
+                            // buildTopicVisibility(),
                             const SizedBox(height: 32),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,7 +293,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               controller: _titleController,
                               decoration: const InputDecoration(
                                 labelText: 'Topic Title',
-                                hintText: 'What would you like to discuss?',
+                                hintText: 'The subject of your topic...',
                               ),
                               validator: _validateTitle,
                               maxLength: 100,
@@ -492,8 +303,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               controller: _messageController,
                               decoration: const InputDecoration(
                                 labelText: 'First Message',
-                                hintText:
-                                    'Share something personal or ask something specific...',
+                                hintText: 'Share or ask something...',
                               ),
                               validator: _validateMessage,
                               minLines: 2,
@@ -523,6 +333,208 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildAboutTopics() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 20,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'About Topics',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your topic will be visible to everyone in the Topics tab. All your followers will be notified when you create it.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTopicVisibility() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.visibility,
+                size: 20,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Topic Visibility',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Column(
+              children: [
+                InkWell(
+                  onTap: () => setState(() => _isPublic = true),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _isPublic
+                          ? theme.colorScheme.primaryContainer
+                              .withValues(alpha: 0.5)
+                          : theme.colorScheme.surfaceContainerLow,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Radio<bool>(
+                          value: true,
+                          groupValue: _isPublic,
+                          onChanged: (value) =>
+                              setState(() => _isPublic = true),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '🌍 Public Topic',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Appears on Topics tab for everyone to join',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Divider(
+                  height: 1,
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                ),
+                InkWell(
+                  onTap: () => setState(() => _isPublic = false),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: !_isPublic
+                          ? theme.colorScheme.primaryContainer
+                              .withValues(alpha: 0.5)
+                          : theme.colorScheme.surfaceContainerLow,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Radio<bool>(
+                          value: false,
+                          groupValue: _isPublic,
+                          onChanged: (value) =>
+                              setState(() => _isPublic = false),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '🔒 Private Topic',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Only visible to your followers',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'All your followers will be notified when you create any topic.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
       ),
     );
   }

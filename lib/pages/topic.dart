@@ -166,6 +166,28 @@ class _TopicPageState extends State<TopicPage> {
     return userMessages.isNotEmpty;
   }
 
+  Future<bool?> _showInviteConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invite Followers'),
+        content: const Text(
+          'This will notify your followers and add this topic to their chat list. Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _inviteFollowers() async {
     if (_isInviting) return;
 
@@ -283,9 +305,13 @@ class _TopicPageState extends State<TopicPage> {
               PopupMenuButton<String>(
                 onSelected: _isInviting
                     ? null
-                    : (value) {
+                    : (value) async {
                         if (value == 'invite') {
-                          _inviteFollowers();
+                          final confirmed =
+                              await _showInviteConfirmationDialog();
+                          if (confirmed == true) {
+                            _inviteFollowers();
+                          }
                         }
                       },
                 itemBuilder: (context) => [

@@ -187,9 +187,8 @@ class _TopicPageState extends State<TopicPage> {
                   ? 'Invited $invitedCount followers to join this topic!'
                   : message,
             ),
-            backgroundColor: invitedCount > 0
-                ? theme.colorScheme.primary
-                : theme.colorScheme.surfaceVariant,
+            backgroundColor:
+                invitedCount > 0 ? theme.colorScheme.primary : null,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -279,7 +278,8 @@ class _TopicPageState extends State<TopicPage> {
             ),
           ),
           actions: [
-            if (_userHasSentMessage)
+            RepaintBoundary(child: TopicHearts(topic: _topic)),
+            if (_userHasSentMessage) ...[
               PopupMenuButton<String>(
                 onSelected: _isInviting
                     ? null
@@ -313,8 +313,9 @@ class _TopicPageState extends State<TopicPage> {
                   ),
                 ],
               ),
-            RepaintBoundary(child: TopicHearts(topic: _topic)),
-            const SizedBox(width: 16),
+            ] else ...[
+              const SizedBox(width: 16),
+            ],
           ],
         ),
         body: SafeArea(

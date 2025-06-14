@@ -115,10 +115,18 @@ class _TopicMessageListState extends State<TopicMessageList> {
     if (_messages.isEmpty) return false; // No messages to show placeholder for
 
     final readCount = widget.readMessageCount ?? 0;
-    return readCount > 0;
+    return readCount > 10; // Only skip if more than 10 messages
   }
 
-  void _showAllMessagesPressed() {
+  Future<void> _showAllMessagesPressed() async {
+    final readCount = widget.readMessageCount ?? 0;
+
+    // Show confirmation dialog if more than 100 messages
+    if (readCount > 100) {
+      final confirmed = await _showConfirmationDialog(readCount);
+      if (confirmed != true) return;
+    }
+
     setState(() {
       _showAllMessages = true;
     });
@@ -130,33 +138,58 @@ class _TopicMessageListState extends State<TopicMessageList> {
     });
   }
 
-  Widget _buildPlaceholder() {
-    final readCount = widget.readMessageCount ?? 0;
-
-    return Column(
-      children: [
-        Expanded(
-          child: Center(
-            child: SkippedMessagesPlaceholder(
-              messageCount: readCount,
-              onTap: _showAllMessagesPressed,
-            ),
-          ),
+  Future<bool?> _showConfirmationDialog(int messageCount) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Load All Messages'),
+        content: Text(
+          'Loading $messageCount messages may take some time and could affect performance. Continue?',
         ),
-      ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Load'),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildMessageListView() {
+    final showPlaceholder = _shouldShowPlaceholder();
+    final readCount = widget.readMessageCount ?? 0;
+
+    // Calculate how many messages to skip and show
+    final messagesToSkip = showPlaceholder ? readCount : 0;
+    final visibleMessages = _messages.skip(messagesToSkip).toList();
+
+    final itemCount =
+        showPlaceholder ? visibleMessages.length + 1 : visibleMessages.length;
+
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
       child: NotificationListener<ScrollNotification>(
         onNotification: _handleScrollNotification,
         child: ListView.builder(
           controller: widget.scrollController,
-          itemCount: _messages.length,
+          itemCount: itemCount,
           itemBuilder: (context, index) {
-            final message = _messages[index];
+            // Show placeholder as first item
+            if (showPlaceholder && index == 0) {
+              return SkippedMessagesPlaceholder(
+                messageCount: messagesToSkip,
+                onTap: _showAllMessagesPressed,
+              );
+            }
+
+            // Adjust index for actual messages
+            final messageIndex = showPlaceholder ? index - 1 : index;
+            final message = visibleMessages[messageIndex];
 
             if (message is TopicImageMessage) {
               return TopicImageMessageItem(
@@ -189,9 +222,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
     return Listener(
       onPointerDown: (details) => FocusScope.of(context).unfocus(),
       onPointerMove: (details) => FocusScope.of(context).unfocus(),
-      child: _shouldShowPlaceholder()
-          ? _buildPlaceholder()
-          : _buildMessageListView(),
+      child: _buildMessageListView(),
     );
   }
 }

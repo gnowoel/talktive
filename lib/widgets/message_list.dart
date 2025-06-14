@@ -132,8 +132,7 @@ class _MessageListState extends State<MessageList> {
 
     final readCount = widget.chat.readMessageCount ?? 0;
     final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-    // Only show placeholder if we have enough messages to warrant it
-    return readCount > totalMessagesToShow && readCount > 25;
+    return readCount > totalMessagesToShow;
   }
 
   void _showAllMessagesPressed() {
@@ -183,13 +182,15 @@ class _MessageListState extends State<MessageList> {
 
     // Always show first 10 messages + last 15 read messages as context
     final firstMessagesCount = readCount >= 10 ? 10 : readCount;
-    final maxLastReadContext = readCount - firstMessagesCount;
-    final lastReadContextCount = (15 + _additionalMessagesRevealed).clamp(0, maxLastReadContext.clamp(0, readCount));
+    final maxContextCount =
+        (readCount - firstMessagesCount).clamp(0, readCount);
+    final lastReadContextCount =
+        (15 + _additionalMessagesRevealed).clamp(0, maxContextCount);
 
     // Calculate messages to skip between first 10 and last context
     final totalContextShown = firstMessagesCount + lastReadContextCount;
-    final messagesToSkip = showPlaceholder && totalContextShown < readCount
-        ? (readCount - totalContextShown).clamp(0, readCount)
+    final messagesToSkip = showPlaceholder
+        ? (readCount > totalContextShown ? readCount - totalContextShown : 0)
         : 0;
 
     // Determine if we should show separator
@@ -208,7 +209,7 @@ class _MessageListState extends State<MessageList> {
       }
     }
 
-    // Calculate total item count with safety checks
+    // Calculate total item count
     var itemCount = 0;
     if (showPlaceholder) {
       itemCount += firstMessagesCount; // First 10 messages
@@ -218,9 +219,8 @@ class _MessageListState extends State<MessageList> {
       itemCount += readCount; // All read messages (no placeholder)
     }
     if (showSeparator) itemCount += 1; // Add separator
-
-    // Ensure we don't exceed actual message count
-    final unreadCount = (_messages.length - readCount).clamp(0, _messages.length);
+    final unreadCount =
+        (_messages.length - readCount).clamp(0, _messages.length);
     itemCount += unreadCount; // Add unread messages
 
     return ListView.builder(
@@ -229,6 +229,7 @@ class _MessageListState extends State<MessageList> {
       itemBuilder: (context, index) {
         // Handle first 10 messages (always shown)
         if (showPlaceholder && index < firstMessagesCount) {
+          if (index >= _messages.length) return const SizedBox.shrink();
           final message = _messages[index];
           return _buildMessageItem(message);
         }
@@ -248,7 +249,10 @@ class _MessageListState extends State<MessageList> {
           final messageIndex = readCount - lastReadContextCount + contextIndex;
 
           // Add bounds checking to prevent range errors
-          if (messageIndex < 0 || messageIndex >= _messages.length || contextIndex < 0) {
+          if (messageIndex < 0 ||
+              messageIndex >= _messages.length ||
+              contextIndex < 0 ||
+              messageIndex < firstMessagesCount) {
             return const SizedBox.shrink();
           }
 
@@ -271,10 +275,8 @@ class _MessageListState extends State<MessageList> {
         final messageIndex =
             readCount + (index - contextOffset - separatorOffset);
 
-        // Add comprehensive bounds checking to prevent range errors
-        if (messageIndex < 0 ||
-            messageIndex >= _messages.length ||
-            index < contextOffset + separatorOffset) {
+        // Add bounds checking to prevent range errors
+        if (messageIndex < 0 || messageIndex >= _messages.length) {
           return const SizedBox.shrink();
         }
 

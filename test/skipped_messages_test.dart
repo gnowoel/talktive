@@ -12,12 +12,12 @@ class SkippedMessagesLogic {
     if (showAllMessages) return false; // User chose to see all messages
     if (isNew) return false; // New chat, show info instead
 
-    return readMessageCount > 20; // Only skip if more than 20 messages
+    return readMessageCount > 25; // Only skip if more than 25 messages
   }
 
   static bool shouldShowConfirmationDialog(int readMessageCount) {
-    final messagesToSkip = readMessageCount - 10;
-    return messagesToSkip > 100;
+    // No confirmation dialog needed for the new simplified approach
+    return false;
   }
 
   static List<int> getVisibleMessageIndices({
@@ -25,8 +25,8 @@ class SkippedMessagesLogic {
     required int readMessageCount,
     required bool showPlaceholder,
   }) {
-    // Skip oldest messages but keep last 10 read messages for context
-    final messagesToSkip = showPlaceholder ? readMessageCount - 10 : 0;
+    // Skip oldest messages but keep last 25 read messages for context
+    final messagesToSkip = showPlaceholder ? readMessageCount - 25 : 0;
     return List.generate(
       totalMessages - messagesToSkip,
       (index) => index + messagesToSkip,
@@ -60,7 +60,7 @@ class SkippedMessagesLogic {
   }) {
     if (!showSeparator) return null;
 
-    final readMessagesInVisible = showPlaceholder ? 10 : readMessageCount;
+    final readMessagesInVisible = showPlaceholder ? 25 : readMessageCount;
     final placeholderOffset = showPlaceholder ? 1 : 0;
     return placeholderOffset + readMessagesInVisible;
   }
@@ -68,7 +68,7 @@ class SkippedMessagesLogic {
 
 void main() {
   group('Skipped Messages Logic Tests', () {
-    test('should not show placeholder when read messages <= 20', () {
+    test('should not show placeholder when read messages <= 25', () {
       // Test cases where placeholder should NOT be shown
       expect(
         SkippedMessagesLogic.shouldShowPlaceholder(
@@ -90,7 +90,7 @@ void main() {
 
       expect(
         SkippedMessagesLogic.shouldShowPlaceholder(
-          readMessageCount: 20,
+          readMessageCount: 25,
           showAllMessages: false,
           isNew: false,
         ),
@@ -98,10 +98,10 @@ void main() {
       );
     });
 
-    test('should show placeholder when read messages > 20', () {
+    test('should show placeholder when read messages > 25', () {
       expect(
         SkippedMessagesLogic.shouldShowPlaceholder(
-          readMessageCount: 21,
+          readMessageCount: 26,
           showAllMessages: false,
           isNew: false,
         ),
@@ -161,29 +161,25 @@ void main() {
       );
     });
 
-    test('should show confirmation dialog when messages to skip > 100', () {
-      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(50),
-          false); // 50-10=40 to skip
-      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(110),
-          false); // 110-10=100 to skip
-      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(111),
-          true); // 111-10=101 to skip
-      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(500),
-          true); // 500-10=490 to skip
+    test('should not show confirmation dialog with new simplified approach',
+        () {
+      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(50), false);
+      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(110), false);
+      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(111), false);
+      expect(SkippedMessagesLogic.shouldShowConfirmationDialog(500), false);
     });
 
     test('should calculate visible messages correctly', () {
       // Test case: 50 total messages, 30 read, placeholder shown
-      // Skip 20 oldest (30-10), keep 10 context + 20 unread = 30 visible
+      // Skip 5 oldest (30-25), keep 25 context + 20 unread = 45 visible
       final visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
         totalMessages: 50,
         readMessageCount: 30,
         showPlaceholder: true,
       );
 
-      expect(visibleIndices.length, 30); // 50 - (30-10) = 30 visible
-      expect(
-          visibleIndices.first, 20); // Starts from message 20 (skip first 20)
+      expect(visibleIndices.length, 45); // 50 - (30-25) = 45 visible
+      expect(visibleIndices.first, 5); // Starts from message 5 (skip first 5)
       expect(visibleIndices.last, 49); // Ends at message 49
     });
 
@@ -282,14 +278,14 @@ void main() {
     });
 
     test('should calculate separator index correctly', () {
-      // With placeholder: placeholder(0) + 10 context messages = index 11
+      // With placeholder: placeholder(0) + 25 context messages = index 26
       expect(
         SkippedMessagesLogic.getSeparatorIndex(
-          readMessageCount: 25,
+          readMessageCount: 30,
           showPlaceholder: true,
           showSeparator: true,
         ),
-        11,
+        26,
       );
 
       // Without placeholder: 25 read messages = index 25
@@ -314,9 +310,9 @@ void main() {
     });
 
     group('Integration scenarios', () {
-      test('scenario: few messages (15 total, 12 read)', () {
-        const totalMessages = 15;
-        const readMessages = 12;
+      test('scenario: few messages (20 total, 15 read)', () {
+        const totalMessages = 20;
+        const readMessages = 15;
 
         final showPlaceholder = SkippedMessagesLogic.shouldShowPlaceholder(
           readMessageCount: readMessages,
@@ -325,7 +321,7 @@ void main() {
         );
 
         expect(
-            showPlaceholder, false); // Should not show placeholder (12 <= 20)
+            showPlaceholder, false); // Should not show placeholder (15 <= 25)
 
         final visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -333,12 +329,12 @@ void main() {
           showPlaceholder: showPlaceholder,
         );
 
-        expect(visibleIndices.length, 15); // All messages visible
+        expect(visibleIndices.length, 20); // All messages visible
       });
 
-      test('scenario: some messages (42 total, 24 read)', () {
-        const totalMessages = 42;
-        const readMessages = 24;
+      test('scenario: some messages (50 total, 35 read)', () {
+        const totalMessages = 50;
+        const readMessages = 35;
 
         final showPlaceholder = SkippedMessagesLogic.shouldShowPlaceholder(
           readMessageCount: readMessages,
@@ -346,7 +342,7 @@ void main() {
           isNew: false,
         );
 
-        expect(showPlaceholder, true); // Should show placeholder (24 > 20)
+        expect(showPlaceholder, true); // Should show placeholder (35 > 25)
 
         final visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -354,9 +350,9 @@ void main() {
           showPlaceholder: showPlaceholder,
         );
 
-        expect(visibleIndices.length, 28); // 42 - (24-10) = 28 visible
+        expect(visibleIndices.length, 40); // 50 - (35-25) = 40 visible
         expect(
-            visibleIndices.first, 14); // Starts from message 14 (skip first 14)
+            visibleIndices.first, 10); // Starts from message 10 (skip first 10)
 
         final showSeparator = SkippedMessagesLogic.shouldShowSeparator(
           readMessageCount: readMessages,
@@ -364,7 +360,7 @@ void main() {
         );
 
         expect(
-            showSeparator, true); // Should show separator (24 read, 42 total)
+            showSeparator, true); // Should show separator (35 read, 50 total)
 
         final itemCount = SkippedMessagesLogic.getItemCount(
           visibleMessageCount: visibleIndices.length,
@@ -372,12 +368,12 @@ void main() {
           showSeparator: showSeparator,
         );
 
-        expect(itemCount, 30); // 28 messages + 1 placeholder + 1 separator
+        expect(itemCount, 42); // 40 messages + 1 placeholder + 1 separator
       });
 
-      test('scenario: many messages (200 total, 150 read)', () {
-        const totalMessages = 200;
-        const readMessages = 150;
+      test('scenario: many messages (100 total, 80 read)', () {
+        const totalMessages = 100;
+        const readMessages = 80;
 
         final showPlaceholder = SkippedMessagesLogic.shouldShowPlaceholder(
           readMessageCount: readMessages,
@@ -385,13 +381,13 @@ void main() {
           isNew: false,
         );
 
-        expect(showPlaceholder, true); // Should show placeholder (150 > 20)
+        expect(showPlaceholder, true); // Should show placeholder (80 > 25)
 
         final showConfirmation =
             SkippedMessagesLogic.shouldShowConfirmationDialog(readMessages);
 
         expect(showConfirmation,
-            true); // Should show confirmation dialog (150-10=140 > 100)
+            false); // No confirmation dialog with simplified approach
 
         final visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -399,9 +395,9 @@ void main() {
           showPlaceholder: showPlaceholder,
         );
 
-        expect(visibleIndices.length, 60); // 200 - (150-10) = 60 visible
-        expect(visibleIndices.first,
-            140); // Starts from message 140 (skip first 140)
+        expect(visibleIndices.length, 45); // 100 - (80-25) = 45 visible
+        expect(
+            visibleIndices.first, 55); // Starts from message 55 (skip first 55)
 
         final showSeparator = SkippedMessagesLogic.shouldShowSeparator(
           readMessageCount: readMessages,
@@ -409,7 +405,7 @@ void main() {
         );
 
         expect(
-            showSeparator, true); // Should show separator (150 read, 200 total)
+            showSeparator, true); // Should show separator (80 read, 100 total)
 
         final separatorIndex = SkippedMessagesLogic.getSeparatorIndex(
           readMessageCount: readMessages,
@@ -418,7 +414,7 @@ void main() {
         );
 
         expect(separatorIndex,
-            11); // placeholder(0) + 10 context messages = index 11
+            26); // placeholder(0) + 25 context messages = index 26
       });
     });
   });

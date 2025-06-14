@@ -116,23 +116,14 @@ class _TopicMessageListState extends State<TopicMessageList> {
     if (_messages.isEmpty) return false; // No messages to show placeholder for
 
     final readCount = widget.readMessageCount ?? 0;
-    return readCount > 20; // Only skip if more than 20 messages
+    return readCount > 25; // Only skip if more than 25 messages
   }
 
-  Future<void> _showAllMessagesPressed() async {
-    final readCount = widget.readMessageCount ?? 0;
-    final messagesToSkip = readCount - 10;
-
-    // Show confirmation dialog if more than 100 messages to skip
-    if (messagesToSkip > 100) {
-      final confirmed = await _showConfirmationDialog(messagesToSkip);
-      if (confirmed != true) return;
-    }
-
+  void _showAllMessagesPressed() {
     setState(() {
       _showAllMessages = true;
     });
-    // Scroll to bottom after showing all messages
+    // Scroll to bottom after showing more messages
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.scrollController.hasClients) {
         _scrollToBottom();
@@ -140,35 +131,13 @@ class _TopicMessageListState extends State<TopicMessageList> {
     });
   }
 
-  Future<bool?> _showConfirmationDialog(int messageCount) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Load All Messages'),
-        content: Text(
-          'Loading $messageCount messages may take some time and could affect performance. Continue?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Load'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMessageListView() {
     final showPlaceholder = _shouldShowPlaceholder();
     final readCount = widget.readMessageCount ?? 0;
 
     // Calculate how many messages to skip and show
-    // Skip oldest messages but keep last 10 read messages for context
-    final messagesToSkip = showPlaceholder ? readCount - 10 : 0;
+    // Skip oldest messages but keep last 25 read messages for context
+    final messagesToSkip = showPlaceholder ? readCount - 25 : 0;
     final visibleMessages = _messages.skip(messagesToSkip).toList();
 
     // Determine if we should show separator
@@ -178,7 +147,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
     // Calculate separator position in the item list
     int? separatorIndex;
     if (showSeparator) {
-      final readMessagesInVisible = showPlaceholder ? 10 : readCount;
+      final readMessagesInVisible = showPlaceholder ? 25 : readCount;
       final placeholderOffset = showPlaceholder ? 1 : 0;
       separatorIndex = placeholderOffset + readMessagesInVisible;
     }

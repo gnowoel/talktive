@@ -35,7 +35,7 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Skipped $messageCount message${messageCount == 1 ? '' : 's'}. Tap to view.',
+                  'Skipped $messageCount message${messageCount == 1 ? '' : 's'}. Tap to view more.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,

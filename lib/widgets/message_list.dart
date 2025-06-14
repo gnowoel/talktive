@@ -125,8 +125,9 @@ class _MessageListState extends State<MessageList> {
   }
 
   bool _shouldShowPlaceholder() {
-    if (widget.reporterUserId != null)
+    if (widget.reporterUserId != null) {
       return false; // Never show placeholder in admin reports
+    }
     if (_isNew()) return false; // New chat, show info instead
 
     final readCount = widget.chat.readMessageCount ?? 0;
@@ -180,43 +181,69 @@ class _MessageListState extends State<MessageList> {
     final showPlaceholder = _shouldShowPlaceholder();
     final readCount = widget.chat.readMessageCount ?? 0;
 
-    // Calculate how many messages to skip and show
-    // Skip oldest messages but keep context messages (25 + additional revealed)
-    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-    final messagesToSkip =
-        showPlaceholder ? readCount - totalMessagesToShow : 0;
-    final visibleMessages = _messages.skip(messagesToSkip).toList();
+    // Always show first 10 messages + last 15 read messages as context
+    final firstMessagesCount = readCount >= 10 ? 10 : readCount;
+    final lastReadContextCount = 15 + _additionalMessagesRevealed;
+
+    // Calculate messages to skip between first 10 and last context
+    final totalContextShown = firstMessagesCount + lastReadContextCount;
+    final messagesToSkip = showPlaceholder
+        ? (readCount > totalContextShown ? readCount - totalContextShown : 0)
+        : 0;
 
     // Determine if we should show separator
     final showSeparator = widget.reporterUserId == null && // Not in admin view
         readCount > 0 && // There are read messages
         _messages.length > readCount; // There are unread messages
 
-    // Calculate separator position in the item list
+    // Calculate item positions
+    final placeholderIndex = showPlaceholder ? firstMessagesCount : -1;
     int? separatorIndex;
     if (showSeparator) {
-      final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-      final readMessagesInVisible =
-          showPlaceholder ? totalMessagesToShow : readCount;
-      final placeholderOffset = showPlaceholder ? 1 : 0;
-      separatorIndex = placeholderOffset + readMessagesInVisible;
+      if (showPlaceholder) {
+        separatorIndex = firstMessagesCount + 1 + lastReadContextCount;
+      } else {
+        separatorIndex = readCount;
+      }
     }
 
     // Calculate total item count
-    var itemCount = visibleMessages.length;
-    if (showPlaceholder) itemCount += 1; // Add placeholder
+    var itemCount = 0;
+    if (showPlaceholder) {
+      itemCount += firstMessagesCount; // First 10 messages
+      itemCount += 1; // Placeholder
+      itemCount += lastReadContextCount; // Last 15 read messages
+    } else {
+      itemCount += readCount; // All read messages (no placeholder)
+    }
     if (showSeparator) itemCount += 1; // Add separator
+    itemCount += (_messages.length - readCount); // Add unread messages
 
     return ListView.builder(
       controller: widget.scrollController,
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        // Show placeholder as first item
-        if (showPlaceholder && index == 0) {
+        // Handle first 10 messages (always shown)
+        if (showPlaceholder && index < firstMessagesCount) {
+          final message = _messages[index];
+          return _buildMessageItem(message);
+        }
+
+        // Show placeholder
+        if (showPlaceholder && index == placeholderIndex) {
           return SkippedMessagesPlaceholder(
             messageCount: messagesToSkip,
             onTap: _showAllMessagesPressed,
           );
+        }
+
+        // Handle last read context messages (after placeholder)
+        if (showPlaceholder &&
+            index < firstMessagesCount + 1 + lastReadContextCount) {
+          final contextIndex = index - firstMessagesCount - 1;
+          final messageIndex = readCount - lastReadContextCount + contextIndex;
+          final message = _messages[messageIndex];
+          return _buildMessageItem(message);
         }
 
         // Show separator at calculated position
@@ -226,32 +253,36 @@ class _MessageListState extends State<MessageList> {
           );
         }
 
-        // Calculate message index, accounting for placeholder and separator
-        var messageIndex = index;
-        if (showPlaceholder) messageIndex -= 1; // Account for placeholder
-        if (showSeparator && index > separatorIndex!)
-          messageIndex -= 1; // Account for separator
-
-        final message = visibleMessages[messageIndex];
-
-        if (message is ImageMessage) {
-          return ImageMessageItem(
-            key: ValueKey(message.id),
-            chatId: widget.chat.id,
-            message: message,
-            reporterUserId: widget.reporterUserId,
-            onInsertMention: widget.onInsertMention,
-          );
-        }
-
-        return TextMessageItem(
-          key: ValueKey(message.id),
-          chatId: widget.chat.id,
-          message: message as TextMessage,
-          reporterUserId: widget.reporterUserId,
-          onInsertMention: widget.onInsertMention,
-        );
+        // Handle unread messages or remaining read messages
+        final separatorOffset = showSeparator ? 1 : 0;
+        final contextOffset = showPlaceholder
+            ? firstMessagesCount + 1 + lastReadContextCount
+            : readCount;
+        final messageIndex =
+            readCount + (index - contextOffset - separatorOffset);
+        final message = _messages[messageIndex];
+        return _buildMessageItem(message);
       },
+    );
+  }
+
+  Widget _buildMessageItem(Message message) {
+    if (message is ImageMessage) {
+      return ImageMessageItem(
+        key: ValueKey(message.id),
+        chatId: widget.chat.id,
+        message: message,
+        reporterUserId: widget.reporterUserId,
+        onInsertMention: widget.onInsertMention,
+      );
+    }
+
+    return TextMessageItem(
+      key: ValueKey(message.id),
+      chatId: widget.chat.id,
+      message: message as TextMessage,
+      reporterUserId: widget.reporterUserId,
+      onInsertMention: widget.onInsertMention,
     );
   }
 }

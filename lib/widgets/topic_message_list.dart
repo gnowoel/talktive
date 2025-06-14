@@ -116,8 +116,8 @@ class _TopicMessageListState extends State<TopicMessageList> {
 
     final readCount = widget.readMessageCount ?? 0;
     final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-    return readCount >
-        totalMessagesToShow; // Show placeholder if more messages available
+    // Only show placeholder if we have enough messages to warrant it
+    return readCount > totalMessagesToShow && readCount > 25;
   }
 
   void _showAllMessagesPressed() {
@@ -138,12 +138,13 @@ class _TopicMessageListState extends State<TopicMessageList> {
 
     // Always show first 10 messages + last 15 read messages as context
     final firstMessagesCount = readCount >= 10 ? 10 : readCount;
-    final lastReadContextCount = 15 + _additionalMessagesRevealed;
+    final maxLastReadContext = readCount - firstMessagesCount;
+    final lastReadContextCount = (15 + _additionalMessagesRevealed).clamp(0, maxLastReadContext.clamp(0, readCount));
 
     // Calculate messages to skip between first 10 and last context
     final totalContextShown = firstMessagesCount + lastReadContextCount;
-    final messagesToSkip = showPlaceholder
-        ? (readCount > totalContextShown ? readCount - totalContextShown : 0)
+    final messagesToSkip = showPlaceholder && totalContextShown < readCount
+        ? (readCount - totalContextShown).clamp(0, readCount)
         : 0;
 
     // Determine if we should show separator
@@ -161,7 +162,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
       }
     }
 
-    // Calculate total item count
+    // Calculate total item count with safety checks
     var itemCount = 0;
     if (showPlaceholder) {
       itemCount += firstMessagesCount; // First 10 messages
@@ -171,7 +172,10 @@ class _TopicMessageListState extends State<TopicMessageList> {
       itemCount += readCount; // All read messages (no placeholder)
     }
     if (showSeparator) itemCount += 1; // Add separator
-    itemCount += (_messages.length - readCount); // Add unread messages
+
+    // Ensure we don't exceed actual message count
+    final unreadCount = (_messages.length - readCount).clamp(0, _messages.length);
+    itemCount += unreadCount; // Add unread messages
 
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
@@ -201,6 +205,12 @@ class _TopicMessageListState extends State<TopicMessageList> {
               final contextIndex = index - firstMessagesCount - 1;
               final messageIndex =
                   readCount - lastReadContextCount + contextIndex;
+
+              // Add bounds checking to prevent range errors
+              if (messageIndex < 0 || messageIndex >= _messages.length || contextIndex < 0) {
+                return const SizedBox.shrink(); // Return empty widget for invalid indices
+              }
+
               final message = _messages[messageIndex];
               return _buildMessageItem(message);
             }
@@ -219,6 +229,14 @@ class _TopicMessageListState extends State<TopicMessageList> {
                 : readCount;
             final messageIndex =
                 readCount + (index - contextOffset - separatorOffset);
+
+            // Add comprehensive bounds checking to prevent range errors
+            if (messageIndex < 0 ||
+                messageIndex >= _messages.length ||
+                index < contextOffset + separatorOffset) {
+              return const SizedBox.shrink(); // Return empty widget for invalid indices
+            }
+
             final message = _messages[messageIndex];
             return _buildMessageItem(message);
           },

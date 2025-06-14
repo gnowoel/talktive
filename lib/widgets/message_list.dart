@@ -130,15 +130,16 @@ class _MessageListState extends State<MessageList> {
     if (_isNew()) return false; // New chat, show info instead
 
     final readCount = widget.chat.readMessageCount ?? 0;
-    return readCount > 10; // Only skip if more than 10 messages
+    return readCount > 20; // Only skip if more than 20 messages
   }
 
   Future<void> _showAllMessagesPressed() async {
     final readCount = widget.chat.readMessageCount ?? 0;
+    final messagesToSkip = readCount - 10;
 
-    // Show confirmation dialog if more than 100 messages
-    if (readCount > 100) {
-      final confirmed = await _showConfirmationDialog(readCount);
+    // Show confirmation dialog if more than 100 messages to skip
+    if (messagesToSkip > 100) {
+      final confirmed = await _showConfirmationDialog(messagesToSkip);
       if (confirmed != true) return;
     }
 
@@ -209,7 +210,8 @@ class _MessageListState extends State<MessageList> {
     final readCount = widget.chat.readMessageCount ?? 0;
 
     // Calculate how many messages to skip and show
-    final messagesToSkip = showPlaceholder ? readCount : 0;
+    // Skip oldest messages but keep last 10 read messages for context
+    final messagesToSkip = showPlaceholder ? readCount - 10 : 0;
     final visibleMessages = _messages.skip(messagesToSkip).toList();
 
     final itemCount =

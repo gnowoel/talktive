@@ -8,6 +8,7 @@ import '../models/text_message.dart';
 import '../services/message_cache.dart';
 import 'image_message_item.dart';
 import 'info.dart';
+import 'skipped_messages_placeholder.dart';
 import 'text_message_item.dart';
 
 class MessageList extends StatefulWidget {
@@ -40,6 +41,7 @@ class _MessageListState extends State<MessageList> {
   late ReportMessageCache reportMessageCache;
   List<Message> _messages = [];
   ScrollNotification? _lastNotification;
+  bool _showAllMessages = false;
 
   @override
   void initState() {
@@ -121,6 +123,28 @@ class _MessageListState extends State<MessageList> {
     return widget.chat.isDummy || _messages.isEmpty;
   }
 
+  bool _shouldShowPlaceholder() {
+    if (widget.reporterUserId != null)
+      return false; // Never show placeholder in admin reports
+    if (_showAllMessages) return false; // User chose to see all messages
+    if (_isNew()) return false; // New chat, show info instead
+
+    final readCount = widget.chat.readMessageCount ?? 0;
+    return readCount > 0;
+  }
+
+  void _showAllMessagesPressed() {
+    setState(() {
+      _showAllMessages = true;
+    });
+    // Scroll to bottom after showing all messages
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.scrollController.hasClients) {
+        _scrollToBottom();
+      }
+    });
+  }
+
   @override
   void dispose() {
     widget.focusNode.removeListener(_handleInputFocus);
@@ -136,7 +160,11 @@ class _MessageListState extends State<MessageList> {
         onNotification: _handleScrollMetricsNotification,
         child: NotificationListener<ScrollNotification>(
           onNotification: _handleScrollNotification,
-          child: _isNew() ? _buildInfo() : _buildListView(context),
+          child: _isNew()
+              ? _buildInfo()
+              : _shouldShowPlaceholder()
+                  ? _buildPlaceholder()
+                  : _buildListView(context),
         ),
       ),
     );
@@ -147,6 +175,23 @@ class _MessageListState extends State<MessageList> {
 
     return const SizedBox.expand(
       child: AbsorbPointer(child: Info(lines: lines)),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    final readCount = widget.chat.readMessageCount ?? 0;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: SkippedMessagesPlaceholder(
+              messageCount: readCount,
+              onTap: _showAllMessagesPressed,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

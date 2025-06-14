@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
 import '../services/topic_message_cache.dart';
+import 'skipped_messages_placeholder.dart';
 import 'topic_text_message_item.dart';
 import 'topic_image_message_item.dart';
 
@@ -13,6 +14,7 @@ class TopicMessageList extends StatefulWidget {
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
   final void Function(String)? onInsertMention;
+  final int? readMessageCount;
 
   const TopicMessageList({
     super.key,
@@ -22,6 +24,7 @@ class TopicMessageList extends StatefulWidget {
     required this.scrollController,
     required this.updateMessageCount,
     this.onInsertMention,
+    this.readMessageCount,
   });
 
   @override
@@ -32,6 +35,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
   late TopicMessageCache topicMessageCache;
   List<TopicMessage> _messages = [];
   bool _isSticky = true;
+  bool _showAllMessages = false;
   ScrollNotification? _lastNotification;
 
   @override
@@ -106,6 +110,43 @@ class _TopicMessageListState extends State<TopicMessageList> {
     return false;
   }
 
+  bool _shouldShowPlaceholder() {
+    if (_showAllMessages) return false; // User chose to see all messages
+    if (_messages.isEmpty) return false; // No messages to show placeholder for
+
+    final readCount = widget.readMessageCount ?? 0;
+    return readCount > 0;
+  }
+
+  void _showAllMessagesPressed() {
+    setState(() {
+      _showAllMessages = true;
+    });
+    // Scroll to bottom after showing all messages
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.scrollController.hasClients) {
+        _scrollToBottom();
+      }
+    });
+  }
+
+  Widget _buildPlaceholder() {
+    final readCount = widget.readMessageCount ?? 0;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: SkippedMessagesPlaceholder(
+              messageCount: readCount,
+              onTap: _showAllMessagesPressed,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMessageListView() {
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
@@ -148,7 +189,9 @@ class _TopicMessageListState extends State<TopicMessageList> {
     return Listener(
       onPointerDown: (details) => FocusScope.of(context).unfocus(),
       onPointerMove: (details) => FocusScope.of(context).unfocus(),
-      child: _buildMessageListView(),
+      child: _shouldShowPlaceholder()
+          ? _buildPlaceholder()
+          : _buildMessageListView(),
     );
   }
 }

@@ -357,6 +357,7 @@ class _TopicPageState extends State<TopicPage> {
                     scrollController: _scrollController,
                     updateMessageCount: _updateMessageCount,
                     onInsertMention: _insertMention,
+                    readMessageCount: _topic?.readMessageCount,
                   ),
                 ),
                 TopicInput(

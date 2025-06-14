@@ -198,7 +198,7 @@ class _TopicMessageListState extends State<TopicMessageList> {
           controller: widget.scrollController,
           itemCount: itemCount,
           itemBuilder: (context, index) {
-            // Handle first 10 messages (always shown)
+            // Handle first 10 messages (always shown when placeholder is active)
             if (showPlaceholder && index < firstMessagesCount) {
               if (index >= _messages.length) return const SizedBox.shrink();
               final message = _messages[index];
@@ -227,6 +227,13 @@ class _TopicMessageListState extends State<TopicMessageList> {
               }
 
               final message = _messages[messageIndex];
+              return _buildMessageItem(message);
+            }
+
+            // Handle all read messages when no placeholder is shown
+            if (!showPlaceholder && index < readCount) {
+              if (index >= _messages.length) return const SizedBox.shrink();
+              final message = _messages[index];
               return _buildMessageItem(message);
             }
 

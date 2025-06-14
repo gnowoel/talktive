@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
 import '../services/topic_message_cache.dart';
+import 'message_separator.dart';
 import 'skipped_messages_placeholder.dart';
 import 'topic_text_message_item.dart';
 import 'topic_image_message_item.dart';
@@ -170,8 +171,22 @@ class _TopicMessageListState extends State<TopicMessageList> {
     final messagesToSkip = showPlaceholder ? readCount - 10 : 0;
     final visibleMessages = _messages.skip(messagesToSkip).toList();
 
-    final itemCount =
-        showPlaceholder ? visibleMessages.length + 1 : visibleMessages.length;
+    // Determine if we should show separator
+    final showSeparator = readCount > 0 && // There are read messages
+        _messages.length > readCount; // There are unread messages
+
+    // Calculate separator position in the item list
+    int? separatorIndex;
+    if (showSeparator) {
+      final readMessagesInVisible = showPlaceholder ? 10 : readCount;
+      final placeholderOffset = showPlaceholder ? 1 : 0;
+      separatorIndex = placeholderOffset + readMessagesInVisible;
+    }
+
+    // Calculate total item count
+    var itemCount = visibleMessages.length;
+    if (showPlaceholder) itemCount += 1; // Add placeholder
+    if (showSeparator) itemCount += 1; // Add separator
 
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
@@ -189,8 +204,19 @@ class _TopicMessageListState extends State<TopicMessageList> {
               );
             }
 
-            // Adjust index for actual messages
-            final messageIndex = showPlaceholder ? index - 1 : index;
+            // Show separator at calculated position
+            if (showSeparator && index == separatorIndex) {
+              return const MessageSeparator(
+                label: 'New messages',
+              );
+            }
+
+            // Calculate message index, accounting for placeholder and separator
+            var messageIndex = index;
+            if (showPlaceholder) messageIndex -= 1; // Account for placeholder
+            if (showSeparator && index > separatorIndex!)
+              messageIndex -= 1; // Account for separator
+
             final message = visibleMessages[messageIndex];
 
             if (message is TopicImageMessage) {

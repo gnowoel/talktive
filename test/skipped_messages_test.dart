@@ -36,8 +36,33 @@ class SkippedMessagesLogic {
   static int getItemCount({
     required int visibleMessageCount,
     required bool showPlaceholder,
+    required bool showSeparator,
   }) {
-    return showPlaceholder ? visibleMessageCount + 1 : visibleMessageCount;
+    var itemCount = visibleMessageCount;
+    if (showPlaceholder) itemCount += 1;
+    if (showSeparator) itemCount += 1;
+    return itemCount;
+  }
+
+  static bool shouldShowSeparator({
+    required int readMessageCount,
+    required int totalMessages,
+    bool isReporter = false,
+  }) {
+    if (isReporter) return false; // Not in admin view
+    return readMessageCount > 0 && totalMessages > readMessageCount;
+  }
+
+  static int? getSeparatorIndex({
+    required int readMessageCount,
+    required bool showPlaceholder,
+    required bool showSeparator,
+  }) {
+    if (!showSeparator) return null;
+
+    final readMessagesInVisible = showPlaceholder ? 10 : readMessageCount;
+    final placeholderOffset = showPlaceholder ? 1 : 0;
+    return placeholderOffset + readMessagesInVisible;
   }
 }
 
@@ -176,22 +201,115 @@ void main() {
     });
 
     test('should calculate item count correctly', () {
-      // With placeholder: visible messages + 1 (for placeholder)
+      // With placeholder only: visible messages + 1 (for placeholder)
       expect(
         SkippedMessagesLogic.getItemCount(
           visibleMessageCount: 20,
           showPlaceholder: true,
+          showSeparator: false,
         ),
         21,
       );
 
-      // Without placeholder: just visible messages
+      // With separator only: visible messages + 1 (for separator)
       expect(
         SkippedMessagesLogic.getItemCount(
           visibleMessageCount: 20,
           showPlaceholder: false,
+          showSeparator: true,
+        ),
+        21,
+      );
+
+      // With both placeholder and separator: visible messages + 2
+      expect(
+        SkippedMessagesLogic.getItemCount(
+          visibleMessageCount: 20,
+          showPlaceholder: true,
+          showSeparator: true,
+        ),
+        22,
+      );
+
+      // Without placeholder or separator: just visible messages
+      expect(
+        SkippedMessagesLogic.getItemCount(
+          visibleMessageCount: 20,
+          showPlaceholder: false,
+          showSeparator: false,
         ),
         20,
+      );
+    });
+
+    test('should determine when to show separator', () {
+      // Should show separator when there are read and unread messages
+      expect(
+        SkippedMessagesLogic.shouldShowSeparator(
+          readMessageCount: 10,
+          totalMessages: 15,
+        ),
+        true,
+      );
+
+      // Should not show separator when all messages are read
+      expect(
+        SkippedMessagesLogic.shouldShowSeparator(
+          readMessageCount: 15,
+          totalMessages: 15,
+        ),
+        false,
+      );
+
+      // Should not show separator when no messages are read
+      expect(
+        SkippedMessagesLogic.shouldShowSeparator(
+          readMessageCount: 0,
+          totalMessages: 15,
+        ),
+        false,
+      );
+
+      // Should not show separator in reporter/admin view
+      expect(
+        SkippedMessagesLogic.shouldShowSeparator(
+          readMessageCount: 10,
+          totalMessages: 15,
+          isReporter: true,
+        ),
+        false,
+      );
+    });
+
+    test('should calculate separator index correctly', () {
+      // With placeholder: placeholder(0) + 10 context messages = index 11
+      expect(
+        SkippedMessagesLogic.getSeparatorIndex(
+          readMessageCount: 25,
+          showPlaceholder: true,
+          showSeparator: true,
+        ),
+        11,
+      );
+
+      // Without placeholder: 25 read messages = index 25
+      expect(
+        SkippedMessagesLogic.getSeparatorIndex(
+          readMessageCount: 25,
+          showPlaceholder: false,
+          showSeparator: true,
+        ),
+        25,
+      );
+
+      // Should return null when separator not shown
+      expect(
+        SkippedMessagesLogic.getSeparatorIndex(
+          readMessageCount: 25,
+          showPlaceholder: true,
+          showSeparator: false,
+        ),
+        null,
       );
     });
 
@@ -240,12 +358,21 @@ void main() {
         expect(
             visibleIndices.first, 14); // Starts from message 14 (skip first 14)
 
+        final showSeparator = SkippedMessagesLogic.shouldShowSeparator(
+          readMessageCount: readMessages,
+          totalMessages: totalMessages,
+        );
+
+        expect(
+            showSeparator, true); // Should show separator (24 read, 42 total)
+
         final itemCount = SkippedMessagesLogic.getItemCount(
           visibleMessageCount: visibleIndices.length,
           showPlaceholder: showPlaceholder,
+          showSeparator: showSeparator,
         );
 
-        expect(itemCount, 29); // 28 messages + 1 placeholder
+        expect(itemCount, 30); // 28 messages + 1 placeholder + 1 separator
       });
 
       test('scenario: many messages (200 total, 150 read)', () {
@@ -275,6 +402,23 @@ void main() {
         expect(visibleIndices.length, 60); // 200 - (150-10) = 60 visible
         expect(visibleIndices.first,
             140); // Starts from message 140 (skip first 140)
+
+        final showSeparator = SkippedMessagesLogic.shouldShowSeparator(
+          readMessageCount: readMessages,
+          totalMessages: totalMessages,
+        );
+
+        expect(
+            showSeparator, true); // Should show separator (150 read, 200 total)
+
+        final separatorIndex = SkippedMessagesLogic.getSeparatorIndex(
+          readMessageCount: readMessages,
+          showPlaceholder: showPlaceholder,
+          showSeparator: showSeparator,
+        );
+
+        expect(separatorIndex,
+            11); // placeholder(0) + 10 context messages = index 11
       });
     });
   });

@@ -136,31 +136,42 @@ class _TopicMessageListState extends State<TopicMessageList> {
     final showPlaceholder = _shouldShowPlaceholder();
     final readCount = widget.readMessageCount ?? 0;
 
-    // Calculate how many messages to skip and show
-    // Skip oldest messages but keep context messages (25 + additional revealed)
-    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-    final messagesToSkip =
-        showPlaceholder ? readCount - totalMessagesToShow : 0;
-    final visibleMessages = _messages.skip(messagesToSkip).toList();
+    // Always show first 10 messages + last 15 read messages as context
+    final firstMessagesCount = readCount >= 10 ? 10 : readCount;
+    final lastReadContextCount = 15 + _additionalMessagesRevealed;
+
+    // Calculate messages to skip between first 10 and last context
+    final totalContextShown = firstMessagesCount + lastReadContextCount;
+    final messagesToSkip = showPlaceholder
+        ? (readCount > totalContextShown ? readCount - totalContextShown : 0)
+        : 0;
 
     // Determine if we should show separator
     final showSeparator = readCount > 0 && // There are read messages
         _messages.length > readCount; // There are unread messages
 
-    // Calculate separator position in the item list
+    // Calculate item positions
+    final placeholderIndex = showPlaceholder ? firstMessagesCount : -1;
     int? separatorIndex;
     if (showSeparator) {
-      final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-      final readMessagesInVisible =
-          showPlaceholder ? totalMessagesToShow : readCount;
-      final placeholderOffset = showPlaceholder ? 1 : 0;
-      separatorIndex = placeholderOffset + readMessagesInVisible;
+      if (showPlaceholder) {
+        separatorIndex = firstMessagesCount + 1 + lastReadContextCount;
+      } else {
+        separatorIndex = readCount;
+      }
     }
 
     // Calculate total item count
-    var itemCount = visibleMessages.length;
-    if (showPlaceholder) itemCount += 1; // Add placeholder
+    var itemCount = 0;
+    if (showPlaceholder) {
+      itemCount += firstMessagesCount; // First 10 messages
+      itemCount += 1; // Placeholder
+      itemCount += lastReadContextCount; // Last 15 read messages
+    } else {
+      itemCount += readCount; // All read messages (no placeholder)
+    }
     if (showSeparator) itemCount += 1; // Add separator
+    itemCount += (_messages.length - readCount); // Add unread messages
 
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _handleScrollMetricsNotification,
@@ -170,12 +181,28 @@ class _TopicMessageListState extends State<TopicMessageList> {
           controller: widget.scrollController,
           itemCount: itemCount,
           itemBuilder: (context, index) {
-            // Show placeholder as first item
-            if (showPlaceholder && index == 0) {
+            // Handle first 10 messages (always shown)
+            if (showPlaceholder && index < firstMessagesCount) {
+              final message = _messages[index];
+              return _buildMessageItem(message);
+            }
+
+            // Show placeholder
+            if (showPlaceholder && index == placeholderIndex) {
               return SkippedMessagesPlaceholder(
                 messageCount: messagesToSkip,
                 onTap: _showAllMessagesPressed,
               );
+            }
+
+            // Handle last read context messages (after placeholder)
+            if (showPlaceholder &&
+                index < firstMessagesCount + 1 + lastReadContextCount) {
+              final contextIndex = index - firstMessagesCount - 1;
+              final messageIndex =
+                  readCount - lastReadContextCount + contextIndex;
+              final message = _messages[messageIndex];
+              return _buildMessageItem(message);
             }
 
             // Show separator at calculated position
@@ -185,30 +212,15 @@ class _TopicMessageListState extends State<TopicMessageList> {
               );
             }
 
-            // Calculate message index, accounting for placeholder and separator
-            var messageIndex = index;
-            if (showPlaceholder) messageIndex -= 1; // Account for placeholder
-            if (showSeparator && index > separatorIndex!)
-              messageIndex -= 1; // Account for separator
-
-            final message = visibleMessages[messageIndex];
-
-            if (message is TopicImageMessage) {
-              return TopicImageMessageItem(
-                topicId: widget.topicId,
-                key: ValueKey(message.id),
-                message: message,
-                onInsertMention: widget.onInsertMention,
-              );
-            }
-
-            return TopicTextMessageItem(
-              key: ValueKey(message.id),
-              topicId: widget.topicId,
-              topicCreatorId: widget.topicCreatorId,
-              message: message as TopicTextMessage,
-              onInsertMention: widget.onInsertMention,
-            );
+            // Handle unread messages or remaining read messages
+            final separatorOffset = showSeparator ? 1 : 0;
+            final contextOffset = showPlaceholder
+                ? firstMessagesCount + 1 + lastReadContextCount
+                : readCount;
+            final messageIndex =
+                readCount + (index - contextOffset - separatorOffset);
+            final message = _messages[messageIndex];
+            return _buildMessageItem(message);
           },
         ),
       ),
@@ -225,6 +237,25 @@ class _TopicMessageListState extends State<TopicMessageList> {
       onPointerDown: (details) => FocusScope.of(context).unfocus(),
       onPointerMove: (details) => FocusScope.of(context).unfocus(),
       child: _buildMessageListView(),
+    );
+  }
+
+  Widget _buildMessageItem(TopicMessage message) {
+    if (message is TopicImageMessage) {
+      return TopicImageMessageItem(
+        topicId: widget.topicId,
+        key: ValueKey(message.id),
+        message: message,
+        onInsertMention: widget.onInsertMention,
+      );
+    }
+
+    return TopicTextMessageItem(
+      key: ValueKey(message.id),
+      topicId: widget.topicId,
+      topicCreatorId: widget.topicCreatorId,
+      message: message as TopicTextMessage,
+      onInsertMention: widget.onInsertMention,
     );
   }
 }

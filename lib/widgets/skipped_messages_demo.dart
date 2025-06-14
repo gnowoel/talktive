@@ -25,7 +25,7 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
       name: 'Some Messages (80 total, 60 read)',
       totalMessages: 80,
       readMessages: 60,
-      description: 'Progressive loading: 25 → 50 → 75 → all messages',
+      description: 'First 10 + skip + last 15 read + 20 unread messages',
     ),
     _DemoScenario(
       name: 'All Read (40 total, 40 read)',
@@ -37,7 +37,7 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
       name: 'Many Messages (150 total, 120 read)',
       totalMessages: 150,
       readMessages: 120,
-      description: 'Multiple taps needed: 25 → 50 → 75 → 100 → all',
+      description: 'First 10 + progressive loading of skipped + last context',
     ),
   ];
 
@@ -93,7 +93,7 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Progressive loading: tap to reveal 25 more messages at a time',
+                    'First 10 messages + skip placeholder + last 15 read messages for context',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
@@ -204,38 +204,47 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
   }
 
   Widget _buildMessageList(_DemoScenario scenario) {
-    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
-    final shouldShowPlaceholder = scenario.readMessages > totalMessagesToShow;
+    // Always show first 10 messages + last 15 read messages as context
+    final firstMessagesCount =
+        scenario.readMessages >= 10 ? 10 : scenario.readMessages;
+    final lastReadContextCount = 15 + _additionalMessagesRevealed;
 
-    // Calculate messages to skip (keeping context messages)
-    final messagesToSkip =
-        shouldShowPlaceholder ? scenario.readMessages - totalMessagesToShow : 0;
-
-    // Generate visible messages
-    final visibleMessages = List.generate(
-      scenario.totalMessages - messagesToSkip,
-      (index) => index + messagesToSkip,
-    );
+    // Calculate messages to skip between first 10 and last context
+    final totalContextShown = firstMessagesCount + lastReadContextCount;
+    final shouldShowPlaceholder = scenario.readMessages > totalContextShown;
+    final messagesToSkip = shouldShowPlaceholder
+        ? (scenario.readMessages > totalContextShown
+            ? scenario.readMessages - totalContextShown
+            : 0)
+        : 0;
 
     // Determine if we should show separator
-    final showSeparator =
-        scenario.readMessages > 0 && // There are read messages
-            scenario.totalMessages >
-                scenario.readMessages; // There are unread messages
+    final showSeparator = scenario.readMessages > 0 &&
+        scenario.totalMessages > scenario.readMessages;
 
-    // Calculate separator position in the item list
+    // Calculate item positions
+    final placeholderIndex = shouldShowPlaceholder ? firstMessagesCount : -1;
     int? separatorIndex;
     if (showSeparator) {
-      final readMessagesInVisible =
-          shouldShowPlaceholder ? totalMessagesToShow : scenario.readMessages;
-      final placeholderOffset = shouldShowPlaceholder ? 1 : 0;
-      separatorIndex = placeholderOffset + readMessagesInVisible;
+      if (shouldShowPlaceholder) {
+        separatorIndex = firstMessagesCount + 1 + lastReadContextCount;
+      } else {
+        separatorIndex = scenario.readMessages;
+      }
     }
 
     // Calculate total item count
-    var itemCount = visibleMessages.length;
-    if (shouldShowPlaceholder) itemCount += 1; // Add placeholder
+    var itemCount = 0;
+    if (shouldShowPlaceholder) {
+      itemCount += firstMessagesCount; // First 10 messages
+      itemCount += 1; // Placeholder
+      itemCount += lastReadContextCount; // Last 15 read messages
+    } else {
+      itemCount += scenario.readMessages; // All read messages (no placeholder)
+    }
     if (showSeparator) itemCount += 1; // Add separator
+    itemCount +=
+        (scenario.totalMessages - scenario.readMessages); // Add unread messages
 
     if (scenario.totalMessages == 0) {
       return const Center(
@@ -246,12 +255,27 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
     return ListView.builder(
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        // Show placeholder as first item
-        if (shouldShowPlaceholder && index == 0) {
+        // Handle first 10 messages (always shown)
+        if (shouldShowPlaceholder && index < firstMessagesCount) {
+          final messageNumber = index + 1;
+          return _buildMessageItem(messageNumber, 'First 10', scenario);
+        }
+
+        // Show placeholder
+        if (shouldShowPlaceholder && index == placeholderIndex) {
           return SkippedMessagesPlaceholder(
             messageCount: messagesToSkip,
             onTap: _onTapPlaceholder,
           );
+        }
+
+        // Handle last read context messages (after placeholder)
+        if (shouldShowPlaceholder &&
+            index < firstMessagesCount + 1 + lastReadContextCount) {
+          final contextIndex = index - firstMessagesCount - 1;
+          final messageNumber =
+              scenario.readMessages - lastReadContextCount + contextIndex + 1;
+          return _buildMessageItem(messageNumber, 'Last Context', scenario);
         }
 
         // Show separator at calculated position
@@ -261,74 +285,82 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
           );
         }
 
-        // Calculate message index, accounting for placeholder and separator
-        var messageIndex = index;
-        if (shouldShowPlaceholder) messageIndex -= 1; // Account for placeholder
-        if (showSeparator && separatorIndex != null && index > separatorIndex)
-          messageIndex -= 1; // Account for separator
+        // Handle unread messages or remaining read messages
+        final separatorOffset = showSeparator ? 1 : 0;
+        final contextOffset = shouldShowPlaceholder
+            ? firstMessagesCount + 1 + lastReadContextCount
+            : scenario.readMessages;
+        final messageNumber = scenario.readMessages +
+            (index - contextOffset - separatorOffset) +
+            1;
+        return _buildMessageItem(messageNumber, 'Unread', scenario);
+      },
+    );
+  }
 
-        final messageNumber = visibleMessages[messageIndex] + 1;
-        final isOwnMessage = messageNumber % 3 == 0;
+  Widget _buildMessageItem(
+      int messageNumber, String messageType, _DemoScenario scenario) {
+    final isOwnMessage = messageNumber % 3 == 0;
 
-        // Determine message type for display
-        String messageType;
-        Color? messageColor;
-        Color? borderColor;
+    // Determine message styling
+    Color? messageColor;
+    Color? borderColor;
 
-        if (messageNumber <= scenario.readMessages - messagesToSkip) {
-          messageType = 'Read';
-          messageColor = Theme.of(context).colorScheme.surfaceVariant;
-          borderColor = null;
-        } else if (messageNumber <= scenario.readMessages) {
-          messageType = 'Context';
-          messageColor = Theme.of(context).colorScheme.surfaceVariant;
-          borderColor = Theme.of(context).colorScheme.primary.withOpacity(0.3);
-        } else {
-          messageType = 'Unread';
-          messageColor = null;
-          borderColor =
-              Theme.of(context).colorScheme.secondary.withOpacity(0.3);
-        }
+    if (messageType == 'First 10') {
+      messageColor = Theme.of(context).colorScheme.surfaceVariant;
+      borderColor = Theme.of(context).colorScheme.tertiary.withOpacity(0.3);
+    } else if (messageType == 'Last Context') {
+      messageColor = Theme.of(context).colorScheme.surfaceVariant;
+      borderColor = Theme.of(context).colorScheme.primary.withOpacity(0.3);
+    } else if (messageType == 'Unread') {
+      messageColor = null;
+      borderColor = Theme.of(context).colorScheme.secondary.withOpacity(0.3);
+    } else {
+      messageColor = Theme.of(context).colorScheme.surfaceVariant;
+      borderColor = null;
+    }
 
-        return Container(
-          alignment:
-              isOwnMessage ? Alignment.centerRight : Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: messageColor ??
-                  (isOwnMessage
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.surfaceVariant),
-              borderRadius: BorderRadius.circular(16),
-              border: borderColor != null
-                  ? Border.all(color: borderColor, width: 1)
-                  : null,
+    return Container(
+      alignment: isOwnMessage ? Alignment.centerRight : Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: messageColor ??
+              (isOwnMessage
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surfaceVariant),
+          borderRadius: BorderRadius.circular(16),
+          border: borderColor != null
+              ? Border.all(color: borderColor, width: 1)
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Message $messageNumber',
+              style: TextStyle(
+                color: isOwnMessage && messageColor == null
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Message $messageNumber',
-                  style: TextStyle(
-                    color: isOwnMessage && messageColor == null
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: messageType == 'Context'
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: messageType == 'First 10'
+                        ? Theme.of(context)
+                            .colorScheme
+                            .tertiary
+                            .withOpacity(0.2)
+                        : messageType == 'Last Context'
                             ? Theme.of(context)
                                 .colorScheme
                                 .primary
@@ -342,46 +374,53 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
                                     .colorScheme
                                     .outline
                                     .withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        messageType,
-                        style: TextStyle(
-                          color: messageType == 'Context'
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    messageType,
+                    style: TextStyle(
+                      color: messageType == 'First 10'
+                          ? Theme.of(context).colorScheme.tertiary
+                          : messageType == 'Last Context'
                               ? Theme.of(context).colorScheme.primary
                               : messageType == 'Unread'
                                   ? Theme.of(context).colorScheme.secondary
                                   : Theme.of(context).colorScheme.outline,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
                     ),
-                    if (messageType == 'Context') ...[
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.visibility_outlined,
-                        size: 12,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ] else if (messageType == 'Unread') ...[
-                      const SizedBox(width: 4),
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
+                if (messageType == 'First 10') ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.priority_high,
+                    size: 12,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ] else if (messageType == 'Last Context') ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ] else if (messageType == 'Unread') ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
               ],
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

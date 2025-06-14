@@ -122,20 +122,37 @@ class _TopicMessageListState extends State<TopicMessageList> {
   }
 
   void _showMoreMessagesUp() {
+    if (!widget.scrollController.hasClients) return;
+
+    // Capture current scroll position
+    final currentOffset = widget.scrollController.offset;
+
     setState(() {
       _additionalMessagesRevealedUp += 25;
     });
-    // Maintain current scroll position for up expansion
+
+    // Preserve scroll position after rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.scrollController.hasClients) {
+        widget.scrollController.jumpTo(currentOffset);
+      }
+    });
   }
 
   void _showMoreMessagesDown() {
+    if (!widget.scrollController.hasClients) return;
+
+    // Capture current scroll position
+    final currentOffset = widget.scrollController.offset;
+
     setState(() {
       _additionalMessagesRevealedDown += 25;
     });
-    // Scroll to bottom after showing more messages from bottom
+
+    // Preserve scroll position after rebuild
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.scrollController.hasClients) {
-        _scrollToBottom();
+        widget.scrollController.jumpTo(currentOffset);
       }
     });
   }

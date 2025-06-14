@@ -274,6 +274,13 @@ class _MessageListState extends State<MessageList> {
           return _buildMessageItem(message);
         }
 
+        // Handle all read messages when no placeholder is shown
+        if (!showPlaceholder && index < readCount) {
+          if (index >= _messages.length) return const SizedBox.shrink();
+          final message = _messages[index];
+          return _buildMessageItem(message);
+        }
+
         // Show separator at calculated position
         if (showSeparator && index == separatorIndex) {
           return const MessageSeparator(

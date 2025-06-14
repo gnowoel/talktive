@@ -42,7 +42,7 @@ class _MessageListState extends State<MessageList> {
   late ReportMessageCache reportMessageCache;
   List<Message> _messages = [];
   ScrollNotification? _lastNotification;
-  bool _showAllMessages = false;
+  int _additionalMessagesRevealed = 0;
 
   @override
   void initState() {
@@ -127,16 +127,17 @@ class _MessageListState extends State<MessageList> {
   bool _shouldShowPlaceholder() {
     if (widget.reporterUserId != null)
       return false; // Never show placeholder in admin reports
-    if (_showAllMessages) return false; // User chose to see all messages
     if (_isNew()) return false; // New chat, show info instead
 
     final readCount = widget.chat.readMessageCount ?? 0;
-    return readCount > 25; // Only skip if more than 25 messages
+    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
+    return readCount >
+        totalMessagesToShow; // Show placeholder if more messages available
   }
 
   void _showAllMessagesPressed() {
     setState(() {
-      _showAllMessages = true;
+      _additionalMessagesRevealed += 25;
     });
     // Scroll to bottom after showing more messages
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -180,8 +181,10 @@ class _MessageListState extends State<MessageList> {
     final readCount = widget.chat.readMessageCount ?? 0;
 
     // Calculate how many messages to skip and show
-    // Skip oldest messages but keep last 25 read messages for context
-    final messagesToSkip = showPlaceholder ? readCount - 25 : 0;
+    // Skip oldest messages but keep context messages (25 + additional revealed)
+    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
+    final messagesToSkip =
+        showPlaceholder ? readCount - totalMessagesToShow : 0;
     final visibleMessages = _messages.skip(messagesToSkip).toList();
 
     // Determine if we should show separator
@@ -192,7 +195,9 @@ class _MessageListState extends State<MessageList> {
     // Calculate separator position in the item list
     int? separatorIndex;
     if (showSeparator) {
-      final readMessagesInVisible = showPlaceholder ? 25 : readCount;
+      final totalMessagesToShow = 25 + _additionalMessagesRevealed;
+      final readMessagesInVisible =
+          showPlaceholder ? totalMessagesToShow : readCount;
       final placeholderOffset = showPlaceholder ? 1 : 0;
       separatorIndex = placeholderOffset + readMessagesInVisible;
     }

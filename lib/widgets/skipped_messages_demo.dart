@@ -10,7 +10,7 @@ class SkippedMessagesDemo extends StatefulWidget {
 }
 
 class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
-  bool _showAllMessages = false;
+  int _additionalMessagesRevealed = 0;
   int _selectedScenario = 0;
 
   // Different scenarios to demonstrate
@@ -22,10 +22,10 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
       description: 'No placeholder - below 25 message threshold',
     ),
     _DemoScenario(
-      name: 'Some Messages (50 total, 35 read)',
-      totalMessages: 50,
-      readMessages: 35,
-      description: 'Skip 10, show 25 context + 15 unread = 40 visible',
+      name: 'Some Messages (80 total, 60 read)',
+      totalMessages: 80,
+      readMessages: 60,
+      description: 'Progressive loading: 25 → 50 → 75 → all messages',
     ),
     _DemoScenario(
       name: 'All Read (40 total, 40 read)',
@@ -34,29 +34,29 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
       description: 'No separator - all messages are read',
     ),
     _DemoScenario(
-      name: 'Many Messages (100 total, 80 read)',
-      totalMessages: 100,
-      readMessages: 80,
-      description: 'Skip 55, show 25 context + 20 unread = 45 visible',
+      name: 'Many Messages (150 total, 120 read)',
+      totalMessages: 150,
+      readMessages: 120,
+      description: 'Multiple taps needed: 25 → 50 → 75 → 100 → all',
     ),
   ];
 
   void _onTapPlaceholder() {
     setState(() {
-      _showAllMessages = true;
+      _additionalMessagesRevealed += 25;
     });
   }
 
   void _reset() {
     setState(() {
-      _showAllMessages = false;
+      _additionalMessagesRevealed = 0;
     });
   }
 
   void _changeScenario(int index) {
     setState(() {
       _selectedScenario = index;
-      _showAllMessages = false;
+      _additionalMessagesRevealed = 0;
     });
   }
 
@@ -93,7 +93,7 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Dynamic threshold shows up to 25 recent messages as context',
+                    'Progressive loading: tap to reveal 25 more messages at a time',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
@@ -172,6 +172,27 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
               ),
             ),
 
+            // Progress indicator
+            if (_additionalMessagesRevealed > 0) ...[
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  'Revealed ${25 + _additionalMessagesRevealed} messages',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+            ],
+
             // Demo content
             Expanded(
               child: _buildMessageList(scenario),
@@ -183,12 +204,12 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
   }
 
   Widget _buildMessageList(_DemoScenario scenario) {
-    final shouldShowPlaceholder =
-        scenario.readMessages > 25 && !_showAllMessages;
+    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
+    final shouldShowPlaceholder = scenario.readMessages > totalMessagesToShow;
 
-    // Calculate messages to skip (keeping last 25 for context)
+    // Calculate messages to skip (keeping context messages)
     final messagesToSkip =
-        shouldShowPlaceholder ? scenario.readMessages - 25 : 0;
+        shouldShowPlaceholder ? scenario.readMessages - totalMessagesToShow : 0;
 
     // Generate visible messages
     final visibleMessages = List.generate(
@@ -206,7 +227,7 @@ class _SkippedMessagesDemoState extends State<SkippedMessagesDemo> {
     int? separatorIndex;
     if (showSeparator) {
       final readMessagesInVisible =
-          shouldShowPlaceholder ? 25 : scenario.readMessages;
+          shouldShowPlaceholder ? totalMessagesToShow : scenario.readMessages;
       final placeholderOffset = shouldShowPlaceholder ? 1 : 0;
       separatorIndex = placeholderOffset + readMessagesInVisible;
     }

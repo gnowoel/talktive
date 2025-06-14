@@ -42,7 +42,8 @@ class _MessageListState extends State<MessageList> {
   late ReportMessageCache reportMessageCache;
   List<Message> _messages = [];
   ScrollNotification? _lastNotification;
-  int _additionalMessagesRevealed = 0;
+  int _additionalMessagesRevealedUp = 0;
+  int _additionalMessagesRevealedDown = 0;
 
   @override
   void initState() {
@@ -131,15 +132,23 @@ class _MessageListState extends State<MessageList> {
     if (_isNew()) return false; // New chat, show info instead
 
     final readCount = widget.chat.readMessageCount ?? 0;
-    final totalMessagesToShow = 25 + _additionalMessagesRevealed;
+    final totalMessagesToShow =
+        25 + _additionalMessagesRevealedUp + _additionalMessagesRevealedDown;
     return readCount > totalMessagesToShow;
   }
 
-  void _showAllMessagesPressed() {
+  void _showMoreMessagesUp() {
     setState(() {
-      _additionalMessagesRevealed += 25;
+      _additionalMessagesRevealedUp += 25;
     });
-    // Scroll to bottom after showing more messages
+    // Maintain current scroll position for up expansion
+  }
+
+  void _showMoreMessagesDown() {
+    setState(() {
+      _additionalMessagesRevealedDown += 25;
+    });
+    // Scroll to bottom after showing more messages from bottom
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.scrollController.hasClients) {
         _scrollToBottom();
@@ -181,11 +190,15 @@ class _MessageListState extends State<MessageList> {
     final readCount = widget.chat.readMessageCount ?? 0;
 
     // Always show first 10 messages + last 15 read messages as context
-    final firstMessagesCount = readCount >= 10 ? 10 : readCount;
+    final baseFirstCount = readCount >= 10 ? 10 : readCount;
+    final firstMessagesCount =
+        (baseFirstCount + _additionalMessagesRevealedDown).clamp(0, readCount);
+
+    final baseLastCount = 15;
     final maxContextCount =
         (readCount - firstMessagesCount).clamp(0, readCount);
-    final lastReadContextCount =
-        (15 + _additionalMessagesRevealed).clamp(0, maxContextCount);
+    final lastReadContextCount = (baseLastCount + _additionalMessagesRevealedUp)
+        .clamp(0, maxContextCount);
 
     // Calculate messages to skip between first 10 and last context
     final totalContextShown = firstMessagesCount + lastReadContextCount;
@@ -238,7 +251,8 @@ class _MessageListState extends State<MessageList> {
         if (showPlaceholder && index == placeholderIndex) {
           return SkippedMessagesPlaceholder(
             messageCount: messagesToSkip,
-            onTap: _showAllMessagesPressed,
+            onTapUp: _showMoreMessagesUp,
+            onTapDown: _showMoreMessagesDown,
           );
         }
 

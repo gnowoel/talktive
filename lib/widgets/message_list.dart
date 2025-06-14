@@ -130,10 +130,18 @@ class _MessageListState extends State<MessageList> {
     if (_isNew()) return false; // New chat, show info instead
 
     final readCount = widget.chat.readMessageCount ?? 0;
-    return readCount > 0;
+    return readCount > 10; // Only skip if more than 10 messages
   }
 
-  void _showAllMessagesPressed() {
+  Future<void> _showAllMessagesPressed() async {
+    final readCount = widget.chat.readMessageCount ?? 0;
+
+    // Show confirmation dialog if more than 100 messages
+    if (readCount > 100) {
+      final confirmed = await _showConfirmationDialog(readCount);
+      if (confirmed != true) return;
+    }
+
     setState(() {
       _showAllMessages = true;
     });
@@ -143,6 +151,28 @@ class _MessageListState extends State<MessageList> {
         _scrollToBottom();
       }
     });
+  }
+
+  Future<bool?> _showConfirmationDialog(int messageCount) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Load All Messages'),
+        content: Text(
+          'Loading $messageCount messages may take some time and could affect performance. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Load'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -160,11 +190,7 @@ class _MessageListState extends State<MessageList> {
         onNotification: _handleScrollMetricsNotification,
         child: NotificationListener<ScrollNotification>(
           onNotification: _handleScrollNotification,
-          child: _isNew()
-              ? _buildInfo()
-              : _shouldShowPlaceholder()
-                  ? _buildPlaceholder()
-                  : _buildListView(context),
+          child: _isNew() ? _buildInfo() : _buildListView(context),
         ),
       ),
     );
@@ -178,29 +204,32 @@ class _MessageListState extends State<MessageList> {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildListView(BuildContext context) {
+    final showPlaceholder = _shouldShowPlaceholder();
     final readCount = widget.chat.readMessageCount ?? 0;
 
-    return Column(
-      children: [
-        Expanded(
-          child: Center(
-            child: SkippedMessagesPlaceholder(
-              messageCount: readCount,
-              onTap: _showAllMessagesPressed,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+    // Calculate how many messages to skip and show
+    final messagesToSkip = showPlaceholder ? readCount : 0;
+    final visibleMessages = _messages.skip(messagesToSkip).toList();
 
-  Widget _buildListView(BuildContext context) {
+    final itemCount =
+        showPlaceholder ? visibleMessages.length + 1 : visibleMessages.length;
+
     return ListView.builder(
       controller: widget.scrollController,
-      itemCount: _messages.length,
+      itemCount: itemCount,
       itemBuilder: (context, index) {
-        final message = _messages[index];
+        // Show placeholder as first item
+        if (showPlaceholder && index == 0) {
+          return SkippedMessagesPlaceholder(
+            messageCount: messagesToSkip,
+            onTap: _showAllMessagesPressed,
+          );
+        }
+
+        // Adjust index for actual messages
+        final messageIndex = showPlaceholder ? index - 1 : index;
+        final message = visibleMessages[messageIndex];
 
         if (message is ImageMessage) {
           return ImageMessageItem(

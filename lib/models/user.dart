@@ -115,15 +115,14 @@ class User {
     return (log(messageCount!) / log(3)).ceil();
   }
 
-  /// Calculate reputation score based on reported messages vs total messages
-  /// Uses a dampened formula to prevent single incidents from causing extreme drops
-  /// Formula: 1.0 - (reportedMessages / (totalMessages + dampening))
-  /// Where dampening = max(10, totalMessages * 0.1) to provide stability
+  /// Calculate reputation score based on total reports vs total messages.
+  /// Uses a dampened formula with sqrt(reportCount) to reduce the impact
+  /// of multiple reports on a single message.
+  /// Formula: 1.0 - (sqrt(totalReports) / (totalMessages + dampening))
+  /// Where dampening = (totalMessages * 0.1).clamp(5.0, 50.0) to provide stability
   ///
-  /// Returns a value between 0.0 and 1.0, where 1.0 is perfect reputation
-  /// Returns 1.0 if messageCount is 0 or null (no messages to evaluate)
-  ///
-  /// Note: reportCount should represent unique reported messages, not total reports
+  /// Returns a value between 0.0 and 1.0, where 1.0 is perfect reputation.
+  /// Returns 1.0 if messageCount or reportCount is 0 or null.
   double get reputationScore {
     if (messageCount == null || messageCount! <= 0) return 1.0;
     if (reportCount == null || reportCount! <= 0) return 1.0;
@@ -131,7 +130,7 @@ class User {
     // Apply dampening to prevent extreme drops from limited data
     final dampening = (messageCount! * 0.1).clamp(5.0, 50.0);
     final adjustedTotal = messageCount! + dampening;
-    final ratio = reportCount! / adjustedTotal;
+    final ratio = sqrt(reportCount!) / adjustedTotal;
     final score = 1.0 - ratio;
 
     // Ensure score is between 0.0 and 1.0

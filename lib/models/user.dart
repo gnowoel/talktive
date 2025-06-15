@@ -115,34 +115,42 @@ class User {
     return (log(messageCount!) / log(3)).ceil();
   }
 
-  /// Calculate reputation score based on the formula: (1 - reportCount / messageCount)
+  /// Calculate reputation score based on reported messages vs total messages
+  /// Uses a dampened formula to prevent single incidents from causing extreme drops
+  /// Formula: 1.0 - (reportedMessages / (totalMessages + dampening))
+  /// Where dampening = max(10, totalMessages * 0.1) to provide stability
+  ///
   /// Returns a value between 0.0 and 1.0, where 1.0 is perfect reputation
   /// Returns 1.0 if messageCount is 0 or null (no messages to evaluate)
-  /// Returns 0.0 if reportCount >= messageCount (fully reported)
+  ///
+  /// Note: reportCount should represent unique reported messages, not total reports
   double get reputationScore {
     if (messageCount == null || messageCount! <= 0) return 1.0;
     if (reportCount == null || reportCount! <= 0) return 1.0;
 
-    final ratio = reportCount! / messageCount!;
+    // Apply dampening to prevent extreme drops from limited data
+    final dampening = (messageCount! * 0.1).clamp(5.0, 50.0);
+    final adjustedTotal = messageCount! + dampening;
+    final ratio = reportCount! / adjustedTotal;
     final score = 1.0 - ratio;
 
     // Ensure score is between 0.0 and 1.0
     return score.clamp(0.0, 1.0);
   }
 
-  /// Check if user has good reputation (score >= 0.8)
-  bool get hasGoodReputation => reputationScore >= 0.8;
+  /// Check if user has good reputation (score >= 0.85)
+  bool get hasGoodReputation => reputationScore >= 0.85;
 
-  /// Check if user has poor reputation (score < 0.6)
-  bool get hasPoorReputation => reputationScore < 0.6;
+  /// Check if user has poor reputation (score < 0.7)
+  bool get hasPoorReputation => reputationScore < 0.7;
 
   /// Get reputation level as a string for display purposes
   String get reputationLevel {
     final score = reputationScore;
-    if (score >= 0.9) return 'excellent';
-    if (score >= 0.8) return 'good';
-    if (score >= 0.6) return 'fair';
-    if (score >= 0.4) return 'poor';
+    if (score >= 0.92) return 'excellent';
+    if (score >= 0.85) return 'good';
+    if (score >= 0.7) return 'fair';
+    if (score >= 0.5) return 'poor';
     return 'very_poor';
   }
 }

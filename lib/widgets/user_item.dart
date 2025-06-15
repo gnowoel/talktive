@@ -345,7 +345,7 @@ class _UserItemState extends State<UserItem> {
                 ),
                 const SizedBox(width: 4),
                 Tag(
-                  tooltip: 'Level ${widget.user.level}',
+                  tooltip: 'Experience Level',
                   child: Text(
                     'L${widget.user.level}',
                     style: TextStyle(fontSize: 12),
@@ -370,6 +370,17 @@ class _UserItemState extends State<UserItem> {
                 ] else if (userStatus == 'newcomer') ...[
                   const SizedBox(width: 4),
                   Tag(status: 'newcomer'),
+                ],
+                // Show reputation level for notable cases
+                if (widget.user.reputationLevel == 'excellent') ...[
+                  const SizedBox(width: 4),
+                  Tag(status: 'excellent'),
+                ] else if (widget.user.reputationLevel == 'poor') ...[
+                  const SizedBox(width: 4),
+                  Tag(status: 'poor'),
+                ] else if (widget.user.reputationLevel == 'very_poor') ...[
+                  const SizedBox(width: 4),
+                  Tag(status: 'very_poor'),
                 ],
               ],
             ),

@@ -1,9 +1,9 @@
 import '../helpers/time.dart';
 import '../services/server_clock.dart';
-import 'conversation.dart';
+import 'room.dart';
 import 'user.dart';
 
-class Chat extends Conversation {
+class Chat extends Room {
   final UserStub partner;
   final String? firstUserId;
   final String? lastMessageContent;

@@ -3,7 +3,7 @@ import 'dart:math';
 import '../helpers/time.dart';
 import '../services/server_clock.dart';
 
-abstract class Conversation {
+abstract class Room {
   final String id;
   final int createdAt;
   final int updatedAt;
@@ -11,7 +11,7 @@ abstract class Conversation {
   final String type; // 'chat' or 'topic'
   final int? readMessageCount;
 
-  const Conversation({
+  const Room({
     required this.id,
     required this.createdAt,
     required this.updatedAt,

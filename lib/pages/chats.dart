@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/time.dart';
-import '../models/conversation.dart';
+import '../models/room.dart';
 import '../services/chat_cache.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
@@ -24,7 +24,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late ChatCache chatCache;
   late TopicCache topicCache;
-  List<Conversation> _items = []; // Stores both chats and topics
+  List<Room> _items = []; // Stores both chats and topics
   Timer? _timer;
 
   @override
@@ -48,8 +48,8 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void _setItemsAgain() {
-    final activeChats = List<Conversation>.from(chatCache.activeChats);
-    final activeTopics = List<Conversation>.from(topicCache.activeTopics);
+    final activeChats = List<Room>.from(chatCache.activeChats);
+    final activeTopics = List<Room>.from(topicCache.activeTopics);
 
     _items = [...activeChats, ...activeTopics]
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));

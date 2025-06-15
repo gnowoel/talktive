@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../helpers/time.dart';
 import '../services/server_clock.dart';
-import 'conversation.dart';
+import 'room.dart';
 import 'user.dart';
 
-class Topic extends Conversation {
+class Topic extends Room {
   final String title;
   final User creator;
   final String? lastMessageContent;

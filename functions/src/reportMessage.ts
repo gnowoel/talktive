@@ -4,6 +4,7 @@ import { logger } from 'firebase-functions'
 import { onCall } from 'firebase-functions/v2/https';
 import { User, Message } from './types';
 import { getDateBasedDocId } from './helpers';
+import { getRestrictionMultiplier } from './reputationUtils';
 
 interface MessageData {
   userId: string;
@@ -163,9 +164,9 @@ const getNewRevivedAt = async (now: number, oldRevivedAt: number, user: User) =>
   let days = Math.ceil(remaining / oneDay);
   if (days < 1 || days > 256) days = 1;
 
-  // Calculate reputation score and apply it to scale the restriction duration
-  const reputationScore = calculateReputationScore(user);
-  days = Math.max(Math.ceil(days * (1 - reputationScore)), 1);
+  // Calculate restriction multiplier based on reputation score
+  const restrictionMultiplier = getRestrictionMultiplier(user);
+  days = Math.max(Math.ceil(days * restrictionMultiplier), 1);
 
   const newRevivedAt = oldRevivedAt + days * oneDay;
   return newRevivedAt;
@@ -207,16 +208,7 @@ const updateMessageReportCount = async (chatId: string, messageId: string) => {
   }
 };
 
-const calculateReputationScore = (user: User): number => {
-  if (!user.messageCount || user.messageCount <= 0) return 1.0;
-  if (!user.reportCount || user.reportCount <= 0) return 1.0;
 
-  const ratio = user.reportCount / user.messageCount;
-  const score = 1.0 - ratio;
-
-  // Ensure score is between 0.0 and 1.0
-  return Math.max(0.0, Math.min(1.0, score));
-};
 
 const updatePartnerChatsRevivedAt = async (userId: string, revivedAt: number) => {
   try {

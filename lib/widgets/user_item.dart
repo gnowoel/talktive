@@ -361,27 +361,24 @@ class _UserItemState extends State<UserItem> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (userStatus == 'warning') ...[
-                  const SizedBox(width: 4),
-                  Tag(status: 'warning'),
-                ] else if (userStatus == 'alert') ...[
-                  const SizedBox(width: 4),
-                  Tag(status: 'alert'),
-                ] else if (userStatus == 'newcomer') ...[
-                  const SizedBox(width: 4),
-                  Tag(status: 'newcomer'),
-                ],
-                // Show reputation level for notable cases
-                if (widget.user.reputationLevel == 'excellent') ...[
-                  const SizedBox(width: 4),
-                  Tag(status: 'excellent'),
-                ] else if (widget.user.reputationLevel == 'poor') ...[
-                  const SizedBox(width: 4),
-                  Tag(status: 'poor'),
-                ] else if (widget.user.reputationLevel == 'very_poor') ...[
-                  const SizedBox(width: 4),
-                  Tag(status: 'very_poor'),
-                ],
+                // Show single most relevant status tag (priority-based)
+                ...() {
+                  // Priority order: warning > alert > very_poor > poor > newcomer > excellent
+                  if (userStatus == 'warning') {
+                    return [const SizedBox(width: 4), Tag(status: 'warning')];
+                  } else if (userStatus == 'alert') {
+                    return [const SizedBox(width: 4), Tag(status: 'alert')];
+                  } else if (widget.user.reputationLevel == 'very_poor') {
+                    return [const SizedBox(width: 4), Tag(status: 'very_poor')];
+                  } else if (widget.user.reputationLevel == 'poor') {
+                    return [const SizedBox(width: 4), Tag(status: 'poor')];
+                  } else if (userStatus == 'newcomer') {
+                    return [const SizedBox(width: 4), Tag(status: 'newcomer')];
+                  } else if (widget.user.reputationLevel == 'excellent') {
+                    return [const SizedBox(width: 4), Tag(status: 'excellent')];
+                  }
+                  return <Widget>[];
+                }(),
               ],
             ),
           ],

@@ -133,8 +133,8 @@ class User {
   /// Check if user has good reputation (score >= 0.8)
   bool get hasGoodReputation => reputationScore >= 0.8;
 
-  /// Check if user has poor reputation (score <= 0.5)
-  bool get hasPoorReputation => reputationScore <= 0.5;
+  /// Check if user has poor reputation (score < 0.6)
+  bool get hasPoorReputation => reputationScore < 0.6;
 
   /// Get reputation level as a string for display purposes
   String get reputationLevel {

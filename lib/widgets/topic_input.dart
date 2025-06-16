@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../helpers/exception.dart';
 import '../models/topic.dart';
 import '../services/storage.dart';
-import '../services/user_cache.dart';
 import 'status_notice.dart';
 
 class TopicInput extends StatefulWidget {
@@ -69,11 +68,11 @@ class TopicInputState extends State<TopicInput> {
     final mention = '@$displayName ';
     final currentText = _controller.text;
     final selection = _controller.selection;
-    
+
     // Handle invalid selection by using end of text
     int start = selection.start;
     int end = selection.end;
-    
+
     if (start < 0 || start > currentText.length) {
       start = currentText.length;
     }
@@ -83,15 +82,15 @@ class TopicInputState extends State<TopicInput> {
     if (start > end) {
       start = end;
     }
-    
+
     // Insert mention at cursor position
     final newText = currentText.replaceRange(start, end, mention);
-    
+
     _controller.text = newText;
     _controller.selection = TextSelection.collapsed(
       offset: start + mention.length,
     );
-    
+
     // Focus the input field
     widget.focusNode.requestFocus();
   }
@@ -217,13 +216,9 @@ class TopicInputState extends State<TopicInput> {
     return KeyEventResult.ignored;
   }
 
-  String _showText({required String enabledText, required bool reviewOnly}) {
+  String _showText({required String enabledText}) {
     if (_enabled) {
-      if (reviewOnly) {
-        return 'Review only';
-      } else {
-        return enabledText;
-      }
+      return enabledText;
     }
 
     final topic = widget.topic;
@@ -259,10 +254,6 @@ class TopicInputState extends State<TopicInput> {
 
   @override
   Widget build(BuildContext context) {
-    final userCache = context.watch<UserCache>();
-    final user = userCache.user!;
-    final reviewOnly = user.isTrainee;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -281,9 +272,8 @@ class TopicInputState extends State<TopicInput> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: (!_enabled || reviewOnly || _isUploading)
-                      ? null
-                      : _sendImageMessage,
+                  onPressed:
+                      (!_enabled || _isUploading) ? null : _sendImageMessage,
                   icon: _isUploading
                       ? const SizedBox(
                           width: 20,
@@ -294,40 +284,29 @@ class TopicInputState extends State<TopicInput> {
                           Icons.attach_file,
                           color: theme.colorScheme.primary,
                         ),
-                  tooltip: _showText(
-                    enabledText: 'Send picture',
-                    reviewOnly: reviewOnly,
-                  ),
+                  tooltip: _showText(enabledText: 'Send picture'),
                 ),
                 Expanded(
                   child: KeyboardListener(
                     focusNode: FocusNode(),
-                    onKeyEvent:
-                        (!_enabled || reviewOnly) ? null : _handleKeyEvent,
+                    onKeyEvent: !_enabled ? null : _handleKeyEvent,
                     child: TextField(
-                      enabled: _enabled && !reviewOnly,
+                      enabled: _enabled,
                       focusNode: widget.focusNode,
                       minLines: 1,
                       maxLines: 12,
                       controller: _controller,
                       decoration: InputDecoration.collapsed(
-                        hintText: _showText(
-                          enabledText: 'Share publicly',
-                          reviewOnly: reviewOnly,
-                        ),
+                        hintText: _showText(enabledText: 'Share publicly'),
                         hintStyle: TextStyle(color: theme.colorScheme.outline),
                       ),
                     ),
                   ),
                 ),
                 IconButton(
-                  onPressed:
-                      (!_enabled || reviewOnly) ? null : _sendTextMessage,
+                  onPressed: !_enabled ? null : _sendTextMessage,
                   icon: Icon(Icons.send, color: theme.colorScheme.primary),
-                  tooltip: _showText(
-                    enabledText: 'Send message',
-                    reviewOnly: reviewOnly,
-                  ),
+                  tooltip: _showText(enabledText: 'Send message'),
                 ),
               ],
             ),

@@ -162,7 +162,7 @@ const getNewRevivedAt = async (now: number, oldRevivedAt: number, user: User) =>
   const remaining = oldRevivedAt - then;
 
   let days = Math.ceil(remaining / oneDay);
-  if (days < 1 || days > 21) days = 1;
+  if (days < 1) days = 1;
 
   // Calculate restriction multiplier based on reputation score
   const restrictionMultiplier = getRestrictionMultiplier(user);

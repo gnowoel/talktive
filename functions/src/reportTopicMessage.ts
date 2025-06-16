@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions'
 import { onCall } from 'firebase-functions/v2/https';
 import { User } from './types';
-import { getDateBasedDocId } from './helpers';
+import { getDateBasedDocId, isDebugMode } from './helpers';
 import { getRestrictionMultiplier } from './reputationUtils';
 
 interface TopicMessageData {
@@ -187,11 +187,24 @@ const updateUserRevivedAtAndReportCount = async (userId: string, revivedAt: numb
   try {
     const userRef = db.ref(`users/${userId}`);
 
-    // Update revivedAt and increment reportCount atomically
-    await userRef.update({
-      revivedAt,
-      reportCount: admin.database.ServerValue.increment(1),
-    });
+    // `ServerValue` doesn't work with Emulators Suite
+    if (isDebugMode()) {
+      // Get current user data to manually increment reportCount
+      const userSnapshot = await userRef.get();
+      const currentUser = userSnapshot.val();
+      const currentReportCount = currentUser?.reportCount || 0;
+
+      await userRef.update({
+        revivedAt,
+        reportCount: currentReportCount + 1,
+      });
+    } else {
+      // Update revivedAt and increment reportCount atomically
+      await userRef.update({
+        revivedAt,
+        reportCount: admin.database.ServerValue.increment(1),
+      });
+    }
 
     logger.info(`User ${userId} revivedAt and reportCount updated`);
   } catch (error) {

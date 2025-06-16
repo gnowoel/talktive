@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/topic.dart';
-import '../services/follow_cache.dart';
 import '../services/storage.dart';
 import '../services/user_cache.dart';
 import 'status_notice.dart';
@@ -36,7 +35,6 @@ class TopicInputState extends State<TopicInput> {
   late ThemeData theme;
   late Storage storage;
   late UserCache userCache;
-  late FollowCache followCache;
   Timer? _refreshTimer;
   final _controller = TextEditingController();
   bool _enabled = false;
@@ -47,7 +45,6 @@ class TopicInputState extends State<TopicInput> {
     super.initState();
     storage = context.read<Storage>();
     userCache = context.read<UserCache>();
-    followCache = context.read<FollowCache>();
     _refreshAgain();
   }
 
@@ -110,8 +107,10 @@ class TopicInputState extends State<TopicInput> {
     final user = userCache.user;
     final hasPermission = canSendMessage(user);
 
-    _enabled = hasPermission && timeLeft > 0 &&
-               !widget.topic!.isDummy && !widget.topic!.isClosed;
+    _enabled = hasPermission &&
+        timeLeft > 0 &&
+        !widget.topic!.isDummy &&
+        !widget.topic!.isClosed;
 
     if (timeLeft == 0) return;
 
@@ -123,7 +122,8 @@ class TopicInputState extends State<TopicInput> {
           final user = userCache.user;
           final hasPermission = canSendMessage(user);
           _enabled = hasPermission &&
-                     !widget.topic!.isDummy && !widget.topic!.isClosed;
+              !widget.topic!.isDummy &&
+              !widget.topic!.isClosed;
         });
       }
     });

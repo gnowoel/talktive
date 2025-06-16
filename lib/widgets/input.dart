@@ -312,7 +312,9 @@ class InputState extends State<Input> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: _enabled ? () => _sendImageMessage(user) : null,
+                  onPressed: (_enabled && hasPermission)
+                      ? () => _sendImageMessage(user)
+                      : null,
                   icon: _isUploading
                       ? const SizedBox(
                           width: 20,
@@ -330,7 +332,7 @@ class InputState extends State<Input> {
                 Expanded(
                   child: KeyboardListener(
                     focusNode: FocusNode(),
-                    onKeyEvent: _enabled
+                    onKeyEvent: (_enabled && hasPermission)
                         ? (event) => _handleKeyEvent(event, user)
                         : null,
                     child: TextField(
@@ -356,7 +358,9 @@ class InputState extends State<Input> {
                   ),
                 ),
                 IconButton(
-                  onPressed: _enabled ? () => _sendTextMessage(user) : null,
+                  onPressed: (_enabled && hasPermission)
+                      ? () => _sendTextMessage(user)
+                      : null,
                   icon: Icon(Icons.send, color: theme.colorScheme.tertiary),
                   tooltip: _enabled
                       ? 'Send message'

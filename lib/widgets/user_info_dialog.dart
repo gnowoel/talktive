@@ -232,6 +232,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                   ),
                 ),
                 // Show single most relevant status tag (priority-based)
+                // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
                 if (userStatus == 'warning') ...[
                   Tag(status: 'warning'),
                 ] else if (userStatus == 'alert') ...[

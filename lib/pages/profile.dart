@@ -7,7 +7,6 @@ import '../models/admin.dart';
 import '../services/firedata.dart';
 import '../services/user_cache.dart';
 import '../widgets/layout.dart';
-import '../widgets/tag.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -77,23 +76,23 @@ class ProfilePage extends StatelessWidget {
                                 children: [
                                   _Badge(
                                     label: 'Level ${user.level}',
-                                    backgroundColor: theme.colorScheme.primary,
-                                    textColor: theme.colorScheme.onPrimary,
+                                    borderColor:
+                                        theme.colorScheme.outlineVariant,
                                   ),
                                   const SizedBox(width: 8),
                                   _Badge(
                                     label:
                                         getLongGenderName(user.gender!) ?? '',
-                                    backgroundColor:
-                                        theme.colorScheme.surfaceContainerHigh,
+                                    borderColor:
+                                        theme.colorScheme.outlineVariant,
                                   ),
                                   const SizedBox(width: 8),
                                   _Badge(
                                     label:
                                         getLanguageName(user.languageCode!) ??
                                             '',
-                                    backgroundColor:
-                                        theme.colorScheme.surfaceContainerHigh,
+                                    borderColor:
+                                        theme.colorScheme.outlineVariant,
                                   ),
                                 ],
                               ),
@@ -110,25 +109,70 @@ class ProfilePage extends StatelessWidget {
                                     final userStatus = user.status;
                                     final widgets = <Widget>[];
 
-                                    // Priority order: warning > alert > very_poor > poor > newcomer > excellent
+                                    // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
                                     if (userStatus == 'warning') {
-                                      widgets.add(Tag(status: 'warning'));
+                                      widgets.add(_Badge(
+                                        label: 'Warning',
+                                        backgroundColor:
+                                            theme.colorScheme.errorContainer,
+                                        textColor:
+                                            theme.colorScheme.onErrorContainer,
+                                      ));
                                     } else if (userStatus == 'alert') {
-                                      widgets.add(Tag(status: 'alert'));
+                                      widgets.add(_Badge(
+                                        label: 'Alert',
+                                        backgroundColor:
+                                            theme.colorScheme.tertiaryContainer,
+                                        textColor: theme
+                                            .colorScheme.onTertiaryContainer,
+                                      ));
                                     } else if (user.reputationLevel ==
                                         'very_poor') {
-                                      widgets.add(Tag(status: 'very_poor'));
+                                      widgets.add(_Badge(
+                                        label: 'Poor Reputation',
+                                        backgroundColor:
+                                            theme.colorScheme.errorContainer,
+                                        textColor:
+                                            theme.colorScheme.onErrorContainer,
+                                      ));
                                     } else if (user.reputationLevel == 'poor') {
-                                      widgets.add(Tag(status: 'poor'));
+                                      widgets.add(_Badge(
+                                        label: 'Caution',
+                                        backgroundColor: theme
+                                            .colorScheme.errorContainer
+                                            .withValues(alpha: 0.7),
+                                        textColor:
+                                            theme.colorScheme.onErrorContainer,
+                                      ));
                                     } else if (userStatus == 'newcomer') {
-                                      widgets.add(Tag(status: 'newcomer'));
+                                      widgets.add(_Badge(
+                                        label: 'New User',
+                                        backgroundColor:
+                                            theme.colorScheme.primaryContainer,
+                                        textColor: theme
+                                            .colorScheme.onPrimaryContainer,
+                                      ));
                                     } else if (user.reputationLevel ==
                                         'excellent') {
-                                      widgets.add(Tag(status: 'excellent'));
+                                      widgets.add(_Badge(
+                                        label: 'Trusted User',
+                                        backgroundColor: theme
+                                            .colorScheme.secondaryContainer,
+                                        textColor: theme
+                                            .colorScheme.onSecondaryContainer,
+                                      ));
                                     } else if (user.reputationLevel == 'good') {
-                                      widgets.add(Tag(status: 'good'));
+                                      widgets.add(_Badge(
+                                        label: 'Good Reputation',
+                                        backgroundColor: theme
+                                            .colorScheme.surfaceContainerHigh,
+                                        textColor: theme.colorScheme.onSurface,
+                                      ));
                                     }
 
+                                    if (widgets.isNotEmpty) {
+                                      widgets.add(const SizedBox(width: 8));
+                                    }
                                     return widgets;
                                   }(),
                                 ],
@@ -171,13 +215,15 @@ class ProfilePage extends StatelessWidget {
 
 class _Badge extends StatelessWidget {
   final String label;
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final Color? textColor;
+  final Color? borderColor;
 
   const _Badge({
     required this.label,
-    required this.backgroundColor,
+    this.backgroundColor,
     this.textColor,
+    this.borderColor,
   });
 
   @override
@@ -189,6 +235,7 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
+        border: borderColor != null ? Border.all(color: borderColor!) : null,
       ),
       child: Text(
         label,

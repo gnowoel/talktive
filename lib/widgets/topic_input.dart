@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/exception.dart';
+import '../helpers/helpers.dart';
 import '../models/topic.dart';
+import '../services/follow_cache.dart';
 import '../services/storage.dart';
+import '../services/user_cache.dart';
 import 'status_notice.dart';
 
 class TopicInput extends StatefulWidget {
@@ -33,6 +35,8 @@ class TopicInput extends StatefulWidget {
 class TopicInputState extends State<TopicInput> {
   late ThemeData theme;
   late Storage storage;
+  late UserCache userCache;
+  late FollowCache followCache;
   Timer? _refreshTimer;
   final _controller = TextEditingController();
   bool _enabled = false;
@@ -42,6 +46,8 @@ class TopicInputState extends State<TopicInput> {
   void initState() {
     super.initState();
     storage = context.read<Storage>();
+    userCache = context.read<UserCache>();
+    followCache = context.read<FollowCache>();
     _refreshAgain();
   }
 
@@ -101,15 +107,24 @@ class TopicInputState extends State<TopicInput> {
     _refreshTimer?.cancel();
 
     final timeLeft = _getTimeLeft();
-    if (timeLeft == 0) return;
+    final user = userCache.user;
+    final hasPermission = canSendMessage(user);
 
-    _enabled = true;
+    _enabled = hasPermission && timeLeft > 0 &&
+               !widget.topic!.isDummy && !widget.topic!.isClosed;
+
+    if (timeLeft == 0) return;
 
     final duration = Duration(milliseconds: timeLeft);
 
     _refreshTimer = Timer(duration, () {
       if (mounted) {
-        setState(() => _enabled = false);
+        setState(() {
+          final user = userCache.user;
+          final hasPermission = canSendMessage(user);
+          _enabled = hasPermission &&
+                     !widget.topic!.isDummy && !widget.topic!.isClosed;
+        });
       }
     });
   }
@@ -221,6 +236,12 @@ class TopicInputState extends State<TopicInput> {
       return enabledText;
     }
 
+    final user = userCache.user;
+
+    if (!canSendMessage(user)) {
+      return 'Account restricted';
+    }
+
     final topic = widget.topic;
 
     if (topic != null) {
@@ -232,9 +253,13 @@ class TopicInputState extends State<TopicInput> {
   }
 
   Widget _buildStatusNotice() {
+    final user = userCache.user;
     String message;
 
-    if (widget.topic?.isDummy == true) {
+    if (!canSendMessage(user)) {
+      message =
+          'Your account has been temporarily restricted due to multiple reports of inappropriate behavior. You cannot send messages until this restriction expires.';
+    } else if (widget.topic?.isDummy == true) {
       message =
           'This topic has been deleted to protect your privacy. Go to the Topics tab to start a new one at any time';
     } else if (widget.topic?.isClosed == true) {

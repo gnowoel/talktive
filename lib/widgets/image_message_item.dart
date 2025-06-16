@@ -75,12 +75,11 @@ class _ImageMessageItemState extends State<ImageMessageItem> {
     final byMe = widget.reporterUserId == null
         ? widget.message.userId == currentUser.uid
         : widget.message.userId == widget.reporterUserId;
-    final canReportOthers =
-        userCache.user != null && userCache.user!.canReportOthers;
+    final hasReportPermission = canReportOthers(userCache.user);
 
     // Check report eligibility first (async operation)
     bool canShowReport = false;
-    if (!byMe && canReportOthers && widget.message.id != null) {
+    if (!byMe && hasReportPermission && widget.message.id != null) {
       canShowReport = await MessageStatusHelper.shouldShowReportOptionWithCache(
         widget.message,
         byMe,

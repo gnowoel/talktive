@@ -7,6 +7,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/user_cache.dart';
+import '../helpers/helpers.dart';
 import '../helpers/topic_message_status_helper.dart';
 import '../helpers/mention_helper.dart';
 import '../theme.dart';
@@ -69,12 +70,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   void _showContextMenu(BuildContext context, Offset position) async {
     final currentUser = fireauth.instance.currentUser!;
     final byMe = widget.message.userId == currentUser.uid;
-    final canReportOthers =
-        userCache.user != null && userCache.user!.canReportOthers;
+    final hasReportPermission = canReportOthers(userCache.user);
 
     // Check report eligibility first (async operation)
     bool canShowReport = false;
-    if (!byMe && canReportOthers && widget.message.id != null) {
+    if (!byMe && hasReportPermission && widget.message.id != null) {
       canShowReport =
           await TopicMessageStatusHelper.shouldShowReportOptionWithCache(
         widget.message,
@@ -390,14 +390,14 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
         // Check if this message mentions the current user
         final currentUserName = userCache.user?.displayName ?? '';
-        final isMentioned = !byMe && currentUserName.isNotEmpty 
+        final isMentioned = !byMe && currentUserName.isNotEmpty
             ? MentionHelper.containsExactMention(content, currentUserName)
             : false;
 
         // Create the bubble widget with appropriate styling
         Widget bubble = Bubble(
-          content: displayContent, 
-          byMe: byMe, 
+          content: displayContent,
+          byMe: byMe,
           byOp: byOp,
           isMentioned: isMentioned,
         );

@@ -10,6 +10,7 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/follow_cache.dart';
 import '../services/storage.dart';
 import '../services/user_cache.dart';
 import 'status_notice.dart';
@@ -37,6 +38,7 @@ class InputState extends State<Input> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Storage storage;
+  late FollowCache followCache;
   late bool _enabled;
   late Timer timer;
 
@@ -51,12 +53,17 @@ class InputState extends State<Input> {
     fireauth = Provider.of<Fireauth>(context, listen: false);
     firedata = Provider.of<Firedata>(context, listen: false);
     storage = Provider.of<Storage>(context, listen: false);
+    followCache = Provider.of<FollowCache>(context, listen: false);
 
-    _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+    final userCache = Provider.of<UserCache>(context, listen: false);
+    final hasPermission = canSendMessage(userCache.user);
+    _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
 
     timer = Timer(Duration(milliseconds: widget.chat.getTimeLeft()), () {
       setState(() {
-        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+        final userCache = Provider.of<UserCache>(context, listen: false);
+        final hasPermission = canSendMessage(userCache.user);
+        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
       });
     });
   }
@@ -65,11 +72,11 @@ class InputState extends State<Input> {
     final mention = '@$displayName ';
     final currentText = _controller.text;
     final selection = _controller.selection;
-    
+
     // Handle invalid selection by using end of text
     int start = selection.start;
     int end = selection.end;
-    
+
     if (start < 0 || start > currentText.length) {
       start = currentText.length;
     }
@@ -79,15 +86,15 @@ class InputState extends State<Input> {
     if (start > end) {
       start = end;
     }
-    
+
     // Insert mention at cursor position
     final newText = currentText.replaceRange(start, end, mention);
-    
+
     _controller.text = newText;
     _controller.selection = TextSelection.collapsed(
       offset: start + mention.length,
     );
-    
+
     // Focus the input field
     widget.focusNode.requestFocus();
   }
@@ -104,13 +111,18 @@ class InputState extends State<Input> {
 
     timer.cancel();
 
+    final userCache = Provider.of<UserCache>(context, listen: false);
+    final hasPermission = canSendMessage(userCache.user);
+
     setState(() {
-      _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+      _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
     });
 
     timer = Timer(Duration(milliseconds: widget.chat.getTimeLeft()), () {
       setState(() {
-        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed;
+        final userCache = Provider.of<UserCache>(context, listen: false);
+        final hasPermission = canSendMessage(userCache.user);
+        _enabled = widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
       });
     });
 
@@ -251,9 +263,14 @@ class InputState extends State<Input> {
   }
 
   Widget _buildStatusNotice() {
+    final userCache = context.watch<UserCache>();
+    final hasPermission = canSendMessage(userCache.user);
     String message;
 
-    if (widget.chat.isDummy) {
+    if (!hasPermission) {
+      message =
+          'Your account has been temporarily restricted due to multiple reports of inappropriate behavior. You cannot send messages until this restriction expires.';
+    } else if (widget.chat.isDummy) {
       message =
           'This chat has been deleted to protect your privacy. You can start a new conversation with your partner anytime.';
     } else if (widget.chat.isClosed) {
@@ -275,11 +292,12 @@ class InputState extends State<Input> {
   Widget build(BuildContext context) {
     final userCache = context.watch<UserCache>();
     final user = userCache.user!;
+    final hasPermission = canSendMessage(user);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.chatPopulated && !_enabled) _buildStatusNotice(),
+        if (widget.chatPopulated && (!_enabled || !hasPermission)) _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Container(
@@ -303,7 +321,7 @@ class InputState extends State<Input> {
                           Icons.attach_file,
                           color: theme.colorScheme.tertiary,
                         ),
-                  tooltip: _enabled ? 'Send picture' : 'Chat closed',
+                  tooltip: _enabled ? 'Send picture' : (!hasPermission ? 'Account restricted' : 'Chat closed'),
                 ),
                 Expanded(
                   child: KeyboardListener(
@@ -321,7 +339,7 @@ class InputState extends State<Input> {
                         color: theme.colorScheme.onTertiaryContainer,
                       ),
                       decoration: InputDecoration.collapsed(
-                        hintText: _enabled ? 'Chat privately' : 'Chat closed',
+                        hintText: _enabled ? 'Chat privately' : (!hasPermission ? 'Account restricted' : 'Chat closed'),
                         hintStyle: TextStyle(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -332,7 +350,7 @@ class InputState extends State<Input> {
                 IconButton(
                   onPressed: _enabled ? () => _sendTextMessage(user) : null,
                   icon: Icon(Icons.send, color: theme.colorScheme.tertiary),
-                  tooltip: _enabled ? 'Send message' : 'Chat closed',
+                  tooltip: _enabled ? 'Send message' : (!hasPermission ? 'Account restricted' : 'Chat closed'),
                 ),
               ],
             ),

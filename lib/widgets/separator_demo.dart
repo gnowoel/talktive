@@ -29,7 +29,7 @@ class SeparatorDemo extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.7),
+                          .withValues(alpha: 0.7),
                     ),
               ),
               const SizedBox(height: 32),
@@ -87,12 +87,14 @@ class SeparatorDemo extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
-                      .surfaceVariant
-                      .withOpacity(0.3),
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -152,7 +154,10 @@ class SeparatorDemo extends StatelessWidget {
         Text(
           description,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
               ),
         ),
         const SizedBox(height: 12),
@@ -163,7 +168,8 @@ class SeparatorDemo extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+              color:
+                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: child,
@@ -181,13 +187,15 @@ class SeparatorDemo extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isRead
-              ? Theme.of(context).colorScheme.surfaceVariant
+              ? Theme.of(context).colorScheme.surfaceContainerHighest
               : Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(16),
           border: !isRead
               ? Border.all(
-                  color:
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .secondary
+                      .withValues(alpha: 0.3),
                 )
               : null,
         ),

@@ -123,7 +123,7 @@ class Tag extends StatelessWidget {
           margin: const EdgeInsets.only(top: 6, bottom: 2),
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: theme.colorScheme.errorContainer.withOpacity(0.7),
+            color: theme.colorScheme.errorContainer.withValues(alpha: 0.7),
             border: Border.all(color: theme.colorScheme.inversePrimary),
             borderRadius: BorderRadius.all(
               Radius.circular(16),

@@ -15,8 +15,8 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final separatorColor = theme.colorScheme.outline.withOpacity(0.3);
-    final textColor = theme.colorScheme.onSurface.withOpacity(0.6);
+    final separatorColor = theme.colorScheme.outline.withValues(alpha: 0.3);
+    final textColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -60,9 +60,10 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
                     child: InkWell(
                       onTap: onTapUp,
                       borderRadius: BorderRadius.circular(16),
-                      splashColor: theme.colorScheme.primary.withOpacity(0.1),
+                      splashColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.1),
                       highlightColor:
-                          theme.colorScheme.primary.withOpacity(0.05),
+                          theme.colorScheme.primary.withValues(alpha: 0.05),
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Icon(
@@ -91,9 +92,10 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
                     child: InkWell(
                       onTap: onTapDown,
                       borderRadius: BorderRadius.circular(16),
-                      splashColor: theme.colorScheme.primary.withOpacity(0.1),
+                      splashColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.1),
                       highlightColor:
-                          theme.colorScheme.primary.withOpacity(0.05),
+                          theme.colorScheme.primary.withValues(alpha: 0.05),
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Icon(

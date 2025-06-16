@@ -107,12 +107,12 @@ class _UserItemState extends State<UserItem> {
 
     if (self == null) return false;
 
-    if (self.withWarning) return false;
+    // Check basic message sending permission
+    if (!canSendMessage(self)) return false;
 
-    if (other.gender == 'F' && other.isTrainee) {
-      if (self.isTrainee || self.withAlert) {
-        return false;
-      }
+    // Check specific greeting permission for female users
+    if (other.gender == 'F') {
+      return canGreetNewFemale(self, followCache);
     }
 
     return true;
@@ -120,12 +120,14 @@ class _UserItemState extends State<UserItem> {
 
   Future<void> _showRestrictionDialog() async {
     final self = userCache.user!;
+    final other = widget.user;
     final colorScheme = Theme.of(context).colorScheme;
 
     String title;
     List<Widget> content;
 
-    if (self.withWarning) {
+    // Check if user can send messages at all
+    if (!canSendMessage(self)) {
       title = 'Account Restricted';
       content = [
         Text(
@@ -134,33 +136,20 @@ class _UserItemState extends State<UserItem> {
         ),
         const SizedBox(height: 16),
         const Text(
-          'You cannot start new chats until this restriction expires.',
+          'You cannot start new conversations until this restriction expires.',
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (self.withAlert) {
-      title = 'Temporarily Restricted';
+    } else if (other.gender == 'F' && !canGreetNewFemale(self, followCache)) {
+      title = 'Restricted Access';
       content = [
         Text(
-          'Due to previous reports, you cannot chat with new female users at this time.',
+          'You need level 4, followers, good reputation, and no restrictions to chat with new female users.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
         const Text(
           'This restriction helps maintain a safe environment for all users.',
-          style: TextStyle(height: 1.5),
-        ),
-      ];
-    } else if (self.isTrainee) {
-      title = 'Female Protection';
-      content = [
-        Text(
-          'Your account needs to be at least 24 hours old and reach level 4 to chat with new female users. Sorry about the inconvenience.',
-          style: TextStyle(height: 1.5, color: colorScheme.error),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'This restriction helps protect our community from harassment.',
           style: TextStyle(height: 1.5),
         ),
       ];

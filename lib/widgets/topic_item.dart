@@ -128,26 +128,43 @@ class _TopicItemState extends State<TopicItem> {
   }
 
   Future<void> _showRestrictionDialog() async {
+    final self = userCache.user!;
     final colorScheme = Theme.of(context).colorScheme;
+
+    String title;
+    List<Widget> content;
+
+    if (!canSendMessage(self)) {
+      title = 'Account Restricted';
+      content = [
+        Text(
+          'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot join topics until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else {
+      title = 'Cannot Join Topic';
+      content = [
+        const Text(
+          'You cannot join topics at this time.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    }
 
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Account Restricted'),
+        title: Text(title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
-              style: TextStyle(height: 1.5, color: colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'You cannot join topics until this restriction expires.',
-              style: TextStyle(height: 1.5),
-            ),
-          ],
+          children: content,
         ),
         actions: [
           TextButton(

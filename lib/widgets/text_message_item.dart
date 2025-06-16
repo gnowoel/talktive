@@ -7,6 +7,7 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
+import '../helpers/helpers.dart';
 import '../helpers/message_status_helper.dart';
 import '../helpers/mention_helper.dart';
 import 'bubble.dart';
@@ -70,12 +71,11 @@ class _TextMessageItemState extends State<TextMessageItem> {
     final byMe = widget.reporterUserId == null
         ? widget.message.userId == currentUser.uid
         : widget.message.userId == widget.reporterUserId;
-    final canReportOthers =
-        userCache.user != null && userCache.user!.canReportOthers;
+    final hasReportPermission = canReportOthers(userCache.user);
 
     // Check report eligibility first (async operation)
     bool canShowReport = false;
-    if (!byMe && canReportOthers && widget.message.id != null) {
+    if (!byMe && hasReportPermission && widget.message.id != null) {
       canShowReport = await MessageStatusHelper.shouldShowReportOptionWithCache(
         widget.message,
         byMe,
@@ -347,7 +347,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
 
     // Check if this message mentions the current user
     final currentUserName = userCache.user?.displayName ?? '';
-    final isMentioned = !byMe && currentUserName.isNotEmpty 
+    final isMentioned = !byMe && currentUserName.isNotEmpty
         ? MentionHelper.containsExactMention(content, currentUserName)
         : false;
 
@@ -383,8 +383,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
 
         // Create the bubble widget with appropriate styling
         Widget bubble = Bubble(
-          content: displayContent, 
-          byMe: byMe, 
+          content: displayContent,
+          byMe: byMe,
           isMentioned: isMentioned,
         );
 

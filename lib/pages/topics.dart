@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
+import '../helpers/permissions.dart';
 import '../models/topic.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
@@ -168,60 +169,24 @@ class _TopicsPageState extends State<TopicsPage> {
 
   bool _canCreateTopic() {
     final user = userCache.user;
-    if (user == null) return false;
-
-    return !user.isTrainee &&
-        !user.withAlert &&
-        followCache.followers.isNotEmpty;
+    return canCreateTopic(user, followCache);
   }
 
   Future<void> _showRestrictionDialog() async {
-    final user = userCache.user!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    String title;
-    List<Widget> content;
-
-    if (user.withAlert) {
-      title = 'Temporarily Restricted';
-      content = [
-        Text(
-          'Your account has been restricted due to reported inappropriate behavior.',
-          style: TextStyle(height: 1.5, color: colorScheme.error),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'You cannot create topics until this restriction expires.',
-          style: TextStyle(height: 1.5),
-        ),
-      ];
-    } else if (user.isTrainee) {
-      title = 'Account Too New';
-      content = [
-        Text(
-          'Your account needs to be at least 24 hours old and reach level 4 to create topics.',
-          style: TextStyle(height: 1.5, color: colorScheme.error),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'This restriction helps maintain quality discussions in our community.',
-          style: TextStyle(height: 1.5),
-        ),
-      ];
-    } else {
-      title = 'No Followers Yet';
-      content = [
-        Text(
-          'You need at least one follower to create topics.',
-          style: TextStyle(height: 1.5, color: colorScheme.error),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Make some friends first! Topics are meant for sharing with your followers.',
-          style: TextStyle(height: 1.5),
-        ),
-      ];
-    }
+    String title = 'Cannot Create Topic';
+    List<Widget> content = [
+      Text(
+        'You need level 4, followers, good reputation, and no restrictions to create topics.',
+        style: TextStyle(height: 1.5, color: colorScheme.error),
+      ),
+      const SizedBox(height: 16),
+      const Text(
+        'This helps maintain quality discussions in our community.',
+        style: TextStyle(height: 1.5),
+      ),
+    ];
 
     await showDialog<void>(
       context: context,

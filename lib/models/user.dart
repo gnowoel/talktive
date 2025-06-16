@@ -143,19 +143,11 @@ class User {
   /// Check if user has poor reputation (score < 0.7)
   bool get hasPoorReputation => reputationScore < 0.7;
 
-  /// Grace period end date for excellent reputation display (June 26, 2025 UTC)
-  static const int _excellentGracePeriodEnd =
-      1750896000000; // milliseconds since epoch
-
   /// Get reputation level as a string for display purposes
   String get reputationLevel {
     final score = reputationScore;
-    final serverNow = ServerClock().now;
-
-    // During grace period, don't show 'excellent' to allow reputation data to normalize
-    if (score >= 0.92 && serverNow >= _excellentGracePeriodEnd)
-      return 'excellent';
-    if (score >= 0.85) return 'good';
+    if (score >= 0.92) return level >= 6 ? 'excellent' : 'fair';
+    if (score >= 0.85) return level >= 6 ? 'good' : 'fair';
     if (score >= 0.7) return 'fair';
     if (score >= 0.5) return 'poor';
     return 'very_poor';

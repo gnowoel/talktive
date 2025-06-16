@@ -270,7 +270,8 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 icon: const Icon(Icons.grade),
                 label: const Text('Unfollow'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: theme.colorScheme.errorContainer,
+                  backgroundColor:
+                      theme.colorScheme.errorContainer.withValues(alpha: 0.7),
                   foregroundColor: theme.colorScheme.onErrorContainer,
                   elevation: 0,
                 ),

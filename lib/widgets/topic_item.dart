@@ -5,6 +5,7 @@ import 'package:talktive/helpers/text.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/exception.dart';
+import '../helpers/permissions.dart';
 import '../helpers/routes.dart';
 import '../models/topic.dart';
 import '../models/tribe.dart';
@@ -97,10 +98,7 @@ class _TopicItemState extends State<TopicItem> {
   bool _canJoinTopic() {
     final self = userCache.user;
     if (self == null) return false;
-
-    if (self.withWarning) return false;
-
-    return true;
+    return canJoinTopic(self);
   }
 
   Future<void> _handleTap() async {
@@ -119,11 +117,6 @@ class _TopicItemState extends State<TopicItem> {
 
     if (self.withAlert) {
       await _showAlertDialog();
-      return;
-    }
-
-    if (self.isTrainee) {
-      await _showTraineeDialog();
       return;
     }
 
@@ -190,46 +183,6 @@ class _TopicItemState extends State<TopicItem> {
             const Text(
               'Further reports may result in more severe restrictions.',
               style: TextStyle(height: 1.5),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('I Understand'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await _joinTopic();
-    }
-  }
-
-  Future<void> _showTraineeDialog() async {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Review Only'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'To participate in topics, your account must be at least 24 hours old and at level 4 or above.',
-              style: TextStyle(height: 1.5, color: colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'You can still view the conversation, but cannot post messages until these requirements are met.',
-              style: const TextStyle(height: 1.5),
             ),
           ],
         ),

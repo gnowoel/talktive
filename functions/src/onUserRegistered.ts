@@ -50,15 +50,13 @@ const copyUser = async (user: User, now: Date) => {
 
 const updateUserStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);
-  const snapshot = await statRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const stat = snapshot.val();
   const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {
+    const snapshot = await statRef.get();
+    if (!snapshot.exists()) return;
+    const stat = snapshot.val();
     params.users = stat.users + 1;
   } else {
     params.users = admin.database.ServerValue.increment(1);

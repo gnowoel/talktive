@@ -216,16 +216,14 @@ async function sendPushNotification(
 
 const updateUserUpdatedAtAndMessageCount = async (userId: string, now: Timestamp) => {
   const userRef = db.ref(`users/${userId}`);
-  const snapshot = await userRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const user = snapshot.val();
   const params: UserParams = {};
 
   params.updatedAt = now.toMillis();
 
   if (isDebugMode()) {
+    const snapshot = await userRef.get();
+    if (!snapshot.exists()) return;
+    const user = snapshot.val();
     params.messageCount = (user.messageCount ?? 0) + 1;
   } else {
     params.messageCount = admin.database.ServerValue.increment(1);
@@ -241,14 +239,12 @@ const updateUserUpdatedAtAndMessageCount = async (userId: string, now: Timestamp
 const updateTopicMessagesStats = async () => {
   const now = new Date();
   const statRef = db.ref(`stats/${formatDate(now)}`);
-  const snapshot = await statRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const stat = snapshot.val();
   const params: StatParams = {};
 
   if (isDebugMode()) {
+    const snapshot = await statRef.get();
+    if (!snapshot.exists()) return;
+    const stat = snapshot.val();
     params.topicMessages = (stat.topicMessages ?? 0) + 1;
   } else {
     params.topicMessages = admin.database.ServerValue.increment(1);

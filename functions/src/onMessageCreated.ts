@@ -47,16 +47,14 @@ const onMessageCreated = onValueCreated('/messages/{listId}/*', async (event) =>
 
 const updateUserUpdatedAtAndMessageCount = async (userId: string, now: Date) => {
   const userRef = db.ref(`users/${userId}`);
-  const snapshot = await userRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const user = snapshot.val();
   const params: UserParams = {};
 
   params.updatedAt = now.valueOf();
 
   if (isDebugMode()) {
+    const snapshot = await userRef.get();
+    if (!snapshot.exists()) return;
+    const user = snapshot.val();
     params.messageCount = (user.messageCount ?? 0) + 1;
   } else {
     params.messageCount = admin.database.ServerValue.increment(1);
@@ -205,15 +203,13 @@ const getUserFcmToken = async (userId: string) => {
 
 const updateMessageOrResponseStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);
-  const snapshot = await statRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const stat = snapshot.val();
   const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {
+    const snapshot = await statRef.get();
+    if (!snapshot.exists()) return;
+    const stat = snapshot.val();
     params.chatMessages = stat.chatMessages + 1;
   } else {
     params.chatMessages = admin.database.ServerValue.increment(1);

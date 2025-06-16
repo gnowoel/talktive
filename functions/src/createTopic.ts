@@ -182,15 +182,13 @@ export const createTopic = onCall(async (request) => {
 const updateTopicStats = async () => {
   const now = new Date();
   const statRef = db.ref(`stats/${formatDate(now)}`);
-  const snapshot = await statRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const stat = snapshot.val();
   const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {
+    const snapshot = await statRef.get();
+    if (!snapshot.exists()) return;
+    const stat = snapshot.val();
     params.topics = (stat.topics ?? 0) + 1;
   } else {
     params.topics = admin.database.ServerValue.increment(1);

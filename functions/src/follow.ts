@@ -163,15 +163,13 @@ const updateFriendStats = async (type: string) => {
 
   const now = new Date();
   const statRef = db.ref(`stats/${formatDate(now)}`);
-  const snapshot = await statRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const stat = snapshot.val();
   const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {
+    const snapshot = await statRef.get();
+    if (!snapshot.exists()) return;
+    const stat = snapshot.val();
     params[type] = (stat[type] ?? 0) + 1;
   } else {
     params[type] = admin.database.ServerValue.increment(1);

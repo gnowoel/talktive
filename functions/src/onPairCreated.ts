@@ -11,7 +11,7 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 interface Mapper {
-  [id:string]: User;
+  [id: string]: User;
 }
 
 const onPairCreated = onValueCreated('/pairs/{pairId}', async (event) => {
@@ -85,15 +85,13 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
 
 const updateChatStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);
-  const snapshot = await statRef.get();
-
-  if (!snapshot.exists()) return;
-
-  const stat = snapshot.val();
   const params: StatParams = {};
 
   // `ServerValue` doesn't work with Emulators Suite
   if (isDebugMode()) {
+    const snapshot = await statRef.get();
+    if (!snapshot.exists()) return;
+    const stat = snapshot.val();
     params.chats = stat.chats + 1;
   } else {
     params.chats = admin.database.ServerValue.increment(1);

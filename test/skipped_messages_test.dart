@@ -38,22 +38,29 @@ class SkippedMessagesLogic {
 
     // Calculate messages to skip between first 10 and last context
     final totalContextShown = firstMessagesCount + lastReadContextCount;
-    final messagesToSkip = readMessageCount > totalContextShown
-        ? readMessageCount - totalContextShown
-        : 0;
 
     final unreadCount = totalMessages - readMessageCount;
     List<int> indices = [];
 
-    // Add first 10 messages (indices 0-9)
-    for (int i = 0; i < firstMessagesCount; i++) {
-      indices.add(i);
-    }
+    // If total context covers all read messages, don't skip any
+    if (totalContextShown >= readMessageCount) {
+      // Show all read messages + unread messages
+      for (int i = 0; i < readMessageCount; i++) {
+        indices.add(i);
+      }
+    } else {
+      // Add first 10 messages (indices 0-9)
+      for (int i = 0; i < firstMessagesCount; i++) {
+        indices.add(i);
+      }
 
-    // Add last read context messages
-    final lastContextStart = readMessageCount - lastReadContextCount;
-    for (int i = 0; i < lastReadContextCount && lastContextStart + i < readMessageCount; i++) {
-      indices.add(lastContextStart + i);
+      // Add last read context messages
+      final lastContextStart = readMessageCount - lastReadContextCount;
+      for (int i = 0;
+          i < lastReadContextCount && lastContextStart + i < readMessageCount;
+          i++) {
+        indices.add(lastContextStart + i);
+      }
     }
 
     // Add unread messages
@@ -110,7 +117,9 @@ class SkippedMessagesLogic {
     if (showPlaceholder) {
       final firstMessagesCount = readMessageCount >= 10 ? 10 : readMessageCount;
       final lastReadContextCount = 15 + additionalMessagesRevealed;
-      return firstMessagesCount + 1 + lastReadContextCount; // first + placeholder + last
+      return firstMessagesCount +
+          1 +
+          lastReadContextCount; // first + placeholder + last
     } else {
       return readMessageCount; // All read messages
     }
@@ -250,15 +259,31 @@ void main() {
         additionalMessagesRevealed: 0,
       );
 
-      expect(visibleIndices.length, 45); // 10 first + 15 last + 20 unread = 45 visible
+      expect(visibleIndices.length,
+          45); // 10 first + 15 last + 20 unread = 45 visible
       expect(visibleIndices.first, 0); // First message is always index 0
       expect(visibleIndices.last, 49); // Ends at message 49 (last unread)
 
       // Check specific ranges
       expect(visibleIndices.take(10).toList(),
           [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]); // First 10 messages
-      expect(visibleIndices.skip(10).take(15).toList(),
-          [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]); // Last 15 read messages
+      expect(visibleIndices.skip(10).take(15).toList(), [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ]); // Last 15 read messages
       expect(visibleIndices.skip(25).toList(),
           List.generate(20, (i) => 30 + i)); // 20 unread messages
     });
@@ -436,7 +461,8 @@ void main() {
         expect(visibleIndices.length, 20); // All messages visible
       });
 
-      test('scenario: first 10 + skip + last read context (50 total, 35 read)', () {
+      test('scenario: first 10 + skip + last read context (50 total, 35 read)',
+          () {
         const totalMessages = 50;
         const readMessages = 35;
 
@@ -447,7 +473,8 @@ void main() {
           isNew: false,
         );
 
-        expect(showPlaceholder, true); // Should show placeholder (35 > 10+15=25)
+        expect(
+            showPlaceholder, true); // Should show placeholder (35 > 10+15=25)
 
         var visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -475,8 +502,8 @@ void main() {
           isNew: false,
         );
 
-        expect(
-            showPlaceholder, false); // Should not show placeholder (35 <= 10+40=50)
+        expect(showPlaceholder,
+            false); // Should not show placeholder (35 <= 10+40=50)
 
         visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -502,7 +529,8 @@ void main() {
           isNew: false,
         );
 
-        expect(showPlaceholder, true); // Should show placeholder (80 > 10+15=25)
+        expect(
+            showPlaceholder, true); // Should show placeholder (80 > 10+15=25)
 
         var visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -530,7 +558,8 @@ void main() {
           isNew: false,
         );
 
-        expect(showPlaceholder, true); // Should still show placeholder (80 > 10+40=50)
+        expect(showPlaceholder,
+            true); // Should still show placeholder (80 > 10+40=50)
 
         visibleIndices = SkippedMessagesLogic.getVisibleMessageIndices(
           totalMessages: totalMessages,
@@ -550,7 +579,8 @@ void main() {
           isNew: false,
         );
 
-        expect(showPlaceholder, false); // Should not show placeholder (80 <= 10+70=80)
+        expect(showPlaceholder,
+            false); // Should not show placeholder (80 <= 10+70=80)
       });
     });
   });

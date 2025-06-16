@@ -363,7 +363,7 @@ class _UserItemState extends State<UserItem> {
                 ),
                 // Show single most relevant status tag (priority-based)
                 ...() {
-                  // Priority order: warning > alert > very_poor > poor > newcomer > excellent
+                  // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
                   if (userStatus == 'warning') {
                     return [const SizedBox(width: 4), Tag(status: 'warning')];
                   } else if (userStatus == 'alert') {
@@ -376,6 +376,8 @@ class _UserItemState extends State<UserItem> {
                     return [const SizedBox(width: 4), Tag(status: 'newcomer')];
                   } else if (widget.user.reputationLevel == 'excellent') {
                     return [const SizedBox(width: 4), Tag(status: 'excellent')];
+                  } else if (widget.user.reputationLevel == 'good') {
+                    return [const SizedBox(width: 4), Tag(status: 'good')];
                   }
                   return <Widget>[];
                 }(),

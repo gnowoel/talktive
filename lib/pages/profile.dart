@@ -7,6 +7,7 @@ import '../models/admin.dart';
 import '../services/firedata.dart';
 import '../services/user_cache.dart';
 import '../widgets/layout.dart';
+import '../widgets/tag.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -26,10 +27,9 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed:
-                user == null
-                    ? null
-                    : () => context.push('/profile/edit', extra: user),
+            onPressed: user == null
+                ? null
+                : () => context.push('/profile/edit', extra: user),
             tooltip: 'Edit profile',
           ),
         ],
@@ -91,10 +91,46 @@ class ProfilePage extends StatelessWidget {
                                   _Badge(
                                     label:
                                         getLanguageName(user.languageCode!) ??
-                                        '',
+                                            '',
                                     backgroundColor:
                                         theme.colorScheme.surfaceContainerHigh,
                                   ),
+                                ],
+                              ),
+                            ),
+                            // Status and reputation tags
+                            const SizedBox(height: 16),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Show single most relevant status tag (priority-based)
+                                  ...() {
+                                    final userStatus = user.status;
+                                    final widgets = <Widget>[];
+
+                                    // Priority order: warning > alert > very_poor > poor > newcomer > excellent
+                                    if (userStatus == 'warning') {
+                                      widgets.add(Tag(status: 'warning'));
+                                    } else if (userStatus == 'alert') {
+                                      widgets.add(Tag(status: 'alert'));
+                                    } else if (user.reputationLevel ==
+                                        'very_poor') {
+                                      widgets.add(Tag(status: 'very_poor'));
+                                    } else if (user.reputationLevel == 'poor') {
+                                      widgets.add(Tag(status: 'poor'));
+                                    } else if (userStatus == 'newcomer') {
+                                      widgets.add(Tag(status: 'newcomer'));
+                                    } else if (user.reputationLevel ==
+                                        'excellent') {
+                                      widgets.add(Tag(status: 'excellent'));
+                                    } else if (user.reputationLevel == 'good') {
+                                      widgets.add(Tag(status: 'good'));
+                                    }
+
+                                    return widgets;
+                                  }(),
                                 ],
                               ),
                             ),

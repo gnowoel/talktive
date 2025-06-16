@@ -231,12 +231,21 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
+                // Show single most relevant status tag (priority-based)
                 if (userStatus == 'warning') ...[
                   Tag(status: 'warning'),
                 ] else if (userStatus == 'alert') ...[
                   Tag(status: 'alert'),
+                ] else if (widget.user!.reputationLevel == 'very_poor') ...[
+                  Tag(status: 'very_poor'),
+                ] else if (widget.user!.reputationLevel == 'poor') ...[
+                  Tag(status: 'poor'),
                 ] else if (userStatus == 'newcomer') ...[
                   Tag(status: 'newcomer'),
+                ] else if (widget.user!.reputationLevel == 'excellent') ...[
+                  Tag(status: 'excellent'),
+                ] else if (widget.user!.reputationLevel == 'good') ...[
+                  Tag(status: 'good'),
                 ],
               ],
             ),

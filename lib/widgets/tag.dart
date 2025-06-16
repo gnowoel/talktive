@@ -116,6 +116,31 @@ class Tag extends StatelessWidget {
       );
     }
 
+    if (status == 'good') {
+      return Tooltip(
+        message: 'Good reputation - reliable user',
+        child: Container(
+          margin: const EdgeInsets.only(top: 6, bottom: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHigh,
+            border: Border.all(color: theme.colorScheme.inversePrimary),
+            borderRadius: BorderRadius.all(
+              Radius.circular(16),
+            ),
+          ),
+          child: Text(
+            'good',
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurface,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      );
+    }
+
     if (status == 'poor') {
       return Tooltip(
         message: 'Poor reputation - some reports received',

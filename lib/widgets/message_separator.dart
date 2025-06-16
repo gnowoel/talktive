@@ -13,8 +13,8 @@ class MessageSeparator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final separatorColor = theme.colorScheme.outline.withOpacity(0.3);
-    final textColor = theme.colorScheme.onSurface.withOpacity(0.6);
+    final separatorColor = theme.colorScheme.outline.withValues(alpha: 0.3);
+    final textColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

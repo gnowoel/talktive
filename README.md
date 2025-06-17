@@ -103,7 +103,13 @@ $ firebase emulators:start
 Trigger the scheduler once with an HTTP request, using the URL from the previous step:
 
 ```
-$ curl http://127.0.0.1:5001/talktive-12345/us-central1/requestedCleanup
+$ curl http://local/path/torequestedCleanup
+```
+
+Create predefined topic categories:
+
+```
+$ curl http://local/path/to/setupTribes
 ```
 
 Optionally start a device simulator or emulator, for example:
@@ -137,6 +143,12 @@ Deploy Cloud Functions (from the `functions` directory):
 
 ```
 $ npm run deploy
+```
+
+Create predefined topic categories:
+
+```
+$ curl https://remote/path/to/setupTribes
 ```
 
 Build the `web` release of the Flutter app:

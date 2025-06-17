@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/chat.dart';
-import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/storage.dart';
@@ -37,34 +36,76 @@ class InputState extends State<Input> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Storage storage;
-  late bool _enabled;
-  late Timer timer;
-
-  bool _isUploading = false;
-
+  late UserCache userCache;
+  Timer? _refreshTimer;
   final _controller = TextEditingController();
+  bool _enabled = false;
+  bool _isUploading = false;
 
   @override
   void initState() {
     super.initState();
 
-    fireauth = Provider.of<Fireauth>(context, listen: false);
-    firedata = Provider.of<Firedata>(context, listen: false);
-    storage = Provider.of<Storage>(context, listen: false);
+    fireauth = context.read<Fireauth>();
+    firedata = context.read<Firedata>();
+    storage = context.read<Storage>();
+  }
 
-    final userCache = Provider.of<UserCache>(context, listen: false);
-    final hasPermission = canSendMessage(userCache.user);
-    _enabled =
-        widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
+    userCache = Provider.of<UserCache>(context);
+    _refreshAgain();
+  }
 
-    timer = Timer(Duration(milliseconds: widget.chat.getTimeLeft()), () {
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.chat.updatedAt != oldWidget.chat.updatedAt) {
+      _refreshAgain();
+    }
+
+    // Update the callback reference
+    if (widget.onInsertMention != oldWidget.onInsertMention) {
+      // Callback reference has changed, widget will handle this
+    }
+  }
+
+  void _refreshAgain() {
+    _refreshTimer?.cancel();
+
+    final timeLeft = _getTimeLeft();
+    final user = userCache.user;
+    final hasPermission = canSendMessage(user);
+
+    _enabled = hasPermission &&
+        timeLeft > 0 &&
+        widget.chat.isNotDummy &&
+        widget.chat.isNotClosed;
+
+    if (timeLeft == 0) return;
+
+    final duration = Duration(milliseconds: timeLeft);
+
+    _refreshTimer = Timer(duration, () {
       setState(() {
-        final userCache = Provider.of<UserCache>(context, listen: false);
-        final hasPermission = canSendMessage(userCache.user);
+        final user = userCache.user;
+        final hasPermission = canSendMessage(user);
         _enabled =
-            widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
+            hasPermission && widget.chat.isNotDummy && widget.chat.isNotClosed;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  int _getTimeLeft() {
+    return widget.chat.getTimeLeft();
   }
 
   void insertMention(String displayName) {
@@ -98,48 +139,9 @@ class InputState extends State<Input> {
     widget.focusNode.requestFocus();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    theme = Theme.of(context);
-  }
+  Future<void> _sendTextMessage() async {
+    final user = userCache.user!;
 
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    timer.cancel();
-
-    final userCache = Provider.of<UserCache>(context, listen: false);
-    final hasPermission = canSendMessage(userCache.user);
-
-    setState(() {
-      _enabled =
-          widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
-    });
-
-    timer = Timer(Duration(milliseconds: widget.chat.getTimeLeft()), () {
-      setState(() {
-        final userCache = Provider.of<UserCache>(context, listen: false);
-        final hasPermission = canSendMessage(userCache.user);
-        _enabled =
-            widget.chat.isNotDummy && widget.chat.isNotClosed && hasPermission;
-      });
-    });
-
-    // Update the callback reference
-    if (widget.onInsertMention != oldWidget.onInsertMention) {
-      // Callback reference has changed, widget will handle this
-    }
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
-  Future<void> _sendTextMessage(User user) async {
     await _doAction(() async {
       const maxLength = 1024;
 
@@ -186,7 +188,9 @@ class InputState extends State<Input> {
     });
   }
 
-  Future<void> _sendImageMessage(User user) async {
+  Future<void> _sendImageMessage() async {
+    final user = userCache.user!;
+
     await _doAction(() async {
       if (widget.chat.isDummy) {
         if (mounted) {
@@ -246,7 +250,7 @@ class InputState extends State<Input> {
     }
   }
 
-  KeyEventResult _handleKeyEvent(KeyEvent event, User user) {
+  KeyEventResult _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
       final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
@@ -255,7 +259,7 @@ class InputState extends State<Input> {
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
-        _sendTextMessage(user);
+        _sendTextMessage();
         return KeyEventResult.handled;
       }
     }
@@ -263,12 +267,30 @@ class InputState extends State<Input> {
     return KeyEventResult.ignored;
   }
 
+  String _showText({required String enabledText}) {
+    if (_enabled) {
+      return enabledText;
+    }
+
+    final user = userCache.user;
+
+    if (!canSendMessage(user)) {
+      return 'Account restricted';
+    }
+
+    final chat = widget.chat;
+
+    if (chat.isDummy) return 'Chat deleted';
+    if (chat.isClosed) return 'Chat closed';
+
+    return '';
+  }
+
   Widget _buildStatusNotice() {
-    final userCache = context.watch<UserCache>();
-    final hasPermission = canSendMessage(userCache.user);
+    final user = userCache.user;
     String message;
 
-    if (!hasPermission) {
+    if (!canSendMessage(user)) {
       message =
           'Your account has been temporarily restricted due to multiple reports of inappropriate behavior. You cannot send messages until this restriction expires.';
     } else if (widget.chat.isDummy) {
@@ -291,15 +313,10 @@ class InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
-    final userCache = context.watch<UserCache>();
-    final user = userCache.user!;
-    final hasPermission = canSendMessage(user);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.chatPopulated && (!_enabled || !hasPermission))
-          _buildStatusNotice(),
+        if (widget.chatPopulated && !_enabled) _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Container(
@@ -312,9 +329,7 @@ class InputState extends State<Input> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: (_enabled && hasPermission)
-                      ? () => _sendImageMessage(user)
-                      : null,
+                  onPressed: _enabled ? _sendImageMessage : null,
                   icon: _isUploading
                       ? const SizedBox(
                           width: 20,
@@ -325,16 +340,12 @@ class InputState extends State<Input> {
                           Icons.attach_file,
                           color: theme.colorScheme.tertiary,
                         ),
-                  tooltip: _enabled
-                      ? 'Send picture'
-                      : (!hasPermission ? 'Account restricted' : 'Chat closed'),
+                  tooltip: _showText(enabledText: 'Send picture'),
                 ),
                 Expanded(
                   child: KeyboardListener(
                     focusNode: FocusNode(),
-                    onKeyEvent: (_enabled && hasPermission)
-                        ? (event) => _handleKeyEvent(event, user)
-                        : null,
+                    onKeyEvent: _enabled ? _handleKeyEvent : null,
                     child: TextField(
                       enabled: _enabled,
                       focusNode: widget.focusNode,
@@ -345,11 +356,7 @@ class InputState extends State<Input> {
                         color: theme.colorScheme.onTertiaryContainer,
                       ),
                       decoration: InputDecoration.collapsed(
-                        hintText: _enabled
-                            ? 'Chat privately'
-                            : (!hasPermission
-                                ? 'Account restricted'
-                                : 'Chat closed'),
+                        hintText: _showText(enabledText: 'Chat privately'),
                         hintStyle: TextStyle(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -358,13 +365,9 @@ class InputState extends State<Input> {
                   ),
                 ),
                 IconButton(
-                  onPressed: (_enabled && hasPermission)
-                      ? () => _sendTextMessage(user)
-                      : null,
+                  onPressed: _enabled ? _sendTextMessage : null,
                   icon: Icon(Icons.send, color: theme.colorScheme.tertiary),
-                  tooltip: _enabled
-                      ? 'Send message'
-                      : (!hasPermission ? 'Account restricted' : 'Chat closed'),
+                  tooltip: _showText(enabledText: 'Send message'),
                 ),
               ],
             ),

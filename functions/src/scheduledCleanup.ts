@@ -21,7 +21,8 @@ const day = 24 * hour;
 const timeBeforeUserDeleting = isDebugMode() ? 14 * day : 200 * day + 1 * hour;
 const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeTopicDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
-const timeBeforeReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
+const timeBeforeChatReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
+const timeBeforeMessageReportDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 
 interface Params {
   [id: string]: null;
@@ -174,7 +175,8 @@ const cleanup = async () => {
     await cleanupUsers();
     await cleanupPairs();
     await cleanupTopics();
-    await cleanupReports();
+    await cleanupChatReports();
+    await cleanupMessageReports();
   } catch (error) {
     logger.error(error);
   }
@@ -603,11 +605,11 @@ const deleteTopicWithSubcollections = async (
   }
 };
 
-const cleanupReports = async () => {
+const cleanupChatReports = async () => {
   const reportsRef = db.ref('reports');
 
   const now = new Date().getTime();
-  const then = now - timeBeforeReportDeleting;
+  const then = now - timeBeforeChatReportDeleting;
 
   const query = reportsRef
     .orderByChild('createdAt')
@@ -630,5 +632,74 @@ const cleanupReports = async () => {
     await reportsRef.update(params);
   } catch (error) {
     logger.error(error);
+  }
+}
+
+const cleanupMessageReports = async () => {
+  try {
+    const now = new Date();
+    const cutoffDate = new Date(now.getTime() - timeBeforeMessageReportDeleting);
+
+    // Generate list of dates to delete (going back from cutoff date)
+    const datesToDelete: string[] = [];
+    const currentDate = new Date(cutoffDate);
+
+    // Go back 30 days from the cutoff to catch any old reports
+    for (let i = 0; i < 30; i++) {
+      const dateString = formatDate(currentDate);
+      datesToDelete.push(dateString);
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    let totalDeleted = 0;
+
+    // Delete each date-based document
+    for (const dateString of datesToDelete) {
+      try {
+        const dateDocRef = firestore.collection('reports').doc(dateString);
+        const dateDoc = await dateDocRef.get();
+
+        if (dateDoc.exists) {
+          // Delete the entire date document with all subcollections
+          await deleteReportDateDocument(dateString);
+          totalDeleted++;
+        }
+      } catch (error) {
+        logger.error(`Error deleting reports for date ${dateString}:`, error);
+      }
+    }
+
+    if (totalDeleted > 0) {
+      logger.info(`Successfully deleted message reports for ${totalDeleted} dates`);
+    }
+  } catch (error) {
+    logger.error('Error in cleanupMessageReports:', error);
+  }
+}
+
+const deleteReportDateDocument = async (dateString: string) => {
+  const batch = new SafeBatch(firestore);
+  const dateDocRef = firestore.collection('reports').doc(dateString);
+
+  try {
+    // Delete all chatMessages subcollection documents
+    const chatMessagesSnapshot = await dateDocRef.collection('chatMessages').get();
+    chatMessagesSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete all topicMessages subcollection documents
+    const topicMessagesSnapshot = await dateDocRef.collection('topicMessages').get();
+    topicMessagesSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete the parent date document
+    batch.delete(dateDocRef);
+
+    await batch.commit();
+  } catch (error) {
+    logger.error(`Error deleting report date document ${dateString}:`, error);
+    throw error;
   }
 }

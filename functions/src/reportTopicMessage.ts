@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions'
 import { onCall } from 'firebase-functions/v2/https';
 import { User } from './types';
@@ -216,21 +216,11 @@ const updateTopicMessageReportCount = async (topicId: string, messageId: string)
   try {
     const messageRef = firestore.collection('topics').doc(topicId).collection('messages').doc(messageId);
 
-    await firestore.runTransaction(async (transaction) => {
-      const messageDoc = await transaction.get(messageRef);
-
-      if (!messageDoc.exists) {
-        logger.error(`Topic message ${messageId} not found in topic ${topicId}`);
-        return;
-      }
-
-      const currentCount = messageDoc.data()?.reportCount || 0;
-      const newCount = currentCount + 1;
-
-      transaction.update(messageRef, { reportCount: newCount });
-
-      logger.info(`Topic message ${messageId} report count updated to ${newCount}`);
+    await messageRef.update({
+      reportCount: FieldValue.increment(1)
     });
+
+    logger.info(`Topic message ${messageId} report count incremented`);
   } catch (error) {
     logger.error(`Error updating topic message ${messageId} report count:`, error);
   }

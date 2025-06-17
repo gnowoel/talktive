@@ -265,6 +265,9 @@ class TopicInputState extends State<TopicInput> {
     } else if (widget.topic?.isClosed == true) {
       message =
           'This topic has expired and will be deleted soon. Go to the Topics tab to start a new one at any time.';
+    } else if (user?.withAlert == true) {
+      message =
+          'Your account has received reports for inappropriate communications. Please be respectful when chatting. Further reports may result in more severe restrictions.';
     } else {
       return const SizedBox.shrink();
     }
@@ -282,7 +285,9 @@ class TopicInputState extends State<TopicInput> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.topic != null && !_enabled) _buildStatusNotice(),
+        if (widget.topic != null &&
+            (!_enabled || userCache.user?.withAlert == true))
+          _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Container(

@@ -176,51 +176,6 @@ class _UserItemState extends State<UserItem> {
     );
   }
 
-  Future<void> _showAlertDialog() async {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Warning'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your account has received reports for inappropriate communications.',
-              style: TextStyle(height: 1.5, color: colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Please be respectful when chatting with ${widget.user.displayName}.',
-              style: const TextStyle(height: 1.5),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Further reports may result in more severe restrictions.',
-              style: TextStyle(height: 1.5),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('I Understand'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await _greetUser();
-    }
-  }
-
   Future<void> _handleTap() async {
     if (widget.hasKnown) {
       await _enterChat();
@@ -229,12 +184,6 @@ class _UserItemState extends State<UserItem> {
 
     if (!_canChatWithUser()) {
       await _showRestrictionDialog();
-      return;
-    }
-
-    final self = userCache.user!;
-    if (self.withAlert) {
-      await _showAlertDialog();
       return;
     }
 

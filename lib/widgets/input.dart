@@ -299,6 +299,9 @@ class InputState extends State<Input> {
     } else if (widget.chat.isClosed) {
       message =
           'This chat has expired and will be deleted soon. Once deleted, you can start a new conversation with your partner again.';
+    } else if (user?.withAlert == true) {
+      message =
+          'Your account has received reports for inappropriate communications. Please be respectful when chatting. Further reports may result in more severe restrictions.';
     } else {
       return const SizedBox.shrink();
     }
@@ -316,7 +319,9 @@ class InputState extends State<Input> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.chatPopulated && !_enabled) _buildStatusNotice(),
+        if (widget.chatPopulated &&
+            (!_enabled || userCache.user?.withAlert == true))
+          _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Container(

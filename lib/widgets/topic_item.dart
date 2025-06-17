@@ -115,11 +115,6 @@ class _TopicItemState extends State<TopicItem> {
       return;
     }
 
-    if (self.withAlert) {
-      await _showAlertDialog();
-      return;
-    }
-
     await _joinTopic();
   }
 
@@ -174,51 +169,6 @@ class _TopicItemState extends State<TopicItem> {
         ],
       ),
     );
-  }
-
-  Future<void> _showAlertDialog() async {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Temporarily Restricted'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your account has temporary restrictions due to reports of inappropriate communications.',
-              style: TextStyle(height: 1.5, color: colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'You can still view the conversation, but cannot post messages until this restriction expires.',
-              style: const TextStyle(height: 1.5),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Further reports may result in more severe restrictions.',
-              style: TextStyle(height: 1.5),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('I Understand'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await _joinTopic();
-    }
   }
 
   void _showCreatorInfo(BuildContext context) {

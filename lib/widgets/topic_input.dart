@@ -44,14 +44,14 @@ class TopicInputState extends State<TopicInput> {
   void initState() {
     super.initState();
     storage = context.read<Storage>();
-    userCache = context.read<UserCache>();
-    _refreshAgain();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
+    userCache = Provider.of<UserCache>(context);
+    _refreshAgain();
   }
 
   @override
@@ -65,37 +65,6 @@ class TopicInputState extends State<TopicInput> {
     if (widget.onInsertMention != oldWidget.onInsertMention) {
       // Callback reference has changed, widget will handle this
     }
-  }
-
-  void insertMention(String displayName) {
-    final mention = '@$displayName ';
-    final currentText = _controller.text;
-    final selection = _controller.selection;
-
-    // Handle invalid selection by using end of text
-    int start = selection.start;
-    int end = selection.end;
-
-    if (start < 0 || start > currentText.length) {
-      start = currentText.length;
-    }
-    if (end < 0 || end > currentText.length) {
-      end = currentText.length;
-    }
-    if (start > end) {
-      start = end;
-    }
-
-    // Insert mention at cursor position
-    final newText = currentText.replaceRange(start, end, mention);
-
-    _controller.text = newText;
-    _controller.selection = TextSelection.collapsed(
-      offset: start + mention.length,
-    );
-
-    // Focus the input field
-    widget.focusNode.requestFocus();
   }
 
   void _refreshAgain() {
@@ -137,6 +106,37 @@ class TopicInputState extends State<TopicInput> {
 
   int _getTimeLeft() {
     return widget.topic?.getTimeLeft() ?? 0;
+  }
+
+  void insertMention(String displayName) {
+    final mention = '@$displayName ';
+    final currentText = _controller.text;
+    final selection = _controller.selection;
+
+    // Handle invalid selection by using end of text
+    int start = selection.start;
+    int end = selection.end;
+
+    if (start < 0 || start > currentText.length) {
+      start = currentText.length;
+    }
+    if (end < 0 || end > currentText.length) {
+      end = currentText.length;
+    }
+    if (start > end) {
+      start = end;
+    }
+
+    // Insert mention at cursor position
+    final newText = currentText.replaceRange(start, end, mention);
+
+    _controller.text = newText;
+    _controller.selection = TextSelection.collapsed(
+      offset: start + mention.length,
+    );
+
+    // Focus the input field
+    widget.focusNode.requestFocus();
   }
 
   Future<void> _sendTextMessage() async {

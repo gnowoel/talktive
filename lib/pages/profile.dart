@@ -203,6 +203,7 @@ class ProfilePage extends StatelessWidget {
             return FloatingActionButton(
               onPressed: () => context.push('/admin/reports'),
               tooltip: 'Admin Panel',
+              heroTag: "profile_admin_fab",
               child: const Icon(Icons.admin_panel_settings),
             );
           }

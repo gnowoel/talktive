@@ -316,6 +316,7 @@ class _TopicsPageState extends State<TopicsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _handleCreateTopic,
         tooltip: _fabTooltip,
+        heroTag: "topics_fab",
         child: const Icon(Icons.add),
       ),
       body: SafeArea(

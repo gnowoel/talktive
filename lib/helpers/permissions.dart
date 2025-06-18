@@ -34,8 +34,8 @@ bool _canBeHost(User? user, FollowCache? followCache) {
   if (followCache == null) return false;
 
   return _hasFairReputation(user) &&
-      _reachedLevelFour(user) &&
-      _withoutAlert(user) &&
+      _hasFairExperience(user) &&
+      _withoutRestrictions(user) &&
       _hasFollowers(followCache);
 }
 
@@ -44,12 +44,12 @@ bool _hasFairReputation(User? user) {
   return !user.hasPoorReputation;
 }
 
-bool _reachedLevelFour(User? user) {
+bool _hasFairExperience(User? user) {
   if (user == null) return false;
-  return user.level >= 4;
+  return user.level >= 6; // 244 messages
 }
 
-bool _withoutAlert(User? user) {
+bool _withoutRestrictions(User? user) {
   if (user == null) return false;
   return !user.withAlert;
 }

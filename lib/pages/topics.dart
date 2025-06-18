@@ -178,7 +178,7 @@ class _TopicsPageState extends State<TopicsPage> {
     String title = 'Cannot Create Topic';
     List<Widget> content = [
       Text(
-        'You need level 4, followers, good reputation, and no restrictions to create topics.',
+        'You need level 6, followers, good reputation, and no restrictions to create topics.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),

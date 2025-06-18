@@ -88,8 +88,8 @@ class User {
 
   bool get _isNewcomer {
     final serverNow = ServerClock().now;
-    final oneDay = 1 * 24 * 60 * 60 * 1000;
-    return serverNow - createdAt < oneDay;
+    final twoDays = 2 * 24 * 60 * 60 * 1000;
+    return serverNow - createdAt < twoDays;
   }
 
   bool get _isNovice {

@@ -13,15 +13,15 @@ class TribeCache extends ChangeNotifier {
   List<Tribe> _tribes = [];
   bool _isLoading = false;
   DateTime? _lastFetched;
-  
+
   // Longer cache TTL since tribes are now predefined
   static const int _cacheTtlHours = 6;
-  
+
   TribeCache(this._firestore);
 
   List<Tribe> get tribes => _tribes;
   bool get hasTribes => _tribes.isNotEmpty;
-  
+
   // Initialization method to be called on app startup
   Future<void> initialize() async {
     await fetchTribes(forceRefresh: true);
@@ -32,7 +32,7 @@ class TribeCache extends ChangeNotifier {
     if (_isLoading) return;
 
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
-    if (!forceRefresh && 
+    if (!forceRefresh &&
         _lastFetched != null &&
         now.difference(_lastFetched!).inHours < _cacheTtlHours &&
         _tribes.isNotEmpty) {
@@ -54,19 +54,18 @@ class TribeCache extends ChangeNotifier {
   Tribe? getTribeById(String id) {
     return _tribes.firstWhereOrNull((tribe) => tribe.id == id);
   }
-  
+
   // Get tribe by name, useful for predefined tribes
   Tribe? getTribeByName(String name) {
     return _tribes.firstWhereOrNull(
-      (tribe) => tribe.name.toLowerCase() == name.toLowerCase()
-    );
+        (tribe) => tribe.name.toLowerCase() == name.toLowerCase());
   }
-  
+
   // Get a tribe by ID, fetching if needed
   Future<Tribe?> ensureTribeLoaded(String id) async {
     final tribe = getTribeById(id);
     if (tribe != null) return tribe;
-    
+
     // If tribe not found in cache, refresh and try again
     await fetchTribes(forceRefresh: true);
     return getTribeById(id);
@@ -85,29 +84,9 @@ class TribeCache extends ChangeNotifier {
         )
         .toList();
   }
-  
+
   // Get predefined tribes (those with sort values)
-  List<Tribe> get predefinedTribes => 
+  List<Tribe> get predefinedTribes =>
       _tribes.where((tribe) => tribe.sort != null).toList()
-      ..sort((a, b) => (a.sort ?? 999).compareTo(b.sort ?? 999));
-  
-  // This method is kept for backward compatibility
-  // but should no longer be used as tribes are predefined
-  @Deprecated('Tribes are now predefined and cannot be created by users')
-  Future<Tribe> createTribe(
-    String name, {
-    String? description,
-    String? iconEmoji,
-  }) async {
-    final tribe = await _firestore.createTribe(
-      name: name,
-      description: description,
-      iconEmoji: iconEmoji,
-    );
-
-    _tribes = [..._tribes, tribe];
-    notifyListeners();
-
-    return tribe;
-  }
+        ..sort((a, b) => (a.sort ?? 999).compareTo(b.sort ?? 999));
 }

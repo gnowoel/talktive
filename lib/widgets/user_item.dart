@@ -141,10 +141,10 @@ class _UserItemState extends State<UserItem> {
         ),
       ];
     } else if (other.gender == 'F' && !canGreetNewFemale(self, followCache)) {
-      title = 'Restricted Access';
+      title = 'Female Protection';
       content = [
         Text(
-          'You need level 4, followers, good reputation, and no restrictions to chat with new female users.',
+          'You need level 6, followers, good reputation, and no restrictions to chat with new female users.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),

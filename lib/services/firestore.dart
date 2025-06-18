@@ -394,43 +394,6 @@ class Firestore {
     }
   }
 
-  Future<Tribe> createTribe({
-    required String name,
-    String? description,
-    String? iconEmoji,
-  }) async {
-    try {
-      final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('createTribe');
-
-      final response = await callable.call({
-        'name': name,
-        'description': description,
-        'iconEmoji': iconEmoji,
-      });
-
-      final result = response.data;
-
-      if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to create tribe');
-      }
-
-      final tribeId = result['tribeId'];
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-
-      return Tribe(
-        id: tribeId,
-        name: name,
-        createdAt: timestamp,
-        topicCount: 0,
-        description: description,
-        iconEmoji: iconEmoji,
-      );
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
   Future<List<Topic>> fetchTopicsByTribe(
     String tribeId,
     int serverNow, {
@@ -831,7 +794,8 @@ class Firestore {
     }
   }
 
-  Future<Map<String, dynamic>> inviteFollowersToTopic(String userId, String topicId) async {
+  Future<Map<String, dynamic>> inviteFollowersToTopic(
+      String userId, String topicId) async {
     try {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable('inviteFollowersToTopic');
@@ -842,7 +806,8 @@ class Firestore {
       });
 
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to invite followers to topic');
+        throw Exception(
+            result.data['error'] ?? 'Failed to invite followers to topic');
       }
 
       return {

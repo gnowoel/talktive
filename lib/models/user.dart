@@ -92,14 +92,6 @@ class User {
     return serverNow - createdAt < twoDays;
   }
 
-  bool get _isNovice {
-    return level <= 3; // messages <= 27
-  }
-
-  bool get isTrainee {
-    return _isNewcomer || _isNovice;
-  }
-
   String get status {
     if (withWarning) return 'warning';
     if (withAlert) return 'alert';

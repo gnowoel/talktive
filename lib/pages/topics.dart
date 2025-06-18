@@ -276,11 +276,7 @@ class _TopicsPageState extends State<TopicsPage> {
 
   String get _fabTooltip {
     if (!_canCreateTopic()) {
-      return userCache.user?.withAlert == true
-          ? 'Account restricted'
-          : (userCache.user?.isTrainee == true
-              ? 'Account too new'
-              : 'Need followers');
+      return 'Account Restricted';
     }
 
     return _selectedTribe != null

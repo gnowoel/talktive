@@ -33,18 +33,18 @@ bool _canBeHost(User? user, FollowCache? followCache) {
   if (user == null) return false;
   if (followCache == null) return false;
 
-  return _hasFairReputation(user) &&
-      _hasFairExperience(user) &&
+  return _hasGoodReputation(user) &&
+      _hasHighLevelExperience(user) &&
       _withoutRestrictions(user) &&
       _hasFollowers(followCache);
 }
 
-bool _hasFairReputation(User? user) {
+bool _hasGoodReputation(User? user) {
   if (user == null) return false;
-  return !user.hasPoorReputation;
+  return user.hasGoodReputation;
 }
 
-bool _hasFairExperience(User? user) {
+bool _hasHighLevelExperience(User? user) {
   if (user == null) return false;
   return user.level >= 6; // 244 messages
 }

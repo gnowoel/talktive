@@ -8,6 +8,7 @@
 - Added extra protection for new female users
 - Re-enabled group chat functionality
 - Introduced categories for group chats and contacts
+- Added support for inviting followers to group chats
 - Optimized performance by hiding read messages by default
 - Added pull-to-refresh support throughout the app
 - Updated dependencies for improved stability and compatibility

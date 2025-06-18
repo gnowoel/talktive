@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 4.2.0+57
+
+- Introduced message-based reporting and moderation system
+- Implemented dynamic user reputation scoring
+- Refined user permissions for better safety and control
+- Added extra protection for new female users
+- Re-enabled group chat functionality
+- Introduced categories for group chats and contacts
+- Optimized performance by hiding read messages by default
+- Added pull-to-refresh support throughout the app
+- Updated dependencies for improved stability and compatibility
+
 ## 4.1.0+56
 
 - Disable group chat functionality until a stronger moderation system is ready

@@ -67,14 +67,20 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '👥 Public Topics',
-                            'Disabling group chats until a stronger reporting and moderation system is ready.',
+                            '🛡️ Enhanced Safety',
+                            'Introduced a comprehensive message-based reporting and moderation system to keep everyone safe.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🐛 Bug Fixes',
-                            'Various improvements and bug fixes to enhance your chat experience.',
+                            '👥 Group Chats Return',
+                            'Re-enabled group chat functionality with improved moderation and organized categories.',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureCard(
+                            Theme.of(context),
+                            '⚡ Performance Boost',
+                            'Optimized app performance by hiding read messages by default and added pull-to-refresh support.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/message.dart';
+import '../models/image_message.dart';
+import '../models/text_message.dart';
 import '../models/topic_message.dart';
 import '../models/chat.dart';
 import '../services/paginated_message_service.dart';

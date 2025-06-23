@@ -1,9 +1,13 @@
 import 'message.dart';
 
 class TextMessage extends Message {
+  @override
   final String userId;
+  @override
   final String userDisplayName;
+  @override
   final String userPhotoURL;
+  @override
   final String content;
 
   const TextMessage({

@@ -11,11 +11,13 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
 import '../services/message_cache.dart';
+import '../services/paginated_message_service.dart';
 import '../theme.dart';
 import '../widgets/hearts.dart';
 import '../widgets/input.dart';
 import '../widgets/layout.dart';
-import '../widgets/message_list.dart';
+
+import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ChatPage extends StatefulWidget {
@@ -33,6 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   late Firedata firedata;
   late FollowCache followCache;
   late ChatMessageCache chatMessageCache;
+  late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
   late Chat _chat;
@@ -51,6 +54,7 @@ class _ChatPageState extends State<ChatPage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     chatMessageCache = context.read<ChatMessageCache>();
+    paginatedMessageService = context.read<PaginatedMessageService>();
 
     _chat = widget.chat;
 
@@ -214,7 +218,8 @@ class _ChatPageState extends State<ChatPage> {
                   _buildAlertBox(),
                 ],
                 Expanded(
-                  child: MessageList(
+                  child: PaginatedMessageList.chat(
+                    id: _chat.id,
                     chat: _chat,
                     focusNode: _focusNode,
                     scrollController: _scrollController,

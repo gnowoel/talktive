@@ -17,6 +17,7 @@ import 'chat_cache.dart';
 import 'report_cache.dart';
 import 'settings.dart';
 import 'server_clock.dart';
+import 'performance_monitor.dart';
 
 class ServiceLocator {
   static ServiceLocator? _instance;
@@ -35,6 +36,13 @@ class ServiceLocator {
     if (_isInitialized) return;
 
     try {
+      // Initialize performance monitoring
+      PerformanceMonitor.instance.initialize(
+        enabled: kDebugMode,
+        maxEventsToKeep: 1000,
+        metricsRetentionPeriod: const Duration(hours: 24),
+      );
+
       // Initialize SQLite cache first
       _sqliteCache = SqliteMessageCache();
 
@@ -43,6 +51,11 @@ class ServiceLocator {
 
       // Perform initial cleanup of old messages (older than 30 days)
       await _sqliteCache!.cleanupOldMessages(maxAgeInDays: 30);
+
+      // Start memory monitoring in debug mode
+      if (kDebugMode) {
+        PerformanceMonitor.instance.startMemoryMonitoring();
+      }
 
       _isInitialized = true;
 
@@ -92,8 +105,11 @@ class ServiceLocator {
   /// Dispose all services
   Future<void> dispose() async {
     try {
-      await _paginatedMessageService?.dispose();
+      _paginatedMessageService?.dispose();
       await _sqliteCache?.dispose();
+
+      // Disable performance monitoring
+      PerformanceMonitor.instance.disable();
 
       _paginatedMessageService = null;
       _sqliteCache = null;
@@ -122,10 +138,10 @@ class ServiceLocator {
       Provider<Firestore>.value(value: firestore),
 
       // Singleton services
-      ChangeNotifierProvider<Settings>(
+      Provider<Settings>(
         create: (_) => Settings(),
       ),
-      ChangeNotifierProvider<ServerClock>(
+      Provider<ServerClock>(
         create: (_) => ServerClock(),
       ),
 
@@ -140,12 +156,12 @@ class ServiceLocator {
         create: (_) => TopicCache(),
       ),
       ChangeNotifierProvider<TribeCache>(
-        create: (_) => TribeCache(),
+        create: (_) => TribeCache(firestore),
       ),
       ChangeNotifierProvider<ChatCache>(
         create: (_) => ChatCache(),
       ),
-      ChangeNotifierProvider<ReportCacheService>(
+      Provider<ReportCacheService>(
         create: (_) => ReportCacheService(),
       ),
 
@@ -221,6 +237,22 @@ class ServiceLocator {
       if (_paginatedMessageService != null) {
         stats['paginated_service_initialized'] = true;
         // Add pagination state statistics if needed
+      }
+
+      // Add performance monitoring stats
+      final perfStats = PerformanceMonitor.instance.generateReport();
+      stats['performance'] = perfStats;
+
+      // Add current memory usage
+      final memoryInfo =
+          await PerformanceMonitor.instance.getCurrentMemoryUsage();
+      if (memoryInfo != null) {
+        stats['current_memory'] = {
+          'used_mb': memoryInfo.usedMemoryMB,
+          'available_mb': memoryInfo.availableMemoryMB,
+          'total_mb': memoryInfo.totalMemoryMB,
+          'usage_percentage': memoryInfo.usagePercentage,
+        };
       }
 
       return stats;

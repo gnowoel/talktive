@@ -19,6 +19,12 @@ abstract class Message {
     this.reportCount,
   });
 
+  // Abstract getters that must be implemented by subclasses
+  String get userId;
+  String get userDisplayName;
+  String get userPhotoURL;
+  String get content;
+
   factory Message.fromJson(Map<String, dynamic> json) {
     if (json['type'] == 'image') {
       return ImageMessage.fromJson(json);
@@ -28,20 +34,25 @@ abstract class Message {
   }
 
   /// Check if the message has been flagged for review
-  bool get isFlagged => MessageReportConfig.getReportStatus(reportCount ?? 0) == 'flagged';
+  bool get isFlagged =>
+      MessageReportConfig.getReportStatus(reportCount ?? 0) == 'flagged';
 
   /// Check if the message has been hidden due to reports
-  bool get isHidden => MessageReportConfig.getReportStatus(reportCount ?? 0) == 'hidden';
+  bool get isHidden =>
+      MessageReportConfig.getReportStatus(reportCount ?? 0) == 'hidden';
 
   /// Check if the message has been marked as severe
-  bool get isSevere => MessageReportConfig.getReportStatus(reportCount ?? 0) == 'severe';
+  bool get isSevere =>
+      MessageReportConfig.getReportStatus(reportCount ?? 0) == 'severe';
 
   /// Check if the message has any report-related restrictions
   bool get isReported => reportCount != null && reportCount! > 0;
 
   /// Get the current report status
-  String? get reportStatus => MessageReportConfig.getReportStatus(reportCount ?? 0);
+  String? get reportStatus =>
+      MessageReportConfig.getReportStatus(reportCount ?? 0);
 
   /// Get a user-friendly description of the message's report status
-  String get reportStatusDescription => MessageReportConfig.getStatusDescription(reportCount ?? 0);
+  String get reportStatusDescription =>
+      MessageReportConfig.getStatusDescription(reportCount ?? 0);
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -10,14 +11,35 @@ import '../../models/topic_message.dart';
 
 class SqliteMessageCache extends ChangeNotifier {
   static const String _databaseName = 'talktive_cache.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2;
 
   // Table names
   static const String _chatMessagesTable = 'chat_messages';
   static const String _topicMessagesTable = 'topic_messages';
   static const String _metadataTable = 'cache_metadata';
 
+  // Performance constants
+  static const int _maxBatchSize = 100;
+  static const int _compressionThreshold = 1000; // Characters
+  static const int _maxCacheSize = 50000; // Maximum messages per chat/topic
+  static const Duration _backgroundCleanupInterval = Duration(hours: 6);
+
+  // Connection pool settings
+  static const int _maxConnections = 3;
+  static const Duration _connectionTimeout = Duration(seconds: 30);
+
   Database? _database;
+  Timer? _backgroundCleanupTimer;
+  bool _isOptimizing = false;
+
+  // Performance tracking
+  int _totalQueries = 0;
+  int _cacheHits = 0;
+  int _cacheMisses = 0;
+
+  // Connection management
+  final List<Database> _connectionPool = [];
+  int _currentConnectionIndex = 0;
 
   // Singleton pattern
   SqliteMessageCache._();
@@ -33,16 +55,33 @@ class SqliteMessageCache extends ChangeNotifier {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _databaseName);
 
-    return await openDatabase(
+    final db = await openDatabase(
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
+      onOpen: _onOpen,
     );
+
+    // Initialize background cleanup
+    _startBackgroundCleanup();
+
+    return db;
+  }
+
+  Future<void> _onOpen(Database db) async {
+    // Enable WAL mode for better concurrent access
+    await db.execute('PRAGMA journal_mode=WAL');
+    // Optimize for performance
+    await db.execute('PRAGMA synchronous=NORMAL');
+    await db.execute('PRAGMA cache_size=10000');
+    await db.execute('PRAGMA temp_store=MEMORY');
+    // Enable foreign keys
+    await db.execute('PRAGMA foreign_keys=ON');
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // Chat messages table
+    // Chat messages table with optimized schema
     await db.execute('''
       CREATE TABLE $_chatMessagesTable (
         id TEXT PRIMARY KEY,
@@ -52,16 +91,35 @@ class SqliteMessageCache extends ChangeNotifier {
         user_display_name TEXT NOT NULL,
         user_photo_url TEXT,
         content TEXT NOT NULL,
+        content_compressed BLOB,
         uri TEXT,
         created_at INTEGER NOT NULL,
         recalled INTEGER DEFAULT 0,
         cached_at INTEGER NOT NULL,
-        INDEX(chat_id, created_at),
-        INDEX(chat_id, cached_at)
+        content_size INTEGER DEFAULT 0,
+        is_compressed INTEGER DEFAULT 0
       )
     ''');
 
-    // Topic messages table
+    // Optimized indexes for chat messages
+    await db.execute('''
+      CREATE INDEX idx_chat_messages_chat_created
+      ON $_chatMessagesTable(chat_id, created_at DESC)
+    ''');
+    await db.execute('''
+      CREATE INDEX idx_chat_messages_chat_cached
+      ON $_chatMessagesTable(chat_id, cached_at DESC)
+    ''');
+    await db.execute('''
+      CREATE INDEX idx_chat_messages_user
+      ON $_chatMessagesTable(user_id, created_at DESC)
+    ''');
+    await db.execute('''
+      CREATE INDEX idx_chat_messages_type
+      ON $_chatMessagesTable(type, created_at DESC)
+    ''');
+
+    // Topic messages table with optimized schema
     await db.execute('''
       CREATE TABLE $_topicMessagesTable (
         id TEXT PRIMARY KEY,
@@ -71,12 +129,27 @@ class SqliteMessageCache extends ChangeNotifier {
         user_display_name TEXT NOT NULL,
         user_photo_url TEXT,
         content TEXT NOT NULL,
+        content_compressed BLOB,
         uri TEXT,
         created_at INTEGER NOT NULL,
         cached_at INTEGER NOT NULL,
-        INDEX(topic_id, created_at),
-        INDEX(topic_id, cached_at)
+        content_size INTEGER DEFAULT 0,
+        is_compressed INTEGER DEFAULT 0
       )
+    ''');
+
+    // Optimized indexes for topic messages
+    await db.execute('''
+      CREATE INDEX idx_topic_messages_topic_created
+      ON $_topicMessagesTable(topic_id, created_at DESC)
+    ''');
+    await db.execute('''
+      CREATE INDEX idx_topic_messages_topic_cached
+      ON $_topicMessagesTable(topic_id, cached_at DESC)
+    ''');
+    await db.execute('''
+      CREATE INDEX idx_topic_messages_user
+      ON $_topicMessagesTable(user_id, created_at DESC)
     ''');
 
     // Metadata table for tracking cache state
@@ -87,16 +160,68 @@ class SqliteMessageCache extends ChangeNotifier {
         updated_at INTEGER NOT NULL
       )
     ''');
+
+    // Cache statistics table
+    await db.execute('''
+      CREATE TABLE cache_stats (
+        stat_key TEXT PRIMARY KEY,
+        stat_value INTEGER NOT NULL,
+        last_updated INTEGER NOT NULL
+      )
+    ''');
+
+    // Initialize cache statistics
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await db.insert('cache_stats', {
+      'stat_key': 'total_queries',
+      'stat_value': 0,
+      'last_updated': now,
+    });
+    await db.insert('cache_stats', {
+      'stat_key': 'cache_hits',
+      'stat_value': 0,
+      'last_updated': now,
+    });
+    await db.insert('cache_stats', {
+      'stat_key': 'cache_misses',
+      'stat_value': 0,
+      'last_updated': now,
+    });
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // Handle database schema upgrades here
-    if (oldVersion < newVersion) {
-      // For now, just recreate tables
-      await db.execute('DROP TABLE IF EXISTS $_chatMessagesTable');
-      await db.execute('DROP TABLE IF EXISTS $_topicMessagesTable');
-      await db.execute('DROP TABLE IF EXISTS $_metadataTable');
-      await _onCreate(db, newVersion);
+    if (oldVersion < 2 && newVersion >= 2) {
+      // Add compression and optimization columns
+      try {
+        await db.execute('ALTER TABLE $_chatMessagesTable ADD COLUMN content_compressed BLOB');
+        await db.execute('ALTER TABLE $_chatMessagesTable ADD COLUMN content_size INTEGER DEFAULT 0');
+        await db.execute('ALTER TABLE $_chatMessagesTable ADD COLUMN is_compressed INTEGER DEFAULT 0');
+
+        await db.execute('ALTER TABLE $_topicMessagesTable ADD COLUMN content_compressed BLOB');
+        await db.execute('ALTER TABLE $_topicMessagesTable ADD COLUMN content_size INTEGER DEFAULT 0');
+        await db.execute('ALTER TABLE $_topicMessagesTable ADD COLUMN is_compressed INTEGER DEFAULT 0');
+
+        // Create new optimized indexes
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_created ON $_chatMessagesTable(chat_id, created_at DESC)');
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_topic_messages_topic_created ON $_topicMessagesTable(topic_id, created_at DESC)');
+
+        // Create cache stats table
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS cache_stats (
+            stat_key TEXT PRIMARY KEY,
+            stat_value INTEGER NOT NULL,
+            last_updated INTEGER NOT NULL
+          )
+        ''');
+      } catch (e) {
+        // If upgrade fails, recreate everything
+        await db.execute('DROP TABLE IF EXISTS $_chatMessagesTable');
+        await db.execute('DROP TABLE IF EXISTS $_topicMessagesTable');
+        await db.execute('DROP TABLE IF EXISTS $_metadataTable');
+        await db.execute('DROP TABLE IF EXISTS cache_stats');
+        await _onCreate(db, newVersion);
+      }
     }
   }
 
@@ -106,35 +231,84 @@ class SqliteMessageCache extends ChangeNotifier {
     if (messages.isEmpty) return;
 
     final db = await database;
-    final batch = db.batch();
     final now = DateTime.now().millisecondsSinceEpoch;
 
-    for (final message in messages) {
-      batch.insert(
-        _chatMessagesTable,
-        {
+    // Process messages in batches for better performance
+    final batches = _createBatches(messages, _maxBatchSize);
+
+    for (final messageBatch in batches) {
+      final batch = db.batch();
+
+      for (final message in messageBatch) {
+        final content = message.content;
+        final contentSize = content.length;
+        final shouldCompress = contentSize > _compressionThreshold;
+
+        Map<String, dynamic> messageData = {
           'id': message.id,
           'chat_id': chatId,
           'type': message.runtimeType == ImageMessage ? 'image' : 'text',
           'user_id': message.userId,
           'user_display_name': message.userDisplayName,
           'user_photo_url': message.userPhotoURL,
-          'content': message.content,
+          'content': shouldCompress ? '' : content,
+          'content_compressed': shouldCompress ? _compressString(content) : null,
           'uri': message is ImageMessage ? message.uri : null,
           'created_at': message.createdAt,
           'recalled': message.recalled ? 1 : 0,
           'cached_at': now,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
+          'content_size': contentSize,
+          'is_compressed': shouldCompress ? 1 : 0,
+        };
 
-    await batch.commit(noResult: true);
+        batch.insert(
+          _chatMessagesTable,
+          messageData,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
+      await batch.commit(noResult: true);
+    }
 
     // Update last sync timestamp
     await _updateLastSyncTimestamp('chat_$chatId', now);
 
+    // Update cache statistics
+    await _updateCacheStats('cache_hits', messages.length);
+
+    // Check if we need to cleanup old messages
+    await _checkAndCleanupOldMessages(chatId, _chatMessagesTable);
+
     notifyListeners();
+  }
+
+  List<List<T>> _createBatches<T>(List<T> items, int batchSize) {
+    final batches = <List<T>>[];
+    for (int i = 0; i < items.length; i += batchSize) {
+      final end = (i + batchSize < items.length) ? i + batchSize : items.length;
+      batches.add(items.sublist(i, end));
+    }
+    return batches;
+  }
+
+  List<int> _compressString(String text) {
+    try {
+      return GZipCodec().encode(text.codeUnits);
+    } catch (e) {
+      // Fallback to original text if compression fails
+      return text.codeUnits;
+    }
+  }
+
+  String _decompressString(List<int> compressed) {
+    try {
+      final decompressed = GZipCodec().decode(compressed);
+      return String.fromCharCodes(decompressed);
+    } catch (e) {
+      // Fallback to treat as uncompressed
+      return String.fromCharCodes(compressed);
+    }
   }
 
   Future<List<Message>> getChatMessages(
@@ -386,6 +560,14 @@ class SqliteMessageCache extends ChangeNotifier {
 
   Message _chatMessageFromMap(Map<String, dynamic> map) {
     final isImage = map['type'] == 'image';
+    final isCompressed = map['is_compressed'] == 1;
+
+    String content;
+    if (isCompressed && map['content_compressed'] != null) {
+      content = _decompressString(List<int>.from(map['content_compressed']));
+    } else {
+      content = map['content'] ?? '';
+    }
 
     if (isImage) {
       return ImageMessage(
@@ -393,7 +575,7 @@ class SqliteMessageCache extends ChangeNotifier {
         userId: map['user_id'],
         userDisplayName: map['user_display_name'],
         userPhotoURL: map['user_photo_url'],
-        content: map['content'],
+        content: content,
         uri: map['uri'] ?? '',
         createdAt: map['created_at'],
         recalled: map['recalled'] == 1,
@@ -404,7 +586,7 @@ class SqliteMessageCache extends ChangeNotifier {
         userId: map['user_id'],
         userDisplayName: map['user_display_name'],
         userPhotoURL: map['user_photo_url'],
-        content: map['content'],
+        content: content,
         createdAt: map['created_at'],
         recalled: map['recalled'] == 1,
       );
@@ -413,7 +595,15 @@ class SqliteMessageCache extends ChangeNotifier {
 
   TopicMessage _topicMessageFromMap(Map<String, dynamic> map) {
     final isImage = map['type'] == 'image';
+    final isCompressed = map['is_compressed'] == 1;
     final createdAt = Timestamp.fromMillisecondsSinceEpoch(map['created_at']);
+
+    String content;
+    if (isCompressed && map['content_compressed'] != null) {
+      content = _decompressString(List<int>.from(map['content_compressed']));
+    } else {
+      content = map['content'] ?? '';
+    }
 
     if (isImage) {
       return TopicImageMessage(
@@ -421,7 +611,7 @@ class SqliteMessageCache extends ChangeNotifier {
         userId: map['user_id'],
         userDisplayName: map['user_display_name'],
         userPhotoURL: map['user_photo_url'],
-        content: map['content'],
+        content: content,
         uri: map['uri'] ?? '',
         createdAt: createdAt,
       );
@@ -431,14 +621,134 @@ class SqliteMessageCache extends ChangeNotifier {
         userId: map['user_id'],
         userDisplayName: map['user_display_name'],
         userPhotoURL: map['user_photo_url'],
-        content: map['content'],
+        content: content,
         createdAt: createdAt,
       );
     }
   }
 
+  Future<void> _startBackgroundCleanup() async {
+    _backgroundCleanupTimer?.cancel();
+    _backgroundCleanupTimer = Timer.periodic(_backgroundCleanupInterval, (timer) async {
+      if (!_isOptimizing) {
+        await _performBackgroundMaintenance();
+      }
+    });
+  }
+
+  Future<void> _performBackgroundMaintenance() async {
+    if (_isOptimizing) return;
+    _isOptimizing = true;
+
+    try {
+      final db = await database;
+
+      // Vacuum database to reclaim space
+      await db.execute('VACUUM');
+
+      // Analyze tables for query optimization
+      await db.execute('ANALYZE');
+
+      // Clean up old metadata entries
+      final oldMetadataCutoff = DateTime.now()
+          .subtract(const Duration(days: 7))
+          .millisecondsSinceEpoch;
+      await db.delete(
+        _metadataTable,
+        where: 'updated_at < ?',
+        whereArgs: [oldMetadataCutoff],
+      );
+
+    } catch (e) {
+      debugPrint('Background maintenance error: $e');
+    } finally {
+      _isOptimizing = false;
+    }
+  }
+
+  Future<void> _checkAndCleanupOldMessages(String entityId, String table) async {
+    final db = await database;
+
+    // Count messages for this entity
+    final countResult = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM $table WHERE ${table == _chatMessagesTable ? 'chat_id' : 'topic_id'} = ?',
+      [entityId],
+    );
+
+    final messageCount = countResult.first['count'] as int;
+
+    if (messageCount > _maxCacheSize) {
+      // Remove oldest messages beyond the limit
+      final deleteCount = messageCount - _maxCacheSize;
+      await db.rawDelete('''
+        DELETE FROM $table
+        WHERE ${table == _chatMessagesTable ? 'chat_id' : 'topic_id'} = ?
+        AND id IN (
+          SELECT id FROM $table
+          WHERE ${table == _chatMessagesTable ? 'chat_id' : 'topic_id'} = ?
+          ORDER BY created_at ASC
+          LIMIT ?
+        )
+      ''', [entityId, entityId, deleteCount]);
+    }
+  }
+
+  Future<void> _updateCacheStats(String statKey, int increment) async {
+    final db = await database;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.rawUpdate('''
+      UPDATE cache_stats
+      SET stat_value = stat_value + ?, last_updated = ?
+      WHERE stat_key = ?
+    ''', [increment, now, statKey]);
+  }
+
+  Future<Map<String, int>> getCacheStatistics() async {
+    final db = await database;
+    final result = await db.query('cache_stats');
+
+    final stats = <String, int>{};
+    for (final row in result) {
+      stats[row['stat_key'] as String] = row['stat_value'] as int;
+    }
+
+    return stats;
+  }
+
+  Future<void> optimizeDatabase() async {
+    if (_isOptimizing) return;
+    _isOptimizing = true;
+
+    try {
+      final db = await database;
+
+      // Reindex all tables
+      await db.execute('REINDEX');
+
+      // Update table statistics
+      await db.execute('ANALYZE');
+
+      // Vacuum to reclaim space
+      await db.execute('VACUUM');
+
+    } catch (e) {
+      debugPrint('Database optimization error: $e');
+    } finally {
+      _isOptimizing = false;
+    }
+  }
+
   @override
   Future<void> dispose() async {
+    _backgroundCleanupTimer?.cancel();
+
+    // Close all connections in pool
+    for (final connection in _connectionPool) {
+      await connection.close();
+    }
+    _connectionPool.clear();
+
     await _database?.close();
     _database = null;
     super.dispose();

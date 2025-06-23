@@ -425,6 +425,99 @@ class PerformanceMonitor {
     _isEnabled = false;
     clear();
   }
+
+  /// Get performance insights and recommendations
+  Map<String, dynamic> getPerformanceInsights() {
+    if (!_isEnabled) return {'enabled': false};
+
+    final insights = <String, dynamic>{};
+    final recommendations = <String>[];
+
+    // Analyze cache performance
+    final cacheHitRatio = getCacheHitRatio();
+    insights['cache_hit_ratio'] = cacheHitRatio;
+
+    if (cacheHitRatio < 0.7) {
+      recommendations.add(
+          'Cache hit ratio is low (${(cacheHitRatio * 100).toStringAsFixed(1)}%). Consider preloading more data or optimizing cache retention.');
+    }
+
+    // Analyze loading times
+    final avgLoadTime = getAverageMetric('message_load_time_ms');
+    if (avgLoadTime != null) {
+      insights['avg_load_time_ms'] = avgLoadTime;
+      if (avgLoadTime > 1000) {
+        recommendations.add(
+            'Average message load time is high (${avgLoadTime.toStringAsFixed(1)}ms). Consider reducing page size or optimizing queries.');
+      }
+    }
+
+    // Analyze memory usage
+    final avgMemoryUsed = getAverageMetric('memory_used_mb');
+    if (avgMemoryUsed != null) {
+      insights['avg_memory_used_mb'] = avgMemoryUsed;
+      if (avgMemoryUsed > 512) {
+        recommendations.add(
+            'High memory usage detected (${avgMemoryUsed.toStringAsFixed(1)}MB). Consider more aggressive cache cleanup.');
+      }
+    }
+
+    // Analyze SQLite performance
+    final avgSqliteTime = getAverageMetric('sqlite_execution_time_ms');
+    if (avgSqliteTime != null) {
+      insights['avg_sqlite_time_ms'] = avgSqliteTime;
+      if (avgSqliteTime > 50) {
+        recommendations.add(
+            'SQLite operations are slow (${avgSqliteTime.toStringAsFixed(1)}ms). Consider adding more indexes or reducing transaction size.');
+      }
+    }
+
+    insights['recommendations'] = recommendations;
+    insights['performance_score'] = _calculatePerformanceScore();
+
+    return insights;
+  }
+
+  /// Calculate an overall performance score (0-100)
+  double _calculatePerformanceScore() {
+    double score = 100.0;
+
+    // Cache performance (25 points)
+    final cacheRatio = getCacheHitRatio();
+    score -= (1.0 - cacheRatio) * 25;
+
+    // Loading time performance (25 points)
+    final avgLoadTime = getAverageMetric('message_load_time_ms');
+    if (avgLoadTime != null) {
+      if (avgLoadTime > 2000)
+        score -= 25;
+      else if (avgLoadTime > 1000)
+        score -= 15;
+      else if (avgLoadTime > 500) score -= 10;
+    }
+
+    // Memory performance (25 points)
+    final avgMemory = getAverageMetric('memory_used_mb');
+    if (avgMemory != null) {
+      if (avgMemory > 1024)
+        score -= 25;
+      else if (avgMemory > 512)
+        score -= 15;
+      else if (avgMemory > 256) score -= 10;
+    }
+
+    // Database performance (25 points)
+    final avgSqliteTime = getAverageMetric('sqlite_execution_time_ms');
+    if (avgSqliteTime != null) {
+      if (avgSqliteTime > 100)
+        score -= 25;
+      else if (avgSqliteTime > 50)
+        score -= 15;
+      else if (avgSqliteTime > 25) score -= 10;
+    }
+
+    return score.clamp(0, 100);
+  }
 }
 
 // Data Classes

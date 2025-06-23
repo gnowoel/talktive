@@ -322,6 +322,168 @@ class Firedata {
     }
   }
 
+  /// Fetch a page of messages with pagination support
+  Future<List<Message>> fetchMessagesPage(
+    String chatId, {
+    int limit = 25,
+    int? startAfterTimestamp,
+    int? endBeforeTimestamp,
+    int? minCreatedAt,
+  }) async {
+    try {
+      final ref = instance.ref('messages/$chatId');
+      Query query = ref.orderByChild('createdAt');
+
+      // Apply timestamp filters
+      if (startAfterTimestamp != null) {
+        query = query.startAfter(startAfterTimestamp);
+      }
+      if (endBeforeTimestamp != null) {
+        query = query.endBefore(endBeforeTimestamp);
+      }
+
+      // Apply limit
+      query = query.limitToFirst(limit);
+
+      final snapshot = await query.get();
+      final messages = <Message>[];
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<dynamic, dynamic>;
+
+        for (final entry in data.entries) {
+          final messageId = entry.key as String;
+          final messageData = Map<String, dynamic>.from(entry.value as Map);
+
+          final message = Message.fromJson({
+            'id': messageId,
+            ...messageData,
+          });
+
+          // Filter by minCreatedAt if specified
+          if (minCreatedAt == null || message.createdAt >= minCreatedAt) {
+            messages.add(message);
+          }
+        }
+
+        messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      }
+
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  /// Fetch messages before a specific timestamp (for loading older messages)
+  Future<List<Message>> fetchMessagesBeforeTimestamp(
+    String chatId,
+    int beforeTimestamp, {
+    int limit = 25,
+    int? minCreatedAt,
+  }) async {
+    try {
+      final ref = instance.ref('messages/$chatId');
+      final query = ref
+          .orderByChild('createdAt')
+          .endBefore(beforeTimestamp)
+          .limitToLast(limit);
+
+      final snapshot = await query.get();
+      final messages = <Message>[];
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<dynamic, dynamic>;
+
+        for (final entry in data.entries) {
+          final messageId = entry.key as String;
+          final messageData = Map<String, dynamic>.from(entry.value as Map);
+
+          final message = Message.fromJson({
+            'id': messageId,
+            ...messageData,
+          });
+
+          // Filter by minCreatedAt if specified
+          if (minCreatedAt == null || message.createdAt >= minCreatedAt) {
+            messages.add(message);
+          }
+        }
+
+        messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      }
+
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  /// Fetch messages after a specific timestamp (for loading newer messages)
+  Future<List<Message>> fetchMessagesAfterTimestamp(
+    String chatId,
+    int afterTimestamp, {
+    int limit = 25,
+    int? minCreatedAt,
+  }) async {
+    try {
+      final ref = instance.ref('messages/$chatId');
+      final query = ref
+          .orderByChild('createdAt')
+          .startAfter(afterTimestamp)
+          .limitToFirst(limit);
+
+      final snapshot = await query.get();
+      final messages = <Message>[];
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<dynamic, dynamic>;
+
+        for (final entry in data.entries) {
+          final messageId = entry.key as String;
+          final messageData = Map<String, dynamic>.from(entry.value as Map);
+
+          final message = Message.fromJson({
+            'id': messageId,
+            ...messageData,
+          });
+
+          // Filter by minCreatedAt if specified
+          if (minCreatedAt == null || message.createdAt >= minCreatedAt) {
+            messages.add(message);
+          }
+        }
+
+        messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      }
+
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  /// Get the total count of messages in a chat
+  Future<int> getMessageCount(String chatId, {int? minCreatedAt}) async {
+    try {
+      final ref = instance.ref('messages/$chatId');
+      Query query = ref.orderByChild('createdAt');
+
+      if (minCreatedAt != null) {
+        query = query.startAt(minCreatedAt);
+      }
+
+      final snapshot = await query.get();
+
+      if (!snapshot.exists) return 0;
+
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      return data.length;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<Chat> greetUser(User self, User other, String message) async {
     try {
       final chatId = ([self.id, other.id]..sort()).join();

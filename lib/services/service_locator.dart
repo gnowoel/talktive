@@ -18,6 +18,8 @@ import 'report_cache.dart';
 import 'settings.dart';
 import 'server_clock.dart';
 import 'performance_monitor.dart';
+import 'intelligent_preloader.dart';
+import 'error_recovery_service.dart';
 
 class ServiceLocator {
   static ServiceLocator? _instance;
@@ -28,20 +30,54 @@ class ServiceLocator {
   // Services
   SqliteMessageCache? _sqliteCache;
   PaginatedMessageService? _paginatedMessageService;
+  IntelligentPreloader? _intelligentPreloader;
+  ErrorRecoveryService? _errorRecoveryService;
 
   bool _isInitialized = false;
+  bool _isInitializing = false;
+  String? _initializationError;
+  DateTime? _initializationTime;
 
-  /// Initialize all services
+  /// Check if services are properly initialized
+  bool get isInitialized => _isInitialized;
+
+  /// Check if services are currently being initialized
+  bool get isInitializing => _isInitializing;
+
+  /// Get initialization error if any
+  String? get initializationError => _initializationError;
+
+  /// Get time when services were initialized
+  DateTime? get initializationTime => _initializationTime;
+
+  /// Initialize all services with enhanced error handling and tracking
   Future<void> initialize() async {
     if (_isInitialized) return;
+    if (_isInitializing) {
+      // Wait for ongoing initialization
+      while (_isInitializing) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      return;
+    }
+
+    _isInitializing = true;
+    _initializationError = null;
 
     try {
+      if (kDebugMode) {
+        print('ServiceLocator: Starting initialization...');
+      }
+
       // Initialize performance monitoring
       PerformanceMonitor.instance.initialize(
         enabled: kDebugMode,
         maxEventsToKeep: 1000,
         metricsRetentionPeriod: const Duration(hours: 24),
       );
+
+      // Track initialization performance
+      PerformanceMonitor.instance.startTimer('service_locator_init');
 
       // Initialize SQLite cache first
       _sqliteCache = SqliteMessageCache();
@@ -57,16 +93,38 @@ class ServiceLocator {
         PerformanceMonitor.instance.startMemoryMonitoring();
       }
 
+      // Initialize error recovery service
+      _errorRecoveryService = ErrorRecoveryService(
+        perfMonitor: PerformanceMonitor.instance,
+        cache: _sqliteCache!,
+      );
+
+      final initTime =
+          PerformanceMonitor.instance.endTimer('service_locator_init');
+
       _isInitialized = true;
+      _initializationTime = DateTime.now();
 
       if (kDebugMode) {
-        print('ServiceLocator: All services initialized successfully');
+        print(
+            'ServiceLocator: All services initialized successfully in ${initTime?.toStringAsFixed(1)}ms');
       }
+
+      // Record successful initialization
+      PerformanceMonitor.instance
+          .incrementCounter('service_locator_init_success');
     } catch (e) {
+      _initializationError = e.toString();
+      PerformanceMonitor.instance
+          .incrementCounter('service_locator_init_failure');
+      PerformanceMonitor.instance.endTimer('service_locator_init');
+
       if (kDebugMode) {
         print('ServiceLocator: Failed to initialize services: $e');
       }
       rethrow;
+    } finally {
+      _isInitializing = false;
     }
   }
 
@@ -89,6 +147,24 @@ class ServiceLocator {
     return _paginatedMessageService!;
   }
 
+  /// Create intelligent preloader with dependencies
+  IntelligentPreloader createIntelligentPreloader({
+    required PaginatedMessageService messageService,
+  }) {
+    if (!_isInitialized) {
+      throw StateError(
+          'ServiceLocator must be initialized before creating services');
+    }
+
+    _intelligentPreloader ??= IntelligentPreloader(
+      messageService: messageService,
+      cache: _sqliteCache!,
+      perfMonitor: PerformanceMonitor.instance,
+    );
+
+    return _intelligentPreloader!;
+  }
+
   /// Get SQLite cache instance
   SqliteMessageCache get sqliteCache {
     if (!_isInitialized || _sqliteCache == null) {
@@ -102,16 +178,32 @@ class ServiceLocator {
   PaginatedMessageService? get paginatedMessageService =>
       _paginatedMessageService;
 
+  /// Get intelligent preloader instance
+  IntelligentPreloader? get intelligentPreloader => _intelligentPreloader;
+
+  /// Get error recovery service instance
+  ErrorRecoveryService get errorRecoveryService {
+    if (!_isInitialized || _errorRecoveryService == null) {
+      throw StateError(
+          'ServiceLocator must be initialized before accessing services');
+    }
+    return _errorRecoveryService!;
+  }
+
   /// Dispose all services
   Future<void> dispose() async {
     try {
       _paginatedMessageService?.dispose();
+      _intelligentPreloader?.dispose();
+      _errorRecoveryService?.dispose();
       await _sqliteCache?.dispose();
 
       // Disable performance monitoring
       PerformanceMonitor.instance.disable();
 
       _paginatedMessageService = null;
+      _intelligentPreloader = null;
+      _errorRecoveryService = null;
       _sqliteCache = null;
       _isInitialized = false;
 
@@ -195,6 +287,24 @@ class ServiceLocator {
               );
         },
       ),
+      ChangeNotifierProxyProvider<PaginatedMessageService,
+          IntelligentPreloader>(
+        create: (context) {
+          final messageService = context.read<PaginatedMessageService>();
+          return ServiceLocator.instance.createIntelligentPreloader(
+            messageService: messageService,
+          );
+        },
+        update: (context, messageService, previous) {
+          return previous ??
+              ServiceLocator.instance.createIntelligentPreloader(
+                messageService: messageService,
+              );
+        },
+      ),
+      ChangeNotifierProvider<ErrorRecoveryService>(
+        create: (_) => ServiceLocator.instance.errorRecoveryService,
+      ),
     ];
   }
 
@@ -216,9 +326,6 @@ class ServiceLocator {
     }
   }
 
-  /// Check if services are properly initialized
-  bool get isInitialized => _isInitialized;
-
   /// Get memory usage statistics for debugging
   Future<Map<String, dynamic>> getMemoryStats() async {
     if (!_isInitialized) {
@@ -237,6 +344,30 @@ class ServiceLocator {
       if (_paginatedMessageService != null) {
         stats['paginated_service_initialized'] = true;
         // Add pagination state statistics if needed
+      }
+
+      if (_intelligentPreloader != null) {
+        stats['intelligent_preloader_initialized'] = true;
+        final preloadStats = _intelligentPreloader!.getStats();
+        stats['preloading_stats'] = {
+          'total_preloads': preloadStats.totalPreloads,
+          'successful_preloads': preloadStats.successfulPreloads,
+          'success_rate': preloadStats.successRate,
+          'active_preloads': preloadStats.activePreloads,
+          'tracked_chats': preloadStats.trackedChats,
+        };
+      }
+
+      if (_errorRecoveryService != null) {
+        stats['error_recovery_initialized'] = true;
+        final errorStats = _errorRecoveryService!.getStats();
+        stats['error_recovery_stats'] = {
+          'total_errors': errorStats.totalErrors,
+          'total_retries': errorStats.totalRetries,
+          'queued_operations': errorStats.queuedOperations,
+          'is_online': errorStats.isOnline,
+          'is_recovering': errorStats.isRecovering,
+        };
       }
 
       // Add performance monitoring stats

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../services/performance_monitor.dart';
 import '../services/cache/sqlite_message_cache.dart';
-import '../services/paginated_message_service.dart';
 import '../services/service_locator.dart';
 
 class DebugPerformancePage extends StatefulWidget {
@@ -13,36 +13,53 @@ class DebugPerformancePage extends StatefulWidget {
   State<DebugPerformancePage> createState() => _DebugPerformancePageState();
 }
 
-class _DebugPerformancePageState extends State<DebugPerformancePage> {
+class _DebugPerformancePageState extends State<DebugPerformancePage>
+    with TickerProviderStateMixin {
   late PerformanceMonitor _perfMonitor;
-  late SqliteMessageCache _cache;
-  late PaginatedMessageService _messageService;
+  SqliteMessageCache? _cache;
 
   Map<String, dynamic> _stats = {};
   Map<String, dynamic> _memoryStats = {};
+  Map<String, dynamic> _insights = {};
   bool _isLoading = false;
+  late AnimationController _refreshController;
 
   @override
   void initState() {
     super.initState();
     _perfMonitor = PerformanceMonitor.instance;
+    _refreshController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
     _loadStats();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _cache = Provider.of<SqliteMessageCache>(context);
-    _messageService = Provider.of<PaginatedMessageService>(context);
+    try {
+      _cache = Provider.of<SqliteMessageCache>(context, listen: false);
+    } catch (e) {
+      debugPrint('Cache service not available: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
+    _refreshController.forward(from: 0);
 
     try {
       final serviceStats = await ServiceLocator.instance.getMemoryStats();
       final perfReport = _perfMonitor.generateReport();
       final memoryInfo = await _perfMonitor.getCurrentMemoryUsage();
+      final insights = _perfMonitor.getPerformanceInsights();
 
       setState(() {
         _stats = {
@@ -57,30 +74,65 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
                 'usage_percentage': memoryInfo.usagePercentage,
               }
             : {};
+        _insights = insights;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading stats: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading stats: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
   Future<void> _clearCache() async {
+    final confirmed = await _showConfirmationDialog(
+      'Clear Cache',
+      'This will clear all cached messages and performance data. Continue?',
+    );
+
+    if (!confirmed) return;
+
     try {
       await ServiceLocator.instance.clearAllCache();
       _perfMonitor.clear();
       await _loadStats();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cache cleared successfully')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cache cleared successfully')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error clearing cache: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error clearing cache: $e')),
+        );
+      }
     }
+  }
+
+  Future<bool> _showConfirmationDialog(String title, String message) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Confirm'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   Future<void> _runMaintenance() async {
@@ -88,17 +140,158 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
       await ServiceLocator.instance.performMaintenance();
       await _loadStats();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maintenance completed')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Maintenance completed'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error running maintenance: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error running maintenance: $e')),
+        );
+      }
     }
   }
 
-  Widget _buildStatCard(String title, Map<String, dynamic> data) {
+  Future<void> _exportData() async {
+    try {
+      final data = _perfMonitor.exportData();
+      final jsonString = data.toString();
+
+      await Clipboard.setData(ClipboardData(text: jsonString));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Performance data copied to clipboard'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Performance Data'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 400,
+              child: SingleChildScrollView(
+                child: Text(
+                  jsonString,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: jsonString));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  }
+                },
+                child: const Text('Copy'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error exporting data: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _simulateLoad() async {
+    if (_cache == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cache service not available')),
+      );
+      return;
+    }
+
+    try {
+      _perfMonitor.startTimer('simulate_load');
+
+      for (int i = 0; i < 10; i++) {
+        _perfMonitor.trackSqliteOperation(
+          operation: 'SELECT',
+          table: 'test_table',
+          rowCount: 25,
+          executionTimeMs: 10.0 + (i * 2),
+        );
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+
+      final loadTime = _perfMonitor.endTimer('simulate_load');
+      _perfMonitor.trackMessageLoad(
+        chatId: 'test-chat',
+        messageCount: 250,
+        fromCache: true,
+        loadTimeMs: loadTime,
+      );
+
+      await _loadStats();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Simulated load completed in ${loadTime?.toStringAsFixed(1)}ms'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error simulating load: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildServiceStatusCard() {
+    final serviceLocator = ServiceLocator.instance;
+    final isInitialized = serviceLocator.isInitialized;
+    final isInitializing = serviceLocator.isInitializing;
+    final initError = serviceLocator.initializationError;
+    final initTime = serviceLocator.initializationTime;
+
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+
+    if (isInitializing) {
+      statusColor = Colors.orange;
+      statusIcon = Icons.hourglass_empty;
+      statusText = 'Initializing...';
+    } else if (isInitialized) {
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle;
+      statusText = 'Operational';
+    } else {
+      statusColor = Colors.red;
+      statusIcon = Icons.error;
+      statusText = 'Not Initialized';
+    }
+
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: Padding(
@@ -106,54 +299,161 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Row(
+              children: [
+                Icon(statusIcon, color: statusColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Service Status',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
-            ...data.entries.map((entry) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          entry.key,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          _formatValue(entry.value),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'monospace',
-                          ),
-                        ),
-                      ),
-                    ],
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    shape: BoxShape.circle,
                   ),
-                )),
+                ),
+                const SizedBox(width: 8),
+                Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            if (initTime != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Initialized: ${initTime.toString().split('.')[0]}',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+            if (initError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Error: $initError',
+                style: const TextStyle(fontSize: 12, color: Colors.red),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  String _formatValue(dynamic value) {
-    if (value is double) {
-      return value.toStringAsFixed(2);
-    } else if (value is Map) {
-      return 'Map(${value.length} items)';
-    } else if (value is List) {
-      return 'List(${value.length} items)';
-    } else {
-      return value.toString();
+  Widget _buildPerformanceScoreCard() {
+    if (_insights.isEmpty) {
+      return const SizedBox.shrink();
     }
+
+    final score = _insights['performance_score'] as double? ?? 0.0;
+    final recommendations = _insights['recommendations'] as List? ?? [];
+
+    Color scoreColor;
+    IconData scoreIcon;
+    String scoreLabel;
+
+    if (score >= 80) {
+      scoreColor = Colors.green;
+      scoreIcon = Icons.sentiment_very_satisfied;
+      scoreLabel = 'Excellent';
+    } else if (score >= 60) {
+      scoreColor = Colors.orange;
+      scoreIcon = Icons.sentiment_satisfied;
+      scoreLabel = 'Good';
+    } else if (score >= 40) {
+      scoreColor = Colors.deepOrange;
+      scoreIcon = Icons.sentiment_neutral;
+      scoreLabel = 'Fair';
+    } else {
+      scoreColor = Colors.red;
+      scoreIcon = Icons.sentiment_very_dissatisfied;
+      scoreLabel = 'Poor';
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(scoreIcon, color: scoreColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Performance Score',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: score / 100,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  '${score.toStringAsFixed(0)}/100',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: scoreColor,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              scoreLabel,
+              style: TextStyle(
+                color: scoreColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (recommendations.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Recommendations:',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              ...recommendations.map((rec) => Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.lightbulb_outline, size: 16, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            rec.toString(),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildMemoryCard() {
@@ -249,7 +549,15 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
               children: [
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _loadStats,
-                  icon: const Icon(Icons.refresh, size: 16),
+                  icon: AnimatedBuilder(
+                    animation: _refreshController,
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: _refreshController.value * 2 * 3.14159,
+                        child: const Icon(Icons.refresh, size: 16),
+                      );
+                    },
+                  ),
                   label: const Text('Refresh'),
                 ),
                 ElevatedButton.icon(
@@ -271,6 +579,15 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
                   icon: const Icon(Icons.download, size: 16),
                   label: const Text('Export Data'),
                 ),
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _simulateLoad,
+                  icon: const Icon(Icons.speed, size: 16),
+                  label: const Text('Simulate Load'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
               ],
             ),
           ],
@@ -279,39 +596,251 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
     );
   }
 
-  Future<void> _exportData() async {
-    try {
-      final data = _perfMonitor.exportData();
-      final jsonString = data.toString();
-
-      // In a real app, you'd save this to a file or share it
-      // For now, we'll just show it in a dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Performance Data'),
-          content: SingleChildScrollView(
-            child: Text(
-              jsonString,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 10,
-              ),
+  Widget _buildStatCard(String title, Map<String, dynamic> data) {
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
+            const SizedBox(height: 12),
+            ...data.entries.map((entry) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          entry.key,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          _formatValue(entry.value),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
           ],
         ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error exporting data: $e')),
-      );
+      ),
+    );
+  }
+
+  String _formatValue(dynamic value) {
+    if (value is double) {
+      return value.toStringAsFixed(2);
+    } else if (value is Map) {
+      return 'Map(${value.length} items)';
+    } else if (value is List) {
+      return 'List(${value.length} items)';
+    } else {
+      return value.toString();
     }
+  }
+
+  Widget _buildServiceStatusCard() {
+    final serviceLocator = ServiceLocator.instance;
+    final isInitialized = serviceLocator.isInitialized;
+    final isInitializing = serviceLocator.isInitializing;
+    final initError = serviceLocator.initializationError;
+    final initTime = serviceLocator.initializationTime;
+
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+
+    if (isInitializing) {
+      statusColor = Colors.orange;
+      statusIcon = Icons.hourglass_empty;
+      statusText = 'Initializing...';
+    } else if (isInitialized) {
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle;
+      statusText = 'Operational';
+    } else {
+      statusColor = Colors.red;
+      statusIcon = Icons.error;
+      statusText = 'Not Initialized';
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(statusIcon, color: statusColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Service Status',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            if (initTime != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Initialized: ${initTime.toString().split('.')[0]}',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+            if (initError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Error: $initError',
+                style: const TextStyle(fontSize: 12, color: Colors.red),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPerformanceScoreCard() {
+    if (_insights.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final score = _insights['performance_score'] as double? ?? 0.0;
+    final recommendations = _insights['recommendations'] as List? ?? [];
+
+    Color scoreColor;
+    IconData scoreIcon;
+    String scoreLabel;
+
+    if (score >= 80) {
+      scoreColor = Colors.green;
+      scoreIcon = Icons.sentiment_very_satisfied;
+      scoreLabel = 'Excellent';
+    } else if (score >= 60) {
+      scoreColor = Colors.orange;
+      scoreIcon = Icons.sentiment_satisfied;
+      scoreLabel = 'Good';
+    } else if (score >= 40) {
+      scoreColor = Colors.deepOrange;
+      scoreIcon = Icons.sentiment_neutral;
+      scoreLabel = 'Fair';
+    } else {
+      scoreColor = Colors.red;
+      scoreIcon = Icons.sentiment_very_dissatisfied;
+      scoreLabel = 'Poor';
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(scoreIcon, color: scoreColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Performance Score',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: score / 100,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  '${score.toStringAsFixed(0)}/100',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: scoreColor,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              scoreLabel,
+              style: TextStyle(
+                color: scoreColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (recommendations.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Recommendations:',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              ...recommendations.map((rec) => Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.lightbulb_outline, size: 16, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            rec.toString(),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -326,6 +855,8 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
           : SingleChildScrollView(
               child: Column(
                 children: [
+                  _buildServiceStatusCard(),
+                  _buildPerformanceScoreCard(),
                   _buildMemoryCard(),
                   _buildActionButtons(),
                   if (_stats['performance_report'] != null)
@@ -339,18 +870,12 @@ class _DebugPerformancePageState extends State<DebugPerformancePage> {
                       'Service Stats',
                       Map<String, dynamic>.from(_stats['service_stats'] as Map),
                     ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Performance monitoring is ${_perfMonitor.isInitialized ? 'active' : 'inactive'}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: _perfMonitor.isInitialized
-                                ? Colors.green
-                                : Colors.red,
-                          ),
+                  if (_insights.isNotEmpty)
+                    _buildStatCard(
+                      'Performance Insights',
+                      Map<String, dynamic>.from(_insights),
                     ),
-                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

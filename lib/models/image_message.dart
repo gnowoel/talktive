@@ -1,9 +1,13 @@
 import 'message.dart';
 
 class ImageMessage extends Message {
+  @override
   final String userId;
+  @override
   final String userDisplayName;
+  @override
   final String userPhotoURL;
+  @override
   final String content;
   final String uri;
 

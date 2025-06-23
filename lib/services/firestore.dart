@@ -1052,10 +1052,9 @@ class Firestore {
           .collection('topics')
           .doc(topicId)
           .collection('messages')
-          .count()
           .get();
 
-      return snapshot.count ?? 0;
+      return snapshot.docs.length;
     } catch (e) {
       throw AppException(e.toString());
     }

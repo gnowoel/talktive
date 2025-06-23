@@ -2,7 +2,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/message.dart';
+import '../../models/image_message.dart';
+import '../../models/text_message.dart';
 import '../../models/topic_message.dart';
 
 class SqliteMessageCache extends ChangeNotifier {
@@ -410,7 +413,7 @@ class SqliteMessageCache extends ChangeNotifier {
 
   TopicMessage _topicMessageFromMap(Map<String, dynamic> map) {
     final isImage = map['type'] == 'image';
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(map['created_at']);
+    final createdAt = Timestamp.fromMillisecondsSinceEpoch(map['created_at']);
 
     if (isImage) {
       return TopicImageMessage(
@@ -434,8 +437,10 @@ class SqliteMessageCache extends ChangeNotifier {
     }
   }
 
+  @override
   Future<void> dispose() async {
     await _database?.close();
     _database = null;
+    super.dispose();
   }
 }

@@ -215,4 +215,16 @@ class TestMessage extends Message {
     super.revivedAt,
     super.reportCount,
   });
+
+  @override
+  String get userId => 'test-user-id';
+
+  @override
+  String get userDisplayName => 'Test User';
+
+  @override
+  String get userPhotoURL => 'https://example.com/photo.jpg';
+
+  @override
+  String get content => 'Test message content';
 }

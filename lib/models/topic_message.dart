@@ -21,10 +21,14 @@ abstract class TopicMessage {
     this.reportCount,
   });
 
+  // Abstract getter that must be implemented by subclasses
+  String get content;
+
   Map<String, dynamic> toJson();
 }
 
 class TopicTextMessage extends TopicMessage {
+  @override
   final String content;
 
   const TopicTextMessage({
@@ -54,12 +58,11 @@ class TopicTextMessage extends TopicMessage {
 
   factory TopicTextMessage.fromJson(Map<String, dynamic> json) {
     final timestamp = json['createdAt'];
-    final createdAt =
-        timestamp is Timestamp
-            ? timestamp
-            : Timestamp.fromMillisecondsSinceEpoch(
-              ServerClock().now,
-            ); // Fallback to local timestamp if null
+    final createdAt = timestamp is Timestamp
+        ? timestamp
+        : Timestamp.fromMillisecondsSinceEpoch(
+            ServerClock().now,
+          ); // Fallback to local timestamp if null
 
     return TopicTextMessage(
       id: json['id'] as String?,
@@ -76,6 +79,7 @@ class TopicTextMessage extends TopicMessage {
 
 class TopicImageMessage extends TopicMessage {
   final String uri;
+  @override
   final String content; // Usually '[Image]'
 
   const TopicImageMessage({
@@ -107,12 +111,11 @@ class TopicImageMessage extends TopicMessage {
 
   factory TopicImageMessage.fromJson(Map<String, dynamic> json) {
     final timestamp = json['createdAt'];
-    final createdAt =
-        timestamp is Timestamp
-            ? timestamp
-            : Timestamp.fromMillisecondsSinceEpoch(
-              ServerClock().now,
-            ); // Fallback to local timestamp if null
+    final createdAt = timestamp is Timestamp
+        ? timestamp
+        : Timestamp.fromMillisecondsSinceEpoch(
+            ServerClock().now,
+          ); // Fallback to local timestamp if null
 
     return TopicImageMessage(
       id: json['id'] as String?,

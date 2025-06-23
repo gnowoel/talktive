@@ -9,13 +9,14 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/topic_message_cache.dart';
+import '../services/paginated_message_service.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 
 import '../widgets/layout.dart';
 import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
-import '../widgets/topic_message_list.dart';
+import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class TopicPage extends StatefulWidget {
@@ -39,6 +40,7 @@ class _TopicPageState extends State<TopicPage> {
   late UserCache userCache;
   late FollowCache followCache;
   late TopicMessageCache topicMessageCache;
+  late PaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
   late StreamSubscription messagesSubscription;
 
@@ -58,6 +60,7 @@ class _TopicPageState extends State<TopicPage> {
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
     topicMessageCache = context.read<TopicMessageCache>();
+    paginatedMessageService = context.read<PaginatedMessageService>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -350,8 +353,8 @@ class _TopicPageState extends State<TopicPage> {
               children: [
                 const SizedBox(height: 10),
                 Expanded(
-                  child: TopicMessageList(
-                    topicId: widget.topicId,
+                  child: PaginatedMessageList.topic(
+                    id: widget.topicId,
                     topicCreatorId: widget.topicCreatorId,
                     focusNode: _focusNode,
                     scrollController: _scrollController,

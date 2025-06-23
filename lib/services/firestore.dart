@@ -923,6 +923,143 @@ class Firestore {
       throw AppException(e.toString());
     }
   }
+
+  /// Fetch a page of topic messages with pagination support
+  Future<List<TopicMessage>> fetchTopicMessagesPage(
+    String topicId, {
+    int limit = 25,
+    DocumentSnapshot? startAfterDoc,
+    DocumentSnapshot? endBeforeDoc,
+  }) async {
+    try {
+      var query = instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .orderBy('createdAt');
+
+      // Apply pagination cursors
+      if (startAfterDoc != null) {
+        query = query.startAfterDocument(startAfterDoc);
+      }
+      if (endBeforeDoc != null) {
+        query = query.endBeforeDocument(endBeforeDoc);
+      }
+
+      // Apply limit
+      query = query.limit(limit);
+
+      final snapshot = await query.get();
+      final messages = <TopicMessage>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final type = data['type'] as String;
+
+        if (type == 'image') {
+          messages.add(TopicImageMessage.fromJson({'id': doc.id, ...data}));
+        } else {
+          messages.add(TopicTextMessage.fromJson({'id': doc.id, ...data}));
+        }
+      }
+
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  /// Fetch topic messages before a specific timestamp (for loading older messages)
+  Future<List<TopicMessage>> fetchTopicMessagesBeforeTimestamp(
+    String topicId,
+    DateTime beforeTimestamp, {
+    int limit = 25,
+  }) async {
+    try {
+      final timestamp = Timestamp.fromDate(beforeTimestamp);
+      final query = instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .orderBy('createdAt', descending: true)
+          .where('createdAt', isLessThan: timestamp)
+          .limit(limit);
+
+      final snapshot = await query.get();
+      final messages = <TopicMessage>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final type = data['type'] as String;
+
+        if (type == 'image') {
+          messages.add(TopicImageMessage.fromJson({'id': doc.id, ...data}));
+        } else {
+          messages.add(TopicTextMessage.fromJson({'id': doc.id, ...data}));
+        }
+      }
+
+      // Sort in ascending order (oldest first)
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  /// Fetch topic messages after a specific timestamp (for loading newer messages)
+  Future<List<TopicMessage>> fetchTopicMessagesAfterTimestamp(
+    String topicId,
+    DateTime afterTimestamp, {
+    int limit = 25,
+  }) async {
+    try {
+      final timestamp = Timestamp.fromDate(afterTimestamp);
+      final query = instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .orderBy('createdAt')
+          .where('createdAt', isGreaterThan: timestamp)
+          .limit(limit);
+
+      final snapshot = await query.get();
+      final messages = <TopicMessage>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final type = data['type'] as String;
+
+        if (type == 'image') {
+          messages.add(TopicImageMessage.fromJson({'id': doc.id, ...data}));
+        } else {
+          messages.add(TopicTextMessage.fromJson({'id': doc.id, ...data}));
+        }
+      }
+
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  /// Get the total count of messages in a topic
+  Future<int> getTopicMessageCount(String topicId) async {
+    try {
+      final snapshot = await instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .count()
+          .get();
+
+      return snapshot.count ?? 0;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }
 
 class _CachedUser {

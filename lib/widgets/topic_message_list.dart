@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
-import '../services/topic_message_cache.dart';
+import '../services/cache/sqlite_message_cache.dart';
 import 'message_separator.dart';
 import 'skipped_messages_placeholder.dart';
 import 'topic_text_message_item.dart';
@@ -33,8 +33,9 @@ class TopicMessageList extends StatefulWidget {
 }
 
 class _TopicMessageListState extends State<TopicMessageList> {
-  late TopicMessageCache topicMessageCache;
+  SqliteMessageCache? sqliteCache;
   List<TopicMessage> _messages = [];
+  bool _isLoading = false;
   bool _isSticky = true;
   int _additionalMessagesRevealedUp = 0;
   int _additionalMessagesRevealedDown = 0;
@@ -49,14 +50,46 @@ class _TopicMessageListState extends State<TopicMessageList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    topicMessageCache = Provider.of<TopicMessageCache>(context);
-    final messages = topicMessageCache.getMessages(widget.topicId);
 
-    if (messages.length != _messages.length) {
-      widget.updateMessageCount(messages.length);
+    final newSqliteCache = Provider.of<SqliteMessageCache>(context);
+    if (sqliteCache != newSqliteCache) {
+      sqliteCache = newSqliteCache;
+      _loadMessages();
     }
+  }
 
-    _messages = messages;
+  Future<void> _loadMessages() async {
+    if (sqliteCache == null) return;
+
+    if (_isLoading) return; // Prevent multiple concurrent loads
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final messages = await sqliteCache!.getTopicMessages(
+        widget.topicId,
+        limit: 1000, // Get a reasonable number of recent messages
+      );
+
+      if (mounted) {
+        setState(() {
+          _messages = messages;
+          _isLoading = false;
+        });
+
+        widget.updateMessageCount(messages.length);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      // Handle error gracefully
+      debugPrint('Error loading topic messages: $e');
+    }
   }
 
   @override

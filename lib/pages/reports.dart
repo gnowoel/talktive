@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/report.dart';
 import '../../services/firedata.dart';
 import '../../widgets/layout.dart';
-import '../services/message_cache.dart';
+
 import '../widgets/report_details_dialog.dart';
 import '../widgets/report_item.dart';
 
@@ -19,7 +19,6 @@ class ReportsPage extends StatefulWidget {
 
 class _ReportsPageState extends State<ReportsPage> {
   late Firedata firedata;
-  late ReportMessageCache reportMessageCache;
   late StreamSubscription<List<Report>> _reportsSubscription;
   List<Report> _reports = [];
 
@@ -72,7 +71,6 @@ class _ReportsPageState extends State<ReportsPage> {
   void initState() {
     super.initState();
     firedata = context.read<Firedata>();
-    reportMessageCache = context.read<ReportMessageCache>();
 
     _reportsSubscription = firedata.subscribeToReports().listen((reports) {
       if (!mounted) return;
@@ -81,12 +79,7 @@ class _ReportsPageState extends State<ReportsPage> {
         _reports = reports;
       });
 
-      final activeChatIds = reports
-          .where((report) => report.isActive)
-          .map((report) => report.chatId)
-          .toList();
-
-      reportMessageCache.cleanup(activeChatIds);
+      // Cleanup is now handled by the SQLite cache system
     });
   }
 

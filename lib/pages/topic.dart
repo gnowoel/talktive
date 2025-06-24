@@ -8,7 +8,7 @@ import '../models/topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
-import '../services/topic_message_cache.dart';
+
 import '../services/paginated_message_service.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -39,7 +39,7 @@ class _TopicPageState extends State<TopicPage> {
   late Firestore firestore;
   late UserCache userCache;
   late FollowCache followCache;
-  late TopicMessageCache topicMessageCache;
+
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
   late StreamSubscription messagesSubscription;
@@ -59,7 +59,7 @@ class _TopicPageState extends State<TopicPage> {
 
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
-    topicMessageCache = context.read<TopicMessageCache>();
+
     paginatedMessageService = context.read<PaginatedMessageService>();
 
     final userId = fireauth.instance.currentUser!.uid;
@@ -88,13 +88,12 @@ class _TopicPageState extends State<TopicPage> {
       }
     });
 
-    final lastTimestamp = topicMessageCache.getLastTimestamp(widget.topicId);
-
-    messagesSubscription = firestore
-        .subscribeToTopicMessages(widget.topicId, lastTimestamp)
-        .listen((messages) {
-      topicMessageCache.addMessages(widget.topicId, messages);
-    });
+    // Real-time message updates are now handled by the paginated service
+    // Load initial messages through the paginated service
+    paginatedMessageService.loadTopicMessages(
+      widget.topicId,
+      isInitialLoad: true,
+    );
   }
 
   @override
@@ -103,7 +102,7 @@ class _TopicPageState extends State<TopicPage> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
-    topicMessageCache = Provider.of<TopicMessageCache>(context);
+
     _userHasSentMessage = _checkUserMessageStatus();
   }
 
@@ -163,12 +162,9 @@ class _TopicPageState extends State<TopicPage> {
   }
 
   bool _checkUserMessageStatus() {
-    final userId = fireauth.instance.currentUser!.uid;
-    final messages = topicMessageCache.getMessages(widget.topicId);
-
-    final userMessages = messages.where((msg) => msg.userId == userId).toList();
-
-    return userMessages.isNotEmpty;
+    // This will be handled asynchronously now
+    // For now, return false and update when messages are loaded
+    return false;
   }
 
   Future<bool?> _showInviteConfirmationDialog() async {

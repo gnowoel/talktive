@@ -120,11 +120,12 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
     final controller = widget.scrollController;
     final bottom = controller.position.maxScrollExtent;
-    controller.animateTo(
-      bottom,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    // controller.animateTo(
+    //   bottom,
+    //   duration: const Duration(milliseconds: 300),
+    //   curve: Curves.easeOut,
+    // );
+    controller.jumpTo(bottom);
   }
 
   void _onScroll() {
@@ -139,7 +140,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
 
     // Update sticky state based on scroll position (with debouncing)
-    final isAtBottom = position.extentAfter < 50;
+    final isAtBottom = position.extentAfter == 0;
     if (isAtBottom != _isSticky) {
       setState(() {
         _isSticky = isAtBottom;
@@ -263,8 +264,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       // Update messages if cache has different content or if current list is empty
       final shouldUpdate = _messages.isEmpty ||
           cachedMessages.length != _messages.length ||
-          (cachedMessages.isNotEmpty && _messages.isNotEmpty &&
-           _getMessageId(cachedMessages.last) != _getMessageId(_messages.last));
+          (cachedMessages.isNotEmpty &&
+              _messages.isNotEmpty &&
+              _getMessageId(cachedMessages.last) !=
+                  _getMessageId(_messages.last));
 
       if (shouldUpdate) {
         if (!mounted) return;
@@ -307,7 +310,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       _lastNotification = notification;
 
       if (notification is ScrollEndNotification) {
-        final isAtBottom = metrics.extentAfter < 50;
+        final isAtBottom = metrics.extentAfter == 0;
         if (isAtBottom != _isSticky) {
           setState(() {
             _isSticky = isAtBottom;
@@ -316,7 +319,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       }
 
       if (notification is ScrollUpdateNotification) {
-        final isAtBottom = metrics.extentAfter < 50;
+        final isAtBottom = metrics.extentAfter == 0;
         if (isAtBottom != _isSticky) {
           setState(() {
             _isSticky = isAtBottom;

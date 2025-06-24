@@ -6,8 +6,6 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'performance_monitor.dart';
-
 /// Comprehensive logging service for the Talktive app
 /// Provides structured logging, performance tracking, and error reporting
 class LoggingService extends ChangeNotifier {
@@ -51,9 +49,6 @@ class LoggingService extends ChangeNotifier {
   final List<LogEntry> _pendingLogs = [];
   bool _isFlushingLogs = false;
 
-  // Integration with performance monitor
-  PerformanceMonitor? _perfMonitor;
-
   /// Initialize the logging service
   Future<void> initialize({
     LogLevel minLogLevel = LogLevel.info,
@@ -73,13 +68,6 @@ class LoggingService extends ChangeNotifier {
     _enablePerformanceLogging = enablePerformanceLogging;
     _remoteEndpoint = remoteEndpoint;
     _apiKey = apiKey;
-
-    try {
-      // Try to get performance monitor instance
-      _perfMonitor = PerformanceMonitor.instance;
-    } catch (e) {
-      // Performance monitor not available
-    }
 
     await _loadConfiguration();
     await _initializeFileLogging();
@@ -197,10 +185,6 @@ class LoggingService extends ChangeNotifier {
         userId,
         sessionId,
         null);
-
-    // Also track in performance monitor if available
-    _perfMonitor?.recordMetric(
-        '${operation}_duration_ms', duration.inMilliseconds.toDouble());
   }
 
   /// Log user action for analytics
@@ -455,10 +439,6 @@ class LoggingService extends ChangeNotifier {
     if (_enableConsoleLogging) {
       _printToConsole(entry);
     }
-
-    // Track performance metrics
-    _perfMonitor?.incrementCounter('logs_${level.name}');
-    _perfMonitor?.incrementCounter('logs_total');
   }
 
   void _addLogEntry(LogEntry entry) {

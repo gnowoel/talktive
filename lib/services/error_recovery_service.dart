@@ -5,8 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import 'performance_monitor.dart';
-
 /// Comprehensive error handling and recovery service for the Talktive app
 /// Provides retry mechanisms, offline support, and graceful degradation
 class ErrorRecoveryService extends ChangeNotifier {
@@ -17,8 +15,6 @@ class ErrorRecoveryService extends ChangeNotifier {
   static const Duration _maxRetryDelay = Duration(minutes: 5);
   static const Duration _healthCheckInterval = Duration(seconds: 30);
   static const Duration _queueProcessingInterval = Duration(seconds: 10);
-
-  final PerformanceMonitor _perfMonitor;
 
   // Connectivity monitoring
   final Connectivity _connectivity = Connectivity();
@@ -48,9 +44,7 @@ class ErrorRecoveryService extends ChangeNotifier {
   DateTime? _lastSuccessfulOperation;
   final Map<String, CircuitBreaker> _circuitBreakers = {};
 
-  ErrorRecoveryService({
-    required PerformanceMonitor perfMonitor,
-  }) : _perfMonitor = perfMonitor {
+  ErrorRecoveryService() {
     _initialize();
   }
 
@@ -128,8 +122,6 @@ class ErrorRecoveryService extends ChangeNotifier {
     tracker.addError(error, context: context, metadata: metadata);
 
     _updateServiceHealth(serviceId, false);
-    _perfMonitor.incrementCounter('service_errors');
-    _perfMonitor.incrementCounter('service_${serviceId}_errors');
 
     if (kDebugMode) {
       debugPrint('ErrorRecoveryService: Error in $serviceId - $error');
@@ -229,7 +221,6 @@ class ErrorRecoveryService extends ChangeNotifier {
     _serviceHealth.clear();
     _operationQueue.clear();
     _circuitBreakers.clear();
-    _perfMonitor.incrementCounter('error_history_cleared');
     notifyListeners();
   }
 
@@ -268,17 +259,14 @@ class ErrorRecoveryService extends ChangeNotifier {
     for (int attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         _activeRetries++;
-        _perfMonitor.startTimer('operation_$operationId');
 
         final result = await operation();
 
-        _perfMonitor.endTimer('operation_$operationId');
         _activeRetries--;
 
         reportSuccess(operationId);
         return result;
       } catch (error) {
-        _perfMonitor.endTimer('operation_$operationId');
         _activeRetries--;
 
         lastError = error is Exception ? error : Exception(error.toString());
@@ -287,7 +275,6 @@ class ErrorRecoveryService extends ChangeNotifier {
 
         if (attempt < maxRetries) {
           final delay = _calculateRetryDelay(attempt);
-          _perfMonitor.incrementCounter('operation_retries');
 
           if (kDebugMode) {
             debugPrint(
@@ -303,7 +290,6 @@ class ErrorRecoveryService extends ChangeNotifier {
     reportError(operationId, lastError!);
 
     if (fallbackValue != null) {
-      _perfMonitor.incrementCounter('fallback_used');
       return fallbackValue;
     }
 
@@ -346,16 +332,13 @@ class ErrorRecoveryService extends ChangeNotifier {
     }
 
     _operationQueue.add(operation);
-    _perfMonitor.incrementCounter('operations_queued');
     notifyListeners();
   }
 
   Future<void> _retryOperation(FailedOperation operation) async {
     try {
       await operation.operation();
-      _perfMonitor.incrementCounter('queued_operation_success');
     } catch (e) {
-      _perfMonitor.incrementCounter('queued_operation_failed');
       rethrow;
     }
   }
@@ -399,8 +382,6 @@ class ErrorRecoveryService extends ChangeNotifier {
   }
 
   void _onConnectivityRestored() {
-    _perfMonitor.incrementCounter('connectivity_restored');
-
     if (kDebugMode) {
       debugPrint('ErrorRecoveryService: Connectivity restored');
     }
@@ -412,8 +393,6 @@ class ErrorRecoveryService extends ChangeNotifier {
   }
 
   void _onConnectivityLost() {
-    _perfMonitor.incrementCounter('connectivity_lost');
-
     if (kDebugMode) {
       debugPrint('ErrorRecoveryService: Connectivity lost');
     }
@@ -446,13 +425,6 @@ class ErrorRecoveryService extends ChangeNotifier {
     _errorTrackers.removeWhere((key, tracker) {
       return tracker.lastError.isBefore(cutoff);
     });
-
-    // Update performance metrics
-    _perfMonitor.recordMetric(
-        'error_queue_size', _operationQueue.length.toDouble());
-    _perfMonitor.recordMetric('active_retries', _activeRetries.toDouble());
-    _perfMonitor.recordMetric('circuit_breakers_open',
-        _circuitBreakers.values.where((cb) => cb.isOpen).length.toDouble());
   }
 
   void _initializeCircuitBreakers() {

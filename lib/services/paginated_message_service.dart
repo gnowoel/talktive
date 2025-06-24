@@ -5,7 +5,6 @@ import '../models/topic_message.dart';
 import 'cache/sqlite_message_cache.dart';
 import 'firedata.dart';
 import 'firestore.dart';
-import 'performance_monitor.dart';
 
 class PaginatedMessageService extends ChangeNotifier {
   static const int defaultPageSize = 25;
@@ -42,10 +41,6 @@ class PaginatedMessageService extends ChangeNotifier {
     int? chatCreatedAt,
   }) async {
     final loadSize = isInitialLoad ? initialLoadSize : pageSize;
-    final perfMonitor = PerformanceMonitor.instance;
-    final timerName = 'load_chat_messages_$chatId';
-
-    perfMonitor.startTimer(timerName);
 
     // Get existing state or create new one
     final state = _chatStates[chatId] ?? ChatPaginationState(chatId: chatId);
@@ -53,14 +48,12 @@ class PaginatedMessageService extends ChangeNotifier {
 
     try {
       // First, try to load from cache
-      perfMonitor.startTimer('cache_query_$chatId');
       final cachedMessages = await _cache.getChatMessages(
         chatId,
         limit: loadSize,
         offset: state.currentOffset,
         minCreatedAt: chatCreatedAt,
       );
-      perfMonitor.endTimer('cache_query_$chatId');
 
       final totalCachedCount = await _cache.getChatMessageCount(
         chatId,
@@ -77,14 +70,6 @@ class PaginatedMessageService extends ChangeNotifier {
         if (isInitialLoad) {
           await _startChatRealtimeSubscription(chatId, chatCreatedAt);
         }
-
-        final loadTime = perfMonitor.endTimer(timerName);
-        perfMonitor.trackMessageLoad(
-          chatId: chatId,
-          messageCount: cachedMessages.length,
-          fromCache: true,
-          loadTimeMs: loadTime,
-        );
 
         return PaginatedResult(
           items: cachedMessages,
@@ -112,21 +97,12 @@ class PaginatedMessageService extends ChangeNotifier {
         await _startChatRealtimeSubscription(chatId, chatCreatedAt);
       }
 
-      final loadTime = perfMonitor.endTimer(timerName);
-      perfMonitor.trackMessageLoad(
-        chatId: chatId,
-        messageCount: messages.length,
-        fromCache: false,
-        loadTimeMs: loadTime,
-      );
-
       return PaginatedResult(
         items: messages,
         hasMore: state.hasMoreMessages,
         isFromCache: false,
       );
     } catch (e) {
-      perfMonitor.endTimer(timerName);
       state.hasError = true;
       state.errorMessage = e.toString();
       rethrow;
@@ -142,26 +118,13 @@ class PaginatedMessageService extends ChangeNotifier {
     state.isLoading = true;
     notifyListeners();
 
-    final perfMonitor = PerformanceMonitor.instance;
-    final timerName = 'load_more_chat_$chatId';
-    perfMonitor.startTimer(timerName);
-
     try {
       final result = await loadChatMessages(chatId);
       state.isLoading = false;
 
-      final loadTime = perfMonitor.endTimer(timerName);
-      perfMonitor.trackPagination(
-        chatId: chatId,
-        pageSize: result.items.length,
-        hasMore: result.hasMore,
-        loadTimeMs: loadTime,
-      );
-
       notifyListeners();
       return result;
     } catch (e) {
-      perfMonitor.endTimer(timerName);
       state.isLoading = false;
       state.hasError = true;
       state.errorMessage = e.toString();
@@ -175,8 +138,6 @@ class PaginatedMessageService extends ChangeNotifier {
     int limit,
     int? chatCreatedAt,
   ) async {
-    final perfMonitor = PerformanceMonitor.instance;
-
     // Get the oldest message timestamp from cache to use as pagination cursor
     final oldestCachedMessage = await _cache.getChatMessages(
       chatId,
@@ -190,28 +151,16 @@ class PaginatedMessageService extends ChangeNotifier {
     }
 
     // Create a Firebase query to get older messages
-    perfMonitor.startTimer('firebase_fetch_$chatId');
     final messages = await _fetchChatMessagesFromFirebase(
       chatId,
       limit: limit,
       endBefore: endBefore,
       minCreatedAt: chatCreatedAt,
     );
-    final fetchTime = perfMonitor.endTimer('firebase_fetch_$chatId');
-
-    perfMonitor.trackFirebaseOperation(
-      operation: 'fetch_messages',
-      collection: 'messages',
-      documentCount: messages.length,
-      networkTimeMs: fetchTime,
-      fromCache: false,
-    );
 
     // Store the fetched messages in cache
     if (messages.isNotEmpty) {
-      perfMonitor.startTimer('cache_store_$chatId');
       await _cache.storeChatMessages(chatId, messages);
-      perfMonitor.endTimer('cache_store_$chatId');
     }
   }
 
@@ -276,10 +225,6 @@ class PaginatedMessageService extends ChangeNotifier {
     bool isInitialLoad = false,
   }) async {
     final loadSize = isInitialLoad ? initialLoadSize : pageSize;
-    final perfMonitor = PerformanceMonitor.instance;
-    final timerName = 'load_topic_messages_$topicId';
-
-    perfMonitor.startTimer(timerName);
 
     // Get existing state or create new one
     final state =
@@ -288,13 +233,11 @@ class PaginatedMessageService extends ChangeNotifier {
 
     try {
       // First, try to load from cache
-      perfMonitor.startTimer('topic_cache_query_$topicId');
       final cachedMessages = await _cache.getTopicMessages(
         topicId,
         limit: loadSize,
         offset: state.currentOffset,
       );
-      perfMonitor.endTimer('topic_cache_query_$topicId');
 
       final totalCachedCount = await _cache.getTopicMessageCount(topicId);
 
@@ -308,14 +251,6 @@ class PaginatedMessageService extends ChangeNotifier {
         if (isInitialLoad) {
           await _startTopicRealtimeSubscription(topicId);
         }
-
-        final loadTime = perfMonitor.endTimer(timerName);
-        perfMonitor.trackMessageLoad(
-          chatId: topicId,
-          messageCount: cachedMessages.length,
-          fromCache: true,
-          loadTimeMs: loadTime,
-        );
 
         return PaginatedResult(
           items: cachedMessages,
@@ -342,21 +277,12 @@ class PaginatedMessageService extends ChangeNotifier {
         await _startTopicRealtimeSubscription(topicId);
       }
 
-      final loadTime = perfMonitor.endTimer(timerName);
-      perfMonitor.trackMessageLoad(
-        chatId: topicId,
-        messageCount: messages.length,
-        fromCache: false,
-        loadTimeMs: loadTime,
-      );
-
       return PaginatedResult(
         items: messages,
         hasMore: state.hasMoreMessages,
         isFromCache: false,
       );
     } catch (e) {
-      perfMonitor.endTimer(timerName);
       state.hasError = true;
       state.errorMessage = e.toString();
       rethrow;
@@ -391,8 +317,6 @@ class PaginatedMessageService extends ChangeNotifier {
     String topicId,
     int limit,
   ) async {
-    final perfMonitor = PerformanceMonitor.instance;
-
     // Get the oldest message timestamp from cache to use as pagination cursor
     final oldestCachedMessage = await _cache.getTopicMessages(
       topicId,
@@ -405,27 +329,15 @@ class PaginatedMessageService extends ChangeNotifier {
     }
 
     // Create a Firebase query to get older messages
-    perfMonitor.startTimer('firestore_fetch_$topicId');
     final messages = await _fetchTopicMessagesFromFirebase(
       topicId,
       limit: limit,
       endBefore: endBefore,
     );
-    final fetchTime = perfMonitor.endTimer('firestore_fetch_$topicId');
-
-    perfMonitor.trackFirebaseOperation(
-      operation: 'fetch_topic_messages',
-      collection: 'topics',
-      documentCount: messages.length,
-      networkTimeMs: fetchTime,
-      fromCache: false,
-    );
 
     // Store the fetched messages in cache
     if (messages.isNotEmpty) {
-      perfMonitor.startTimer('topic_cache_store_$topicId');
       await _cache.storeTopicMessages(topicId, messages);
-      perfMonitor.endTimer('topic_cache_store_$topicId');
     }
   }
 

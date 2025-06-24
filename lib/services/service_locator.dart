@@ -80,23 +80,68 @@ class ServiceLocator {
       PerformanceMonitor.instance.startTimer('service_locator_init');
 
       // Initialize SQLite cache first
+      if (kDebugMode) {
+        print('ServiceLocator: Creating SQLite cache instance...');
+      }
       _sqliteCache = SqliteMessageCache();
 
       // Initialize the database
-      await _sqliteCache!.database;
+      if (kDebugMode) {
+        print('ServiceLocator: Initializing SQLite database...');
+      }
+      try {
+        await _sqliteCache!.database;
+        if (kDebugMode) {
+          print('ServiceLocator: SQLite database initialized successfully');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: SQLite database initialization failed: $e');
+        }
+        throw Exception('Failed to initialize local database: ${e.toString()}');
+      }
 
       // Perform initial cleanup of old messages (older than 30 days)
-      await _sqliteCache!.cleanupOldMessages(maxAgeInDays: 30);
+      if (kDebugMode) {
+        print('ServiceLocator: Starting database cleanup...');
+      }
+      try {
+        await _sqliteCache!.cleanupOldMessages(maxAgeInDays: 30);
+        if (kDebugMode) {
+          print('ServiceLocator: Database cleanup completed');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Database cleanup failed: $e');
+        }
+        // Cleanup failure is not critical, continue
+      }
 
       // Start memory monitoring in debug mode
       if (kDebugMode) {
         PerformanceMonitor.instance.startMemoryMonitoring();
       }
 
-      // Initialize error recovery service
-      _errorRecoveryService = ErrorRecoveryService(
-        perfMonitor: PerformanceMonitor.instance,
-      );
+      // Initialize error recovery service (optional)
+      if (kDebugMode) {
+        print('ServiceLocator: Initializing error recovery service...');
+      }
+      try {
+        _errorRecoveryService = ErrorRecoveryService(
+          perfMonitor: PerformanceMonitor.instance,
+        );
+        if (kDebugMode) {
+          print('ServiceLocator: Error recovery service initialized');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print(
+              'ServiceLocator: Error recovery service initialization failed: $e');
+          print('ServiceLocator: Continuing without error recovery service');
+        }
+        // Error recovery service is optional, continue without it
+        _errorRecoveryService = null;
+      }
 
       final initTime =
           PerformanceMonitor.instance.endTimer('service_locator_init');
@@ -120,8 +165,21 @@ class ServiceLocator {
 
       if (kDebugMode) {
         print('ServiceLocator: Failed to initialize services: $e');
+        print('ServiceLocator: Stack trace: ${StackTrace.current}');
       }
-      rethrow;
+
+      // Provide more user-friendly error messages
+      String userFriendlyMessage;
+      if (e.toString().contains('DatabaseException') ||
+          e.toString().contains('database') ||
+          e.toString().contains('SQLite')) {
+        userFriendlyMessage =
+            'Failed to initialize local storage. This may be due to insufficient permissions or corrupted data.';
+      } else {
+        userFriendlyMessage = 'Service initialization failed: ${e.toString()}';
+      }
+
+      throw Exception(userFriendlyMessage);
     } finally {
       _isInitializing = false;
     }
@@ -180,13 +238,13 @@ class ServiceLocator {
   /// Get intelligent preloader instance
   IntelligentPreloader? get intelligentPreloader => _intelligentPreloader;
 
-  /// Get error recovery service instance
-  ErrorRecoveryService get errorRecoveryService {
-    if (!_isInitialized || _errorRecoveryService == null) {
+  /// Get error recovery service instance (nullable)
+  ErrorRecoveryService? get errorRecoveryService {
+    if (!_isInitialized) {
       throw StateError(
           'ServiceLocator must be initialized before accessing services');
     }
-    return _errorRecoveryService!;
+    return _errorRecoveryService;
   }
 
   /// Dispose all services
@@ -301,9 +359,11 @@ class ServiceLocator {
               );
         },
       ),
-      ChangeNotifierProvider<ErrorRecoveryService>(
-        create: (_) => ServiceLocator.instance.errorRecoveryService,
-      ),
+      // Error recovery service (optional)
+      if (ServiceLocator.instance.errorRecoveryService != null)
+        ChangeNotifierProvider<ErrorRecoveryService>(
+          create: (_) => ServiceLocator.instance.errorRecoveryService!,
+        ),
     ];
   }
 

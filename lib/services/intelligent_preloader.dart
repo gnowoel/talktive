@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cache/sqlite_message_cache.dart';
 import 'paginated_message_service.dart';
-import 'performance_monitor.dart';
 
 /// Intelligent preloading service that predicts and preloads content
 /// based on user behavior patterns and usage analytics
@@ -18,7 +17,6 @@ class IntelligentPreloader extends ChangeNotifier {
 
   final PaginatedMessageService _messageService;
   final SqliteMessageCache _cache;
-  final PerformanceMonitor _perfMonitor;
 
   // User behavior tracking
   final Map<String, UserAccessPattern> _accessPatterns = {};
@@ -44,10 +42,8 @@ class IntelligentPreloader extends ChangeNotifier {
   IntelligentPreloader({
     required PaginatedMessageService messageService,
     required SqliteMessageCache cache,
-    required PerformanceMonitor perfMonitor,
   })  : _messageService = messageService,
-        _cache = cache,
-        _perfMonitor = perfMonitor {
+        _cache = cache {
     _initialize();
   }
 
@@ -312,7 +308,6 @@ class IntelligentPreloader extends ChangeNotifier {
     _lastPreloadTime[chatId] = DateTime.now();
 
     final startTime = DateTime.now();
-    _perfMonitor.startTimer('preload_$chatId');
 
     try {
       // Check if messages are already cached
@@ -333,14 +328,6 @@ class IntelligentPreloader extends ChangeNotifier {
       );
 
       final duration = DateTime.now().difference(startTime);
-      final loadTime = _perfMonitor.endTimer('preload_$chatId');
-
-      _perfMonitor.trackMessageLoad(
-        chatId: chatId,
-        messageCount: result.items.length,
-        fromCache: result.isFromCache,
-        loadTimeMs: loadTime,
-      );
 
       final preloadResult = PreloadResult.success(
         messagesPreloaded: result.items.length,
@@ -351,8 +338,6 @@ class IntelligentPreloader extends ChangeNotifier {
       _preloadResults[chatId] = preloadResult;
       return preloadResult;
     } catch (error) {
-      _perfMonitor.endTimer('preload_$chatId');
-
       final preloadResult = PreloadResult.failed(
         error: error.toString(),
         duration: DateTime.now().difference(startTime),

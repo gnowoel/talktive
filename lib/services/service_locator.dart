@@ -17,7 +17,7 @@ import 'chat_cache.dart';
 import 'report_cache.dart';
 import 'settings.dart';
 import 'server_clock.dart';
-import 'performance_monitor.dart';
+
 import 'intelligent_preloader.dart';
 import 'error_recovery_service.dart';
 
@@ -69,16 +69,6 @@ class ServiceLocator {
         print('ServiceLocator: Starting initialization...');
       }
 
-      // Initialize performance monitoring
-      PerformanceMonitor.instance.initialize(
-        enabled: kDebugMode,
-        maxEventsToKeep: 1000,
-        metricsRetentionPeriod: const Duration(hours: 24),
-      );
-
-      // Track initialization performance
-      PerformanceMonitor.instance.startTimer('service_locator_init');
-
       // Initialize SQLite cache first
       if (kDebugMode) {
         print('ServiceLocator: Creating SQLite cache instance...');
@@ -117,19 +107,12 @@ class ServiceLocator {
         // Cleanup failure is not critical, continue
       }
 
-      // Start memory monitoring in debug mode
-      if (kDebugMode) {
-        PerformanceMonitor.instance.startMemoryMonitoring();
-      }
-
       // Initialize error recovery service (optional)
       if (kDebugMode) {
         print('ServiceLocator: Initializing error recovery service...');
       }
       try {
-        _errorRecoveryService = ErrorRecoveryService(
-          perfMonitor: PerformanceMonitor.instance,
-        );
+        _errorRecoveryService = ErrorRecoveryService();
         if (kDebugMode) {
           print('ServiceLocator: Error recovery service initialized');
         }
@@ -143,25 +126,14 @@ class ServiceLocator {
         _errorRecoveryService = null;
       }
 
-      final initTime =
-          PerformanceMonitor.instance.endTimer('service_locator_init');
-
       _isInitialized = true;
       _initializationTime = DateTime.now();
 
       if (kDebugMode) {
-        print(
-            'ServiceLocator: All services initialized successfully in ${initTime?.toStringAsFixed(1)}ms');
+        print('ServiceLocator: All services initialized successfully');
       }
-
-      // Record successful initialization
-      PerformanceMonitor.instance
-          .incrementCounter('service_locator_init_success');
     } catch (e) {
       _initializationError = e.toString();
-      PerformanceMonitor.instance
-          .incrementCounter('service_locator_init_failure');
-      PerformanceMonitor.instance.endTimer('service_locator_init');
 
       if (kDebugMode) {
         print('ServiceLocator: Failed to initialize services: $e');
@@ -216,7 +188,6 @@ class ServiceLocator {
     _intelligentPreloader ??= IntelligentPreloader(
       messageService: messageService,
       cache: _sqliteCache!,
-      perfMonitor: PerformanceMonitor.instance,
     );
 
     return _intelligentPreloader!;
@@ -254,9 +225,6 @@ class ServiceLocator {
       _intelligentPreloader?.dispose();
       _errorRecoveryService?.dispose();
       await _sqliteCache?.dispose();
-
-      // Disable performance monitoring
-      PerformanceMonitor.instance.disable();
 
       _paginatedMessageService = null;
       _intelligentPreloader = null;
@@ -426,22 +394,6 @@ class ServiceLocator {
           'queued_operations': errorStats.queuedOperations,
           'is_online': errorStats.isOnline,
           'is_recovering': errorStats.isRecovering,
-        };
-      }
-
-      // Add performance monitoring stats
-      final perfStats = PerformanceMonitor.instance.generateReport();
-      stats['performance'] = perfStats;
-
-      // Add current memory usage
-      final memoryInfo =
-          await PerformanceMonitor.instance.getCurrentMemoryUsage();
-      if (memoryInfo != null) {
-        stats['current_memory'] = {
-          'used_mb': memoryInfo.usedMemoryMB,
-          'available_mb': memoryInfo.availableMemoryMB,
-          'total_mb': memoryInfo.totalMemoryMB,
-          'usage_percentage': memoryInfo.usagePercentage,
         };
       }
 

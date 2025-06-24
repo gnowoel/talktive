@@ -37,7 +37,6 @@ class _ChatPageState extends State<ChatPage> {
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
-  late StreamSubscription messagesSubscription;
   late Chat _chat;
 
   final _focusNode = FocusNode();
@@ -115,7 +114,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    messagesSubscription.cancel();
     chatSubscription.cancel();
     _scrollController.dispose();
     _focusNode.dispose();

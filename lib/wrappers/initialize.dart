@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
 import '../services/report_cache.dart';
+import '../services/service_locator.dart';
 import '../services/settings.dart' as my;
 import '../theme.dart';
 
@@ -68,19 +69,61 @@ class _InitializeState extends State<Initialize> {
       FirebaseDatabase.instance.setPersistenceEnabled(true);
     }
 
+    // Ensure ServiceLocator is initialized before proceeding
+    try {
+      if (!ServiceLocator.instance.isInitialized) {
+        if (ServiceLocator.instance.isInitializing) {
+          debugPrint(
+              'Initialize: Waiting for ongoing ServiceLocator initialization...');
+          // Wait for ongoing initialization to complete
+          while (ServiceLocator.instance.isInitializing) {
+            await Future.delayed(const Duration(milliseconds: 100));
+          }
+
+          // Check if initialization failed
+          if (!ServiceLocator.instance.isInitialized &&
+              ServiceLocator.instance.initializationError != null) {
+            throw Exception(
+                'ServiceLocator initialization failed: ${ServiceLocator.instance.initializationError}');
+          }
+          debugPrint(
+              'Initialize: ServiceLocator initialization completed (was waiting)');
+        } else {
+          debugPrint('Initialize: Starting ServiceLocator initialization...');
+          // Initialize ServiceLocator if not already done
+          await ServiceLocator.instance.initialize();
+          debugPrint('Initialize: ServiceLocator initialization completed');
+        }
+      } else {
+        debugPrint('Initialize: ServiceLocator already initialized');
+      }
+    } catch (e) {
+      debugPrint('Failed to initialize ServiceLocator: $e');
+      throw Exception(
+          'Critical service initialization failed. Please restart the app.');
+    }
+
+    debugPrint('Initialize: Starting other services initialization...');
+
     final settings = my.Settings();
     await settings.load();
+    debugPrint('Initialize: Settings loaded');
 
     final reportCache = ReportCacheService();
     await reportCache.initialize();
+    debugPrint('Initialize: ReportCache initialized');
 
     final avatar = Avatar();
     avatar.init();
+    debugPrint('Initialize: Avatar initialized');
 
     final messaging = Messaging();
     await messaging.localSetup();
     await messaging.clearAllNotifications(); // Clear existing notifications
     await messaging.addListeners();
+    debugPrint('Initialize: Messaging services initialized');
+
+    debugPrint('Initialize: All services initialization completed');
   }
 
   @override

@@ -161,6 +161,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   Future<void> _loadInitialMessages() async {
     if (_isLoading) return;
 
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -182,6 +183,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         );
       }
 
+      if (!mounted) return;
       setState(() {
         _messages = result.items;
         _hasMore = result.hasMore;
@@ -192,12 +194,15 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       widget.updateMessageCount(_messages.length);
 
       // Scroll to bottom after initial load
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (widget.scrollController.hasClients) {
-          _scrollToBottom();
-        }
-      });
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && widget.scrollController.hasClients) {
+            _scrollToBottom();
+          }
+        });
+      }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -208,6 +213,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   Future<void> _loadMoreMessages() async {
     if (_isLoading || !_hasMore) return;
 
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -222,6 +228,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       }
 
       if (result.items.isNotEmpty) {
+        if (!mounted) return;
         setState(() {
           // Insert older messages at the beginning
           _messages.insertAll(0, result.items);
@@ -231,10 +238,12 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         widget.updateMessageCount(_messages.length);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -256,6 +265,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
       // Only update if we have more messages than before (for real-time updates)
       if (cachedMessages.length > _messages.length) {
+        if (!mounted) return;
         setState(() {
           _messages = cachedMessages;
         });
@@ -263,9 +273,9 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         widget.updateMessageCount(_messages.length);
 
         // Auto-scroll to bottom for new messages if user is at bottom
-        if (_isSticky) {
+        if (_isSticky && mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _scrollToBottom();
+            if (mounted) _scrollToBottom();
           });
         }
       }

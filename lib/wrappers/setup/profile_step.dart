@@ -53,6 +53,8 @@ class _ProfileStepState extends State<ProfileStep> {
     final userId = fireauth.instance.currentUser!.uid;
 
     _userSubscription = firedata.subscribeToUser(userId).listen((user) {
+      if (!mounted) return;
+
       if (user != null) {
         setState(() {
           _user = user;
@@ -210,15 +212,14 @@ class _ProfileStepState extends State<ProfileStep> {
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(labelText: 'Gender'),
                         value: _selectedGender,
-                        items:
-                            _genderOptions
-                                .map(
-                                  (option) => DropdownMenuItem(
-                                    value: option['value'],
-                                    child: Text(option['label']!),
-                                  ),
-                                )
-                                .toList(),
+                        items: _genderOptions
+                            .map(
+                              (option) => DropdownMenuItem(
+                                value: option['value'],
+                                child: Text(option['label']!),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (value) {
                           setState(() => _selectedGender = value);
                         },
@@ -227,16 +228,15 @@ class _ProfileStepState extends State<ProfileStep> {
                       const SizedBox(height: 32),
                       FilledButton(
                         onPressed: _isProcessing ? null : _submit,
-                        child:
-                            _isProcessing
-                                ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 3,
-                                  ),
-                                )
-                                : const Text('Continue'),
+                        child: _isProcessing
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : const Text('Continue'),
                       ),
                     ],
                   ),

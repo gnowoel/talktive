@@ -51,6 +51,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
   Future<void> _loadTribes() async {
     await tribeCache.fetchTribes();
+    if (!mounted) return;
     setState(() {
       _predefinedTribes = tribeCache.predefinedTribes;
     });
@@ -59,7 +60,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   Future<void> _setInitialTribe() async {
     await tribeCache.fetchTribes();
     final tribe = tribeCache.getTribeById(widget.initialTribeId!);
-    if (tribe != null) {
+    if (tribe != null && mounted) {
       setState(() {
         _selectedTribe = tribe;
         _tribeController.text = tribe.name;
@@ -129,6 +130,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       final user = userCache.user;
       if (user == null) return;
 
+      if (!mounted) return;
       setState(() => _isProcessing = true);
 
       try {

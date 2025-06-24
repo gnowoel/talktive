@@ -63,6 +63,8 @@ class _ChatPageState extends State<ChatPage> {
     chatSubscription = firedata.subscribeToChat(selfId, _chat.id).listen((
       chat,
     ) {
+      if (!mounted) return;
+
       if (_chat.isDummy) {
         if (chat.isDummy) {
           // Ignore to avoid being overwitten.

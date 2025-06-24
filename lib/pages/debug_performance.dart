@@ -52,6 +52,7 @@ class _DebugPerformancePageState extends State<DebugPerformancePage>
   }
 
   Future<void> _loadStats() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     _refreshController.forward(from: 0);
 
@@ -61,6 +62,7 @@ class _DebugPerformancePageState extends State<DebugPerformancePage>
       final memoryInfo = await _perfMonitor.getCurrentMemoryUsage();
       final insights = _perfMonitor.getPerformanceInsights();
 
+      if (!mounted) return;
       setState(() {
         _stats = {
           'service_stats': serviceStats,
@@ -83,7 +85,9 @@ class _DebugPerformancePageState extends State<DebugPerformancePage>
         );
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

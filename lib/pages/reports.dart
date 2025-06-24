@@ -75,15 +75,16 @@ class _ReportsPageState extends State<ReportsPage> {
     reportMessageCache = context.read<ReportMessageCache>();
 
     _reportsSubscription = firedata.subscribeToReports().listen((reports) {
+      if (!mounted) return;
+
       setState(() {
         _reports = reports;
       });
 
-      final activeChatIds =
-          reports
-              .where((report) => report.isActive)
-              .map((report) => report.chatId)
-              .toList();
+      final activeChatIds = reports
+          .where((report) => report.isActive)
+          .map((report) => report.chatId)
+          .toList();
 
       reportMessageCache.cleanup(activeChatIds);
     });

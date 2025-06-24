@@ -82,6 +82,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _resetFilters() async {
+    if (!mounted) return;
     setState(() {
       _selectedGender = null;
       _selectedLanguage = null;
@@ -110,6 +111,7 @@ class _UsersPageState extends State<UsersPage> {
       noCache: noCache,
     );
 
+    if (!mounted) return;
     setState(() {
       _seenUsers = _users;
       _users = users;

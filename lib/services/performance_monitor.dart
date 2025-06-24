@@ -489,31 +489,37 @@ class PerformanceMonitor {
     // Loading time performance (25 points)
     final avgLoadTime = getAverageMetric('message_load_time_ms');
     if (avgLoadTime != null) {
-      if (avgLoadTime > 2000)
+      if (avgLoadTime > 2000) {
         score -= 25;
-      else if (avgLoadTime > 1000)
+      } else if (avgLoadTime > 1000) {
         score -= 15;
-      else if (avgLoadTime > 500) score -= 10;
+      } else if (avgLoadTime > 500) {
+        score -= 10;
+      }
     }
 
     // Memory performance (25 points)
     final avgMemory = getAverageMetric('memory_used_mb');
     if (avgMemory != null) {
-      if (avgMemory > 1024)
+      if (avgMemory > 1024) {
         score -= 25;
-      else if (avgMemory > 512)
+      } else if (avgMemory > 512) {
         score -= 15;
-      else if (avgMemory > 256) score -= 10;
+      } else if (avgMemory > 256) {
+        score -= 10;
+      }
     }
 
     // Database performance (25 points)
     final avgSqliteTime = getAverageMetric('sqlite_execution_time_ms');
     if (avgSqliteTime != null) {
-      if (avgSqliteTime > 100)
+      if (avgSqliteTime > 100) {
         score -= 25;
-      else if (avgSqliteTime > 50)
+      } else if (avgSqliteTime > 50) {
         score -= 15;
-      else if (avgSqliteTime > 25) score -= 10;
+      } else if (avgSqliteTime > 25) {
+        score -= 10;
+      }
     }
 
     return score.clamp(0, 100);

@@ -5,10 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../models/message.dart';
-import '../models/topic_message.dart';
 import 'performance_monitor.dart';
-import 'cache/sqlite_message_cache.dart';
 
 /// Comprehensive error handling and recovery service for the Talktive app
 /// Provides retry mechanisms, offline support, and graceful degradation
@@ -22,11 +19,10 @@ class ErrorRecoveryService extends ChangeNotifier {
   static const Duration _queueProcessingInterval = Duration(seconds: 10);
 
   final PerformanceMonitor _perfMonitor;
-  final SqliteMessageCache _cache;
 
   // Connectivity monitoring
   final Connectivity _connectivity = Connectivity();
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   bool _isOnline = true;
   bool _isRecovering = false;
 
@@ -54,9 +50,7 @@ class ErrorRecoveryService extends ChangeNotifier {
 
   ErrorRecoveryService({
     required PerformanceMonitor perfMonitor,
-    required SqliteMessageCache cache,
-  })  : _perfMonitor = perfMonitor,
-        _cache = cache {
+  }) : _perfMonitor = perfMonitor {
     _initialize();
   }
 
@@ -89,7 +83,8 @@ class ErrorRecoveryService extends ChangeNotifier {
       if (fallbackValue != null) {
         return fallbackValue;
       }
-      throw CircuitBreakerException('Service temporarily unavailable: $operationId');
+      throw CircuitBreakerException(
+          'Service temporarily unavailable: $operationId');
     }
 
     // Check if offline and should queue
@@ -123,7 +118,9 @@ class ErrorRecoveryService extends ChangeNotifier {
   }
 
   /// Report a service error for monitoring
-  void reportError(String serviceId, Exception error, {
+  void reportError(
+    String serviceId,
+    Exception error, {
     String? context,
     Map<String, dynamic>? metadata,
   }) {
@@ -182,9 +179,8 @@ class ErrorRecoveryService extends ChangeNotifier {
         .fold(0, (sum, count) => sum + count);
 
     final queuedOperations = _operationQueue.length;
-    final activeCircuitBreakers = _circuitBreakers.values
-        .where((cb) => cb.isOpen)
-        .length;
+    final activeCircuitBreakers =
+        _circuitBreakers.values.where((cb) => cb.isOpen).length;
 
     return ErrorRecoveryStats(
       totalErrors: totalErrors,
@@ -248,7 +244,8 @@ class ErrorRecoveryService extends ChangeNotifier {
     _isEnabled = enabled ?? _isEnabled;
     _useOfflineMode = offlineMode ?? _useOfflineMode;
     _maxConcurrentRetries = maxConcurrentRetries ?? _maxConcurrentRetries;
-    _circuitBreakerThreshold = circuitBreakerThreshold ?? _circuitBreakerThreshold;
+    _circuitBreakerThreshold =
+        circuitBreakerThreshold ?? _circuitBreakerThreshold;
     _circuitBreakerTimeout = circuitBreakerTimeout ?? _circuitBreakerTimeout;
 
     _saveConfiguration();
@@ -280,7 +277,6 @@ class ErrorRecoveryService extends ChangeNotifier {
 
         reportSuccess(operationId);
         return result;
-
       } catch (error) {
         _perfMonitor.endTimer('operation_$operationId');
         _activeRetries--;
@@ -294,7 +290,8 @@ class ErrorRecoveryService extends ChangeNotifier {
           _perfMonitor.incrementCounter('operation_retries');
 
           if (kDebugMode) {
-            debugPrint('Retrying $operationId in ${delay.inSeconds}s (attempt ${attempt + 1}/$maxRetries)');
+            debugPrint(
+                'Retrying $operationId in ${delay.inSeconds}s (attempt ${attempt + 1}/$maxRetries)');
           }
 
           await Future.delayed(delay);
@@ -310,7 +307,8 @@ class ErrorRecoveryService extends ChangeNotifier {
       return fallbackValue;
     }
 
-    throw RetryExhaustedException('Operation failed after $maxRetries retries: $operationId', lastError!);
+    throw RetryExhaustedException(
+        'Operation failed after $maxRetries retries: $operationId', lastError);
   }
 
   Duration _calculateRetryDelay(int attempt) {
@@ -320,7 +318,8 @@ class ErrorRecoveryService extends ChangeNotifier {
     final jitter = Random().nextInt(baseDelay ~/ 2);
     final totalDelay = exponentialDelay + jitter;
 
-    return Duration(milliseconds: min(totalDelay.toInt(), _maxRetryDelay.inMilliseconds));
+    return Duration(
+        milliseconds: min(totalDelay.toInt(), _maxRetryDelay.inMilliseconds));
   }
 
   ErrorTracker _getOrCreateErrorTracker(String operationId) {
@@ -376,13 +375,13 @@ class ErrorRecoveryService extends ChangeNotifier {
 
   Future<void> _initializeConnectivityMonitoring() async {
     try {
-      final result = await _connectivity.checkConnectivity();
-      _isOnline = result != ConnectivityResult.none;
+      final results = await _connectivity.checkConnectivity();
+      _isOnline = !results.contains(ConnectivityResult.none);
 
       _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-        (ConnectivityResult result) {
+        (List<ConnectivityResult> results) {
           final wasOnline = _isOnline;
-          _isOnline = result != ConnectivityResult.none;
+          _isOnline = !results.contains(ConnectivityResult.none);
 
           if (!wasOnline && _isOnline) {
             _onConnectivityRestored();
@@ -449,7 +448,8 @@ class ErrorRecoveryService extends ChangeNotifier {
     });
 
     // Update performance metrics
-    _perfMonitor.recordMetric('error_queue_size', _operationQueue.length.toDouble());
+    _perfMonitor.recordMetric(
+        'error_queue_size', _operationQueue.length.toDouble());
     _perfMonitor.recordMetric('active_retries', _activeRetries.toDouble());
     _perfMonitor.recordMetric('circuit_breakers_open',
         _circuitBreakers.values.where((cb) => cb.isOpen).length.toDouble());
@@ -457,7 +457,13 @@ class ErrorRecoveryService extends ChangeNotifier {
 
   void _initializeCircuitBreakers() {
     // Initialize circuit breakers for common services
-    final services = ['firebase_auth', 'firestore', 'realtime_database', 'storage', 'functions'];
+    final services = [
+      'firebase_auth',
+      'firestore',
+      'realtime_database',
+      'storage',
+      'functions'
+    ];
     for (final service in services) {
       _getOrCreateCircuitBreaker(service);
     }
@@ -469,7 +475,8 @@ class ErrorRecoveryService extends ChangeNotifier {
     _isEnabled = prefs.getBool('${_prefsPrefix}enabled') ?? true;
     _useOfflineMode = prefs.getBool('${_prefsPrefix}offline_mode') ?? true;
     _maxConcurrentRetries = prefs.getInt('${_prefsPrefix}max_concurrent') ?? 5;
-    _circuitBreakerThreshold = prefs.getDouble('${_prefsPrefix}cb_threshold') ?? 0.7;
+    _circuitBreakerThreshold =
+        prefs.getDouble('${_prefsPrefix}cb_threshold') ?? 0.7;
 
     final timeoutMs = prefs.getInt('${_prefsPrefix}cb_timeout') ?? 120000;
     _circuitBreakerTimeout = Duration(milliseconds: timeoutMs);
@@ -481,8 +488,10 @@ class ErrorRecoveryService extends ChangeNotifier {
     await prefs.setBool('${_prefsPrefix}enabled', _isEnabled);
     await prefs.setBool('${_prefsPrefix}offline_mode', _useOfflineMode);
     await prefs.setInt('${_prefsPrefix}max_concurrent', _maxConcurrentRetries);
-    await prefs.setDouble('${_prefsPrefix}cb_threshold', _circuitBreakerThreshold);
-    await prefs.setInt('${_prefsPrefix}cb_timeout', _circuitBreakerTimeout.inMilliseconds);
+    await prefs.setDouble(
+        '${_prefsPrefix}cb_threshold', _circuitBreakerThreshold);
+    await prefs.setInt(
+        '${_prefsPrefix}cb_timeout', _circuitBreakerTimeout.inMilliseconds);
   }
 
   @override
@@ -507,7 +516,8 @@ class ErrorTracker {
 
   int get totalErrors => errors.length;
 
-  void addError(Exception error, {String? context, Map<String, dynamic>? metadata}) {
+  void addError(Exception error,
+      {String? context, Map<String, dynamic>? metadata}) {
     errors.add(ErrorRecord(
       error: error,
       timestamp: DateTime.now(),
@@ -531,7 +541,8 @@ class ErrorTracker {
     if (errors.isEmpty) return 0.0;
 
     final recentCutoff = DateTime.now().subtract(const Duration(minutes: 30));
-    final recentErrors = errors.where((e) => e.timestamp.isAfter(recentCutoff)).length;
+    final recentErrors =
+        errors.where((e) => e.timestamp.isAfter(recentCutoff)).length;
 
     return recentErrors / 30.0; // Errors per minute
   }
@@ -619,7 +630,8 @@ class ServiceHealth {
 
   void _calculateErrorRate() {
     // Simplified error rate calculation
-    errorRate = consecutiveErrors > 0 ? min(consecutiveErrors / 10.0, 1.0) : 0.0;
+    errorRate =
+        consecutiveErrors > 0 ? min(consecutiveErrors / 10.0, 1.0) : 0.0;
   }
 }
 
@@ -708,5 +720,6 @@ class RetryExhaustedException implements Exception {
   RetryExhaustedException(this.message, this.originalError);
 
   @override
-  String toString() => 'RetryExhaustedException: $message (Original: $originalError)';
+  String toString() =>
+      'RetryExhaustedException: $message (Original: $originalError)';
 }

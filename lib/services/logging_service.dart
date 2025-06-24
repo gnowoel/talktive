@@ -44,7 +44,6 @@ class LoggingService extends ChangeNotifier {
   // State tracking
   bool _isInitialized = false;
   int _totalLogsWritten = 0;
-  int _totalLogsFlushed = 0;
   DateTime? _lastFlushTime;
   final Map<String, int> _logCounts = {};
 
@@ -105,7 +104,8 @@ class LoggingService extends ChangeNotifier {
     String? sessionId,
     StackTrace? stackTrace,
   }) {
-    _log(LogLevel.debug, message, category, metadata, userId, sessionId, stackTrace);
+    _log(LogLevel.debug, message, category, metadata, userId, sessionId,
+        stackTrace);
   }
 
   /// Log an info message
@@ -117,7 +117,8 @@ class LoggingService extends ChangeNotifier {
     String? sessionId,
     StackTrace? stackTrace,
   }) {
-    _log(LogLevel.info, message, category, metadata, userId, sessionId, stackTrace);
+    _log(LogLevel.info, message, category, metadata, userId, sessionId,
+        stackTrace);
   }
 
   /// Log a warning message
@@ -129,7 +130,8 @@ class LoggingService extends ChangeNotifier {
     String? sessionId,
     StackTrace? stackTrace,
   }) {
-    _log(LogLevel.warning, message, category, metadata, userId, sessionId, stackTrace);
+    _log(LogLevel.warning, message, category, metadata, userId, sessionId,
+        stackTrace);
   }
 
   /// Log an error message
@@ -148,7 +150,8 @@ class LoggingService extends ChangeNotifier {
       errorMetadata['exception_type'] = exception.runtimeType.toString();
     }
 
-    _log(LogLevel.error, message, category, errorMetadata, userId, sessionId, stackTrace);
+    _log(LogLevel.error, message, category, errorMetadata, userId, sessionId,
+        stackTrace);
   }
 
   /// Log a critical error message
@@ -167,7 +170,8 @@ class LoggingService extends ChangeNotifier {
       criticalMetadata['exception_type'] = exception.runtimeType.toString();
     }
 
-    _log(LogLevel.critical, message, category, criticalMetadata, userId, sessionId, stackTrace);
+    _log(LogLevel.critical, message, category, criticalMetadata, userId,
+        sessionId, stackTrace);
   }
 
   /// Log performance metrics
@@ -185,11 +189,18 @@ class LoggingService extends ChangeNotifier {
     perfMetadata['duration_ms'] = duration.inMilliseconds;
     perfMetadata['operation'] = operation;
 
-    _log(LogLevel.info, 'Performance: $operation took ${duration.inMilliseconds}ms',
-        category, perfMetadata, userId, sessionId, null);
+    _log(
+        LogLevel.info,
+        'Performance: $operation took ${duration.inMilliseconds}ms',
+        category,
+        perfMetadata,
+        userId,
+        sessionId,
+        null);
 
     // Also track in performance monitor if available
-    _perfMonitor?.recordMetric('${operation}_duration_ms', duration.inMilliseconds.toDouble());
+    _perfMonitor?.recordMetric(
+        '${operation}_duration_ms', duration.inMilliseconds.toDouble());
   }
 
   /// Log user action for analytics
@@ -206,8 +217,8 @@ class LoggingService extends ChangeNotifier {
     actionMetadata['target'] = target;
     actionMetadata['timestamp'] = DateTime.now().toIso8601String();
 
-    _log(LogLevel.info, 'User action: $action on $target',
-        category, actionMetadata, userId, sessionId, null);
+    _log(LogLevel.info, 'User action: $action on $target', category,
+        actionMetadata, userId, sessionId, null);
   }
 
   /// Log network operation
@@ -239,8 +250,8 @@ class LoggingService extends ChangeNotifier {
     }
 
     final level = statusCode >= 400 ? LogLevel.error : LogLevel.info;
-    _log(level, 'Network: $method $url -> $statusCode',
-        category, networkMetadata, userId, sessionId, null);
+    _log(level, 'Network: $method $url -> $statusCode', category,
+        networkMetadata, userId, sessionId, null);
   }
 
   /// Get logs by category
@@ -312,15 +323,19 @@ class LoggingService extends ChangeNotifier {
 
     // Apply filters
     if (minLevel != null) {
-      logsToExport = logsToExport.where((log) => log.level.index >= minLevel.index).toList();
+      logsToExport = logsToExport
+          .where((log) => log.level.index >= minLevel.index)
+          .toList();
     }
 
     if (category != null) {
-      logsToExport = logsToExport.where((log) => log.category == category).toList();
+      logsToExport =
+          logsToExport.where((log) => log.category == category).toList();
     }
 
     if (since != null) {
-      logsToExport = logsToExport.where((log) => log.timestamp.isAfter(since)).toList();
+      logsToExport =
+          logsToExport.where((log) => log.timestamp.isAfter(since)).toList();
     }
 
     if (limit != null && logsToExport.length > limit) {
@@ -371,7 +386,8 @@ class LoggingService extends ChangeNotifier {
     _enableFileLogging = enableFileLogging ?? _enableFileLogging;
     _enableRemoteLogging = enableRemoteLogging ?? _enableRemoteLogging;
     _enableConsoleLogging = enableConsoleLogging ?? _enableConsoleLogging;
-    _enablePerformanceLogging = enablePerformanceLogging ?? _enablePerformanceLogging;
+    _enablePerformanceLogging =
+        enablePerformanceLogging ?? _enablePerformanceLogging;
     _remoteEndpoint = remoteEndpoint ?? _remoteEndpoint;
     _apiKey = apiKey ?? _apiKey;
 
@@ -396,9 +412,7 @@ class LoggingService extends ChangeNotifier {
         await _sendLogsToRemote(logsToFlush);
       }
 
-      _totalLogsFlushed += logsToFlush.length;
       _lastFlushTime = DateTime.now();
-
     } catch (e) {
       // Re-add logs to pending if flush fails
       _pendingLogs.addAll(_pendingLogs);
@@ -516,9 +530,9 @@ class LoggingService extends ChangeNotifier {
         await logsDir.create(recursive: true);
       }
 
-      final logFileName = 'talktive_${DateTime.now().millisecondsSinceEpoch}.log';
+      final logFileName =
+          'talktive_${DateTime.now().millisecondsSinceEpoch}.log';
       _currentLogFile = File(join(logsDir.path, logFileName));
-
     } catch (e) {
       _enableFileLogging = false;
       if (_enableConsoleLogging) {
@@ -532,11 +546,11 @@ class LoggingService extends ChangeNotifier {
 
     try {
       final logLines = logs.map((log) => jsonEncode(log.toJson())).join('\n');
-      await _currentLogFile!.writeAsString('$logLines\n', mode: FileMode.append);
+      await _currentLogFile!
+          .writeAsString('$logLines\n', mode: FileMode.append);
 
       // Check if we need to rotate the log file
       await _checkLogRotation();
-
     } catch (e) {
       if (_enableConsoleLogging) {
         debugPrint('LoggingService: Failed to write logs to file: $e');
@@ -572,12 +586,12 @@ class LoggingService extends ChangeNotifier {
       // Create new log file
       final appDir = await getApplicationDocumentsDirectory();
       final logsDir = Directory(join(appDir.path, 'logs'));
-      final logFileName = 'talktive_${DateTime.now().millisecondsSinceEpoch}.log';
+      final logFileName =
+          'talktive_${DateTime.now().millisecondsSinceEpoch}.log';
       _currentLogFile = File(join(logsDir.path, logFileName));
 
       // Clean up old log files
       await _cleanupOldLogFiles();
-
     } catch (e) {
       if (_enableConsoleLogging) {
         debugPrint('LoggingService: Failed to rotate log file: $e');
@@ -600,7 +614,8 @@ class LoggingService extends ChangeNotifier {
 
       if (logFiles.length > _maxLogFiles) {
         // Sort by modification time and delete oldest
-        logFiles.sort((a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
+        logFiles.sort(
+            (a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
 
         for (int i = 0; i < logFiles.length - _maxLogFiles; i++) {
           await logFiles[i].delete();
@@ -636,11 +651,11 @@ class LoggingService extends ChangeNotifier {
       final response = await request.close();
 
       if (response.statusCode != 200) {
-        throw Exception('Remote logging failed with status: ${response.statusCode}');
+        throw Exception(
+            'Remote logging failed with status: ${response.statusCode}');
       }
 
-      await client.close();
-
+      client.close();
     } catch (e) {
       if (_enableConsoleLogging) {
         debugPrint('LoggingService: Failed to send logs to remote: $e');
@@ -674,14 +689,19 @@ class LoggingService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      final levelIndex = prefs.getInt('${_prefsPrefix}min_level') ?? LogLevel.info.index;
-      _minLogLevel = LogLevel.values[levelIndex.clamp(0, LogLevel.values.length - 1)];
+      final levelIndex =
+          prefs.getInt('${_prefsPrefix}min_level') ?? LogLevel.info.index;
+      _minLogLevel =
+          LogLevel.values[levelIndex.clamp(0, LogLevel.values.length - 1)];
 
       _isEnabled = prefs.getBool('${_prefsPrefix}enabled') ?? true;
       _enableFileLogging = prefs.getBool('${_prefsPrefix}file_logging') ?? true;
-      _enableRemoteLogging = prefs.getBool('${_prefsPrefix}remote_logging') ?? false;
-      _enableConsoleLogging = prefs.getBool('${_prefsPrefix}console_logging') ?? kDebugMode;
-      _enablePerformanceLogging = prefs.getBool('${_prefsPrefix}performance_logging') ?? true;
+      _enableRemoteLogging =
+          prefs.getBool('${_prefsPrefix}remote_logging') ?? false;
+      _enableConsoleLogging =
+          prefs.getBool('${_prefsPrefix}console_logging') ?? kDebugMode;
+      _enablePerformanceLogging =
+          prefs.getBool('${_prefsPrefix}performance_logging') ?? true;
 
       _remoteEndpoint = prefs.getString('${_prefsPrefix}remote_endpoint');
       _apiKey = prefs.getString('${_prefsPrefix}api_key');
@@ -697,12 +717,16 @@ class LoggingService extends ChangeNotifier {
       await prefs.setInt('${_prefsPrefix}min_level', _minLogLevel.index);
       await prefs.setBool('${_prefsPrefix}enabled', _isEnabled);
       await prefs.setBool('${_prefsPrefix}file_logging', _enableFileLogging);
-      await prefs.setBool('${_prefsPrefix}remote_logging', _enableRemoteLogging);
-      await prefs.setBool('${_prefsPrefix}console_logging', _enableConsoleLogging);
-      await prefs.setBool('${_prefsPrefix}performance_logging', _enablePerformanceLogging);
+      await prefs.setBool(
+          '${_prefsPrefix}remote_logging', _enableRemoteLogging);
+      await prefs.setBool(
+          '${_prefsPrefix}console_logging', _enableConsoleLogging);
+      await prefs.setBool(
+          '${_prefsPrefix}performance_logging', _enablePerformanceLogging);
 
       if (_remoteEndpoint != null) {
-        await prefs.setString('${_prefsPrefix}remote_endpoint', _remoteEndpoint!);
+        await prefs.setString(
+            '${_prefsPrefix}remote_endpoint', _remoteEndpoint!);
       }
       if (_apiKey != null) {
         await prefs.setString('${_prefsPrefix}api_key', _apiKey!);

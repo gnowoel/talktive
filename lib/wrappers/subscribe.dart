@@ -8,11 +8,11 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
-import '../services/message_cache.dart';
+
 import '../services/messaging.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
-import '../services/topic_message_cache.dart';
+
 import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 
@@ -36,9 +36,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
   late UserCache userCache;
   late FollowCache followCache;
   late ChatCache chatCache;
-  late ChatMessageCache chatMessageCache;
   late TopicCache topicCache;
-  late TopicMessageCache topicMessageCache;
   late TribeCache tribeCache;
 
   late StreamSubscription clockSkewSubscription;
@@ -89,13 +87,11 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
     userCache = context.read<UserCache>();
     followCache = context.read<FollowCache>();
     chatCache = context.read<ChatCache>();
-    chatMessageCache = context.read<ChatMessageCache>();
     topicCache = context.read<TopicCache>();
-    topicMessageCache = context.read<TopicMessageCache>();
     tribeCache = context.read<TribeCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
-    
+
     // Initialize tribes cache at startup
     tribeCache.initialize();
 
@@ -103,31 +99,23 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
       firedata.subscribeToClockSkew().listen((clockSkew) {
         serverClock.updateClockSkew(clockSkew);
       }),
-
       firedata.subscribeToUser(userId).listen((user) {
         userCache.updateUser(user);
       }),
-
       firestore.subscribeToFollowees(userId).listen((followees) {
         followCache.updateFollowees(followees);
       }),
-
       firestore.subscribeToFollowers(userId).listen((followers) {
         followCache.updateFollowers(followers);
       }),
-
       firedata.subscribeToChats(userId).listen((chats) {
         chatCache.updateChats(chats);
-        // Clean up message cache for inactive chats
-        chatMessageCache.cleanup(chatCache.activeChatIds);
+        // Cleanup is now handled by the SQLite cache system
       }),
-
       firestore.subscribeToTopics(userId).listen((topics) {
         topicCache.updateTopics(topics);
-        // Clean up message cache for inactive topics
-        topicMessageCache.cleanup(topicCache.activeTopicIds);
+        // Cleanup is now handled by the SQLite cache system
       }),
-
       messaging.subscribeToFcmToken().listen((token) async {
         await firedata.storeFcmToken(userId, token);
       }),

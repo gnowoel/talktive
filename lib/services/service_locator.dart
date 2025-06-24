@@ -7,8 +7,7 @@ import 'paginated_message_service.dart';
 import 'fireauth.dart';
 import 'firedata.dart';
 import 'firestore.dart';
-import 'message_cache.dart';
-import 'topic_message_cache.dart';
+
 import 'user_cache.dart';
 import 'follow_cache.dart';
 import 'topic_cache.dart';
@@ -282,17 +281,6 @@ class ServiceLocator {
         create: (_) => ReportCacheService(),
       ),
 
-      // Legacy message caches (keep for backward compatibility during migration)
-      ChangeNotifierProvider<ChatMessageCache>(
-        create: (_) => ChatMessageCache(),
-      ),
-      ChangeNotifierProvider<ReportMessageCache>(
-        create: (_) => ReportMessageCache(),
-      ),
-      ChangeNotifierProvider<TopicMessageCache>(
-        create: (_) => TopicMessageCache(),
-      ),
-
       // New optimized services
       ChangeNotifierProvider<SqliteMessageCache>(
         create: (_) => ServiceLocator.instance.sqliteCache,
@@ -417,39 +405,6 @@ class ServiceLocator {
       if (kDebugMode) {
         print('ServiceLocator: Error clearing cache: $e');
       }
-    }
-  }
-
-  /// Migrate from old cache system to new SQLite cache
-  Future<void> migrateFromLegacyCache({
-    required ChatMessageCache chatMessageCache,
-    required TopicMessageCache topicMessageCache,
-  }) async {
-    if (!_isInitialized) {
-      throw StateError('ServiceLocator must be initialized before migration');
-    }
-
-    try {
-      if (kDebugMode) {
-        print('ServiceLocator: Starting migration from legacy cache...');
-      }
-
-      // This is a placeholder for migration logic
-      // You would need to implement the actual migration based on your data structure
-
-      // Example migration approach:
-      // 1. Get all chat IDs from legacy cache
-      // 2. For each chat, get messages and store in SQLite
-      // 3. Clear legacy cache after successful migration
-
-      if (kDebugMode) {
-        print('ServiceLocator: Migration completed successfully');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('ServiceLocator: Migration failed: $e');
-      }
-      rethrow;
     }
   }
 }

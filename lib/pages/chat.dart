@@ -10,7 +10,7 @@ import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
-import '../services/message_cache.dart';
+
 import '../services/paginated_message_service.dart';
 import '../theme.dart';
 import '../widgets/hearts.dart';
@@ -34,7 +34,7 @@ class _ChatPageState extends State<ChatPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late FollowCache followCache;
-  late ChatMessageCache chatMessageCache;
+
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
   late StreamSubscription messagesSubscription;
@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-    chatMessageCache = context.read<ChatMessageCache>();
+
     paginatedMessageService = context.read<PaginatedMessageService>();
 
     _chat = widget.chat;
@@ -97,18 +97,13 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    final lastTimestamp = chatMessageCache.getLastTimestamp(_chat.id);
-
-    messagesSubscription = firedata
-        .subscribeToMessages(_chat.id, lastTimestamp)
-        .listen((messages) {
-      // There might be obsolete records from Friebase offline cache.
-      final filteredMessages = messages
-          .where((message) => message.createdAt >= _chat.createdAt)
-          .toList();
-
-      chatMessageCache.addMessages(_chat.id, filteredMessages);
-    });
+    // Real-time message updates are now handled by the paginated service
+    // Load initial messages through the paginated service
+    paginatedMessageService.loadChatMessages(
+      _chat.id,
+      isInitialLoad: true,
+      chatCreatedAt: _chat.createdAt,
+    );
   }
 
   @override

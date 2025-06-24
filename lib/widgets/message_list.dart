@@ -5,7 +5,7 @@ import '../models/image_message.dart';
 import '../models/message.dart';
 import '../models/chat.dart';
 import '../models/text_message.dart';
-import '../services/message_cache.dart';
+import '../services/cache/sqlite_message_cache.dart';
 import 'image_message_item.dart';
 import 'info.dart';
 import 'message_separator.dart';
@@ -38,9 +38,9 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   late bool _isSticky;
-  late ChatMessageCache chatMessageCache;
-  late ReportMessageCache reportMessageCache;
+  SqliteMessageCache? sqliteCache;
   List<Message> _messages = [];
+  bool _isLoading = false;
   ScrollNotification? _lastNotification;
   int _additionalMessagesRevealedUp = 0;
   int _additionalMessagesRevealedDown = 0;
@@ -56,22 +56,49 @@ class _MessageListState extends State<MessageList> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // TODO: Split into two separate widgets to improve performance
-    chatMessageCache = Provider.of<ChatMessageCache>(context);
-    reportMessageCache = Provider.of<ReportMessageCache>(context);
-
-    final messages = widget.reporterUserId == null
-        ? chatMessageCache.getMessages(widget.chat)
-        : reportMessageCache.getMessages(widget.chat);
-
-    if (messages.length != _messages.length) {
-      // We don't update the read message count in admin reports
-      if (widget.reporterUserId == null) {
-        widget.updateMessageCount(messages.length);
-      }
+    final newSqliteCache = Provider.of<SqliteMessageCache>(context);
+    if (sqliteCache != newSqliteCache) {
+      sqliteCache = newSqliteCache;
+      _loadMessages();
     }
+  }
 
-    _messages = messages;
+  Future<void> _loadMessages() async {
+    if (sqliteCache == null) return;
+
+    if (_isLoading) return; // Prevent multiple concurrent loads
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final messages = await sqliteCache!.getChatMessages(
+        widget.chat.id,
+        limit: 1000, // Get a reasonable number of recent messages
+        minCreatedAt: widget.chat.createdAt,
+      );
+
+      if (mounted) {
+        setState(() {
+          _messages = messages;
+          _isLoading = false;
+        });
+
+        // Update message count if this is not a report
+        if (widget.reporterUserId == null) {
+          widget.updateMessageCount(messages.length);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      // Handle error gracefully
+      debugPrint('Error loading messages: $e');
+    }
   }
 
   void _handleInputFocus() {

@@ -6,7 +6,7 @@ import '../models/user.dart';
 import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
-import '../services/message_cache.dart';
+
 import '../services/server_clock.dart';
 import '../services/settings.dart';
 import '../widgets/filter_bar.dart';
@@ -28,7 +28,6 @@ class _UsersPageState extends State<UsersPage> {
   late Firestore firestore;
   late ServerClock serverClock;
   late ChatCache chatCache;
-  late ChatMessageCache chatMessageCache;
 
   List<User> _seenUsers = [];
   List<User> _users = [];
@@ -47,7 +46,6 @@ class _UsersPageState extends State<UsersPage> {
     firestore = context.read<Firestore>();
     serverClock = context.read<ServerClock>();
     chatCache = context.read<ChatCache>();
-    chatMessageCache = context.read<ChatMessageCache>();
 
     _selectedGender = null;
     _selectedLanguage = null;

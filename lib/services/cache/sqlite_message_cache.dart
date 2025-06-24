@@ -49,29 +49,112 @@ class SqliteMessageCache extends ChangeNotifier {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _databaseName);
 
-    final db = await openDatabase(
-      path,
-      version: _databaseVersion,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-      onOpen: _onOpen,
-    );
+    Database? db;
+    int retryCount = 0;
+    const maxRetries = 3;
 
-    // Initialize background cleanup
-    _startBackgroundCleanup();
+    while (db == null && retryCount < maxRetries) {
+      try {
+        db = await openDatabase(
+          path,
+          version: _databaseVersion,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+          onOpen: _onOpen,
+        );
+
+        if (kDebugMode) {
+          print(
+              'SqliteMessageCache: Database opened successfully on attempt ${retryCount + 1}');
+        }
+      } catch (e) {
+        retryCount++;
+        if (kDebugMode) {
+          print(
+              'SqliteMessageCache: Database open attempt $retryCount failed: $e');
+        }
+
+        if (retryCount < maxRetries) {
+          // Try to recover by deleting the corrupted database
+          try {
+            await _deleteCorruptedDatabase(path);
+            if (kDebugMode) {
+              print(
+                  'SqliteMessageCache: Deleted corrupted database, retrying...');
+            }
+          } catch (deleteError) {
+            if (kDebugMode) {
+              print(
+                  'SqliteMessageCache: Failed to delete corrupted database: $deleteError');
+            }
+          }
+
+          // Wait before retry
+          await Future.delayed(Duration(milliseconds: 500 * retryCount));
+        } else {
+          // Final attempt failed, try in-memory database as last resort
+          if (kDebugMode) {
+            print(
+                'SqliteMessageCache: All attempts failed, trying in-memory database');
+          }
+          try {
+            db = await _createInMemoryDatabase();
+          } catch (memoryDbError) {
+            if (kDebugMode) {
+              print(
+                  'SqliteMessageCache: In-memory database creation failed: $memoryDbError');
+            }
+            rethrow;
+          }
+        }
+      }
+    }
+
+    if (db == null) {
+      throw Exception(
+          'Failed to initialize database after $maxRetries attempts');
+    }
+
+    // Initialize background cleanup only for persistent databases
+    if (!db.path.contains(':memory:')) {
+      _startBackgroundCleanup();
+    }
 
     return db;
   }
 
   Future<void> _onOpen(Database db) async {
-    // Enable WAL mode for better concurrent access
-    await db.execute('PRAGMA journal_mode=WAL');
-    // Optimize for performance
-    await db.execute('PRAGMA synchronous=NORMAL');
-    await db.execute('PRAGMA cache_size=10000');
-    await db.execute('PRAGMA temp_store=MEMORY');
-    // Enable foreign keys
-    await db.execute('PRAGMA foreign_keys=ON');
+    // Try to enable WAL mode for better concurrent access, but don't fail if not supported
+    try {
+      await db.execute('PRAGMA journal_mode=WAL');
+      if (kDebugMode) {
+        print('SqliteMessageCache: WAL mode enabled successfully');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(
+            'SqliteMessageCache: WAL mode not supported, continuing with default mode: $e');
+      }
+      // WAL mode is not critical, continue without it
+    }
+
+    // Apply other optimizations with error handling
+    try {
+      await db.execute('PRAGMA synchronous=NORMAL');
+      await db.execute('PRAGMA cache_size=10000');
+      await db.execute('PRAGMA temp_store=MEMORY');
+      await db.execute('PRAGMA foreign_keys=ON');
+      if (kDebugMode) {
+        print(
+            'SqliteMessageCache: Database optimizations applied successfully');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(
+            'SqliteMessageCache: Some database optimizations failed, but continuing: $e');
+      }
+      // These optimizations are not critical, continue without them
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -740,6 +823,44 @@ class SqliteMessageCache extends ChangeNotifier {
     } finally {
       _isOptimizing = false;
     }
+  }
+
+  /// Delete corrupted database file for recovery
+  Future<void> _deleteCorruptedDatabase(String path) async {
+    try {
+      final file = File(path);
+      if (await file.exists()) {
+        await file.delete();
+        if (kDebugMode) {
+          print('SqliteMessageCache: Deleted corrupted database file: $path');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('SqliteMessageCache: Failed to delete database file: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Create in-memory database as fallback
+  Future<Database> _createInMemoryDatabase() async {
+    if (kDebugMode) {
+      print('SqliteMessageCache: Creating in-memory database as fallback');
+    }
+
+    final db = await openDatabase(
+      ':memory:',
+      version: _databaseVersion,
+      onCreate: _onCreate,
+      onOpen: _onOpen,
+    );
+
+    if (kDebugMode) {
+      print('SqliteMessageCache: In-memory database created successfully');
+    }
+
+    return db;
   }
 
   @override

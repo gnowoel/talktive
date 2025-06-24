@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/message.dart';
 import '../../models/image_message.dart';
 import '../../models/text_message.dart';
 import '../../models/topic_message.dart';
+import 'database_init.dart';
 
 class SqliteMessageCache extends ChangeNotifier {
   static const String _databaseName = 'talktive_cache.db';
@@ -24,16 +24,9 @@ class SqliteMessageCache extends ChangeNotifier {
   static const int _maxCacheSize = 50000; // Maximum messages per chat/topic
   static const Duration _backgroundCleanupInterval = Duration(hours: 6);
 
-  // Connection pool settings (for future implementation)
-  // static const int _maxConnections = 3;
-  // static const Duration _connectionTimeout = Duration(seconds: 30);
-
   Database? _database;
   Timer? _backgroundCleanupTimer;
   bool _isOptimizing = false;
-
-  // Connection management (for future implementation)
-  final List<Database> _connectionPool = [];
 
   // Singleton pattern
   SqliteMessageCache._();
@@ -46,8 +39,10 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   Future<Database> _initDatabase() async {
-    final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, _databaseName);
+    // Initialize database factory for the current platform
+    await DatabaseInit.initialize();
+
+    final path = await DatabaseInit.getDatabasePath(_databaseName);
 
     Database? db;
     int retryCount = 0;
@@ -99,12 +94,17 @@ class SqliteMessageCache extends ChangeNotifier {
           }
           try {
             db = await _createInMemoryDatabase();
-          } catch (memoryDbError) {
             if (kDebugMode) {
               print(
-                  'SqliteMessageCache: In-memory database creation failed: $memoryDbError');
+                  'SqliteMessageCache: In-memory database created successfully');
             }
-            rethrow;
+          } catch (memoryError) {
+            if (kDebugMode) {
+              print(
+                  'SqliteMessageCache: In-memory database creation failed: $memoryError');
+            }
+            throw Exception(
+                'Failed to initialize database after $maxRetries attempts. Last error: $e');
           }
         }
       }
@@ -115,10 +115,8 @@ class SqliteMessageCache extends ChangeNotifier {
           'Failed to initialize database after $maxRetries attempts');
     }
 
-    // Initialize background cleanup only for persistent databases
-    if (!db.path.contains(':memory:')) {
-      _startBackgroundCleanup();
-    }
+    // Start background cleanup timer
+    _startBackgroundCleanup();
 
     return db;
   }
@@ -311,7 +309,6 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   // Chat Messages Methods
-
   Future<void> storeChatMessages(String chatId, List<Message> messages) async {
     if (messages.isEmpty) return;
 
@@ -380,7 +377,9 @@ class SqliteMessageCache extends ChangeNotifier {
 
   List<int> _compressString(String text) {
     try {
-      return GZipCodec().encode(text.codeUnits);
+      // Simple compression - just store as code units for now
+      // In production, you might want to use a proper compression algorithm
+      return text.codeUnits;
     } catch (e) {
       // Fallback to original text if compression fails
       return text.codeUnits;
@@ -389,8 +388,7 @@ class SqliteMessageCache extends ChangeNotifier {
 
   String _decompressString(List<int> compressed) {
     try {
-      final decompressed = GZipCodec().decode(compressed);
-      return String.fromCharCodes(decompressed);
+      return String.fromCharCodes(compressed);
     } catch (e) {
       // Fallback to treat as uncompressed
       return String.fromCharCodes(compressed);
@@ -465,7 +463,6 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   // Topic Messages Methods
-
   Future<void> storeTopicMessages(
       String topicId, List<TopicMessage> messages) async {
     if (messages.isEmpty) return;
@@ -552,7 +549,6 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   // Cache Management Methods
-
   Future<void> cleanupOldMessages({int maxAgeInDays = 30}) async {
     final db = await database;
     final cutoffTime = DateTime.now()
@@ -607,7 +603,6 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   // Metadata Management
-
   Future<void> _updateLastSyncTimestamp(String key, int timestamp) async {
     final db = await database;
     await db.insert(
@@ -643,7 +638,6 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   // Helper Methods
-
   Message _chatMessageFromMap(Map<String, dynamic> map) {
     final isImage = map['type'] == 'image';
     final isCompressed = map['is_compressed'] == 1;
@@ -866,13 +860,6 @@ class SqliteMessageCache extends ChangeNotifier {
   @override
   Future<void> dispose() async {
     _backgroundCleanupTimer?.cancel();
-
-    // Close all connections in pool
-    for (final connection in _connectionPool) {
-      await connection.close();
-    }
-    _connectionPool.clear();
-
     await _database?.close();
     _database = null;
     super.dispose();

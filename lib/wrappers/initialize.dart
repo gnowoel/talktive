@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../services/avatar.dart';
+import '../services/cache/database_init.dart';
 import '../services/messaging.dart';
 import '../services/report_cache.dart';
 import '../services/service_locator.dart';
@@ -67,6 +68,17 @@ class _InitializeState extends State<Initialize> {
   Future<void> _initializeServices() async {
     if (!kDebugMode && !kIsWeb) {
       FirebaseDatabase.instance.setPersistenceEnabled(true);
+    }
+
+    // Initialize database factory for the current platform
+    try {
+      debugPrint('Initialize: Initializing database factory...');
+      await DatabaseInit.initialize();
+      debugPrint('Initialize: Database factory initialized successfully');
+    } catch (e) {
+      debugPrint('Failed to initialize database factory: $e');
+      throw Exception(
+          'Database initialization failed. Please restart the app.');
     }
 
     // Ensure ServiceLocator is initialized before proceeding

@@ -26,10 +26,14 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
       final fireauth = context.read<Fireauth>();
 
       if (fireauth.hasBackup) {
-        setState(() => _token = fireauth.getStoredToken());
+        if (mounted) {
+          setState(() => _token = fireauth.getStoredToken());
+        }
       } else {
         final token = await fireauth.createRecoveryToken();
-        setState(() => _token = token.toString());
+        if (mounted) {
+          setState(() => _token = token.toString());
+        }
       }
     } on AppException catch (e) {
       if (mounted) {
@@ -44,7 +48,9 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
 
   Future<void> _showToken() async {
     final fireauth = context.read<Fireauth>();
-    setState(() => _token = fireauth.getStoredToken());
+    if (mounted) {
+      setState(() => _token = fireauth.getStoredToken());
+    }
   }
 
   Future<void> _copyToClipboard() async {
@@ -135,14 +141,13 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
                 ] else if (!fireauth.hasBackup) ...[
                   FilledButton(
                     onPressed: _isProcessing ? null : _generateToken,
-                    child:
-                        _isProcessing
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 3),
-                            )
-                            : const Text('Generate Recovery Token'),
+                    child: _isProcessing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 3),
+                          )
+                        : const Text('Generate Recovery Token'),
                   ),
                 ] else ...[
                   FilledButton(

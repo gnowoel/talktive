@@ -64,9 +64,11 @@ class _ChatsPageState extends State<ChatsPage> {
     final duration = Duration(milliseconds: nextTime);
     _timer?.cancel();
     _timer = Timer(duration, () {
-      setState(() {
-        _setItemsAgain();
-      });
+      if (mounted) {
+        setState(() {
+          _setItemsAgain();
+        });
+      }
     });
   }
 

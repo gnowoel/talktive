@@ -66,6 +66,8 @@ class _TopicPageState extends State<TopicPage> {
 
     topicSubscription =
         firestore.subscribeToTopic(userId, widget.topicId).listen((topic) {
+      if (!mounted) return;
+
       if (topic.isDummy) {
         setState(() {
           if (_topic == null) {

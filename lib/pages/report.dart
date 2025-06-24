@@ -53,6 +53,8 @@ class _ReportPageState extends State<ReportPage> {
     chatSubscription = firedata.subscribeToChat(userId, widget.chat.id).listen((
       chat,
     ) {
+      if (!mounted) return;
+
       if (_chat.isDummy) {
         if (chat.isDummy) {
           // Ignore to avoid being overwitten.

@@ -86,6 +86,7 @@ class _UserItemState extends State<UserItem> {
   Future<void> _doAction(Future<void> Function() action) async {
     if (_isProcessing) return;
 
+    if (!mounted) return;
     setState(() => _isProcessing = true);
 
     try {

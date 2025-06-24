@@ -96,7 +96,6 @@ class ServiceLocator {
       // Initialize error recovery service
       _errorRecoveryService = ErrorRecoveryService(
         perfMonitor: PerformanceMonitor.instance,
-        cache: _sqliteCache!,
       );
 
       final initTime =

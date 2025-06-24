@@ -3,9 +3,6 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/chat.dart';
-import '../models/message.dart';
-import '../models/topic_message.dart';
 import 'cache/sqlite_message_cache.dart';
 import 'paginated_message_service.dart';
 import 'performance_monitor.dart';
@@ -81,11 +78,13 @@ class IntelligentPreloader extends ChangeNotifier {
 
   /// Record chat access for preference learning
   void recordChatAccess(String chatId, Duration sessionDuration) {
-    final pattern = _accessPatterns[chatId] ?? UserAccessPattern(chatId: chatId);
+    final pattern =
+        _accessPatterns[chatId] ?? UserAccessPattern(chatId: chatId);
     pattern.recordAccess(sessionDuration);
     _accessPatterns[chatId] = pattern;
 
-    final preference = _chatPreferences[chatId] ?? ChatPreference(chatId: chatId);
+    final preference =
+        _chatPreferences[chatId] ?? ChatPreference(chatId: chatId);
     preference.updatePreference(sessionDuration);
     _chatPreferences[chatId] = preference;
 
@@ -112,7 +111,8 @@ class IntelligentPreloader extends ChangeNotifier {
   }
 
   /// Manual preload trigger
-  Future<PreloadResult> preloadChat(String chatId, {int messageCount = 25}) async {
+  Future<PreloadResult> preloadChat(String chatId,
+      {int messageCount = 25}) async {
     if (!_isEnabled || _currentlyPreloading.contains(chatId)) {
       return PreloadResult.skipped('Already preloading or disabled');
     }
@@ -140,9 +140,8 @@ class IntelligentPreloader extends ChangeNotifier {
   /// Get preloading statistics
   PreloadingStats getStats() {
     final totalPreloads = _preloadResults.length;
-    final successfulPreloads = _preloadResults.values
-        .where((result) => result.success)
-        .length;
+    final successfulPreloads =
+        _preloadResults.values.where((result) => result.success).length;
 
     final totalDataPreloaded = _preloadResults.values
         .map((result) => result.messagesPreloaded)
@@ -178,7 +177,8 @@ class IntelligentPreloader extends ChangeNotifier {
   }
 
   void _recordChatInteraction(String chatId, ActionContext context) {
-    final pattern = _accessPatterns[chatId] ?? UserAccessPattern(chatId: chatId);
+    final pattern =
+        _accessPatterns[chatId] ?? UserAccessPattern(chatId: chatId);
     pattern.addInteraction(context, DateTime.now());
     _accessPatterns[chatId] = pattern;
   }
@@ -271,6 +271,10 @@ class IntelligentPreloader extends ChangeNotifier {
       if (_shouldPreload(prediction)) {
         _performPreload(prediction.chatId, 25).catchError((error) {
           debugPrint('Preload error for ${prediction.chatId}: $error');
+          return PreloadResult.failed(
+            error: error.toString(),
+            duration: Duration.zero,
+          );
         });
       }
     }
@@ -346,7 +350,6 @@ class IntelligentPreloader extends ChangeNotifier {
 
       _preloadResults[chatId] = preloadResult;
       return preloadResult;
-
     } catch (error) {
       _perfMonitor.endTimer('preload_$chatId');
 
@@ -357,7 +360,6 @@ class IntelligentPreloader extends ChangeNotifier {
 
       _preloadResults[chatId] = preloadResult;
       return preloadResult;
-
     } finally {
       _currentlyPreloading.remove(chatId);
     }
@@ -399,12 +401,14 @@ class IntelligentPreloader extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     _isEnabled = prefs.getBool('${_prefsPrefix}enabled') ?? true;
-    _allowMobileDataPreload = prefs.getBool('${_prefsPrefix}mobile_data') ?? false;
+    _allowMobileDataPreload =
+        prefs.getBool('${_prefsPrefix}mobile_data') ?? false;
     _maxConcurrentPreloads = prefs.getInt('${_prefsPrefix}max_concurrent') ?? 3;
     _confidenceThreshold = prefs.getDouble('${_prefsPrefix}confidence') ?? 0.7;
 
     final strategyIndex = prefs.getInt('${_prefsPrefix}strategy') ?? 1;
-    _strategy = PreloadStrategy.values[strategyIndex.clamp(0, PreloadStrategy.values.length - 1)];
+    _strategy = PreloadStrategy
+        .values[strategyIndex.clamp(0, PreloadStrategy.values.length - 1)];
   }
 
   Future<void> _saveUserPreferences() async {
@@ -419,7 +423,9 @@ class IntelligentPreloader extends ChangeNotifier {
 
   Future<void> _loadAccessPatterns() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where((key) => key.startsWith('${_prefsPrefix}pattern_'));
+    final keys = prefs
+        .getKeys()
+        .where((key) => key.startsWith('${_prefsPrefix}pattern_'));
 
     for (final key in keys) {
       final patternData = prefs.getString(key);
@@ -512,14 +518,16 @@ class UserAccessPattern {
 
   double getRecentActivityScore() {
     final recentCutoff = DateTime.now().subtract(const Duration(days: 7));
-    final recentAccesses = accessTimes.where((time) => time.isAfter(recentCutoff)).length;
+    final recentAccesses =
+        accessTimes.where((time) => time.isAfter(recentCutoff)).length;
     return (recentAccesses / 10.0).clamp(0.0, 1.0);
   }
 
   double getFrequencyScore() {
     final totalAccesses = accessTimes.length;
-    final daysSinceFirst = accessTimes.isEmpty ? 1 :
-        DateTime.now().difference(accessTimes.first).inDays + 1;
+    final daysSinceFirst = accessTimes.isEmpty
+        ? 1
+        : DateTime.now().difference(accessTimes.first).inDays + 1;
     final avgAccessesPerDay = totalAccesses / daysSinceFirst;
     return (avgAccessesPerDay / 3.0).clamp(0.0, 1.0);
   }
@@ -580,7 +588,8 @@ class UserAccessPattern {
   static UserAccessPattern fromJson(String json) {
     final parts = json.split(':');
     final pattern = UserAccessPattern(chatId: parts[1]);
-    pattern.lastAccess = DateTime.fromMillisecondsSinceEpoch(int.parse(parts[3]));
+    pattern.lastAccess =
+        DateTime.fromMillisecondsSinceEpoch(int.parse(parts[3]));
     return pattern;
   }
 }
@@ -596,12 +605,16 @@ class ChatPreference {
   void updatePreference(Duration sessionDuration) {
     totalSessions++;
     averageSessionDuration = Duration(
-      milliseconds: ((averageSessionDuration.inMilliseconds * (totalSessions - 1)) +
-          sessionDuration.inMilliseconds) ~/ totalSessions,
+      milliseconds:
+          ((averageSessionDuration.inMilliseconds * (totalSessions - 1)) +
+                  sessionDuration.inMilliseconds) ~/
+              totalSessions,
     );
 
     // Update priority based on session duration and frequency
-    priority = ((averageSessionDuration.inMinutes / 10.0) + (totalSessions / 100.0)).clamp(0.0, 1.0);
+    priority =
+        ((averageSessionDuration.inMinutes / 10.0) + (totalSessions / 100.0))
+            .clamp(0.0, 1.0);
   }
 }
 

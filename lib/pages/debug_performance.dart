@@ -323,7 +323,13 @@ class _DebugPerformancePageState extends State<DebugPerformancePage>
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             if (initTime != null) ...[
@@ -438,7 +444,11 @@ class _DebugPerformancePageState extends State<DebugPerformancePage>
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.lightbulb_outline, size: 16, color: Colors.amber),
+                        const Icon(
+                          Icons.lightbulb_outline,
+                          size: 16,
+                          color: Colors.amber,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -652,195 +662,6 @@ class _DebugPerformancePageState extends State<DebugPerformancePage>
     } else {
       return value.toString();
     }
-  }
-
-  Widget _buildServiceStatusCard() {
-    final serviceLocator = ServiceLocator.instance;
-    final isInitialized = serviceLocator.isInitialized;
-    final isInitializing = serviceLocator.isInitializing;
-    final initError = serviceLocator.initializationError;
-    final initTime = serviceLocator.initializationTime;
-
-    Color statusColor;
-    IconData statusIcon;
-    String statusText;
-
-    if (isInitializing) {
-      statusColor = Colors.orange;
-      statusIcon = Icons.hourglass_empty;
-      statusText = 'Initializing...';
-    } else if (isInitialized) {
-      statusColor = Colors.green;
-      statusIcon = Icons.check_circle;
-      statusText = 'Operational';
-    } else {
-      statusColor = Colors.red;
-      statusIcon = Icons.error;
-      statusText = 'Not Initialized';
-    }
-
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(statusIcon, color: statusColor, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Service Status',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
-              ],
-            ),
-            if (initTime != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Initialized: ${initTime.toString().split('.')[0]}',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-            if (initError != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Error: $initError',
-                style: const TextStyle(fontSize: 12, color: Colors.red),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPerformanceScoreCard() {
-    if (_insights.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final score = _insights['performance_score'] as double? ?? 0.0;
-    final recommendations = _insights['recommendations'] as List? ?? [];
-
-    Color scoreColor;
-    IconData scoreIcon;
-    String scoreLabel;
-
-    if (score >= 80) {
-      scoreColor = Colors.green;
-      scoreIcon = Icons.sentiment_very_satisfied;
-      scoreLabel = 'Excellent';
-    } else if (score >= 60) {
-      scoreColor = Colors.orange;
-      scoreIcon = Icons.sentiment_satisfied;
-      scoreLabel = 'Good';
-    } else if (score >= 40) {
-      scoreColor = Colors.deepOrange;
-      scoreIcon = Icons.sentiment_neutral;
-      scoreLabel = 'Fair';
-    } else {
-      scoreColor = Colors.red;
-      scoreIcon = Icons.sentiment_very_dissatisfied;
-      scoreLabel = 'Poor';
-    }
-
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(scoreIcon, color: scoreColor, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Performance Score',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: score / 100,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  '${score.toStringAsFixed(0)}/100',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: scoreColor,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              scoreLabel,
-              style: TextStyle(
-                color: scoreColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (recommendations.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Text(
-                'Recommendations:',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              ...recommendations.map((rec) => Padding(
-                    padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.lightbulb_outline, size: 16, color: Colors.amber),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            rec.toString(),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-            ],
-          ],
-        ),
-      ),
-    );
   }
 
   @override

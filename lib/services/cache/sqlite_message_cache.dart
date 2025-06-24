@@ -24,22 +24,16 @@ class SqliteMessageCache extends ChangeNotifier {
   static const int _maxCacheSize = 50000; // Maximum messages per chat/topic
   static const Duration _backgroundCleanupInterval = Duration(hours: 6);
 
-  // Connection pool settings
-  static const int _maxConnections = 3;
-  static const Duration _connectionTimeout = Duration(seconds: 30);
+  // Connection pool settings (for future implementation)
+  // static const int _maxConnections = 3;
+  // static const Duration _connectionTimeout = Duration(seconds: 30);
 
   Database? _database;
   Timer? _backgroundCleanupTimer;
   bool _isOptimizing = false;
 
-  // Performance tracking
-  int _totalQueries = 0;
-  int _cacheHits = 0;
-  int _cacheMisses = 0;
-
-  // Connection management
+  // Connection management (for future implementation)
   final List<Database> _connectionPool = [];
-  int _currentConnectionIndex = 0;
 
   // Singleton pattern
   SqliteMessageCache._();
@@ -194,17 +188,25 @@ class SqliteMessageCache extends ChangeNotifier {
     if (oldVersion < 2 && newVersion >= 2) {
       // Add compression and optimization columns
       try {
-        await db.execute('ALTER TABLE $_chatMessagesTable ADD COLUMN content_compressed BLOB');
-        await db.execute('ALTER TABLE $_chatMessagesTable ADD COLUMN content_size INTEGER DEFAULT 0');
-        await db.execute('ALTER TABLE $_chatMessagesTable ADD COLUMN is_compressed INTEGER DEFAULT 0');
+        await db.execute(
+            'ALTER TABLE $_chatMessagesTable ADD COLUMN content_compressed BLOB');
+        await db.execute(
+            'ALTER TABLE $_chatMessagesTable ADD COLUMN content_size INTEGER DEFAULT 0');
+        await db.execute(
+            'ALTER TABLE $_chatMessagesTable ADD COLUMN is_compressed INTEGER DEFAULT 0');
 
-        await db.execute('ALTER TABLE $_topicMessagesTable ADD COLUMN content_compressed BLOB');
-        await db.execute('ALTER TABLE $_topicMessagesTable ADD COLUMN content_size INTEGER DEFAULT 0');
-        await db.execute('ALTER TABLE $_topicMessagesTable ADD COLUMN is_compressed INTEGER DEFAULT 0');
+        await db.execute(
+            'ALTER TABLE $_topicMessagesTable ADD COLUMN content_compressed BLOB');
+        await db.execute(
+            'ALTER TABLE $_topicMessagesTable ADD COLUMN content_size INTEGER DEFAULT 0');
+        await db.execute(
+            'ALTER TABLE $_topicMessagesTable ADD COLUMN is_compressed INTEGER DEFAULT 0');
 
         // Create new optimized indexes
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_created ON $_chatMessagesTable(chat_id, created_at DESC)');
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_topic_messages_topic_created ON $_topicMessagesTable(topic_id, created_at DESC)');
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_created ON $_chatMessagesTable(chat_id, created_at DESC)');
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_topic_messages_topic_created ON $_topicMessagesTable(topic_id, created_at DESC)');
 
         // Create cache stats table
         await db.execute('''
@@ -252,7 +254,8 @@ class SqliteMessageCache extends ChangeNotifier {
           'user_display_name': message.userDisplayName,
           'user_photo_url': message.userPhotoURL,
           'content': shouldCompress ? '' : content,
-          'content_compressed': shouldCompress ? _compressString(content) : null,
+          'content_compressed':
+              shouldCompress ? _compressString(content) : null,
           'uri': message is ImageMessage ? message.uri : null,
           'created_at': message.createdAt,
           'recalled': message.recalled ? 1 : 0,
@@ -629,7 +632,8 @@ class SqliteMessageCache extends ChangeNotifier {
 
   Future<void> _startBackgroundCleanup() async {
     _backgroundCleanupTimer?.cancel();
-    _backgroundCleanupTimer = Timer.periodic(_backgroundCleanupInterval, (timer) async {
+    _backgroundCleanupTimer =
+        Timer.periodic(_backgroundCleanupInterval, (timer) async {
       if (!_isOptimizing) {
         await _performBackgroundMaintenance();
       }
@@ -658,7 +662,6 @@ class SqliteMessageCache extends ChangeNotifier {
         where: 'updated_at < ?',
         whereArgs: [oldMetadataCutoff],
       );
-
     } catch (e) {
       debugPrint('Background maintenance error: $e');
     } finally {
@@ -666,7 +669,8 @@ class SqliteMessageCache extends ChangeNotifier {
     }
   }
 
-  Future<void> _checkAndCleanupOldMessages(String entityId, String table) async {
+  Future<void> _checkAndCleanupOldMessages(
+      String entityId, String table) async {
     final db = await database;
 
     // Count messages for this entity
@@ -731,7 +735,6 @@ class SqliteMessageCache extends ChangeNotifier {
 
       // Vacuum to reclaim space
       await db.execute('VACUUM');
-
     } catch (e) {
       debugPrint('Database optimization error: $e');
     } finally {

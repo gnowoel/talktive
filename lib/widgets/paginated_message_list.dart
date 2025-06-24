@@ -138,7 +138,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       _loadMoreMessages();
     }
 
-    // Update sticky state based on scroll position
+    // Update sticky state based on scroll position (with debouncing)
     final isAtBottom = position.extentAfter < 50;
     if (isAtBottom != _isSticky) {
       setState(() {
@@ -149,7 +149,9 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
   void _onCacheUpdated() {
     // Reload messages from cache when it's updated (for real-time updates)
-    _loadMessagesFromCache();
+    if (_initialLoadComplete) {
+      _loadMessagesFromCache();
+    }
   }
 
   Future<void> _loadInitialMessages() async {
@@ -237,10 +239,11 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         _errorMessage = e.toString();
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -257,17 +260,26 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         cachedMessages = await _cache.getTopicMessages(widget.id);
       }
 
-      // Only update if we have more messages than before (for real-time updates)
-      if (cachedMessages.length > _messages.length) {
+      // Update messages if cache has different content or if current list is empty
+      final shouldUpdate = _messages.isEmpty ||
+          cachedMessages.length != _messages.length ||
+          (cachedMessages.isNotEmpty && _messages.isNotEmpty &&
+           _getMessageId(cachedMessages.last) != _getMessageId(_messages.last));
+
+      if (shouldUpdate) {
         if (!mounted) return;
+
+        final wasAtBottom = _isSticky;
+        final hadNewMessages = cachedMessages.length > _messages.length;
+
         setState(() {
           _messages = cachedMessages;
         });
 
         widget.updateMessageCount(_messages.length);
 
-        // Auto-scroll to bottom for new messages if user is at bottom
-        if (_isSticky && mounted) {
+        // Auto-scroll to bottom for new messages if user was at bottom
+        if (wasAtBottom && hadNewMessages && mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _scrollToBottom();
           });
@@ -279,6 +291,15 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
   }
 
+  String _getMessageId(dynamic message) {
+    if (message is Message) {
+      return message.id ?? '';
+    } else if (message is TopicMessage) {
+      return message.id ?? '';
+    }
+    return '';
+  }
+
   bool _handleScrollNotification(ScrollNotification notification) {
     final metrics = notification.metrics;
 
@@ -286,18 +307,20 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       _lastNotification = notification;
 
       if (notification is ScrollEndNotification) {
-        if (metrics.extentAfter == 0) {
-          if (!_isSticky) {
-            setState(() => _isSticky = true);
-          }
+        final isAtBottom = metrics.extentAfter < 50;
+        if (isAtBottom != _isSticky) {
+          setState(() {
+            _isSticky = isAtBottom;
+          });
         }
       }
 
       if (notification is ScrollUpdateNotification) {
-        if (metrics.extentAfter != 0) {
-          if (_isSticky) {
-            setState(() => _isSticky = false);
-          }
+        final isAtBottom = metrics.extentAfter < 50;
+        if (isAtBottom != _isSticky) {
+          setState(() {
+            _isSticky = isAtBottom;
+          });
         }
       }
     }
@@ -307,10 +330,16 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
   bool _handleScrollMetricsNotification(
       ScrollMetricsNotification notification) {
+    // Only auto-scroll if we're sticky and the content has grown
     if (_isSticky && widget.scrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToBottom();
-      });
+      final position = widget.scrollController.position;
+      if (position.maxScrollExtent > position.pixels) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _isSticky) {
+            _scrollToBottom();
+          }
+        });
+      }
     }
     return false;
   }

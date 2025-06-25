@@ -416,6 +416,9 @@ class SqliteMessageCache extends ChangeNotifier {
           );
         });
 
+        // Perform cache size cleanup for this chat
+        await _limitCacheSize(chatId, _chatMessagesTable, 'chat_id');
+
         notifyListeners();
       } catch (e) {
         debugPrint('Error storing chat messages: $e');
@@ -480,7 +483,17 @@ class SqliteMessageCache extends ChangeNotifier {
           offset: offset,
         );
 
-        return maps.map((map) => _chatMessageFromMap(map)).toList();
+        final messages = maps.map((map) => _chatMessageFromMap(map)).toList();
+
+        // Update cache statistics
+        await _updateCacheStats('total_queries', 1);
+        if (messages.isNotEmpty) {
+          await _updateCacheStats('cache_hits', 1);
+        } else {
+          await _updateCacheStats('cache_misses', 1);
+        }
+
+        return messages;
       } catch (e) {
         debugPrint('Error getting chat messages for $chatId: $e');
         return <Message>[]; // Return empty list on error
@@ -551,7 +564,8 @@ class SqliteMessageCache extends ChangeNotifier {
               {
                 'id': message.id,
                 'topic_id': topicId,
-                'type': message.runtimeType == TopicImageMessage ? 'image' : 'text',
+                'type':
+                    message.runtimeType == TopicImageMessage ? 'image' : 'text',
                 'user_id': message.userId,
                 'user_display_name': message.userDisplayName,
                 'user_photo_url': message.userPhotoURL,
@@ -577,6 +591,9 @@ class SqliteMessageCache extends ChangeNotifier {
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         });
+
+        // Perform cache size cleanup for this topic
+        await _limitCacheSize(topicId, _topicMessagesTable, 'topic_id');
 
         notifyListeners();
       } catch (e) {
@@ -604,7 +621,17 @@ class SqliteMessageCache extends ChangeNotifier {
           offset: offset,
         );
 
-        return maps.map((map) => _topicMessageFromMap(map)).toList();
+        final messages = maps.map((map) => _topicMessageFromMap(map)).toList();
+
+        // Update cache statistics
+        await _updateCacheStats('total_queries', 1);
+        if (messages.isNotEmpty) {
+          await _updateCacheStats('cache_hits', 1);
+        } else {
+          await _updateCacheStats('cache_misses', 1);
+        }
+
+        return messages;
       } catch (e) {
         debugPrint('Error getting topic messages for $topicId: $e');
         return <TopicMessage>[]; // Return empty list on error
@@ -721,7 +748,8 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   // Helper method to wrap database operations with locking and retry
-  Future<T> _withDatabaseLock<T>(String operation, Future<T> Function() callback) async {
+  Future<T> _withDatabaseLock<T>(
+      String operation, Future<T> Function() callback) async {
     const maxRetries = 3;
     const retryDelay = Duration(milliseconds: 500);
 
@@ -729,13 +757,15 @@ class SqliteMessageCache extends ChangeNotifier {
       try {
         return await _dbLock.withLock('db_$operation', callback);
       } catch (e) {
-        debugPrint('Database operation attempt $attempt failed for $operation: $e');
+        debugPrint(
+            'Database operation attempt $attempt failed for $operation: $e');
 
         if (attempt == maxRetries) {
           // If all retries failed, check if database is corrupted
           if (e.toString().contains('database is locked') ||
               e.toString().contains('database disk image is malformed')) {
-            debugPrint('Database appears to be corrupted, attempting recovery...');
+            debugPrint(
+                'Database appears to be corrupted, attempting recovery...');
             try {
               await _handleCorruptedDatabase();
               // Try one more time after recovery
@@ -898,6 +928,9 @@ class SqliteMessageCache extends ChangeNotifier {
         where: 'updated_at < ?',
         whereArgs: [oldMetadataCutoff],
       );
+
+      // Perform cache size management for all chats and topics
+      await _performCacheSizeCleanup();
     } catch (e) {
       debugPrint('Background maintenance error: $e');
     } finally {
@@ -905,13 +938,35 @@ class SqliteMessageCache extends ChangeNotifier {
     }
   }
 
-  Future<void> _checkAndCleanupOldMessages(
-      String entityId, String table) async {
+  Future<void> _performCacheSizeCleanup() async {
+    final db = await database;
+
+    // Get all unique chat_ids and topic_ids
+    final chatIds =
+        await db.rawQuery('SELECT DISTINCT chat_id FROM $_chatMessagesTable');
+    final topicIds =
+        await db.rawQuery('SELECT DISTINCT topic_id FROM $_topicMessagesTable');
+
+    // Clean up each chat
+    for (final row in chatIds) {
+      final chatId = row['chat_id'] as String;
+      await _limitCacheSize(chatId, _chatMessagesTable, 'chat_id');
+    }
+
+    // Clean up each topic
+    for (final row in topicIds) {
+      final topicId = row['topic_id'] as String;
+      await _limitCacheSize(topicId, _topicMessagesTable, 'topic_id');
+    }
+  }
+
+  Future<void> _limitCacheSize(
+      String entityId, String table, String idColumn) async {
     final db = await database;
 
     // Count messages for this entity
     final countResult = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM $table WHERE ${table == _chatMessagesTable ? 'chat_id' : 'topic_id'} = ?',
+      'SELECT COUNT(*) as count FROM $table WHERE $idColumn = ?',
       [entityId],
     );
 
@@ -922,26 +977,34 @@ class SqliteMessageCache extends ChangeNotifier {
       final deleteCount = messageCount - _maxCacheSize;
       await db.rawDelete('''
         DELETE FROM $table
-        WHERE ${table == _chatMessagesTable ? 'chat_id' : 'topic_id'} = ?
+        WHERE $idColumn = ?
         AND id IN (
           SELECT id FROM $table
-          WHERE ${table == _chatMessagesTable ? 'chat_id' : 'topic_id'} = ?
+          WHERE $idColumn = ?
           ORDER BY created_at ASC
           LIMIT ?
         )
       ''', [entityId, entityId, deleteCount]);
+
+      debugPrint(
+          'Cache cleanup: Removed $deleteCount old messages for $entityId in $table');
     }
   }
 
   Future<void> _updateCacheStats(String statKey, int increment) async {
-    final db = await database;
-    final now = DateTime.now().millisecondsSinceEpoch;
+    try {
+      final db = await database;
+      final now = DateTime.now().millisecondsSinceEpoch;
 
-    await db.rawUpdate('''
-      UPDATE cache_stats
-      SET stat_value = stat_value + ?, last_updated = ?
-      WHERE stat_key = ?
-    ''', [increment, now, statKey]);
+      await db.rawUpdate('''
+        UPDATE cache_stats
+        SET stat_value = stat_value + ?, last_updated = ?
+        WHERE stat_key = ?
+      ''', [increment, now, statKey]);
+    } catch (e) {
+      // Ignore stats update errors to not affect main functionality
+      debugPrint('Cache stats update error: $e');
+    }
   }
 
   Future<Map<String, int>> getCacheStatistics() async {

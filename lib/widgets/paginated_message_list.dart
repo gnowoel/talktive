@@ -151,7 +151,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   void _onCacheUpdated() {
     // Reload messages from cache when it's updated (for real-time updates)
     if (_initialLoadComplete) {
-      print('PaginatedMessageList: Cache updated, reloading messages for ${widget.type.name} ${widget.id}');
+      debugPrint('PaginatedMessageList: Cache updated, reloading messages for ${widget.type.name} ${widget.id}');
       _loadMessagesFromCache();
     }
   }
@@ -159,7 +159,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   Future<void> _loadInitialMessages() async {
     if (_isLoading) return;
 
-    print('PaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
+    debugPrint('PaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
 
     if (!mounted) return;
     setState(() {
@@ -192,7 +192,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         _isLoading = false;
       });
 
-      print('PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore, fromCache: ${result.isFromCache}');
+      debugPrint('PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore, fromCache: ${result.isFromCache}');
       widget.updateMessageCount(_messages.length);
 
       // Scroll to bottom after initial load
@@ -215,7 +215,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   Future<void> _loadMoreMessages() async {
     if (_isLoading || !_hasMore) return;
 
-    print('PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
+    debugPrint('PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
 
     if (!mounted) return;
     setState(() {
@@ -241,7 +241,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           _hasMore = result.hasMore;
         });
 
-        print('PaginatedMessageList: Loaded ${result.items.length} more messages, total: ${_messages.length}, hasMore: $_hasMore');
+        debugPrint('PaginatedMessageList: Loaded ${result.items.length} more messages, total: ${_messages.length}, hasMore: $_hasMore');
         widget.updateMessageCount(_messages.length);
       }
     } catch (e) {
@@ -293,7 +293,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           _messages = orderedMessages;
         });
 
-        print('PaginatedMessageList: Updated from cache - ${_messages.length} messages (was at bottom: $wasAtBottom, had new: $hadNewMessages)');
+        debugPrint('PaginatedMessageList: Updated from cache - ${_messages.length} messages (was at bottom: $wasAtBottom, had new: $hadNewMessages)');
         widget.updateMessageCount(_messages.length);
 
         // Auto-scroll to bottom for new messages if user was at bottom

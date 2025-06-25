@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import '../models/message.dart';
 import '../models/topic_message.dart';
 import 'cache/sqlite_message_cache.dart';
@@ -41,7 +42,8 @@ class PaginatedMessageService extends ChangeNotifier {
     int? chatCreatedAt,
   }) async {
     final loadSize = isInitialLoad ? initialLoadSize : pageSize;
-    debugPrint('PaginatedMessageService: loadChatMessages - chatId: $chatId, isInitialLoad: $isInitialLoad, loadSize: $loadSize');
+    debugPrint(
+        'PaginatedMessageService: loadChatMessages - chatId: $chatId, isInitialLoad: $isInitialLoad, loadSize: $loadSize');
 
     // Get existing state or create new one
     final state = _chatStates[chatId] ?? ChatPaginationState(chatId: chatId);
@@ -49,7 +51,8 @@ class PaginatedMessageService extends ChangeNotifier {
 
     // Reset state for initial load to ensure we start fresh
     if (isInitialLoad) {
-      debugPrint('PaginatedMessageService: Resetting state for initial load - chatId: $chatId');
+      debugPrint(
+          'PaginatedMessageService: Resetting state for initial load - chatId: $chatId');
       state.reset();
     }
 
@@ -91,7 +94,8 @@ class PaginatedMessageService extends ChangeNotifier {
         state.hasMoreMessages = cachedMessages.length == loadSize &&
             state.currentOffset < totalCachedCount;
 
-        debugPrint('PaginatedMessageService: Returning from cache - chatId: $chatId, messages: ${cachedMessages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $totalCachedCount');
+        debugPrint(
+            'PaginatedMessageService: Returning from cache - chatId: $chatId, messages: ${cachedMessages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $totalCachedCount');
 
         // Start real-time subscription for new messages if this is initial load
         if (isInitialLoad) {
@@ -106,7 +110,8 @@ class PaginatedMessageService extends ChangeNotifier {
       }
 
       // If cache doesn't have enough, load from Firebase
-      debugPrint('PaginatedMessageService: Loading from Firebase - chatId: $chatId, cached: ${cachedMessages.length}, needed: $loadSize');
+      debugPrint(
+          'PaginatedMessageService: Loading from Firebase - chatId: $chatId, cached: ${cachedMessages.length}, needed: $loadSize');
       await _loadMoreChatMessagesFromFirebase(chatId, loadSize, chatCreatedAt);
 
       // Now get the requested messages from cache
@@ -147,7 +152,8 @@ class PaginatedMessageService extends ChangeNotifier {
       state.hasMoreMessages = messages.length == loadSize &&
           state.currentOffset < updatedTotalCount;
 
-      debugPrint('PaginatedMessageService: Returning from Firebase - chatId: $chatId, messages: ${messages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $updatedTotalCount');
+      debugPrint(
+          'PaginatedMessageService: Returning from Firebase - chatId: $chatId, messages: ${messages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $updatedTotalCount');
 
       // Start real-time subscription for new messages if this is initial load
       if (isInitialLoad) {
@@ -221,7 +227,8 @@ class PaginatedMessageService extends ChangeNotifier {
       try {
         await _cache.storeChatMessages(chatId, messages);
       } catch (e) {
-        debugPrint('Cache store error in _loadMoreChatMessagesFromFirebase: $e');
+        debugPrint(
+            'Cache store error in _loadMoreChatMessagesFromFirebase: $e');
         // Continue without caching - messages are still available from Firebase
       }
     }
@@ -348,7 +355,7 @@ class PaginatedMessageService extends ChangeNotifier {
           state.currentOffset = cachedMessages.length;
         }
         state.hasMoreMessages = cachedMessages.length == loadSize &&
-                               state.currentOffset < totalCachedCount;
+            state.currentOffset < totalCachedCount;
 
         // Start real-time subscription for new messages if this is initial load
         if (isInitialLoad) {
@@ -396,7 +403,7 @@ class PaginatedMessageService extends ChangeNotifier {
         // Use message length as fallback
       }
       state.hasMoreMessages = messages.length == loadSize &&
-                             state.currentOffset < updatedTotalCount;
+          state.currentOffset < updatedTotalCount;
 
       // Start real-time subscription for new messages if this is initial load
       if (isInitialLoad) {
@@ -467,7 +474,8 @@ class PaginatedMessageService extends ChangeNotifier {
       try {
         await _cache.storeTopicMessages(topicId, messages);
       } catch (e) {
-        debugPrint('Cache store error in _loadMoreTopicMessagesFromFirebase: $e');
+        debugPrint(
+            'Cache store error in _loadMoreTopicMessagesFromFirebase: $e');
         // Continue without caching - messages are still available from Firebase
       }
     }
@@ -533,15 +541,21 @@ class PaginatedMessageService extends ChangeNotifier {
   // Utility Methods
 
   void resetChatPagination(String chatId) {
-    debugPrint('PaginatedMessageService: Resetting chat pagination for chatId: $chatId');
+    debugPrint(
+        'PaginatedMessageService: Resetting chat pagination for chatId: $chatId');
     _chatStates[chatId]?.reset();
-    notifyListeners();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void resetTopicPagination(String topicId) {
-    debugPrint('PaginatedMessageService: Resetting topic pagination for topicId: $topicId');
+    debugPrint(
+        'PaginatedMessageService: Resetting topic pagination for topicId: $topicId');
     _topicStates[topicId]?.reset();
-    notifyListeners();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   ChatPaginationState? getChatState(String chatId) {

@@ -559,6 +559,65 @@ class SqliteMessageCache extends ChangeNotifier {
     });
   }
 
+  Future<List<Message>> getChatMessagesBeforeTimestamp(
+    String chatId,
+    int beforeTimestamp, {
+    int? limit,
+    int? minCreatedAt,
+  }) async {
+    return _withDatabaseLock('get_chat_before_$chatId', () async {
+      try {
+        final db = await database;
+
+        String whereClause = 'chat_id = ? AND created_at < ?';
+        List<dynamic> whereArgs = [chatId, beforeTimestamp];
+
+        if (minCreatedAt != null) {
+          whereClause += ' AND created_at >= ?';
+          whereArgs.add(minCreatedAt);
+        }
+
+        final List<Map<String, dynamic>> maps = await db.query(
+          _chatMessagesTable,
+          where: whereClause,
+          whereArgs: whereArgs,
+          orderBy: 'created_at DESC',
+          limit: limit,
+        );
+
+        final messages = <Message>[];
+
+        // Process maps in smaller chunks to reduce memory pressure
+        const processingChunkSize = 50;
+        for (int i = 0; i < maps.length; i += processingChunkSize) {
+          final end = (i + processingChunkSize < maps.length)
+              ? i + processingChunkSize
+              : maps.length;
+          final chunk = maps.sublist(i, end);
+
+          for (final map in chunk) {
+            try {
+              messages.add(_chatMessageFromMap(map));
+            } catch (e) {
+              debugPrint('Error parsing message: $e');
+            }
+          }
+
+          if (maps.length > processingChunkSize &&
+              i + processingChunkSize < maps.length) {
+            await Future.delayed(const Duration(milliseconds: 5));
+          }
+        }
+
+        return messages;
+      } catch (e) {
+        debugPrint(
+            'Error getting chat messages before timestamp for $chatId: $e');
+        return <Message>[];
+      }
+    });
+  }
+
   Future<int> getChatMessageCount(String chatId, {int? minCreatedAt}) async {
     return _withDatabaseLock('count_chat_$chatId', () async {
       final db = await database;
@@ -723,6 +782,56 @@ class SqliteMessageCache extends ChangeNotifier {
       } catch (e) {
         debugPrint('Error getting topic messages for $topicId: $e');
         return <TopicMessage>[]; // Return empty list on error
+      }
+    });
+  }
+
+  Future<List<TopicMessage>> getTopicMessagesBeforeTimestamp(
+    String topicId,
+    int beforeTimestamp, {
+    int? limit,
+  }) async {
+    return _withDatabaseLock('get_topic_before_$topicId', () async {
+      try {
+        final db = await database;
+
+        final List<Map<String, dynamic>> maps = await db.query(
+          _topicMessagesTable,
+          where: 'topic_id = ? AND created_at < ?',
+          whereArgs: [topicId, beforeTimestamp],
+          orderBy: 'created_at DESC',
+          limit: limit,
+        );
+
+        final messages = <TopicMessage>[];
+
+        // Process maps in smaller chunks to reduce memory pressure
+        const processingChunkSize = 50;
+        for (int i = 0; i < maps.length; i += processingChunkSize) {
+          final end = (i + processingChunkSize < maps.length)
+              ? i + processingChunkSize
+              : maps.length;
+          final chunk = maps.sublist(i, end);
+
+          for (final map in chunk) {
+            try {
+              messages.add(_topicMessageFromMap(map));
+            } catch (e) {
+              debugPrint('Error parsing topic message: $e');
+            }
+          }
+
+          if (maps.length > processingChunkSize &&
+              i + processingChunkSize < maps.length) {
+            await Future.delayed(const Duration(milliseconds: 5));
+          }
+        }
+
+        return messages;
+      } catch (e) {
+        debugPrint(
+            'Error getting topic messages before timestamp for $topicId: $e');
+        return <TopicMessage>[];
       }
     });
   }

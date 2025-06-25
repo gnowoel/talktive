@@ -323,7 +323,6 @@ class IntelligentPreloader extends ChangeNotifier {
       // Preload messages
       final result = await _messageService.loadChatMessages(
         chatId,
-        pageSize: messageCount,
         isInitialLoad: true,
       );
 

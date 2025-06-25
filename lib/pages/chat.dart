@@ -57,6 +57,9 @@ class _ChatPageState extends State<ChatPage> {
 
     _chat = widget.chat;
 
+    // Reset pagination state to ensure fresh loading when entering chat
+    paginatedMessageService.resetChatPagination(_chat.id);
+
     final selfId = fireauth.instance.currentUser!.uid;
 
     chatSubscription = firedata.subscribeToChat(selfId, _chat.id).listen((

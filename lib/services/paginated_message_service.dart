@@ -41,17 +41,27 @@ class PaginatedMessageService extends ChangeNotifier {
     int? chatCreatedAt,
   }) async {
     final loadSize = isInitialLoad ? initialLoadSize : pageSize;
+    print('PaginatedMessageService: loadChatMessages - chatId: $chatId, isInitialLoad: $isInitialLoad, loadSize: $loadSize');
 
     // Get existing state or create new one
     final state = _chatStates[chatId] ?? ChatPaginationState(chatId: chatId);
     _chatStates[chatId] = state;
 
+    // Reset state for initial load to ensure we start fresh
+    if (isInitialLoad) {
+      print('PaginatedMessageService: Resetting state for initial load - chatId: $chatId');
+      state.reset();
+    }
+
     try {
+      // For initial load, always get the most recent messages from cache
+      final offset = isInitialLoad ? 0 : state.currentOffset;
+
       // First, try to load from cache
       final cachedMessages = await _cache.getChatMessages(
         chatId,
         limit: loadSize,
-        offset: state.currentOffset,
+        offset: offset,
         minCreatedAt: chatCreatedAt,
       );
 
@@ -60,11 +70,20 @@ class PaginatedMessageService extends ChangeNotifier {
         minCreatedAt: chatCreatedAt,
       );
 
-      // If we have enough cached messages, return them
-      if (cachedMessages.length == loadSize ||
-          state.currentOffset + loadSize >= totalCachedCount) {
-        state.currentOffset += cachedMessages.length;
-        state.hasMoreMessages = cachedMessages.length == loadSize;
+      // Check if we have sufficient messages or if we've reached the end
+      final hasEnoughFromCache = cachedMessages.length >= loadSize ||
+          offset + cachedMessages.length >= totalCachedCount;
+
+      if (hasEnoughFromCache && cachedMessages.isNotEmpty) {
+        if (!isInitialLoad) {
+          state.currentOffset += cachedMessages.length;
+        } else {
+          state.currentOffset = cachedMessages.length;
+        }
+        state.hasMoreMessages = cachedMessages.length == loadSize &&
+            state.currentOffset < totalCachedCount;
+
+        print('PaginatedMessageService: Returning from cache - chatId: $chatId, messages: ${cachedMessages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $totalCachedCount');
 
         // Start real-time subscription for new messages if this is initial load
         if (isInitialLoad) {
@@ -79,18 +98,31 @@ class PaginatedMessageService extends ChangeNotifier {
       }
 
       // If cache doesn't have enough, load from Firebase
+      print('PaginatedMessageService: Loading from Firebase - chatId: $chatId, cached: ${cachedMessages.length}, needed: $loadSize');
       await _loadMoreChatMessagesFromFirebase(chatId, loadSize, chatCreatedAt);
 
       // Now get the requested messages from cache
       final messages = await _cache.getChatMessages(
         chatId,
         limit: loadSize,
-        offset: state.currentOffset,
+        offset: offset,
         minCreatedAt: chatCreatedAt,
       );
 
-      state.currentOffset += messages.length;
-      state.hasMoreMessages = messages.length == loadSize;
+      if (!isInitialLoad) {
+        state.currentOffset += messages.length;
+      } else {
+        state.currentOffset = messages.length;
+      }
+
+      final updatedTotalCount = await _cache.getChatMessageCount(
+        chatId,
+        minCreatedAt: chatCreatedAt,
+      );
+      state.hasMoreMessages = messages.length == loadSize &&
+          state.currentOffset < updatedTotalCount;
+
+      print('PaginatedMessageService: Returning from Firebase - chatId: $chatId, messages: ${messages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $updatedTotalCount');
 
       // Start real-time subscription for new messages if this is initial load
       if (isInitialLoad) {
@@ -139,21 +171,22 @@ class PaginatedMessageService extends ChangeNotifier {
     int? chatCreatedAt,
   ) async {
     // Get the oldest message timestamp from cache to use as pagination cursor
-    final oldestCachedMessage = await _cache.getChatMessages(
+    final oldestCachedMessages = await _cache.getChatMessages(
       chatId,
       limit: 1,
+      offset: 0, // Get the oldest message (first in chronological order)
       minCreatedAt: chatCreatedAt,
     );
 
     int? endBefore;
-    if (oldestCachedMessage.isNotEmpty) {
-      endBefore = oldestCachedMessage.first.createdAt;
+    if (oldestCachedMessages.isNotEmpty) {
+      endBefore = oldestCachedMessages.first.createdAt;
     }
 
     // Create a Firebase query to get older messages
     final messages = await _fetchChatMessagesFromFirebase(
       chatId,
-      limit: limit,
+      limit: limit * 2, // Fetch more to reduce Firebase calls
       endBefore: endBefore,
       minCreatedAt: chatCreatedAt,
     );
@@ -211,7 +244,12 @@ class PaginatedMessageService extends ChangeNotifier {
 
         if (filteredMessages.isNotEmpty) {
           await _cache.storeChatMessages(chatId, filteredMessages);
-          notifyListeners();
+          // Don't notify immediately to avoid interference with initial load
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (!(_chatStates[chatId]?.isLoading ?? false)) {
+              notifyListeners();
+            }
+          });
         }
       }
     });
@@ -231,21 +269,36 @@ class PaginatedMessageService extends ChangeNotifier {
         _topicStates[topicId] ?? TopicPaginationState(topicId: topicId);
     _topicStates[topicId] = state;
 
+    // Reset state for initial load to ensure we start fresh
+    if (isInitialLoad) {
+      state.reset();
+    }
+
     try {
+      // For initial load, always get the most recent messages from cache
+      final offset = isInitialLoad ? 0 : state.currentOffset;
+
       // First, try to load from cache
       final cachedMessages = await _cache.getTopicMessages(
         topicId,
         limit: loadSize,
-        offset: state.currentOffset,
+        offset: offset,
       );
 
       final totalCachedCount = await _cache.getTopicMessageCount(topicId);
 
-      // If we have enough cached messages, return them
-      if (cachedMessages.length == loadSize ||
-          state.currentOffset + loadSize >= totalCachedCount) {
-        state.currentOffset += cachedMessages.length;
-        state.hasMoreMessages = cachedMessages.length == loadSize;
+      // Check if we have sufficient messages or if we've reached the end
+      final hasEnoughFromCache = cachedMessages.length >= loadSize ||
+          offset + cachedMessages.length >= totalCachedCount;
+
+      if (hasEnoughFromCache && cachedMessages.isNotEmpty) {
+        if (!isInitialLoad) {
+          state.currentOffset += cachedMessages.length;
+        } else {
+          state.currentOffset = cachedMessages.length;
+        }
+        state.hasMoreMessages = cachedMessages.length == loadSize &&
+                               state.currentOffset < totalCachedCount;
 
         // Start real-time subscription for new messages if this is initial load
         if (isInitialLoad) {
@@ -266,11 +319,18 @@ class PaginatedMessageService extends ChangeNotifier {
       final messages = await _cache.getTopicMessages(
         topicId,
         limit: loadSize,
-        offset: state.currentOffset,
+        offset: offset,
       );
 
-      state.currentOffset += messages.length;
-      state.hasMoreMessages = messages.length == loadSize;
+      if (!isInitialLoad) {
+        state.currentOffset += messages.length;
+      } else {
+        state.currentOffset = messages.length;
+      }
+
+      final updatedTotalCount = await _cache.getTopicMessageCount(topicId);
+      state.hasMoreMessages = messages.length == loadSize &&
+                             state.currentOffset < updatedTotalCount;
 
       // Start real-time subscription for new messages if this is initial load
       if (isInitialLoad) {
@@ -318,20 +378,21 @@ class PaginatedMessageService extends ChangeNotifier {
     int limit,
   ) async {
     // Get the oldest message timestamp from cache to use as pagination cursor
-    final oldestCachedMessage = await _cache.getTopicMessages(
+    final oldestCachedMessages = await _cache.getTopicMessages(
       topicId,
       limit: 1,
+      offset: 0, // Get the oldest message (first in chronological order)
     );
 
     int? endBefore;
-    if (oldestCachedMessage.isNotEmpty) {
-      endBefore = oldestCachedMessage.first.createdAt.millisecondsSinceEpoch;
+    if (oldestCachedMessages.isNotEmpty) {
+      endBefore = oldestCachedMessages.first.createdAt.millisecondsSinceEpoch;
     }
 
     // Create a Firebase query to get older messages
     final messages = await _fetchTopicMessagesFromFirebase(
       topicId,
-      limit: limit,
+      limit: limit * 2, // Fetch more to reduce Firebase calls
       endBefore: endBefore,
     );
 
@@ -376,7 +437,12 @@ class PaginatedMessageService extends ChangeNotifier {
         .listen((messages) async {
       if (messages.isNotEmpty) {
         await _cache.storeTopicMessages(topicId, messages);
-        notifyListeners();
+        // Don't notify immediately to avoid interference with initial load
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (!(_topicStates[topicId]?.isLoading ?? false)) {
+            notifyListeners();
+          }
+        });
       }
     });
   }
@@ -384,11 +450,13 @@ class PaginatedMessageService extends ChangeNotifier {
   // Utility Methods
 
   void resetChatPagination(String chatId) {
+    print('PaginatedMessageService: Resetting chat pagination for chatId: $chatId');
     _chatStates[chatId]?.reset();
     notifyListeners();
   }
 
   void resetTopicPagination(String topicId) {
+    print('PaginatedMessageService: Resetting topic pagination for topicId: $topicId');
     _topicStates[topicId]?.reset();
     notifyListeners();
   }

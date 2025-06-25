@@ -415,7 +415,7 @@ class SqliteMessageCache extends ChangeNotifier {
       _chatMessagesTable,
       where: whereClause,
       whereArgs: whereArgs,
-      orderBy: 'created_at ASC',
+      orderBy: 'created_at DESC',
       limit: limit,
       offset: offset,
     );
@@ -509,7 +509,7 @@ class SqliteMessageCache extends ChangeNotifier {
       _topicMessagesTable,
       where: 'topic_id = ?',
       whereArgs: [topicId],
-      orderBy: 'created_at ASC',
+      orderBy: 'created_at DESC',
       limit: limit,
       offset: offset,
     );

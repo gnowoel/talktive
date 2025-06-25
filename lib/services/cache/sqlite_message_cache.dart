@@ -841,9 +841,9 @@ class SqliteMessageCache extends ChangeNotifier {
     if (isImage) {
       return ImageMessage(
         id: map['id'],
-        userId: map['user_id'],
-        userDisplayName: map['user_display_name'],
-        userPhotoURL: map['user_photo_url'],
+        userId: map['user_id'] ?? '',
+        userDisplayName: map['user_display_name'] ?? '',
+        userPhotoURL: map['user_photo_url'] ?? '',
         content: content,
         uri: map['uri'] ?? '',
         createdAt: map['created_at'],
@@ -852,9 +852,9 @@ class SqliteMessageCache extends ChangeNotifier {
     } else {
       return TextMessage(
         id: map['id'],
-        userId: map['user_id'],
-        userDisplayName: map['user_display_name'],
-        userPhotoURL: map['user_photo_url'],
+        userId: map['user_id'] ?? '',
+        userDisplayName: map['user_display_name'] ?? '',
+        userPhotoURL: map['user_photo_url'] ?? '',
         content: content,
         createdAt: map['created_at'],
         recalled: map['recalled'] == 1,
@@ -877,9 +877,9 @@ class SqliteMessageCache extends ChangeNotifier {
     if (isImage) {
       return TopicImageMessage(
         id: map['id'],
-        userId: map['user_id'],
-        userDisplayName: map['user_display_name'],
-        userPhotoURL: map['user_photo_url'],
+        userId: map['user_id'] ?? '',
+        userDisplayName: map['user_display_name'] ?? '',
+        userPhotoURL: map['user_photo_url'] ?? '',
         content: content,
         uri: map['uri'] ?? '',
         createdAt: createdAt,
@@ -887,9 +887,9 @@ class SqliteMessageCache extends ChangeNotifier {
     } else {
       return TopicTextMessage(
         id: map['id'],
-        userId: map['user_id'],
-        userDisplayName: map['user_display_name'],
-        userPhotoURL: map['user_photo_url'],
+        userId: map['user_id'] ?? '',
+        userDisplayName: map['user_display_name'] ?? '',
+        userPhotoURL: map['user_photo_url'] ?? '',
         content: content,
         createdAt: createdAt,
       );

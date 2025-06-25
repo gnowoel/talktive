@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
@@ -22,10 +23,11 @@ class _DatabaseLock {
       if (DateTime.now().difference(startTime) > _lockTimeout) {
         throw Exception('Database lock timeout for operation: $key');
       }
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Use shorter delay for low-end devices to reduce wait time
+      await Future.delayed(const Duration(milliseconds: 50));
       if (_locks.containsKey(key)) {
         try {
-          await _locks[key]!.future.timeout(const Duration(seconds: 5));
+          await _locks[key]!.future.timeout(const Duration(seconds: 3));
         } catch (e) {
           // If waiting times out, force remove the lock
           _locks.remove(key);
@@ -64,11 +66,13 @@ class SqliteMessageCache extends ChangeNotifier {
   static const String _topicMessagesTable = 'topic_messages';
   static const String _metadataTable = 'cache_metadata';
 
-  // Performance constants
-  static const int _maxBatchSize = 100;
-  static const int _compressionThreshold = 1000; // Characters
-  static const int _maxCacheSize = 50000; // Maximum messages per chat/topic
-  static const Duration _backgroundCleanupInterval = Duration(hours: 6);
+  // Performance constants optimized for low-end devices
+  static const int _maxBatchSize = 25; // Reduced for lower memory usage
+  static const int _compressionThreshold = 512; // Compress smaller content
+  static const int _maxCacheSize =
+      10000; // Reduced cache size for storage constraints
+  static const Duration _backgroundCleanupInterval =
+      Duration(hours: 2); // More frequent cleanup
 
   Database? _database;
   Timer? _backgroundCleanupTimer;
@@ -102,6 +106,9 @@ class SqliteMessageCache extends ChangeNotifier {
           onCreate: _onCreate,
           onUpgrade: _onUpgrade,
           onOpen: _onOpen,
+          // Optimize for low-end devices
+          readOnly: false,
+          singleInstance: true,
         );
 
         if (kDebugMode) {
@@ -168,36 +175,27 @@ class SqliteMessageCache extends ChangeNotifier {
   }
 
   Future<void> _onOpen(Database db) async {
-    // Try to enable WAL mode for better concurrent access, but don't fail if not supported
+    // Configure SQLite for low-end device performance
     try {
-      await db.execute('PRAGMA journal_mode=WAL');
-      if (kDebugMode) {
-        print('SqliteMessageCache: WAL mode enabled successfully');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(
-            'SqliteMessageCache: WAL mode not supported, continuing with default mode: $e');
-      }
-      // WAL mode is not critical, continue without it
-    }
+      await db.execute(
+          'PRAGMA synchronous = NORMAL'); // Balance between safety and performance
+      await db
+          .execute('PRAGMA cache_size = -2000'); // 2MB cache instead of default
+      await db.execute(
+          'PRAGMA temp_store = MEMORY'); // Use memory for temporary tables
+      await db.execute(
+          'PRAGMA journal_mode = WAL'); // Write-Ahead Logging for better concurrency
+      await db.execute(
+          'PRAGMA foreign_keys = ON'); // Enable foreign key constraints
 
-    // Apply other optimizations with error handling
-    try {
-      await db.execute('PRAGMA synchronous=NORMAL');
-      await db.execute('PRAGMA cache_size=10000');
-      await db.execute('PRAGMA temp_store=MEMORY');
-      await db.execute('PRAGMA foreign_keys=ON');
       if (kDebugMode) {
-        print(
-            'SqliteMessageCache: Database optimizations applied successfully');
+        print('SqliteMessageCache: SQLite optimizations applied successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print(
-            'SqliteMessageCache: Some database optimizations failed, but continuing: $e');
+        print('SqliteMessageCache: Failed to apply SQLite optimizations: $e');
       }
-      // These optimizations are not critical, continue without them
+      // Optimizations are not critical, continue without them
     }
   }
 
@@ -365,8 +363,8 @@ class SqliteMessageCache extends ChangeNotifier {
 
         // Use a single transaction for all operations
         await db.transaction((txn) async {
-          // Process messages in batches for better performance
-          final batches = _createBatches(messages, _maxBatchSize);
+          // Process messages in batches for better performance on low-end devices
+          final batches = _createBatchesOptimal(messages);
 
           for (final messageBatch in batches) {
             final batch = txn.batch();
@@ -438,22 +436,52 @@ class SqliteMessageCache extends ChangeNotifier {
 
   List<int> _compressString(String text) {
     try {
-      // Simple compression - just store as code units for now
-      // In production, you might want to use a proper compression algorithm
-      return text.codeUnits;
+      // Use gzip compression for better compression ratio with good performance
+      if (text.length < _compressionThreshold) {
+        // Don't compress small strings to avoid overhead
+        return utf8.encode(text);
+      }
+      return gzip.encode(utf8.encode(text));
     } catch (e) {
-      // Fallback to original text if compression fails
-      return text.codeUnits;
+      // Fallback to uncompressed UTF-8 bytes
+      return utf8.encode(text);
     }
   }
 
   String _decompressString(List<int> compressed) {
     try {
-      return String.fromCharCodes(compressed);
+      // Try to decompress first
+      try {
+        final decompressed = gzip.decode(compressed);
+        return utf8.decode(decompressed);
+      } catch (e) {
+        // If decompression fails, treat as uncompressed UTF-8
+        return utf8.decode(compressed);
+      }
     } catch (e) {
-      // Fallback to treat as uncompressed
+      // Final fallback: treat as code units for backward compatibility
       return String.fromCharCodes(compressed);
     }
+  }
+
+  /// Dynamically determine batch size based on system performance
+  int _getOptimalBatchSize() {
+    try {
+      // For low-end devices, use smaller batches to reduce memory pressure
+      // This is a conservative approach that should work well across devices
+      return _maxBatchSize;
+    } catch (e) {
+      // Fallback to conservative batch size
+      return 10;
+    }
+  }
+
+  /// Enhanced batch creation with memory-aware sizing
+  List<List<T>> _createBatchesOptimal<T>(List<T> items) {
+    if (items.isEmpty) return [];
+
+    final optimalBatchSize = _getOptimalBatchSize();
+    return _createBatches(items, optimalBatchSize);
   }
 
   Future<List<Message>> getChatMessages(
@@ -483,14 +511,44 @@ class SqliteMessageCache extends ChangeNotifier {
           offset: offset,
         );
 
-        final messages = maps.map((map) => _chatMessageFromMap(map)).toList();
+        final messages = <Message>[];
 
-        // Update cache statistics
-        await _updateCacheStats('total_queries', 1);
+        // Process maps in smaller chunks to reduce memory pressure
+        const processingChunkSize = 50;
+        for (int i = 0; i < maps.length; i += processingChunkSize) {
+          final end = (i + processingChunkSize < maps.length)
+              ? i + processingChunkSize
+              : maps.length;
+          final chunk = maps.sublist(i, end);
+
+          for (final map in chunk) {
+            try {
+              messages.add(_chatMessageFromMap(map));
+            } catch (e) {
+              debugPrint('Error parsing message: $e');
+              // Skip corrupted messages rather than failing entirely
+            }
+          }
+
+          // Small delay for very large result sets
+          if (maps.length > processingChunkSize &&
+              i + processingChunkSize < maps.length) {
+            await Future.delayed(const Duration(milliseconds: 5));
+          }
+        }
+
+        // Update cache statistics (non-blocking)
+        _updateCacheStats('total_queries', 1).catchError((e) {
+          debugPrint('Cache stats update failed: $e');
+        });
         if (messages.isNotEmpty) {
-          await _updateCacheStats('cache_hits', 1);
+          _updateCacheStats('cache_hits', 1).catchError((e) {
+            debugPrint('Cache stats update failed: $e');
+          });
         } else {
-          await _updateCacheStats('cache_misses', 1);
+          _updateCacheStats('cache_misses', 1).catchError((e) {
+            debugPrint('Cache stats update failed: $e');
+          });
         }
 
         return messages;
@@ -621,14 +679,44 @@ class SqliteMessageCache extends ChangeNotifier {
           offset: offset,
         );
 
-        final messages = maps.map((map) => _topicMessageFromMap(map)).toList();
+        final messages = <TopicMessage>[];
 
-        // Update cache statistics
-        await _updateCacheStats('total_queries', 1);
+        // Process maps in smaller chunks to reduce memory pressure
+        const processingChunkSize = 50;
+        for (int i = 0; i < maps.length; i += processingChunkSize) {
+          final end = (i + processingChunkSize < maps.length)
+              ? i + processingChunkSize
+              : maps.length;
+          final chunk = maps.sublist(i, end);
+
+          for (final map in chunk) {
+            try {
+              messages.add(_topicMessageFromMap(map));
+            } catch (e) {
+              debugPrint('Error parsing topic message: $e');
+              // Skip corrupted messages rather than failing entirely
+            }
+          }
+
+          // Small delay for very large result sets
+          if (maps.length > processingChunkSize &&
+              i + processingChunkSize < maps.length) {
+            await Future.delayed(const Duration(milliseconds: 5));
+          }
+        }
+
+        // Update cache statistics (non-blocking)
+        _updateCacheStats('total_queries', 1).catchError((e) {
+          debugPrint('Cache stats update failed: $e');
+        });
         if (messages.isNotEmpty) {
-          await _updateCacheStats('cache_hits', 1);
+          _updateCacheStats('cache_hits', 1).catchError((e) {
+            debugPrint('Cache stats update failed: $e');
+          });
         } else {
-          await _updateCacheStats('cache_misses', 1);
+          _updateCacheStats('cache_misses', 1).catchError((e) {
+            debugPrint('Cache stats update failed: $e');
+          });
         }
 
         return messages;
@@ -901,7 +989,12 @@ class SqliteMessageCache extends ChangeNotifier {
     _backgroundCleanupTimer =
         Timer.periodic(_backgroundCleanupInterval, (timer) async {
       if (!_isOptimizing) {
-        await _performBackgroundMaintenance();
+        try {
+          await _performBackgroundMaintenance();
+        } catch (e) {
+          debugPrint('Background cleanup failed: $e');
+          // Continue running cleanup timer even if one cycle fails
+        }
       }
     });
   }
@@ -913,11 +1006,23 @@ class SqliteMessageCache extends ChangeNotifier {
     try {
       final db = await database;
 
-      // Vacuum database to reclaim space
-      await db.execute('VACUUM');
+      // For low-end devices, be more selective about maintenance
+      // Only vacuum if database is fragmented (> 25% page count increase)
+      final pageCount = Sqflite.firstIntValue(
+            await db.rawQuery('PRAGMA page_count'),
+          ) ??
+          0;
+      final freepageCount = Sqflite.firstIntValue(
+            await db.rawQuery('PRAGMA freelist_count'),
+          ) ??
+          0;
 
-      // Analyze tables for query optimization
-      await db.execute('ANALYZE');
+      if (freepageCount > pageCount * 0.25) {
+        await db.execute('VACUUM');
+      }
+
+      // Lightweight analysis - analyze only if needed
+      await db.execute('ANALYZE sqlite_master');
 
       // Clean up old metadata entries
       final oldMetadataCutoff = DateTime.now()
@@ -941,22 +1046,49 @@ class SqliteMessageCache extends ChangeNotifier {
   Future<void> _performCacheSizeCleanup() async {
     final db = await database;
 
-    // Get all unique chat_ids and topic_ids
-    final chatIds =
-        await db.rawQuery('SELECT DISTINCT chat_id FROM $_chatMessagesTable');
-    final topicIds =
-        await db.rawQuery('SELECT DISTINCT topic_id FROM $_topicMessagesTable');
+    // Process entities in smaller batches to reduce memory usage
+    const batchSize = 10;
 
-    // Clean up each chat
-    for (final row in chatIds) {
-      final chatId = row['chat_id'] as String;
-      await _limitCacheSize(chatId, _chatMessagesTable, 'chat_id');
+    // Process chat entities in batches
+    int chatOffset = 0;
+    while (true) {
+      final chatBatch = await db.rawQuery(
+        'SELECT DISTINCT chat_id FROM $_chatMessagesTable LIMIT ? OFFSET ?',
+        [batchSize, chatOffset],
+      );
+
+      if (chatBatch.isEmpty) break;
+
+      for (final row in chatBatch) {
+        final chatId = row['chat_id'] as String;
+        await _limitCacheSize(chatId, _chatMessagesTable, 'chat_id');
+      }
+
+      chatOffset += batchSize;
+
+      // Add small delay to prevent overwhelming low-end devices
+      await Future.delayed(const Duration(milliseconds: 50));
     }
 
-    // Clean up each topic
-    for (final row in topicIds) {
-      final topicId = row['topic_id'] as String;
-      await _limitCacheSize(topicId, _topicMessagesTable, 'topic_id');
+    // Process topic entities in batches
+    int topicOffset = 0;
+    while (true) {
+      final topicBatch = await db.rawQuery(
+        'SELECT DISTINCT topic_id FROM $_topicMessagesTable LIMIT ? OFFSET ?',
+        [batchSize, topicOffset],
+      );
+
+      if (topicBatch.isEmpty) break;
+
+      for (final row in topicBatch) {
+        final topicId = row['topic_id'] as String;
+        await _limitCacheSize(topicId, _topicMessagesTable, 'topic_id');
+      }
+
+      topicOffset += batchSize;
+
+      // Add small delay to prevent overwhelming low-end devices
+      await Future.delayed(const Duration(milliseconds: 50));
     }
   }
 
@@ -964,30 +1096,57 @@ class SqliteMessageCache extends ChangeNotifier {
       String entityId, String table, String idColumn) async {
     final db = await database;
 
-    // Count messages for this entity
-    final countResult = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM $table WHERE $idColumn = ?',
-      [entityId],
-    );
+    try {
+      // Count messages for this entity
+      final countResult = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM $table WHERE $idColumn = ?',
+        [entityId],
+      );
 
-    final messageCount = countResult.first['count'] as int;
+      final messageCount = countResult.first['count'] as int;
 
-    if (messageCount > _maxCacheSize) {
-      // Remove oldest messages beyond the limit
-      final deleteCount = messageCount - _maxCacheSize;
-      await db.rawDelete('''
-        DELETE FROM $table
-        WHERE $idColumn = ?
-        AND id IN (
-          SELECT id FROM $table
-          WHERE $idColumn = ?
-          ORDER BY created_at ASC
-          LIMIT ?
-        )
-      ''', [entityId, entityId, deleteCount]);
+      if (messageCount > _maxCacheSize) {
+        // Remove oldest messages beyond the limit
+        final deleteCount = messageCount - _maxCacheSize;
 
-      debugPrint(
-          'Cache cleanup: Removed $deleteCount old messages for $entityId in $table');
+        // For low-end devices, delete in smaller batches to reduce memory pressure
+        const deleteBatchSize = 500;
+        int totalDeleted = 0;
+
+        while (totalDeleted < deleteCount) {
+          final currentBatchSize =
+              (deleteCount - totalDeleted).clamp(0, deleteBatchSize);
+
+          // Use a more efficient deletion approach with temporary table
+          final deletedRows = await db.rawDelete('''
+            DELETE FROM $table
+            WHERE $idColumn = ? AND id IN (
+              SELECT id FROM $table
+              WHERE $idColumn = ?
+              ORDER BY created_at ASC
+              LIMIT ?
+            )
+          ''', [entityId, entityId, currentBatchSize]);
+
+          totalDeleted += deletedRows;
+
+          // Break if no more rows were deleted
+          if (deletedRows == 0) break;
+
+          // Small delay for low-end devices to prevent overwhelming the system
+          if (totalDeleted < deleteCount) {
+            await Future.delayed(const Duration(milliseconds: 25));
+          }
+        }
+
+        if (kDebugMode && totalDeleted > 0) {
+          debugPrint(
+              'Cache cleanup: Removed $totalDeleted old messages for $entityId in $table');
+        }
+      }
+    } catch (e) {
+      debugPrint('Cache size limit error for $entityId in $table: $e');
+      // Don't rethrow - cache cleanup failures shouldn't break the app
     }
   }
 

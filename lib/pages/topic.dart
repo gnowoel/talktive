@@ -42,7 +42,6 @@ class _TopicPageState extends State<TopicPage> {
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
-  late StreamSubscription messagesSubscription;
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
@@ -108,7 +107,6 @@ class _TopicPageState extends State<TopicPage> {
 
   @override
   void dispose() {
-    messagesSubscription.cancel();
     topicSubscription.cancel();
     _scrollController.dispose();
     _focusNode.dispose();

@@ -41,7 +41,7 @@ class PaginatedMessageService extends ChangeNotifier {
     int? chatCreatedAt,
   }) async {
     final loadSize = isInitialLoad ? initialLoadSize : pageSize;
-    print('PaginatedMessageService: loadChatMessages - chatId: $chatId, isInitialLoad: $isInitialLoad, loadSize: $loadSize');
+    debugPrint('PaginatedMessageService: loadChatMessages - chatId: $chatId, isInitialLoad: $isInitialLoad, loadSize: $loadSize');
 
     // Get existing state or create new one
     final state = _chatStates[chatId] ?? ChatPaginationState(chatId: chatId);
@@ -49,7 +49,7 @@ class PaginatedMessageService extends ChangeNotifier {
 
     // Reset state for initial load to ensure we start fresh
     if (isInitialLoad) {
-      print('PaginatedMessageService: Resetting state for initial load - chatId: $chatId');
+      debugPrint('PaginatedMessageService: Resetting state for initial load - chatId: $chatId');
       state.reset();
     }
 
@@ -58,17 +58,25 @@ class PaginatedMessageService extends ChangeNotifier {
       final offset = isInitialLoad ? 0 : state.currentOffset;
 
       // First, try to load from cache
-      final cachedMessages = await _cache.getChatMessages(
-        chatId,
-        limit: loadSize,
-        offset: offset,
-        minCreatedAt: chatCreatedAt,
-      );
+      List<Message> cachedMessages = [];
+      int totalCachedCount = 0;
 
-      final totalCachedCount = await _cache.getChatMessageCount(
-        chatId,
-        minCreatedAt: chatCreatedAt,
-      );
+      try {
+        cachedMessages = await _cache.getChatMessages(
+          chatId,
+          limit: loadSize,
+          offset: offset,
+          minCreatedAt: chatCreatedAt,
+        );
+
+        totalCachedCount = await _cache.getChatMessageCount(
+          chatId,
+          minCreatedAt: chatCreatedAt,
+        );
+      } catch (e) {
+        debugPrint('Cache error in loadChatMessages: $e');
+        // Continue with empty cache results, will load from Firebase
+      }
 
       // Check if we have sufficient messages or if we've reached the end
       final hasEnoughFromCache = cachedMessages.length >= loadSize ||
@@ -83,7 +91,7 @@ class PaginatedMessageService extends ChangeNotifier {
         state.hasMoreMessages = cachedMessages.length == loadSize &&
             state.currentOffset < totalCachedCount;
 
-        print('PaginatedMessageService: Returning from cache - chatId: $chatId, messages: ${cachedMessages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $totalCachedCount');
+        debugPrint('PaginatedMessageService: Returning from cache - chatId: $chatId, messages: ${cachedMessages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $totalCachedCount');
 
         // Start real-time subscription for new messages if this is initial load
         if (isInitialLoad) {
@@ -98,16 +106,27 @@ class PaginatedMessageService extends ChangeNotifier {
       }
 
       // If cache doesn't have enough, load from Firebase
-      print('PaginatedMessageService: Loading from Firebase - chatId: $chatId, cached: ${cachedMessages.length}, needed: $loadSize');
+      debugPrint('PaginatedMessageService: Loading from Firebase - chatId: $chatId, cached: ${cachedMessages.length}, needed: $loadSize');
       await _loadMoreChatMessagesFromFirebase(chatId, loadSize, chatCreatedAt);
 
       // Now get the requested messages from cache
-      final messages = await _cache.getChatMessages(
-        chatId,
-        limit: loadSize,
-        offset: offset,
-        minCreatedAt: chatCreatedAt,
-      );
+      List<Message> messages = [];
+      try {
+        messages = await _cache.getChatMessages(
+          chatId,
+          limit: loadSize,
+          offset: offset,
+          minCreatedAt: chatCreatedAt,
+        );
+      } catch (e) {
+        debugPrint('Cache error after Firebase load: $e');
+        // If cache is still failing, load directly from Firebase
+        messages = await _fetchChatMessagesFromFirebase(
+          chatId,
+          limit: loadSize,
+          minCreatedAt: chatCreatedAt,
+        );
+      }
 
       if (!isInitialLoad) {
         state.currentOffset += messages.length;
@@ -115,14 +134,20 @@ class PaginatedMessageService extends ChangeNotifier {
         state.currentOffset = messages.length;
       }
 
-      final updatedTotalCount = await _cache.getChatMessageCount(
-        chatId,
-        minCreatedAt: chatCreatedAt,
-      );
+      int updatedTotalCount = messages.length;
+      try {
+        updatedTotalCount = await _cache.getChatMessageCount(
+          chatId,
+          minCreatedAt: chatCreatedAt,
+        );
+      } catch (e) {
+        debugPrint('Cache count error: $e');
+        // Use message length as fallback
+      }
       state.hasMoreMessages = messages.length == loadSize &&
           state.currentOffset < updatedTotalCount;
 
-      print('PaginatedMessageService: Returning from Firebase - chatId: $chatId, messages: ${messages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $updatedTotalCount');
+      debugPrint('PaginatedMessageService: Returning from Firebase - chatId: $chatId, messages: ${messages.length}, offset: ${state.currentOffset}, hasMore: ${state.hasMoreMessages}, totalCached: $updatedTotalCount');
 
       // Start real-time subscription for new messages if this is initial load
       if (isInitialLoad) {
@@ -193,7 +218,12 @@ class PaginatedMessageService extends ChangeNotifier {
 
     // Store the fetched messages in cache
     if (messages.isNotEmpty) {
-      await _cache.storeChatMessages(chatId, messages);
+      try {
+        await _cache.storeChatMessages(chatId, messages);
+      } catch (e) {
+        debugPrint('Cache store error in _loadMoreChatMessagesFromFirebase: $e');
+        // Continue without caching - messages are still available from Firebase
+      }
     }
   }
 
@@ -229,7 +259,13 @@ class PaginatedMessageService extends ChangeNotifier {
     await _chatSubscriptions[chatId]?.cancel();
 
     // Get the latest message timestamp for subscription
-    final lastTimestamp = await _cache.getLastChatMessageTimestamp(chatId);
+    int? lastTimestamp;
+    try {
+      lastTimestamp = await _cache.getLastChatMessageTimestamp(chatId);
+    } catch (e) {
+      debugPrint('Cache error getting last timestamp: $e');
+      // Continue with null timestamp to get all messages
+    }
 
     // Subscribe to new messages only
     _chatSubscriptions[chatId] = _firedata
@@ -243,13 +279,19 @@ class PaginatedMessageService extends ChangeNotifier {
             .toList();
 
         if (filteredMessages.isNotEmpty) {
-          await _cache.storeChatMessages(chatId, filteredMessages);
-          // Don't notify immediately to avoid interference with initial load
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (!(_chatStates[chatId]?.isLoading ?? false)) {
-              notifyListeners();
-            }
-          });
+          try {
+            await _cache.storeChatMessages(chatId, filteredMessages);
+            // Don't notify immediately to avoid interference with initial load
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (!(_chatStates[chatId]?.isLoading ?? false)) {
+                notifyListeners();
+              }
+            });
+          } catch (e) {
+            debugPrint('Cache error in real-time subscription: $e');
+            // Still notify listeners even if caching fails
+            notifyListeners();
+          }
         }
       }
     });
@@ -279,13 +321,21 @@ class PaginatedMessageService extends ChangeNotifier {
       final offset = isInitialLoad ? 0 : state.currentOffset;
 
       // First, try to load from cache
-      final cachedMessages = await _cache.getTopicMessages(
-        topicId,
-        limit: loadSize,
-        offset: offset,
-      );
+      List<TopicMessage> cachedMessages = [];
+      int totalCachedCount = 0;
 
-      final totalCachedCount = await _cache.getTopicMessageCount(topicId);
+      try {
+        cachedMessages = await _cache.getTopicMessages(
+          topicId,
+          limit: loadSize,
+          offset: offset,
+        );
+
+        totalCachedCount = await _cache.getTopicMessageCount(topicId);
+      } catch (e) {
+        debugPrint('Cache error in loadTopicMessages: $e');
+        // Continue with empty cache results, will load from Firebase
+      }
 
       // Check if we have sufficient messages or if we've reached the end
       final hasEnoughFromCache = cachedMessages.length >= loadSize ||
@@ -316,11 +366,21 @@ class PaginatedMessageService extends ChangeNotifier {
       await _loadMoreTopicMessagesFromFirebase(topicId, loadSize);
 
       // Now get the requested messages from cache
-      final messages = await _cache.getTopicMessages(
-        topicId,
-        limit: loadSize,
-        offset: offset,
-      );
+      List<TopicMessage> messages = [];
+      try {
+        messages = await _cache.getTopicMessages(
+          topicId,
+          limit: loadSize,
+          offset: offset,
+        );
+      } catch (e) {
+        debugPrint('Cache error after Firebase load: $e');
+        // If cache is still failing, load directly from Firebase
+        messages = await _fetchTopicMessagesFromFirebase(
+          topicId,
+          limit: loadSize,
+        );
+      }
 
       if (!isInitialLoad) {
         state.currentOffset += messages.length;
@@ -328,7 +388,13 @@ class PaginatedMessageService extends ChangeNotifier {
         state.currentOffset = messages.length;
       }
 
-      final updatedTotalCount = await _cache.getTopicMessageCount(topicId);
+      int updatedTotalCount = messages.length;
+      try {
+        updatedTotalCount = await _cache.getTopicMessageCount(topicId);
+      } catch (e) {
+        debugPrint('Cache count error: $e');
+        // Use message length as fallback
+      }
       state.hasMoreMessages = messages.length == loadSize &&
                              state.currentOffset < updatedTotalCount;
 
@@ -398,7 +464,12 @@ class PaginatedMessageService extends ChangeNotifier {
 
     // Store the fetched messages in cache
     if (messages.isNotEmpty) {
-      await _cache.storeTopicMessages(topicId, messages);
+      try {
+        await _cache.storeTopicMessages(topicId, messages);
+      } catch (e) {
+        debugPrint('Cache store error in _loadMoreTopicMessagesFromFirebase: $e');
+        // Continue without caching - messages are still available from Firebase
+      }
     }
   }
 
@@ -429,20 +500,32 @@ class PaginatedMessageService extends ChangeNotifier {
     await _topicSubscriptions[topicId]?.cancel();
 
     // Get the latest message timestamp for subscription
-    final lastTimestamp = await _cache.getLastTopicMessageTimestamp(topicId);
+    int? lastTimestampMs;
+    try {
+      lastTimestampMs = await _cache.getLastTopicMessageTimestamp(topicId);
+    } catch (e) {
+      debugPrint('Cache error getting last topic timestamp: $e');
+      // Continue with null timestamp to get all messages
+    }
 
     // Subscribe to new messages only
     _topicSubscriptions[topicId] = _firestore
-        .subscribeToTopicMessages(topicId, lastTimestamp)
+        .subscribeToTopicMessages(topicId, lastTimestampMs)
         .listen((messages) async {
       if (messages.isNotEmpty) {
-        await _cache.storeTopicMessages(topicId, messages);
-        // Don't notify immediately to avoid interference with initial load
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (!(_topicStates[topicId]?.isLoading ?? false)) {
-            notifyListeners();
-          }
-        });
+        try {
+          await _cache.storeTopicMessages(topicId, messages);
+          // Don't notify immediately to avoid interference with initial load
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (!(_topicStates[topicId]?.isLoading ?? false)) {
+              notifyListeners();
+            }
+          });
+        } catch (e) {
+          debugPrint('Cache error in topic real-time subscription: $e');
+          // Still notify listeners even if caching fails
+          notifyListeners();
+        }
       }
     });
   }
@@ -450,13 +533,13 @@ class PaginatedMessageService extends ChangeNotifier {
   // Utility Methods
 
   void resetChatPagination(String chatId) {
-    print('PaginatedMessageService: Resetting chat pagination for chatId: $chatId');
+    debugPrint('PaginatedMessageService: Resetting chat pagination for chatId: $chatId');
     _chatStates[chatId]?.reset();
     notifyListeners();
   }
 
   void resetTopicPagination(String topicId) {
-    print('PaginatedMessageService: Resetting topic pagination for topicId: $topicId');
+    debugPrint('PaginatedMessageService: Resetting topic pagination for topicId: $topicId');
     _topicStates[topicId]?.reset();
     notifyListeners();
   }
@@ -473,7 +556,12 @@ class PaginatedMessageService extends ChangeNotifier {
     await _chatSubscriptions[chatId]?.cancel();
     _chatSubscriptions.remove(chatId);
     _chatStates.remove(chatId);
-    await _cache.clearChatMessages(chatId);
+    try {
+      await _cache.clearChatMessages(chatId);
+    } catch (e) {
+      debugPrint('Cache error clearing chat data: $e');
+      // Continue anyway
+    }
     notifyListeners();
   }
 
@@ -481,7 +569,12 @@ class PaginatedMessageService extends ChangeNotifier {
     await _topicSubscriptions[topicId]?.cancel();
     _topicSubscriptions.remove(topicId);
     _topicStates.remove(topicId);
-    await _cache.clearTopicMessages(topicId);
+    try {
+      await _cache.clearTopicMessages(topicId);
+    } catch (e) {
+      debugPrint('Cache error clearing topic data: $e');
+      // Continue anyway
+    }
     notifyListeners();
   }
 

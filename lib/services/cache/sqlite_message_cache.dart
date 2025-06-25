@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/message.dart';
 import '../../models/image_message.dart';
@@ -9,7 +10,52 @@ import '../../models/text_message.dart';
 import '../../models/topic_message.dart';
 import 'database_init.dart';
 
+class _DatabaseLock {
+  final Map<String, Completer<void>> _locks = {};
+  static const Duration _lockTimeout = Duration(seconds: 30);
+
+  Future<T> withLock<T>(String key, Future<T> Function() operation) async {
+    final startTime = DateTime.now();
+
+    // Wait for any existing operation on this key with timeout
+    while (_locks.containsKey(key)) {
+      if (DateTime.now().difference(startTime) > _lockTimeout) {
+        throw Exception('Database lock timeout for operation: $key');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (_locks.containsKey(key)) {
+        try {
+          await _locks[key]!.future.timeout(const Duration(seconds: 5));
+        } catch (e) {
+          // If waiting times out, force remove the lock
+          _locks.remove(key);
+          break;
+        }
+      }
+    }
+
+    // Create a new lock for this operation
+    final completer = Completer<void>();
+    _locks[key] = completer;
+
+    try {
+      final result = await operation().timeout(_lockTimeout);
+      return result;
+    } catch (e) {
+      debugPrint('Database operation failed for $key: $e');
+      rethrow;
+    } finally {
+      // Release the lock
+      _locks.remove(key);
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    }
+  }
+}
+
 class SqliteMessageCache extends ChangeNotifier {
+  static final _DatabaseLock _dbLock = _DatabaseLock();
   static const String _databaseName = 'talktive_cache.db';
   static const int _databaseVersion = 2;
 
@@ -312,58 +358,70 @@ class SqliteMessageCache extends ChangeNotifier {
   Future<void> storeChatMessages(String chatId, List<Message> messages) async {
     if (messages.isEmpty) return;
 
-    final db = await database;
-    final now = DateTime.now().millisecondsSinceEpoch;
+    return _withDatabaseLock('store_chat_$chatId', () async {
+      try {
+        final db = await database;
+        final now = DateTime.now().millisecondsSinceEpoch;
 
-    // Process messages in batches for better performance
-    final batches = _createBatches(messages, _maxBatchSize);
+        // Use a single transaction for all operations
+        await db.transaction((txn) async {
+          // Process messages in batches for better performance
+          final batches = _createBatches(messages, _maxBatchSize);
 
-    for (final messageBatch in batches) {
-      final batch = db.batch();
+          for (final messageBatch in batches) {
+            final batch = txn.batch();
 
-      for (final message in messageBatch) {
-        final content = message.content;
-        final contentSize = content.length;
-        final shouldCompress = contentSize > _compressionThreshold;
+            for (final message in messageBatch) {
+              final content = message.content;
+              final contentSize = content.length;
+              final shouldCompress = contentSize > _compressionThreshold;
 
-        Map<String, dynamic> messageData = {
-          'id': message.id,
-          'chat_id': chatId,
-          'type': message.runtimeType == ImageMessage ? 'image' : 'text',
-          'user_id': message.userId,
-          'user_display_name': message.userDisplayName,
-          'user_photo_url': message.userPhotoURL,
-          'content': shouldCompress ? '' : content,
-          'content_compressed':
-              shouldCompress ? _compressString(content) : null,
-          'uri': message is ImageMessage ? message.uri : null,
-          'created_at': message.createdAt,
-          'recalled': message.recalled ? 1 : 0,
-          'cached_at': now,
-          'content_size': contentSize,
-          'is_compressed': shouldCompress ? 1 : 0,
-        };
+              Map<String, dynamic> messageData = {
+                'id': message.id,
+                'chat_id': chatId,
+                'type': message.runtimeType == ImageMessage ? 'image' : 'text',
+                'user_id': message.userId,
+                'user_display_name': message.userDisplayName,
+                'user_photo_url': message.userPhotoURL,
+                'content': shouldCompress ? '' : content,
+                'content_compressed':
+                    shouldCompress ? _compressString(content) : null,
+                'uri': message is ImageMessage ? message.uri : null,
+                'created_at': message.createdAt,
+                'recalled': message.recalled ? 1 : 0,
+                'cached_at': now,
+                'content_size': contentSize,
+                'is_compressed': shouldCompress ? 1 : 0,
+              };
 
-        batch.insert(
-          _chatMessagesTable,
-          messageData,
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+              batch.insert(
+                _chatMessagesTable,
+                messageData,
+                conflictAlgorithm: ConflictAlgorithm.replace,
+              );
+            }
+
+            await batch.commit(noResult: true);
+          }
+
+          // Update last sync timestamp within the same transaction
+          await txn.insert(
+            _metadataTable,
+            {
+              'key': 'last_sync_chat_$chatId',
+              'value': now.toString(),
+              'updated_at': now,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        });
+
+        notifyListeners();
+      } catch (e) {
+        debugPrint('Error storing chat messages: $e');
+        rethrow;
       }
-
-      await batch.commit(noResult: true);
-    }
-
-    // Update last sync timestamp
-    await _updateLastSyncTimestamp('chat_$chatId', now);
-
-    // Update cache statistics
-    await _updateCacheStats('cache_hits', messages.length);
-
-    // Check if we need to cleanup old messages
-    await _checkAndCleanupOldMessages(chatId, _chatMessagesTable);
-
-    notifyListeners();
+    });
   }
 
   List<List<T>> _createBatches<T>(List<T> items, int batchSize) {
@@ -401,60 +459,71 @@ class SqliteMessageCache extends ChangeNotifier {
     int? offset,
     int? minCreatedAt,
   }) async {
-    final db = await database;
+    return _withDatabaseLock('get_chat_$chatId', () async {
+      try {
+        final db = await database;
 
-    String whereClause = 'chat_id = ?';
-    List<dynamic> whereArgs = [chatId];
+        String whereClause = 'chat_id = ?';
+        List<dynamic> whereArgs = [chatId];
 
-    if (minCreatedAt != null) {
-      whereClause += ' AND created_at >= ?';
-      whereArgs.add(minCreatedAt);
-    }
+        if (minCreatedAt != null) {
+          whereClause += ' AND created_at >= ?';
+          whereArgs.add(minCreatedAt);
+        }
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      _chatMessagesTable,
-      where: whereClause,
-      whereArgs: whereArgs,
-      orderBy: 'created_at DESC',
-      limit: limit,
-      offset: offset,
-    );
+        final List<Map<String, dynamic>> maps = await db.query(
+          _chatMessagesTable,
+          where: whereClause,
+          whereArgs: whereArgs,
+          orderBy: 'created_at DESC',
+          limit: limit,
+          offset: offset,
+        );
 
-    return maps.map((map) => _chatMessageFromMap(map)).toList();
+        return maps.map((map) => _chatMessageFromMap(map)).toList();
+      } catch (e) {
+        debugPrint('Error getting chat messages for $chatId: $e');
+        return <Message>[]; // Return empty list on error
+      }
+    });
   }
 
   Future<int> getChatMessageCount(String chatId, {int? minCreatedAt}) async {
-    final db = await database;
+    return _withDatabaseLock('count_chat_$chatId', () async {
+      final db = await database;
 
-    String whereClause = 'chat_id = ?';
-    List<dynamic> whereArgs = [chatId];
+      String whereClause = 'chat_id = ?';
+      List<dynamic> whereArgs = [chatId];
 
-    if (minCreatedAt != null) {
-      whereClause += ' AND created_at >= ?';
-      whereArgs.add(minCreatedAt);
-    }
+      if (minCreatedAt != null) {
+        whereClause += ' AND created_at >= ?';
+        whereArgs.add(minCreatedAt);
+      }
 
-    final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM $_chatMessagesTable WHERE $whereClause',
-      whereArgs,
-    );
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM $_chatMessagesTable WHERE $whereClause',
+        whereArgs,
+      );
 
-    return result.first['count'] as int;
+      return Sqflite.firstIntValue(result) ?? 0;
+    });
   }
 
   Future<Message?> getLatestChatMessage(String chatId) async {
-    final db = await database;
+    return _withDatabaseLock('latest_chat_$chatId', () async {
+      final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      _chatMessagesTable,
-      where: 'chat_id = ?',
-      whereArgs: [chatId],
-      orderBy: 'created_at DESC',
-      limit: 1,
-    );
+      final List<Map<String, dynamic>> maps = await db.query(
+        _chatMessagesTable,
+        where: 'chat_id = ?',
+        whereArgs: [chatId],
+        orderBy: 'created_at DESC',
+        limit: 1,
+      );
 
-    if (maps.isEmpty) return null;
-    return _chatMessageFromMap(maps.first);
+      if (maps.isEmpty) return null;
+      return _chatMessageFromMap(maps.first);
+    });
   }
 
   Future<int?> getLastChatMessageTimestamp(String chatId) async {
@@ -467,35 +536,54 @@ class SqliteMessageCache extends ChangeNotifier {
       String topicId, List<TopicMessage> messages) async {
     if (messages.isEmpty) return;
 
-    final db = await database;
-    final batch = db.batch();
-    final now = DateTime.now().millisecondsSinceEpoch;
+    return _withDatabaseLock('store_topic_$topicId', () async {
+      try {
+        final db = await database;
+        final now = DateTime.now().millisecondsSinceEpoch;
 
-    for (final message in messages) {
-      batch.insert(
-        _topicMessagesTable,
-        {
-          'id': message.id,
-          'topic_id': topicId,
-          'type': message.runtimeType == TopicImageMessage ? 'image' : 'text',
-          'user_id': message.userId,
-          'user_display_name': message.userDisplayName,
-          'user_photo_url': message.userPhotoURL,
-          'content': message.content,
-          'uri': message is TopicImageMessage ? message.uri : null,
-          'created_at': message.createdAt.millisecondsSinceEpoch,
-          'cached_at': now,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
+        // Use a single transaction for all operations
+        await db.transaction((txn) async {
+          final batch = txn.batch();
 
-    await batch.commit(noResult: true);
+          for (final message in messages) {
+            batch.insert(
+              _topicMessagesTable,
+              {
+                'id': message.id,
+                'topic_id': topicId,
+                'type': message.runtimeType == TopicImageMessage ? 'image' : 'text',
+                'user_id': message.userId,
+                'user_display_name': message.userDisplayName,
+                'user_photo_url': message.userPhotoURL,
+                'content': message.content,
+                'uri': message is TopicImageMessage ? message.uri : null,
+                'created_at': message.createdAt.millisecondsSinceEpoch,
+                'cached_at': now,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
 
-    // Update last sync timestamp
-    await _updateLastSyncTimestamp('topic_$topicId', now);
+          await batch.commit(noResult: true);
 
-    notifyListeners();
+          // Update last sync timestamp within the same transaction
+          await txn.insert(
+            _metadataTable,
+            {
+              'key': 'last_sync_topic_$topicId',
+              'value': now.toString(),
+              'updated_at': now,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        });
+
+        notifyListeners();
+      } catch (e) {
+        debugPrint('Error storing topic messages: $e');
+        rethrow;
+      }
+    });
   }
 
   Future<List<TopicMessage>> getTopicMessages(
@@ -503,44 +591,55 @@ class SqliteMessageCache extends ChangeNotifier {
     int? limit,
     int? offset,
   }) async {
-    final db = await database;
+    return _withDatabaseLock('get_topic_$topicId', () async {
+      try {
+        final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      _topicMessagesTable,
-      where: 'topic_id = ?',
-      whereArgs: [topicId],
-      orderBy: 'created_at DESC',
-      limit: limit,
-      offset: offset,
-    );
+        final List<Map<String, dynamic>> maps = await db.query(
+          _topicMessagesTable,
+          where: 'topic_id = ?',
+          whereArgs: [topicId],
+          orderBy: 'created_at DESC',
+          limit: limit,
+          offset: offset,
+        );
 
-    return maps.map((map) => _topicMessageFromMap(map)).toList();
+        return maps.map((map) => _topicMessageFromMap(map)).toList();
+      } catch (e) {
+        debugPrint('Error getting topic messages for $topicId: $e');
+        return <TopicMessage>[]; // Return empty list on error
+      }
+    });
   }
 
   Future<int> getTopicMessageCount(String topicId) async {
-    final db = await database;
+    return _withDatabaseLock('count_topic_$topicId', () async {
+      final db = await database;
 
-    final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM $_topicMessagesTable WHERE topic_id = ?',
-      [topicId],
-    );
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM $_topicMessagesTable WHERE topic_id = ?',
+        [topicId],
+      );
 
-    return result.first['count'] as int;
+      return Sqflite.firstIntValue(result) ?? 0;
+    });
   }
 
   Future<TopicMessage?> getLatestTopicMessage(String topicId) async {
-    final db = await database;
+    return _withDatabaseLock('latest_topic_$topicId', () async {
+      final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      _topicMessagesTable,
-      where: 'topic_id = ?',
-      whereArgs: [topicId],
-      orderBy: 'created_at DESC',
-      limit: 1,
-    );
+      final List<Map<String, dynamic>> maps = await db.query(
+        _topicMessagesTable,
+        where: 'topic_id = ?',
+        whereArgs: [topicId],
+        orderBy: 'created_at DESC',
+        limit: 1,
+      );
 
-    if (maps.isEmpty) return null;
-    return _topicMessageFromMap(maps.first);
+      if (maps.isEmpty) return null;
+      return _topicMessageFromMap(maps.first);
+    });
   }
 
   Future<int?> getLastTopicMessageTimestamp(String topicId) async {
@@ -550,91 +649,151 @@ class SqliteMessageCache extends ChangeNotifier {
 
   // Cache Management Methods
   Future<void> cleanupOldMessages({int maxAgeInDays = 30}) async {
-    final db = await database;
-    final cutoffTime = DateTime.now()
-        .subtract(Duration(days: maxAgeInDays))
-        .millisecondsSinceEpoch;
+    return _withDatabaseLock('cleanup', () async {
+      final db = await database;
+      final cutoffTime = DateTime.now()
+          .subtract(Duration(days: maxAgeInDays))
+          .millisecondsSinceEpoch;
 
-    await db.delete(
-      _chatMessagesTable,
-      where: 'cached_at < ?',
-      whereArgs: [cutoffTime],
-    );
+      await db.transaction((txn) async {
+        await txn.delete(
+          _chatMessagesTable,
+          where: 'cached_at < ?',
+          whereArgs: [cutoffTime],
+        );
 
-    await db.delete(
-      _topicMessagesTable,
-      where: 'cached_at < ?',
-      whereArgs: [cutoffTime],
-    );
-
-    notifyListeners();
+        await txn.delete(
+          _topicMessagesTable,
+          where: 'cached_at < ?',
+          whereArgs: [cutoffTime],
+        );
+      });
+    });
   }
 
   Future<void> clearChatMessages(String chatId) async {
-    final db = await database;
-    await db.delete(
-      _chatMessagesTable,
-      where: 'chat_id = ?',
-      whereArgs: [chatId],
-    );
+    return _withDatabaseLock('clear_chat_$chatId', () async {
+      final db = await database;
+      await db.transaction((txn) async {
+        await txn.delete(
+          _chatMessagesTable,
+          where: 'chat_id = ?',
+          whereArgs: [chatId],
+        );
 
-    await _removeLastSyncTimestamp('chat_$chatId');
-    notifyListeners();
+        await txn.delete(
+          _metadataTable,
+          where: 'key = ?',
+          whereArgs: ['last_sync_chat_$chatId'],
+        );
+      });
+    });
   }
 
   Future<void> clearTopicMessages(String topicId) async {
-    final db = await database;
-    await db.delete(
-      _topicMessagesTable,
-      where: 'topic_id = ?',
-      whereArgs: [topicId],
-    );
+    return _withDatabaseLock('clear_topic_$topicId', () async {
+      final db = await database;
+      await db.transaction((txn) async {
+        await txn.delete(
+          _topicMessagesTable,
+          where: 'topic_id = ?',
+          whereArgs: [topicId],
+        );
 
-    await _removeLastSyncTimestamp('topic_$topicId');
-    notifyListeners();
+        await txn.delete(
+          _metadataTable,
+          where: 'key = ?',
+          whereArgs: ['last_sync_topic_$topicId'],
+        );
+      });
+    });
   }
 
   Future<void> clearAllCache() async {
-    final db = await database;
-    await db.delete(_chatMessagesTable);
-    await db.delete(_topicMessagesTable);
-    await db.delete(_metadataTable);
-    notifyListeners();
+    return _withDatabaseLock('clear_all', () async {
+      final db = await database;
+      await db.transaction((txn) async {
+        await txn.delete(_chatMessagesTable);
+        await txn.delete(_topicMessagesTable);
+        await txn.delete(_metadataTable);
+      });
+    });
+  }
+
+  // Helper method to wrap database operations with locking and retry
+  Future<T> _withDatabaseLock<T>(String operation, Future<T> Function() callback) async {
+    const maxRetries = 3;
+    const retryDelay = Duration(milliseconds: 500);
+
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await _dbLock.withLock('db_$operation', callback);
+      } catch (e) {
+        debugPrint('Database operation attempt $attempt failed for $operation: $e');
+
+        if (attempt == maxRetries) {
+          // If all retries failed, check if database is corrupted
+          if (e.toString().contains('database is locked') ||
+              e.toString().contains('database disk image is malformed')) {
+            debugPrint('Database appears to be corrupted, attempting recovery...');
+            try {
+              await _handleCorruptedDatabase();
+              // Try one more time after recovery
+              return await _dbLock.withLock('db_$operation', callback);
+            } catch (recoveryError) {
+              debugPrint('Database recovery failed: $recoveryError');
+              rethrow;
+            }
+          }
+          rethrow;
+        }
+
+        // Wait before retry
+        await Future.delayed(retryDelay * attempt);
+      }
+    }
+
+    throw Exception('Unreachable code');
+  }
+
+  Future<void> _handleCorruptedDatabase() async {
+    try {
+      debugPrint('Attempting to recover corrupted database...');
+
+      // Close existing database connection
+      final db = _database;
+      if (db != null) {
+        await db.close();
+        _database = null;
+      }
+
+      // Delete the corrupted database file
+      final databasePath = join(await getDatabasesPath(), _databaseName);
+      await _deleteCorruptedDatabase(databasePath);
+
+      // Reinitialize the database
+      _database = await _initDatabase();
+
+      debugPrint('Database recovery completed successfully');
+    } catch (e) {
+      debugPrint('Database recovery failed: $e');
+      rethrow;
+    }
   }
 
   // Metadata Management
-  Future<void> _updateLastSyncTimestamp(String key, int timestamp) async {
-    final db = await database;
-    await db.insert(
-      _metadataTable,
-      {
-        'key': 'last_sync_$key',
-        'value': timestamp.toString(),
-        'updated_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
   Future<int?> getLastSyncTimestamp(String key) async {
-    final db = await database;
-    final result = await db.query(
-      _metadataTable,
-      where: 'key = ?',
-      whereArgs: ['last_sync_$key'],
-    );
+    return _withDatabaseLock('sync_$key', () async {
+      final db = await database;
+      final result = await db.query(
+        _metadataTable,
+        where: 'key = ?',
+        whereArgs: ['last_sync_$key'],
+      );
 
-    if (result.isEmpty) return null;
-    return int.tryParse(result.first['value'] as String);
-  }
-
-  Future<void> _removeLastSyncTimestamp(String key) async {
-    final db = await database;
-    await db.delete(
-      _metadataTable,
-      where: 'key = ?',
-      whereArgs: ['last_sync_$key'],
-    );
+      if (result.isEmpty) return null;
+      return int.tryParse(result.first['value'] as String? ?? '');
+    });
   }
 
   // Helper Methods

@@ -61,6 +61,9 @@ class _TopicPageState extends State<TopicPage> {
 
     paginatedMessageService = context.read<PaginatedMessageService>();
 
+    // Reset pagination state to ensure fresh loading when entering topic
+    paginatedMessageService.resetTopicPagination(widget.topicId);
+
     final userId = fireauth.instance.currentUser!.uid;
 
     topicSubscription =

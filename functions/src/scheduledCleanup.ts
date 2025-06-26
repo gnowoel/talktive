@@ -23,6 +23,7 @@ const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeTopicDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeChatReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
 const timeBeforeMessageReportDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
+const timeBeforeTopicHiding = 1 * day; // Hide topics after 24 hours
 
 interface Params {
   [id: string]: null;
@@ -174,6 +175,7 @@ const cleanup = async () => {
   try {
     await cleanupUsers();
     await cleanupPairs();
+    await hideOldPublicTopics();
     await cleanupTopics();
     await cleanupChatReports();
     await cleanupMessageReports();
@@ -481,6 +483,45 @@ const removePair = async (pairId: string) => {
     await pairRef.remove();
   } catch (error) {
     logger.error(error);
+  }
+};
+
+const hideOldPublicTopics = async () => {
+  try {
+    const now = Timestamp.now();
+    const cutoffTime = new Timestamp(
+      now.seconds - Math.floor(timeBeforeTopicHiding / 1000),
+      now.nanoseconds
+    );
+
+    // Query for public topics older than 24 hours
+    const topicsSnapshot = await firestore
+      .collection('topics')
+      .where('isPublic', '==', true)
+      .where('createdAt', '<=', cutoffTime)
+      .limit(100) // Process in smaller batches
+      .get();
+
+    if (topicsSnapshot.empty) return;
+
+    logger.info(`Found ${topicsSnapshot.size} public topics older than 24 hours to hide`);
+
+    // Process topics in batches using SafeBatch
+    const batch = new SafeBatch();
+
+    for (const topicDoc of topicsSnapshot.docs) {
+      batch.update(topicDoc.ref, {
+        isPublic: false,
+        updatedAt: now,
+      });
+    }
+
+    if (batch.hasOperations()) {
+      await batch.commit();
+      logger.info(`Successfully hid ${topicsSnapshot.size} old public topics`);
+    }
+  } catch (error) {
+    logger.error('Error in hideOldPublicTopics:', error);
   }
 };
 

@@ -7,11 +7,11 @@ import '../helpers/exception.dart';
 import '../models/chat.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/paginated_message_service.dart';
+import '../services/simple_paginated_message_service.dart';
 
 import '../widgets/hearts.dart';
 import '../widgets/layout.dart';
-import '../widgets/message_list.dart';
+import '../widgets/simple_paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ReportPage extends StatefulWidget {
@@ -83,7 +83,8 @@ class _ReportPageState extends State<ReportPage> {
 
     // Real-time message updates are now handled by the paginated service
     // Load initial messages through the paginated service
-    final paginatedMessageService = context.read<PaginatedMessageService>();
+    final paginatedMessageService =
+        context.read<SimplePaginatedMessageService>();
     paginatedMessageService.loadChatMessages(
       widget.chat.id,
       isInitialLoad: true,
@@ -175,13 +176,13 @@ class _ReportPageState extends State<ReportPage> {
             children: [
               const SizedBox(height: 10),
               Expanded(
-                child: MessageList(
+                child: SimplePaginatedMessageList.chat(
+                  id: _chat.id,
                   chat: _chat,
                   focusNode: focusNode,
                   scrollController: scrollController,
                   updateMessageCount: (int count) {},
                   reporterUserId: widget.userId,
-                  isSticky: false,
                 ),
               ),
             ],

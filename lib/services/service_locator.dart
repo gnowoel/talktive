@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
-import 'cache/sqlite_message_cache.dart';
-import 'paginated_message_service.dart';
+import 'simple_paginated_message_service.dart';
 import 'fireauth.dart';
 import 'firedata.dart';
 import 'firestore.dart';
@@ -26,8 +25,7 @@ class ServiceLocator {
   ServiceLocator._();
 
   // Services
-  SqliteMessageCache? _sqliteCache;
-  PaginatedMessageService? _paginatedMessageService;
+  SimplePaginatedMessageService? _simplePaginatedMessageService;
   ErrorRecoveryService? _errorRecoveryService;
 
   bool _isInitialized = false;
@@ -47,7 +45,7 @@ class ServiceLocator {
   /// Get time when services were initialized
   DateTime? get initializationTime => _initializationTime;
 
-  /// Initialize all services with enhanced error handling and tracking
+  /// Initialize all services - simplified without SQLite cache
   Future<void> initialize() async {
     if (_isInitialized) return;
     if (_isInitializing) {
@@ -63,45 +61,7 @@ class ServiceLocator {
 
     try {
       if (kDebugMode) {
-        print('ServiceLocator: Starting initialization...');
-      }
-
-      // Initialize SQLite cache first
-      if (kDebugMode) {
-        print('ServiceLocator: Creating SQLite cache instance...');
-      }
-      _sqliteCache = SqliteMessageCache();
-
-      // Initialize the database
-      if (kDebugMode) {
-        print('ServiceLocator: Initializing SQLite database...');
-      }
-      try {
-        await _sqliteCache!.database;
-        if (kDebugMode) {
-          print('ServiceLocator: SQLite database initialized successfully');
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('ServiceLocator: SQLite database initialization failed: $e');
-        }
-        throw Exception('Failed to initialize local database: ${e.toString()}');
-      }
-
-      // Perform initial cleanup of old messages (older than 30 days)
-      if (kDebugMode) {
-        print('ServiceLocator: Starting database cleanup...');
-      }
-      try {
-        await _sqliteCache!.cleanupOldMessages(maxAgeInDays: 30);
-        if (kDebugMode) {
-          print('ServiceLocator: Database cleanup completed');
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('ServiceLocator: Database cleanup failed: $e');
-        }
-        // Cleanup failure is not critical, continue
+        print('ServiceLocator: Starting simplified initialization...');
       }
 
       // Initialize error recovery service (optional)
@@ -137,74 +97,42 @@ class ServiceLocator {
         print('ServiceLocator: Stack trace: ${StackTrace.current}');
       }
 
-      // Provide more user-friendly error messages
-      String userFriendlyMessage;
-      if (e.toString().contains('DatabaseException') ||
-          e.toString().contains('database') ||
-          e.toString().contains('SQLite')) {
-        userFriendlyMessage =
-            'Failed to initialize local storage. This may be due to insufficient permissions or corrupted data.';
-      } else {
-        userFriendlyMessage = 'Service initialization failed: ${e.toString()}';
-      }
-
-      throw Exception(userFriendlyMessage);
+      throw Exception('Service initialization failed: ${e.toString()}');
     } finally {
       _isInitializing = false;
     }
   }
 
-  /// Create paginated message service with dependencies
-  PaginatedMessageService createPaginatedMessageService({
+  /// Create simplified paginated message service with dependencies
+  SimplePaginatedMessageService createSimplePaginatedMessageService({
     required Firedata firedata,
     required Firestore firestore,
   }) {
-    if (!_isInitialized) {
-      throw StateError(
-          'ServiceLocator must be initialized before creating services');
-    }
-
-    _paginatedMessageService ??= PaginatedMessageService(
-      firedata: firedata,
-      firestore: firestore,
-      cache: _sqliteCache!,
+    _simplePaginatedMessageService ??= SimplePaginatedMessageService(
+      firedata,
+      firestore,
     );
 
-    return _paginatedMessageService!;
+    return _simplePaginatedMessageService!;
   }
 
-  /// Get SQLite cache instance
-  SqliteMessageCache get sqliteCache {
-    if (!_isInitialized || _sqliteCache == null) {
-      throw StateError(
-          'ServiceLocator must be initialized before accessing services');
-    }
-    return _sqliteCache!;
-  }
-
-  /// Get paginated message service instance
-  PaginatedMessageService? get paginatedMessageService =>
-      _paginatedMessageService;
+  /// Get simplified paginated message service instance
+  SimplePaginatedMessageService? get simplePaginatedMessageService =>
+      _simplePaginatedMessageService;
 
   /// Get error recovery service instance (nullable)
   ErrorRecoveryService? get errorRecoveryService {
-    if (!_isInitialized) {
-      throw StateError(
-          'ServiceLocator must be initialized before accessing services');
-    }
     return _errorRecoveryService;
   }
 
   /// Dispose all services
   Future<void> dispose() async {
     try {
-      _paginatedMessageService?.dispose();
+      _simplePaginatedMessageService?.dispose();
       _errorRecoveryService?.dispose();
-      await _sqliteCache?.dispose();
 
-      _paginatedMessageService = null;
+      _simplePaginatedMessageService = null;
       _errorRecoveryService = null;
-      _sqliteCache = null;
       _isInitialized = false;
 
       if (kDebugMode) {
@@ -224,7 +152,7 @@ class ServiceLocator {
     required Firestore firestore,
   }) {
     return [
-      // Existing services
+      // Core Firebase services
       Provider<Fireauth>.value(value: fireauth),
       Provider<Firedata>.value(value: firedata),
       Provider<Firestore>.value(value: firestore),
@@ -237,7 +165,7 @@ class ServiceLocator {
         create: (_) => ServerClock(),
       ),
 
-      // Cache services
+      // Cache services (keep these as they're still useful)
       ChangeNotifierProvider<UserCache>(
         create: (_) => UserCache(),
       ),
@@ -257,25 +185,23 @@ class ServiceLocator {
         create: (_) => ReportCacheService(),
       ),
 
-      // New optimized services
-      ChangeNotifierProvider<SqliteMessageCache>(
-        create: (_) => ServiceLocator.instance.sqliteCache,
-      ),
+      // New simplified message service
       ChangeNotifierProxyProvider2<Firedata, Firestore,
-          PaginatedMessageService>(
+          SimplePaginatedMessageService>(
         create: (context) =>
-            ServiceLocator.instance.createPaginatedMessageService(
+            ServiceLocator.instance.createSimplePaginatedMessageService(
           firedata: firedata,
           firestore: firestore,
         ),
         update: (context, firedata, firestore, previous) {
           return previous ??
-              ServiceLocator.instance.createPaginatedMessageService(
+              ServiceLocator.instance.createSimplePaginatedMessageService(
                 firedata: firedata,
                 firestore: firestore,
               );
         },
       ),
+
       // Error recovery service (optional)
       if (ServiceLocator.instance.errorRecoveryService != null)
         ChangeNotifierProvider<ErrorRecoveryService>(
@@ -284,42 +210,15 @@ class ServiceLocator {
     ];
   }
 
-  /// Perform periodic maintenance tasks
-  Future<void> performMaintenance() async {
-    if (!_isInitialized) return;
-
-    try {
-      // Clean up old cached messages (older than 30 days)
-      await _sqliteCache!.cleanupOldMessages(maxAgeInDays: 30);
-
-      if (kDebugMode) {
-        print('ServiceLocator: Maintenance tasks completed');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('ServiceLocator: Error during maintenance: $e');
-      }
-    }
-  }
-
   /// Get memory usage statistics for debugging
   Future<Map<String, dynamic>> getMemoryStats() async {
-    if (!_isInitialized) {
-      return {'error': 'Services not initialized'};
-    }
-
     try {
       final stats = <String, dynamic>{};
 
-      // Get cache statistics
-      if (_sqliteCache != null) {
-        // You could add methods to get cache size, message counts, etc.
-        stats['sqlite_cache_initialized'] = true;
-      }
-
-      if (_paginatedMessageService != null) {
-        stats['paginated_service_initialized'] = true;
+      if (_simplePaginatedMessageService != null) {
+        stats['simple_paginated_service_initialized'] = true;
         // Add pagination state statistics if needed
+        // Could add counts of active chat/topic states, etc.
       }
 
       if (_errorRecoveryService != null) {
@@ -340,19 +239,19 @@ class ServiceLocator {
     }
   }
 
-  /// Clear all cached data (useful for logout or data reset)
-  Future<void> clearAllCache() async {
-    if (!_isInitialized) return;
-
+  /// Clear message service state (useful for logout or data reset)
+  Future<void> clearAllMessageData() async {
     try {
-      await _sqliteCache?.clearAllCache();
+      // Clear all pagination states
+      _simplePaginatedMessageService?.dispose();
+      _simplePaginatedMessageService = null;
 
       if (kDebugMode) {
-        print('ServiceLocator: All cache cleared');
+        print('ServiceLocator: All message data cleared');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('ServiceLocator: Error clearing cache: $e');
+        print('ServiceLocator: Error clearing message data: $e');
       }
     }
   }

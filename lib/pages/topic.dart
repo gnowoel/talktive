@@ -9,14 +9,14 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 
-import '../services/paginated_message_service.dart';
+import '../services/simple_paginated_message_service.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 
 import '../widgets/layout.dart';
 import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
-import '../widgets/paginated_message_list.dart';
+import '../widgets/simple_paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class TopicPage extends StatefulWidget {
@@ -40,7 +40,7 @@ class _TopicPageState extends State<TopicPage> {
   late UserCache userCache;
   late FollowCache followCache;
 
-  late PaginatedMessageService paginatedMessageService;
+  late SimplePaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
 
   final _focusNode = FocusNode();
@@ -59,7 +59,7 @@ class _TopicPageState extends State<TopicPage> {
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
 
-    paginatedMessageService = context.read<PaginatedMessageService>();
+    paginatedMessageService = context.read<SimplePaginatedMessageService>();
 
     // Reset pagination state to ensure fresh loading when entering topic
     paginatedMessageService.resetTopicPagination(widget.topicId);
@@ -352,7 +352,7 @@ class _TopicPageState extends State<TopicPage> {
               children: [
                 const SizedBox(height: 10),
                 Expanded(
-                  child: PaginatedMessageList.topic(
+                  child: SimplePaginatedMessageList.topic(
                     id: widget.topicId,
                     topicCreatorId: widget.topicCreatorId,
                     focusNode: _focusNode,

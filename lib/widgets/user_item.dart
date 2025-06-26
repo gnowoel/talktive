@@ -313,10 +313,10 @@ class _UserItemState extends State<UserItem> {
                     return [const SizedBox(width: 4), Tag(status: 'poor')];
                   } else if (userStatus == 'newcomer') {
                     return [const SizedBox(width: 4), Tag(status: 'newcomer')];
-                  } else if (widget.user.reputationLevel == 'excellent') {
-                    return [const SizedBox(width: 4), Tag(status: 'excellent')];
-                  } else if (widget.user.reputationLevel == 'good') {
-                    return [const SizedBox(width: 4), Tag(status: 'good')];
+                    // } else if (widget.user.reputationLevel == 'excellent') {
+                    //   return [const SizedBox(width: 4), Tag(status: 'excellent')];
+                    // } else if (widget.user.reputationLevel == 'good') {
+                    //   return [const SizedBox(width: 4), Tag(status: 'good')];
                   }
                   return <Widget>[];
                 }(),

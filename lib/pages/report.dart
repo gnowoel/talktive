@@ -32,7 +32,6 @@ class _ReportPageState extends State<ReportPage> {
   late Firedata firedata;
 
   late StreamSubscription chatSubscription;
-  late StreamSubscription messagesSubscription;
 
   late Chat _chat;
 
@@ -93,7 +92,6 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   void dispose() {
-    messagesSubscription.cancel();
     chatSubscription.cancel();
     scrollController.dispose();
     focusNode.dispose();

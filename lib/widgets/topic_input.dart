@@ -167,9 +167,10 @@ class TopicInputState extends State<TopicInput> {
       await widget.onSendTextMessage(content);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        ErrorHandler.showSnackBarMessage(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+          e is AppException ? e : AppException(e.toString()),
+        );
       }
     }
   }

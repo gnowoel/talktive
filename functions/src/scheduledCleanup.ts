@@ -507,7 +507,7 @@ const hideOldPublicTopics = async () => {
     logger.info(`Found ${topicsSnapshot.size} public topics older than 24 hours to hide`);
 
     // Process topics in batches using SafeBatch
-    const batch = new SafeBatch();
+    const batch = new SafeBatch(firestore);
 
     for (const topicDoc of topicsSnapshot.docs) {
       batch.update(topicDoc.ref, {

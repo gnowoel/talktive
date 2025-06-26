@@ -11,6 +11,7 @@ export { follow, unfollow } from './follow';
 export { createTopic } from './createTopic';
 export { inviteFollowersToTopic } from './inviteFollowersToTopic';
 export { setupTribes } from './setupTribes';
+export { hidePublicTopics } from './hidePublicTopics';
 export { joinTopic } from './joinTopic';
 export { muteTopic } from './muteTopic';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';

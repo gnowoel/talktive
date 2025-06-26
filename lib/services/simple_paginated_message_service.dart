@@ -95,6 +95,26 @@ class SimplePaginatedMessageService extends ChangeNotifier {
 
   SimplePaginatedMessageService(this._firedata, this._firestore);
 
+  /// Safely notify listeners, deferring if called during build phase
+  void _safeNotifyListeners() {
+    // Check if we're in a build phase by examining the widget binding state
+    if (WidgetsBinding.instance.debugDoingBuild) {
+      // Defer the notification if we're in build phase
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    } else {
+      try {
+        notifyListeners();
+      } catch (e) {
+        // Fallback: if we still get an error, defer the notification
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      }
+    }
+  }
+
   /// Get or create chat pagination state
   SimpleChatPaginationState _getChatState(String chatId) {
     return _chatStates.putIfAbsent(
@@ -121,10 +141,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
 
     state.isLoading = true;
-    // Defer notification to avoid calling during build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    _safeNotifyListeners();
 
     try {
       List<Message> newMessages;
@@ -173,10 +190,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
       rethrow;
     } finally {
       state.isLoading = false;
-      // Defer notification to avoid calling during build phase
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      _safeNotifyListeners();
     }
   }
 
@@ -191,10 +205,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
 
     state.isLoading = true;
-    // Defer notification to avoid calling during build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    _safeNotifyListeners();
 
     try {
       final olderMessages = await _firedata.fetchMessagesBeforeTimestamp(
@@ -233,10 +244,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
       rethrow;
     } finally {
       state.isLoading = false;
-      // Defer notification to avoid calling during build phase
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      _safeNotifyListeners();
     }
   }
 
@@ -265,10 +273,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
         // Update newest timestamp
         state.newestTimestamp = state.messages.last.createdAt;
 
-        // Defer notification to avoid calling during build phase
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners();
-        });
+        _safeNotifyListeners();
       }
     });
   }
@@ -286,10 +291,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
 
     state.isLoading = true;
-    // Defer notification to avoid calling during build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    _safeNotifyListeners();
 
     try {
       List<TopicMessage> newMessages;
@@ -337,10 +339,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
       rethrow;
     } finally {
       state.isLoading = false;
-      // Defer notification to avoid calling during build phase
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      _safeNotifyListeners();
     }
   }
 
@@ -355,10 +354,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
 
     state.isLoading = true;
-    // Defer notification to avoid calling during build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    _safeNotifyListeners();
 
     try {
       final olderMessages = await _firestore.fetchTopicMessagesBeforeTimestamp(
@@ -397,10 +393,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
       rethrow;
     } finally {
       state.isLoading = false;
-      // Defer notification to avoid calling during build phase
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      _safeNotifyListeners();
     }
   }
 
@@ -408,20 +401,14 @@ class SimplePaginatedMessageService extends ChangeNotifier {
   void resetChatPagination(String chatId) {
     final state = _chatStates[chatId];
     state?.reset();
-    // Defer notification to avoid calling during build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    // No notification needed for reset - listeners will be notified when data loads
   }
 
   /// Reset topic pagination state
   void resetTopicPagination(String topicId) {
     final state = _topicStates[topicId];
     state?.reset();
-    // Defer notification to avoid calling during build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    // No notification needed for reset - listeners will be notified when data loads
   }
 
   /// Get current chat state (for debugging/monitoring)
@@ -440,10 +427,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     if (state != null) {
       state.dispose();
       _chatStates.remove(chatId);
-      // Defer notification to avoid calling during build phase
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      _safeNotifyListeners();
     }
   }
 
@@ -453,10 +437,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     if (state != null) {
       state.dispose();
       _topicStates.remove(topicId);
-      // Defer notification to avoid calling during build phase
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      _safeNotifyListeners();
     }
   }
 
@@ -488,10 +469,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
         // Update newest timestamp
         state.newestTimestamp = state.messages.last.createdAt;
 
-        // Defer notification to avoid calling during build phase
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners();
-        });
+        _safeNotifyListeners();
       }
     });
   }
@@ -505,10 +483,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
         state.messages.add(message);
         state.messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         state.newestTimestamp = message.createdAt;
-        // Defer notification to avoid calling during build phase
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners();
-        });
+        _safeNotifyListeners();
       }
     }
   }
@@ -522,10 +497,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
         state.messages.add(message);
         state.messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         state.newestTimestamp = message.createdAt;
-        // Defer notification to avoid calling during build phase
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners();
-        });
+        _safeNotifyListeners();
       }
     }
   }

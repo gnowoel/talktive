@@ -168,66 +168,73 @@ class _SimplePaginatedMessageListState
 
   void _onServiceUpdated() {
     // Update messages from service state when it changes (for real-time updates)
-    if (_initialLoadComplete && mounted) {
+    if (_initialLoadComplete && mounted && !_isLoading) {
       _updateMessagesFromService();
     }
   }
 
   void _updateMessagesFromService() {
+    if (!mounted || _messageService == null) return;
+
     try {
       List<dynamic> serviceMessages;
       bool serviceHasMore;
 
       if (widget.type == MessageListType.chat) {
-        final state = _messageService?.getChatState(widget.id);
-        if (state == null) return;
+        final state = _messageService!.getChatState(widget.id);
+        if (state == null || state.isLoading) return;
 
         serviceMessages = state.messages;
         serviceHasMore = state.hasMore;
       } else {
-        final state = _messageService?.getTopicState(widget.id);
-        if (state == null) return;
+        final state = _messageService!.getTopicState(widget.id);
+        if (state == null || state.isLoading) return;
 
         serviceMessages = state.messages;
         serviceHasMore = state.hasMore;
       }
 
-      // Check if we need to update the UI
-      final shouldUpdate = _messages.length != serviceMessages.length ||
-          (serviceMessages.isNotEmpty &&
-              _messages.isNotEmpty &&
-              _getMessageId(serviceMessages.last) !=
-                  _getMessageId(_messages.last));
+      // Early return if no change needed
+      if (_messages.length == serviceMessages.length &&
+          _hasMore == serviceHasMore &&
+          serviceMessages.isNotEmpty &&
+          _messages.isNotEmpty &&
+          _getMessageId(serviceMessages.last) ==
+              _getMessageId(_messages.last)) {
+        return;
+      }
 
-      if (shouldUpdate) {
-        final wasAtBottom = _isSticky;
-        final hadNewMessages = serviceMessages.length > _messages.length;
+      final wasAtBottom = _isSticky;
+      final hadNewMessages = serviceMessages.length > _messages.length;
 
-        if (mounted) {
-          setState(() {
-            _messages = List.from(serviceMessages);
-            _hasMore = serviceHasMore;
-          });
-        }
+      setState(() {
+        _messages = List.from(serviceMessages);
+        _hasMore = serviceHasMore;
+        _errorMessage = null; // Clear any previous errors
+      });
 
-        debugPrint(
-            'SimplePaginatedMessageList: Updated from service - ${_messages.length} messages');
-        widget.updateMessageCount(_messages.length);
+      widget.updateMessageCount(_messages.length);
 
-        // Auto-scroll to bottom for new messages if user was at bottom
-        if (wasAtBottom && hadNewMessages && mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _scrollToBottom();
-          });
-        }
+      // Auto-scroll to bottom for new messages if user was at bottom
+      if (wasAtBottom && hadNewMessages && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && widget.scrollController.hasClients) {
+            _scrollToBottom();
+          }
+        });
       }
     } catch (e) {
       debugPrint('Error updating from service: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to update messages: ${e.toString()}';
+        });
+      }
     }
   }
 
   Future<void> _loadInitialMessages() async {
-    if (_isLoading) return;
+    if (_isLoading || _messageService == null) return;
 
     debugPrint(
         'SimplePaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
@@ -275,16 +282,18 @@ class _SimplePaginatedMessageListState
         });
       }
     } catch (e) {
+      debugPrint('Error loading initial messages: $e');
       if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
+        _initialLoadComplete = true; // Mark as complete even on error
       });
     }
   }
 
   Future<void> _loadMoreMessages() async {
-    if (_isLoading || !_hasMore) return;
+    if (_isLoading || !_hasMore || _messageService == null) return;
 
     debugPrint(
         'SimplePaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
@@ -307,15 +316,17 @@ class _SimplePaginatedMessageListState
       setState(() {
         _messages = List.from(result.items);
         _hasMore = result.hasMore;
+        _errorMessage = null; // Clear previous errors on success
       });
 
       debugPrint(
           'SimplePaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
     } catch (e) {
+      debugPrint('Error loading more messages: $e');
       if (!mounted) return;
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = 'Failed to load more messages: ${e.toString()}';
       });
     } finally {
       if (mounted) {
@@ -417,6 +428,7 @@ class _SimplePaginatedMessageListState
   Widget _buildMessageList() {
     return CustomScrollView(
       controller: widget.scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
         // Loading indicator at top
         if (_isLoading && _messages.isNotEmpty)
@@ -435,6 +447,11 @@ class _SimplePaginatedMessageListState
             _buildMessageItem,
             childCount: _getItemCount(),
           ),
+        ),
+
+        // Bottom padding for better UX
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 16),
         ),
       ],
     );

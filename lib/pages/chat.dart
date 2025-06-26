@@ -120,11 +120,15 @@ class _ChatPageState extends State<ChatPage> {
     chatSubscription.cancel();
     _scrollController.dispose();
     _focusNode.dispose();
+    // Clean up paginated service state for this chat
+    paginatedMessageService.clearChatData(_chat.id);
     super.dispose();
   }
 
   void _showUserInfo(BuildContext context) {
-    final selfId = fireauth.instance.currentUser!.uid;
+    final selfId = fireauth.instance.currentUser?.uid;
+    if (selfId == null) return;
+
     final otherId = _chat.id.replaceFirst(selfId, '');
 
     showDialog(
@@ -138,7 +142,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _updateMessageCount(int count) {
-    _messageCount = count;
+    if (_messageCount != count) {
+      _messageCount = count;
+    }
   }
 
   void _insertMention(String displayName) {
@@ -146,14 +152,20 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _updateReadMessageCount(Chat chat) async {
-    final count = _messageCount;
-    final selfId = fireauth.instance.currentUser!.uid;
+    try {
+      final selfId = fireauth.instance.currentUser?.uid;
+      if (selfId == null) return;
 
-    if (count == 0 || count == _chat.readMessageCount) {
-      return;
+      final count = _messageCount;
+      if (count == 0 || count == _chat.readMessageCount) {
+        return;
+      }
+
+      await firedata.updateChat(selfId, chat.id, readMessageCount: count);
+    } catch (e) {
+      // Silently fail for read count updates as they're not critical
+      debugPrint('Failed to update read message count: $e');
     }
-
-    await firedata.updateChat(selfId, chat.id, readMessageCount: count);
   }
 
   @override
@@ -161,7 +173,7 @@ class _ChatPageState extends State<ChatPage> {
     final customColors = theme.extension<CustomColors>()!;
 
     final chatId = _chat.id;
-    final selfId = fireauth.instance.currentUser!.uid;
+    final selfId = fireauth.instance.currentUser?.uid ?? '';
     final otherId = chatId.replaceFirst(selfId, '');
     final partner = User.fromStub(key: otherId, value: _chat.partner);
 

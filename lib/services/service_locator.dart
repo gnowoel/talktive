@@ -17,7 +17,6 @@ import 'report_cache.dart';
 import 'settings.dart';
 import 'server_clock.dart';
 
-import 'intelligent_preloader.dart';
 import 'error_recovery_service.dart';
 
 class ServiceLocator {
@@ -29,7 +28,6 @@ class ServiceLocator {
   // Services
   SqliteMessageCache? _sqliteCache;
   PaginatedMessageService? _paginatedMessageService;
-  IntelligentPreloader? _intelligentPreloader;
   ErrorRecoveryService? _errorRecoveryService;
 
   bool _isInitialized = false;
@@ -175,23 +173,6 @@ class ServiceLocator {
     return _paginatedMessageService!;
   }
 
-  /// Create intelligent preloader with dependencies
-  IntelligentPreloader createIntelligentPreloader({
-    required PaginatedMessageService messageService,
-  }) {
-    if (!_isInitialized) {
-      throw StateError(
-          'ServiceLocator must be initialized before creating services');
-    }
-
-    _intelligentPreloader ??= IntelligentPreloader(
-      messageService: messageService,
-      cache: _sqliteCache!,
-    );
-
-    return _intelligentPreloader!;
-  }
-
   /// Get SQLite cache instance
   SqliteMessageCache get sqliteCache {
     if (!_isInitialized || _sqliteCache == null) {
@@ -204,9 +185,6 @@ class ServiceLocator {
   /// Get paginated message service instance
   PaginatedMessageService? get paginatedMessageService =>
       _paginatedMessageService;
-
-  /// Get intelligent preloader instance
-  IntelligentPreloader? get intelligentPreloader => _intelligentPreloader;
 
   /// Get error recovery service instance (nullable)
   ErrorRecoveryService? get errorRecoveryService {
@@ -221,12 +199,10 @@ class ServiceLocator {
   Future<void> dispose() async {
     try {
       _paginatedMessageService?.dispose();
-      _intelligentPreloader?.dispose();
       _errorRecoveryService?.dispose();
       await _sqliteCache?.dispose();
 
       _paginatedMessageService = null;
-      _intelligentPreloader = null;
       _errorRecoveryService = null;
       _sqliteCache = null;
       _isInitialized = false;
@@ -300,21 +276,6 @@ class ServiceLocator {
               );
         },
       ),
-      ChangeNotifierProxyProvider<PaginatedMessageService,
-          IntelligentPreloader>(
-        create: (context) {
-          final messageService = context.read<PaginatedMessageService>();
-          return ServiceLocator.instance.createIntelligentPreloader(
-            messageService: messageService,
-          );
-        },
-        update: (context, messageService, previous) {
-          return previous ??
-              ServiceLocator.instance.createIntelligentPreloader(
-                messageService: messageService,
-              );
-        },
-      ),
       // Error recovery service (optional)
       if (ServiceLocator.instance.errorRecoveryService != null)
         ChangeNotifierProvider<ErrorRecoveryService>(
@@ -359,18 +320,6 @@ class ServiceLocator {
       if (_paginatedMessageService != null) {
         stats['paginated_service_initialized'] = true;
         // Add pagination state statistics if needed
-      }
-
-      if (_intelligentPreloader != null) {
-        stats['intelligent_preloader_initialized'] = true;
-        final preloadStats = _intelligentPreloader!.getStats();
-        stats['preloading_stats'] = {
-          'total_preloads': preloadStats.totalPreloads,
-          'successful_preloads': preloadStats.successfulPreloads,
-          'success_rate': preloadStats.successRate,
-          'active_preloads': preloadStats.activePreloads,
-          'tracked_chats': preloadStats.trackedChats,
-        };
       }
 
       if (_errorRecoveryService != null) {

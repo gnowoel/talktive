@@ -113,12 +113,17 @@ class _TopicPageState extends State<TopicPage> {
     topicSubscription.cancel();
     _scrollController.dispose();
     _focusNode.dispose();
+    // Clean up paginated service state for this topic
+    paginatedMessageService.clearTopicData(widget.topicId);
     super.dispose();
   }
 
   Future<void> _sendTextMessage(String content) async {
     try {
-      final user = userCache.user!;
+      final user = userCache.user;
+      if (user == null) {
+        throw AppException('User not authenticated');
+      }
 
       await firestore.sendTopicTextMessage(
         topicId: widget.topicId,
@@ -127,6 +132,13 @@ class _TopicPageState extends State<TopicPage> {
         userPhotoURL: user.photoURL ?? '',
         content: content,
       );
+
+      // Update user message status after successful send
+      if (mounted) {
+        setState(() {
+          _userHasSentMessage = true;
+        });
+      }
     } catch (e) {
       if (mounted) {
         ErrorHandler.showSnackBarMessage(
@@ -139,7 +151,10 @@ class _TopicPageState extends State<TopicPage> {
 
   Future<void> _sendImageMessage(String uri) async {
     try {
-      final user = userCache.user!;
+      final user = userCache.user;
+      if (user == null) {
+        throw AppException('User not authenticated');
+      }
 
       await firestore.sendTopicImageMessage(
         topicId: widget.topicId,
@@ -148,6 +163,13 @@ class _TopicPageState extends State<TopicPage> {
         userPhotoURL: user.photoURL ?? '',
         uri: uri,
       );
+
+      // Update user message status after successful send
+      if (mounted) {
+        setState(() {
+          _userHasSentMessage = true;
+        });
+      }
     } catch (e) {
       if (mounted) {
         ErrorHandler.showSnackBarMessage(
@@ -159,12 +181,26 @@ class _TopicPageState extends State<TopicPage> {
   }
 
   void _updateMessageCount(int count) {
-    _messageCount = count;
+    if (_messageCount != count) {
+      _messageCount = count;
+      // Update user message status based on message count
+      final newStatus = _checkUserMessageStatus();
+      if (_userHasSentMessage != newStatus) {
+        setState(() {
+          _userHasSentMessage = newStatus;
+        });
+      }
+    }
   }
 
   bool _checkUserMessageStatus() {
-    // This will be handled asynchronously now
-    // For now, return false and update when messages are loaded
+    // Check if the current user has sent any messages in this topic
+    // This will be updated when messages are loaded through the service
+    final state = paginatedMessageService.getTopicState(widget.topicId);
+    if (state?.messages.isNotEmpty == true) {
+      final currentUserId = fireauth.instance.currentUser?.uid;
+      return state!.messages.any((message) => message.userId == currentUserId);
+    }
     return false;
   }
 
@@ -236,27 +272,35 @@ class _TopicPageState extends State<TopicPage> {
   }
 
   Future<void> _updateReadMessageCount() async {
-    final selfId = fireauth.instance.currentUser!.uid;
-    final count = _messageCount;
+    try {
+      final selfId = fireauth.instance.currentUser?.uid;
+      if (selfId == null) return;
 
-    if (count == 0 || count == _topic?.readMessageCount) {
-      return;
+      final count = _messageCount;
+      if (count == 0 || count == _topic?.readMessageCount) {
+        return;
+      }
+
+      await firestore.updateTopicReadMessageCount(
+        selfId,
+        widget.topicId,
+        readMessageCount: count,
+      );
+    } catch (e) {
+      // Silently fail for read count updates as they're not critical
+      debugPrint('Failed to update read message count: $e');
     }
-
-    await firestore.updateTopicReadMessageCount(
-      selfId,
-      widget.topicId,
-      readMessageCount: count,
-    );
   }
 
   void _showCreatorInfo(BuildContext context) {
+    if (_topic == null) return;
+
     showDialog(
       context: context,
       builder: (context) => UserInfoLoader(
         userId: widget.topicCreatorId,
-        photoURL: _topic?.creator.photoURL ?? '',
-        displayName: _topic?.creator.displayName ?? '',
+        photoURL: _topic!.creator.photoURL ?? '',
+        displayName: _topic!.creator.displayName ?? '',
       ),
     );
   }

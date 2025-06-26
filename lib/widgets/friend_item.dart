@@ -127,7 +127,7 @@ class _FriendItemState extends State<FriendItem> {
 
     // Check specific greeting permission for female users
     if (other.gender == 'F') {
-      return canGreetNewFemale(self, followCache);
+      return canGreetFemaleNewcomer(self, followCache);
     }
 
     return true;
@@ -158,7 +158,8 @@ class _FriendItemState extends State<FriendItem> {
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (other.gender == 'F' && !canGreetNewFemale(self, followCache)) {
+    } else if (other.gender == 'F' &&
+        !canGreetFemaleNewcomer(self, followCache)) {
       title = 'Female Protection';
       content = [
         Text(

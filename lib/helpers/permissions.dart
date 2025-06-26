@@ -1,41 +1,51 @@
 import '../models/user.dart';
 import '../services/follow_cache.dart';
 
-bool canGreetNewFemale(User? user, FollowCache? followCache) {
-  return _canBeHost(user, followCache);
+bool canGreetFemaleNewcomer(User? user, FollowCache? followCache) {
+  return _isAdvanced(user, followCache);
 }
 
 bool canCreateTopic(User? user, FollowCache? followCache) {
-  return _canBeHost(user, followCache);
+  return _isAdvanced(user, followCache);
 }
 
 bool canJoinTopic(User? user) {
   if (user == null) return false;
-  return _canBeGuest(user);
+  return _isIntermediate(user);
 }
 
 bool canSendMessage(User? user) {
   if (user == null) return false;
-  return _canBeGuest(user);
+  return _isBasic(user);
 }
 
 bool canReportOthers(User? user) {
   if (user == null) return false;
-  return _canBeGuest(user);
+  return _isBasic(user);
 }
 
-bool _canBeGuest(User? user) {
+// Two levels
+
+bool _isBasic(User? user) {
   if (user == null) return false;
   return _withoutWarning(user);
 }
 
-bool _canBeHost(User? user, FollowCache? followCache) {
+bool _isIntermediate(User? user) {
+  if (user == null) return false;
+
+  return _hasGoodReputation(user) &&
+      _hasHighLevelExperience(user) &&
+      _withoutAlert(user);
+}
+
+bool _isAdvanced(User? user, FollowCache? followCache) {
   if (user == null) return false;
   if (followCache == null) return false;
 
   return _hasGoodReputation(user) &&
       _hasHighLevelExperience(user) &&
-      _withoutRestrictions(user) &&
+      _withoutAlert(user) &&
       _hasFollowers(followCache);
 }
 
@@ -49,7 +59,7 @@ bool _hasHighLevelExperience(User? user) {
   return user.level >= 6; // 244 messages
 }
 
-bool _withoutRestrictions(User? user) {
+bool _withoutAlert(User? user) {
   if (user == null) return false;
   return !user.withAlert;
 }

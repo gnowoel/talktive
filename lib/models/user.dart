@@ -88,7 +88,7 @@ class User {
 
   bool get _isNewcomer {
     final serverNow = ServerClock().now;
-    final twoDays = 2 * 24 * 60 * 60 * 1000;
+    final twoDays = 24 * 60 * 60 * 1000;
     return serverNow - createdAt < twoDays;
   }
 
@@ -98,6 +98,10 @@ class User {
     if (_isNewcomer) return 'newcomer';
     return 'regular';
   }
+
+  bool get _isFemale => gender == 'F';
+
+  bool get isFemaleNewcomer => _isFemale && _isNewcomer;
 
   int get level {
     if (messageCount == null) return 0;

@@ -7,8 +7,6 @@ import '../helpers/exception.dart';
 import '../models/chat.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../services/simple_paginated_message_service.dart';
-
 import '../widgets/hearts.dart';
 import '../widgets/layout.dart';
 import '../widgets/simple_paginated_message_list.dart';

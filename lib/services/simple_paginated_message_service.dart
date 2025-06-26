@@ -75,28 +75,8 @@ class SimpleTopicPaginationState {
   }
 }
 
-/// Simplified paginated message service without SQLite caching
-///
-/// This service manages paginated message loading and real-time updates for both
-/// chat and topic conversations. It follows a streamlined approach:
-///
-/// **For Chats:**
-/// 1. Load recent messages (25-50) on room entry
-/// 2. Subscribe to real-time updates for new messages
-/// 3. Load older messages on-demand when user scrolls up
-/// 4. Handle optimistic updates for sent messages
-///
-/// **For Topics:**
-/// 1. Load recent topic messages on entry
-/// 2. Subscribe to real-time updates for new topic messages
-/// 3. Support pagination for older topic messages
-///
-/// **Key Features:**
-/// - No SQLite caching (simplified architecture)
-/// - Real-time message subscriptions
-/// - Pagination support for both message types
-/// - Build-safe notification system
-/// - Memory-efficient state management
+// Simplified paginated message service for chat and topic messages
+// Handles loading, pagination, real-time updates, and optimistic updates for both workflows
 class SimplePaginatedMessageService extends ChangeNotifier {
   final Firedata _firedata;
   final Firestore _firestore;
@@ -111,46 +91,29 @@ class SimplePaginatedMessageService extends ChangeNotifier {
 
   SimplePaginatedMessageService(this._firedata, this._firestore);
 
-  /// Safely notify listeners with build-phase protection
-  ///
-  /// This method attempts to notify listeners immediately, but if called during
-  /// a build phase (which would cause a Flutter error), it defers the notification
-  /// to the next frame using a post-frame callback.
+  // Safely notify listeners with build-phase protection
   void _safeNotifyListeners() {
-    try {
-      notifyListeners();
-    } catch (e) {
-      // If we're in build phase, defer the notification
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (hasListeners) {
-          notifyListeners();
-        }
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (hasListeners) {
+        notifyListeners();
+      }
+    });
   }
 
-  /// Get or create chat pagination state for the given chat ID
+  // Get or create chat pagination state for the given chat ID
   SimpleChatPaginationState _getChatState(String chatId) {
     return _chatStates.putIfAbsent(
         chatId, () => SimpleChatPaginationState(chatId));
   }
 
-  /// Get or create topic pagination state for the given topic ID
+  // Get or create topic pagination state for the given topic ID
   SimpleTopicPaginationState _getTopicState(String topicId) {
     return _topicStates.putIfAbsent(
         topicId, () => SimpleTopicPaginationState(topicId));
   }
 
-  /// Load chat messages (initial load or refresh)
-  ///
-  /// This method loads the most recent messages for a chat and sets up real-time
-  /// subscriptions for new messages. It handles both initial loading and refresh
-  /// scenarios.
-  ///
-  /// Parameters:
-  /// - [chatId]: The unique identifier for the chat
-  /// - [isInitialLoad]: Whether this is the first load (affects caching behavior)
-  /// - [chatCreatedAt]: Optional timestamp to filter messages (for new chats)
+  // Load chat messages (initial load or refresh)
+  // Sets up real-time subscriptions for new messages
   Future<SimplePaginatedResult<Message>> loadChatMessages(
     String chatId, {
     bool isInitialLoad = false,
@@ -217,10 +180,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Load more older chat messages for pagination
-  ///
-  /// Called when user scrolls to the top and more historical messages are needed.
-  /// Loads messages before the current oldest timestamp in the state.
+  // Load more older chat messages for pagination
   Future<SimplePaginatedResult<Message>> loadMoreChatMessages(
       String chatId) async {
     final state = _getChatState(chatId);
@@ -274,10 +234,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Start real-time subscription for new chat messages
-  ///
-  /// Subscribes to messages created after the newest message in the current state.
-  /// New messages are automatically added to the state and UI is updated.
+  // Start real-time subscription for new chat messages
   void _startChatRealtimeSubscription(SimpleChatPaginationState state) {
     state.subscription?.cancel();
 
@@ -307,14 +264,8 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     });
   }
 
-  /// Load topic messages (initial load or refresh)
-  ///
-  /// Similar to chat message loading but for topic conversations. Sets up both
-  /// initial message loading and real-time subscriptions for new topic messages.
-  ///
-  /// Parameters:
-  /// - [topicId]: The unique identifier for the topic
-  /// - [isInitialLoad]: Whether this is the first load for this topic
+  // Load topic messages (initial load or refresh)
+  // Sets up real-time subscriptions for new messages
   Future<SimplePaginatedResult<TopicMessage>> loadTopicMessages(
     String topicId, {
     bool isInitialLoad = false,
@@ -379,9 +330,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Load more older topic messages for pagination
-  ///
-  /// Loads historical topic messages when user scrolls up, similar to chat pagination.
+  // Load more older topic messages for pagination
   Future<SimplePaginatedResult<TopicMessage>> loadMoreTopicMessages(
       String topicId) async {
     final state = _getTopicState(topicId);
@@ -435,40 +384,31 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Reset chat pagination state to initial conditions
-  ///
-  /// Clears all cached messages, cancels subscriptions, and resets pagination flags.
-  /// Called when entering a chat to ensure fresh loading state.
+  // Reset chat pagination state to initial conditions
   void resetChatPagination(String chatId) {
     final state = _chatStates[chatId];
     state?.reset();
     // No notification needed - listeners will be notified when data loads
   }
 
-  /// Reset topic pagination state to initial conditions
-  ///
-  /// Clears all cached messages, cancels subscriptions, and resets pagination flags.
-  /// Called when entering a topic to ensure fresh loading state.
+  // Reset topic pagination state to initial conditions
   void resetTopicPagination(String topicId) {
     final state = _topicStates[topicId];
     state?.reset();
     // No notification needed - listeners will be notified when data loads
   }
 
-  /// Get current chat state (for debugging/monitoring)
+  // Get current chat state (for debugging/monitoring)
   SimpleChatPaginationState? getChatState(String chatId) {
     return _chatStates[chatId];
   }
 
-  /// Get current topic state (for debugging/monitoring)
+  // Get current topic state (for debugging/monitoring)
   SimpleTopicPaginationState? getTopicState(String topicId) {
     return _topicStates[topicId];
   }
 
-  /// Clear chat data and subscription completely
-  ///
-  /// Removes all cached data for a chat and cancels its real-time subscription.
-  /// Used for memory management when a chat is no longer needed.
+  // Clear chat data and subscription completely
   void clearChatData(String chatId) {
     final state = _chatStates[chatId];
     if (state != null) {
@@ -478,10 +418,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Clear topic data and subscription completely
-  ///
-  /// Removes all cached data for a topic and cancels its real-time subscription.
-  /// Used for memory management when a topic is no longer needed.
+  // Clear topic data and subscription completely
   void clearTopicData(String topicId) {
     final state = _topicStates[topicId];
     if (state != null) {
@@ -491,7 +428,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Start real-time subscription for topic messages
+  // Start real-time subscription for topic messages
   void _startTopicRealtimeSubscription(SimpleTopicPaginationState state) {
     state.subscription?.cancel();
 
@@ -524,10 +461,8 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     });
   }
 
-  /// Add a new message to chat state for optimistic updates
-  ///
-  /// Used to immediately show sent messages in the UI before server confirmation.
-  /// Includes duplicate detection to prevent message duplication.
+  // Add a new message to chat state for optimistic updates
+  // Used to immediately show sent messages before server confirmation
   void addChatMessage(String chatId, Message message) {
     final state = _chatStates[chatId];
     if (state != null && !state.messages.any((m) => m.id == message.id)) {
@@ -538,10 +473,8 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  /// Add a new message to topic state for optimistic updates
-  ///
-  /// Used to immediately show sent topic messages in the UI before server confirmation.
-  /// Includes duplicate detection to prevent message duplication.
+  // Add a new message to topic state for optimistic updates
+  // Used to immediately show sent topic messages before server confirmation
   void addTopicMessage(String topicId, TopicMessage message) {
     final state = _topicStates[topicId];
     if (state != null && !state.messages.any((m) => m.id == message.id)) {

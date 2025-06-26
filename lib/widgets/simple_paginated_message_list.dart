@@ -66,7 +66,7 @@ class SimplePaginatedMessageList extends StatefulWidget {
 
 class _SimplePaginatedMessageListState
     extends State<SimplePaginatedMessageList> {
-  late SimplePaginatedMessageService _messageService;
+  SimplePaginatedMessageService? _messageService;
 
   List<dynamic> _messages = []; // Can be Message or TopicMessage
   bool _isLoading = false;
@@ -93,17 +93,42 @@ class _SimplePaginatedMessageListState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _messageService = Provider.of<SimplePaginatedMessageService>(context);
 
-    // Listen to service changes for real-time updates
-    _messageService.addListener(_onServiceUpdated);
+    final newMessageService =
+        Provider.of<SimplePaginatedMessageService>(context);
+
+    // Only update listener if service instance changed
+    if (_messageService != newMessageService) {
+      // Remove old listener if it exists
+      _messageService?.removeListener(_onServiceUpdated);
+
+      _messageService = newMessageService;
+
+      // Add listener to new service
+      _messageService?.addListener(_onServiceUpdated);
+    }
   }
 
   @override
   void dispose() {
-    widget.focusNode.removeListener(_handleInputFocus);
-    widget.scrollController.removeListener(_onScroll);
-    _messageService.removeListener(_onServiceUpdated);
+    try {
+      widget.focusNode.removeListener(_handleInputFocus);
+    } catch (e) {
+      debugPrint('Error removing focus listener: $e');
+    }
+
+    try {
+      widget.scrollController.removeListener(_onScroll);
+    } catch (e) {
+      debugPrint('Error removing scroll listener: $e');
+    }
+
+    try {
+      _messageService?.removeListener(_onServiceUpdated);
+    } catch (e) {
+      debugPrint('Error removing service listener: $e');
+    }
+
     super.dispose();
   }
 
@@ -134,7 +159,7 @@ class _SimplePaginatedMessageListState
 
     // Update sticky state based on scroll position
     final isAtBottom = position.extentAfter == 0;
-    if (isAtBottom != _isSticky) {
+    if (isAtBottom != _isSticky && mounted) {
       setState(() {
         _isSticky = isAtBottom;
       });
@@ -143,7 +168,7 @@ class _SimplePaginatedMessageListState
 
   void _onServiceUpdated() {
     // Update messages from service state when it changes (for real-time updates)
-    if (_initialLoadComplete) {
+    if (_initialLoadComplete && mounted) {
       _updateMessagesFromService();
     }
   }
@@ -154,13 +179,13 @@ class _SimplePaginatedMessageListState
       bool serviceHasMore;
 
       if (widget.type == MessageListType.chat) {
-        final state = _messageService.getChatState(widget.id);
+        final state = _messageService?.getChatState(widget.id);
         if (state == null) return;
 
         serviceMessages = state.messages;
         serviceHasMore = state.hasMore;
       } else {
-        final state = _messageService.getTopicState(widget.id);
+        final state = _messageService?.getTopicState(widget.id);
         if (state == null) return;
 
         serviceMessages = state.messages;
@@ -178,10 +203,12 @@ class _SimplePaginatedMessageListState
         final wasAtBottom = _isSticky;
         final hadNewMessages = serviceMessages.length > _messages.length;
 
-        setState(() {
-          _messages = List.from(serviceMessages);
-          _hasMore = serviceHasMore;
-        });
+        if (mounted) {
+          setState(() {
+            _messages = List.from(serviceMessages);
+            _hasMore = serviceHasMore;
+          });
+        }
 
         debugPrint(
             'SimplePaginatedMessageList: Updated from service - ${_messages.length} messages');
@@ -215,13 +242,13 @@ class _SimplePaginatedMessageListState
       late SimplePaginatedResult result;
 
       if (widget.type == MessageListType.chat) {
-        result = await _messageService.loadChatMessages(
+        result = await _messageService!.loadChatMessages(
           widget.id,
           isInitialLoad: true,
           chatCreatedAt: widget.chat?.createdAt,
         );
       } else {
-        result = await _messageService.loadTopicMessages(
+        result = await _messageService!.loadTopicMessages(
           widget.id,
           isInitialLoad: true,
         );
@@ -271,9 +298,9 @@ class _SimplePaginatedMessageListState
       late SimplePaginatedResult result;
 
       if (widget.type == MessageListType.chat) {
-        result = await _messageService.loadMoreChatMessages(widget.id);
+        result = await _messageService!.loadMoreChatMessages(widget.id);
       } else {
-        result = await _messageService.loadMoreTopicMessages(widget.id);
+        result = await _messageService!.loadMoreTopicMessages(widget.id);
       }
 
       if (!mounted) return;

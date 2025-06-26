@@ -91,11 +91,7 @@ class _TopicPageState extends State<TopicPage> {
     });
 
     // Real-time message updates are now handled by the paginated service
-    // Load initial messages through the paginated service
-    paginatedMessageService.loadTopicMessages(
-      widget.topicId,
-      isInitialLoad: true,
-    );
+    // SimplePaginatedMessageList will handle loading its own messages
   }
 
   @override

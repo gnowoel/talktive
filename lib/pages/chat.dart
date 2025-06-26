@@ -100,12 +100,7 @@ class _ChatPageState extends State<ChatPage> {
     });
 
     // Real-time message updates are now handled by the paginated service
-    // Load initial messages through the paginated service
-    paginatedMessageService.loadChatMessages(
-      _chat.id,
-      isInitialLoad: true,
-      chatCreatedAt: _chat.createdAt,
-    );
+    // SimplePaginatedMessageList will handle loading its own messages
   }
 
   @override

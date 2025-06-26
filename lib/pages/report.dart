@@ -82,14 +82,7 @@ class _ReportPageState extends State<ReportPage> {
     });
 
     // Real-time message updates are now handled by the paginated service
-    // Load initial messages through the paginated service
-    final paginatedMessageService =
-        context.read<SimplePaginatedMessageService>();
-    paginatedMessageService.loadChatMessages(
-      widget.chat.id,
-      isInitialLoad: true,
-      chatCreatedAt: _chat.createdAt,
-    );
+    // SimplePaginatedMessageList will handle loading its own messages
   }
 
   @override

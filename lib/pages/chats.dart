@@ -90,6 +90,11 @@ class _ChatsPageState extends State<ChatsPage> {
               'SWIPE LEFT on any chat to leave it if you no longer wish to participate.',
               style: TextStyle(height: 1.5),
             ),
+            SizedBox(height: 16),
+            Text(
+              'LONG-PRESS a message to report inappropriate content.',
+              style: TextStyle(height: 1.5),
+            ),
           ],
         ),
         actions: [
@@ -106,7 +111,7 @@ class _ChatsPageState extends State<ChatsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const lines = ['Please add some', 'more users first.', ''];
-    const info = 'Please report users who send inappropriate messages.';
+    const info = 'Report by LONG-PRESSING a message and selecting "Report".';
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,

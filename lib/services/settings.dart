@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final whatsNewVersion = '4.2.0+57';
 final setupWizardVersion = '3.0.4+28';
 final usersPageNoticeVersion = 'true'; // Next time will use verion number
-final chatsPageNoticeVersion = 'true'; // Next time will use verion number
+final chatsPageNoticeVersion = '4.2.1+58';
 
 class Settings {
   Settings._();

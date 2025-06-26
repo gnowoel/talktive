@@ -112,8 +112,8 @@ class _UserItemState extends State<UserItem> {
     if (!canSendMessage(self)) return false;
 
     // Check specific greeting permission for female users
-    if (other.gender == 'F') {
-      return canGreetNewFemale(self, followCache);
+    if (other.isFemaleNewcomer) {
+      return canGreetFemaleNewcomer(self, followCache);
     }
 
     return true;
@@ -141,11 +141,12 @@ class _UserItemState extends State<UserItem> {
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (other.gender == 'F' && !canGreetNewFemale(self, followCache)) {
+    } else if (other.isFemaleNewcomer &&
+        !canGreetFemaleNewcomer(self, followCache)) {
       title = 'Female Protection';
       content = [
         Text(
-          'You need level 6, followers, good reputation, and no restrictions to chat with new female users.',
+          'Sorry, you need to reach level 6 and have at least 1 follower to chat with new female users.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),

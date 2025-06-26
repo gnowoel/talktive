@@ -146,7 +146,7 @@ class _TopicItemState extends State<TopicItem> {
       title = 'Cannot Join Topic';
       content = [
         const Text(
-          'You cannot join topics at this time.',
+          'Sorry, you need to reach level 6 to join a topic.',
           style: TextStyle(height: 1.5),
         ),
       ];

@@ -242,13 +242,8 @@ class _TopicsPageState extends State<TopicsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'Think of them like Q&A: one post, many replies.',
+              'To prevent spam, only experienced users can create or join topics. We apologize for the inconvenience.',
               style: TextStyle(height: 1.5),
-            ),
-            SizedBox(height: 16),
-            Text(
-              '✅ I got a new job!\n❌ Let\'s share our happy moments',
-              style: TextStyle(height: 1.5, fontStyle: FontStyle.italic),
             ),
             SizedBox(height: 16),
             Text(

@@ -309,8 +309,8 @@ class SimplePaginatedMessageService extends ChangeNotifier {
           state.oldestTimestamp = newMessages.first.createdAt;
           state.newestTimestamp = newMessages.last.createdAt;
 
-          // Note: Real-time subscription for topics is handled elsewhere
-          // (likely in the Firestore service or topic-specific components)
+          // Start real-time subscription for new messages
+          _startTopicRealtimeSubscription(state);
         }
 
         // Check if there are more older messages
@@ -458,6 +458,42 @@ class SimplePaginatedMessageService extends ChangeNotifier {
         notifyListeners();
       });
     }
+  }
+
+  /// Start real-time subscription for topic messages
+  void _startTopicRealtimeSubscription(SimpleTopicPaginationState state) {
+    state.subscription?.cancel();
+
+    // Convert Timestamp to milliseconds for the subscription
+    final newestTimestampMs = state.newestTimestamp?.millisecondsSinceEpoch;
+
+    state.subscription = _firestore
+        .subscribeToTopicMessages(
+      state.topicId,
+      newestTimestampMs,
+    )
+        .listen((newMessages) {
+      if (newMessages.isNotEmpty) {
+        // Add new messages and update timestamp
+        for (final message in newMessages) {
+          // Avoid duplicates
+          if (!state.messages.any((m) => m.id == message.id)) {
+            state.messages.add(message);
+          }
+        }
+
+        // Keep messages sorted
+        state.messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+        // Update newest timestamp
+        state.newestTimestamp = state.messages.last.createdAt;
+
+        // Defer notification to avoid calling during build phase
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      }
+    });
   }
 
   /// Add a new message to chat state (for optimistic updates)

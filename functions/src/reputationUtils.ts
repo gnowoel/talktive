@@ -32,7 +32,8 @@ export const calculateReputationScore = (user: User): number => {
   // Apply dampening to prevent extreme drops from limited data
   const dampening = Math.max(5.0, Math.min(50.0, user.messageCount * 0.1));
   const adjustedTotal = user.messageCount + dampening;
-  const ratio = Math.sqrt(user.reportCount) / adjustedTotal;
+  // const ratio = Math.sqrt(user.reportCount) / adjustedTotal;
+  const ratio = user.reportCount / adjustedTotal;
   const score = 1.0 - ratio;
 
   // Ensure score is between 0.0 and 1.0

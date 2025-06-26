@@ -120,7 +120,8 @@ class User {
     // Apply dampening to prevent extreme drops from limited data
     final dampening = (messageCount! * 0.1).clamp(5.0, 50.0);
     final adjustedTotal = messageCount! + dampening;
-    final ratio = sqrt(reportCount!) / adjustedTotal;
+    // final ratio = sqrt(reportCount!) / adjustedTotal;
+    final ratio = reportCount! / adjustedTotal;
     final score = 1.0 - ratio;
 
     // Ensure score is between 0.0 and 1.0

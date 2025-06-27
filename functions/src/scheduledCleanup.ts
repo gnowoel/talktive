@@ -486,6 +486,26 @@ const removePair = async (pairId: string) => {
   }
 };
 
+// Fetch admin IDs from Realtime Database
+const fetchAdminIds = async (): Promise<Set<string>> => {
+  try {
+    const adminsSnapshot = await db.ref('admins').get();
+    const adminIds = new Set<string>();
+
+    if (adminsSnapshot.exists()) {
+      const adminsData = adminsSnapshot.val();
+      for (const adminId in adminsData) {
+        adminIds.add(adminId);
+      }
+    }
+
+    return adminIds;
+  } catch (error) {
+    logger.error('Error fetching admin IDs:', error);
+    return new Set<string>();
+  }
+};
+
 const hideOldPublicTopics = async () => {
   try {
     const now = Timestamp.now();
@@ -493,6 +513,10 @@ const hideOldPublicTopics = async () => {
       now.seconds - Math.floor(timeBeforeTopicHiding / 1000),
       now.nanoseconds
     );
+
+    // Fetch admin IDs from Realtime Database
+    const adminIds = await fetchAdminIds();
+    logger.info(`Found ${adminIds.size} admin IDs`);
 
     // Query for public topics older than 24 hours
     const topicsSnapshot = await firestore
@@ -508,8 +532,18 @@ const hideOldPublicTopics = async () => {
 
     // Process topics in batches using SafeBatch
     const batch = new SafeBatch(firestore);
+    let skippedCount = 0;
 
     for (const topicDoc of topicsSnapshot.docs) {
+      const topicData = topicDoc.data();
+      const creatorId = topicData.creator?.id;
+
+      // Skip topics created by admins
+      if (adminIds.has(creatorId)) {
+        skippedCount++;
+        continue;
+      }
+
       batch.update(topicDoc.ref, {
         isPublic: false,
         updatedAt: now,
@@ -518,7 +552,8 @@ const hideOldPublicTopics = async () => {
 
     if (batch.hasOperations()) {
       await batch.commit();
-      logger.info(`Successfully hid ${topicsSnapshot.size} old public topics`);
+      const hiddenCount = topicsSnapshot.size - skippedCount;
+      logger.info(`Successfully hid ${hiddenCount} old public topics, skipped ${skippedCount} admin topics`);
     }
   } catch (error) {
     logger.error('Error in hideOldPublicTopics:', error);

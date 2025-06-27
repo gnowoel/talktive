@@ -74,6 +74,7 @@ class _SimplePaginatedMessageListState
   bool _isSticky = true;
   bool _initialLoadComplete = false;
   String? _errorMessage;
+  ScrollNotification? _lastNotification;
 
   // Scroll management
   static const double _scrollThreshold =
@@ -146,6 +147,41 @@ class _SimplePaginatedMessageListState
     controller.jumpTo(bottom);
   }
 
+  bool _handleScrollNotification(ScrollNotification notification) {
+    final metrics = notification.metrics;
+
+    if (_lastNotification.runtimeType != notification.runtimeType) {
+      _lastNotification = notification;
+
+      if (notification is ScrollEndNotification) {
+        if (metrics.extentAfter == 0) {
+          if (!_isSticky) {
+            setState(() => _isSticky = true);
+          }
+        }
+      }
+
+      if (notification is ScrollUpdateNotification) {
+        if (metrics.extentAfter != 0) {
+          if (_isSticky) {
+            setState(() => _isSticky = false);
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  bool _handleScrollMetricsNotification(
+    ScrollMetricsNotification notification,
+  ) {
+    if (_isSticky) {
+      _scrollToBottom();
+    }
+    return false;
+  }
+
   void _onScroll() {
     if (!widget.scrollController.hasClients) return;
 
@@ -155,14 +191,6 @@ class _SimplePaginatedMessageListState
     // Check if user scrolled near the top and load more messages
     if (position.pixels <= _scrollThreshold && _hasMore && !_isLoading) {
       _loadMoreMessages();
-    }
-
-    // Update sticky state based on scroll position
-    final isAtBottom = position.extentAfter == 0;
-    if (isAtBottom != _isSticky && mounted) {
-      setState(() {
-        _isSticky = isAtBottom;
-      });
     }
   }
 
@@ -426,34 +454,40 @@ class _SimplePaginatedMessageListState
   }
 
   Widget _buildMessageList() {
-    return CustomScrollView(
-      controller: widget.scrollController,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      slivers: [
-        // Loading indicator at top
-        if (_isLoading && _messages.isNotEmpty)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: _handleScrollMetricsNotification,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child: CustomScrollView(
+          controller: widget.scrollController,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          slivers: [
+            // Loading indicator at top
+            if (_isLoading && _messages.isNotEmpty)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              ),
+
+            // Messages list
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                _buildMessageItem,
+                childCount: _getItemCount(),
               ),
             ),
-          ),
 
-        // Messages list
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            _buildMessageItem,
-            childCount: _getItemCount(),
-          ),
+            // Bottom padding for better UX
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 16),
+            ),
+          ],
         ),
-
-        // Bottom padding for better UX
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 16),
-        ),
-      ],
+      ),
     );
   }
 

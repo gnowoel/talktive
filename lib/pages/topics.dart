@@ -237,17 +237,17 @@ class _TopicsPageState extends State<TopicsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Topics are short, focused conversations — not group chats.',
+              'Feel free to create a topic if you have something to ask or share.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'To prevent spam, only experienced users can create or join topics. We apologize for the inconvenience.',
+              'To reduce spam, only experienced users can currently create or join topics. Thanks for your understanding.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Tap a category to explore, or hit + to start your own topic.',
+              'Topics stay public for a short time. After that, they become private—but participants can still invite their followers to join.',
               style: TextStyle(height: 1.5),
             ),
           ],

@@ -370,7 +370,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your topic will be visible to everyone in the Topics tab. All your followers will be notified when you create it.',
+            'Your topic will be public for a short time before becoming private. Your followers will be notified automatically.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

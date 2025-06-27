@@ -264,64 +264,73 @@ class _UserItemState extends State<UserItem> {
               maxLines: 3,
             ),
             const SizedBox(height: 4),
-            Row(
-              children: [
-                Tag(
-                  tooltip: '${getLongGenderName(widget.user.gender!)}',
-                  child: Text(
-                    widget.user.gender!,
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Tag(
+                    tooltip: '${getLongGenderName(widget.user.gender!)}',
+                    child: Text(
+                      widget.user.gender!,
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Tag(
-                  tooltip: '${getLanguageName(widget.user.languageCode!)}',
-                  child: Text(
-                    widget.user.languageCode!,
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: '${getLanguageName(widget.user.languageCode!)}',
+                    child: Text(
+                      widget.user.languageCode!,
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Tag(
-                  tooltip: 'Experience Level',
-                  child: Text(
-                    'L${widget.user.level}',
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: 'Experience Level',
+                    child: Text(
+                      'L${widget.user.level}',
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Tag(
-                  tooltip: 'Last seen',
-                  child: Text(
-                    timeago.format(updatedAt, locale: 'en_short', clock: now),
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: 'Last seen',
+                    child: Text(
+                      timeago.format(updatedAt, locale: 'en_short', clock: now),
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                // Show single most relevant status tag (priority-based)
-                ...() {
-                  // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
-                  if (userStatus == 'warning') {
-                    return [const SizedBox(width: 4), Tag(status: 'warning')];
-                  } else if (userStatus == 'alert') {
-                    return [const SizedBox(width: 4), Tag(status: 'alert')];
-                  } else if (widget.user.reputationLevel == 'very_poor') {
-                    return [const SizedBox(width: 4), Tag(status: 'very_poor')];
-                  } else if (widget.user.reputationLevel == 'poor') {
-                    return [const SizedBox(width: 4), Tag(status: 'poor')];
-                  } else if (userStatus == 'newcomer') {
-                    return [const SizedBox(width: 4), Tag(status: 'newcomer')];
-                    // } else if (widget.user.reputationLevel == 'excellent') {
-                    //   return [const SizedBox(width: 4), Tag(status: 'excellent')];
-                    // } else if (widget.user.reputationLevel == 'good') {
-                    //   return [const SizedBox(width: 4), Tag(status: 'good')];
-                  }
-                  return <Widget>[];
-                }(),
-              ],
+                  // Show single most relevant status tag (priority-based)
+                  ...() {
+                    // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
+                    if (userStatus == 'warning') {
+                      return [const SizedBox(width: 4), Tag(status: 'warning')];
+                    } else if (userStatus == 'alert') {
+                      return [const SizedBox(width: 4), Tag(status: 'alert')];
+                    } else if (widget.user.reputationLevel == 'very_poor') {
+                      return [
+                        const SizedBox(width: 4),
+                        Tag(status: 'very_poor')
+                      ];
+                    } else if (widget.user.reputationLevel == 'poor') {
+                      return [const SizedBox(width: 4), Tag(status: 'poor')];
+                    } else if (userStatus == 'newcomer') {
+                      return [
+                        const SizedBox(width: 4),
+                        Tag(status: 'newcomer')
+                      ];
+                      // } else if (widget.user.reputationLevel == 'excellent') {
+                      //   return [const SizedBox(width: 4), Tag(status: 'excellent')];
+                      // } else if (widget.user.reputationLevel == 'good') {
+                      //   return [const SizedBox(width: 4), Tag(status: 'good')];
+                    }
+                    return <Widget>[];
+                  }(),
+                ],
+              ),
             ),
           ],
         ),

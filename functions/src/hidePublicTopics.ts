@@ -8,8 +8,29 @@ if (!admin.apps.length) {
 }
 
 const firestore = admin.firestore();
+const db = admin.database();
 
 const ALLOWED_CREATOR_ID = 'vyuqdT68ClZDuyWSC2YjvqtpNmC3';
+
+// Fetch admin IDs from Realtime Database
+const fetchAdminIds = async (): Promise<Set<string>> => {
+  try {
+    const adminsSnapshot = await db.ref('admins').get();
+    const adminIds = new Set<string>();
+
+    if (adminsSnapshot.exists()) {
+      const adminsData = adminsSnapshot.val();
+      for (const adminId in adminsData) {
+        adminIds.add(adminId);
+      }
+    }
+
+    return adminIds;
+  } catch (error) {
+    logger.error('Error fetching admin IDs:', error);
+    return new Set<string>();
+  }
+};
 
 export const hidePublicTopics = onRequest(async (_req, res) => {
   try {
@@ -17,6 +38,10 @@ export const hidePublicTopics = onRequest(async (_req, res) => {
     let hiddenCount = 0;
     let skippedCount = 0;
     let processedBatches = 0;
+
+    // Fetch admin IDs from Realtime Database
+    const adminIds = await fetchAdminIds();
+    logger.info(`Found ${adminIds.size} admin IDs`);
 
     // Get all topics
     const topicsSnapshot = await firestore.collection('topics').get();
@@ -43,9 +68,12 @@ export const hidePublicTopics = onRequest(async (_req, res) => {
       for (const topicDoc of batchTopics) {
         const topicData = topicDoc.data();
         const createdBy = topicData.createdBy;
+        const creatorId = topicData.creator?.id;
 
-        // Skip topics created by the allowed user
-        if (createdBy === ALLOWED_CREATOR_ID) {
+        // Skip topics created by admins or the hardcoded allowed user
+        if (createdBy === ALLOWED_CREATOR_ID ||
+          adminIds.has(createdBy) ||
+          adminIds.has(creatorId)) {
           skippedCount++;
           continue;
         }

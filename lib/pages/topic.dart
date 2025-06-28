@@ -60,6 +60,7 @@ class _TopicPageState extends State<TopicPage> {
 
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
+    topicFollowersCache = context.read<TopicFollowersCache>();
 
     paginatedMessageService = context.read<SimplePaginatedMessageService>();
 
@@ -105,7 +106,6 @@ class _TopicPageState extends State<TopicPage> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
-    topicFollowersCache = Provider.of<TopicFollowersCache>(context);
 
     _userHasSentMessage = _checkUserMessageStatus();
   }
@@ -113,7 +113,7 @@ class _TopicPageState extends State<TopicPage> {
   @override
   void dispose() {
     topicSubscription.cancel();
-    topicFollowersCache.dispose();
+    topicFollowersCache.unsubscribe();
     _scrollController.dispose();
     _focusNode.dispose();
     // Clean up paginated service state for this topic

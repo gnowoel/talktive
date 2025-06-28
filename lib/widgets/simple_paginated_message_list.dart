@@ -536,6 +536,7 @@ class _SimplePaginatedMessageListState
         return TopicImageMessageItem(
           key: ValueKey(topicMessage.id),
           topicId: widget.id,
+          topicCreatorId: widget.topicCreatorId!,
           message: topicMessage,
           onInsertMention: widget.onInsertMention,
         );

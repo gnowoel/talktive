@@ -72,6 +72,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     final byMe = widget.message.userId == currentUser.uid;
     final hasReportPermission = canReportOthers(userCache.user);
 
+    // Check if current user can kick others (admin/moderator or topic creator)
+    final canKick = !byMe &&
+        (userCache.user?.isAdminOrModerator == true ||
+         currentUser.uid == widget.topicCreatorId);
+
     // Check report eligibility first (async operation)
     bool canShowReport = false;
     if (!byMe && hasReportPermission && widget.message.id != null) {
@@ -113,6 +118,22 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             ],
           ),
           onTap: () => _showRecallDialog(context),
+        ),
+      );
+    }
+
+    // Add kick option if user has permission
+    if (canKick) {
+      menuItems.add(
+        PopupMenuItem(
+          child: Row(
+            children: const [
+              Icon(Icons.person_remove, size: 20),
+              SizedBox(width: 8),
+              Text('Kick'),
+            ],
+          ),
+          onTap: () => _showKickDialog(context),
         ),
       );
     }
@@ -271,6 +292,66 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
               'Thank you for your report. We will review it shortly.',
+              style: TextStyle(color: theme.colorScheme.onErrorContainer),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  void _showKickDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.person_remove_outlined,
+          color: theme.colorScheme.error,
+          size: 32,
+        ),
+        title: const Text('Kick this user?'),
+        content: const Text(
+          'Kicking this user will ban them from this topic. All their messages will be hidden, and they will lose access to all interactions within the topic.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: Text(
+              'Kick',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _kickUser(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _kickUser(BuildContext context) async {
+    try {
+      await firestore.kickUserFromTopic(
+        topicId: widget.topicId,
+        userId: widget.message.userId,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: theme.colorScheme.errorContainer,
+            content: Text(
+              'User has been kicked from this topic.',
               style: TextStyle(color: theme.colorScheme.onErrorContainer),
             ),
           ),

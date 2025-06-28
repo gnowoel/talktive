@@ -23,6 +23,7 @@ export interface User {
   revivedAt?: number | null;
   messageCount?: number | null;
   reportCount?: number | null;
+  role?: string | null;
 }
 
 export interface Pair {

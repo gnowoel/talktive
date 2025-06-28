@@ -17,9 +17,9 @@ import 'pages/reports.dart';
 import 'pages/topic.dart';
 import 'pages/topics.dart';
 import 'pages/users.dart';
-import 'services/fireauth.dart';
-import 'services/firedata.dart';
+
 import 'services/messaging.dart';
+import 'services/user_cache.dart';
 import 'widgets/navigation.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -87,8 +87,7 @@ Future<GoRouter> initRouter() async {
                         partner: userStub,
                         messageCount: 0,
                       );
-                      final chat =
-                          Chat.fromStub(key: chatId, value: chatStub);
+                      final chat = Chat.fromStub(key: chatId, value: chatStub);
 
                       return ChatPage(chat: chat);
                     },
@@ -168,18 +167,15 @@ Future<GoRouter> initRouter() async {
       ),
       GoRoute(
         path: '/admin/reports',
-        builder: (context, state) => FutureBuilder(
-          future: _checkAdminAccess(context),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data == true) {
-              return const ReportsPage();
-            }
-            // Return unauthorized or loading state
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator(strokeWidth: 3)),
-            );
-          },
-        ),
+        builder: (context, state) {
+          if (_checkAdminAccess(context)) {
+            return const ReportsPage();
+          }
+          // Return unauthorized state
+          return const Scaffold(
+            body: Center(child: Text('Unauthorized')),
+          );
+        },
       ),
       GoRoute(
         path: '/admin/reports/:id',
@@ -220,12 +216,9 @@ Future<GoRouter> initRouter() async {
   );
 }
 
-Future<bool> _checkAdminAccess(BuildContext context) async {
-  final firedata = Provider.of<Firedata>(context, listen: false);
-  final fireauth = Provider.of<Fireauth>(context, listen: false);
+bool _checkAdminAccess(BuildContext context) {
+  final userCache = Provider.of<UserCache>(context, listen: false);
+  final user = userCache.user;
 
-  final userId = fireauth.instance.currentUser!.uid;
-  final admin = await firedata.fetchAdmin(userId);
-
-  return admin != null;
+  return user?.isAdminOrModerator ?? false;
 }

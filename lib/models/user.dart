@@ -15,6 +15,7 @@ class User {
   final int? revivedAt;
   final int? messageCount;
   final int? reportCount;
+  final String? role;
 
   const User({
     required this.id,
@@ -29,6 +30,7 @@ class User {
     this.revivedAt,
     this.messageCount,
     this.reportCount,
+    this.role,
   });
 
   Map<String, dynamic> toJson() {
@@ -45,6 +47,7 @@ class User {
       'revivedAt': revivedAt,
       'messageCount': messageCount,
       'reportCount': reportCount,
+      'role': role,
     };
   }
 
@@ -62,6 +65,7 @@ class User {
       revivedAt: value.revivedAt,
       messageCount: value.messageCount,
       reportCount: value.reportCount,
+      role: value.role,
     );
   }
 
@@ -147,6 +151,15 @@ class User {
     if (score >= 0.5) return 'poor';
     return 'very_poor';
   }
+
+  /// Check if user is an admin
+  bool get isAdmin => role == 'admin';
+
+  /// Check if user is a moderator
+  bool get isModerator => role == 'moderator';
+
+  /// Check if user is an admin or moderator
+  bool get isAdminOrModerator => isAdmin || isModerator;
 }
 
 class UserStub {
@@ -161,6 +174,7 @@ class UserStub {
   final int? revivedAt;
   final int? messageCount;
   final int? reportCount;
+  final String? role;
 
   const UserStub({
     required this.createdAt,
@@ -174,6 +188,7 @@ class UserStub {
     this.revivedAt,
     this.messageCount,
     this.reportCount,
+    this.role,
   });
 
   Map<String, dynamic> toJson() {
@@ -189,6 +204,7 @@ class UserStub {
       'revivedAt': revivedAt,
       'messageCount': messageCount,
       'reportCount': reportCount,
+      'role': role,
     };
   }
 
@@ -205,6 +221,7 @@ class UserStub {
       revivedAt: json['revivedAt'] as int?,
       messageCount: json['messageCount'] as int?,
       reportCount: json['reportCount'] as int?,
+      role: json['role'] as String?,
     );
   }
 }

@@ -3,8 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
-import '../models/admin.dart';
-import '../services/firedata.dart';
+
 import '../services/user_cache.dart';
 import '../widgets/layout.dart';
 
@@ -14,7 +13,6 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final firedata = context.read<Firedata>();
     final userCache = context.watch<UserCache>();
     final user = userCache.user;
 
@@ -196,20 +194,14 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: FutureBuilder<Admin?>(
-        future: firedata.fetchAdmin(user?.id),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return FloatingActionButton(
+      floatingActionButton: user?.isAdminOrModerator == true
+          ? FloatingActionButton(
               onPressed: () => context.push('/admin/reports'),
               tooltip: 'Admin Panel',
               heroTag: "profile_admin_fab",
               child: const Icon(Icons.admin_panel_settings),
-            );
-          }
-          return const SizedBox();
-        },
-      ),
+            )
+          : null,
     );
   }
 }

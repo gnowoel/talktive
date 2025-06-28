@@ -661,4 +661,29 @@ class Firedata {
       throw AppException(e.toString());
     }
   }
+
+  /// Updates a user's role in the database
+  /// [userId] - The ID of the user to update
+  /// [role] - The new role ('admin', 'moderator', or null to remove role)
+  Future<void> updateUserRole(String userId, String? role) async {
+    try {
+      final userRef = instance.ref('users/$userId');
+      final serverTimestamp = ServerValue.timestamp;
+
+      final updates = <String, dynamic>{
+        'updatedAt': serverTimestamp,
+      };
+
+      if (role != null) {
+        updates['role'] = role;
+      } else {
+        // Remove the role field by setting it to null
+        updates['role'] = null;
+      }
+
+      await userRef.update(updates);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
 }

@@ -924,6 +924,22 @@ class Firestore {
     }
   }
 
+  Future<void> kickUserFromTopic({
+    required String topicId,
+    required String userId,
+  }) async {
+    try {
+      await instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('followers')
+          .doc(userId)
+          .update({'isKicked': true});
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   /// Fetch a page of topic messages with pagination support
   Future<List<TopicMessage>> fetchTopicMessagesPage(
     String topicId, {

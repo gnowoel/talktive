@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TopicFollower {
@@ -97,11 +98,11 @@ class TopicFollowersCache extends ChangeNotifier {
         .collection('followers')
         .snapshots()
         .listen(
-          _handleFollowersUpdate,
-          onError: (error) {
-            debugPrint('Error listening to topic followers: $error');
-          },
-        );
+      _handleFollowersUpdate,
+      onError: (error) {
+        debugPrint('Error listening to topic followers: $error');
+      },
+    );
   }
 
   void _handleFollowersUpdate(QuerySnapshot snapshot) {
@@ -136,7 +137,7 @@ class TopicFollowersCache extends ChangeNotifier {
     }
 
     if (hasChanges) {
-      notifyListeners();
+      _deferredNotifyListeners();
     }
   }
 
@@ -149,23 +150,13 @@ class TopicFollowersCache extends ChangeNotifier {
     _subscription = null;
     _followers.clear();
     _currentTopicId = null;
-    notifyListeners();
-  }
-
-  /// Clear all data and stop listening
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    _subscription = null;
-    _followers.clear();
-    _currentTopicId = null;
-    super.dispose();
+    _deferredNotifyListeners();
   }
 
   /// Clear followers data without disposing the entire cache
   void clear() {
     _followers.clear();
-    notifyListeners();
+    _deferredNotifyListeners();
   }
 
   /// Get count of active (non-blocked) followers
@@ -176,4 +167,25 @@ class TopicFollowersCache extends ChangeNotifier {
 
   /// Get total follower count
   int get totalFollowerCount => _followers.length;
+
+  /// Defer notifyListeners to avoid calling during build phase
+  void _deferredNotifyListeners() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_disposed) {
+        notifyListeners();
+      }
+    });
+  }
+
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _subscription?.cancel();
+    _subscription = null;
+    _followers.clear();
+    _currentTopicId = null;
+    super.dispose();
+  }
 }

@@ -17,3 +17,4 @@ export { muteTopic } from './muteTopic';
 export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';
 export { reportMessage } from './reportMessage';
 export { reportTopicMessage } from './reportTopicMessage';
+export { blockUserFromTopic } from './blockUserFromTopic';

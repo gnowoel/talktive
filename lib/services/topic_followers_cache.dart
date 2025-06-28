@@ -86,7 +86,7 @@ class TopicFollowersCache extends ChangeNotifier {
   void subscribeToTopic(String topicId) {
     // Cancel existing subscription if switching topics
     if (_currentTopicId != topicId) {
-      dispose();
+      unsubscribe();
     }
 
     _currentTopicId = topicId;
@@ -142,6 +142,15 @@ class TopicFollowersCache extends ChangeNotifier {
 
   /// Get the current topic ID being monitored
   String? get currentTopicId => _currentTopicId;
+
+  /// Unsubscribe from current topic without disposing the entire cache
+  void unsubscribe() {
+    _subscription?.cancel();
+    _subscription = null;
+    _followers.clear();
+    _currentTopicId = null;
+    notifyListeners();
+  }
 
   /// Clear all data and stop listening
   @override

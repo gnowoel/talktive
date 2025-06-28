@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import '../models/message.dart';
 import '../config/message_report_config.dart';
 import '../services/report_cache.dart';
+import '../services/topic_followers_cache.dart';
 
 /// Helper class for handling message status UI logic
 class MessageStatusHelper {
   MessageStatusHelper._();
+
+  /// Check if a message is from a blocked user
+  static bool isFromBlockedUser(Message message, TopicFollowersCache followersCache) {
+    return followersCache.isUserBlocked(message.userId);
+  }
 
   /// Check if a message is hidden but can be revealed
   static bool isHiddenButRevealable(Message message) {
@@ -22,11 +28,21 @@ class MessageStatusHelper {
   }
 
   /// Check if a message should be visible to regular users
-  static bool shouldShowMessage(Message message, {bool isAdmin = false}) {
+  static bool shouldShowMessage(Message message, {bool isAdmin = false, TopicFollowersCache? followersCache}) {
+    // Blocked users' messages are always hidden (except for admins)
+    if (followersCache != null && !isAdmin && followersCache.isUserBlocked(message.userId)) {
+      return false;
+    }
+
     return MessageReportConfig.shouldShowMessage(
       message.reportCount ?? 0,
       isAdmin: isAdmin,
     );
+  }
+
+  /// Get replacement content for blocked user messages
+  static String getBlockedUserMessageContent(Message message) {
+    return '- User blocked -';
   }
 
   /// Get replacement content for hidden messages
@@ -45,7 +61,12 @@ class MessageStatusHelper {
   }
 
   /// Get content for copying (original for hidden, replacement for removed)
-  static String getCopyContent(Message message, String originalContent) {
+  static String getCopyContent(Message message, String originalContent, {TopicFollowersCache? followersCache}) {
+    // Blocked users' content cannot be copied
+    if (followersCache != null && followersCache.isUserBlocked(message.userId)) {
+      return getBlockedUserMessageContent(message);
+    }
+
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     switch (status) {
@@ -152,7 +173,12 @@ class MessageStatusHelper {
   }
 
   /// Get content for copying reported messages (always return original for text)
-  static String getReportedCopyContent(Message message, String originalContent) {
+  static String getReportedCopyContent(Message message, String originalContent, {TopicFollowersCache? followersCache}) {
+    // Blocked users' content cannot be copied
+    if (followersCache != null && followersCache.isUserBlocked(message.userId)) {
+      return getBlockedUserMessageContent(message);
+    }
+
     // For text messages, always allow copying original content
     if (message.type == 'text') {
       return originalContent;
@@ -166,8 +192,14 @@ class MessageStatusHelper {
     Message message, {
     required bool isAuthor,
     required bool isAdmin,
+    TopicFollowersCache? followersCache,
   }) {
     final actions = <String>[];
+
+    // No actions available for blocked users' messages (except for admins)
+    if (followersCache != null && !isAdmin && followersCache.isUserBlocked(message.userId)) {
+      return actions;
+    }
 
     // Standard actions
     if (!isAuthor) {

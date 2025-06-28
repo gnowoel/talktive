@@ -24,7 +24,7 @@ bool canReportOthers(User? user) {
   return _isBasic(user);
 }
 
-// Two levels
+// Three levels
 
 bool _isBasic(User? user) {
   if (user == null) return false;

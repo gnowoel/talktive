@@ -8,6 +8,7 @@ import '../models/topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/topic_followers_cache.dart';
 
 import '../services/simple_paginated_message_service.dart';
 import '../services/user_cache.dart';
@@ -39,6 +40,7 @@ class _TopicPageState extends State<TopicPage> {
   late Firestore firestore;
   late UserCache userCache;
   late FollowCache followCache;
+  late TopicFollowersCache topicFollowersCache;
 
   late SimplePaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
@@ -90,6 +92,9 @@ class _TopicPageState extends State<TopicPage> {
       }
     });
 
+    // Subscribe to topic followers for real-time blocking updates
+    topicFollowersCache.subscribeToTopic(widget.topicId);
+
     // Real-time message updates are now handled by the paginated service
     // SimplePaginatedMessageList will handle loading its own messages
   }
@@ -100,6 +105,7 @@ class _TopicPageState extends State<TopicPage> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    topicFollowersCache = Provider.of<TopicFollowersCache>(context);
 
     _userHasSentMessage = _checkUserMessageStatus();
   }
@@ -107,6 +113,7 @@ class _TopicPageState extends State<TopicPage> {
   @override
   void dispose() {
     topicSubscription.cancel();
+    topicFollowersCache.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     // Clean up paginated service state for this topic
@@ -343,7 +350,7 @@ class _TopicPageState extends State<TopicPage> {
           ),
           actions: [
             RepaintBoundary(child: TopicHearts(topic: _topic)),
-            if (_userHasSentMessage) ...[
+            if (_userHasSentMessage && !topicFollowersCache.isUserBlocked(fireauth.instance.currentUser!.uid)) ...[
               PopupMenuButton<String>(
                 onSelected: _isInviting
                     ? null

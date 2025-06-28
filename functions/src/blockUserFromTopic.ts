@@ -97,17 +97,17 @@ export const blockUserFromTopic = onCall(async (request) => {
     // Block the user by setting isBlocked to true
     await followerRef.update({
       isBlocked: true,
-      blockedAt: Timestamp.now(),
+      // blockedAt: Timestamp.now(),
     });
 
     // Remove the topic from the blocked user's topics collection
-    const userTopicRef = firestore
-      .collection('users')
-      .doc(userId)
-      .collection('topics')
-      .doc(topicId);
-
-    await userTopicRef.delete();
+    // const userTopicRef = firestore
+    //   .collection('users')
+    //   .doc(userId)
+    //   .collection('topics')
+    //   .doc(topicId);
+    //
+    // await userTopicRef.delete();
 
     logger.info(`User ${userId} blocked from topic ${topicId} by ${requesterId}`);
 

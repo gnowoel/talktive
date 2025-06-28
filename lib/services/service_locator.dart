@@ -9,6 +9,7 @@ import 'firestore.dart';
 
 import 'user_cache.dart';
 import 'follow_cache.dart';
+import 'topic_followers_cache.dart';
 import 'topic_cache.dart';
 import 'tribe_cache.dart';
 import 'chat_cache.dart';
@@ -171,6 +172,9 @@ class ServiceLocator {
       ),
       ChangeNotifierProvider<FollowCache>(
         create: (_) => FollowCache(),
+      ),
+      ChangeNotifierProvider<TopicFollowersCache>(
+        create: (_) => TopicFollowersCache(),
       ),
       ChangeNotifierProvider<TopicCache>(
         create: (_) => TopicCache(),

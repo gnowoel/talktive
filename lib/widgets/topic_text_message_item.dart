@@ -6,6 +6,7 @@ import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../helpers/helpers.dart';
 import '../helpers/topic_message_status_helper.dart';
@@ -38,6 +39,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   late Firestore firestore;
   late UserCache userCache;
   late FollowCache followCache;
+  late TopicFollowersCache topicFollowersCache;
   bool _isRevealed = false;
   bool _isReportedRevealed = false;
 
@@ -54,6 +56,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    topicFollowersCache = Provider.of<TopicFollowersCache>(context);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -71,6 +74,11 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     final currentUser = fireauth.instance.currentUser!;
     final byMe = widget.message.userId == currentUser.uid;
     final hasReportPermission = canReportOthers(userCache.user);
+
+    // Blocked users cannot access context menu
+    if (topicFollowersCache.isUserBlocked(currentUser.uid)) {
+      return;
+    }
 
     // Check if current user can block others (admin/moderator or topic creator)
     final canBlock = !byMe &&
@@ -181,10 +189,10 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
           await TopicMessageStatusHelper.isRecentlyReported(widget.message);
       if (isReported) {
         contentToCopy = TopicMessageStatusHelper.getReportedCopyContent(
-            widget.message, widget.message.content);
+            widget.message, widget.message.content, followersCache: topicFollowersCache);
       } else {
         contentToCopy = TopicMessageStatusHelper.getCopyContent(
-            widget.message, widget.message.content);
+            widget.message, widget.message.content, followersCache: topicFollowersCache);
       }
     }
 
@@ -445,12 +453,16 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         final shouldShow = TopicMessageStatusHelper.shouldShowMessage(
           widget.message,
           isAdmin: false, // TODO: Add admin check if needed
+          followersCache: topicFollowersCache,
         );
 
         // Determine what content to display
         String displayContent;
 
-        if (isReportedButRevealable) {
+        // Check if message is from a blocked user first (highest priority)
+        if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
+          displayContent = TopicMessageStatusHelper.getBlockedUserMessageContent(widget.message);
+        } else if (isReportedButRevealable) {
           // Recently reported message - show placeholder or original based on toggle
           displayContent = _isReportedRevealed
               ? content

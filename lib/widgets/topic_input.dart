@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../models/topic.dart';
+import '../services/fireauth.dart';
 import '../services/storage.dart';
+import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import 'status_notice.dart';
 
@@ -33,8 +35,10 @@ class TopicInput extends StatefulWidget {
 
 class TopicInputState extends State<TopicInput> {
   late ThemeData theme;
+  late Fireauth fireauth;
   late Storage storage;
   late UserCache userCache;
+  late TopicFollowersCache topicFollowersCache;
   Timer? _refreshTimer;
   final _controller = TextEditingController();
   bool _enabled = false;
@@ -43,6 +47,7 @@ class TopicInputState extends State<TopicInput> {
   @override
   void initState() {
     super.initState();
+    fireauth = context.read<Fireauth>();
     storage = context.read<Storage>();
   }
 
@@ -51,6 +56,7 @@ class TopicInputState extends State<TopicInput> {
     super.didChangeDependencies();
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
+    topicFollowersCache = Provider.of<TopicFollowersCache>(context);
     _refreshAgain();
   }
 
@@ -75,11 +81,14 @@ class TopicInputState extends State<TopicInput> {
     final timeLeft = _getTimeLeft();
     final user = userCache.user;
     final hasPermission = canSendMessage(user);
+    final currentUserId = fireauth.instance.currentUser?.uid;
+    final isBlocked = currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId);
 
     _enabled = hasPermission &&
         timeLeft > 0 &&
         !widget.topic!.isDummy &&
-        !widget.topic!.isClosed;
+        !widget.topic!.isClosed &&
+        !isBlocked;
 
     if (timeLeft == 0) return;
 
@@ -90,9 +99,12 @@ class TopicInputState extends State<TopicInput> {
         setState(() {
           final user = userCache.user;
           final hasPermission = canSendMessage(user);
+          final currentUserId = fireauth.instance.currentUser?.uid;
+          final isBlocked = currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId);
           _enabled = hasPermission &&
               !widget.topic!.isDummy &&
-              !widget.topic!.isClosed;
+              !widget.topic!.isClosed &&
+              !isBlocked;
         });
       }
     });
@@ -238,6 +250,11 @@ class TopicInputState extends State<TopicInput> {
     }
 
     final user = userCache.user;
+    final currentUserId = fireauth.instance.currentUser?.uid;
+
+    if (currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId)) {
+      return 'You are blocked from this topic';
+    }
 
     if (!canSendMessage(user)) {
       return 'Account restricted';
@@ -255,9 +272,13 @@ class TopicInputState extends State<TopicInput> {
 
   Widget _buildStatusNotice() {
     final user = userCache.user;
+    final currentUserId = fireauth.instance.currentUser?.uid;
     String message;
 
-    if (!canSendMessage(user)) {
+    if (currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId)) {
+      message =
+          'You have been blocked from this topic and cannot send messages or interact within it.';
+    } else if (!canSendMessage(user)) {
       message =
           'Your account has been temporarily restricted due to multiple reports of inappropriate behavior. You cannot send messages until this restriction expires.';
     } else if (widget.topic?.isDummy == true) {
@@ -287,7 +308,8 @@ class TopicInputState extends State<TopicInput> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.topic != null &&
-            (!_enabled || userCache.user?.withAlert == true))
+            (!_enabled || userCache.user?.withAlert == true ||
+            (fireauth.instance.currentUser?.uid != null && topicFollowersCache.isUserBlocked(fireauth.instance.currentUser!.uid))))
           _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

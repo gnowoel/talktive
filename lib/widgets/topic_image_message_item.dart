@@ -8,6 +8,7 @@ import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 import 'bubble.dart';
@@ -38,6 +39,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   late Firestore firestore;
   late UserCache userCache;
   late FollowCache followCache;
+  late TopicFollowersCache topicFollowersCache;
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
   bool _isRevealed = false;
@@ -58,6 +60,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    topicFollowersCache = Provider.of<TopicFollowersCache>(context);
   }
 
   void _showUserInfo(BuildContext context) {
@@ -75,6 +78,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     final currentUser = fireauth.instance.currentUser!;
     final byMe = widget.message.userId == currentUser.uid;
     final hasReportPermission = canReportOthers(userCache.user);
+
+    // Blocked users cannot access context menu
+    if (topicFollowersCache.isUserBlocked(currentUser.uid)) {
+      return;
+    }
 
     // Check if current user can block others (admin/moderator or topic creator)
     final canBlock = !byMe &&
@@ -398,6 +406,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         final shouldShow = TopicMessageStatusHelper.shouldShowMessage(
           widget.message,
           isAdmin: false, // TODO: Add admin check if needed
+          followersCache: topicFollowersCache,
         );
 
         // Images don't have text content to check for mentions
@@ -406,7 +415,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         // Determine what content to display
         Widget contentWidget;
 
-        if (isReportedButRevealable) {
+        // Check if message is from a blocked user first (highest priority)
+        if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
+          final blockedContent = TopicMessageStatusHelper.getBlockedUserMessageContent(widget.message);
+          contentWidget = Bubble(content: blockedContent, byMe: byMe, isMentioned: isMentioned);
+        } else if (isReportedButRevealable) {
           // Recently reported image - show placeholder or original based on toggle
           if (_isReportedRevealed) {
             contentWidget = _buildCachedImage(context, constraints);

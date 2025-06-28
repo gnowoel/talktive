@@ -924,17 +924,24 @@ class Firestore {
     }
   }
 
-  Future<void> kickUserFromTopic({
+  Future<void> blockUserFromTopic({
     required String topicId,
     required String userId,
   }) async {
     try {
-      await instance
-          .collection('topics')
-          .doc(topicId)
-          .collection('followers')
-          .doc(userId)
-          .update({'isKicked': true});
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('blockUserFromTopic');
+
+      final response = await callable.call({
+        'topicId': topicId,
+        'userId': userId,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to block user from topic');
+      }
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -72,8 +72,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     final byMe = widget.message.userId == currentUser.uid;
     final hasReportPermission = canReportOthers(userCache.user);
 
-    // Check if current user can kick others (admin/moderator or topic creator)
-    final canKick = !byMe &&
+    // Check if current user can block others (admin/moderator or topic creator)
+    final canBlock = !byMe &&
         (userCache.user?.isAdminOrModerator == true ||
          currentUser.uid == widget.topicCreatorId);
 
@@ -122,22 +122,6 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
       );
     }
 
-    // Add kick option if user has permission
-    if (canKick) {
-      menuItems.add(
-        PopupMenuItem(
-          child: Row(
-            children: const [
-              Icon(Icons.person_remove, size: 20),
-              SizedBox(width: 8),
-              Text('Kick'),
-            ],
-          ),
-          onTap: () => _showKickDialog(context),
-        ),
-      );
-    }
-
     // Add report option if eligible
     if (canShowReport) {
       menuItems.add(
@@ -150,6 +134,22 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             ],
           ),
           onTap: () => _showReportDialog(context),
+        ),
+      );
+    }
+
+    // Add block option if user has permission
+    if (canBlock) {
+      menuItems.add(
+        PopupMenuItem(
+          child: Row(
+            children: const [
+              Icon(Icons.block, size: 20),
+              SizedBox(width: 8),
+              Text('Block'),
+            ],
+          ),
+          onTap: () => _showBlockDialog(context),
         ),
       );
     }
@@ -306,18 +306,18 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     }
   }
 
-  void _showKickDialog(BuildContext context) {
+  void _showBlockDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         icon: Icon(
-          Icons.person_remove_outlined,
+          Icons.block_outlined,
           color: theme.colorScheme.error,
           size: 32,
         ),
-        title: const Text('Kick this user?'),
+        title: const Text('Block this user?'),
         content: const Text(
-          'Kicking this user will ban them from this topic. All their messages will be hidden, and they will lose access to all interactions within the topic.',
+          'Blocking this user will ban them from this topic. All their messages will be hidden, and they will lose access to all interactions within the topic.',
         ),
         actions: [
           TextButton(
@@ -326,12 +326,12 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
           ),
           TextButton(
             child: Text(
-              'Kick',
+              'Block',
               style: TextStyle(color: theme.colorScheme.error),
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _kickUser(context);
+              _blockUser(context);
             },
           ),
         ],
@@ -339,9 +339,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
   }
 
-  Future<void> _kickUser(BuildContext context) async {
+  Future<void> _blockUser(BuildContext context) async {
     try {
-      await firestore.kickUserFromTopic(
+      await firestore.blockUserFromTopic(
         topicId: widget.topicId,
         userId: widget.message.userId,
       );
@@ -351,7 +351,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
-              'User has been kicked from this topic.',
+              'User has been blocked from this topic.',
               style: TextStyle(color: theme.colorScheme.onErrorContainer),
             ),
           ),

@@ -146,8 +146,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
       );
     }
 
-    // Add block option if user has permission
-    if (canBlock) {
+    // Add block option if user has permission and target user is not already blocked
+    if (canBlock && !topicFollowersCache.isUserBlocked(widget.message.userId)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(

@@ -11,6 +11,30 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
+const twoWeeks = 14 * oneDay;
+
+/**
+ * Gets the restriction level based on revivedAt timestamp
+ * Returns 'regular', 'alert', or 'warning'
+ */
+export const getRestrictionLevel = (revivedAt: number | null | undefined, now: number): string => {
+  if (!revivedAt || revivedAt < now) return 'regular';
+  if (revivedAt >= now + twoWeeks) return 'warning';
+  return 'alert';
+};
+
+/**
+ * Determines if partner chats need to be updated based on restriction level changes
+ */
+export const shouldUpdatePartnerChats = (
+  oldRevivedAt: number | null | undefined,
+  newRevivedAt: number,
+  now: number
+): boolean => {
+  const oldLevel = getRestrictionLevel(oldRevivedAt, now);
+  const newLevel = getRestrictionLevel(newRevivedAt, now);
+  return oldLevel !== newLevel;
+};
 
 /**
  * Fetches a user from the Realtime Database
@@ -131,6 +155,7 @@ export const updateChatPartnerRevivedAt = async (
 
 /**
  * Applies moderation penalties to a user (updates revivedAt and reportCount, updates partner chats)
+ * Only updates partner chats if the restriction level changes
  */
 export const applyModerationPenalty = async (userId: string) => {
   try {
@@ -147,10 +172,16 @@ export const applyModerationPenalty = async (userId: string) => {
     // Update the user's revivedAt and reportCount
     await updateUserRevivedAtAndReportCount(userId, newRevivedAt);
 
-    // Update all chats where this user is a partner
-    await updatePartnerChatsRevivedAt(userId, newRevivedAt);
-
-    logger.info(`Moderation penalty applied to user ${userId}`);
+    // Only update partner chats if restriction level changed
+    if (shouldUpdatePartnerChats(user.revivedAt, newRevivedAt, now)) {
+      const oldLevel = getRestrictionLevel(user.revivedAt, now);
+      const newLevel = getRestrictionLevel(newRevivedAt, now);
+      await updatePartnerChatsRevivedAt(userId, newRevivedAt);
+      logger.info(`Moderation penalty applied to user ${userId} - restriction level changed from ${oldLevel} to ${newLevel}`);
+    } else {
+      const currentLevel = getRestrictionLevel(user.revivedAt, now);
+      logger.info(`Moderation penalty applied to user ${userId} - restriction level unchanged (${currentLevel})`);
+    }
   } catch (error) {
     logger.error(`Error applying moderation penalty to user ${userId}:`, error);
   }

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
-import 'simple_paginated_message_service.dart';
+import 'paginated_message_service.dart';
 import 'fireauth.dart';
 import 'firedata.dart';
 import 'firestore.dart';
@@ -28,7 +28,7 @@ class ServiceLocator {
   ServiceLocator._();
 
   // Services
-  SimplePaginatedMessageService? _simplePaginatedMessageService;
+  PaginatedMessageService? _paginatedMessageService;
   ErrorRecoveryService? _errorRecoveryService;
 
   bool _isInitialized = false;
@@ -107,21 +107,21 @@ class ServiceLocator {
   }
 
   /// Create simplified paginated message service with dependencies
-  SimplePaginatedMessageService createSimplePaginatedMessageService({
+  PaginatedMessageService createPaginatedMessageService({
     required Firedata firedata,
     required Firestore firestore,
   }) {
-    _simplePaginatedMessageService ??= SimplePaginatedMessageService(
+    _paginatedMessageService ??= PaginatedMessageService(
       firedata,
       firestore,
     );
 
-    return _simplePaginatedMessageService!;
+    return _paginatedMessageService!;
   }
 
   /// Get simplified paginated message service instance
-  SimplePaginatedMessageService? get simplePaginatedMessageService =>
-      _simplePaginatedMessageService;
+  PaginatedMessageService? get paginatedMessageService =>
+      _paginatedMessageService;
 
   /// Get error recovery service instance (nullable)
   ErrorRecoveryService? get errorRecoveryService {
@@ -132,7 +132,7 @@ class ServiceLocator {
   Future<void> dispose() async {
     try {
       // Dispose managed services
-      _simplePaginatedMessageService?.dispose();
+      _paginatedMessageService?.dispose();
       _errorRecoveryService?.dispose();
 
       // Dispose singleton cache services
@@ -187,7 +187,7 @@ class ServiceLocator {
       // Note: TribeCache and TopicFollowersCache are not singletons
       // They are managed by Provider and will be disposed automatically
 
-      _simplePaginatedMessageService = null;
+      _paginatedMessageService = null;
       _errorRecoveryService = null;
       _isInitialized = false;
 
@@ -246,15 +246,15 @@ class ServiceLocator {
 
       // New simplified message service
       ChangeNotifierProxyProvider2<Firedata, Firestore,
-          SimplePaginatedMessageService>(
+          PaginatedMessageService>(
         create: (context) =>
-            ServiceLocator.instance.createSimplePaginatedMessageService(
+            ServiceLocator.instance.createPaginatedMessageService(
           firedata: firedata,
           firestore: firestore,
         ),
         update: (context, firedata, firestore, previous) {
           return previous ??
-              ServiceLocator.instance.createSimplePaginatedMessageService(
+              ServiceLocator.instance.createPaginatedMessageService(
                 firedata: firedata,
                 firestore: firestore,
               );
@@ -274,7 +274,7 @@ class ServiceLocator {
     try {
       final stats = <String, dynamic>{};
 
-      if (_simplePaginatedMessageService != null) {
+      if (_paginatedMessageService != null) {
         stats['simple_paginated_service_initialized'] = true;
         // Add pagination state statistics if needed
         // Could add counts of active chat/topic states, etc.
@@ -302,8 +302,8 @@ class ServiceLocator {
   Future<void> clearAllMessageData() async {
     try {
       // Clear all pagination states
-      _simplePaginatedMessageService?.dispose();
-      _simplePaginatedMessageService = null;
+      _paginatedMessageService?.dispose();
+      _paginatedMessageService = null;
 
       if (kDebugMode) {
         print('ServiceLocator: All message data cleared');

@@ -10,14 +10,14 @@ import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/topic_followers_cache.dart';
 
-import '../services/simple_paginated_message_service.dart';
+import '../services/paginated_message_service.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 
 import '../widgets/layout.dart';
 import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
-import '../widgets/simple_paginated_message_list.dart';
+import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class TopicPage extends StatefulWidget {
@@ -42,7 +42,7 @@ class _TopicPageState extends State<TopicPage> {
   late FollowCache followCache;
   late TopicFollowersCache topicFollowersCache;
 
-  late SimplePaginatedMessageService paginatedMessageService;
+  late PaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
 
   final _focusNode = FocusNode();
@@ -62,7 +62,7 @@ class _TopicPageState extends State<TopicPage> {
     firestore = context.read<Firestore>();
     topicFollowersCache = context.read<TopicFollowersCache>();
 
-    paginatedMessageService = context.read<SimplePaginatedMessageService>();
+    paginatedMessageService = context.read<PaginatedMessageService>();
 
     // Reset pagination state to ensure fresh loading when entering topic
     paginatedMessageService.resetTopicPagination(widget.topicId);
@@ -350,7 +350,9 @@ class _TopicPageState extends State<TopicPage> {
           ),
           actions: [
             RepaintBoundary(child: TopicHearts(topic: _topic)),
-            if (_userHasSentMessage && !topicFollowersCache.isUserBlocked(fireauth.instance.currentUser!.uid)) ...[
+            if (_userHasSentMessage &&
+                !topicFollowersCache
+                    .isUserBlocked(fireauth.instance.currentUser!.uid)) ...[
               PopupMenuButton<String>(
                 onSelected: _isInviting
                     ? null
@@ -399,7 +401,7 @@ class _TopicPageState extends State<TopicPage> {
               children: [
                 const SizedBox(height: 10),
                 Expanded(
-                  child: SimplePaginatedMessageList.topic(
+                  child: PaginatedMessageList.topic(
                     id: widget.topicId,
                     topicCreatorId: widget.topicCreatorId,
                     focusNode: _focusNode,

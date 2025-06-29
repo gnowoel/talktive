@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../models/message.dart';
+import '../models/chat_message.dart';
 import '../models/topic_message.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
@@ -24,10 +24,10 @@ class SimpleChatPaginationState {
   final String chatId;
   bool isLoading = false;
   bool hasMore = true;
-  List<Message> messages = [];
+  List<ChatMessage> messages = [];
   int? oldestTimestamp; // For loading older messages
   int? newestTimestamp; // For real-time updates
-  StreamSubscription<List<Message>>? subscription;
+  StreamSubscription<List<ChatMessage>>? subscription;
 
   SimpleChatPaginationState(this.chatId);
 
@@ -77,7 +77,7 @@ class SimpleTopicPaginationState {
 
 // Simplified paginated message service for chat and topic messages
 // Handles loading, pagination, real-time updates, and optimistic updates for both workflows
-class SimplePaginatedMessageService extends ChangeNotifier {
+class PaginatedMessageService extends ChangeNotifier {
   final Firedata _firedata;
   final Firestore _firestore;
 
@@ -89,7 +89,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
   static const int _initialLoadSize = 25;
   static const int _paginationLoadSize = 25;
 
-  SimplePaginatedMessageService(this._firedata, this._firestore);
+  PaginatedMessageService(this._firedata, this._firestore);
 
   // Safely notify listeners with build-phase protection
   void _safeNotifyListeners() {
@@ -114,7 +114,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
 
   // Load chat messages (initial load or refresh)
   // Sets up real-time subscriptions for new messages
-  Future<SimplePaginatedResult<Message>> loadChatMessages(
+  Future<SimplePaginatedResult<ChatMessage>> loadChatMessages(
     String chatId, {
     bool isInitialLoad = false,
     int? chatCreatedAt,
@@ -130,7 +130,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      List<Message> newMessages;
+      List<ChatMessage> newMessages;
 
       if (isInitialLoad || state.messages.isEmpty) {
         // Load most recent messages
@@ -181,7 +181,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
   }
 
   // Load more older chat messages for pagination
-  Future<SimplePaginatedResult<Message>> loadMoreChatMessages(
+  Future<SimplePaginatedResult<ChatMessage>> loadMoreChatMessages(
       String chatId) async {
     final state = _getChatState(chatId);
 
@@ -463,7 +463,7 @@ class SimplePaginatedMessageService extends ChangeNotifier {
 
   // Add a new message to chat state for optimistic updates
   // Used to immediately show sent messages before server confirmation
-  void addChatMessage(String chatId, Message message) {
+  void addChatMessage(String chatId, ChatMessage message) {
     final state = _chatStates[chatId];
     if (state != null && !state.messages.any((m) => m.id == message.id)) {
       state.messages.add(message);

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/message.dart';
-import '../models/image_message.dart';
-import '../models/text_message.dart';
+import '../models/chat_message.dart';
 import '../models/topic_message.dart';
 import '../models/chat.dart';
-import '../services/simple_paginated_message_service.dart';
-import 'image_message_item.dart';
-import 'text_message_item.dart';
+import '../services/paginated_message_service.dart';
+import 'chat_image_message_item.dart';
+import 'chat_text_message_item.dart';
 import 'topic_image_message_item.dart';
 import 'topic_text_message_item.dart';
 import 'message_separator.dart';
@@ -16,7 +14,7 @@ import 'info.dart';
 
 enum MessageListType { chat, topic }
 
-class SimplePaginatedMessageList extends StatefulWidget {
+class PaginatedMessageList extends StatefulWidget {
   // Common properties
   final MessageListType type;
   final String id; // chatId or topicId
@@ -33,7 +31,7 @@ class SimplePaginatedMessageList extends StatefulWidget {
   final String? topicCreatorId;
   final int? readMessageCount;
 
-  const SimplePaginatedMessageList.chat({
+  const PaginatedMessageList.chat({
     super.key,
     required this.id,
     required this.chat,
@@ -46,7 +44,7 @@ class SimplePaginatedMessageList extends StatefulWidget {
         topicCreatorId = null,
         readMessageCount = null;
 
-  const SimplePaginatedMessageList.topic({
+  const PaginatedMessageList.topic({
     super.key,
     required this.id,
     required this.topicCreatorId,
@@ -60,15 +58,13 @@ class SimplePaginatedMessageList extends StatefulWidget {
         reporterUserId = null;
 
   @override
-  State<SimplePaginatedMessageList> createState() =>
-      _SimplePaginatedMessageListState();
+  State<PaginatedMessageList> createState() => _PaginatedMessageListState();
 }
 
-class _SimplePaginatedMessageListState
-    extends State<SimplePaginatedMessageList> {
-  SimplePaginatedMessageService? _messageService;
+class _PaginatedMessageListState extends State<PaginatedMessageList> {
+  PaginatedMessageService? _messageService;
 
-  List<dynamic> _messages = []; // Can be Message or TopicMessage
+  List<dynamic> _messages = []; // Can be ChatMessage or TopicMessage
   bool _isLoading = false;
   bool _hasMore = true;
   bool _isSticky = true;
@@ -95,8 +91,7 @@ class _SimplePaginatedMessageListState
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final newMessageService =
-        Provider.of<SimplePaginatedMessageService>(context);
+    final newMessageService = Provider.of<PaginatedMessageService>(context);
 
     // Only update listener if service instance changed
     if (_messageService != newMessageService) {
@@ -265,7 +260,7 @@ class _SimplePaginatedMessageListState
     if (_isLoading || _messageService == null) return;
 
     debugPrint(
-        'SimplePaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
+        'PaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
 
     if (!mounted) return;
     setState(() {
@@ -298,7 +293,7 @@ class _SimplePaginatedMessageListState
       });
 
       debugPrint(
-          'SimplePaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore');
+          'PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
 
       // Scroll to bottom after initial load
@@ -324,7 +319,7 @@ class _SimplePaginatedMessageListState
     if (_isLoading || !_hasMore || _messageService == null) return;
 
     debugPrint(
-        'SimplePaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
+        'PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
 
     if (!mounted) return;
     setState(() {
@@ -348,7 +343,7 @@ class _SimplePaginatedMessageListState
       });
 
       debugPrint(
-          'SimplePaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore');
+          'PaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
     } catch (e) {
       debugPrint('Error loading more messages: $e');
@@ -366,7 +361,7 @@ class _SimplePaginatedMessageListState
   }
 
   String _getMessageId(dynamic message) {
-    if (message is Message) {
+    if (message is ChatMessage) {
       return message.id ?? '';
     } else if (message is TopicMessage) {
       return message.id ?? '';
@@ -512,9 +507,9 @@ class _SimplePaginatedMessageListState
 
   Widget _buildSingleMessageItem(dynamic message) {
     if (widget.type == MessageListType.chat) {
-      final chatMessage = message as Message;
-      if (chatMessage is ImageMessage) {
-        return ImageMessageItem(
+      final chatMessage = message as ChatMessage;
+      if (chatMessage is ChatImageMessage) {
+        return ChatImageMessageItem(
           key: ValueKey(chatMessage.id),
           chatId: widget.id,
           message: chatMessage,
@@ -522,10 +517,10 @@ class _SimplePaginatedMessageListState
           onInsertMention: widget.onInsertMention,
         );
       } else {
-        return TextMessageItem(
+        return ChatTextMessageItem(
           key: ValueKey(chatMessage.id),
           chatId: widget.id,
-          message: chatMessage as TextMessage,
+          message: chatMessage as ChatTextMessage,
           reporterUserId: widget.reporterUserId,
           onInsertMention: widget.onInsertMention,
         );

@@ -11,13 +11,13 @@ import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
 
-import '../services/simple_paginated_message_service.dart';
+import '../services/paginated_message_service.dart';
 import '../theme.dart';
-import '../widgets/hearts.dart';
-import '../widgets/input.dart';
+import '../widgets/chat_hearts.dart';
+import '../widgets/chat_input.dart';
 import '../widgets/layout.dart';
 
-import '../widgets/simple_paginated_message_list.dart';
+import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ChatPage extends StatefulWidget {
@@ -35,13 +35,13 @@ class _ChatPageState extends State<ChatPage> {
   late Firedata firedata;
   late FollowCache followCache;
 
-  late SimplePaginatedMessageService paginatedMessageService;
+  late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
   late Chat _chat;
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
-  final GlobalKey<InputState> _inputKey = GlobalKey<InputState>();
+  final GlobalKey<ChatInputState> _inputKey = GlobalKey<ChatInputState>();
 
   int _messageCount = 0;
   bool _chatPopulated = false;
@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
 
-    paginatedMessageService = context.read<SimplePaginatedMessageService>();
+    paginatedMessageService = context.read<PaginatedMessageService>();
 
     _chat = widget.chat;
 
@@ -208,7 +208,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           actions: [
-            RepaintBoundary(child: Hearts(chat: _chat)),
+            RepaintBoundary(child: ChatHearts(chat: _chat)),
             const SizedBox(width: 16),
           ],
         ),
@@ -223,7 +223,7 @@ class _ChatPageState extends State<ChatPage> {
                   _buildAlertBox(),
                 ],
                 Expanded(
-                  child: SimplePaginatedMessageList.chat(
+                  child: PaginatedMessageList.chat(
                     id: _chat.id,
                     chat: _chat,
                     focusNode: _focusNode,
@@ -232,7 +232,7 @@ class _ChatPageState extends State<ChatPage> {
                     onInsertMention: _insertMention,
                   ),
                 ),
-                Input(
+                ChatInput(
                   key: _inputKey,
                   focusNode: _focusNode,
                   chat: _chat,

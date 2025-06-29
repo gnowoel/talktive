@@ -1,25 +1,25 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:talktive/widgets/bubble.dart';
 
-import '../models/text_message.dart';
+import '../helpers/helpers.dart';
+import '../helpers/message_status_helper.dart';
+import '../models/chat_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
-import '../helpers/helpers.dart';
-import '../helpers/message_status_helper.dart';
-import '../helpers/mention_helper.dart';
-import 'bubble.dart';
+import 'image_viewer.dart';
 import 'user_info_loader.dart';
 
-class TextMessageItem extends StatefulWidget {
+class ChatImageMessageItem extends StatefulWidget {
   final String chatId;
-  final TextMessage message;
+  final ChatImageMessage message;
   final String? reporterUserId;
   final void Function(String)? onInsertMention;
 
-  const TextMessageItem({
+  const ChatImageMessageItem({
     super.key,
     required this.chatId,
     required this.message,
@@ -28,15 +28,17 @@ class TextMessageItem extends StatefulWidget {
   });
 
   @override
-  State<TextMessageItem> createState() => _TextMessageItemState();
+  State<ChatImageMessageItem> createState() => _ChatImageMessageItemState();
 }
 
-class _TextMessageItemState extends State<TextMessageItem> {
+class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;
   late Firestore firestore;
   late UserCache userCache;
+  late CachedNetworkImageProvider _imageProvider;
+  late String _imageUrl;
   bool _isRevealed = false;
   bool _isReportedRevealed = false;
 
@@ -46,6 +48,8 @@ class _TextMessageItemState extends State<TextMessageItem> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     firestore = context.read<Firestore>();
+    _imageUrl = convertUri(widget.message.uri);
+    _imageProvider = getCachedImageProvider(widget.message.uri);
   }
 
   @override
@@ -87,21 +91,6 @@ class _TextMessageItemState extends State<TextMessageItem> {
 
     final menuItems = <PopupMenuEntry>[];
 
-    // Always show Copy option
-    menuItems.add(
-      PopupMenuItem(
-        child: Row(
-          children: const [
-            Icon(Icons.copy, size: 20),
-            SizedBox(width: 8),
-            Text('Copy'),
-          ],
-        ),
-        onTap: () => _copyToClipboard(context),
-      ),
-    );
-
-    // Show Recall option only for own messages that haven't been recalled
     if (byMe && !widget.message.recalled) {
       menuItems.add(
         PopupMenuItem(
@@ -147,44 +136,13 @@ class _TextMessageItemState extends State<TextMessageItem> {
     }
   }
 
-  Future<void> _copyToClipboard(BuildContext context) async {
-    // Capture the BuildContext before the async gap
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    String contentToCopy;
-    if (widget.message.recalled) {
-      contentToCopy = '- Message recalled -';
-    } else {
-      // Check if message is recently reported
-      final isReported =
-          await MessageStatusHelper.isRecentlyReported(widget.message);
-      if (isReported) {
-        contentToCopy = MessageStatusHelper.getReportedCopyContent(
-            widget.message, widget.message.content);
-      } else {
-        contentToCopy = MessageStatusHelper.getCopyContent(
-            widget.message, widget.message.content);
-      }
-    }
-
-    await Clipboard.setData(ClipboardData(text: contentToCopy));
-    if (!mounted) return;
-
-    scaffoldMessenger.showSnackBar(
-      const SnackBar(
-        content: Text('Message copied to clipboard'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   void _showRecallDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Recall Message?'),
+        title: const Text('Recall Image?'),
         content: const Text(
-          'This message will be removed from the chat. The action cannot be undone.',
+          'This image will be removed from the chat. The action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -248,6 +206,37 @@ class _TextMessageItemState extends State<TextMessageItem> {
     }
   }
 
+  Future<void> _reportMessage(BuildContext context) async {
+    try {
+      final currentUser = fireauth.instance.currentUser!;
+
+      // No need to wait, show snack bar message immediately
+      firestore.reportMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.id!,
+        reporterUserId: currentUser.uid,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: theme.colorScheme.errorContainer,
+            content: Text(
+              'Thank you for your report. We will review it shortly.',
+              style: TextStyle(color: theme.colorScheme.onErrorContainer),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   Widget _buildToggleButton(bool byMe) {
     return FutureBuilder<bool>(
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
@@ -306,50 +295,17 @@ class _TextMessageItemState extends State<TextMessageItem> {
     );
   }
 
-  Future<void> _reportMessage(BuildContext context) async {
-    try {
-      final currentUser = fireauth.instance.currentUser!;
-
-      // No need to wait, show snack bar message immediately
-      firestore.reportMessage(
-        chatId: widget.chatId,
-        messageId: widget.message.id!,
-        reporterUserId: currentUser.uid,
-      );
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: theme.colorScheme.errorContainer,
-            content: Text(
-              'Thank you for your report. We will review it shortly.',
-              style: TextStyle(color: theme.colorScheme.onErrorContainer),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    }
-  }
-
-  Widget _buildMessageBox({
-    required String content,
+  Widget _buildMessageBox(
+    BuildContext context,
+    BoxConstraints constraints, {
     bool byMe = false,
   }) {
     if (widget.message.recalled) {
-      return Bubble(content: '- Message recalled -', byMe: byMe);
+      return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 
-    // Check if this message mentions the current user
-    final currentUserName = userCache.user?.displayName ?? '';
-    final isMentioned = !byMe && currentUserName.isNotEmpty
-        ? MentionHelper.containsExactMention(content, currentUserName)
-        : false;
+    // Images don't have text content to check for mentions
+    final isMentioned = false;
 
     return FutureBuilder<bool>(
       future: MessageStatusHelper.isReportedButRevealable(widget.message),
@@ -363,55 +319,93 @@ class _TextMessageItemState extends State<TextMessageItem> {
         );
 
         // Determine what content to display
-        String displayContent;
+        Widget contentWidget;
 
         if (isReportedButRevealable) {
-          // Recently reported message - show placeholder or original based on toggle
-          displayContent = _isReportedRevealed
-              ? content
-              : MessageStatusHelper.getReportedMessageContent(widget.message);
+          // Recently reported image - show placeholder or original based on toggle
+          if (_isReportedRevealed) {
+            contentWidget = _buildCachedImage(context, constraints);
+          } else {
+            final reportedContent =
+                MessageStatusHelper.getReportedMessageContent(widget.message);
+            contentWidget = Bubble(
+                content: reportedContent, byMe: byMe, isMentioned: isMentioned);
+          }
         } else if (shouldShow) {
-          displayContent = content;
+          contentWidget = _buildCachedImage(context, constraints);
         } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
-          displayContent = _isRevealed
-              ? content
-              : MessageStatusHelper.getHiddenMessageContent(widget.message);
+          if (_isRevealed) {
+            contentWidget = _buildCachedImage(context, constraints);
+          } else {
+            final hiddenContent =
+                MessageStatusHelper.getHiddenMessageContent(widget.message);
+            contentWidget = Bubble(
+                content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
+          }
         } else {
-          displayContent =
+          final hiddenContent =
               MessageStatusHelper.getHiddenMessageContent(widget.message);
+          contentWidget = Bubble(
+              content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
         }
-
-        // Create the bubble widget with appropriate styling
-        Widget bubble = Bubble(
-          content: displayContent,
-          byMe: byMe,
-          isMentioned: isMentioned,
-        );
 
         // Add gesture detector for context menu (no tap-to-toggle)
         if (widget.reporterUserId == null) {
-          bubble = GestureDetector(
+          return GestureDetector(
             onLongPressStart: (details) =>
                 _showContextMenu(context, details.globalPosition),
-            child: bubble,
+            child: contentWidget,
           );
         }
 
-        return bubble;
+        return contentWidget;
       },
+    );
+  }
+
+  void _showImageViewer(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => ImageViewer(imageProvider: _imageProvider),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final currentUser = fireauth.instance.currentUser!;
-    final byMe = widget.reporterUserId == null
-        ? widget.message.userId == currentUser.uid
-        : widget.message.userId == widget.reporterUserId;
+    final byMe = widget.message.userId == currentUser.uid ||
+        widget.message.userId == widget.reporterUserId;
 
     return byMe
         ? _buildMessageItemRight(context)
         : _buildMessageItemLeft(context);
+  }
+
+  Widget _buildCachedImage(BuildContext context, BoxConstraints constraints) {
+    final halfWidth = constraints.maxWidth / 2;
+    final theme = Theme.of(context);
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: halfWidth, maxHeight: halfWidth),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          onTap: () => _showImageViewer(context),
+          child: CachedNetworkImage(
+            imageUrl: _imageUrl,
+            imageBuilder: (context, imageProvider) =>
+                Image(image: imageProvider, fit: BoxFit.contain),
+            placeholder: (context, url) =>
+                getImagePlaceholder(color: theme.colorScheme.primary),
+            errorWidget: (context, url, error) => getImageErrorWidget(),
+            cacheKey: widget.message.uri,
+            memCacheWidth:
+                (halfWidth * MediaQuery.of(context).devicePixelRatio).round(),
+            cacheManager: null,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildMessageItemLeft(BuildContext context) {
@@ -440,18 +434,14 @@ class _TextMessageItemState extends State<TextMessageItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Flexible(
-                      child: _buildMessageBox(
-                        content: widget.message.content,
-                      ),
-                    ),
+                    Flexible(child: LayoutBuilder(builder: _buildMessageBox)),
                   ],
                 ),
                 _buildToggleButton(false),
               ],
             ),
           ),
-          const SizedBox(width: 48),
+          const SizedBox(width: 32),
         ],
       ),
     );
@@ -463,7 +453,7 @@ class _TextMessageItemState extends State<TextMessageItem> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 48),
+          const SizedBox(width: 32),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -472,9 +462,9 @@ class _TextMessageItemState extends State<TextMessageItem> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Flexible(
-                      child: _buildMessageBox(
-                        content: widget.message.content,
-                        byMe: true,
+                      child: LayoutBuilder(
+                        builder: (context, constrains) =>
+                            _buildMessageBox(context, constrains, byMe: true),
                       ),
                     ),
                   ],

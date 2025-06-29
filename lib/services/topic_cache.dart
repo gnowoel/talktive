@@ -16,11 +16,10 @@ class TopicCache extends ChangeNotifier {
 
   List<String> get topicIds => _topics.keys.toList();
 
-  List<String> get activeTopicIds =>
-      _topics.entries
-          .where((entry) => entry.value.isActive)
-          .map((entry) => entry.key)
-          .toList();
+  List<String> get activeTopicIds => _topics.entries
+      .where((entry) => entry.value.isActive)
+      .map((entry) => entry.key)
+      .toList();
 
   Topic? getTopic(String topicId) => _topics[topicId];
 
@@ -59,5 +58,11 @@ class TopicCache extends ChangeNotifier {
 
     times.sort();
     return times.first;
+  }
+
+  @override
+  void dispose() {
+    _topics.clear();
+    super.dispose();
   }
 }

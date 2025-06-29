@@ -16,6 +16,8 @@ import 'chat_cache.dart';
 import 'report_cache.dart';
 import 'settings.dart';
 import 'server_clock.dart';
+import 'avatar.dart';
+import 'logging_service.dart';
 
 import 'error_recovery_service.dart';
 
@@ -129,8 +131,61 @@ class ServiceLocator {
   /// Dispose all services
   Future<void> dispose() async {
     try {
+      // Dispose managed services
       _simplePaginatedMessageService?.dispose();
       _errorRecoveryService?.dispose();
+
+      // Dispose singleton cache services
+      try {
+        UserCache().dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing UserCache: $e');
+        }
+      }
+
+      try {
+        FollowCache().dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing FollowCache: $e');
+        }
+      }
+
+      try {
+        TopicCache().dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing TopicCache: $e');
+        }
+      }
+
+      try {
+        ChatCache().dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing ChatCache: $e');
+        }
+      }
+
+      try {
+        Avatar().dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing Avatar: $e');
+        }
+      }
+
+      try {
+        LoggingService.instance.dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing LoggingService: $e');
+        }
+      }
+
+      // Note: TribeCache and TopicFollowersCache are not singletons
+      // They are managed by Provider and will be disposed automatically
 
       _simplePaginatedMessageService = null;
       _errorRecoveryService = null;

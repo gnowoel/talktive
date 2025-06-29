@@ -14,4 +14,10 @@ class UserCache extends ChangeNotifier {
     _user = user;
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    _user = null;
+    super.dispose();
+  }
 }

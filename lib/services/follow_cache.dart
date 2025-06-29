@@ -67,4 +67,11 @@ class FollowCache extends ChangeNotifier {
     return merged.values.toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
+
+  @override
+  void dispose() {
+    _followees.clear();
+    _followers.clear();
+    super.dispose();
+  }
 }

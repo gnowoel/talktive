@@ -3,6 +3,7 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
 import { User } from './types';
+import { applyModerationPenalty } from './userModerationUtils';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -100,6 +101,9 @@ export const blockUserFromTopic = onCall(async (request) => {
       // blockedAt: Timestamp.now(),
     });
 
+    // Apply moderation penalty to the blocked user
+    await applyModerationPenalty(userId);
+
     // Remove the topic from the blocked user's topics collection
     // const userTopicRef = firestore
     //   .collection('users')
@@ -109,7 +113,7 @@ export const blockUserFromTopic = onCall(async (request) => {
     //
     // await userTopicRef.delete();
 
-    logger.info(`User ${userId} blocked from topic ${topicId} by ${requesterId}`);
+    logger.info(`User ${userId} blocked from topic ${topicId} by ${requesterId} and moderation penalty applied`);
 
     return {
       success: true,

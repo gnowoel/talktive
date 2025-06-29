@@ -112,7 +112,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         PopupMenuItem(
           child: Row(
             children: const [
-              Icon(Icons.report, size: 20),
+              Icon(Icons.report_outlined, size: 20),
               SizedBox(width: 8),
               Text('Report'),
             ],

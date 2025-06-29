@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/room.dart';
 import '../models/chat.dart';
 import '../models/topic.dart';
-import 'chat_item.dart';
+import 'chat_item_card.dart';
 import 'topic_item_card.dart';
 
 class ChatList extends StatefulWidget {
@@ -53,7 +53,7 @@ class _ChatListState extends State<ChatList> {
         final item = _items[index];
 
         if (item is Chat) {
-          return ChatItem(
+          return ChatItemCard(
             key: ValueKey(item.id),
             chat: item,
             onRemove: _removeItem,

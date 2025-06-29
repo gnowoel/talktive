@@ -14,12 +14,12 @@ import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
 
-class ChatItem extends StatefulWidget {
+class ChatItemCard extends StatefulWidget {
   final Chat chat;
   final Function(Chat) onRemove;
   final Function(Chat) onRestore;
 
-  const ChatItem({
+  const ChatItemCard({
     super.key,
     required this.chat,
     required this.onRemove,
@@ -27,10 +27,10 @@ class ChatItem extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _ChatItemState();
+  State<StatefulWidget> createState() => _ChatItemCardState();
 }
 
-class _ChatItemState extends State<ChatItem> {
+class _ChatItemCardState extends State<ChatItemCard> {
   late Fireauth fireauth;
   late Firedata firedata;
   late FollowCache followCache;

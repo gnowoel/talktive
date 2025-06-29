@@ -9,16 +9,16 @@ import '../models/chat.dart';
 import '../services/server_clock.dart';
 import 'heart_list.dart';
 
-class Hearts extends StatefulWidget {
+class ChatHearts extends StatefulWidget {
   final Chat chat;
 
-  const Hearts({super.key, required this.chat});
+  const ChatHearts({super.key, required this.chat});
 
   @override
-  State<Hearts> createState() => _HeartsState();
+  State<ChatHearts> createState() => _ChatHeartsState();
 }
 
-class _HeartsState extends State<Hearts> {
+class _ChatHeartsState extends State<ChatHearts> {
   late ServerClock serverClock;
   Timer? _refreshTimer;
 
@@ -30,7 +30,7 @@ class _HeartsState extends State<Hearts> {
   }
 
   @override
-  void didUpdateWidget(Hearts oldWidget) {
+  void didUpdateWidget(ChatHearts oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.chat.updatedAt != oldWidget.chat.updatedAt) {
       _refreshAgain();

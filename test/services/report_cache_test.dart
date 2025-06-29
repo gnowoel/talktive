@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talktive/services/report_cache.dart';
-import 'package:talktive/models/message.dart';
+import 'package:talktive/models/chat_message.dart';
 import 'package:talktive/helpers/message_status_helper.dart';
 
 void main() {
@@ -205,8 +205,8 @@ void main() {
   });
 }
 
-// Create a minimal Message implementation for testing
-class TestMessage extends Message {
+// Create a minimal ChatMessage implementation for testing
+class TestMessage extends ChatMessage {
   const TestMessage({
     super.id,
     super.createdAt = 0,

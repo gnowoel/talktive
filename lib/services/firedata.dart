@@ -8,7 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../helpers/exception.dart';
 import '../helpers/platform.dart';
 import '../models/admin.dart';
-import '../models/message.dart';
+import '../models/chat_message.dart';
 import '../models/chat.dart';
 import '../models/report.dart';
 // import '../models/text_message.dart';
@@ -261,18 +261,19 @@ class Firedata {
     }
   }
 
-  Stream<List<Message>> subscribeToMessages(String chatId, int? lastTimestamp) {
+  Stream<List<ChatMessage>> subscribeToMessages(
+      String chatId, int? lastTimestamp) {
     try {
-      final messages = <Message>[];
+      final messages = <ChatMessage>[];
       final ref = instance.ref('messages/$chatId');
       final query =
           ref.orderByChild('createdAt').startAfter(lastTimestamp ?? 0);
 
-      final Stream<List<Message>> stream = StreamGroup.merge([
+      final Stream<List<ChatMessage>> stream = StreamGroup.merge([
         // Handle added messages
         query.onChildAdded.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
-          final message = Message.fromJson({
+          final message = ChatMessage.fromJson({
             'id': event.snapshot.key!,
             ...json,
           });
@@ -285,13 +286,13 @@ class Firedata {
           }
 
           messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-          return List<Message>.from(messages);
+          return List<ChatMessage>.from(messages);
         }),
 
         // Handle changed messages (We may need this for hiding messages.)
         query.onChildChanged.map((event) {
           final json = Map<String, dynamic>.from(event.snapshot.value as Map);
-          final message = Message.fromJson({
+          final message = ChatMessage.fromJson({
             'id': event.snapshot.key!,
             ...json,
           });
@@ -302,7 +303,7 @@ class Firedata {
           }
 
           messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-          return List<Message>.from(messages);
+          return List<ChatMessage>.from(messages);
         }),
 
         // Handle removed messages (We need this to remove outdated data fetched
@@ -312,7 +313,7 @@ class Firedata {
           if (index != -1) {
             messages.removeAt(index);
           }
-          return List<Message>.from(messages);
+          return List<ChatMessage>.from(messages);
         }),
       ]);
 
@@ -323,7 +324,7 @@ class Firedata {
   }
 
   /// Fetch a page of messages with pagination support
-  Future<List<Message>> fetchMessagesPage(
+  Future<List<ChatMessage>> fetchMessagesPage(
     String chatId, {
     int limit = 25,
     int? startAfterTimestamp,
@@ -346,7 +347,7 @@ class Firedata {
       query = query.limitToFirst(limit);
 
       final snapshot = await query.get();
-      final messages = <Message>[];
+      final messages = <ChatMessage>[];
 
       if (snapshot.exists) {
         final data = snapshot.value as Map<dynamic, dynamic>;
@@ -355,7 +356,7 @@ class Firedata {
           final messageId = entry.key as String;
           final messageData = Map<String, dynamic>.from(entry.value as Map);
 
-          final message = Message.fromJson({
+          final message = ChatMessage.fromJson({
             'id': messageId,
             ...messageData,
           });
@@ -376,7 +377,7 @@ class Firedata {
   }
 
   /// Fetch messages before a specific timestamp (for loading older messages)
-  Future<List<Message>> fetchMessagesBeforeTimestamp(
+  Future<List<ChatMessage>> fetchMessagesBeforeTimestamp(
     String chatId,
     int beforeTimestamp, {
     int limit = 25,
@@ -390,7 +391,7 @@ class Firedata {
           .limitToLast(limit);
 
       final snapshot = await query.get();
-      final messages = <Message>[];
+      final messages = <ChatMessage>[];
 
       if (snapshot.exists) {
         final data = snapshot.value as Map<dynamic, dynamic>;
@@ -399,7 +400,7 @@ class Firedata {
           final messageId = entry.key as String;
           final messageData = Map<String, dynamic>.from(entry.value as Map);
 
-          final message = Message.fromJson({
+          final message = ChatMessage.fromJson({
             'id': messageId,
             ...messageData,
           });
@@ -420,7 +421,7 @@ class Firedata {
   }
 
   /// Fetch messages after a specific timestamp (for loading newer messages)
-  Future<List<Message>> fetchMessagesAfterTimestamp(
+  Future<List<ChatMessage>> fetchMessagesAfterTimestamp(
     String chatId,
     int afterTimestamp, {
     int limit = 25,
@@ -434,7 +435,7 @@ class Firedata {
           .limitToFirst(limit);
 
       final snapshot = await query.get();
-      final messages = <Message>[];
+      final messages = <ChatMessage>[];
 
       if (snapshot.exists) {
         final data = snapshot.value as Map<dynamic, dynamic>;
@@ -443,7 +444,7 @@ class Firedata {
           final messageId = entry.key as String;
           final messageData = Map<String, dynamic>.from(entry.value as Map);
 
-          final message = Message.fromJson({
+          final message = ChatMessage.fromJson({
             'id': messageId,
             ...messageData,
           });

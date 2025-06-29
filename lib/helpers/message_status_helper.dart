@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/message.dart';
+import '../models/chat_message.dart';
 import '../config/message_report_config.dart';
 import '../services/report_cache.dart';
 import '../services/topic_followers_cache.dart';
@@ -9,28 +9,32 @@ class MessageStatusHelper {
   MessageStatusHelper._();
 
   /// Check if a message is from a blocked user
-  static bool isFromBlockedUser(Message message, TopicFollowersCache followersCache) {
+  static bool isFromBlockedUser(
+      ChatMessage message, TopicFollowersCache followersCache) {
     return followersCache.isUserBlocked(message.userId);
   }
 
   /// Check if a message is hidden but can be revealed
-  static bool isHiddenButRevealable(Message message) {
+  static bool isHiddenButRevealable(ChatMessage message) {
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     return status == 'hidden';
   }
 
   /// Check if a message is removed (severe)
-  static bool isRemoved(Message message) {
+  static bool isRemoved(ChatMessage message) {
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     return status == 'severe';
   }
 
   /// Check if a message should be visible to regular users
-  static bool shouldShowMessage(Message message, {bool isAdmin = false, TopicFollowersCache? followersCache}) {
+  static bool shouldShowMessage(ChatMessage message,
+      {bool isAdmin = false, TopicFollowersCache? followersCache}) {
     // Blocked users' messages are always hidden (except for admins)
-    if (followersCache != null && !isAdmin && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        !isAdmin &&
+        followersCache.isUserBlocked(message.userId)) {
       return false;
     }
 
@@ -41,12 +45,12 @@ class MessageStatusHelper {
   }
 
   /// Get replacement content for blocked user messages
-  static String getBlockedUserMessageContent(Message message) {
+  static String getBlockedUserMessageContent(ChatMessage message) {
     return '- User blocked -';
   }
 
   /// Get replacement content for hidden messages
-  static String getHiddenMessageContent(Message message) {
+  static String getHiddenMessageContent(ChatMessage message) {
     final title = message.type == 'image' ? 'Image' : 'Message';
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
@@ -61,9 +65,11 @@ class MessageStatusHelper {
   }
 
   /// Get content for copying (original for hidden, replacement for removed)
-  static String getCopyContent(Message message, String originalContent, {TopicFollowersCache? followersCache}) {
+  static String getCopyContent(ChatMessage message, String originalContent,
+      {TopicFollowersCache? followersCache}) {
     // Blocked users' content cannot be copied
-    if (followersCache != null && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        followersCache.isUserBlocked(message.userId)) {
       return getBlockedUserMessageContent(message);
     }
 
@@ -80,7 +86,8 @@ class MessageStatusHelper {
   }
 
   /// Get the background color for messages based on status
-  static Color? getMessageBackgroundColor(Message message, ThemeData theme) {
+  static Color? getMessageBackgroundColor(
+      ChatMessage message, ThemeData theme) {
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (status == null) return null;
@@ -98,7 +105,7 @@ class MessageStatusHelper {
   }
 
   /// Get border color for messages based on status
-  static Color? getMessageBorderColor(Message message, ThemeData theme) {
+  static Color? getMessageBorderColor(ChatMessage message, ThemeData theme) {
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
     if (status == null) return null;
@@ -116,17 +123,17 @@ class MessageStatusHelper {
   }
 
   /// Check if message content should be blurred or obscured
-  static bool shouldBlurContent(Message message) {
+  static bool shouldBlurContent(ChatMessage message) {
     return MessageReportConfig.shouldBlurContent(message.reportCount ?? 0);
   }
 
   /// Get tooltip text for status indicators
-  static String getStatusTooltip(Message message) {
+  static String getStatusTooltip(ChatMessage message) {
     return MessageReportConfig.getStatusTooltip(message.reportCount ?? 0);
   }
 
   /// Check if the report option should be available in context menu
-  static bool shouldShowReportOption(Message message, bool isAuthor) {
+  static bool shouldShowReportOption(ChatMessage message, bool isAuthor) {
     if (isAuthor) return false;
     final status =
         MessageReportConfig.getReportStatus(message.reportCount ?? 0);
@@ -143,7 +150,7 @@ class MessageStatusHelper {
 
   /// Check if report option should be shown considering cache
   static Future<bool> shouldShowReportOptionWithCache(
-    Message message,
+    ChatMessage message,
     bool isAuthor,
   ) async {
     if (!shouldShowReportOption(message, isAuthor)) return false;
@@ -152,7 +159,7 @@ class MessageStatusHelper {
   }
 
   /// Check if a message was recently reported and should show placeholder
-  static Future<bool> isRecentlyReported(Message message) async {
+  static Future<bool> isRecentlyReported(ChatMessage message) async {
     if (message.id == null) return false;
     final reportCache = ReportCacheService();
     await reportCache.initialize();
@@ -160,22 +167,25 @@ class MessageStatusHelper {
   }
 
   /// Check if message should show reported placeholder but is revealable
-  static Future<bool> isReportedButRevealable(Message message) async {
+  static Future<bool> isReportedButRevealable(ChatMessage message) async {
     // Only show reported placeholder for messages that aren't already hidden/removed
     if (isRemoved(message) || isHiddenButRevealable(message)) return false;
     return await isRecentlyReported(message);
   }
 
   /// Get placeholder content for recently reported messages
-  static String getReportedMessageContent(Message message) {
+  static String getReportedMessageContent(ChatMessage message) {
     final title = message.type == 'image' ? 'Image' : 'Message';
     return '- $title reported -';
   }
 
   /// Get content for copying reported messages (always return original for text)
-  static String getReportedCopyContent(Message message, String originalContent, {TopicFollowersCache? followersCache}) {
+  static String getReportedCopyContent(
+      ChatMessage message, String originalContent,
+      {TopicFollowersCache? followersCache}) {
     // Blocked users' content cannot be copied
-    if (followersCache != null && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        followersCache.isUserBlocked(message.userId)) {
       return getBlockedUserMessageContent(message);
     }
 
@@ -189,7 +199,7 @@ class MessageStatusHelper {
 
   /// Get appropriate context menu options based on message status
   static List<String> getAvailableActions(
-    Message message, {
+    ChatMessage message, {
     required bool isAuthor,
     required bool isAdmin,
     TopicFollowersCache? followersCache,
@@ -197,7 +207,9 @@ class MessageStatusHelper {
     final actions = <String>[];
 
     // No actions available for blocked users' messages (except for admins)
-    if (followersCache != null && !isAdmin && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        !isAdmin &&
+        followersCache.isUserBlocked(message.userId)) {
       return actions;
     }
 
@@ -231,14 +243,14 @@ class MessageStatusHelper {
   }
 
   /// Check if a message should show a content warning
-  static bool shouldShowContentWarning(Message message) {
+  static bool shouldShowContentWarning(ChatMessage message) {
     return MessageReportConfig.shouldShowContentWarning(
         message.reportCount ?? 0);
   }
 
   /// Create a content warning widget
   static Widget createContentWarning(
-    Message message,
+    ChatMessage message,
     ThemeData theme, {
     required VoidCallback onProceed,
   }) {
@@ -290,12 +302,12 @@ class MessageStatusHelper {
   }
 
   /// Calculate severity level based on report count and status
-  static double getSeverityLevel(Message message) {
+  static double getSeverityLevel(ChatMessage message) {
     return MessageReportConfig.getSeverityLevel(message.reportCount ?? 0);
   }
 
   /// Get moderation priority (higher = more urgent)
-  static int getModerationPriority(Message message) {
+  static int getModerationPriority(ChatMessage message) {
     return MessageReportConfig.getModerationPriority(message.reportCount ?? 0);
   }
 }

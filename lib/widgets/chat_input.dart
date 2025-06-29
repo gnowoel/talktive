@@ -13,13 +13,13 @@ import '../services/storage.dart';
 import '../services/user_cache.dart';
 import 'status_notice.dart';
 
-class Input extends StatefulWidget {
+class ChatInput extends StatefulWidget {
   final FocusNode focusNode;
   final Chat chat;
   final bool chatPopulated;
   final void Function(String)? onInsertMention;
 
-  const Input({
+  const ChatInput({
     super.key,
     required this.focusNode,
     required this.chat,
@@ -28,10 +28,10 @@ class Input extends StatefulWidget {
   });
 
   @override
-  State<Input> createState() => InputState();
+  State<ChatInput> createState() => ChatInputState();
 }
 
-class InputState extends State<Input> {
+class ChatInputState extends State<ChatInput> {
   late ThemeData theme;
   late Fireauth fireauth;
   late Firedata firedata;

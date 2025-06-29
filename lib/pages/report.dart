@@ -7,9 +7,9 @@ import '../helpers/exception.dart';
 import '../models/chat.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
-import '../widgets/hearts.dart';
+import '../widgets/chat_hearts.dart';
 import '../widgets/layout.dart';
-import '../widgets/simple_paginated_message_list.dart';
+import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
 class ReportPage extends StatefulWidget {
@@ -151,7 +151,7 @@ class _ReportPageState extends State<ReportPage> {
           child: Text(_chat.partner.displayName ?? ''),
         ),
         actions: [
-          RepaintBoundary(child: Hearts(chat: _chat)),
+          RepaintBoundary(child: ChatHearts(chat: _chat)),
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () => _showReportMenu(context),
@@ -165,7 +165,7 @@ class _ReportPageState extends State<ReportPage> {
             children: [
               const SizedBox(height: 10),
               Expanded(
-                child: SimplePaginatedMessageList.chat(
+                child: PaginatedMessageList.chat(
                   id: _chat.id,
                   chat: _chat,
                   focusNode: focusNode,

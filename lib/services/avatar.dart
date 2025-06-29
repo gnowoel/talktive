@@ -36,4 +36,9 @@ class Avatar extends ChangeNotifier {
     _emoji = emoji;
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

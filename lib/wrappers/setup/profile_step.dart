@@ -81,6 +81,7 @@ class _ProfileStepState extends State<ProfileStep> {
 
   @override
   void dispose() {
+    _userSubscription.cancel();
     _descriptionController.dispose();
     _displayNameController.dispose();
     super.dispose();

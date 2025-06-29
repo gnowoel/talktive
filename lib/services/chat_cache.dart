@@ -14,11 +14,10 @@ class ChatCache extends ChangeNotifier {
   List<Chat> get activeChats =>
       _chats.values.where((chat) => chat.isActive).toList();
 
-  List<String> get activeChatIds =>
-      _chats.entries
-          .where((entry) => entry.value.isActive)
-          .map((entry) => entry.key)
-          .toList();
+  List<String> get activeChatIds => _chats.entries
+      .where((entry) => entry.value.isActive)
+      .map((entry) => entry.key)
+      .toList();
 
   // TODO: Use this in the chat page
   Chat? getChat(String chatId) => _chats[chatId];
@@ -58,5 +57,11 @@ class ChatCache extends ChangeNotifier {
 
     times.sort();
     return times.first;
+  }
+
+  @override
+  void dispose() {
+    _chats.clear();
+    super.dispose();
   }
 }

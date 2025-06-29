@@ -89,4 +89,12 @@ class TribeCache extends ChangeNotifier {
   List<Tribe> get predefinedTribes =>
       _tribes.where((tribe) => tribe.sort != null).toList()
         ..sort((a, b) => (a.sort ?? 999).compareTo(b.sort ?? 999));
+
+  @override
+  void dispose() {
+    _tribes.clear();
+    _isLoading = false;
+    _lastFetched = null;
+    super.dispose();
+  }
 }

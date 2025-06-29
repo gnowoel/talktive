@@ -128,6 +128,15 @@ class _InitializeState extends State<Initialize> {
   }
 
   @override
+  void dispose() {
+    // Dispose ServiceLocator and all its managed services
+    if (ServiceLocator.instance.isInitialized) {
+      ServiceLocator.instance.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_error != null) {
       return MaterialApp(

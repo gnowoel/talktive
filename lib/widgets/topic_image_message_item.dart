@@ -87,7 +87,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     // Check if current user can block others (admin/moderator or topic creator)
     final canBlock = !byMe &&
         (userCache.user?.isAdminOrModerator == true ||
-         currentUser.uid == widget.topicCreatorId);
+            currentUser.uid == widget.topicCreatorId);
 
     // Check report eligibility first (async operation)
     bool canShowReport = false;
@@ -125,7 +125,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         PopupMenuItem(
           child: Row(
             children: const [
-              Icon(Icons.report, size: 20),
+              Icon(Icons.report_outlined, size: 20),
               SizedBox(width: 8),
               Text('Report'),
             ],
@@ -394,7 +394,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     bool byMe = false,
   }) {
     if (widget.message.recalled ?? false) {
-      return Bubble(content: '- Image recalled -', byMe: byMe, isMentioned: false);
+      return Bubble(
+          content: '- Image recalled -', byMe: byMe, isMentioned: false);
     }
 
     return FutureBuilder<bool>(
@@ -417,8 +418,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
 
         // Check if message is from a blocked user first (highest priority)
         if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
-          final blockedContent = TopicMessageStatusHelper.getBlockedUserMessageContent(widget.message);
-          contentWidget = Bubble(content: blockedContent, byMe: byMe, isMentioned: isMentioned);
+          final blockedContent =
+              TopicMessageStatusHelper.getBlockedUserMessageContent(
+                  widget.message);
+          contentWidget = Bubble(
+              content: blockedContent, byMe: byMe, isMentioned: isMentioned);
         } else if (isReportedButRevealable) {
           // Recently reported image - show placeholder or original based on toggle
           if (_isReportedRevealed) {
@@ -427,7 +431,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             final reportedContent =
                 TopicMessageStatusHelper.getReportedMessageContent(
                     widget.message);
-            contentWidget = Bubble(content: reportedContent, byMe: byMe, isMentioned: isMentioned);
+            contentWidget = Bubble(
+                content: reportedContent, byMe: byMe, isMentioned: isMentioned);
           }
         } else if (shouldShow) {
           contentWidget = _buildCachedImage(context, constraints);
@@ -439,12 +444,14 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             final hiddenContent =
                 TopicMessageStatusHelper.getHiddenMessageContent(
                     widget.message);
-            contentWidget = Bubble(content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
+            contentWidget = Bubble(
+                content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
           }
         } else {
           final hiddenContent =
               TopicMessageStatusHelper.getHiddenMessageContent(widget.message);
-          contentWidget = Bubble(content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
+          contentWidget = Bubble(
+              content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
         }
 
         // Add gesture detector for context menu

@@ -83,7 +83,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     // Check if current user can block others (admin/moderator or topic creator)
     final canBlock = !byMe &&
         (userCache.user?.isAdminOrModerator == true ||
-         currentUser.uid == widget.topicCreatorId);
+            currentUser.uid == widget.topicCreatorId);
 
     // Check report eligibility first (async operation)
     bool canShowReport = false;
@@ -136,7 +136,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         PopupMenuItem(
           child: Row(
             children: const [
-              Icon(Icons.report, size: 20),
+              Icon(Icons.report_outlined, size: 20),
               SizedBox(width: 8),
               Text('Report'),
             ],
@@ -189,10 +189,12 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
           await TopicMessageStatusHelper.isRecentlyReported(widget.message);
       if (isReported) {
         contentToCopy = TopicMessageStatusHelper.getReportedCopyContent(
-            widget.message, widget.message.content, followersCache: topicFollowersCache);
+            widget.message, widget.message.content,
+            followersCache: topicFollowersCache);
       } else {
         contentToCopy = TopicMessageStatusHelper.getCopyContent(
-            widget.message, widget.message.content, followersCache: topicFollowersCache);
+            widget.message, widget.message.content,
+            followersCache: topicFollowersCache);
       }
     }
 
@@ -461,7 +463,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
         // Check if message is from a blocked user first (highest priority)
         if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
-          displayContent = TopicMessageStatusHelper.getBlockedUserMessageContent(widget.message);
+          displayContent =
+              TopicMessageStatusHelper.getBlockedUserMessageContent(
+                  widget.message);
         } else if (isReportedButRevealable) {
           // Recently reported message - show placeholder or original based on toggle
           displayContent = _isReportedRevealed

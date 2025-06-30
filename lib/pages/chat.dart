@@ -47,6 +47,7 @@ class _ChatPageState extends State<ChatPage> {
 
   int _messageCount = 0;
   bool _chatPopulated = false;
+  bool _hasSubscribedToMessageMeta = false;
 
   @override
   void initState() {
@@ -101,9 +102,6 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    // Subscribe to message metadata for real-time recall updates
-    messageMetaCache.subscribeToChat(_chat.id);
-
     // Real-time message updates are now handled by the paginated service
     // SimplePaginatedMessageList will handle loading its own messages
   }
@@ -114,6 +112,12 @@ class _ChatPageState extends State<ChatPage> {
     theme = Theme.of(context);
     followCache = Provider.of<FollowCache>(context);
     messageMetaCache = Provider.of<MessageMetaCache>(context);
+
+    // Subscribe to message metadata for real-time recall updates
+    if (!_hasSubscribedToMessageMeta) {
+      messageMetaCache.subscribeToChat(_chat.id);
+      _hasSubscribedToMessageMeta = true;
+    }
   }
 
   @override

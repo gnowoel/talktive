@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
 import '../helpers/topic_message_status_helper.dart';
+import '../helpers/message_recall_helper.dart';
 import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
@@ -108,8 +109,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     final menuItems = <PopupMenuEntry>[];
 
     // Check if message is recalled using MessageMetaCache
-    final isRecalled = messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled ?? false);
+    final isRecalled = widget.message.isRecalledWithCache(messageMetaCache);
 
     if (byMe && !isRecalled) {
       menuItems.add(
@@ -348,8 +348,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
 
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            messageMetaCache.isMessageRecalledWithFallback(
-                widget.message.id ?? '', widget.message.recalled ?? false)) {
+            widget.message.isRecalledWithCache(messageMetaCache)) {
           return const SizedBox.shrink();
         }
 
@@ -401,10 +400,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     BoxConstraints constraints, {
     bool byMe = false,
   }) {
-    if (messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled ?? false)) {
+    if (widget.message.isRecalledWithCache(messageMetaCache)) {
       return Bubble(
-          content: '- Image recalled -', byMe: byMe, isMentioned: false);
+          content: widget.message.getRecallStatusText(messageMetaCache),
+          byMe: byMe,
+          isMentioned: false);
     }
 
     return FutureBuilder<bool>(

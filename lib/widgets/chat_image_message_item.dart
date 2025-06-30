@@ -5,6 +5,7 @@ import 'package:talktive/widgets/bubble.dart';
 
 import '../helpers/helpers.dart';
 import '../helpers/message_status_helper.dart';
+import '../helpers/message_recall_helper.dart';
 import '../models/chat_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -94,8 +95,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
 
     final menuItems = <PopupMenuEntry>[];
 
-    if (byMe && !messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled)) {
+    if (byMe && widget.message.canBeRecalled(messageMetaCache)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -252,8 +252,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             widget.reporterUserId != null ||
-            messageMetaCache.isMessageRecalledWithFallback(
-                widget.message.id ?? '', widget.message.recalled)) {
+            widget.message.isRecalledWithCache(messageMetaCache)) {
           return const SizedBox.shrink();
         }
 
@@ -305,9 +304,11 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
     BoxConstraints constraints, {
     bool byMe = false,
   }) {
-    if (messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled)) {
-      return Bubble(content: '- Image recalled -', byMe: byMe);
+    if (widget.message.isRecalledWithCache(messageMetaCache)) {
+      return Bubble(
+        content: widget.message.getRecallStatusText(messageMetaCache),
+        byMe: byMe,
+      );
     }
 
     // Images don't have text content to check for mentions

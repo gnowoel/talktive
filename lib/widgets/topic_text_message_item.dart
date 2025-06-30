@@ -11,6 +11,7 @@ import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../helpers/helpers.dart';
 import '../helpers/topic_message_status_helper.dart';
+import '../helpers/message_recall_helper.dart';
 import '../helpers/mention_helper.dart';
 import '../theme.dart';
 import 'bubble.dart';
@@ -118,8 +119,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
 
     // Show Recall option only for own messages that haven't been recalled
-    if (byMe && !messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled ?? false)) {
+    if (byMe && widget.message.canBeRecalled(messageMetaCache)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -185,9 +185,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     String contentToCopy;
-    if (messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled ?? false)) {
-      contentToCopy = '- Message recalled -';
+    if (widget.message.isRecalledWithCache(messageMetaCache)) {
+      contentToCopy = widget.message.getRecallStatusText(messageMetaCache);
     } else {
       // Check if message is recently reported
       final isReported =
@@ -391,8 +390,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            messageMetaCache.isMessageRecalledWithFallback(
-                widget.message.id ?? '', widget.message.recalled ?? false)) {
+            widget.message.isRecalledWithCache(messageMetaCache)) {
           return const SizedBox.shrink();
         }
 
@@ -444,10 +442,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     bool byMe = false,
     bool byOp = false,
   }) {
-    if (messageMetaCache.isMessageRecalledWithFallback(
-        widget.message.id ?? '', widget.message.recalled ?? false)) {
+    if (widget.message.isRecalledWithCache(messageMetaCache)) {
       return Bubble(
-        content: '- Message recalled -',
+        content: widget.message.getRecallStatusText(messageMetaCache),
         byMe: byMe,
         byOp: byOp,
       );

@@ -118,7 +118,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
 
     // Show Recall option only for own messages that haven't been recalled
-    if (byMe && !messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (byMe && !messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled ?? false)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -184,7 +185,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     String contentToCopy;
-    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled ?? false)) {
       contentToCopy = '- Message recalled -';
     } else {
       // Check if message is recently reported
@@ -389,7 +391,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+            messageMetaCache.isMessageRecalledWithFallback(
+                widget.message.id ?? '', widget.message.recalled ?? false)) {
           return const SizedBox.shrink();
         }
 
@@ -441,7 +444,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     bool byMe = false,
     bool byOp = false,
   }) {
-    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled ?? false)) {
       return Bubble(
         content: '- Message recalled -',
         byMe: byMe,

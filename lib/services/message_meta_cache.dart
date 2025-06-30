@@ -81,6 +81,28 @@ class MessageMetaCache extends ChangeNotifier {
     return _messageMeta[messageId]?.isRecalled ?? false;
   }
 
+  /// Check if a message is recalled with fallback support and debug logging
+  bool isMessageRecalledWithFallback(String messageId, bool fallbackValue) {
+    if (messageId.isEmpty) {
+      debugPrint(
+          'MessageMetaCache: Empty messageId provided to isMessageRecalledWithFallback');
+      return fallbackValue;
+    }
+
+    final cachedMeta = _messageMeta[messageId];
+    if (cachedMeta != null) {
+      // Cache hit - return cached value
+      return cachedMeta.isRecalled;
+    } else {
+      // Cache miss - use fallback and log for debugging
+      if (kDebugMode && fallbackValue) {
+        debugPrint(
+            'MessageMetaCache: Cache miss for message $messageId, using fallback value: $fallbackValue');
+      }
+      return fallbackValue;
+    }
+  }
+
   /// Get metadata for a specific message
   MessageMeta? getMessageMeta(String messageId) {
     return _messageMeta[messageId];

@@ -108,8 +108,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     final menuItems = <PopupMenuEntry>[];
 
     // Check if message is recalled using MessageMetaCache
-    final messageId = widget.message.id ?? '';
-    final isRecalled = messageMetaCache.isMessageRecalled(messageId);
+    final isRecalled = messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled ?? false);
 
     if (byMe && !isRecalled) {
       menuItems.add(
@@ -348,7 +348,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
 
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+            messageMetaCache.isMessageRecalledWithFallback(
+                widget.message.id ?? '', widget.message.recalled ?? false)) {
           return const SizedBox.shrink();
         }
 
@@ -400,7 +401,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     BoxConstraints constraints, {
     bool byMe = false,
   }) {
-    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled ?? false)) {
       return Bubble(
           content: '- Image recalled -', byMe: byMe, isMentioned: false);
     }

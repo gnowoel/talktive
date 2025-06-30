@@ -10,6 +10,7 @@ import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
+import '../services/message_meta_cache.dart';
 
 import '../services/paginated_message_service.dart';
 import '../theme.dart';
@@ -34,6 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   late Fireauth fireauth;
   late Firedata firedata;
   late FollowCache followCache;
+  late MessageMetaCache messageMetaCache;
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
@@ -99,6 +101,9 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
+    // Subscribe to message metadata for real-time recall updates
+    messageMetaCache.subscribeToChat(_chat.id);
+
     // Real-time message updates are now handled by the paginated service
     // SimplePaginatedMessageList will handle loading its own messages
   }
@@ -108,6 +113,7 @@ class _ChatPageState extends State<ChatPage> {
     super.didChangeDependencies();
     theme = Theme.of(context);
     followCache = Provider.of<FollowCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context);
   }
 
   @override

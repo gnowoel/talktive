@@ -6,6 +6,7 @@ import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../helpers/helpers.dart';
@@ -39,6 +40,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   late Firestore firestore;
   late UserCache userCache;
   late FollowCache followCache;
+  late MessageMetaCache messageMetaCache;
   late TopicFollowersCache topicFollowersCache;
   bool _isRevealed = false;
   bool _isReportedRevealed = false;
@@ -56,6 +58,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context);
     topicFollowersCache = Provider.of<TopicFollowersCache>(context);
   }
 
@@ -115,7 +118,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
 
     // Show Recall option only for own messages that haven't been recalled
-    if (byMe && !widget.message.recalled!) {
+    if (byMe && !messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -181,7 +184,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     String contentToCopy;
-    if (widget.message.recalled!) {
+    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
       contentToCopy = '- Message recalled -';
     } else {
       // Check if message is recently reported
@@ -386,7 +389,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
 
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            widget.message.recalled!) {
+            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
           return const SizedBox.shrink();
         }
 
@@ -438,7 +441,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     bool byMe = false,
     bool byOp = false,
   }) {
-    if (widget.message.recalled!) {
+    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
       return Bubble(
         content: '- Message recalled -',
         byMe: byMe,

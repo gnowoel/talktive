@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/topic_message.dart';
 import '../config/message_report_config.dart';
 import '../services/report_cache.dart';
+import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 
 /// Helper class for handling topic message status UI logic
@@ -189,12 +190,13 @@ class TopicMessageStatusHelper {
     return getReportedMessageContent(message);
   }
 
-  /// Get appropriate context menu options based on topic message status
+  /// Get appropriate context menu options based on message status
   static List<String> getAvailableActions(
     TopicMessage message, {
     required bool isAuthor,
     required bool isAdmin,
     TopicFollowersCache? followersCache,
+    MessageMetaCache? messageMetaCache,
   }) {
     final actions = <String>[];
 
@@ -209,7 +211,8 @@ class TopicMessageStatusHelper {
     }
 
     // Author actions
-    if (isAuthor && !(message.recalled ?? false)) {
+    final isRecalled = messageMetaCache?.isMessageRecalled(message.id ?? '') ?? (message.recalled ?? false);
+    if (isAuthor && !isRecalled) {
       actions.add('Recall');
     }
 

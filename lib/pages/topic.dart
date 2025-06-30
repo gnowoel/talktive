@@ -9,6 +9,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/topic_followers_cache.dart';
+import '../services/message_meta_cache.dart';
 
 import '../services/paginated_message_service.dart';
 import '../services/user_cache.dart';
@@ -41,6 +42,7 @@ class _TopicPageState extends State<TopicPage> {
   late UserCache userCache;
   late FollowCache followCache;
   late TopicFollowersCache topicFollowersCache;
+  late MessageMetaCache messageMetaCache;
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
@@ -96,6 +98,9 @@ class _TopicPageState extends State<TopicPage> {
     // Subscribe to topic followers for real-time blocking updates
     topicFollowersCache.subscribeToTopic(widget.topicId);
 
+    // Subscribe to message metadata for real-time recall updates
+    messageMetaCache.subscribeToTopic(widget.topicId);
+
     // Real-time message updates are now handled by the paginated service
     // SimplePaginatedMessageList will handle loading its own messages
   }
@@ -106,6 +111,7 @@ class _TopicPageState extends State<TopicPage> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context);
 
     _userHasSentMessage = _checkUserMessageStatus();
   }

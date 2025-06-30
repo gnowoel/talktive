@@ -690,6 +690,12 @@ const deleteTopicWithSubcollections = async (
       batch.delete(doc.ref);
     });
 
+    // Delete all message metadata
+    const messageMetaSnapshot = await topicRef.collection('messageMeta').get();
+    messageMetaSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
     // Delete the topic document itself
     batch.delete(topicRef);
   } catch (error) {

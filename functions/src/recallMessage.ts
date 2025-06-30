@@ -11,6 +11,35 @@ if (!admin.apps.length) {
 const firestore = admin.firestore();
 const database = admin.database();
 
+// Constants
+const VALID_MESSAGE_TYPES = ['chat', 'topic'] as const;
+const MAX_MESSAGE_ID_LENGTH = 100;
+
+// Utility functions
+const validateMessageId = (messageId: string): void => {
+  if (!messageId || typeof messageId !== 'string') {
+    throw new Error('Invalid messageId: must be a non-empty string');
+  }
+  if (messageId.trim() === '') {
+    throw new Error('Invalid messageId: cannot be empty or whitespace');
+  }
+  if (messageId.length > MAX_MESSAGE_ID_LENGTH) {
+    throw new Error(`Invalid messageId: exceeds maximum length of ${MAX_MESSAGE_ID_LENGTH}`);
+  }
+};
+
+const validateCollectionId = (id: string, type: string): void => {
+  if (!id || typeof id !== 'string' || id.trim() === '') {
+    throw new Error(`Invalid ${type}: must be a non-empty string`);
+  }
+};
+
+const validateMessageType = (messageType: string): void => {
+  if (!messageType || !VALID_MESSAGE_TYPES.includes(messageType as any)) {
+    throw new Error('Invalid messageType: must be either "chat" or "topic"');
+  }
+};
+
 interface RecallMessageRequest {
   messageId: string;
   messageType: 'chat' | 'topic';
@@ -54,17 +83,16 @@ export const recallMessage = onCall(async (request) => {
     const requesterId = request.auth.uid;
     const { messageId, messageType, chatId, topicId } = request.data as RecallMessageRequest;
 
-    // Validate input
-    if (!messageId || !messageType) {
-      throw new Error('Missing required parameters: messageId, messageType');
+    // Validate input using utility functions
+    validateMessageId(messageId);
+    validateMessageType(messageType);
+
+    if (messageType === 'chat') {
+      validateCollectionId(chatId!, 'chatId');
     }
 
-    if (messageType === 'chat' && !chatId) {
-      throw new Error('chatId is required for chat messages');
-    }
-
-    if (messageType === 'topic' && !topicId) {
-      throw new Error('topicId is required for topic messages');
+    if (messageType === 'topic') {
+      validateCollectionId(topicId!, 'topicId');
     }
 
     // Fetch the requester's user data to check for admin/moderator role
@@ -94,6 +122,12 @@ export const recallMessage = onCall(async (request) => {
       }
 
       messageData = messageSnapshot.val() as ChatMessage;
+
+      // Validate message data structure
+      if (!messageData || !messageData.author || !messageData.author.id) {
+        throw new Error('Invalid chat message data structure');
+      }
+
       isMessageAuthor = messageData.author.id === requesterId;
       metaCollectionPath = `chats/${chatId}/messageMeta`;
 
@@ -107,6 +141,12 @@ export const recallMessage = onCall(async (request) => {
       }
 
       messageData = messageSnapshot.data() as TopicMessage;
+
+      // Validate message data structure
+      if (!messageData || !messageData.author || !messageData.author.id) {
+        throw new Error('Invalid topic message data structure');
+      }
+
       isMessageAuthor = messageData.author.id === requesterId;
       metaCollectionPath = `topics/${topicId}/messageMeta`;
 
@@ -116,7 +156,9 @@ export const recallMessage = onCall(async (request) => {
 
       if (topicSnapshot.exists) {
         const topicData = topicSnapshot.data() as TopicData;
-        isTopicCreator = topicData.creator.id === requesterId;
+        if (topicData && topicData.creator && topicData.creator.id) {
+          isTopicCreator = topicData.creator.id === requesterId;
+        }
       }
     }
 
@@ -132,17 +174,37 @@ export const recallMessage = onCall(async (request) => {
     const metaSnapshot = await metaRef.get();
 
     if (metaSnapshot.exists && metaSnapshot.data()?.isRecalled === true) {
-      throw new Error('Message is already recalled');
+      return {
+        success: false,
+        error: 'Message is already recalled',
+      };
     }
 
-    // Store recall metadata in Firestore
-    await metaRef.set({
-      isRecalled: true,
-      recalledAt: Timestamp.now(),
-      recalledBy: requesterId,
-    }, { merge: true });
+    // Store recall metadata in Firestore with transaction safety
+    const recallTimestamp = Timestamp.now();
+    await firestore.runTransaction(async (transaction) => {
+      // Re-check if message is already recalled within transaction
+      const currentMeta = await transaction.get(metaRef);
+      if (currentMeta.exists && currentMeta.data()?.isRecalled === true) {
+        throw new Error('Message was recalled by another operation');
+      }
 
-    logger.info(`Message ${messageId} recalled by ${requesterId} in ${messageType} ${chatId || topicId}`);
+      // Use consistent timestamp for logging and data
+      transaction.set(metaRef, {
+        isRecalled: true,
+        recalledAt: recallTimestamp,
+        recalledBy: requesterId,
+      }, { merge: true });
+    });
+
+    const contextId = chatId || topicId;
+    logger.info(`Message recall successful`, {
+      messageId,
+      messageType,
+      contextId,
+      recalledBy: requesterId,
+      timestamp: recallTimestamp.toDate().toISOString(),
+    });
 
     return {
       success: true,
@@ -150,11 +212,16 @@ export const recallMessage = onCall(async (request) => {
     };
 
   } catch (error) {
-    logger.error('Error recalling message:', error);
-
-    // Return user-friendly error messages
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
+    logger.error('Message recall failed', {
+      messageId: request.data?.messageId,
+      messageType: request.data?.messageType,
+      requesterId,
+      error: errorMessage,
+    });
+
+    // Return user-friendly error messages
     return {
       success: false,
       error: errorMessage,

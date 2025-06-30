@@ -433,6 +433,7 @@ const cleanupPairs = async () => {
 
       await removeChatImages(chatId);
       await removeChatMessages(chatId);
+      await removeChatMessageMeta(chatId);
 
       for (const userId of userIds) {
         await removeChat(userId, chatId);
@@ -465,6 +466,22 @@ const removeChatMessages = async (chatId: string) => {
     await messagesRef.remove();
   } catch (error) {
     logger.error(error);
+  }
+};
+
+const removeChatMessageMeta = async (chatId: string) => {
+  try {
+    const batch = new SafeBatch(firestore);
+    const messageMetaRef = firestore.collection(`chats/${chatId}/messageMeta`);
+    const snapshot = await messageMetaRef.get();
+
+    snapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+  } catch (error) {
+    logger.error(`Failed to remove message metadata from chat ${chatId}:`, error);
   }
 };
 

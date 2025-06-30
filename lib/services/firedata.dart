@@ -656,8 +656,20 @@ class Firedata {
 
   Future<void> recallMessage(String chatId, String messageId) async {
     try {
-      final ref = instance.ref('messages/$chatId/$messageId');
-      await ref.update({'recalled': true});
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('recallMessage');
+
+      final response = await callable.call({
+        'messageId': messageId,
+        'messageType': 'chat',
+        'chatId': chatId,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to recall chat message');
+      }
     } catch (e) {
       throw AppException(e.toString());
     }

@@ -8,6 +8,7 @@ import '../models/topic_message.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -39,6 +40,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   late Firestore firestore;
   late UserCache userCache;
   late FollowCache followCache;
+  late MessageMetaCache messageMetaCache;
   late TopicFollowersCache topicFollowersCache;
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
@@ -60,6 +62,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context);
     topicFollowersCache = Provider.of<TopicFollowersCache>(context);
   }
 
@@ -104,7 +107,11 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
 
     final menuItems = <PopupMenuEntry>[];
 
-    if (byMe && !(widget.message.recalled ?? false)) {
+    // Check if message is recalled using MessageMetaCache
+    final messageId = widget.message.id ?? '';
+    final isRecalled = messageMetaCache.isMessageRecalled(messageId);
+
+    if (byMe && !isRecalled) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -341,7 +348,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
 
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            (widget.message.recalled ?? false)) {
+            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
           return const SizedBox.shrink();
         }
 
@@ -393,7 +400,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     BoxConstraints constraints, {
     bool byMe = false,
   }) {
-    if (widget.message.recalled ?? false) {
+    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
       return Bubble(
           content: '- Image recalled -', byMe: byMe, isMentioned: false);
     }

@@ -9,6 +9,7 @@ import '../models/chat_message.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
+import '../services/message_meta_cache.dart';
 import '../services/user_cache.dart';
 import 'image_viewer.dart';
 import 'user_info_loader.dart';
@@ -36,6 +37,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Firestore firestore;
+  late MessageMetaCache messageMetaCache;
   late UserCache userCache;
   late CachedNetworkImageProvider _imageProvider;
   late String _imageUrl;
@@ -56,6 +58,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context);
     userCache = Provider.of<UserCache>(context);
   }
 
@@ -91,7 +94,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
 
     final menuItems = <PopupMenuEntry>[];
 
-    if (byMe && !widget.message.recalled) {
+    if (byMe && !messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -248,7 +251,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             widget.reporterUserId != null ||
-            widget.message.recalled) {
+            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
           return const SizedBox.shrink();
         }
 
@@ -300,7 +303,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
     BoxConstraints constraints, {
     bool byMe = false,
   }) {
-    if (widget.message.recalled) {
+    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
       return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../config/message_report_config.dart';
 import '../services/report_cache.dart';
+import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 
 /// Helper class for handling message status UI logic
@@ -203,6 +204,7 @@ class MessageStatusHelper {
     required bool isAuthor,
     required bool isAdmin,
     TopicFollowersCache? followersCache,
+    MessageMetaCache? messageMetaCache,
   }) {
     final actions = <String>[];
 
@@ -219,7 +221,8 @@ class MessageStatusHelper {
     }
 
     // Author actions
-    if (isAuthor && !message.recalled) {
+    final isRecalled = messageMetaCache?.isMessageRecalled(message.id ?? '') ?? message.recalled;
+    if (isAuthor && !isRecalled) {
       actions.add('Recall');
     }
 

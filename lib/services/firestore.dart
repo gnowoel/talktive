@@ -855,12 +855,44 @@ class Firestore {
     required String messageId,
   }) async {
     try {
-      await instance
-          .collection('topics')
-          .doc(topicId)
-          .collection('messages')
-          .doc(messageId)
-          .update({'recalled': true});
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('recallMessage');
+
+      final response = await callable.call({
+        'messageId': messageId,
+        'messageType': 'topic',
+        'topicId': topicId,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to recall topic message');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<void> recallChatMessage({
+    required String chatId,
+    required String messageId,
+  }) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('recallMessage');
+
+      final response = await callable.call({
+        'messageId': messageId,
+        'messageType': 'chat',
+        'chatId': chatId,
+      });
+
+      final result = response.data;
+
+      if (result['success'] != true) {
+        throw Exception(result['error'] ?? 'Failed to recall chat message');
+      }
     } catch (e) {
       throw AppException(e.toString());
     }

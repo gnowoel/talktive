@@ -18,3 +18,4 @@ export { scheduledCleanup, requestedCleanup } from './scheduledCleanup';
 export { reportMessage } from './reportMessage';
 export { reportTopicMessage } from './reportTopicMessage';
 export { blockUserFromTopic } from './blockUserFromTopic';
+export { recallMessage } from './recallMessage';

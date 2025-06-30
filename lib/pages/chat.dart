@@ -123,6 +123,8 @@ class _ChatPageState extends State<ChatPage> {
     _focusNode.dispose();
     // Clean up paginated service state for this chat
     paginatedMessageService.clearChatData(_chat.id);
+    // Clean up message metadata cache
+    messageMetaCache.unsubscribe();
     super.dispose();
   }
 

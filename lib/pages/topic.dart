@@ -120,6 +120,8 @@ class _TopicPageState extends State<TopicPage> {
   void dispose() {
     topicSubscription.cancel();
     topicFollowersCache.unsubscribe();
+    // Clean up message metadata cache
+    messageMetaCache.unsubscribe();
     _scrollController.dispose();
     _focusNode.dispose();
     // Clean up paginated service state for this topic

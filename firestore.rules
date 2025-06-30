@@ -11,6 +11,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
     function isValidTopic() {
       let data = request.resource.data;
       return data.title is string &&
@@ -39,6 +43,18 @@ service cloud.firestore {
       allow read: if isSignedIn();
       // Only allow creation through Cloud Functions
       allow create, update, delete: if false;
+    }
+
+    // Chats collection
+    match /chats/{chatId} {
+      // Users can read chats if their ID is part of the chatId
+      allow read: if isSignedIn() && chatId.matches('.*' + request.auth.uid + '.*');
+
+      // Message metadata subcollection
+      match /messageMeta/{messageId} {
+        allow read: if isSignedIn() && (chatId.matches('.*' + request.auth.uid + '.*') || isAdmin());
+        allow write: if isSignedIn() && (chatId.matches('.*' + request.auth.uid + '.*') || isAdmin());
+      }
     }
 
     // User document and subcollections
@@ -95,6 +111,12 @@ service cloud.firestore {
       match /followers/{userId} {
         allow read: if isSignedIn();
         allow write: if isOwner(userId);
+      }
+
+      // Message metadata subcollection
+      match /messageMeta/{messageId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn();
       }
     }
   }

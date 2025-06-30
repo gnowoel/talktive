@@ -87,6 +87,14 @@ export const recallMessage = onCall(async (request) => {
     }
     const { messageId, messageType, chatId, topicId } = request.data as RecallMessageRequest;
 
+    logger.info('Message recall request received', {
+      messageId,
+      messageType,
+      chatId,
+      topicId,
+      requesterId,
+    });
+
     // Validate input using utility functions
     validateMessageId(messageId);
     validateMessageType(messageType);
@@ -118,10 +126,15 @@ export const recallMessage = onCall(async (request) => {
 
     if (messageType === 'chat') {
       // Handle chat message recall
-      const messageRef = database.ref(`chats/${chatId}/messages/${messageId}`);
+      const messageRef = database.ref(`messages/${chatId}/${messageId}`);
       const messageSnapshot = await messageRef.get();
 
       if (!messageSnapshot.exists()) {
+        logger.error('Chat message not found', {
+          messageId,
+          chatId,
+          databasePath: `messages/${chatId}/${messageId}`,
+        });
         throw new Error('Chat message not found');
       }
 
@@ -141,6 +154,11 @@ export const recallMessage = onCall(async (request) => {
       const messageSnapshot = await messageRef.get();
 
       if (!messageSnapshot.exists) {
+        logger.error('Topic message not found', {
+          messageId,
+          topicId,
+          firestorePath: `topics/${topicId}/messages/${messageId}`,
+        });
         throw new Error('Topic message not found');
       }
 
@@ -162,7 +180,29 @@ export const recallMessage = onCall(async (request) => {
         const topicData = topicSnapshot.data() as TopicData;
         if (topicData && topicData.creator && topicData.creator.id) {
           isTopicCreator = topicData.creator.id === requesterId;
+          logger.info('Topic creator validation', {
+            messageId,
+            topicId,
+            requesterId,
+            creatorId: topicData.creator.id,
+            isTopicCreator,
+          });
+        } else {
+          logger.warn('Invalid topic creator data structure', {
+            messageId,
+            topicId,
+            hasTopicData: !!topicData,
+            hasCreator: !!(topicData && topicData.creator),
+            hasCreatorId: !!(topicData && topicData.creator && topicData.creator.id),
+            creatorData: topicData ? topicData.creator : null,
+          });
         }
+      } else {
+        logger.warn('Topic not found for creator validation', {
+          messageId,
+          topicId,
+          requesterId,
+        });
       }
     }
 
@@ -177,7 +217,23 @@ export const recallMessage = onCall(async (request) => {
     const metaRef = firestore.collection(metaCollectionPath).doc(messageId);
     const metaSnapshot = await metaRef.get();
 
+    logger.info('Checking message recall status', {
+      messageId,
+      messageType,
+      metaCollectionPath,
+      metaExists: metaSnapshot.exists,
+      metaData: metaSnapshot.exists ? metaSnapshot.data() : null,
+      isAlreadyRecalled: metaSnapshot.exists && metaSnapshot.data()?.isRecalled === true,
+    });
+
     if (metaSnapshot.exists && metaSnapshot.data()?.isRecalled === true) {
+      logger.warn('Message already recalled', {
+        messageId,
+        messageType,
+        contextId: chatId || topicId,
+        recalledAt: metaSnapshot.data()?.recalledAt,
+        recalledBy: metaSnapshot.data()?.recalledBy,
+      });
       return {
         success: false,
         error: 'Message is already recalled',
@@ -192,45 +248,109 @@ export const recallMessage = onCall(async (request) => {
       await firestore.runTransaction(async (transaction) => {
         // Re-check if message is already recalled within transaction
         const currentMeta = await transaction.get(metaRef);
-        if (currentMeta.exists && currentMeta.data()?.isRecalled === true) {
+        const currentMetaData = currentMeta.exists ? currentMeta.data() : null;
+
+        logger.info('Chat message transaction check', {
+          messageId,
+          chatId,
+          metaExists: currentMeta.exists,
+          isAlreadyRecalled: currentMeta.exists && currentMetaData?.isRecalled === true,
+          currentMetaData,
+        });
+
+        if (currentMeta.exists && currentMetaData?.isRecalled === true) {
+          logger.warn('Attempted to recall already recalled message', {
+            messageId,
+            messageType,
+            contextId: chatId || topicId,
+            existingRecallData: currentMetaData,
+          });
           throw new Error('Message was recalled by another operation');
         }
 
         // Store recall metadata
-        transaction.set(metaRef, {
+        const metadataToStore = {
           isRecalled: true,
           recalledAt: recallTimestamp,
           recalledBy: requesterId,
-        }, { merge: true });
+        };
+
+        logger.info('Storing chat message recall metadata', {
+          messageId,
+          chatId,
+          metaCollectionPath,
+          metadataToStore,
+        });
+
+        transaction.set(metaRef, metadataToStore, { merge: true });
       });
 
       // Update original chat message in Realtime Database for backward compatibility
-      const originalMessageRef = database.ref(`chats/${chatId}/messages/${messageId}`);
-      await originalMessageRef.update({
-        recalled: true,
+      const originalMessageRef = database.ref(`messages/${chatId}/${messageId}`);
+      const updateData = { recalled: true };
+
+      logger.info('Updating original chat message', {
+        messageId,
+        chatId,
+        databasePath: `messages/${chatId}/${messageId}`,
+        updateData,
       });
+
+      await originalMessageRef.update(updateData);
 
     } else {
       // For topic messages: Update both Firestore message and metadata atomically
       await firestore.runTransaction(async (transaction) => {
         // Re-check if message is already recalled within transaction
         const currentMeta = await transaction.get(metaRef);
-        if (currentMeta.exists && currentMeta.data()?.isRecalled === true) {
+        const currentMetaData = currentMeta.exists ? currentMeta.data() : null;
+
+        logger.info('Topic message transaction check', {
+          messageId,
+          topicId,
+          metaExists: currentMeta.exists,
+          isAlreadyRecalled: currentMeta.exists && currentMetaData?.isRecalled === true,
+          currentMetaData,
+        });
+
+        if (currentMeta.exists && currentMetaData?.isRecalled === true) {
+          logger.warn('Attempted to recall already recalled topic message', {
+            messageId,
+            messageType,
+            contextId: topicId,
+            existingRecallData: currentMetaData,
+          });
           throw new Error('Message was recalled by another operation');
         }
 
         // Store recall metadata
-        transaction.set(metaRef, {
+        const metadataToStore = {
           isRecalled: true,
           recalledAt: recallTimestamp,
           recalledBy: requesterId,
-        }, { merge: true });
+        };
+
+        logger.info('Storing topic message recall metadata', {
+          messageId,
+          topicId,
+          metaCollectionPath,
+          metadataToStore,
+        });
+
+        transaction.set(metaRef, metadataToStore, { merge: true });
 
         // Update original topic message for backward compatibility
         const originalMessageRef = firestore.collection('topics').doc(topicId!).collection('messages').doc(messageId);
-        transaction.update(originalMessageRef, {
-          recalled: true,
+        const updateData = { recalled: true };
+
+        logger.info('Updating original topic message', {
+          messageId,
+          topicId,
+          firestorePath: `topics/${topicId}/messages/${messageId}`,
+          updateData,
         });
+
+        transaction.update(originalMessageRef, updateData);
       });
     }
 

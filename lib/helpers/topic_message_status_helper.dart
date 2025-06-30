@@ -211,7 +211,7 @@ class TopicMessageStatusHelper {
     }
 
     // Author actions
-    final isRecalled = messageMetaCache?.isMessageRecalled(message.id ?? '') ?? (message.recalled ?? false);
+    final isRecalled = messageMetaCache?.isMessageRecalledWithFallback(message.id ?? '', message.recalled ?? false) ?? (message.recalled ?? false);
     if (isAuthor && !isRecalled) {
       actions.add('Recall');
     }

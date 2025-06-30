@@ -74,13 +74,13 @@ interface TopicMessage {
 }
 
 export const recallMessage = onCall(async (request) => {
+  const requesterId = request.auth?.uid;
+
   try {
     // Get the authenticated user
-    if (!request.auth?.uid) {
+    if (!requesterId) {
       throw new Error('Authentication required');
     }
-
-    const requesterId = request.auth.uid;
     const { messageId, messageType, chatId, topicId } = request.data as RecallMessageRequest;
 
     // Validate input using utility functions
@@ -180,22 +180,55 @@ export const recallMessage = onCall(async (request) => {
       };
     }
 
-    // Store recall metadata in Firestore with transaction safety
+    // Store recall metadata and update original message for backward compatibility
     const recallTimestamp = Timestamp.now();
-    await firestore.runTransaction(async (transaction) => {
-      // Re-check if message is already recalled within transaction
-      const currentMeta = await transaction.get(metaRef);
-      if (currentMeta.exists && currentMeta.data()?.isRecalled === true) {
-        throw new Error('Message was recalled by another operation');
-      }
 
-      // Use consistent timestamp for logging and data
-      transaction.set(metaRef, {
-        isRecalled: true,
-        recalledAt: recallTimestamp,
-        recalledBy: requesterId,
-      }, { merge: true });
-    });
+    if (messageType === 'chat') {
+      // For chat messages: Update Firestore metadata first, then Realtime Database
+      await firestore.runTransaction(async (transaction) => {
+        // Re-check if message is already recalled within transaction
+        const currentMeta = await transaction.get(metaRef);
+        if (currentMeta.exists && currentMeta.data()?.isRecalled === true) {
+          throw new Error('Message was recalled by another operation');
+        }
+
+        // Store recall metadata
+        transaction.set(metaRef, {
+          isRecalled: true,
+          recalledAt: recallTimestamp,
+          recalledBy: requesterId,
+        }, { merge: true });
+      });
+
+      // Update original chat message in Realtime Database for backward compatibility
+      const originalMessageRef = database.ref(`chats/${chatId}/messages/${messageId}`);
+      await originalMessageRef.update({
+        recalled: true,
+      });
+
+    } else {
+      // For topic messages: Update both Firestore message and metadata atomically
+      await firestore.runTransaction(async (transaction) => {
+        // Re-check if message is already recalled within transaction
+        const currentMeta = await transaction.get(metaRef);
+        if (currentMeta.exists && currentMeta.data()?.isRecalled === true) {
+          throw new Error('Message was recalled by another operation');
+        }
+
+        // Store recall metadata
+        transaction.set(metaRef, {
+          isRecalled: true,
+          recalledAt: recallTimestamp,
+          recalledBy: requesterId,
+        }, { merge: true });
+
+        // Update original topic message for backward compatibility
+        const originalMessageRef = firestore.collection('topics').doc(topicId!).collection('messages').doc(messageId);
+        transaction.update(originalMessageRef, {
+          recalled: true,
+        });
+      });
+    }
 
     const contextId = chatId || topicId;
     logger.info(`Message recall successful`, {

@@ -94,7 +94,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
 
     final menuItems = <PopupMenuEntry>[];
 
-    if (byMe && !messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (byMe && !messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -251,7 +252,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             widget.reporterUserId != null ||
-            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+            messageMetaCache.isMessageRecalledWithFallback(
+                widget.message.id ?? '', widget.message.recalled)) {
           return const SizedBox.shrink();
         }
 
@@ -303,7 +305,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
     BoxConstraints constraints, {
     bool byMe = false,
   }) {
-    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled)) {
       return Bubble(content: '- Image recalled -', byMe: byMe);
     }
 

@@ -105,7 +105,8 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     );
 
     // Show Recall option only for own messages that haven't been recalled
-    if (byMe && !messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (byMe && !messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled)) {
       menuItems.add(
         PopupMenuItem(
           child: Row(
@@ -155,7 +156,8 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     String contentToCopy;
-    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled)) {
       contentToCopy = '- Message recalled -';
     } else {
       // Check if message is recently reported
@@ -262,7 +264,8 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
         // Show toggle button for either hidden or reported but revealable messages
         if ((!isHiddenButRevealable && !isReportedButRevealable) ||
             widget.reporterUserId != null ||
-            messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+            messageMetaCache.isMessageRecalledWithFallback(
+                widget.message.id ?? '', widget.message.recalled)) {
           return const SizedBox.shrink();
         }
 
@@ -344,7 +347,8 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     required String content,
     bool byMe = false,
   }) {
-    if (messageMetaCache.isMessageRecalled(widget.message.id ?? '')) {
+    if (messageMetaCache.isMessageRecalledWithFallback(
+        widget.message.id ?? '', widget.message.recalled)) {
       return Bubble(content: '- Message recalled -', byMe: byMe);
     }
 

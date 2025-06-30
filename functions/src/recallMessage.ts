@@ -35,7 +35,7 @@ const validateCollectionId = (id: string, type: string): void => {
 };
 
 const validateMessageType = (messageType: string): void => {
-  if (!messageType || !VALID_MESSAGE_TYPES.includes(messageType as any)) {
+  if (!messageType || !VALID_MESSAGE_TYPES.includes(messageType as typeof VALID_MESSAGE_TYPES[number])) {
     throw new Error('Invalid messageType: must be either "chat" or "topic"');
   }
 };
@@ -60,14 +60,18 @@ interface TopicData {
 }
 
 interface ChatMessage {
-  author: User;
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL: string;
   content: string;
   createdAt: number;
   type: string;
 }
 
 interface TopicMessage {
-  author: User;
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL: string;
   content: string;
   createdAt: Timestamp;
   type: string;
@@ -124,11 +128,11 @@ export const recallMessage = onCall(async (request) => {
       messageData = messageSnapshot.val() as ChatMessage;
 
       // Validate message data structure
-      if (!messageData || !messageData.author || !messageData.author.id) {
+      if (!messageData || !messageData.userId) {
         throw new Error('Invalid chat message data structure');
       }
 
-      isMessageAuthor = messageData.author.id === requesterId;
+      isMessageAuthor = messageData.userId === requesterId;
       metaCollectionPath = `chats/${chatId}/messageMeta`;
 
     } else {
@@ -143,11 +147,11 @@ export const recallMessage = onCall(async (request) => {
       messageData = messageSnapshot.data() as TopicMessage;
 
       // Validate message data structure
-      if (!messageData || !messageData.author || !messageData.author.id) {
+      if (!messageData || !messageData.userId) {
         throw new Error('Invalid topic message data structure');
       }
 
-      isMessageAuthor = messageData.author.id === requesterId;
+      isMessageAuthor = messageData.userId === requesterId;
       metaCollectionPath = `topics/${topicId}/messageMeta`;
 
       // Check if requester is topic creator

@@ -73,19 +73,39 @@ class MessageMetaCache extends ChangeNotifier {
 
   /// Check if a specific message is recalled
   bool isMessageRecalled(String messageId) {
-    if (messageId.isEmpty) {
-      debugPrint(
-          'MessageMetaCache: Empty messageId provided to isMessageRecalled');
+    if (!_isValidMessageId(messageId)) {
+      if (kDebugMode) {
+        debugPrint(
+            'MessageMetaCache: Invalid messageId provided to isMessageRecalled: "$messageId"');
+      }
       return false;
     }
+
+    if (_disposed) {
+      if (kDebugMode) {
+        debugPrint('MessageMetaCache: Accessed after disposal, returning false');
+      }
+      return false;
+    }
+
     return _messageMeta[messageId]?.isRecalled ?? false;
   }
 
   /// Check if a message is recalled with fallback support and debug logging
   bool isMessageRecalledWithFallback(String messageId, bool fallbackValue) {
-    if (messageId.isEmpty) {
-      debugPrint(
-          'MessageMetaCache: Empty messageId provided to isMessageRecalledWithFallback');
+    if (!_isValidMessageId(messageId)) {
+      if (kDebugMode) {
+        debugPrint(
+            'MessageMetaCache: Invalid messageId provided to isMessageRecalledWithFallback: "$messageId"');
+      }
+      return fallbackValue;
+    }
+
+    // Check if we're disposed
+    if (_disposed) {
+      if (kDebugMode) {
+        debugPrint('MessageMetaCache: Accessed after disposal, returning fallback value');
+      }
       return fallbackValue;
     }
 
@@ -95,9 +115,9 @@ class MessageMetaCache extends ChangeNotifier {
       return cachedMeta.isRecalled;
     } else {
       // Cache miss - use fallback and log for debugging
-      if (kDebugMode && fallbackValue) {
+      if (kDebugMode && fallbackValue && _currentCollectionId != null) {
         debugPrint(
-            'MessageMetaCache: Cache miss for message $messageId, using fallback value: $fallbackValue');
+            'MessageMetaCache: Cache miss for message $messageId in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue');
       }
       return fallbackValue;
     }
@@ -105,6 +125,9 @@ class MessageMetaCache extends ChangeNotifier {
 
   /// Get metadata for a specific message
   MessageMeta? getMessageMeta(String messageId) {
+    if (!_isValidMessageId(messageId) || _disposed) {
+      return null;
+    }
     return _messageMeta[messageId];
   }
 
@@ -127,43 +150,53 @@ class MessageMetaCache extends ChangeNotifier {
   }
 
   void _subscribeToCollection(String collectionId, String collectionType) {
-    // Validate parameters
+    // Validate parameters with more detailed error handling
     if (collectionId.isEmpty || collectionType.isEmpty) {
       debugPrint(
-          'MessageMetaCache: Invalid parameters - collectionId: $collectionId, type: $collectionType');
+          'MessageMetaCache: Invalid parameters - collectionId: "$collectionId", type: "$collectionType"');
       return;
     }
 
     if (!['chat', 'topic'].contains(collectionType)) {
-      debugPrint('MessageMetaCache: Invalid collection type: $collectionType');
+      debugPrint('MessageMetaCache: Invalid collection type: "$collectionType". Must be "chat" or "topic"');
       return;
     }
 
-    // Cancel existing subscription if switching collections
-    if (_currentCollectionId != collectionId ||
-        _currentCollectionType != collectionType) {
-      unsubscribe();
+    try {
+      // Cancel existing subscription if switching collections
+      if (_currentCollectionId != collectionId ||
+          _currentCollectionType != collectionType) {
+        unsubscribe();
+      }
+
+      _currentCollectionId = collectionId;
+      _currentCollectionType = collectionType;
+
+      final collectionPath = collectionType == 'chat'
+          ? 'chats/$collectionId/messageMeta'
+          : 'topics/$collectionId/messageMeta';
+
+      debugPrint('MessageMetaCache: Subscribing to $collectionPath');
+
+      _subscription = FirebaseFirestore.instance
+          .collection(collectionPath)
+          .snapshots()
+          .listen(
+        _handleMessageMetaUpdate,
+        onError: (error) {
+          debugPrint(
+              'MessageMetaCache: Error listening to $collectionPath: $error');
+          // Attempt to recover by clearing current state
+          _handleSubscriptionError(error, collectionPath);
+        },
+        cancelOnError: false, // Don't cancel on error, allow recovery
+      );
+    } catch (e) {
+      debugPrint('MessageMetaCache: Failed to subscribe to $collectionType $collectionId: $e');
+      // Reset state on subscription failure
+      _currentCollectionId = null;
+      _currentCollectionType = null;
     }
-
-    _currentCollectionId = collectionId;
-    _currentCollectionType = collectionType;
-
-    final collectionPath = collectionType == 'chat'
-        ? 'chats/$collectionId/messageMeta'
-        : 'topics/$collectionId/messageMeta';
-
-    debugPrint('MessageMetaCache: Subscribing to $collectionPath');
-
-    _subscription = FirebaseFirestore.instance
-        .collection(collectionPath)
-        .snapshots()
-        .listen(
-      _handleMessageMetaUpdate,
-      onError: (error) {
-        debugPrint(
-            'MessageMetaCache: Error listening to $collectionPath: $error');
-      },
-    );
   }
 
   void _handleMessageMetaUpdate(QuerySnapshot snapshot) {
@@ -175,52 +208,72 @@ class MessageMetaCache extends ChangeNotifier {
     _totalUpdatesReceived++;
     bool hasChanges = false;
     int changesProcessed = 0;
+    int errorsEncountered = 0;
 
     try {
       // Process changes in batches for better performance
       final changes = snapshot.docChanges;
+
+      if (kDebugMode && changes.isNotEmpty) {
+        debugPrint('MessageMetaCache: Processing ${changes.length} changes for $_currentCollectionType $_currentCollectionId');
+      }
 
       for (final change in changes) {
         final messageId = change.doc.id;
 
         if (messageId.isEmpty) {
           debugPrint('MessageMetaCache: Skipping document with empty ID');
+          errorsEncountered++;
           continue;
         }
 
-        final data = change.doc.data() as Map<String, dynamic>?;
+        try {
+          final data = change.doc.data() as Map<String, dynamic>?;
 
-        switch (change.type) {
-          case DocumentChangeType.added:
-          case DocumentChangeType.modified:
-            if (data != null) {
-              try {
-                final messageMeta = MessageMeta.fromJson(messageId, data);
-                final existingMeta = _messageMeta[messageId];
+          switch (change.type) {
+            case DocumentChangeType.added:
+            case DocumentChangeType.modified:
+              if (data != null) {
+                try {
+                  final messageMeta = MessageMeta.fromJson(messageId, data);
+                  final existingMeta = _messageMeta[messageId];
 
-                // Only update if there's actually a change
-                if (existingMeta == null ||
-                    existingMeta.isRecalled != messageMeta.isRecalled ||
-                    existingMeta.recalledAt != messageMeta.recalledAt ||
-                    existingMeta.recalledBy != messageMeta.recalledBy) {
-                  _messageMeta[messageId] = messageMeta;
-                  hasChanges = true;
-                  changesProcessed++;
+                  // Only update if there's actually a change
+                  if (existingMeta == null ||
+                      existingMeta.isRecalled != messageMeta.isRecalled ||
+                      existingMeta.recalledAt != messageMeta.recalledAt ||
+                      existingMeta.recalledBy != messageMeta.recalledBy) {
+                    _messageMeta[messageId] = messageMeta;
+                    hasChanges = true;
+                    changesProcessed++;
+
+                    if (kDebugMode && messageMeta.isRecalled) {
+                      debugPrint('MessageMetaCache: Message $messageId marked as recalled');
+                    }
+                  }
+                } catch (e) {
+                  debugPrint(
+                      'MessageMetaCache: Error parsing message meta for $messageId: $e');
+                  errorsEncountered++;
                 }
-              } catch (e) {
-                debugPrint(
-                    'MessageMetaCache: Error parsing message meta for $messageId: $e');
+              } else {
+                debugPrint('MessageMetaCache: Null data for message $messageId');
+                errorsEncountered++;
               }
-            } else {
-              debugPrint('MessageMetaCache: Null data for message $messageId');
-            }
-            break;
-          case DocumentChangeType.removed:
-            if (_messageMeta.remove(messageId) != null) {
-              hasChanges = true;
-              changesProcessed++;
-            }
-            break;
+              break;
+            case DocumentChangeType.removed:
+              if (_messageMeta.remove(messageId) != null) {
+                hasChanges = true;
+                changesProcessed++;
+                if (kDebugMode) {
+                  debugPrint('MessageMetaCache: Removed message meta for $messageId');
+                }
+              }
+              break;
+          }
+        } catch (e) {
+          debugPrint('MessageMetaCache: Error processing change for message $messageId: $e');
+          errorsEncountered++;
         }
       }
 
@@ -229,12 +282,21 @@ class MessageMetaCache extends ChangeNotifier {
         _enforceCacheSize();
       }
 
-      if (kDebugMode && changesProcessed > 0) {
+      if (kDebugMode && (changesProcessed > 0 || errorsEncountered > 0)) {
         debugPrint(
-            'MessageMetaCache: Processed $changesProcessed changes from ${changes.length} total changes');
+            'MessageMetaCache: Processed $changesProcessed changes, $errorsEncountered errors from ${changes.length} total changes');
       }
     } catch (e) {
-      debugPrint('MessageMetaCache: Error handling message meta update: $e');
+      debugPrint('MessageMetaCache: Critical error handling message meta update: $e');
+      // On critical errors, try to recover by clearing potentially corrupted state
+      if (_messageMeta.length > _maxCacheSize ~/ 2) {
+        debugPrint('MessageMetaCache: Attempting recovery by clearing half the cache');
+        final keysToRemove = _messageMeta.keys.take(_messageMeta.length ~/ 2).toList();
+        for (final key in keysToRemove) {
+          _messageMeta.remove(key);
+        }
+        hasChanges = true;
+      }
     }
 
     if (hasChanges) {
@@ -327,24 +389,57 @@ class MessageMetaCache extends ChangeNotifier {
 
   bool _disposed = false;
 
-  @override
-  void dispose() {
-    _disposed = true;
+  /// Handle subscription errors with recovery attempts
+  void _handleSubscriptionError(Object error, String collectionPath) {
+    debugPrint('MessageMetaCache: Subscription error for $collectionPath: $error');
 
-    // Cancel timers and subscriptions
-    _debounceTimer?.cancel();
-    _debounceTimer = null;
+    // Clear potentially stale data on subscription errors
+    if (_messageMeta.isNotEmpty) {
+      debugPrint('MessageMetaCache: Clearing cache due to subscription error');
+      _messageMeta.clear();
+      _deferredNotifyListeners();
+    }
+
+    // Reset connection state but keep collection info for potential retry
     _subscription?.cancel();
     _subscription = null;
+  }
 
-    // Clear cache and reset state
-    _messageMeta.clear();
-    _currentCollectionId = null;
-    _currentCollectionType = null;
+  /// Validate message ID before operations
+  bool _isValidMessageId(String messageId) {
+    return messageId.isNotEmpty &&
+           messageId.trim().isNotEmpty &&
+           messageId.length <= 100; // Reasonable limit
+  }
 
-    // Log final metrics in debug mode
-    if (kDebugMode) {
-      debugPrint('MessageMetaCache disposed. Final metrics: ${getMetrics()}');
+  @override
+  void dispose() {
+    if (_disposed) {
+      debugPrint('MessageMetaCache: Already disposed, ignoring duplicate dispose call');
+      return;
+    }
+
+    _disposed = true;
+
+    try {
+      // Cancel timers and subscriptions
+      _debounceTimer?.cancel();
+      _debounceTimer = null;
+      _subscription?.cancel();
+      _subscription = null;
+
+      // Clear cache and reset state
+      final cacheSize = _messageMeta.length;
+      _messageMeta.clear();
+      _currentCollectionId = null;
+      _currentCollectionType = null;
+
+      // Log final metrics in debug mode
+      if (kDebugMode) {
+        debugPrint('MessageMetaCache disposed. Final metrics: ${getMetrics()}, cleared $cacheSize cached items');
+      }
+    } catch (e) {
+      debugPrint('MessageMetaCache: Error during disposal: $e');
     }
 
     super.dispose();

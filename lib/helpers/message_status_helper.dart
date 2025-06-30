@@ -4,6 +4,7 @@ import '../config/message_report_config.dart';
 import '../services/report_cache.dart';
 import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
+import 'message_recall_helper.dart';
 
 /// Helper class for handling message status UI logic
 class MessageStatusHelper {
@@ -221,8 +222,7 @@ class MessageStatusHelper {
     }
 
     // Author actions
-    final isRecalled = messageMetaCache?.isMessageRecalledWithFallback(message.id ?? '', message.recalled) ?? message.recalled;
-    if (isAuthor && !isRecalled) {
+    if (isAuthor && message.canBeRecalled(messageMetaCache)) {
       actions.add('Recall');
     }
 

@@ -55,6 +55,7 @@ class _TopicPageState extends State<TopicPage> {
   int _messageCount = 0;
   bool _userHasSentMessage = false;
   bool _isInviting = false;
+  bool _hasSubscribedToMessageMeta = false;
 
   @override
   void initState() {
@@ -98,9 +99,6 @@ class _TopicPageState extends State<TopicPage> {
     // Subscribe to topic followers for real-time blocking updates
     topicFollowersCache.subscribeToTopic(widget.topicId);
 
-    // Subscribe to message metadata for real-time recall updates
-    messageMetaCache.subscribeToTopic(widget.topicId);
-
     // Real-time message updates are now handled by the paginated service
     // SimplePaginatedMessageList will handle loading its own messages
   }
@@ -112,6 +110,12 @@ class _TopicPageState extends State<TopicPage> {
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
     messageMetaCache = Provider.of<MessageMetaCache>(context);
+
+    // Subscribe to message metadata for real-time recall updates
+    if (!_hasSubscribedToMessageMeta) {
+      messageMetaCache.subscribeToTopic(widget.topicId);
+      _hasSubscribedToMessageMeta = true;
+    }
 
     _userHasSentMessage = _checkUserMessageStatus();
   }

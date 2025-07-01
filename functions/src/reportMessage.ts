@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions'
 import { onCall } from 'firebase-functions/v2/https';
-import { Message } from './types';
+
 import { getDateBasedDocId } from './helpers';
 import { applyModerationPenalty } from './userModerationUtils';
 
@@ -23,10 +23,6 @@ if (!admin.apps.length) {
 const db = admin.database();
 const firestore = admin.firestore();
 
-
-
-
-
 interface ReportMessageRequest {
   chatId: string;
   messageId: string;
@@ -43,12 +39,31 @@ interface FirestoreMessageReport {
 }
 
 export const reportMessage = onCall(async (request) => {
-  const { chatId, messageId, reporterUserId } = request.data as ReportMessageRequest;
+  const requesterId = request.auth?.uid;
 
   try {
+    // Get the authenticated user
+    if (!requesterId) {
+      throw new Error('Authentication required');
+    }
+
+    const { chatId, messageId, reporterUserId } = request.data as ReportMessageRequest;
+
+    logger.info('Message report request received', {
+      messageId,
+      chatId,
+      reporterUserId,
+      requesterId,
+    });
+
     // Validate input
     if (!chatId || !messageId || !reporterUserId) {
       throw new Error('Missing required parameters: chatId, messageId, reporterUserId');
+    }
+
+    // Validate that the requester is the same as reporterUserId
+    if (requesterId !== reporterUserId) {
+      throw new Error('Unauthorized: can only report with your own user ID');
     }
 
     // Fetch the message from Realtime Database
@@ -56,10 +71,15 @@ export const reportMessage = onCall(async (request) => {
     const messageSnapshot = await messageRef.get();
 
     if (!messageSnapshot.exists()) {
+      logger.error('Chat message not found', {
+        messageId,
+        chatId,
+        databasePath: `messages/${chatId}/${messageId}`,
+      });
       throw new Error('Message not found');
     }
 
-    const messageData = messageSnapshot.val() as Message;
+    const messageData = messageSnapshot.val() as MessageData;
     const messageAuthorId = messageData.userId;
 
     // Prevent self-reporting
@@ -95,8 +115,20 @@ export const reportMessage = onCall(async (request) => {
       reportId: reportRef.id,
     };
   } catch (error) {
-    logger.error('Error reporting message:', error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+    logger.error('Message report failed', {
+      messageId: request.data?.messageId,
+      chatId: request.data?.chatId,
+      requesterId,
+      error: errorMessage,
+    });
+
+    // Return user-friendly error messages
+    return {
+      success: false,
+      error: errorMessage,
+    };
   }
 });
 
@@ -107,7 +139,7 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
 
     logger.info(`Report resolved for user ${report.messageAuthorId}, message ${report.messageId} in chat ${report.chatId}`);
 
-    // Update the message's report count in Realtime Database
+    // Update the message's report count in both Realtime Database and messageMeta
     await updateMessageReportCount(report.chatId, report.messageId);
 
     // Calculate parentDocId from the report's creation time
@@ -128,28 +160,62 @@ const resolveMessageReport = async (reportId: string, report: FirestoreMessageRe
   }
 };
 
-
-
 const updateMessageReportCount = async (chatId: string, messageId: string) => {
   try {
-    const messageRef = db.ref(`messages/${chatId}/${messageId}`);
+    let newReportCount = 0;
 
+    // Update the message's report count in Realtime Database (for backward compatibility)
+    const messageRef = db.ref(`messages/${chatId}/${messageId}`);
     await messageRef.transaction((message: MessageData | null) => {
       if (message === null) return message;
 
       const currentCount = message.reportCount || 0;
-      const newCount = currentCount + 1;
-      message.reportCount = newCount;
+      newReportCount = currentCount + 1;
+      message.reportCount = newReportCount;
 
-      logger.info(`Message ${messageId} report count updated to ${newCount}`);
+      logger.info(`Message ${messageId} report count updated to ${newReportCount} in Realtime Database`);
 
       return message;
     });
+
+    // Update/store the report count in messageMeta subcollection for live streams
+    const metaCollectionPath = `chats/${chatId}/messageMeta`;
+    const metaRef = firestore.collection(metaCollectionPath).doc(messageId);
+
+    await firestore.runTransaction(async (transaction) => {
+      const currentMeta = await transaction.get(metaRef);
+      const currentMetaData = currentMeta.exists ? currentMeta.data() : null;
+
+      logger.info('Updating chat message meta with report count', {
+        messageId,
+        chatId,
+        metaCollectionPath,
+        currentReportCount: currentMetaData?.reportCount || 0,
+        newReportCount,
+      });
+
+      // Store/update report count metadata
+      const metadataToStore = {
+        reportCount: newReportCount,
+        lastReportedAt: Timestamp.now(),
+      };
+
+      // Preserve existing metadata fields (like isRecalled)
+      if (currentMeta.exists && currentMetaData) {
+        Object.assign(metadataToStore, currentMetaData, {
+          reportCount: newReportCount,
+          lastReportedAt: Timestamp.now(),
+        });
+      }
+
+      transaction.set(metaRef, metadataToStore, { merge: true });
+    });
+
+    logger.info(`Message ${messageId} report count updated to ${newReportCount} in both Realtime Database and messageMeta`);
+
   } catch (error) {
     logger.error(`Error updating message ${messageId} report count:`, error);
   }
 };
-
-
 
 export default reportMessage;

@@ -8,12 +8,16 @@ class MessageMeta {
   final bool isRecalled;
   final DateTime? recalledAt;
   final String? recalledBy;
+  final int? reportCount;
+  final DateTime? lastReportedAt;
 
   const MessageMeta({
     required this.messageId,
     this.isRecalled = false,
     this.recalledAt,
     this.recalledBy,
+    this.reportCount,
+    this.lastReportedAt,
   });
 
   factory MessageMeta.fromJson(String messageId, Map<String, dynamic> json) {
@@ -24,6 +28,10 @@ class MessageMeta {
           ? (json['recalledAt'] as Timestamp).toDate()
           : null,
       recalledBy: json['recalledBy'] as String?,
+      reportCount: json['reportCount'] as int?,
+      lastReportedAt: json['lastReportedAt'] != null
+          ? (json['lastReportedAt'] as Timestamp).toDate()
+          : null,
     );
   }
 
@@ -32,6 +40,9 @@ class MessageMeta {
       'isRecalled': isRecalled,
       if (recalledAt != null) 'recalledAt': Timestamp.fromDate(recalledAt!),
       if (recalledBy != null) 'recalledBy': recalledBy,
+      if (reportCount != null) 'reportCount': reportCount,
+      if (lastReportedAt != null)
+        'lastReportedAt': Timestamp.fromDate(lastReportedAt!),
     };
   }
 
@@ -40,12 +51,16 @@ class MessageMeta {
     bool? isRecalled,
     DateTime? recalledAt,
     String? recalledBy,
+    int? reportCount,
+    DateTime? lastReportedAt,
   }) {
     return MessageMeta(
       messageId: messageId ?? this.messageId,
       isRecalled: isRecalled ?? this.isRecalled,
       recalledAt: recalledAt ?? this.recalledAt,
       recalledBy: recalledBy ?? this.recalledBy,
+      reportCount: reportCount ?? this.reportCount,
+      lastReportedAt: lastReportedAt ?? this.lastReportedAt,
     );
   }
 }
@@ -83,7 +98,8 @@ class MessageMetaCache extends ChangeNotifier {
 
     if (_disposed) {
       if (kDebugMode) {
-        debugPrint('MessageMetaCache: Accessed after disposal, returning false');
+        debugPrint(
+            'MessageMetaCache: Accessed after disposal, returning false');
       }
       return false;
     }
@@ -104,7 +120,8 @@ class MessageMetaCache extends ChangeNotifier {
     // Check if we're disposed
     if (_disposed) {
       if (kDebugMode) {
-        debugPrint('MessageMetaCache: Accessed after disposal, returning fallback value');
+        debugPrint(
+            'MessageMetaCache: Accessed after disposal, returning fallback value');
       }
       return fallbackValue;
     }
@@ -118,6 +135,59 @@ class MessageMetaCache extends ChangeNotifier {
       if (kDebugMode && fallbackValue && _currentCollectionId != null) {
         debugPrint(
             'MessageMetaCache: Cache miss for message $messageId in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue');
+      }
+      return fallbackValue;
+    }
+  }
+
+  /// Check if a message has a specific report count
+  int getMessageReportCount(String messageId) {
+    if (!_isValidMessageId(messageId)) {
+      if (kDebugMode) {
+        debugPrint(
+            'MessageMetaCache: Invalid messageId provided to getMessageReportCount: "$messageId"');
+      }
+      return 0;
+    }
+
+    if (_disposed) {
+      if (kDebugMode) {
+        debugPrint('MessageMetaCache: Accessed after disposal, returning 0');
+      }
+      return 0;
+    }
+
+    return _messageMeta[messageId]?.reportCount ?? 0;
+  }
+
+  /// Check if a message has a report count with fallback support
+  int getMessageReportCountWithFallback(String messageId, int fallbackValue) {
+    if (!_isValidMessageId(messageId)) {
+      if (kDebugMode) {
+        debugPrint(
+            'MessageMetaCache: Invalid messageId provided to getMessageReportCountWithFallback: "$messageId"');
+      }
+      return fallbackValue;
+    }
+
+    // Check if we're disposed
+    if (_disposed) {
+      if (kDebugMode) {
+        debugPrint(
+            'MessageMetaCache: Accessed after disposal, returning fallback value');
+      }
+      return fallbackValue;
+    }
+
+    final cachedMeta = _messageMeta[messageId];
+    if (cachedMeta != null && cachedMeta.reportCount != null) {
+      // Cache hit - return cached value
+      return cachedMeta.reportCount!;
+    } else {
+      // Cache miss - use fallback and log for debugging
+      if (kDebugMode && fallbackValue > 0 && _currentCollectionId != null) {
+        debugPrint(
+            'MessageMetaCache: Cache miss for message $messageId report count in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue');
       }
       return fallbackValue;
     }
@@ -158,7 +228,8 @@ class MessageMetaCache extends ChangeNotifier {
     }
 
     if (!['chat', 'topic'].contains(collectionType)) {
-      debugPrint('MessageMetaCache: Invalid collection type: "$collectionType". Must be "chat" or "topic"');
+      debugPrint(
+          'MessageMetaCache: Invalid collection type: "$collectionType". Must be "chat" or "topic"');
       return;
     }
 
@@ -192,7 +263,8 @@ class MessageMetaCache extends ChangeNotifier {
         cancelOnError: false, // Don't cancel on error, allow recovery
       );
     } catch (e) {
-      debugPrint('MessageMetaCache: Failed to subscribe to $collectionType $collectionId: $e');
+      debugPrint(
+          'MessageMetaCache: Failed to subscribe to $collectionType $collectionId: $e');
       // Reset state on subscription failure
       _currentCollectionId = null;
       _currentCollectionType = null;
@@ -215,7 +287,8 @@ class MessageMetaCache extends ChangeNotifier {
       final changes = snapshot.docChanges;
 
       if (kDebugMode && changes.isNotEmpty) {
-        debugPrint('MessageMetaCache: Processing ${changes.length} changes for $_currentCollectionType $_currentCollectionId');
+        debugPrint(
+            'MessageMetaCache: Processing ${changes.length} changes for $_currentCollectionType $_currentCollectionId');
       }
 
       for (final change in changes) {
@@ -242,13 +315,20 @@ class MessageMetaCache extends ChangeNotifier {
                   if (existingMeta == null ||
                       existingMeta.isRecalled != messageMeta.isRecalled ||
                       existingMeta.recalledAt != messageMeta.recalledAt ||
-                      existingMeta.recalledBy != messageMeta.recalledBy) {
+                      existingMeta.recalledBy != messageMeta.recalledBy ||
+                      existingMeta.reportCount != messageMeta.reportCount ||
+                      existingMeta.lastReportedAt !=
+                          messageMeta.lastReportedAt) {
                     _messageMeta[messageId] = messageMeta;
                     hasChanges = true;
                     changesProcessed++;
 
-                    if (kDebugMode && messageMeta.isRecalled) {
-                      debugPrint('MessageMetaCache: Message $messageId marked as recalled');
+                    if (kDebugMode &&
+                        (messageMeta.isRecalled ||
+                            (messageMeta.reportCount != null &&
+                                messageMeta.reportCount! > 0))) {
+                      debugPrint(
+                          'MessageMetaCache: Message $messageId marked as recalled');
                     }
                   }
                 } catch (e) {
@@ -257,7 +337,8 @@ class MessageMetaCache extends ChangeNotifier {
                   errorsEncountered++;
                 }
               } else {
-                debugPrint('MessageMetaCache: Null data for message $messageId');
+                debugPrint(
+                    'MessageMetaCache: Null data for message $messageId');
                 errorsEncountered++;
               }
               break;
@@ -266,13 +347,15 @@ class MessageMetaCache extends ChangeNotifier {
                 hasChanges = true;
                 changesProcessed++;
                 if (kDebugMode) {
-                  debugPrint('MessageMetaCache: Removed message meta for $messageId');
+                  debugPrint(
+                      'MessageMetaCache: Removed message meta for $messageId');
                 }
               }
               break;
           }
         } catch (e) {
-          debugPrint('MessageMetaCache: Error processing change for message $messageId: $e');
+          debugPrint(
+              'MessageMetaCache: Error processing change for message $messageId: $e');
           errorsEncountered++;
         }
       }
@@ -287,11 +370,14 @@ class MessageMetaCache extends ChangeNotifier {
             'MessageMetaCache: Processed $changesProcessed changes, $errorsEncountered errors from ${changes.length} total changes');
       }
     } catch (e) {
-      debugPrint('MessageMetaCache: Critical error handling message meta update: $e');
+      debugPrint(
+          'MessageMetaCache: Critical error handling message meta update: $e');
       // On critical errors, try to recover by clearing potentially corrupted state
       if (_messageMeta.length > _maxCacheSize ~/ 2) {
-        debugPrint('MessageMetaCache: Attempting recovery by clearing half the cache');
-        final keysToRemove = _messageMeta.keys.take(_messageMeta.length ~/ 2).toList();
+        debugPrint(
+            'MessageMetaCache: Attempting recovery by clearing half the cache');
+        final keysToRemove =
+            _messageMeta.keys.take(_messageMeta.length ~/ 2).toList();
         for (final key in keysToRemove) {
           _messageMeta.remove(key);
         }
@@ -391,7 +477,8 @@ class MessageMetaCache extends ChangeNotifier {
 
   /// Handle subscription errors with recovery attempts
   void _handleSubscriptionError(Object error, String collectionPath) {
-    debugPrint('MessageMetaCache: Subscription error for $collectionPath: $error');
+    debugPrint(
+        'MessageMetaCache: Subscription error for $collectionPath: $error');
 
     // Clear potentially stale data on subscription errors
     if (_messageMeta.isNotEmpty) {
@@ -408,14 +495,15 @@ class MessageMetaCache extends ChangeNotifier {
   /// Validate message ID before operations
   bool _isValidMessageId(String messageId) {
     return messageId.isNotEmpty &&
-           messageId.trim().isNotEmpty &&
-           messageId.length <= 100; // Reasonable limit
+        messageId.trim().isNotEmpty &&
+        messageId.length <= 100; // Reasonable limit
   }
 
   @override
   void dispose() {
     if (_disposed) {
-      debugPrint('MessageMetaCache: Already disposed, ignoring duplicate dispose call');
+      debugPrint(
+          'MessageMetaCache: Already disposed, ignoring duplicate dispose call');
       return;
     }
 
@@ -436,7 +524,8 @@ class MessageMetaCache extends ChangeNotifier {
 
       // Log final metrics in debug mode
       if (kDebugMode) {
-        debugPrint('MessageMetaCache disposed. Final metrics: ${getMetrics()}, cleared $cacheSize cached items');
+        debugPrint(
+            'MessageMetaCache disposed. Final metrics: ${getMetrics()}, cleared $cacheSize cached items');
       }
     } catch (e) {
       debugPrint('MessageMetaCache: Error during disposal: $e');

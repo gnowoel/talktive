@@ -12,6 +12,7 @@ import '../services/user_cache.dart';
 import '../helpers/helpers.dart';
 import '../helpers/topic_message_status_helper.dart';
 import '../helpers/message_recall_helper.dart';
+import '../helpers/message_report_helper.dart';
 import '../helpers/mention_helper.dart';
 import '../theme.dart';
 import 'bubble.dart';
@@ -391,63 +392,57 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   Widget _buildToggleButton(bool byMe) {
     return Consumer<MessageMetaCache>(
       builder: (context, cache, child) {
-        return FutureBuilder<bool>(
-          future:
-              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
-          builder: (context, reportedSnapshot) {
-            final isReportedButRevealable = reportedSnapshot.data ?? false;
-            final isHiddenButRevealable =
-                TopicMessageStatusHelper.isHiddenButRevealable(widget.message);
+        // Use MessageReportHelper with cache for real-time updates
+        final isHidden = widget.message.isHiddenWithCache(cache);
+        final reportCount = widget.message.getReportCountWithCache(cache);
+        final isReportedButRevealable =
+            reportCount > 0 && reportCount < 5; // Adjust threshold as needed
+        final isHiddenButRevealable = isHidden;
 
-            // Show toggle button for either hidden or reported but revealable messages
-            if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-                widget.message.isRecalledWithCache(cache)) {
-              return const SizedBox.shrink();
-            }
+        // Show toggle button for either hidden or reported but revealable messages
+        if ((!isHiddenButRevealable && !isReportedButRevealable) ||
+            widget.message.isRecalledWithCache(cache)) {
+          return const SizedBox.shrink();
+        }
 
-            // Determine which toggle state to use
-            final isRevealed =
-                isReportedButRevealable ? _isReportedRevealed : _isRevealed;
-            final toggleAction = isReportedButRevealable
-                ? () =>
-                    setState(() => _isReportedRevealed = !_isReportedRevealed)
-                : () => setState(() => _isRevealed = !_isRevealed);
+        // Determine which toggle state to use
+        final isRevealed =
+            isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+        final toggleAction = isReportedButRevealable
+            ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
+            : () => setState(() => _isRevealed = !_isRevealed);
 
-            return Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Align(
-                alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
-                child: InkWell(
-                  onTap: toggleAction,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isRevealed ? Icons.visibility_off : Icons.visibility,
-                          size: 14,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          isRevealed ? 'Hide' : 'Show',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
+        return Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Align(
+            alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: InkWell(
+              onTap: toggleAction,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isRevealed ? Icons.visibility_off : Icons.visibility,
+                      size: 14,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isRevealed ? 'Hide' : 'Show',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
     );
@@ -468,67 +463,60 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
           );
         }
 
-        return FutureBuilder<bool>(
-          future:
-              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
-          builder: (context, reportedSnapshot) {
-            final isReportedButRevealable = reportedSnapshot.data ?? false;
+        // Use MessageReportHelper with cache for real-time updates
+        final reportCount = widget.message.getReportCountWithCache(cache);
+        final isHidden = widget.message.isHiddenWithCache(cache);
+        final isFlagged = widget.message.isFlaggedWithCache(cache);
+        final isSevere = widget.message.isSevereWithCache(cache);
+        final isReportedButRevealable =
+            reportCount > 0 && reportCount < 5; // Adjust threshold as needed
+        final isHiddenButRevealable = isHidden && !isSevere;
 
-            // Check if message should be shown based on report status
-            final shouldShow = TopicMessageStatusHelper.shouldShowMessage(
-              widget.message,
-              isAdmin: false, // TODO: Add admin check if needed
-              followersCache: topicFollowersCache,
-            );
+        // Determine what content to display
+        String displayContent;
 
-            // Determine what content to display
-            String displayContent;
-
-            // Check if message is from a blocked user first (highest priority)
-            if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
-              displayContent =
-                  TopicMessageStatusHelper.getBlockedUserMessageContent(
-                      widget.message);
-            } else if (isReportedButRevealable) {
-              // Recently reported message - show placeholder or original based on toggle
-              displayContent = _isReportedRevealed
-                  ? content
-                  : TopicMessageStatusHelper.getReportedMessageContent(
-                      widget.message);
-            } else if (shouldShow) {
-              displayContent = content;
-            } else if (TopicMessageStatusHelper.isHiddenButRevealable(
-                widget.message)) {
-              displayContent = _isRevealed
-                  ? content
-                  : TopicMessageStatusHelper.getHiddenMessageContent(
-                      widget.message);
-            } else {
-              displayContent = TopicMessageStatusHelper.getHiddenMessageContent(
+        // Check if message is from a blocked user first (highest priority)
+        if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
+          displayContent =
+              TopicMessageStatusHelper.getBlockedUserMessageContent(
                   widget.message);
-            }
+        } else if (isReportedButRevealable) {
+          // Recently reported message - show placeholder or original based on toggle
+          displayContent = _isReportedRevealed
+              ? content
+              : '⚠️ This message has been reported and is under review';
+        } else if (isHidden) {
+          // Message is hidden due to reports
+          displayContent = isHiddenButRevealable && _isRevealed
+              ? content
+              : '🚫 This message has been hidden due to reports';
+        } else if (isFlagged) {
+          // Message is flagged but still visible
+          displayContent = content;
+        } else {
+          // Normal message
+          displayContent = content;
+        }
 
-            // Check if this message mentions the current user
-            final currentUserName = userCache.user?.displayName ?? '';
-            final isMentioned = !byMe && currentUserName.isNotEmpty
-                ? MentionHelper.containsExactMention(content, currentUserName)
-                : false;
+        // Check if this message mentions the current user
+        final currentUserName = userCache.user?.displayName ?? '';
+        final isMentioned = !byMe && currentUserName.isNotEmpty
+            ? MentionHelper.containsExactMention(content, currentUserName)
+            : false;
 
-            // Create the bubble widget with appropriate styling
-            Widget bubble = Bubble(
-              content: displayContent,
-              byMe: byMe,
-              byOp: byOp,
-              isMentioned: isMentioned,
-            );
+        // Create the bubble widget with appropriate styling
+        Widget bubble = Bubble(
+          content: displayContent,
+          byMe: byMe,
+          byOp: byOp,
+          isMentioned: isMentioned,
+        );
 
-            // Add gesture detector for context menu
-            return GestureDetector(
-              onLongPressStart: (details) =>
-                  _showContextMenu(context, details.globalPosition),
-              child: bubble,
-            );
-          },
+        // Add gesture detector for context menu
+        return GestureDetector(
+          onLongPressStart: (details) =>
+              _showContextMenu(context, details.globalPosition),
+          child: bubble,
         );
       },
     );

@@ -190,7 +190,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             child: const Text('Recall'),
             onPressed: () {
               Navigator.of(context).pop();
-              _recallMessage(context);
+              _recallMessage();
             },
           ),
         ],
@@ -198,7 +198,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     );
   }
 
-  Future<void> _recallMessage(BuildContext context) async {
+  Future<void> _recallMessage() async {
     if (widget.message.id == null) return;
 
     try {
@@ -206,8 +206,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         topicId: widget.topicId,
         messageId: widget.message.id!,
       );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(
             content: Text('Image recalled successfully'),
             duration: Duration(seconds: 2),
@@ -215,8 +215,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
@@ -248,7 +248,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _reportMessage(context);
+              _reportMessage();
             },
           ),
         ],
@@ -256,7 +256,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     );
   }
 
-  Future<void> _reportMessage(BuildContext context) async {
+  Future<void> _reportMessage() async {
     try {
       final currentUser = fireauth.instance.currentUser!;
 
@@ -267,8 +267,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         reporterUserId: currentUser.uid,
       );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -279,8 +279,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
@@ -312,7 +312,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _blockUser(context);
+              _blockUser();
             },
           ),
         ],
@@ -320,15 +320,15 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     );
   }
 
-  Future<void> _blockUser(BuildContext context) async {
+  Future<void> _blockUser() async {
     try {
       await firestore.blockUserFromTopic(
         topicId: widget.topicId,
         userId: widget.message.userId,
       );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -339,8 +339,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }

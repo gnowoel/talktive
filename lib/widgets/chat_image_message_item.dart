@@ -157,7 +157,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
             child: const Text('Recall'),
             onPressed: () {
               Navigator.of(context).pop();
-              _recallMessage(context);
+              _recallMessage();
             },
           ),
         ],
@@ -190,7 +190,7 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _reportMessage(context);
+              _reportMessage();
             },
           ),
         ],
@@ -198,11 +198,11 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
     );
   }
 
-  Future<void> _recallMessage(BuildContext context) async {
+  Future<void> _recallMessage() async {
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(
             content: Text('Image recalled successfully'),
             duration: Duration(seconds: 2),
@@ -210,15 +210,15 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
+      if (this.context.mounted) {
         ScaffoldMessenger.of(
-          context,
+          this.context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
 
-  Future<void> _reportMessage(BuildContext context) async {
+  Future<void> _reportMessage() async {
     try {
       final currentUser = fireauth.instance.currentUser!;
 
@@ -229,8 +229,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         reporterUserId: currentUser.uid,
       );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -241,8 +241,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }

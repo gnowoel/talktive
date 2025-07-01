@@ -160,14 +160,19 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
       contentToCopy = widget.message.getRecallStatusText(messageMetaCache);
     } else {
       // Check if message is recently reported
-      final isReported =
-          await MessageStatusHelper.isRecentlyReported(widget.message);
+      final isReported = await MessageStatusHelper.isRecentlyReported(
+        widget.message,
+      );
       if (isReported) {
         contentToCopy = MessageStatusHelper.getReportedCopyContent(
-            widget.message, widget.message.content);
+          widget.message,
+          widget.message.content,
+        );
       } else {
         contentToCopy = MessageStatusHelper.getCopyContent(
-            widget.message, widget.message.content);
+          widget.message,
+          widget.message.content,
+        );
       }
     }
 
@@ -199,7 +204,7 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
             child: const Text('Recall'),
             onPressed: () {
               Navigator.of(context).pop();
-              _recallMessage(context);
+              _recallMessage();
             },
           ),
         ],
@@ -232,7 +237,7 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _reportMessage(context);
+              _reportMessage();
             },
           ),
         ],
@@ -240,11 +245,11 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     );
   }
 
-  Future<void> _recallMessage(BuildContext context) async {
+  Future<void> _recallMessage() async {
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(
             content: Text('Message recalled successfully'),
             duration: Duration(seconds: 2),
@@ -252,9 +257,9 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
+      if (this.context.mounted) {
         ScaffoldMessenger.of(
-          context,
+          this.context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
@@ -293,24 +298,28 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
                   onTap: toggleAction,
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           isRevealed ? Icons.visibility_off : Icons.visibility,
                           size: 14,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           isRevealed ? 'Hide' : 'Show',
                           style: TextStyle(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                         ),
                       ],
@@ -325,7 +334,7 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     );
   }
 
-  Future<void> _reportMessage(BuildContext context) async {
+  Future<void> _reportMessage() async {
     try {
       final currentUser = fireauth.instance.currentUser!;
 
@@ -336,8 +345,8 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
         reporterUserId: currentUser.uid,
       );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -348,18 +357,15 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(
+          this.context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
 
-  Widget _buildMessageBox({
-    required String content,
-    bool byMe = false,
-  }) {
+  Widget _buildMessageBox({required String content, bool byMe = false}) {
     return Consumer<MessageMetaCache>(
       builder: (context, cache, child) {
         if (widget.message.isRecalledWithCache(cache)) {
@@ -394,17 +400,20 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
               displayContent = _isReportedRevealed
                   ? content
                   : MessageStatusHelper.getReportedMessageContent(
-                      widget.message);
+                      widget.message,
+                    );
             } else if (shouldShow) {
               displayContent = content;
             } else if (MessageStatusHelper.isHiddenButRevealable(
-                widget.message)) {
+              widget.message,
+            )) {
               displayContent = _isRevealed
                   ? content
                   : MessageStatusHelper.getHiddenMessageContent(widget.message);
             } else {
-              displayContent =
-                  MessageStatusHelper.getHiddenMessageContent(widget.message);
+              displayContent = MessageStatusHelper.getHiddenMessageContent(
+                widget.message,
+              );
             }
 
             // Create the bubble widget with appropriate styling
@@ -469,9 +478,7 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Flexible(
-                      child: _buildMessageBox(
-                        content: widget.message.content,
-                      ),
+                      child: _buildMessageBox(content: widget.message.content),
                     ),
                   ],
                 ),

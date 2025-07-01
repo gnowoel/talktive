@@ -4,6 +4,16 @@ import '../models/topic_message.dart';
 import '../services/message_meta_cache.dart';
 import '../config/message_report_config.dart';
 
+/// Enum for different message display states
+enum MessageDisplayStatus {
+  normal,
+  flagged,
+  reportedRevealable,
+  hidden,
+  severe,
+  blocked,
+}
+
 // Constants for validation and limits
 const int _maxMessageIdLength = 100;
 
@@ -55,8 +65,8 @@ extension ChatMessageReportHelper on ChatMessage {
   bool isFlaggedWithCache(MessageMetaCache? messageMetaCache) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.getReportStatus(currentReportCount) ==
-          'flagged';
+      return currentReportCount >= MessageReportConfig.flagThreshold &&
+          currentReportCount < MessageReportConfig.hideThreshold;
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -70,8 +80,8 @@ extension ChatMessageReportHelper on ChatMessage {
   bool isHiddenWithCache(MessageMetaCache? messageMetaCache) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.getReportStatus(currentReportCount) ==
-          'hidden';
+      return currentReportCount >= MessageReportConfig.hideThreshold &&
+          currentReportCount < MessageReportConfig.severeThreshold;
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -85,8 +95,7 @@ extension ChatMessageReportHelper on ChatMessage {
   bool isSevereWithCache(MessageMetaCache? messageMetaCache) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.getReportStatus(currentReportCount) ==
-          'severe';
+      return currentReportCount >= MessageReportConfig.severeThreshold;
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -136,6 +145,51 @@ extension ChatMessageReportHelper on ChatMessage {
             'ChatMessage: Error getting report status description for ${id ?? 'null'}: $e');
       }
       return 'No reports';
+    }
+  }
+
+  /// Check if message should be visible using cache data
+  bool shouldShowWithCache(MessageMetaCache? messageMetaCache,
+      {bool isAdmin = false}) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.shouldShowMessage(currentReportCount,
+          isAdmin: isAdmin);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message should show for ${id ?? 'null'}: $e');
+      }
+      return true; // Default to showing on error
+    }
+  }
+
+  /// Check if message needs content warning using cache data
+  bool shouldShowContentWarningWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.shouldShowContentWarning(currentReportCount);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking content warning for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if message is reported but still revealable using cache data
+  bool isReportedButRevealableWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount > 0 &&
+          currentReportCount < MessageReportConfig.hideThreshold;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message is reported but revealable for ${id ?? 'null'}: $e');
+      }
+      return false;
     }
   }
 
@@ -190,8 +244,8 @@ extension TopicMessageReportHelper on TopicMessage {
   bool isFlaggedWithCache(MessageMetaCache? messageMetaCache) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.getReportStatus(currentReportCount) ==
-          'flagged';
+      return currentReportCount >= MessageReportConfig.flagThreshold &&
+          currentReportCount < MessageReportConfig.hideThreshold;
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -205,8 +259,8 @@ extension TopicMessageReportHelper on TopicMessage {
   bool isHiddenWithCache(MessageMetaCache? messageMetaCache) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.getReportStatus(currentReportCount) ==
-          'hidden';
+      return currentReportCount >= MessageReportConfig.hideThreshold &&
+          currentReportCount < MessageReportConfig.severeThreshold;
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -220,8 +274,7 @@ extension TopicMessageReportHelper on TopicMessage {
   bool isSevereWithCache(MessageMetaCache? messageMetaCache) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.getReportStatus(currentReportCount) ==
-          'severe';
+      return currentReportCount >= MessageReportConfig.severeThreshold;
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -271,6 +324,51 @@ extension TopicMessageReportHelper on TopicMessage {
             'TopicMessage: Error getting report status description for ${id ?? 'null'}: $e');
       }
       return 'No reports';
+    }
+  }
+
+  /// Check if message should be visible using cache data
+  bool shouldShowWithCache(MessageMetaCache? messageMetaCache,
+      {bool isAdmin = false}) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.shouldShowMessage(currentReportCount,
+          isAdmin: isAdmin);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'TopicMessage: Error checking if message should show for ${id ?? 'null'}: $e');
+      }
+      return true; // Default to showing on error
+    }
+  }
+
+  /// Check if message needs content warning using cache data
+  bool shouldShowContentWarningWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.shouldShowContentWarning(currentReportCount);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'TopicMessage: Error checking content warning for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if message is reported but still revealable using cache data
+  bool isReportedButRevealableWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount > 0 &&
+          currentReportCount < MessageReportConfig.hideThreshold;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'TopicMessage: Error checking if message is reported but revealable for ${id ?? 'null'}: $e');
+      }
+      return false;
     }
   }
 
@@ -452,6 +550,40 @@ class MessageReportHelper {
       if (kDebugMode) {
         debugPrint(
             'MessageReportHelper: Error checking if message is reported: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if any message is reported but still revealable using a unified approach
+  static bool isMessageReportedButRevealable(
+    dynamic message,
+    MessageMetaCache? messageMetaCache,
+  ) {
+    try {
+      if (message == null) {
+        if (kDebugMode) {
+          debugPrint(
+              'MessageReportHelper: Null message provided to isMessageReportedButRevealable');
+        }
+        return false;
+      }
+
+      if (message is ChatMessage) {
+        return message.isReportedButRevealableWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
+        return message.isReportedButRevealableWithCache(messageMetaCache);
+      } else {
+        if (kDebugMode) {
+          debugPrint(
+              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+        }
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'MessageReportHelper: Error checking if message is reported but revealable: $e');
       }
       return false;
     }

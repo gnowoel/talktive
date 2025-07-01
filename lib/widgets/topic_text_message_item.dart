@@ -231,7 +231,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             child: const Text('Recall'),
             onPressed: () {
               Navigator.of(context).pop();
-              _recallMessage(context);
+              _recallMessage();
             },
           ),
         ],
@@ -239,7 +239,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
   }
 
-  Future<void> _recallMessage(BuildContext context) async {
+  Future<void> _recallMessage() async {
     if (widget.message.id == null) return;
 
     try {
@@ -247,8 +247,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         topicId: widget.topicId,
         messageId: widget.message.id!,
       );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(
             content: Text('Message recalled successfully'),
             duration: Duration(seconds: 2),
@@ -256,9 +256,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
+      if (this.context.mounted) {
         ScaffoldMessenger.of(
-          context,
+          this.context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
@@ -289,7 +289,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _reportMessage(context);
+              _reportMessage();
             },
           ),
         ],
@@ -297,7 +297,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
   }
 
-  Future<void> _reportMessage(BuildContext context) async {
+  Future<void> _reportMessage() async {
     try {
       final currentUser = fireauth.instance.currentUser!;
 
@@ -308,8 +308,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         reporterUserId: currentUser.uid,
       );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -320,8 +320,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
@@ -353,7 +353,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
-              _blockUser(context);
+              _blockUser();
             },
           ),
         ],
@@ -361,15 +361,15 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     );
   }
 
-  Future<void> _blockUser(BuildContext context) async {
+  Future<void> _blockUser() async {
     try {
       await firestore.blockUserFromTopic(
         topicId: widget.topicId,
         userId: widget.message.userId,
       );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -380,8 +380,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (this.context.mounted) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }

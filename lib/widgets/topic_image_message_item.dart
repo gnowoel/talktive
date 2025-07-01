@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../helpers/helpers.dart';
 
 import '../helpers/topic_message_status_helper.dart';
+
 import '../helpers/message_recall_helper.dart';
 import '../helpers/message_report_helper.dart';
 import '../models/topic_message.dart';
@@ -356,8 +357,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
               TopicMessageStatusHelper.isReportedButRevealable(widget.message),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
-            final isHiddenButRevealable =
-                widget.message.isHiddenWithCache(cache);
+            final isHidden = widget.message.isHiddenWithCache(cache);
+            final isSevere = widget.message.isSevereWithCache(cache);
+            final isHiddenButRevealable = isHidden && !isSevere;
 
             // Show toggle button for either hidden or reported but revealable messages
             if ((!isHiddenButRevealable && !isReportedButRevealable) ||
@@ -438,10 +440,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
 
-            // Check if message should be shown based on report status
-            final reportCount = widget.message.getReportCountWithCache(cache);
-            final shouldShow = reportCount == 0 ||
-                reportCount < 5; // Use real-time count for visibility
+            // Check if message should be shown using enhanced helper
+            final shouldShow = widget.message.shouldShowWithCache(cache);
 
             // Determine what content to display
             Widget contentWidget;

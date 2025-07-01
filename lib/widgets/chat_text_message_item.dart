@@ -8,6 +8,7 @@ import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/message_meta_cache.dart';
 import '../services/user_cache.dart';
+
 import '../helpers/helpers.dart';
 import '../helpers/message_status_helper.dart';
 import '../helpers/message_recall_helper.dart';
@@ -273,8 +274,9 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
           future: MessageStatusHelper.isReportedButRevealable(widget.message),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
-            final isHiddenButRevealable =
-                widget.message.isHiddenWithCache(cache);
+            final isHidden = widget.message.isHiddenWithCache(cache);
+            final isSevere = widget.message.isSevereWithCache(cache);
+            final isHiddenButRevealable = isHidden && !isSevere;
 
             // Show toggle button for either hidden or reported but revealable messages
             if ((!isHiddenButRevealable && !isReportedButRevealable) ||
@@ -386,13 +388,12 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
           future: MessageStatusHelper.isReportedButRevealable(widget.message),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
-            final isHiddenButRevealable =
-                widget.message.isHiddenWithCache(cache);
+            final isHidden = widget.message.isHiddenWithCache(cache);
+            final isSevere = widget.message.isSevereWithCache(cache);
+            final isHiddenButRevealable = isHidden && !isSevere;
 
-            // Check if message should be shown based on report status
-            final reportCount = widget.message.getReportCountWithCache(cache);
-            final shouldShow = reportCount == 0 ||
-                reportCount < 5; // Use real-time count for visibility
+            // Check if message should be shown using enhanced helper
+            final shouldShow = widget.message.shouldShowWithCache(cache);
 
             // Determine what content to display
             String displayContent;

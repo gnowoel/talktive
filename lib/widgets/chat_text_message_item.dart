@@ -55,7 +55,7 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     theme = Theme.of(context);
-    messageMetaCache = Provider.of<MessageMetaCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context, listen: true);
     userCache = Provider.of<UserCache>(context);
   }
 
@@ -243,6 +243,14 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
   Future<void> _recallMessage(BuildContext context) async {
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Message recalled successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -253,58 +261,65 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
   }
 
   Widget _buildToggleButton(bool byMe) {
-    return FutureBuilder<bool>(
-      future: MessageStatusHelper.isReportedButRevealable(widget.message),
-      builder: (context, reportedSnapshot) {
-        final isReportedButRevealable = reportedSnapshot.data ?? false;
-        final isHiddenButRevealable =
-            MessageStatusHelper.isHiddenButRevealable(widget.message);
+    return Consumer<MessageMetaCache>(
+      builder: (context, cache, child) {
+        return FutureBuilder<bool>(
+          future: MessageStatusHelper.isReportedButRevealable(widget.message),
+          builder: (context, reportedSnapshot) {
+            final isReportedButRevealable = reportedSnapshot.data ?? false;
+            final isHiddenButRevealable =
+                MessageStatusHelper.isHiddenButRevealable(widget.message);
 
-        // Show toggle button for either hidden or reported but revealable messages
-        if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            widget.reporterUserId != null ||
-            widget.message.isRecalledWithCache(messageMetaCache)) {
-          return const SizedBox.shrink();
-        }
+            // Show toggle button for either hidden or reported but revealable messages
+            if ((!isHiddenButRevealable && !isReportedButRevealable) ||
+                widget.reporterUserId != null ||
+                widget.message.isRecalledWithCache(cache)) {
+              return const SizedBox.shrink();
+            }
 
-        // Determine which toggle state to use
-        final isRevealed =
-            isReportedButRevealable ? _isReportedRevealed : _isRevealed;
-        final toggleAction = isReportedButRevealable
-            ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
-            : () => setState(() => _isRevealed = !_isRevealed);
+            // Determine which toggle state to use
+            final isRevealed =
+                isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+            final toggleAction = isReportedButRevealable
+                ? () =>
+                    setState(() => _isReportedRevealed = !_isReportedRevealed)
+                : () => setState(() => _isRevealed = !_isRevealed);
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Align(
-            alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
-            child: InkWell(
-              onTap: toggleAction,
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isRevealed ? Icons.visibility_off : Icons.visibility,
-                      size: 14,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            return Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Align(
+                alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: InkWell(
+                  onTap: toggleAction,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isRevealed ? Icons.visibility_off : Icons.visibility,
+                          size: 14,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          isRevealed ? 'Hide' : 'Show',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isRevealed ? 'Hide' : 'Show',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -345,66 +360,72 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     required String content,
     bool byMe = false,
   }) {
-    if (widget.message.isRecalledWithCache(messageMetaCache)) {
-      return Bubble(
-        content: widget.message.getRecallStatusText(messageMetaCache),
-        byMe: byMe,
-      );
-    }
-
-    // Check if this message mentions the current user
-    final currentUserName = userCache.user?.displayName ?? '';
-    final isMentioned = !byMe && currentUserName.isNotEmpty
-        ? MentionHelper.containsExactMention(content, currentUserName)
-        : false;
-
-    return FutureBuilder<bool>(
-      future: MessageStatusHelper.isReportedButRevealable(widget.message),
-      builder: (context, reportedSnapshot) {
-        final isReportedButRevealable = reportedSnapshot.data ?? false;
-
-        // Check if message should be shown based on report status
-        final shouldShow = MessageStatusHelper.shouldShowMessage(
-          widget.message,
-          isAdmin: false, // TODO: Add admin check if needed
-        );
-
-        // Determine what content to display
-        String displayContent;
-
-        if (isReportedButRevealable) {
-          // Recently reported message - show placeholder or original based on toggle
-          displayContent = _isReportedRevealed
-              ? content
-              : MessageStatusHelper.getReportedMessageContent(widget.message);
-        } else if (shouldShow) {
-          displayContent = content;
-        } else if (MessageStatusHelper.isHiddenButRevealable(widget.message)) {
-          displayContent = _isRevealed
-              ? content
-              : MessageStatusHelper.getHiddenMessageContent(widget.message);
-        } else {
-          displayContent =
-              MessageStatusHelper.getHiddenMessageContent(widget.message);
-        }
-
-        // Create the bubble widget with appropriate styling
-        Widget bubble = Bubble(
-          content: displayContent,
-          byMe: byMe,
-          isMentioned: isMentioned,
-        );
-
-        // Add gesture detector for context menu (no tap-to-toggle)
-        if (widget.reporterUserId == null) {
-          bubble = GestureDetector(
-            onLongPressStart: (details) =>
-                _showContextMenu(context, details.globalPosition),
-            child: bubble,
+    return Consumer<MessageMetaCache>(
+      builder: (context, cache, child) {
+        if (widget.message.isRecalledWithCache(cache)) {
+          return Bubble(
+            content: widget.message.getRecallStatusText(cache),
+            byMe: byMe,
           );
         }
 
-        return bubble;
+        // Check if this message mentions the current user
+        final currentUserName = userCache.user?.displayName ?? '';
+        final isMentioned = !byMe && currentUserName.isNotEmpty
+            ? MentionHelper.containsExactMention(content, currentUserName)
+            : false;
+
+        return FutureBuilder<bool>(
+          future: MessageStatusHelper.isReportedButRevealable(widget.message),
+          builder: (context, reportedSnapshot) {
+            final isReportedButRevealable = reportedSnapshot.data ?? false;
+
+            // Check if message should be shown based on report status
+            final shouldShow = MessageStatusHelper.shouldShowMessage(
+              widget.message,
+              isAdmin: false, // TODO: Add admin check if needed
+            );
+
+            // Determine what content to display
+            String displayContent;
+
+            if (isReportedButRevealable) {
+              // Recently reported message - show placeholder or original based on toggle
+              displayContent = _isReportedRevealed
+                  ? content
+                  : MessageStatusHelper.getReportedMessageContent(
+                      widget.message);
+            } else if (shouldShow) {
+              displayContent = content;
+            } else if (MessageStatusHelper.isHiddenButRevealable(
+                widget.message)) {
+              displayContent = _isRevealed
+                  ? content
+                  : MessageStatusHelper.getHiddenMessageContent(widget.message);
+            } else {
+              displayContent =
+                  MessageStatusHelper.getHiddenMessageContent(widget.message);
+            }
+
+            // Create the bubble widget with appropriate styling
+            Widget bubble = Bubble(
+              content: displayContent,
+              byMe: byMe,
+              isMentioned: isMentioned,
+            );
+
+            // Add gesture detector for context menu (no tap-to-toggle)
+            if (widget.reporterUserId == null) {
+              bubble = GestureDetector(
+                onLongPressStart: (details) =>
+                    _showContextMenu(context, details.globalPosition),
+                child: bubble,
+              );
+            }
+
+            return bubble;
+          },
+        );
       },
     );
   }

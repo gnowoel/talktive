@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/helpers.dart';
+
 import '../helpers/topic_message_status_helper.dart';
 import '../helpers/message_recall_helper.dart';
 import '../models/topic_message.dart';
@@ -63,7 +64,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     theme = Theme.of(context);
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
-    messageMetaCache = Provider.of<MessageMetaCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context, listen: true);
     topicFollowersCache = Provider.of<TopicFollowersCache>(context);
   }
 
@@ -205,6 +206,14 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         topicId: widget.topicId,
         messageId: widget.message.id!,
       );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Image recalled successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -339,57 +348,65 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   }
 
   Widget _buildToggleButton(bool byMe) {
-    return FutureBuilder<bool>(
-      future: TopicMessageStatusHelper.isReportedButRevealable(widget.message),
-      builder: (context, reportedSnapshot) {
-        final isReportedButRevealable = reportedSnapshot.data ?? false;
-        final isHiddenButRevealable =
-            TopicMessageStatusHelper.isHiddenButRevealable(widget.message);
+    return Consumer<MessageMetaCache>(
+      builder: (context, cache, child) {
+        return FutureBuilder<bool>(
+          future:
+              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
+          builder: (context, reportedSnapshot) {
+            final isReportedButRevealable = reportedSnapshot.data ?? false;
+            final isHiddenButRevealable =
+                TopicMessageStatusHelper.isHiddenButRevealable(widget.message);
 
-        // Show toggle button for either hidden or reported but revealable messages
-        if ((!isHiddenButRevealable && !isReportedButRevealable) ||
-            widget.message.isRecalledWithCache(messageMetaCache)) {
-          return const SizedBox.shrink();
-        }
+            // Show toggle button for either hidden or reported but revealable messages
+            if ((!isHiddenButRevealable && !isReportedButRevealable) ||
+                widget.message.isRecalledWithCache(cache)) {
+              return const SizedBox.shrink();
+            }
 
-        // Determine which toggle state to use
-        final isRevealed =
-            isReportedButRevealable ? _isReportedRevealed : _isRevealed;
-        final toggleAction = isReportedButRevealable
-            ? () => setState(() => _isReportedRevealed = !_isReportedRevealed)
-            : () => setState(() => _isRevealed = !_isRevealed);
+            // Determine which toggle state to use
+            final isRevealed =
+                isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+            final toggleAction = isReportedButRevealable
+                ? () =>
+                    setState(() => _isReportedRevealed = !_isReportedRevealed)
+                : () => setState(() => _isRevealed = !_isRevealed);
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Align(
-            alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
-            child: InkWell(
-              onTap: toggleAction,
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isRevealed ? Icons.visibility_off : Icons.visibility,
-                      size: 14,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            return Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Align(
+                alignment: byMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: InkWell(
+                  onTap: toggleAction,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isRevealed ? Icons.visibility_off : Icons.visibility,
+                          size: 14,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          isRevealed ? 'Hide' : 'Show',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isRevealed ? 'Hide' : 'Show',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -399,75 +416,95 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     BuildContext context,
     BoxConstraints constraints, {
     bool byMe = false,
+    bool byOp = false,
   }) {
-    if (widget.message.isRecalledWithCache(messageMetaCache)) {
-      return Bubble(
-          content: widget.message.getRecallStatusText(messageMetaCache),
-          byMe: byMe,
-          isMentioned: false);
-    }
-
-    return FutureBuilder<bool>(
-      future: TopicMessageStatusHelper.isReportedButRevealable(widget.message),
-      builder: (context, reportedSnapshot) {
-        final isReportedButRevealable = reportedSnapshot.data ?? false;
-
-        // Check if message should be shown based on report status
-        final shouldShow = TopicMessageStatusHelper.shouldShowMessage(
-          widget.message,
-          isAdmin: false, // TODO: Add admin check if needed
-          followersCache: topicFollowersCache,
-        );
+    return Consumer<MessageMetaCache>(
+      builder: (context, cache, child) {
+        if (widget.message.isRecalledWithCache(cache)) {
+          return Bubble(
+            content: widget.message.getRecallStatusText(cache),
+            byMe: byMe,
+            byOp: byOp,
+          );
+        }
 
         // Images don't have text content to check for mentions
         final isMentioned = false;
 
-        // Determine what content to display
-        Widget contentWidget;
+        return FutureBuilder<bool>(
+          future:
+              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
+          builder: (context, reportedSnapshot) {
+            final isReportedButRevealable = reportedSnapshot.data ?? false;
 
-        // Check if message is from a blocked user first (highest priority)
-        if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
-          final blockedContent =
-              TopicMessageStatusHelper.getBlockedUserMessageContent(
-                  widget.message);
-          contentWidget = Bubble(
-              content: blockedContent, byMe: byMe, isMentioned: isMentioned);
-        } else if (isReportedButRevealable) {
-          // Recently reported image - show placeholder or original based on toggle
-          if (_isReportedRevealed) {
-            contentWidget = _buildCachedImage(context, constraints);
-          } else {
-            final reportedContent =
-                TopicMessageStatusHelper.getReportedMessageContent(
-                    widget.message);
-            contentWidget = Bubble(
-                content: reportedContent, byMe: byMe, isMentioned: isMentioned);
-          }
-        } else if (shouldShow) {
-          contentWidget = _buildCachedImage(context, constraints);
-        } else if (TopicMessageStatusHelper.isHiddenButRevealable(
-            widget.message)) {
-          if (_isRevealed) {
-            contentWidget = _buildCachedImage(context, constraints);
-          } else {
-            final hiddenContent =
-                TopicMessageStatusHelper.getHiddenMessageContent(
-                    widget.message);
-            contentWidget = Bubble(
-                content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
-          }
-        } else {
-          final hiddenContent =
-              TopicMessageStatusHelper.getHiddenMessageContent(widget.message);
-          contentWidget = Bubble(
-              content: hiddenContent, byMe: byMe, isMentioned: isMentioned);
-        }
+            // Check if message should be shown based on report status
+            final shouldShow = TopicMessageStatusHelper.shouldShowMessage(
+              widget.message,
+              isAdmin: false, // TODO: Add admin check if needed
+              followersCache: topicFollowersCache,
+            );
 
-        // Add gesture detector for context menu
-        return GestureDetector(
-          onLongPressStart: (details) =>
-              _showContextMenu(context, details.globalPosition),
-          child: contentWidget,
+            // Determine what content to display
+            Widget contentWidget;
+
+            // Check if message is from a blocked user first (highest priority)
+            if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
+              final blockedContent =
+                  TopicMessageStatusHelper.getBlockedUserMessageContent(
+                      widget.message);
+              contentWidget = Bubble(
+                  content: blockedContent,
+                  byMe: byMe,
+                  byOp: byOp,
+                  isMentioned: isMentioned);
+            } else if (isReportedButRevealable) {
+              // Recently reported image - show placeholder or original based on toggle
+              if (_isReportedRevealed) {
+                contentWidget = _buildCachedImage(context, constraints);
+              } else {
+                final reportedContent =
+                    TopicMessageStatusHelper.getReportedMessageContent(
+                        widget.message);
+                contentWidget = Bubble(
+                    content: reportedContent,
+                    byMe: byMe,
+                    byOp: byOp,
+                    isMentioned: isMentioned);
+              }
+            } else if (shouldShow) {
+              contentWidget = _buildCachedImage(context, constraints);
+            } else if (TopicMessageStatusHelper.isHiddenButRevealable(
+                widget.message)) {
+              if (_isRevealed) {
+                contentWidget = _buildCachedImage(context, constraints);
+              } else {
+                final hiddenContent =
+                    TopicMessageStatusHelper.getHiddenMessageContent(
+                        widget.message);
+                contentWidget = Bubble(
+                    content: hiddenContent,
+                    byMe: byMe,
+                    byOp: byOp,
+                    isMentioned: isMentioned);
+              }
+            } else {
+              final hiddenContent =
+                  TopicMessageStatusHelper.getHiddenMessageContent(
+                      widget.message);
+              contentWidget = Bubble(
+                  content: hiddenContent,
+                  byMe: byMe,
+                  byOp: byOp,
+                  isMentioned: isMentioned);
+            }
+
+            // Add gesture detector for context menu
+            return GestureDetector(
+              onLongPressStart: (details) =>
+                  _showContextMenu(context, details.globalPosition),
+              child: contentWidget,
+            );
+          },
         );
       },
     );
@@ -568,7 +605,17 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Flexible(child: LayoutBuilder(builder: _buildMessageBox)),
+                    Flexible(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) => _buildMessageBox(
+                          context,
+                          constraints,
+                          byMe: false,
+                          byOp:
+                              false, // TODO: Determine if message author is topic creator
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 _buildToggleButton(false),
@@ -623,8 +670,13 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                   children: [
                     Flexible(
                       child: LayoutBuilder(
-                        builder: (context, constraints) =>
-                            _buildMessageBox(context, constraints, byMe: true),
+                        builder: (context, constraints) => _buildMessageBox(
+                          context,
+                          constraints,
+                          byMe: true,
+                          byOp:
+                              false, // TODO: Determine if message author is topic creator
+                        ),
                       ),
                     ),
                   ],

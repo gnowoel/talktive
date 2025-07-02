@@ -232,11 +232,14 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                   ),
                 ),
                 // Show single most relevant status tag (priority-based)
-                // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
+                // Priority order: warning > alert > moderator > very_poor > poor > newcomer > excellent > good
                 if (userStatus == 'warning') ...[
                   Tag(status: 'warning'),
                 ] else if (userStatus == 'alert') ...[
                   Tag(status: 'alert'),
+                ] else if (widget.user!.isModerator &&
+                    !widget.user!.isAdmin) ...[
+                  Tag(status: 'mod'),
                 ] else if (widget.user!.reputationLevel == 'very_poor') ...[
                   Tag(status: 'very_poor'),
                 ] else if (widget.user!.reputationLevel == 'poor') ...[

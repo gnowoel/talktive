@@ -504,24 +504,24 @@ const removePair = async (pairId: string) => {
 };
 
 // Fetch admin IDs from Realtime Database
-const fetchAdminIds = async (): Promise<Set<string>> => {
-  try {
-    const adminsSnapshot = await db.ref('admins').get();
-    const adminIds = new Set<string>();
-
-    if (adminsSnapshot.exists()) {
-      const adminsData = adminsSnapshot.val();
-      for (const adminId in adminsData) {
-        adminIds.add(adminId);
-      }
-    }
-
-    return adminIds;
-  } catch (error) {
-    logger.error('Error fetching admin IDs:', error);
-    return new Set<string>();
-  }
-};
+// const fetchAdminIds = async (): Promise<Set<string>> => {
+//   try {
+//     const adminsSnapshot = await db.ref('admins').get();
+//     const adminIds = new Set<string>();
+//
+//     if (adminsSnapshot.exists()) {
+//       const adminsData = adminsSnapshot.val();
+//       for (const adminId in adminsData) {
+//         adminIds.add(adminId);
+//       }
+//     }
+//
+//     return adminIds;
+//   } catch (error) {
+//     logger.error('Error fetching admin IDs:', error);
+//     return new Set<string>();
+//   }
+// };
 
 const hideOldPublicTopics = async () => {
   try {
@@ -532,8 +532,8 @@ const hideOldPublicTopics = async () => {
     );
 
     // Fetch admin IDs from Realtime Database
-    const adminIds = await fetchAdminIds();
-    logger.info(`Found ${adminIds.size} admin IDs`);
+    // const adminIds = await fetchAdminIds();
+    // logger.info(`Found ${adminIds.size} admin IDs`);
 
     // Query for public topics older than 24 hours
     const topicsSnapshot = await firestore
@@ -549,17 +549,18 @@ const hideOldPublicTopics = async () => {
 
     // Process topics in batches using SafeBatch
     const batch = new SafeBatch(firestore);
-    let skippedCount = 0;
+    // let skippedCount = 0;
+    const skippedCount = 0;
 
     for (const topicDoc of topicsSnapshot.docs) {
-      const topicData = topicDoc.data();
-      const creatorId = topicData.creator?.id;
+      // const topicData = topicDoc.data();
+      // const creatorId = topicData.creator?.id;
 
       // Skip topics created by admins
-      if (adminIds.has(creatorId)) {
-        skippedCount++;
-        continue;
-      }
+      // if (adminIds.has(creatorId)) {
+      //   skippedCount++;
+      //   continue;
+      // }
 
       batch.update(topicDoc.ref, {
         isPublic: false,

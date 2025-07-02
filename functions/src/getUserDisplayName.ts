@@ -1,14 +1,14 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onRequest } from 'firebase-functions/v2/https';
-import { defineString } from 'firebase-functions/params';
+import { defineSecret } from 'firebase-functions/params';
 
 if (!admin.app.length) {
   admin.initializeApp();
 }
 
 // Define the API key parameter
-const API_KEY = defineString('GET_USER_API_KEY');
+const API_KEY = defineSecret('GET_USER_API_SECRET');
 
 export const getUserDisplayName = onRequest(
   {

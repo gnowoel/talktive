@@ -107,7 +107,7 @@ class ProfilePage extends StatelessWidget {
                                     final userStatus = user.status;
                                     final widgets = <Widget>[];
 
-                                    // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
+                                    // Priority order: warning > alert > moderator > very_poor > poor > newcomer > excellent > good
                                     if (userStatus == 'warning') {
                                       widgets.add(_Badge(
                                         label: 'Warning',
@@ -123,6 +123,15 @@ class ProfilePage extends StatelessWidget {
                                             theme.colorScheme.tertiaryContainer,
                                         textColor: theme
                                             .colorScheme.onTertiaryContainer,
+                                      ));
+                                    } else if (user.isModerator &&
+                                        !user.isAdmin) {
+                                      widgets.add(_Badge(
+                                        label: 'Moderator',
+                                        backgroundColor:
+                                            theme.colorScheme.primaryContainer,
+                                        textColor: theme
+                                            .colorScheme.onPrimaryContainer,
                                       ));
                                     } else if (user.reputationLevel ==
                                         'very_poor') {

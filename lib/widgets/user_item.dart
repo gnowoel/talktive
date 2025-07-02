@@ -305,11 +305,14 @@ class _UserItemState extends State<UserItem> {
                   ),
                   // Show single most relevant status tag (priority-based)
                   ...() {
-                    // Priority order: warning > alert > very_poor > poor > newcomer > excellent > good
+                    // Priority order: warning > alert > moderator > very_poor > poor > newcomer > excellent > good
                     if (userStatus == 'warning') {
                       return [const SizedBox(width: 4), Tag(status: 'warning')];
                     } else if (userStatus == 'alert') {
                       return [const SizedBox(width: 4), Tag(status: 'alert')];
+                    } else if (widget.user.isModerator &&
+                        !widget.user.isAdmin) {
+                      return [const SizedBox(width: 4), Tag(status: 'mod')];
                     } else if (widget.user.reputationLevel == 'very_poor') {
                       return [
                         const SizedBox(width: 4),

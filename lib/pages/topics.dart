@@ -178,7 +178,7 @@ class _TopicsPageState extends State<TopicsPage> {
     String title = 'Cannot Create Topic';
     List<Widget> content = [
       Text(
-        'You need level 6, followers, good reputation, and no restrictions to create topics.',
+        'Sorry, you need level 6, followers, good reputation and no restrictions to create topics.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),
@@ -237,17 +237,17 @@ class _TopicsPageState extends State<TopicsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Feel free to create a topic if you have something to ask or share.',
+              'Topics are designed for lightweight or throw-away conversations. Think of them as forum threads rather than group chats.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'To reduce spam, only experienced users can currently create or join topics. Thanks for your understanding.',
+              'Feel free to create multiple topics in a day for different subjects.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Topics stay public for a short time. After that, they become private—but participants can still invite their followers to join.',
+              'Topics remain public for a limited time. After that, they become private, but participants can still invite their followers to join.',
               style: TextStyle(height: 1.5),
             ),
           ],

@@ -83,6 +83,14 @@ export const follow = onCall<FollowRequest>(async (request) => {
         .collection('followers')
         .doc(followerId);
 
+      const followerUserRef = firestore
+        .collection('users')
+        .doc(followerId);
+
+      const followeeUserRef = firestore
+        .collection('users')
+        .doc(followeeId);
+
       const followeeDoc = await transaction.get(followeeRef);
       if (followeeDoc.exists) {
         throw new Error('Already following this user');
@@ -90,6 +98,53 @@ export const follow = onCall<FollowRequest>(async (request) => {
 
       transaction.set(followeeRef, newFollowee);
       transaction.set(followerRef, newFollower);
+
+      // Get current user documents to check if counts need initialization
+      const followerUserDoc = await transaction.get(followerUserRef);
+      const followeeUserDoc = await transaction.get(followeeUserRef);
+
+      const followerData = followerUserDoc.data();
+      const followeeData = followeeUserDoc.data();
+
+      // Handle followeeCount for the follower
+      if (followerData && followerData.followeeCount == null) {
+        // Initialize followeeCount by counting existing followees
+        const followeesSnapshot = await firestore
+          .collection('users')
+          .doc(followerId)
+          .collection('followees')
+          .count()
+          .get();
+        const followeeCount = followeesSnapshot.data().count;
+        transaction.update(followerUserRef, {
+          followeeCount: followeeCount
+        });
+      } else {
+        // Increment existing count
+        transaction.update(followerUserRef, {
+          followeeCount: admin.firestore.FieldValue.increment(1)
+        });
+      }
+
+      // Handle followerCount for the followee
+      if (followeeData && followeeData.followerCount == null) {
+        // Initialize followerCount by counting existing followers
+        const followersSnapshot = await firestore
+          .collection('users')
+          .doc(followeeId)
+          .collection('followers')
+          .count()
+          .get();
+        const followerCount = followersSnapshot.data().count;
+        transaction.update(followeeUserRef, {
+          followerCount: followerCount
+        });
+      } else {
+        // Increment existing count
+        transaction.update(followeeUserRef, {
+          followerCount: admin.firestore.FieldValue.increment(1)
+        });
+      }
     });
 
     await updateFollowStats();
@@ -130,8 +185,63 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
         .collection('followers')
         .doc(followerId);
 
+      const followerUserRef = firestore
+        .collection('users')
+        .doc(followerId);
+
+      const followeeUserRef = firestore
+        .collection('users')
+        .doc(followeeId);
+
       transaction.delete(followeeRef);
       transaction.delete(followerRef);
+
+      // Get current user documents to check if counts need initialization
+      const followerUserDoc = await transaction.get(followerUserRef);
+      const followeeUserDoc = await transaction.get(followeeUserRef);
+
+      const followerData = followerUserDoc.data();
+      const followeeData = followeeUserDoc.data();
+
+      // Handle followeeCount for the follower
+      if (followerData && followerData.followeeCount == null) {
+        // Initialize followeeCount by counting existing followees (after deletion)
+        const followeesSnapshot = await firestore
+          .collection('users')
+          .doc(followerId)
+          .collection('followees')
+          .count()
+          .get();
+        const followeeCount = Math.max(0, followeesSnapshot.data().count - 1); // Subtract 1 for the deletion
+        transaction.update(followerUserRef, {
+          followeeCount: followeeCount
+        });
+      } else {
+        // Decrement existing count
+        transaction.update(followerUserRef, {
+          followeeCount: admin.firestore.FieldValue.increment(-1)
+        });
+      }
+
+      // Handle followerCount for the followee
+      if (followeeData && followeeData.followerCount == null) {
+        // Initialize followerCount by counting existing followers (after deletion)
+        const followersSnapshot = await firestore
+          .collection('users')
+          .doc(followeeId)
+          .collection('followers')
+          .count()
+          .get();
+        const followerCount = Math.max(0, followersSnapshot.data().count - 1); // Subtract 1 for the deletion
+        transaction.update(followeeUserRef, {
+          followerCount: followerCount
+        });
+      } else {
+        // Decrement existing count
+        transaction.update(followeeUserRef, {
+          followerCount: admin.firestore.FieldValue.increment(-1)
+        });
+      }
     });
 
     await updateUnfollowStats();

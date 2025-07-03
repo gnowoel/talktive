@@ -362,9 +362,7 @@ class _TopicPageState extends State<TopicPage> {
           ),
           actions: [
             RepaintBoundary(child: TopicHearts(topic: _topic)),
-            if (_userHasSentMessage &&
-                !topicFollowersCache
-                    .isUserBlocked(fireauth.instance.currentUser!.uid)) ...[
+            if (!topicFollowersCache.isUserBlocked(currentUserId)) ...[
               PopupMenuButton<String>(
                 onSelected: _isInviting
                     ? null

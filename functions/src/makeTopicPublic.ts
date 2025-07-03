@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
 import { User, Topic } from './types';

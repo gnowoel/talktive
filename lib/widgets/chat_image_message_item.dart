@@ -203,8 +203,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
   Future<void> _recallMessage() async {
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Image recalled successfully'),
             duration: Duration(seconds: 2),
@@ -212,9 +212,9 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(
-          this.context,
+          context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
@@ -231,8 +231,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         reporterUserId: currentUser.uid,
       );
 
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -243,8 +243,8 @@ class _ChatImageMessageItemState extends State<ChatImageMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }

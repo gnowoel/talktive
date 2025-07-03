@@ -84,6 +84,10 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     } on AppException catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(context, e);
+    } catch (e) {
+      if (!mounted) return;
+      ErrorHandler.showSnackBarMessage(
+          context, AppException('Failed to follow user: ${e.toString()}'));
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -108,6 +112,10 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     } on AppException catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(context, e);
+    } catch (e) {
+      if (!mounted) return;
+      ErrorHandler.showSnackBarMessage(
+          context, AppException('Failed to unfollow user: ${e.toString()}'));
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);

@@ -819,6 +819,42 @@ class Firestore {
     }
   }
 
+  Future<void> makeTopicPrivate(String userId, String topicId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('makeTopicPrivate');
+
+      final result = await callable.call({
+        'userId': userId,
+        'topicId': topicId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to make topic private');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<void> makeTopicPublic(String userId, String topicId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('makeTopicPublic');
+
+      final result = await callable.call({
+        'userId': userId,
+        'topicId': topicId,
+      });
+
+      if (result.data['success'] != true) {
+        throw Exception(result.data['error'] ?? 'Failed to make topic public');
+      }
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<void> updateTopicReadMessageCount(
     String userId,
     String topicId, {

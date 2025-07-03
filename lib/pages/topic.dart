@@ -55,6 +55,8 @@ class _TopicPageState extends State<TopicPage> {
   int _messageCount = 0;
   bool _userHasSentMessage = false;
   bool _isInviting = false;
+  bool _isMakingPrivate = false;
+  bool _isMakingPublic = false;
   bool _hasSubscribedToMessageMeta = false;
 
   @override
@@ -282,6 +284,114 @@ class _TopicPageState extends State<TopicPage> {
     }
   }
 
+  Future<bool?> _showMakePrivateConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Make Topic Private'),
+        content: const Text(
+          'This will make the topic private and only invited users will be able to access it. This action cannot be undone by moderators or topic owners. Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Make Private'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _showMakePublicConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Make Topic Public'),
+        content: const Text(
+          'This will make the topic public and visible to all users. Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Make Public'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _makeTopicPrivate() async {
+    if (_isMakingPrivate) return;
+
+    setState(() => _isMakingPrivate = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      await firestore.makeTopicPrivate(userId, widget.topicId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Topic has been made private'),
+            backgroundColor: theme.colorScheme.primary,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isMakingPrivate = false);
+      }
+    }
+  }
+
+  Future<void> _makeTopicPublic() async {
+    if (_isMakingPublic) return;
+
+    setState(() => _isMakingPublic = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      await firestore.makeTopicPublic(userId, widget.topicId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Topic has been made public'),
+            backgroundColor: theme.colorScheme.primary,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isMakingPublic = false);
+      }
+    }
+  }
+
   void _insertMention(String displayName) {
     _inputKey.currentState?.insertMention(displayName);
   }
@@ -327,7 +437,13 @@ class _TopicPageState extends State<TopicPage> {
     final creator = _topic?.creator;
     final displayName = creator?.displayName;
     final isFriend = followCache.isFollowing(widget.topicCreatorId);
-    final byMe = widget.topicCreatorId == fireauth.instance.currentUser!.uid;
+    final currentUserId = fireauth.instance.currentUser!.uid;
+    final byMe = widget.topicCreatorId == currentUserId;
+    final currentUser = userCache.user;
+    final isAdmin = currentUser?.isAdmin ?? false;
+    final isModerator = currentUser?.isModerator ?? false;
+    final canMakePrivate = isAdmin || isModerator || byMe;
+    final canMakePublic = isAdmin; // Only admins can make private topics public
 
     return PopScope(
       canPop: false,
@@ -364,7 +480,7 @@ class _TopicPageState extends State<TopicPage> {
             RepaintBoundary(child: TopicHearts(topic: _topic)),
             if (!topicFollowersCache.isUserBlocked(currentUserId)) ...[
               PopupMenuButton<String>(
-                onSelected: _isInviting
+                onSelected: (_isInviting || _isMakingPrivate || _isMakingPublic)
                     ? null
                     : (value) async {
                         if (value == 'invite') {
@@ -373,12 +489,24 @@ class _TopicPageState extends State<TopicPage> {
                           if (confirmed == true) {
                             _inviteFollowers();
                           }
+                        } else if (value == 'make_private') {
+                          final confirmed =
+                              await _showMakePrivateConfirmationDialog();
+                          if (confirmed == true) {
+                            _makeTopicPrivate();
+                          }
+                        } else if (value == 'make_public') {
+                          final confirmed =
+                              await _showMakePublicConfirmationDialog();
+                          if (confirmed == true) {
+                            _makeTopicPublic();
+                          }
                         }
                       },
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: 'invite',
-                    enabled: !_isInviting,
+                    enabled: !_isInviting && !_isMakingPrivate && !_isMakingPublic,
                     child: Row(
                       children: [
                         _isInviting
@@ -398,6 +526,54 @@ class _TopicPageState extends State<TopicPage> {
                       ],
                     ),
                   ),
+                  if (canMakePrivate && (_topic?.isPublic == true)) ...[
+                    PopupMenuItem(
+                      value: 'make_private',
+                      enabled: !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                      child: Row(
+                        children: [
+                          _isMakingPrivate
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(Icons.lock, size: 18),
+                          const SizedBox(width: 8),
+                          Text(_isMakingPrivate ? 'Making Private...' : 'Make Private'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (canMakePublic && (_topic?.isPublic == false)) ...[
+                    PopupMenuItem(
+                      value: 'make_public',
+                      enabled: !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                      child: Row(
+                        children: [
+                          _isMakingPublic
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(Icons.public, size: 18),
+                          const SizedBox(width: 8),
+                          Text(_isMakingPublic ? 'Making Public...' : 'Make Public'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ] else ...[

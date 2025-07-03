@@ -59,6 +59,8 @@ export interface Topic {
   readMessageCount?: number | null;
   lastMessageContent?: string | null;
   mute?: boolean;
+  isPublic?: boolean;
+  reportCount?: number;
 }
 
 export interface Message {

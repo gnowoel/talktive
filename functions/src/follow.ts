@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
 import { Follow, FollowRequest, User, StatParams } from './types';
@@ -84,13 +84,7 @@ export const follow = onCall<FollowRequest>(async (request) => {
         .collection('followers')
         .doc(followerId);
 
-      const followerUserRef = firestore
-        .collection('users')
-        .doc(followerId);
 
-      const followeeUserRef = firestore
-        .collection('users')
-        .doc(followeeId);
 
       // ALL READS FIRST
       const followeeDoc = await transaction.get(followeeRef);
@@ -99,62 +93,13 @@ export const follow = onCall<FollowRequest>(async (request) => {
         return;
       }
 
-      const followerUserDoc = await transaction.get(followerUserRef);
-      const followeeUserDoc = await transaction.get(followeeUserRef);
-
-      const followerData = followerUserDoc.data();
-      const followeeData = followeeUserDoc.data();
-
-      // Get counts if needed for initialization (outside transaction)
-      let followeeCount = 0;
-      let followerCount = 0;
-
-      if (followerData && followerData.followeeCount == null) {
-        const followeesSnapshot = await firestore
-          .collection('users')
-          .doc(followerId)
-          .collection('followees')
-          .count()
-          .get();
-        followeeCount = followeesSnapshot.data().count;
-      }
-
-      if (followeeData && followeeData.followerCount == null) {
-        const followersSnapshot = await firestore
-          .collection('users')
-          .doc(followeeId)
-          .collection('followers')
-          .count()
-          .get();
-        followerCount = followersSnapshot.data().count;
-      }
-
       // ALL WRITES SECOND
       transaction.set(followeeRef, newFollowee);
       transaction.set(followerRef, newFollower);
-
-      // Handle followeeCount for the follower
-      if (followerData && followerData.followeeCount == null) {
-        transaction.update(followerUserRef, {
-          followeeCount: followeeCount
-        });
-      } else {
-        transaction.update(followerUserRef, {
-          followeeCount: FieldValue.increment(1)
-        });
-      }
-
-      // Handle followerCount for the followee
-      if (followeeData && followeeData.followerCount == null) {
-        transaction.update(followeeUserRef, {
-          followerCount: followerCount
-        });
-      } else {
-        transaction.update(followeeUserRef, {
-          followerCount: FieldValue.increment(1)
-        });
-      }
     });
+
+    // Update user counts in Realtime Database
+    await updateUserFollowCounts(followerId, followeeId, 'follow');
 
     await updateFollowStats();
 
@@ -194,13 +139,7 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
         .collection('followers')
         .doc(followerId);
 
-      const followerUserRef = firestore
-        .collection('users')
-        .doc(followerId);
 
-      const followeeUserRef = firestore
-        .collection('users')
-        .doc(followeeId);
 
       // ALL READS FIRST
       // Check if the relationship exists before attempting to delete
@@ -210,62 +149,13 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
         return;
       }
 
-      const followerUserDoc = await transaction.get(followerUserRef);
-      const followeeUserDoc = await transaction.get(followeeUserRef);
-
-      const followerData = followerUserDoc.data();
-      const followeeData = followeeUserDoc.data();
-
-      // Get counts if needed for initialization (outside transaction)
-      let followeeCount = 0;
-      let followerCount = 0;
-
-      if (followerData && followerData.followeeCount == null) {
-        const followeesSnapshot = await firestore
-          .collection('users')
-          .doc(followerId)
-          .collection('followees')
-          .count()
-          .get();
-        followeeCount = Math.max(0, followeesSnapshot.data().count - 1); // Subtract 1 for the deletion
-      }
-
-      if (followeeData && followeeData.followerCount == null) {
-        const followersSnapshot = await firestore
-          .collection('users')
-          .doc(followeeId)
-          .collection('followers')
-          .count()
-          .get();
-        followerCount = Math.max(0, followersSnapshot.data().count - 1); // Subtract 1 for the deletion
-      }
-
       // ALL WRITES SECOND
       transaction.delete(followeeRef);
       transaction.delete(followerRef);
-
-      // Handle followeeCount for the follower
-      if (followerData && followerData.followeeCount == null) {
-        transaction.update(followerUserRef, {
-          followeeCount: followeeCount
-        });
-      } else {
-        transaction.update(followerUserRef, {
-          followeeCount: FieldValue.increment(-1)
-        });
-      }
-
-      // Handle followerCount for the followee
-      if (followeeData && followeeData.followerCount == null) {
-        transaction.update(followeeUserRef, {
-          followerCount: followerCount
-        });
-      } else {
-        transaction.update(followeeUserRef, {
-          followerCount: FieldValue.increment(-1)
-        });
-      }
     });
+
+    // Update user counts in Realtime Database
+    await updateUserFollowCounts(followerId, followeeId, 'unfollow');
 
     await updateUnfollowStats();
 
@@ -312,5 +202,67 @@ const updateFriendStats = async (type: string) => {
     await statRef.update(params);
   } catch (error) {
     logger.error(error);
+  }
+}
+
+const updateUserFollowCounts = async (followerId: string, followeeId: string, action: 'follow' | 'unfollow') => {
+  try {
+    const followerRef = db.ref(`users/${followerId}`);
+    const followeeRef = db.ref(`users/${followeeId}`);
+
+    // Get current user data to check if counts need initialization
+    const [followerSnapshot, followeeSnapshot] = await Promise.all([
+      followerRef.once('value'),
+      followeeRef.once('value')
+    ]);
+
+    const followerData = followerSnapshot.val();
+    const followeeData = followeeSnapshot.val();
+
+    if (!followerData || !followeeData) {
+      logger.error('User data not found for follow count update');
+      return;
+    }
+
+    const updates: { [key: string]: number } = {};
+
+    // Handle followeeCount for the follower
+    if (followerData.followeeCount == null) {
+      // Initialize followeeCount by counting existing followees
+      const followeesSnapshot = await firestore
+        .collection('users')
+        .doc(followerId)
+        .collection('followees')
+        .count()
+        .get();
+      const currentCount = followeesSnapshot.data().count;
+      updates[`users/${followerId}/followeeCount`] = action === 'follow' ? currentCount : Math.max(0, currentCount - 1);
+    } else {
+      // Increment/decrement existing count
+      const currentCount = followerData.followeeCount || 0;
+      updates[`users/${followerId}/followeeCount`] = action === 'follow' ? currentCount + 1 : Math.max(0, currentCount - 1);
+    }
+
+    // Handle followerCount for the followee
+    if (followeeData.followerCount == null) {
+      // Initialize followerCount by counting existing followers
+      const followersSnapshot = await firestore
+        .collection('users')
+        .doc(followeeId)
+        .collection('followers')
+        .count()
+        .get();
+      const currentCount = followersSnapshot.data().count;
+      updates[`users/${followeeId}/followerCount`] = action === 'follow' ? currentCount : Math.max(0, currentCount - 1);
+    } else {
+      // Increment/decrement existing count
+      const currentCount = followeeData.followerCount || 0;
+      updates[`users/${followeeId}/followerCount`] = action === 'follow' ? currentCount + 1 : Math.max(0, currentCount - 1);
+    }
+
+    // Apply all updates atomically
+    await db.ref().update(updates);
+  } catch (error) {
+    logger.error('Error updating user follow counts:', error);
   }
 }

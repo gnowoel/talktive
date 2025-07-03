@@ -58,6 +58,8 @@ const updateUserCache = async (userId: string, user: User) => {
       messageCount: user.messageCount ?? 0,
       reportCount: user.reportCount ?? 0,
       role: user.role ?? null,
+      followeeCount: user.followeeCount ?? null,
+      followerCount: user.followerCount ?? null,
     };
 
     const userRef = firestore.collection(USERS_COLLECTION).doc(userId);

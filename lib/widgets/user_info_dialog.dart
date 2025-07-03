@@ -255,10 +255,10 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                   Tag(status: 'poor'),
                 ] else if (userStatus == 'newcomer') ...[
                   Tag(status: 'newcomer'),
-                ] else if (widget.user!.reputationLevel == 'excellent') ...[
-                  Tag(status: 'excellent'),
-                ] else if (widget.user!.reputationLevel == 'good') ...[
-                  Tag(status: 'good'),
+                  // ] else if (widget.user!.reputationLevel == 'excellent') ...[
+                  //   Tag(status: 'excellent'),
+                  // ] else if (widget.user!.reputationLevel == 'good') ...[
+                  //   Tag(status: 'good'),
                 ],
               ],
             ),

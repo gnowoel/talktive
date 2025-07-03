@@ -113,7 +113,7 @@ class _UserItemState extends State<UserItem> {
 
     // Check specific greeting permission for female users
     if (other.isFemaleNewcomer) {
-      return canGreetFemaleNewcomer(self, followCache);
+      return canGreetFemaleNewcomer(self);
     }
 
     return true;
@@ -141,8 +141,7 @@ class _UserItemState extends State<UserItem> {
           style: TextStyle(height: 1.5),
         ),
       ];
-    } else if (other.isFemaleNewcomer &&
-        !canGreetFemaleNewcomer(self, followCache)) {
+    } else if (other.isFemaleNewcomer && !canGreetFemaleNewcomer(self)) {
       title = 'Female Protection';
       content = [
         Text(

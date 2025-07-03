@@ -75,7 +75,7 @@ export const makeTopicPrivate = onCall(async (request) => {
     // Update the main topic document
     batch.update(topicRef, {
       isPublic: false,
-      updatedAt: Timestamp.now(),
+      // updatedAt: Timestamp.now(),
     });
 
     // Get all topic followers to update their individual topic documents
@@ -97,7 +97,7 @@ export const makeTopicPrivate = onCall(async (request) => {
       // Use set with merge to handle cases where the document might not exist
       batch.set(userTopicRef, {
         isPublic: false,
-        updatedAt: Timestamp.now(),
+        // updatedAt: Timestamp.now(),
       }, { merge: true });
     });
 

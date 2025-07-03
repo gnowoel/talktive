@@ -564,7 +564,7 @@ const hideOldPublicTopics = async () => {
 
       batch.update(topicDoc.ref, {
         isPublic: false,
-        updatedAt: now,
+        // updatedAt: now,
       });
     }
 

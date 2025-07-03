@@ -73,7 +73,7 @@ export const makeTopicPublic = onCall(async (request) => {
     // Update the main topic document
     batch.update(topicRef, {
       isPublic: true,
-      updatedAt: Timestamp.now(),
+      // updatedAt: Timestamp.now(),
     });
 
     // Get all topic followers to update their individual topic documents
@@ -95,7 +95,7 @@ export const makeTopicPublic = onCall(async (request) => {
       // Use set with merge to handle cases where the document might not exist
       batch.set(userTopicRef, {
         isPublic: true,
-        updatedAt: Timestamp.now(),
+        // updatedAt: Timestamp.now(),
       }, { merge: true });
     });
 

@@ -145,12 +145,12 @@ class _UserItemState extends State<UserItem> {
       title = 'Female Protection';
       content = [
         Text(
-          'Sorry, you need to reach level 6 and have at least 1 follower to chat with new female users.',
+          'Sorry, you need level 5, good reputatioin and no restrictions to chat with new female users.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
         const Text(
-          'This restriction helps maintain a safe environment for all users.',
+          'This helps maintain a safe environment for all users.',
           style: TextStyle(height: 1.5),
         ),
       ];

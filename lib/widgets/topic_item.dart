@@ -145,8 +145,13 @@ class _TopicItemState extends State<TopicItem> {
     } else {
       title = 'Cannot Join Topic';
       content = [
+        Text(
+          'Sorry, you need level 5, good reputatioin and no restrictions to join topics.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
         const Text(
-          'Sorry, you need to reach level 6 to join a topic.',
+          'This helps maintain quality discussions in our community.',
           style: TextStyle(height: 1.5),
         ),
       ];

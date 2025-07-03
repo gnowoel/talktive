@@ -8,18 +8,17 @@ import { User } from './types';
  * Reputation level thresholds - keep in sync with client-side Dart code
  */
 export const REPUTATION_THRESHOLDS = {
-  EXCELLENT: 0.92,
-  GOOD: 0.85,
-  FAIR: 0.7,
-  POOR: 0.5,
+  EXCELLENT: 0.90,
+  GOOD: 0.80,
+  FAIR: 0.60,
+  POOR: 0.40,
 } as const;
 
 /**
  * Calculate reputation score based on total reports vs total messages.
- * Uses a dampened formula with sqrt(reportCount) to reduce the impact
- * of multiple reports on a single message.
+ * Uses a dampened formula to balance the impact of reports against activity.
  *
- * Formula: 1.0 - (sqrt(totalReports) / (totalMessages + dampening))
+ * Formula: 1.0 - (totalReports / sqrt(totalMessages + dampening))
  * Where dampening = (totalMessages * 0.1).clamp(5.0, 50.0) to provide stability
  *
  * @param user - User object containing messageCount and reportCount
@@ -32,8 +31,7 @@ export const calculateReputationScore = (user: User): number => {
   // Apply dampening to prevent extreme drops from limited data
   const dampening = Math.max(5.0, Math.min(50.0, user.messageCount * 0.1));
   const adjustedTotal = user.messageCount + dampening;
-  // const ratio = Math.sqrt(user.reportCount) / adjustedTotal;
-  const ratio = user.reportCount / adjustedTotal;
+  const ratio = user.reportCount / Math.sqrt(adjustedTotal);
   const score = 1.0 - ratio;
 
   // Ensure score is between 0.0 and 1.0
@@ -54,7 +52,7 @@ export const getReputationLevel = (score: number): string => {
 };
 
 /**
- * Check if user has good reputation (score >= 0.85)
+ * Check if user has good reputation (score >= 0.80)
  * @param user - User object
  * @returns true if user has good reputation
  */
@@ -63,7 +61,7 @@ export const hasGoodReputation = (user: User): boolean => {
 };
 
 /**
- * Check if user has poor reputation (score < 0.7)
+ * Check if user has poor reputation (score < 0.60)
  * @param user - User object
  * @returns true if user has poor reputation
  */

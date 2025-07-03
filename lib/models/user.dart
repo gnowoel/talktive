@@ -122,9 +122,8 @@ class User {
   }
 
   /// Calculate reputation score based on total reports vs total messages.
-  /// Uses a dampened formula with sqrt(reportCount) to reduce the impact
-  /// of multiple reports on a single message.
-  /// Formula: 1.0 - (sqrt(totalReports) / (totalMessages + dampening))
+  /// Uses a dampened formula to balance the impact of reports against activity.
+  /// Formula: 1.0 - (totalReports / sqrt(totalMessages + dampening))
   /// Where dampening = (totalMessages * 0.1).clamp(5.0, 50.0) to provide stability
   ///
   /// Returns a value between 0.0 and 1.0, where 1.0 is perfect reputation.
@@ -137,26 +136,26 @@ class User {
     final dampening = (messageCount! * 0.1).clamp(5.0, 50.0);
     final adjustedTotal = messageCount! + dampening;
     // final ratio = sqrt(reportCount!) / adjustedTotal;
-    final ratio = reportCount! / adjustedTotal;
+    final ratio = reportCount! / sqrt(adjustedTotal);
     final score = 1.0 - ratio;
 
     // Ensure score is between 0.0 and 1.0
     return score.clamp(0.0, 1.0);
   }
 
-  /// Check if user has good reputation (score >= 0.85)
-  bool get hasGoodReputation => reputationScore >= 0.85;
+  /// Check if user has good reputation (score >= 0.80)
+  bool get hasGoodReputation => reputationScore >= 0.80;
 
-  /// Check if user has poor reputation (score < 0.7)
-  bool get hasPoorReputation => reputationScore < 0.7;
+  /// Check if user has poor reputation (score < 0.60)
+  bool get hasPoorReputation => reputationScore < 0.60;
 
   /// Get reputation level as a string for display purposes
   String get reputationLevel {
     final score = reputationScore;
-    if (score >= 0.92) return level >= 6 ? 'excellent' : 'fair';
-    if (score >= 0.85) return level >= 6 ? 'good' : 'fair';
-    if (score >= 0.7) return 'fair';
-    if (score >= 0.5) return 'poor';
+    if (score >= 0.90) return level >= 6 ? 'excellent' : 'fair';
+    if (score >= 0.80) return level >= 6 ? 'good' : 'fair';
+    if (score >= 0.60) return 'fair';
+    if (score >= 0.40) return 'poor';
     return 'very_poor';
   }
 

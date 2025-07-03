@@ -189,22 +189,22 @@ class ProfilePage extends StatelessWidget {
                                         textColor: theme
                                             .colorScheme.onPrimaryContainer,
                                       ));
-                                    } else if (user.reputationLevel ==
-                                        'excellent') {
-                                      widgets.add(_Badge(
-                                        label: 'Trusted User',
-                                        backgroundColor: theme
-                                            .colorScheme.secondaryContainer,
-                                        textColor: theme
-                                            .colorScheme.onSecondaryContainer,
-                                      ));
-                                    } else if (user.reputationLevel == 'good') {
-                                      widgets.add(_Badge(
-                                        label: 'Good Reputation',
-                                        backgroundColor: theme
-                                            .colorScheme.surfaceContainerHigh,
-                                        textColor: theme.colorScheme.onSurface,
-                                      ));
+                                      // } else if (user.reputationLevel ==
+                                      //     'excellent') {
+                                      //   widgets.add(_Badge(
+                                      //     label: 'Trusted User',
+                                      //     backgroundColor: theme
+                                      //         .colorScheme.secondaryContainer,
+                                      //     textColor: theme
+                                      //         .colorScheme.onSecondaryContainer,
+                                      //   ));
+                                      // } else if (user.reputationLevel == 'good') {
+                                      //   widgets.add(_Badge(
+                                      //     label: 'Good Reputation',
+                                      //     backgroundColor: theme
+                                      //         .colorScheme.surfaceContainerHigh,
+                                      //     textColor: theme.colorScheme.onSurface,
+                                      //   ));
                                     }
 
                                     if (widgets.isNotEmpty) {

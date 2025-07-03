@@ -95,6 +95,36 @@ class ProfilePage extends StatelessWidget {
                                 ],
                               ),
                             ),
+                            // Follow count badges
+                            if (user.followeeCount != null ||
+                                user.followerCount != null) ...[
+                              const SizedBox(height: 16),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (user.followeeCount != null) ...[
+                                      _Badge(
+                                        label:
+                                            'Following: ${user.followeeCount}',
+                                        borderColor:
+                                            theme.colorScheme.outlineVariant,
+                                      ),
+                                      if (user.followerCount != null)
+                                        const SizedBox(width: 8),
+                                    ],
+                                    if (user.followerCount != null)
+                                      _Badge(
+                                        label:
+                                            'Followers: ${user.followerCount}',
+                                        borderColor:
+                                            theme.colorScheme.outlineVariant,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                             // Status and reputation tags
                             const SizedBox(height: 16),
                             SingleChildScrollView(

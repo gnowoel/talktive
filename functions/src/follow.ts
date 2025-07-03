@@ -95,7 +95,8 @@ export const follow = onCall<FollowRequest>(async (request) => {
       // ALL READS FIRST
       const followeeDoc = await transaction.get(followeeRef);
       if (followeeDoc.exists) {
-        throw new Error('Already following this user');
+        // Already following this user - return success (idempotent)
+        return;
       }
 
       const followerUserDoc = await transaction.get(followerUserRef);
@@ -164,7 +165,7 @@ export const follow = onCall<FollowRequest>(async (request) => {
     logger.error('Error following user:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Failed to follow user'
     };
   }
 });
@@ -202,6 +203,13 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
         .doc(followeeId);
 
       // ALL READS FIRST
+      // Check if the relationship exists before attempting to delete
+      const followeeDoc = await transaction.get(followeeRef);
+      if (!followeeDoc.exists) {
+        // Not following this user - return success (idempotent)
+        return;
+      }
+
       const followerUserDoc = await transaction.get(followerUserRef);
       const followeeUserDoc = await transaction.get(followeeUserRef);
 
@@ -268,7 +276,7 @@ export const unfollow = onCall<FollowRequest>(async (request) => {
     logger.error('Error unfollowing user:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Failed to unfollow user'
     };
   }
 });

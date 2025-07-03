@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 4.3.0+58
+
+* Strengthened the reporting and moderation system for better community safety
+* Moderators can now take down inappropriate public topics
+* Moderators can block users from participating in specific topics
+* Fixed an issue that prevented users from starting chats with new female members
+* Improved performance when loading messages in large chat rooms
+* Resolved various bugs and stability issues
+* Updated dependencies for improved compatibility and performance
+
 ## 4.2.0+57
 
 - Introduced message-based reporting and moderation system

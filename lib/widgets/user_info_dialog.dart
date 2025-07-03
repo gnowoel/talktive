@@ -205,34 +205,6 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            // Follow counts section
-            if (widget.user!.followeeCount != null ||
-                widget.user!.followerCount != null) ...[
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (widget.user!.followeeCount != null)
-                    Tag(
-                      tooltip: 'Following ${widget.user!.followeeCount} users',
-                      child: Text(
-                        'Following: ${widget.user!.followeeCount}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  if (widget.user!.followerCount != null)
-                    Tag(
-                      tooltip: '${widget.user!.followerCount} followers',
-                      child: Text(
-                        'Followers: ${widget.user!.followerCount}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-            ],
             // Main user info tags
             Wrap(
               alignment: WrapAlignment.center,
@@ -290,7 +262,35 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 ],
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            // Follow counts section
+            if (widget.user!.followeeCount != null ||
+                widget.user!.followerCount != null) ...[
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (widget.user!.followeeCount != null)
+                    Tag(
+                      tooltip: 'Following ${widget.user!.followeeCount} users',
+                      child: Text(
+                        'Following: ${widget.user!.followeeCount}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  if (widget.user!.followerCount != null)
+                    Tag(
+                      tooltip: '${widget.user!.followerCount} followers',
+                      child: Text(
+                        'Followers: ${widget.user!.followerCount}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
             if (!isSelf && !isFollowing) ...[
               const SizedBox(height: 8),
               FilledButton.icon(

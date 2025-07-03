@@ -24,6 +24,8 @@ export interface User {
   messageCount?: number | null;
   reportCount?: number | null;
   role?: string | null;
+  followeeCount?: number | null;
+  followerCount?: number | null;
 }
 
 export interface Pair {

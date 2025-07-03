@@ -16,6 +16,8 @@ class User {
   final int? messageCount;
   final int? reportCount;
   final String? role;
+  final int? followeeCount;
+  final int? followerCount;
 
   const User({
     required this.id,
@@ -31,6 +33,8 @@ class User {
     this.messageCount,
     this.reportCount,
     this.role,
+    this.followeeCount,
+    this.followerCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -48,6 +52,8 @@ class User {
       'messageCount': messageCount,
       'reportCount': reportCount,
       'role': role,
+      'followeeCount': followeeCount,
+      'followerCount': followerCount,
     };
   }
 
@@ -66,6 +72,8 @@ class User {
       messageCount: value.messageCount,
       reportCount: value.reportCount,
       role: value.role,
+      followeeCount: value.followeeCount,
+      followerCount: value.followerCount,
     );
   }
 
@@ -175,6 +183,8 @@ class UserStub {
   final int? messageCount;
   final int? reportCount;
   final String? role;
+  final int? followeeCount;
+  final int? followerCount;
 
   const UserStub({
     required this.createdAt,
@@ -189,6 +199,8 @@ class UserStub {
     this.messageCount,
     this.reportCount,
     this.role,
+    this.followeeCount,
+    this.followerCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -205,6 +217,8 @@ class UserStub {
       'messageCount': messageCount,
       'reportCount': reportCount,
       'role': role,
+      'followeeCount': followeeCount,
+      'followerCount': followerCount,
     };
   }
 
@@ -222,6 +236,8 @@ class UserStub {
       messageCount: json['messageCount'] as int?,
       reportCount: json['reportCount'] as int?,
       role: json['role'] as String?,
+      followeeCount: json['followeeCount'] as int?,
+      followerCount: json['followerCount'] as int?,
     );
   }
 }

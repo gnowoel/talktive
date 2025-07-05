@@ -18,12 +18,12 @@ const storage = getStorage();
 const hour = 60 * 60 * 1000;
 const day = 24 * hour;
 
-const timeBeforeUserDeleting = isDebugMode() ? 14 * day : 200 * day + 1 * hour;
+const timeBeforeUserDeleting = isDebugMode() ? 14 * day : 365 * day + 1 * hour;
 const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeTopicDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeChatReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
 const timeBeforeMessageReportDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
-const timeBeforeTopicHiding = 8 * hour; // Hide topics after 8h (can be increased to 24hr)
+const timeBeforeTopicHiding = 3 * day + 1 * hour;
 
 interface Params {
   [id: string]: null;

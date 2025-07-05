@@ -23,7 +23,7 @@ const timeBeforePairDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeTopicDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
 const timeBeforeChatReportDeleting = isDebugMode() ? 0 : 7 * day + 1 * hour;
 const timeBeforeMessageReportDeleting = isDebugMode() ? 0 : 3 * day + 1 * hour;
-const timeBeforeTopicHiding = 1 * hour; // Hide topics after 1h (can be increased to 24hr)
+const timeBeforeTopicHiding = 8 * hour; // Hide topics after 8h (can be increased to 24hr)
 
 interface Params {
   [id: string]: null;

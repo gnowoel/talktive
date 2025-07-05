@@ -54,18 +54,18 @@ const predefinedTribes: TribeDefinition[] = [
     iconEmoji: '💡',
     sort: 60,
   },
-  // {
-  //   name: 'Creative Corner',
-  //   description: 'Express yourself and celebrate creativity',
-  //   iconEmoji: '🎨',
-  //   sort: 70,
-  // },
-  // {
-  //   name: 'Tech Talk',
-  //   description: 'Chat about the latest in technology and digital innovations',
-  //   iconEmoji: '💻',
-  //   sort: 80,
-  // },
+  {
+    name: 'Creative Corner',
+    description: 'Express yourself and celebrate creativity',
+    iconEmoji: '🎨',
+    sort: 70,
+  },
+  {
+    name: 'Tech Talk',
+    description: 'The latest in technology and digital innovations',
+    iconEmoji: '💻',
+    sort: 80,
+  },
 ];
 
 export const setupTribes = onRequest(async (_req, res) => {

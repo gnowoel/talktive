@@ -242,15 +242,16 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   }
 
   Future<void> _recallMessage() async {
-    if (widget.message.id == null) return;
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       await firestore.recallTopicMessage(
         topicId: widget.topicId,
         messageId: widget.message.id!,
       );
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           const SnackBar(
             content: Text('Message recalled successfully'),
             duration: Duration(seconds: 2),
@@ -258,10 +259,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(
-          this.context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -300,30 +299,33 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   }
 
   Future<void> _reportMessage() async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       final currentUser = fireauth.instance.currentUser!;
 
       // No need to wait, show snack bar message immediately
-      firestore.reportTopicMessage(
+      await firestore.reportTopicMessage(
         topicId: widget.topicId,
         messageId: widget.message.id!,
         reporterUserId: currentUser.uid,
       );
 
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
-              'Thank you for your report. We will review it shortly.',
+              'Message reported successfully.',
               style: TextStyle(color: theme.colorScheme.onErrorContainer),
             ),
           ),
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
@@ -364,14 +366,17 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
   }
 
   Future<void> _blockUser() async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await firestore.blockUserFromTopic(
         topicId: widget.topicId,
         userId: widget.message.userId,
       );
 
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -382,8 +387,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }

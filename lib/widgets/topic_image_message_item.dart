@@ -201,15 +201,16 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   }
 
   Future<void> _recallMessage() async {
-    if (widget.message.id == null) return;
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       await firestore.recallTopicMessage(
         topicId: widget.topicId,
         messageId: widget.message.id!,
       );
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           const SnackBar(
             content: Text('Image recalled successfully'),
             duration: Duration(seconds: 2),
@@ -217,8 +218,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
@@ -259,18 +260,21 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   }
 
   Future<void> _reportMessage() async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       final currentUser = fireauth.instance.currentUser!;
 
       // No need to wait, show snack bar message immediately
-      firestore.reportTopicMessage(
+      await firestore.reportTopicMessage(
         topicId: widget.topicId,
         messageId: widget.message.id!,
         reporterUserId: currentUser.uid,
       );
 
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -281,8 +285,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
@@ -323,14 +327,17 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
   }
 
   Future<void> _blockUser() async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await firestore.blockUserFromTopic(
         topicId: widget.topicId,
         userId: widget.message.userId,
       );
 
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
@@ -341,8 +348,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         );
       }
     } catch (e) {
-      if (this.context.mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }

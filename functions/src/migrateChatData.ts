@@ -20,12 +20,26 @@ interface MigrationStats {
 
 interface PairData {
   lastMessageContent?: string | null;
-  [key: string]: any;
+  followers?: [string, string];
+  createdAt?: number;
+  updatedAt?: number;
+  messageCount?: number;
+  firstUserId?: string | null;
+  v2?: boolean;
+  [key: string]: unknown;
 }
 
 interface ChatData {
   lastMessageContent?: string | null;
-  [key: string]: any;
+  partner?: Record<string, unknown>;
+  createdAt?: number;
+  updatedAt?: number;
+  messageCount?: number;
+  readMessageCount?: number;
+  firstUserId?: string | null;
+  mute?: boolean;
+  reported?: boolean;
+  [key: string]: unknown;
 }
 
 const migrateChatData = onRequest(
@@ -99,7 +113,7 @@ async function migratePairs(stats: MigrationStats): Promise<void> {
     return;
   }
 
-  const pairs = snapshot.val();
+  const pairs = snapshot.val() as Record<string, PairData>;
   const pairIds = Object.keys(pairs);
   const batchSize = 50;
 
@@ -116,8 +130,8 @@ async function migratePairs(stats: MigrationStats): Promise<void> {
   logger.info(`Pairs migration completed: ${stats.pairsScanned} scanned, ${stats.pairsFixed} fixed`);
 }
 
-async function processPairBatch(pairIds: string[], pairs: any, stats: MigrationStats): Promise<void> {
-  const updates: { [key: string]: any } = {};
+async function processPairBatch(pairIds: string[], pairs: Record<string, PairData>, stats: MigrationStats): Promise<void> {
+  const updates: { [key: string]: null } = {};
 
   for (const pairId of pairIds) {
     try {
@@ -125,7 +139,7 @@ async function processPairBatch(pairIds: string[], pairs: any, stats: MigrationS
       stats.pairsScanned++;
 
       // Check if lastMessageContent is undefined
-      if (pair.hasOwnProperty('lastMessageContent') && pair.lastMessageContent === undefined) {
+      if (Object.prototype.hasOwnProperty.call(pair, 'lastMessageContent') && pair.lastMessageContent === undefined) {
         updates[`pairs/${pairId}/lastMessageContent`] = null;
         stats.pairsFixed++;
       }
@@ -158,7 +172,7 @@ async function migrateChats(stats: MigrationStats): Promise<void> {
     return;
   }
 
-  const chats = snapshot.val();
+  const chats = snapshot.val() as Record<string, Record<string, ChatData>>;
   const userIds = Object.keys(chats);
 
   for (const userId of userIds) {
@@ -178,7 +192,7 @@ async function migrateChats(stats: MigrationStats): Promise<void> {
   logger.info(`Chats migration completed: ${stats.chatsScanned} scanned, ${stats.chatsFixed} fixed`);
 }
 
-async function migrateUserChats(userId: string, userChats: any, stats: MigrationStats): Promise<void> {
+async function migrateUserChats(userId: string, userChats: Record<string, ChatData>, stats: MigrationStats): Promise<void> {
   const chatIds = Object.keys(userChats);
   const batchSize = 25;
 
@@ -188,8 +202,8 @@ async function migrateUserChats(userId: string, userChats: any, stats: Migration
   }
 }
 
-async function processChatBatch(userId: string, chatIds: string[], userChats: any, stats: MigrationStats): Promise<void> {
-  const updates: { [key: string]: any } = {};
+async function processChatBatch(userId: string, chatIds: string[], userChats: Record<string, ChatData>, stats: MigrationStats): Promise<void> {
+  const updates: { [key: string]: null } = {};
 
   for (const chatId of chatIds) {
     try {
@@ -197,7 +211,7 @@ async function processChatBatch(userId: string, chatIds: string[], userChats: an
       stats.chatsScanned++;
 
       // Check if lastMessageContent is undefined
-      if (chat.hasOwnProperty('lastMessageContent') && chat.lastMessageContent === undefined) {
+      if (Object.prototype.hasOwnProperty.call(chat, 'lastMessageContent') && chat.lastMessageContent === undefined) {
         updates[`chats/${userId}/${chatId}/lastMessageContent`] = null;
         stats.chatsFixed++;
       }

@@ -100,11 +100,17 @@ export const recallMessage = onCall(async (request) => {
     validateMessageType(messageType);
 
     if (messageType === 'chat') {
-      validateCollectionId(chatId!, 'chatId');
+      if (!chatId) {
+        throw new Error('chatId is required for chat messages');
+      }
+      validateCollectionId(chatId, 'chatId');
     }
 
     if (messageType === 'topic') {
-      validateCollectionId(topicId!, 'topicId');
+      if (!topicId) {
+        throw new Error('topicId is required for topic messages');
+      }
+      validateCollectionId(topicId, 'topicId');
     }
 
     // Fetch the requester's user data to check for admin/moderator role
@@ -126,6 +132,9 @@ export const recallMessage = onCall(async (request) => {
 
     if (messageType === 'chat') {
       // Handle chat message recall
+      if (!chatId) {
+        throw new Error('chatId is required for chat messages');
+      }
       const messageRef = database.ref(`messages/${chatId}/${messageId}`);
       const messageSnapshot = await messageRef.get();
 
@@ -150,7 +159,10 @@ export const recallMessage = onCall(async (request) => {
 
     } else {
       // Handle topic message recall
-      const messageRef = firestore.collection('topics').doc(topicId!).collection('messages').doc(messageId);
+      if (!topicId) {
+        throw new Error('topicId is required for topic messages');
+      }
+      const messageRef = firestore.collection('topics').doc(topicId).collection('messages').doc(messageId);
       const messageSnapshot = await messageRef.get();
 
       if (!messageSnapshot.exists) {
@@ -173,7 +185,7 @@ export const recallMessage = onCall(async (request) => {
       metaCollectionPath = `topics/${topicId}/messageMeta`;
 
       // Check if requester is topic creator
-      const topicRef = firestore.collection('topics').doc(topicId!);
+      const topicRef = firestore.collection('topics').doc(topicId);
       const topicSnapshot = await topicRef.get();
 
       if (topicSnapshot.exists) {
@@ -340,7 +352,10 @@ export const recallMessage = onCall(async (request) => {
         transaction.set(metaRef, metadataToStore, { merge: true });
 
         // Update original topic message for backward compatibility
-        const originalMessageRef = firestore.collection('topics').doc(topicId!).collection('messages').doc(messageId);
+        if (!topicId) {
+          throw new Error('topicId is required for topic messages');
+        }
+        const originalMessageRef = firestore.collection('topics').doc(topicId).collection('messages').doc(messageId);
         const updateData = { recalled: true };
 
         logger.info('Updating original topic message', {

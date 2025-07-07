@@ -66,11 +66,6 @@ bool _hasHighLevelExperience(User? user) {
   return user.level >= 6; // 244 messages
 }
 
-bool _withoutAlert(User? user) {
-  if (user == null) return false;
-  return !user.withAlert;
-}
-
 bool _withoutWarning(User? user) {
   if (user == null) return false;
   return !user.withWarning;

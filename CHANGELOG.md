@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.3.1+59
+
+* Fixed a user-reported bug caused by undefined values
+
 ## 4.3.0+58
 
 * Strengthened the reporting and moderation system for better community safety

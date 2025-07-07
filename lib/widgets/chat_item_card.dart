@@ -143,9 +143,10 @@ class _ChatItemCardState extends State<ChatItemCard> {
     final textColor = colorScheme.onTertiaryContainer;
 
     final newMessageCount = widget.chat.unreadCount;
-    final lastMessageContent =
-        (widget.chat.lastMessageContent ?? partner.description!)
-            .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent = (widget.chat.lastMessageContent ??
+            partner.description ??
+            'No messages yet')
+        .replaceAll(RegExp(r'\s+'), ' ');
 
     final userStatus = partner.status;
 

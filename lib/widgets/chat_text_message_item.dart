@@ -248,10 +248,13 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
   }
 
   Future<void> _recallMessage() async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await firedata.recallMessage(widget.chatId, widget.message.id!);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        messenger.showSnackBar(
           const SnackBar(
             content: Text('Message recalled successfully'),
             duration: Duration(seconds: 2),
@@ -259,10 +262,8 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }

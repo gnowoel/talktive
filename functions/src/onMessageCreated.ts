@@ -78,7 +78,7 @@ const updatePair = async (pairId: string, message: Message, now: Date) => {
   const params: PairParams = {};
 
   params.updatedAt = now.valueOf();
-  params.lastMessageContent = message.content;
+  params.lastMessageContent = message.content ?? null;
 
   if (!pair.firstUserId) {
     params.firstUserId = message.userId;

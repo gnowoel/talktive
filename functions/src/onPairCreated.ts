@@ -40,6 +40,28 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
       mapper[follower] = snapshot.val();
     }
 
+    // Check if both users have complete profiles before creating chats
+    const allUsersComplete = followers.every(follower => {
+      const user = mapper[follower];
+      return isUserProfileComplete(user);
+    });
+
+    if (!allUsersComplete) {
+      const incompleteUsers = followers.filter(follower => !isUserProfileComplete(mapper[follower]));
+      logger.warn(`Skipping chat creation for pair ${pairId} due to incomplete user profiles`, {
+        pairId,
+        incompleteUsers,
+        userProfiles: followers.map(id => ({
+          id,
+          displayName: mapper[id]?.displayName,
+          gender: mapper[id]?.gender,
+          languageCode: mapper[id]?.languageCode,
+          photoURL: mapper[id]?.photoURL
+        }))
+      });
+      return;
+    }
+
     for (const follower of followers) {
       // copyToFollower(follower, user, pairId, pair);
       const otherId = pairId.replace(follower, '');
@@ -82,6 +104,15 @@ const copyToFollowers = async (followers: [string], pairId: string, pair: Pair) 
     logger.error(error);
   }
 }
+
+const isUserProfileComplete = (user: User): boolean => {
+  if (!user) return false;
+
+  return !!(user.languageCode &&
+    user.photoURL &&
+    user.displayName &&
+    user.gender);
+};
 
 const updateChatStats = async (now: Date) => {
   const statRef = db.ref(`stats/${formatDate(now)}`);

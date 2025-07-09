@@ -69,6 +69,24 @@ export const initiateConversation = onCall(async (request) => {
 
     const sender: User = senderSnapshot.val();
     const receiver: User = receiverSnapshot.val();
+
+    // Check if both users have complete profiles
+    if (!isUserProfileComplete(sender)) {
+      return {
+        success: false,
+        chatId: '',
+        error: 'Sender profile is incomplete. Please complete your profile first.'
+      };
+    }
+
+    if (!isUserProfileComplete(receiver)) {
+      return {
+        success: false,
+        chatId: '',
+        error: 'Receiver profile is incomplete. Cannot start conversation.'
+      };
+    }
+
     const chatId = ([senderId, receiverId].sort()).join('');
     const now = Date.now();
 
@@ -104,7 +122,7 @@ async function createFullConversation(
   const receiverStub = createPartnerStub(receiver);
 
   // Create batch updates
-  const updates: Record<string, Pair|Chat> = {};
+  const updates: Record<string, Pair | Chat> = {};
 
   // Create pair
   updates[`pairs/${chatId}`] = {
@@ -157,6 +175,15 @@ function createPartnerStub(user: User) {
     revivedAt: user.revivedAt ?? null,
     messageCount: user.messageCount ?? null, // For calculating the level
   };
+}
+
+function isUserProfileComplete(user: User): boolean {
+  if (!user) return false;
+
+  return !!(user.languageCode &&
+    user.photoURL &&
+    user.displayName &&
+    user.gender);
 }
 
 async function sendFirstMessage(chatId: string, senderId: string, sender: User, message: string): Promise<void> {

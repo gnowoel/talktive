@@ -1,7 +1,0 @@
-<resources>
-    <!-- Production AdMob App ID -->
-    <!-- IMPORTANT: Replace with your actual production AdMob App ID -->
-    <!-- Get this from https://apps.admob.com/ -> Your App -> App Overview -->
-    <!-- This file should be added to .gitignore to keep your production ID private -->
-    <string name="admob_app_id">ca-app-pub-YOUR_PUBLISHER_ID~YOUR_PRODUCTION_APP_ID</string>
-</resources>

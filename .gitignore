@@ -53,9 +53,9 @@ ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 firepit-log.txt
 
-# AdMob production configuration (keep private)
-# lib/config/ad_config_release.dart
-# android/app/src/release/res/values/strings.xml
+# AdMob configuration (keep private)
+lib/config/ad_config.dart
+android/app/src/main/res/values/strings.xml
 
 # Emacs related
 .projectile-cache.eld

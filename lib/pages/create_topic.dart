@@ -8,6 +8,7 @@ import '../models/tribe.dart';
 import '../services/firestore.dart';
 import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
+import '../services/ad_service/go_router_room_helper.dart';
 import '../widgets/layout.dart';
 
 class CreateTopicPage extends StatefulWidget {
@@ -143,7 +144,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
         );
 
         if (mounted) {
-          context.go(encodeTopicRoute(topic.id, topic.creator.id));
+          await context.goToTopic(topic.id, topic.creator.id);
         }
       } on AppException catch (e) {
         if (mounted) {

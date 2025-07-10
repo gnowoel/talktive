@@ -8,6 +8,8 @@ import '../services/firestore.dart';
 import '../services/messaging.dart';
 import '../services/service_locator.dart';
 import '../services/storage.dart';
+import '../services/ad_service/ad_service.dart';
+import '../services/ad_service/ad_timing_manager.dart';
 
 class Providers extends StatelessWidget {
   final Widget child;
@@ -34,6 +36,10 @@ class Providers extends StatelessWidget {
         Provider(create: (context) => Storage()),
         Provider(create: (context) => Messaging()),
         ChangeNotifierProvider(create: (context) => Avatar()),
+
+        // AdMob services - use .value since they're singletons
+        ChangeNotifierProvider.value(value: AdService.instance),
+        ChangeNotifierProvider.value(value: AdTimingManager.instance),
       ],
       child: child,
     );

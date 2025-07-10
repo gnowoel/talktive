@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:talktive3/config/ad_config_debug.dart' as debug_config;
+// Import release config when you have production IDs (keep this file private)
+// import 'package:talktive3/config/ad_config_release.dart' as release_config;
 
 /// Manages interstitial ads specifically for room transitions (chat ↔ topic)
 /// Follows AdMob best practices for respectful, non-intrusive ad placement
@@ -200,11 +203,11 @@ class RoomTransitionAds extends ChangeNotifier {
 
   /// Get appropriate ad unit ID (test vs production)
   String _getInterstitialAdUnitId() {
-    // Use test ads in debug mode
     if (kDebugMode) {
-      return 'ca-app-pub-3940256099942544/1033173712'; // Test interstitial Android
+      return debug_config.AdConfig.interstitialAdUnitId;
     } else {
-      // Replace with your production ad unit IDs
+      // TODO: Uncomment the import above and use release_config.AdConfig.interstitialAdUnitId
+      // return release_config.AdConfig.interstitialAdUnitId;
       return 'ca-app-pub-YOUR_PUBLISHER_ID/YOUR_INTERSTITIAL_AD_UNIT_ID';
     }
   }

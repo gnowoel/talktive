@@ -3,6 +3,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 
 import '../helpers/routes.dart';
+import '../services/ad_service/go_router_room_helper.dart';
+import '../widgets/layout.dart';
 import '../theme.dart';
 
 class LaunchChatPage extends StatefulWidget {
@@ -25,7 +27,7 @@ class _LaunchChatPageState extends State<LaunchChatPage> {
     super.didChangeDependencies();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       final initialRoute = encodeChatRoute(widget.chatId, widget.chatCreatedAt);
-      context.go(initialRoute);
+      context.goWithoutAd(initialRoute);
     });
   }
 
@@ -62,7 +64,7 @@ class _LaunchTopicPageState extends State<LaunchTopicPage> {
         widget.topicId,
         widget.topicCreatorId,
       );
-      context.go(initialRoute);
+      context.goWithoutAd(initialRoute);
     });
   }
 

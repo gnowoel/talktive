@@ -8,6 +8,7 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/ad_service/go_router_room_helper.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
@@ -101,7 +102,7 @@ class _ChatItemCardState extends State<ChatItemCard> {
       final chat = widget.chat;
       final chatCreatedAt = chat.createdAt.toString();
 
-      context.go(encodeChatRoute(chat.id, chatCreatedAt));
+      await context.goToChat(chat.id, chatCreatedAt);
     });
   }
 

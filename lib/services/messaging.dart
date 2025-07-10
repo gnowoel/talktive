@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../helpers/platform.dart';
 import '../helpers/routes.dart';
 import '../router.dart';
+import 'ad_service/go_router_room_helper.dart';
 
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -157,43 +158,42 @@ class Messaging {
   }
 
   void _handleNotificationData(Map<String, dynamic> data) {
+    final context = rootNavigatorKey.currentContext!;
+
     if (data['type'] == 'chat') {
       final chatId = data['chatId'] as String;
       final chatCreatedAt = data['chatCreatedAt'] as String;
 
-      GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
-      GoRouter.of(
-        rootNavigatorKey.currentContext!,
-      ).push(encodeChatRoute(chatId, chatCreatedAt));
+      GoRouter.of(context).go('/chats');
+      GoRouterRoomHelper.pushWithoutAd(
+          context, encodeChatRoute(chatId, chatCreatedAt));
     } else {
       final topicId = data['topicId'] as String;
       final topicCreatorId = data['topicCreatorId'] as String;
 
-      GoRouter.of(
-        rootNavigatorKey.currentContext!,
-      ).go(encodeTopicRoute(topicId, topicCreatorId));
+      GoRouterRoomHelper.goWithoutAd(
+          context, encodeTopicRoute(topicId, topicCreatorId));
     }
   }
 
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
       final data = jsonDecode(payload) as Map<String, dynamic>;
+      final context = rootNavigatorKey.currentContext!;
 
       if (data['type'] == 'chat') {
         final chatId = data['chatId'] as String;
         final chatCreatedAt = data['chatCreatedAt'] as String;
 
-        GoRouter.of(rootNavigatorKey.currentContext!).go('/chats');
-        GoRouter.of(
-          rootNavigatorKey.currentContext!,
-        ).push(encodeChatRoute(chatId, chatCreatedAt));
+        GoRouter.of(context).go('/chats');
+        GoRouterRoomHelper.pushWithoutAd(
+            context, encodeChatRoute(chatId, chatCreatedAt));
       } else {
         final topicId = data['topicId'] as String;
         final topicCreatorId = data['topicCreatorId'] as String;
 
-        GoRouter.of(
-          rootNavigatorKey.currentContext!,
-        ).go(encodeTopicRoute(topicId, topicCreatorId));
+        GoRouterRoomHelper.goWithoutAd(
+            context, encodeTopicRoute(topicId, topicCreatorId));
       }
     }
   }

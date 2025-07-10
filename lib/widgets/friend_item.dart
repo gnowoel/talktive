@@ -11,6 +11,7 @@ import '../services/firedata.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
+import '../services/ad_service/go_router_room_helper.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
@@ -69,7 +70,7 @@ class _FriendItemState extends State<FriendItem> {
       final chat = chatCache.getChat(chatId);
       final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
-      context.go(encodeChatRoute(chatId, chatCreatedAt));
+      await context.goToChat(chatId, chatCreatedAt);
     });
   }
 
@@ -92,7 +93,7 @@ class _FriendItemState extends State<FriendItem> {
       final chatCreatedAt = chat.createdAt.toString();
 
       if (mounted) {
-        context.go(encodeChatRoute(chat.id, chatCreatedAt));
+        await context.goToChat(chat.id, chatCreatedAt);
       }
     });
   }

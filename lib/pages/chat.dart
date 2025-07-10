@@ -7,9 +7,7 @@ import 'package:talktive/widgets/status_notice.dart';
 import '../helpers/exception.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
-import '../services/ad_service/ad_service.dart';
-import '../services/ad_service/ad_timing_manager.dart';
-import '../services/ad_service/banner_ad_widget.dart';
+
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/follow_cache.dart';
@@ -39,8 +37,6 @@ class _ChatPageState extends State<ChatPage> {
   late Firedata firedata;
   late FollowCache followCache;
   late MessageMetaCache messageMetaCache;
-  late AdService adService;
-  late AdTimingManager adTimingManager;
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
@@ -60,8 +56,6 @@ class _ChatPageState extends State<ChatPage> {
 
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
-    adService = context.read<AdService>();
-    adTimingManager = AdTimingManager.instance;
 
     paginatedMessageService = context.read<PaginatedMessageService>();
 
@@ -69,9 +63,6 @@ class _ChatPageState extends State<ChatPage> {
 
     // Reset pagination state to ensure fresh loading when entering chat
     paginatedMessageService.resetChatPagination(_chat.id);
-
-    // Track chat transition for ad timing
-    adTimingManager.trackChatTransition();
 
     final selfId = fireauth.instance.currentUser!.uid;
 
@@ -261,11 +252,6 @@ class _ChatPageState extends State<ChatPage> {
                   chatPopulated: _chatPopulated,
                   onInsertMention: _insertMention,
                 ),
-                // Banner ad at bottom of chat
-                if (adTimingManager.canShowBanner())
-                  BottomBannerAd(
-                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
-                  ),
               ],
             ),
           ),

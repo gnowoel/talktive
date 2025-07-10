@@ -13,6 +13,7 @@ import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
+import '../services/ad_service/go_router_room_helper.dart';
 import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -79,7 +80,7 @@ class _TopicItemState extends State<TopicItem> {
       await firestore.joinTopic(userId, topicId);
 
       if (mounted) {
-        context.go(encodeTopicRoute(topicId, topicCreatorId));
+        await context.goToTopic(topicId, topicCreatorId);
       }
     } catch (e) {
       if (mounted) {
@@ -119,7 +120,7 @@ class _TopicItemState extends State<TopicItem> {
   }
 
   Future<void> _enterTopic() async {
-    context.go(encodeTopicRoute(widget.topic.id, widget.topic.creator.id));
+    await context.goToTopic(widget.topic.id, widget.topic.creator.id);
   }
 
   Future<void> _showRestrictionDialog() async {

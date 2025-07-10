@@ -6,7 +6,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/topic.dart';
 import '../services/fireauth.dart';
-import '../services/firestore.dart';
+import '../services/firedata.dart';
+import '../services/ad_service/go_router_room_helper.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../theme.dart';
@@ -94,7 +95,7 @@ class _TopicItemCardState extends State<TopicItemCard> {
     _doAction(() async {
       final topic = widget.topic;
 
-      context.go(encodeTopicRoute(topic.id, topic.creator.id));
+      await context.goToTopic(topic.id, topic.creator.id);
     });
   }
 

@@ -37,7 +37,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.1
-  firebase_core_platform_interface: ^5.1.0
+  firebase_core_platform_interface: ^6.0.0
   firebase_auth_mocks: ^0.14.0
   fake_firebase_database:
     git: https://github.com/gnowoel/fake_firebase_database

@@ -64,7 +64,6 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     debugPrint(
         '  - Test ID Pattern: ${AdConfig.interstitialAdUnitId.contains('3940256099942544') ? 'YES (Test ID)' : 'NO (Production ID)'}');
 
-    _configureTestDeviceSettings();
     _preloadInterstitialAd();
     notifyListeners();
   }
@@ -307,30 +306,6 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  /// Configure test device settings for AdMob
-  void _configureTestDeviceSettings() {
-    // Configure request configuration for test device handling
-    final requestConfiguration = RequestConfiguration(
-      // Remove test device IDs to see production ads on emulator
-      // WARNING: Only do this if you want to see real ads during development
-      // This may impact your AdMob metrics and revenue
-      testDeviceIds: kDebugMode ? [] : [], // Empty list = no test devices
-
-      // Alternative: Keep test device detection in debug mode
-      // testDeviceIds: kDebugMode ? ['YOUR_TEST_DEVICE_ID_HERE'] : [],
-
-      tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
-      tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
-    );
-
-    MobileAds.instance.updateRequestConfiguration(requestConfiguration);
-
-    debugPrint('RoomTransitionAds: Test device configuration updated');
-    debugPrint('  - Test Device IDs: ${requestConfiguration.testDeviceIds}');
-    debugPrint(
-        '  - This will ${requestConfiguration.testDeviceIds?.isEmpty ?? true ? 'show PRODUCTION ads' : 'show TEST ads'}');
   }
 
   /// Get appropriate ad unit ID (test vs production)

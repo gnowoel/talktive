@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../config/ad_config.dart';
 
 /// Manages interstitial ads specifically for room transitions (chat ↔ topic)
 /// Follows AdMob best practices for respectful, non-intrusive ad placement
-class RoomTransitionAds extends ChangeNotifier {
+class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   static RoomTransitionAds? _instance;
   static RoomTransitionAds get instance => _instance ??= RoomTransitionAds._();
 
@@ -16,6 +17,11 @@ class RoomTransitionAds extends ChangeNotifier {
   DateTime? _lastAdShown;
   int _roomTransitions = 0;
   int _adsShownThisSession = 0;
+
+  // Lifecycle state tracking
+  DateTime? _lastBackgroundTime;
+  DateTime? _lastSessionReset;
+  AppLifecycleState _currentLifecycleState = AppLifecycleState.resumed;
 
   // Ad loading state
   InterstitialAd? _interstitialAd;
@@ -30,6 +36,10 @@ class RoomTransitionAds extends ChangeNotifier {
   static const int _maxAdsPerSession = 3; // Maximum 3 ads per session
   static const int _minSessionMinutesBeforeAds =
       2; // Wait 2 minutes into session
+  static const int _minMinutesInBackgroundForReset =
+      10; // Reset session after 10+ minutes in background
+  static const int _minMinutesBetweenSessionResets =
+      30; // Minimum 30 minutes between session resets
 
   // Getters
   bool get isAdReady => _isAdReady;
@@ -43,7 +53,18 @@ class RoomTransitionAds extends ChangeNotifier {
     _adsShownThisSession = 0;
     _lastAdShown = null;
 
+    // Register lifecycle observer for session management
+    WidgetsBinding.instance.addObserver(this);
+
     debugPrint('RoomTransitionAds: Session started');
+    debugPrint('RoomTransitionAds: Configuration Check:');
+    debugPrint('  - App ID: ${AdConfig.appId}');
+    debugPrint('  - Interstitial Ad Unit ID: ${AdConfig.interstitialAdUnitId}');
+    debugPrint('  - Debug Mode: $kDebugMode');
+    debugPrint(
+        '  - Test ID Pattern: ${AdConfig.interstitialAdUnitId.contains('3940256099942544') ? 'YES (Test ID)' : 'NO (Production ID)'}');
+
+    _configureTestDeviceSettings();
     _preloadInterstitialAd();
     notifyListeners();
   }
@@ -53,6 +74,94 @@ class RoomTransitionAds extends ChangeNotifier {
     _roomTransitions++;
     debugPrint('RoomTransitionAds: Transition #$_roomTransitions');
     notifyListeners();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final previousState = _currentLifecycleState;
+    _currentLifecycleState = state;
+
+    debugPrint(
+        'RoomTransitionAds: Lifecycle changed from $previousState to $state');
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        _lastBackgroundTime = DateTime.now();
+        debugPrint(
+            'RoomTransitionAds: App went to background at $_lastBackgroundTime');
+        break;
+
+      case AppLifecycleState.resumed:
+        _handleAppResumed(previousState);
+        break;
+
+      case AppLifecycleState.inactive:
+        // Handle brief inactivity (like receiving a phone call)
+        break;
+
+      case AppLifecycleState.hidden:
+        // Handle when app is hidden but not paused
+        break;
+    }
+  }
+
+  /// Handle app resuming from background
+  void _handleAppResumed(AppLifecycleState previousState) {
+    final now = DateTime.now();
+
+    if (_lastBackgroundTime != null) {
+      final backgroundDuration = now.difference(_lastBackgroundTime!);
+      debugPrint(
+          'RoomTransitionAds: App resumed after ${backgroundDuration.inMinutes} minutes in background');
+
+      // Check if we should reset the session
+      if (_shouldResetSessionOnResume(backgroundDuration)) {
+        debugPrint(
+            'RoomTransitionAds: Resetting session due to long background time');
+        _resetSessionFromBackground();
+      } else {
+        debugPrint(
+            'RoomTransitionAds: Session continues (background time too short)');
+      }
+    }
+
+    _lastBackgroundTime = null;
+  }
+
+  /// Check if session should be reset based on background time
+  bool _shouldResetSessionOnResume(Duration backgroundDuration) {
+    // Must be in background for minimum time
+    if (backgroundDuration.inMinutes < _minMinutesInBackgroundForReset) {
+      return false;
+    }
+
+    // Respect minimum time between session resets
+    if (_lastSessionReset != null) {
+      final timeSinceLastReset = DateTime.now().difference(_lastSessionReset!);
+      if (timeSinceLastReset.inMinutes < _minMinutesBetweenSessionResets) {
+        debugPrint(
+            'RoomTransitionAds: Session reset blocked - only ${timeSinceLastReset.inMinutes} minutes since last reset');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Reset session when returning from background
+  void _resetSessionFromBackground() {
+    final previousAdsShown = _adsShownThisSession;
+    final previousTransitions = _roomTransitions;
+
+    resetSession();
+
+    debugPrint('RoomTransitionAds: Background session reset completed');
+    debugPrint('  - Previous ads shown: $previousAdsShown');
+    debugPrint('  - Previous transitions: $previousTransitions');
+    debugPrint('  - New session allows up to $_maxAdsPerSession more ads');
+
+    _lastSessionReset = DateTime.now();
   }
 
   /// Check if we should show an interstitial ad right now
@@ -200,6 +309,30 @@ class RoomTransitionAds extends ChangeNotifier {
     }
   }
 
+  /// Configure test device settings for AdMob
+  void _configureTestDeviceSettings() {
+    // Configure request configuration for test device handling
+    final requestConfiguration = RequestConfiguration(
+      // Remove test device IDs to see production ads on emulator
+      // WARNING: Only do this if you want to see real ads during development
+      // This may impact your AdMob metrics and revenue
+      testDeviceIds: kDebugMode ? [] : [], // Empty list = no test devices
+
+      // Alternative: Keep test device detection in debug mode
+      // testDeviceIds: kDebugMode ? ['YOUR_TEST_DEVICE_ID_HERE'] : [],
+
+      tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
+      tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
+    );
+
+    MobileAds.instance.updateRequestConfiguration(requestConfiguration);
+
+    debugPrint('RoomTransitionAds: Test device configuration updated');
+    debugPrint('  - Test Device IDs: ${requestConfiguration.testDeviceIds}');
+    debugPrint(
+        '  - This will ${requestConfiguration.testDeviceIds?.isEmpty ?? true ? 'show PRODUCTION ads' : 'show TEST ads'}');
+  }
+
   /// Get appropriate ad unit ID (test vs production)
   String _getInterstitialAdUnitId() {
     return AdConfig.interstitialAdUnitId;
@@ -258,6 +391,14 @@ class RoomTransitionAds extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Force reset session (for testing or manual reset)
+  void forceResetSession() {
+    _lastSessionReset = DateTime.now()
+        .subtract(Duration(minutes: _minMinutesBetweenSessionResets + 1));
+    resetSession();
+    debugPrint('RoomTransitionAds: Session force reset');
+  }
+
   /// Force load an ad (for testing purposes)
   Future<void> forceLoadAd() async {
     _isAdReady = false;
@@ -266,7 +407,11 @@ class RoomTransitionAds extends ChangeNotifier {
   }
 
   /// Dispose resources
+  @override
   void dispose() {
+    // Remove lifecycle observer
+    WidgetsBinding.instance.removeObserver(this);
+
     _interstitialAd?.dispose();
     _interstitialAd = null;
     _isAdReady = false;
@@ -276,7 +421,7 @@ class RoomTransitionAds extends ChangeNotifier {
   /// Get user-friendly message about ad timing
   String getTimingMessage() {
     if (_adsShownThisSession >= _maxAdsPerSession) {
-      return 'No more ads this session (${_adsShownThisSession}/$_maxAdsPerSession)';
+      return 'No more ads this session ($_adsShownThisSession/$_maxAdsPerSession)';
     }
 
     if (_sessionStart != null) {
@@ -303,5 +448,22 @@ class RoomTransitionAds extends ChangeNotifier {
     }
 
     return 'Ad ready to show';
+  }
+
+  /// Get session statistics including lifecycle info
+  Map<String, dynamic> getLifecycleStats() {
+    final stats = getSessionStats();
+
+    stats.addAll({
+      'currentLifecycleState': _currentLifecycleState.toString(),
+      'lastBackgroundTime': _lastBackgroundTime?.toIso8601String(),
+      'lastSessionReset': _lastSessionReset?.toIso8601String(),
+      'canResetSession': _lastSessionReset != null
+          ? DateTime.now().difference(_lastSessionReset!).inMinutes >=
+              _minMinutesBetweenSessionResets
+          : true,
+    });
+
+    return stats;
   }
 }

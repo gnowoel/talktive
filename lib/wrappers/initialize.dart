@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,9 +7,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../services/ad_service/room_transition_ads.dart';
 import '../services/avatar.dart';
-
 import '../services/messaging.dart';
 import '../services/report_cache.dart';
 import '../services/service_locator.dart';
@@ -123,6 +126,19 @@ class _InitializeState extends State<Initialize> {
     await messaging.clearAllNotifications(); // Clear existing notifications
     await messaging.addListeners();
     debugPrint('Initialize: Messaging services initialized');
+
+    // Initialize AdMob SDK for room transition ads using unawaited for better performance
+    try {
+      unawaited(MobileAds.instance.initialize());
+
+      // Initialize simple room transition ads
+      RoomTransitionAds.instance.initialize();
+
+      debugPrint('Initialize: Room transition ads initialization started');
+    } catch (e) {
+      debugPrint('Initialize: Failed to initialize room transition ads: $e');
+      // Continue without ads rather than crashing
+    }
 
     debugPrint('Initialize: All services initialization completed');
   }

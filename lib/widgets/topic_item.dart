@@ -260,18 +260,19 @@ class _TopicItemState extends State<TopicItem> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (byMe || isFriend) ...[
-                  Icon(
-                    Icons.grade,
-                    size: 16,
-                    color: customColors.friendIndicator,
-                  ),
-                  const SizedBox(width: 4),
-                ],
+                // if (byMe || isFriend) ...[
+                //   Icon(
+                //     Icons.grade,
+                //     size: 16,
+                //     color: customColors.friendIndicator,
+                //   ),
+                //   const SizedBox(width: 4),
+                // ],
                 Expanded(
                   child: Text(
                     widget.topic.title,
                     overflow: TextOverflow.ellipsis,
+                    maxLines: widget.showTribeTag ? 3 : 1,
                   ),
                 ),
               ],

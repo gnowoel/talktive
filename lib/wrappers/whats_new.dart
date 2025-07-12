@@ -67,20 +67,20 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🛡️ Strengthened Moderation',
-                            'Enhanced the reporting and moderation system with stronger community safety measures.',
+                            '🐛 Bug Fixes',
+                            'Fixed a long-standing bug with undefined values and resolved an issue that caused the Chats page to break.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '👮 Moderator Tools',
-                            'Moderators can now take down inappropriate topics and block users from specific discussions.',
+                            '📱 Ad Support',
+                            'Added occasional interstitial ads when switching between chat or topic rooms to support the app.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🚀 Improved Experience',
-                            'Fixed chat issues, enhanced performance for large chat rooms, and resolved various stability bugs.',
+                            '✨ UI Improvements',
+                            'Made minor UI improvements and visual fixes for a better user experience.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

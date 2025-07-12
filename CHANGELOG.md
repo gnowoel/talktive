@@ -1,18 +1,25 @@
 # CHANGELOG
 
-## 4.3.1+59
+## 4.4.0+60
 
-* Fixed a user-reported bug caused by undefined values
+- (what's in 4.3.1+59)
+- Resolved a user-reported issue that caused the Chats page to break
+- Added occasional interstitial ads when switching between chat or topic rooms
+- Made minor UI improvements and visual fixes
+
+## 4.3.1+59 (unpublished)
+
+- Fixed a long-standing bug related to undefined values
 
 ## 4.3.0+58
 
-* Strengthened the reporting and moderation system for better community safety
-* Moderators can now take down inappropriate public topics
-* Moderators can block users from participating in specific topics
-* Fixed an issue that prevented users from starting chats with new female members
-* Improved performance when loading messages in large chat rooms
-* Resolved various bugs and stability issues
-* Updated dependencies for improved compatibility and performance
+- Strengthened the reporting and moderation system for better community safety
+- Moderators can now take down inappropriate public topics
+- Moderators can block users from participating in specific topics
+- Fixed an issue that prevented users from starting chats with new female members
+- Improved performance when loading messages in large chat rooms
+- Resolved various bugs and stability issues
+- Updated dependencies for improved compatibility and performance
 
 ## 4.2.0+57
 

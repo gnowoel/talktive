@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../services/ad_service/admob_compliance.dart';
 import '../services/ad_service/room_transition_ads.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
@@ -134,7 +135,11 @@ class _InitializeState extends State<Initialize> {
       // Initialize simple room transition ads
       RoomTransitionAds.instance.initialize();
 
+      // Initialize AdMob compliance system
+      AdMobCompliance.initialize();
+
       debugPrint('Initialize: Room transition ads initialization started');
+      debugPrint('Initialize: AdMob compliance system initialized');
     } catch (e) {
       debugPrint('Initialize: Failed to initialize room transition ads: $e');
       // Continue without ads rather than crashing

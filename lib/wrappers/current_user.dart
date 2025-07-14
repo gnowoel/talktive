@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/user.dart';
+import '../services/ad_service/admob_compliance.dart';
 import '../services/firedata.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
@@ -20,6 +21,7 @@ class _CurrentUserState extends State<CurrentUser> {
   late UserCache userCache;
 
   User? _user;
+  User? _previousUser;
 
   @override
   void initState() {
@@ -32,6 +34,14 @@ class _CurrentUserState extends State<CurrentUser> {
     super.didChangeDependencies();
     userCache = Provider.of<UserCache>(context);
     _user = userCache.user;
+
+    // Check if user changed (including role changes)
+    if (_user != _previousUser) {
+      // Reinitialize AdMob compliance when user changes
+      // This is important when a user logs in as admin
+      AdMobCompliance.initialize();
+      _previousUser = _user;
+    }
 
     if (_user != null) {
       if (_user!.fcmToken == null) {

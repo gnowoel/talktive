@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'room_transition_ads.dart';
+import 'admob_compliance.dart';
 import '../../helpers/routes.dart';
 
 /// GoRouter-compatible helper for room navigation with respectful interstitial ads
@@ -61,7 +62,7 @@ class GoRouterRoomHelper {
     );
   }
 
-  /// Core navigation logic with ad timing
+  /// Core navigation logic with ad timing and compliance validation
   static Future<T?> _navigateToRoom<T>({
     required BuildContext context,
     required String destination,
@@ -70,18 +71,41 @@ class GoRouterRoomHelper {
     // Track the room transition
     _adManager.trackRoomTransition();
 
-    debugPrint(
-        'GoRouterRoomHelper: Room transition tracked. Destination: $destination');
+    AdMobCompliance.safeLog(
+        'Room transition tracked. Destination: $destination');
 
-    // Show ad if timing is appropriate
+    // Validate compliance before attempting to show ads
+    final isCompliant = _adManager.validateAndLogCompliance();
+    if (!isCompliant) {
+      AdMobCompliance.safeLog(
+          'Compliance validation failed - skipping ad display',
+          forceLog: true);
+      // Continue with navigation without ads
+      if (!context.mounted) return null;
+
+      try {
+        switch (navigationMethod) {
+          case _NavigationMethod.go:
+            context.go(destination);
+            return null;
+          case _NavigationMethod.push:
+            return await context.push<T>(destination);
+        }
+      } catch (e) {
+        AdMobCompliance.safeLog('Navigation error to $destination: $e',
+            forceLog: true);
+        return null;
+      }
+    }
+
+    // Show ad if timing is appropriate and compliance is validated
     final adShown = await _adManager.showAdIfAppropriate();
 
     if (adShown) {
-      debugPrint(
-          'GoRouterRoomHelper: Showed interstitial ad before navigation to $destination');
+      AdMobCompliance.safeLog(
+          'Showed interstitial ad before navigation to $destination');
     } else {
-      debugPrint(
-          'GoRouterRoomHelper: No ad shown. ${_adManager.getTimingMessage()}');
+      AdMobCompliance.safeLog('No ad shown. ${_adManager.getTimingMessage()}');
     }
 
     // Ensure context is still valid after potential ad display
@@ -141,6 +165,26 @@ class GoRouterRoomHelper {
   static void resetSession() {
     _adManager.resetSession();
   }
+
+  /// Get compliance status for room transition ads
+  static Map<String, dynamic> getComplianceStatus() {
+    return _adManager.getComplianceStatus();
+  }
+
+  /// Get comprehensive debug information including compliance
+  static Map<String, dynamic> getComprehensiveDebugInfo() {
+    return _adManager.getComprehensiveDebugInfo();
+  }
+
+  /// Get compliance message for room transition ads
+  static String getComplianceMessage() {
+    return _adManager.getComplianceMessage();
+  }
+
+  /// Validate compliance for room transition ads
+  static bool validateCompliance() {
+    return _adManager.validateAndLogCompliance();
+  }
 }
 
 /// Extension methods for even easier navigation
@@ -175,6 +219,41 @@ extension GoRouterRoomExtensions on BuildContext {
   Future<T?> pushWithoutAd<T>(String destination) async {
     return await GoRouterRoomHelper.pushWithoutAd<T>(this, destination);
   }
+
+  /// Check if ads can be shown for navigation (compliance-aware)
+  bool canShowAdsForNavigation() {
+    return GoRouterRoomHelper.validateCompliance();
+  }
+
+  /// Get compliance message for navigation
+  String getNavigationComplianceMessage() {
+    return GoRouterRoomHelper.getComplianceMessage();
+  }
+
+  /// Get current compliance status for debugging
+  Map<String, dynamic> getNavigationComplianceStatus() {
+    return GoRouterRoomHelper.getComplianceStatus();
+  }
+
+  /// Navigate to chat with compliance validation
+  Future<void> goToChatSafe(String chatId, String chatCreatedAt) async {
+    if (canShowAdsForNavigation()) {
+      await goToChat(chatId, chatCreatedAt);
+    } else {
+      // Navigate without ads for compliance
+      goWithoutAd(encodeChatRoute(chatId, chatCreatedAt));
+    }
+  }
+
+  /// Navigate to topic with compliance validation
+  Future<void> goToTopicSafe(String topicId, String topicCreatorId) async {
+    if (canShowAdsForNavigation()) {
+      await goToTopic(topicId, topicCreatorId);
+    } else {
+      // Navigate without ads for compliance
+      goWithoutAd(encodeTopicRoute(topicId, topicCreatorId));
+    }
+  }
 }
 
 /// Internal enum for navigation methods
@@ -183,7 +262,7 @@ enum _NavigationMethod {
   push,
 }
 
-/// Debug widget to show ad timing information
+/// Debug widget to show ad timing information and compliance status
 class RoomAdDebugInfo extends StatelessWidget {
   const RoomAdDebugInfo({super.key});
 
@@ -209,12 +288,43 @@ class RoomAdDebugInfo extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
+
+          // Compliance Information
+          Text(
+            'AdMob Compliance:',
+            style: TextStyle(
+              color: Colors.yellow,
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+            ),
+          ),
+          Text(
+            'Admin: ${AdMobCompliance.isCurrentUserAdmin} | Test Ads: ${AdMobCompliance.shouldUseTestAds}',
+            style: TextStyle(color: Colors.white, fontSize: 10),
+          ),
+          if (AdMobCompliance.getComplianceBadge() != null)
+            Text(
+              'Badge: ${AdMobCompliance.getComplianceBadge()}',
+              style: TextStyle(color: Colors.orange, fontSize: 10),
+            ),
+
+          const SizedBox(height: 4),
+
+          // Session Statistics
           Consumer<RoomTransitionAds>(
             builder: (context, adManager, child) {
               final stats = adManager.getSessionStats();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    'Session Statistics:',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
                   Text(
                     'Transitions: ${stats['roomTransitions']} | Ads: ${stats['adsShownThisSession']}/${stats['maxAdsPerSession']}',
                     style: TextStyle(color: Colors.white, fontSize: 10),
@@ -225,6 +335,10 @@ class RoomAdDebugInfo extends StatelessWidget {
                   ),
                   Text(
                     'Session: ${stats['sessionDurationMinutes']}min',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Compliance: ${GoRouterRoomHelper.getComplianceMessage()}',
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
                 ],

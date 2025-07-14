@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../config/ad_config.dart';
+import 'admob_compliance.dart';
 
 /// Manages interstitial ads specifically for room transitions (chat ↔ topic)
 /// Follows AdMob best practices for respectful, non-intrusive ad placement
@@ -56,13 +58,23 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     // Register lifecycle observer for session management
     WidgetsBinding.instance.addObserver(this);
 
+    // Initialize AdMob compliance system
+    AdMobCompliance.initialize();
+
     debugPrint('RoomTransitionAds: Session started');
     debugPrint('RoomTransitionAds: Configuration Check:');
     debugPrint('  - App ID: ${AdConfig.appId}');
     debugPrint('  - Interstitial Ad Unit ID: ${AdConfig.interstitialAdUnitId}');
     debugPrint('  - Debug Mode: $kDebugMode');
+    debugPrint('  - Admin User: ${AdMobCompliance.isCurrentUserAdmin}');
+    debugPrint('  - Using Test Ads: ${AdMobCompliance.shouldUseTestAds}');
     debugPrint(
         '  - Test ID Pattern: ${AdConfig.interstitialAdUnitId.contains('3940256099942544') ? 'YES (Test ID)' : 'NO (Production ID)'}');
+
+    // Log compliance status
+    if (AdMobCompliance.shouldLogVerbose) {
+      AdMobCompliance.logComplianceStatus();
+    }
 
     _preloadInterstitialAd();
     notifyListeners();
@@ -71,7 +83,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   /// Track when user transitions between rooms
   void trackRoomTransition() {
     _roomTransitions++;
-    debugPrint('RoomTransitionAds: Transition #$_roomTransitions');
+    AdMobCompliance.safeLog('Room transition #$_roomTransitions tracked');
     notifyListeners();
   }
 
@@ -165,30 +177,37 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Check if we should show an interstitial ad right now
   bool shouldShowAdNow() {
+    // Validate ad compliance first
+    if (!AdMobCompliance.validateAdRequest('interstitial')) {
+      AdMobCompliance.safeLog('Ad request validation failed');
+      return false;
+    }
+
     // Basic session checks
     if (_sessionStart == null) return false;
     if (_adsShownThisSession >= _maxAdsPerSession) {
-      debugPrint('RoomTransitionAds: Session ad limit reached');
+      AdMobCompliance.safeLog(
+          'Session ad limit reached ($_adsShownThisSession/$_maxAdsPerSession)');
       return false;
     }
     if (!_isAdReady) {
-      debugPrint('RoomTransitionAds: Ad not ready');
+      AdMobCompliance.safeLog('Ad not ready');
       return false;
     }
 
     // Time-based checks
     final sessionDuration = DateTime.now().difference(_sessionStart!);
     if (sessionDuration.inMinutes < _minSessionMinutesBeforeAds) {
-      debugPrint(
-          'RoomTransitionAds: Session too young (${sessionDuration.inMinutes}min < $_minSessionMinutesBeforeAds min)');
+      AdMobCompliance.safeLog(
+          'Session too young (${sessionDuration.inMinutes}min < $_minSessionMinutesBeforeAds min)');
       return false;
     }
 
     if (_lastAdShown != null) {
       final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
       if (timeSinceLastAd.inMinutes < _minMinutesBetweenAds) {
-        debugPrint(
-            'RoomTransitionAds: Too soon since last ad (${timeSinceLastAd.inMinutes}min < $_minMinutesBetweenAds min)');
+        AdMobCompliance.safeLog(
+            'Too soon since last ad (${timeSinceLastAd.inMinutes}min < $_minMinutesBetweenAds min)');
         return false;
       }
     }
@@ -197,8 +216,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     if (_adsShownThisSession == 0) {
       // First ad of session - require more transitions
       if (_roomTransitions < _transitionsBeforeFirstAd) {
-        debugPrint(
-            'RoomTransitionAds: Need ${_transitionsBeforeFirstAd - _roomTransitions} more transitions for first ad');
+        AdMobCompliance.safeLog(
+            'Need ${_transitionsBeforeFirstAd - _roomTransitions} more transitions for first ad');
         return false;
       }
     } else {
@@ -206,13 +225,13 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       final transitionsSinceLastAd = _roomTransitions -
           (_adsShownThisSession * _transitionsPerAdAfterFirst);
       if (transitionsSinceLastAd < _transitionsPerAdAfterFirst) {
-        debugPrint(
-            'RoomTransitionAds: Need ${_transitionsPerAdAfterFirst - transitionsSinceLastAd} more transitions');
+        AdMobCompliance.safeLog(
+            'Need ${_transitionsPerAdAfterFirst - transitionsSinceLastAd} more transitions');
         return false;
       }
     }
 
-    debugPrint('RoomTransitionAds: ✅ Should show ad now!');
+    AdMobCompliance.safeLog('✅ Should show ad now!');
     return true;
   }
 
@@ -223,20 +242,27 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     if (_interstitialAd == null) {
-      debugPrint('RoomTransitionAds: No ad loaded');
+      AdMobCompliance.safeLog('No ad loaded');
       return false;
+    }
+
+    // Log compliance context before showing ad
+    if (AdMobCompliance.shouldLogVerbose) {
+      AdMobCompliance.safeLog(
+          'Showing room transition ad - ${AdMobCompliance.getComplianceSummary()}');
     }
 
     try {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (InterstitialAd ad) {
-          debugPrint('RoomTransitionAds: Ad shown successfully');
+          AdMobCompliance.logAdShown('interstitial',
+              context: 'room transition');
           _lastAdShown = DateTime.now();
           _adsShownThisSession++;
           notifyListeners();
         },
         onAdDismissedFullScreenContent: (InterstitialAd ad) {
-          debugPrint('RoomTransitionAds: Ad dismissed');
+          AdMobCompliance.safeLog('Room transition ad dismissed');
           ad.dispose();
           _interstitialAd = null;
           _isAdReady = false;
@@ -246,7 +272,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
           _preloadInterstitialAd();
         },
         onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-          debugPrint('RoomTransitionAds: Ad failed to show: $error');
+          AdMobCompliance.safeLog('Room transition ad failed to show: $error',
+              forceLog: true);
           ad.dispose();
           _interstitialAd = null;
           _isAdReady = false;
@@ -260,7 +287,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       await _interstitialAd!.show();
       return true;
     } catch (e) {
-      debugPrint('RoomTransitionAds: Error showing ad: $e');
+      AdMobCompliance.safeLog('Error showing room transition ad: $e',
+          forceLog: true);
       return false;
     }
   }
@@ -273,20 +301,24 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
 
     try {
+      final adUnitId = _getInterstitialAdUnitId();
+      AdMobCompliance.safeLog(
+          'Loading interstitial ad with unit ID: $adUnitId');
+
       await InterstitialAd.load(
-        adUnitId: _getInterstitialAdUnitId(),
+        adUnitId: adUnitId,
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
-            debugPrint('RoomTransitionAds: Interstitial ad loaded');
+            AdMobCompliance.safeLog('Interstitial ad loaded successfully');
             _interstitialAd = ad;
             _isAdReady = true;
             _isLoading = false;
             notifyListeners();
           },
           onAdFailedToLoad: (LoadAdError error) {
-            debugPrint(
-                'RoomTransitionAds: Failed to load interstitial ad: $error');
+            AdMobCompliance.safeLog('Failed to load interstitial ad: $error',
+                forceLog: true);
             _interstitialAd = null;
             _isAdReady = false;
             _isLoading = false;
@@ -302,15 +334,27 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
         ),
       );
     } catch (e) {
-      debugPrint('RoomTransitionAds: Exception loading ad: $e');
+      AdMobCompliance.safeLog('Exception loading ad: $e', forceLog: true);
       _isLoading = false;
       notifyListeners();
     }
   }
 
   /// Get appropriate ad unit ID (test vs production)
+  /// Uses AdMob compliance system to determine correct ad unit for user role
   String _getInterstitialAdUnitId() {
-    return AdConfig.interstitialAdUnitId;
+    final shouldUseTestAds = AdMobCompliance.shouldUseTestAds;
+
+    if (shouldUseTestAds) {
+      // Use test ad unit IDs for debug mode or admin users
+      final testIds = AdMobCompliance.testAdUnitIds;
+      return Platform.isAndroid
+          ? testIds['interstitial_android']!
+          : testIds['interstitial_ios']!;
+    } else {
+      // Use production ad unit ID from config
+      return AdConfig.interstitialAdUnitId;
+    }
   }
 
   /// Get time until next ad is eligible
@@ -362,7 +406,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     _adsShownThisSession = 0;
     _lastAdShown = null;
 
-    debugPrint('RoomTransitionAds: Session reset');
+    AdMobCompliance.safeLog('Session reset - new session started');
     notifyListeners();
   }
 
@@ -371,7 +415,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     _lastSessionReset = DateTime.now()
         .subtract(Duration(minutes: _minMinutesBetweenSessionResets + 1));
     resetSession();
-    debugPrint('RoomTransitionAds: Session force reset');
+    AdMobCompliance.safeLog('Session force reset completed');
   }
 
   /// Force load an ad (for testing purposes)
@@ -379,6 +423,68 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     _isAdReady = false;
     _isLoading = false;
     await _preloadInterstitialAd();
+  }
+
+  /// Get compliance status specific to room transition ads
+  Map<String, dynamic> getComplianceStatus() {
+    final generalCompliance = AdMobCompliance.getComplianceStatus();
+    final currentAdUnitId = _getInterstitialAdUnitId();
+
+    return {
+      ...generalCompliance,
+      'currentAdUnitId': currentAdUnitId,
+      'isUsingTestAdUnit': currentAdUnitId.contains('3940256099942544'),
+      'adReadyState': _isAdReady,
+      'canShowAd': shouldShowAdNow(),
+      'complianceValidated': AdMobCompliance.validateAdRequest('interstitial'),
+    };
+  }
+
+  /// Get comprehensive debug information including compliance
+  Map<String, dynamic> getComprehensiveDebugInfo() {
+    final sessionStats = getSessionStats();
+    final complianceStatus = getComplianceStatus();
+    final lifecycleStats = getLifecycleStats();
+
+    return {
+      'session': sessionStats,
+      'compliance': complianceStatus,
+      'lifecycle': lifecycleStats,
+      'timingMessage': getTimingMessage(),
+      'complianceSummary': AdMobCompliance.getComplianceSummary(),
+      'userFriendlyMessage': AdMobCompliance.getUserFriendlyMessage(),
+    };
+  }
+
+  /// Validate compliance and log detailed status
+  bool validateAndLogCompliance() {
+    final isValid = AdMobCompliance.validateAdRequest('interstitial');
+
+    if (AdMobCompliance.shouldLogVerbose) {
+      final status = getComplianceStatus();
+      AdMobCompliance.safeLog('=== Room Transition Ads Compliance Check ===');
+      AdMobCompliance.safeLog('Valid: $isValid');
+      AdMobCompliance.safeLog('Admin User: ${status['isAdmin']}');
+      AdMobCompliance.safeLog('Using Test Ads: ${status['shouldUseTestAds']}');
+      AdMobCompliance.safeLog('Ad Unit ID: ${status['currentAdUnitId']}');
+      AdMobCompliance.safeLog(
+          'Is Test Ad Unit: ${status['isUsingTestAdUnit']}');
+      AdMobCompliance.safeLog('Can Show Ad: ${status['canShowAd']}');
+      AdMobCompliance.safeLog('============================================');
+    }
+
+    return isValid;
+  }
+
+  /// Get user-friendly compliance message for room transition ads
+  String getComplianceMessage() {
+    if (AdMobCompliance.isCurrentUserAdmin) {
+      return 'Room transition ads: Using test ads (Admin user)';
+    } else if (kDebugMode) {
+      return 'Room transition ads: Using test ads (Debug mode)';
+    } else {
+      return 'Room transition ads: Using production ads';
+    }
   }
 
   /// Dispose resources

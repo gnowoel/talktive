@@ -35,14 +35,14 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   bool _isAdReady = false;
   bool _isLoading = false;
 
-  // Timing configuration (conservative for good UX)
-  static const int _minMinutesBetweenAds = 3; // 3 minutes minimum between ads
+  // Timing configuration (balanced for visibility and UX)
+  static const int _minMinutesBetweenAds = 2; // 2 minutes minimum between ads
   static const int _transitionsBeforeFirstAd =
-      4; // User must transition 4 times before first ad
-  static const int _transitionsPerAdAfterFirst = 3; // Then every 3 transitions
-  static const int _maxAdsPerSession = 3; // Maximum 3 ads per session
+      2; // User must transition 2 times before first ad
+  static const int _transitionsPerAdAfterFirst = 2; // Then every 2 transitions
+  static const int _maxAdsPerSession = 5; // Maximum 5 ads per session
   static const int _minSessionMinutesBeforeAds =
-      2; // Wait 2 minutes into session
+      1; // Wait 1 minute into session
   static const int _minMinutesInBackgroundForReset =
       10; // Reset session after 10+ minutes in background
   static const int _minMinutesBetweenSessionResets =
@@ -81,8 +81,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       AdMobCompliance.logComplianceStatus();
     }
 
-    // Delay initial ad loading to reduce unnecessary requests
-    Future.delayed(const Duration(minutes: 2), () {
+    // Load ad after short delay to ensure session is established
+    Future.delayed(const Duration(seconds: 30), () {
       if (_shouldLoadAd()) {
         _preloadInterstitialAd();
       }
@@ -206,8 +206,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
     _lastSessionReset = DateTime.now();
 
-    // Don't immediately load ads after session reset - wait for user activity
-    Future.delayed(const Duration(minutes: 3), () {
+    // Load ads after session reset with shorter delay
+    Future.delayed(const Duration(minutes: 1), () {
       if (_shouldLoadAd()) {
         _preloadInterstitialAd();
       }
@@ -270,6 +270,18 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       }
     }
 
+    // Check if user is in a good state for ads (not disrupting flow)
+    if (!_isUserInGoodStateForAds()) {
+      AdMobCompliance.safeLog('User not in good state for ads');
+      return false;
+    }
+
+    // Check if this is an optimal moment for showing an ad
+    if (!_isOptimalAdMoment()) {
+      AdMobCompliance.safeLog('Not optimal moment for ad');
+      return false;
+    }
+
     AdMobCompliance.safeLog('✅ Should show ad now!');
     return true;
   }
@@ -307,8 +319,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
           _isAdReady = false;
           notifyListeners();
 
-          // Pre-load next ad with delay to avoid immediate requests
-          Future.delayed(const Duration(seconds: 10), () {
+          // Pre-load next ad with optimal delay
+          Future.delayed(_getOptimalPreloadDelay(), () {
             if (_shouldLoadAd()) {
               _preloadInterstitialAd();
             }
@@ -322,8 +334,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
           _isAdReady = false;
           notifyListeners();
 
-          // Try to load again with delay
-          Future.delayed(const Duration(seconds: 15), () {
+          // Try to load again with optimal delay
+          Future.delayed(_getOptimalPreloadDelay(), () {
             if (_shouldLoadAd()) {
               _preloadInterstitialAd();
             }
@@ -377,8 +389,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
             _isLoading = false;
             notifyListeners();
 
-            // Less aggressive retry - wait longer and check conditions
-            Future.delayed(const Duration(minutes: 2), () {
+            // Moderate retry delay with condition checking
+            Future.delayed(const Duration(minutes: 1), () {
               if (!_isAdReady && !_isLoading && _shouldLoadAd()) {
                 _preloadInterstitialAd();
               }
@@ -403,21 +415,21 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
     // Don't load if session is too young
     final sessionDuration = DateTime.now().difference(_sessionStart!);
-    if (sessionDuration.inMinutes < (_minSessionMinutesBeforeAds - 1)) {
+    if (sessionDuration.inSeconds < 30) {
       return false;
     }
 
     // Don't load if we just showed an ad recently
     if (_lastAdShown != null) {
       final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
-      if (timeSinceLastAd.inMinutes < (_minMinutesBetweenAds - 2)) {
+      if (timeSinceLastAd.inSeconds < 90) {
         return false;
       }
     }
 
     // Don't load if we don't have enough room transitions yet
     if (_adsShownThisSession == 0 &&
-        _roomTransitions < (_transitionsBeforeFirstAd - 2)) {
+        _roomTransitions < (_transitionsBeforeFirstAd - 1)) {
       return false;
     }
 
@@ -431,32 +443,32 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     return true;
   }
 
-  /// Check if user has a healthy navigation pattern (not too rapid, not too sparse)
+  /// Check if user has a healthy navigation pattern (more permissive for better ad visibility)
   bool _hasHealthyNavigationPattern() {
-    // If user is navigating too quickly, they might be just browsing
-    if (_consecutiveQuickNavigations > 5) {
+    // Allow more rapid navigation - only block if extremely rapid
+    if (_consecutiveQuickNavigations > 8) {
       AdMobCompliance.safeLog(
-          'Navigation pattern: Too rapid ($_consecutiveQuickNavigations quick navs)');
+          'Navigation pattern: Extremely rapid ($_consecutiveQuickNavigations quick navs)');
       return false;
     }
 
-    // If we have recent navigation data, check for reasonable activity
-    if (_recentNavigations.length >= 3) {
+    // More permissive navigation pattern checking
+    if (_recentNavigations.length >= 5) {
       final now = DateTime.now();
       final oldestRecent = _recentNavigations.first;
       final timeSpan = now.difference(oldestRecent);
 
-      // If all recent navigations happened within 2 minutes, user might be rapidly browsing
-      if (timeSpan.inMinutes < 2) {
+      // Only block if all recent navigations happened within 1 minute (very rapid browsing)
+      if (timeSpan.inSeconds < 60) {
         AdMobCompliance.safeLog(
-            'Navigation pattern: Too compressed (${_recentNavigations.length} navs in ${timeSpan.inMinutes}min)');
+            'Navigation pattern: Too compressed (${_recentNavigations.length} navs in ${timeSpan.inSeconds}s)');
         return false;
       }
 
-      // If last navigation was more than 10 minutes ago, user might be inactive
+      // Increase inactivity threshold to 15 minutes
       if (_lastNavigationTime != null) {
         final timeSinceLastNav = now.difference(_lastNavigationTime!);
-        if (timeSinceLastNav.inMinutes > 10) {
+        if (timeSinceLastNav.inMinutes > 15) {
           AdMobCompliance.safeLog(
               'Navigation pattern: Too sparse (${timeSinceLastNav.inMinutes}min since last nav)');
           return false;
@@ -505,6 +517,111 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
     AdMobCompliance.safeLog('Intelligent preload triggered');
     await _preloadInterstitialAd();
+  }
+
+  /// Enable aggressive preloading for highly engaged users
+  /// This method detects user engagement patterns and preloads more aggressively
+  Future<void> enableAggressivePreloadingIfEngaged() async {
+    if (_isLoading || _isAdReady) return;
+
+    // Check if user shows high engagement patterns
+    if (!_isHighlyEngagedUser()) return;
+
+    AdMobCompliance.safeLog('Aggressive preload triggered for engaged user');
+    await _preloadInterstitialAd();
+  }
+
+  /// Detect if user shows high engagement patterns
+  bool _isHighlyEngagedUser() {
+    if (_sessionStart == null) return false;
+
+    final sessionDuration = DateTime.now().difference(_sessionStart!);
+
+    // User must be in session for at least 2 minutes
+    if (sessionDuration.inMinutes < 2) return false;
+
+    // High engagement indicators:
+    // 1. Multiple room transitions in short time
+    if (_roomTransitions >= 3 && sessionDuration.inMinutes < 5) return true;
+
+    // 2. Consistent navigation pattern (not too rapid, not too sparse)
+    if (_recentNavigations.length >= 3) {
+      final now = DateTime.now();
+      final oldestRecent = _recentNavigations.first;
+      final timeSpan = now.difference(oldestRecent);
+
+      // Good engagement: 3+ navigations spread over 2-8 minutes
+      if (timeSpan.inMinutes >= 2 && timeSpan.inMinutes <= 8) return true;
+    }
+
+    // 3. Long session with reasonable activity
+    if (sessionDuration.inMinutes >= 5 && _roomTransitions >= 2) return true;
+
+    return false;
+  }
+
+  /// Get user engagement level as a string
+  String _getEngagementLevel() {
+    final score = _calculateEngagementScore();
+    if (score >= 80) return 'High';
+    if (score >= 50) return 'Medium';
+    if (score >= 20) return 'Low';
+    return 'Minimal';
+  }
+
+  /// Calculate engagement score (0-100)
+  int _calculateEngagementScore() {
+    if (_sessionStart == null) return 0;
+
+    final sessionDuration = DateTime.now().difference(_sessionStart!);
+    int score = 0;
+
+    // Session duration score (0-30 points)
+    if (sessionDuration.inMinutes >= 10) {
+      score += 30;
+    } else if (sessionDuration.inMinutes >= 5) {
+      score += 20;
+    } else if (sessionDuration.inMinutes >= 2) {
+      score += 10;
+    }
+
+    // Room transitions score (0-25 points)
+    if (_roomTransitions >= 8) {
+      score += 25;
+    } else if (_roomTransitions >= 5) {
+      score += 20;
+    } else if (_roomTransitions >= 3) {
+      score += 15;
+    } else if (_roomTransitions >= 1) {
+      score += 10;
+    }
+
+    // Navigation pattern score (0-25 points)
+    if (_hasHealthyNavigationPattern()) {
+      score += 25;
+    } else if (_consecutiveQuickNavigations <= 3) {
+      score += 15;
+    } else if (_consecutiveQuickNavigations <= 6) {
+      score += 10;
+    }
+
+    // Session consistency score (0-20 points)
+    if (_recentNavigations.length >= 4) {
+      final now = DateTime.now();
+      final oldestRecent = _recentNavigations.first;
+      final timeSpan = now.difference(oldestRecent);
+
+      // Consistent activity over time
+      if (timeSpan.inMinutes >= 3 && timeSpan.inMinutes <= 10) {
+        score += 20;
+      } else if (timeSpan.inMinutes >= 2 && timeSpan.inMinutes <= 15) {
+        score += 15;
+      } else if (timeSpan.inMinutes >= 1) {
+        score += 10;
+      }
+    }
+
+    return score.clamp(0, 100);
   }
 
   /// Get appropriate ad unit ID (test vs production)
@@ -561,7 +678,104 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       'lastNavigationMinutesAgo': lastNavMinutesAgo,
       'navigationPatternSummary': _getNavigationPatternSummary(),
       'hasHealthyNavigationPattern': _hasHealthyNavigationPattern(),
+      'isHighlyEngaged': _isHighlyEngagedUser(),
+      'engagementLevel': _getEngagementLevel(),
+      'sessionEngagementScore': _calculateEngagementScore(),
+      'isOptimalAdMoment': _isOptimalAdMoment(),
+      'isUserInGoodStateForAds': _isUserInGoodStateForAds(),
+      'nextAdOpportunity': _predictNextAdOpportunity(),
     };
+  }
+
+  /// Check if current moment is optimal for showing an ad
+  bool _isOptimalAdMoment() {
+    if (!_hasHealthyNavigationPattern()) return false;
+
+    // Don't show ad if user just started navigating rapidly
+    if (_consecutiveQuickNavigations >= 2) return false;
+
+    // Prefer showing ads when user has been active for a while
+    if (_sessionStart != null) {
+      final sessionDuration = DateTime.now().difference(_sessionStart!);
+      if (sessionDuration.inMinutes < 2) return false;
+    }
+
+    // Check if user seems to be in a good flow state
+    if (_recentNavigations.length >= 2) {
+      final now = DateTime.now();
+      final lastTwo = _recentNavigations.skip(_recentNavigations.length - 2);
+      final timeBetweenLast = now.difference(lastTwo.first);
+
+      // Good timing: not too fast, not too slow
+      if (timeBetweenLast.inSeconds >= 30 && timeBetweenLast.inSeconds <= 180) {
+        return true;
+      }
+    }
+
+    return _isHighlyEngagedUser();
+  }
+
+  /// Get optimal delay for next ad preload based on current conditions
+  Duration _getOptimalPreloadDelay() {
+    if (_isHighlyEngagedUser()) {
+      return const Duration(seconds: 30);
+    }
+
+    if (_hasHealthyNavigationPattern()) {
+      return const Duration(minutes: 1);
+    }
+
+    // Default delay for less engaged users
+    return const Duration(minutes: 2);
+  }
+
+  /// Check if user is in a good state for ads (not disrupting flow)
+  bool _isUserInGoodStateForAds() {
+    // Don't interrupt if user is rapidly navigating
+    if (_consecutiveQuickNavigations >= 3) return false;
+
+    // Don't interrupt if user just became active
+    if (_lastNavigationTime != null) {
+      final timeSinceLastNav = DateTime.now().difference(_lastNavigationTime!);
+      if (timeSinceLastNav.inSeconds < 15) return false;
+    }
+
+    // Don't interrupt very new sessions
+    if (_sessionStart != null) {
+      final sessionDuration = DateTime.now().difference(_sessionStart!);
+      if (sessionDuration.inSeconds < 45) return false;
+    }
+
+    return true;
+  }
+
+  /// Predict when next ad opportunity might occur (for debugging)
+  String _predictNextAdOpportunity() {
+    if (!shouldShowAdNow()) {
+      if (_adsShownThisSession >= _maxAdsPerSession) {
+        return "Session limit reached";
+      }
+
+      if (!_isAdReady) {
+        return "Ad not ready - loading in progress";
+      }
+
+      final timeUntilEligible = getTimeUntilNextAdEligible();
+      if (timeUntilEligible != null) {
+        return "Next eligible in ${timeUntilEligible.inMinutes}min";
+      }
+
+      final transitionsNeeded = _calculateTransitionsNeededForNextAd();
+      if (transitionsNeeded > 0) {
+        return "Need $transitionsNeeded more transitions";
+      }
+
+      if (!_hasHealthyNavigationPattern()) {
+        return "Waiting for healthy navigation pattern";
+      }
+    }
+
+    return "Ready to show ad";
   }
 
   /// Calculate how many more transitions needed for next ad

@@ -116,18 +116,26 @@ class GoRouterRoomHelper {
     }
 
     // Perform the navigation based on method
+    T? result;
     try {
       switch (navigationMethod) {
         case _NavigationMethod.go:
           context.go(destination);
-          return null;
+          result = null;
+          break;
         case _NavigationMethod.push:
-          return await context.push<T>(destination);
+          result = await context.push<T>(destination);
+          break;
       }
     } catch (e) {
       debugPrint('GoRouterRoomHelper: Navigation error to $destination: $e');
       return null;
     }
+
+    // Intelligently preload next ad after successful navigation
+    _scheduleIntelligentAdPreload(adShown);
+
+    return result;
   }
 
   /// Navigate without ads (for non-room destinations like settings, profile, etc.)
@@ -184,6 +192,30 @@ class GoRouterRoomHelper {
   /// Validate compliance for room transition ads
   static bool validateCompliance() {
     return _adManager.validateAndLogCompliance();
+  }
+
+  /// Intelligently schedule ad preloading based on user behavior
+  static void _scheduleIntelligentAdPreload(bool adWasJustShown) {
+    // If an ad was just shown, wait longer before preloading the next one
+    final delayMinutes = adWasJustShown ? 5 : 2;
+
+    Future.delayed(Duration(minutes: delayMinutes), () {
+      // Only preload if conditions suggest the user is actively navigating
+      final stats = _adManager.getSessionStats();
+      final sessionDurationMinutes =
+          stats['sessionDurationMinutes'] as int? ?? 0;
+      final roomTransitions = stats['roomTransitions'] as int? ?? 0;
+
+      // Preload only if user is actively using the app
+      if (sessionDurationMinutes > 3 && roomTransitions > 1) {
+        // Check if we should preload based on current ad readiness
+        if (!_adManager.isAdReady && _adManager.validateAndLogCompliance()) {
+          AdMobCompliance.safeLog(
+              'Intelligently preloading ad after navigation');
+          _adManager.preloadIfAppropriate();
+        }
+      }
+    });
   }
 }
 
@@ -341,6 +373,35 @@ class RoomAdDebugInfo extends StatelessWidget {
                     'Compliance: ${GoRouterRoomHelper.getComplianceMessage()}',
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
+
+                  const SizedBox(height: 4),
+
+                  // Navigation Pattern Information
+                  Text(
+                    'Navigation Pattern:',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    'Quick Navs: ${stats['consecutiveQuickNavigations']} | Recent: ${stats['recentNavigationsCount']}',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Healthy Pattern: ${stats['hasHealthyNavigationPattern'] ? 'Yes' : 'No'}',
+                    style: TextStyle(
+                        color: stats['hasHealthyNavigationPattern']
+                            ? Colors.green
+                            : Colors.orange,
+                        fontSize: 10),
+                  ),
+                  if (stats['lastNavigationMinutesAgo'] != null)
+                    Text(
+                      'Last Nav: ${stats['lastNavigationMinutesAgo']}min ago',
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    ),
                 ],
               );
             },

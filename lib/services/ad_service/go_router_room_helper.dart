@@ -194,25 +194,48 @@ class GoRouterRoomHelper {
     return _adManager.validateAndLogCompliance();
   }
 
+  /// Get detailed ad timing information for debugging
+  static Map<String, dynamic> getDetailedTimingInfo() {
+    final stats = _adManager.getSessionStats();
+    return {
+      'currentTime': DateTime.now().toIso8601String(),
+      'sessionStats': stats,
+      'adReady': _adManager.isAdReady,
+      'shouldShowNow': _adManager.shouldShowAdNow(),
+      'timingMessage': _adManager.getTimingMessage(),
+      'complianceStatus': _adManager.getComplianceStatus(),
+      'nextAdOpportunity': stats['nextAdOpportunity'],
+      'optimalAdMoment': stats['isOptimalAdMoment'],
+      'userInGoodState': stats['isUserInGoodStateForAds'],
+      'engagementLevel': stats['engagementLevel'],
+      'engagementScore': stats['sessionEngagementScore'],
+    };
+  }
+
   /// Intelligently schedule ad preloading based on user behavior
   static void _scheduleIntelligentAdPreload(bool adWasJustShown) {
-    // If an ad was just shown, wait longer before preloading the next one
-    final delayMinutes = adWasJustShown ? 5 : 2;
+    // If an ad was just shown, wait shorter before preloading the next one
+    final delayMinutes = adWasJustShown ? 2 : 1;
 
     Future.delayed(Duration(minutes: delayMinutes), () {
-      // Only preload if conditions suggest the user is actively navigating
+      // More permissive conditions for better ad visibility
       final stats = _adManager.getSessionStats();
       final sessionDurationMinutes =
           stats['sessionDurationMinutes'] as int? ?? 0;
       final roomTransitions = stats['roomTransitions'] as int? ?? 0;
 
-      // Preload only if user is actively using the app
-      if (sessionDurationMinutes > 3 && roomTransitions > 1) {
+      // Preload if user shows any activity (more permissive)
+      if (sessionDurationMinutes > 1 && roomTransitions > 0) {
         // Check if we should preload based on current ad readiness
         if (!_adManager.isAdReady && _adManager.validateAndLogCompliance()) {
           AdMobCompliance.safeLog(
               'Intelligently preloading ad after navigation');
           _adManager.preloadIfAppropriate();
+        }
+      } else {
+        // For users showing high engagement, try aggressive preloading
+        if (!_adManager.isAdReady && _adManager.validateAndLogCompliance()) {
+          _adManager.enableAggressivePreloadingIfEngaged();
         }
       }
     });
@@ -402,6 +425,74 @@ class RoomAdDebugInfo extends StatelessWidget {
                       'Last Nav: ${stats['lastNavigationMinutesAgo']}min ago',
                       style: TextStyle(color: Colors.white, fontSize: 10),
                     ),
+
+                  const SizedBox(height: 4),
+
+                  // User Engagement Information
+                  Text(
+                    'User Engagement:',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    'Level: ${stats['engagementLevel']} | Score: ${stats['sessionEngagementScore']}/100',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Highly Engaged: ${stats['isHighlyEngaged'] ? 'Yes' : 'No'}',
+                    style: TextStyle(
+                        color: stats['isHighlyEngaged']
+                            ? Colors.green
+                            : Colors.grey,
+                        fontSize: 10),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Current Frequency Settings
+                  Text(
+                    'Ad Frequency (Updated):',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    'Between Ads: 2min | First Ad: 2 transitions',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Subsequent: 2 transitions | Max/Session: 5',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Timing Prediction
+                  Text(
+                    'Next Ad Opportunity:',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    '${stats['nextAdOpportunity']}',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Optimal Moment: ${stats['isOptimalAdMoment'] ? 'Yes' : 'No'}',
+                    style: TextStyle(
+                        color: stats['isOptimalAdMoment']
+                            ? Colors.green
+                            : Colors.orange,
+                        fontSize: 10),
+                  ),
                 ],
               );
             },

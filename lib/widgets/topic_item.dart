@@ -201,7 +201,7 @@ class _TopicItemState extends State<TopicItem> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final customColors = theme.extension<CustomColors>()!;
+
     final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
     final updatedAt = DateTime.fromMillisecondsSinceEpoch(
       widget.topic.updatedAt,

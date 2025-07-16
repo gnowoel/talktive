@@ -194,6 +194,13 @@ class GoRouterRoomHelper {
     return _adManager.validateAndLogCompliance();
   }
 
+  /// Force show an ad immediately (for testing purposes only)
+  /// Bypasses all timing and engagement restrictions
+  static Future<bool> forceShowAdForTesting() async {
+    AdMobCompliance.safeLog('🔧 Force show ad triggered from navigation helper');
+    return await _adManager.forceShowAd();
+  }
+
   /// Get detailed ad timing information for debugging
   static Map<String, dynamic> getDetailedTimingInfo() {
     final stats = _adManager.getSessionStats();
@@ -210,6 +217,23 @@ class GoRouterRoomHelper {
       'engagementLevel': stats['engagementLevel'],
       'engagementScore': stats['sessionEngagementScore'],
     };
+  }
+
+  /// Get quick ad status summary for debugging
+  static String getQuickAdStatus() {
+    final stats = _adManager.getSessionStats();
+    final isReady = _adManager.isAdReady;
+    final shouldShow = _adManager.shouldShowAdNow();
+    final transitions = stats['roomTransitions'] ?? 0;
+    final adsShown = stats['adsShownThisSession'] ?? 0;
+    final maxAds = stats['maxAdsPerSession'] ?? 5;
+    final sessionMins = stats['sessionDurationMinutes'] ?? 0;
+
+    String status = shouldShow ? '🟢 READY' : '🔴 NOT READY';
+
+    return '$status | Ad: ${isReady ? 'Loaded' : 'Loading'} | '
+           'Session: ${sessionMins}min | Transitions: $transitions | '
+           'Ads: $adsShown/$maxAds | ${stats['nextAdOpportunity']}';
   }
 
   /// Intelligently schedule ad preloading based on user behavior
@@ -290,6 +314,11 @@ extension GoRouterRoomExtensions on BuildContext {
     return GoRouterRoomHelper.getComplianceStatus();
   }
 
+  /// Force show an ad immediately (for testing purposes only)
+  Future<bool> forceShowAdForTesting() async {
+    return await GoRouterRoomHelper.forceShowAdForTesting();
+  }
+
   /// Navigate to chat with compliance validation
   Future<void> goToChatSafe(String chatId, String chatCreatedAt) async {
     if (canShowAdsForNavigation()) {
@@ -334,13 +363,45 @@ class RoomAdDebugInfo extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Room Transition Ads Debug',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Room Transition Ads Debug',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+              // Force Show Ad Button
+              ElevatedButton(
+                onPressed: () async {
+                  final success = await context.forceShowAdForTesting();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success
+                          ? 'Ad force shown successfully!'
+                          : 'Failed to show ad - check logs'),
+                        backgroundColor: success ? Colors.green : Colors.red,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  minimumSize: Size(0, 0),
+                ),
+                child: Text(
+                  'Force Ad',
+                  style: TextStyle(fontSize: 10),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
 
@@ -369,9 +430,47 @@ class RoomAdDebugInfo extends StatelessWidget {
           Consumer<RoomTransitionAds>(
             builder: (context, adManager, child) {
               final stats = adManager.getSessionStats();
+              final shouldShow = adManager.shouldShowAdNow();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Ad Status (Prominent)
+                  Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: shouldShow ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          shouldShow ? Icons.check_circle : Icons.cancel,
+                          color: shouldShow ? Colors.green : Colors.red,
+                          size: 16,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            shouldShow ? 'AD READY TO SHOW' : 'AD NOT READY',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          'Ready: ${adManager.isAdReady}',
+                          style: TextStyle(
+                            color: adManager.isAdReady ? Colors.green : Colors.red,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+
                   Text(
                     'Session Statistics:',
                     style: TextStyle(
@@ -392,8 +491,28 @@ class RoomAdDebugInfo extends StatelessWidget {
                     'Session: ${stats['sessionDurationMinutes']}min',
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
+
+                  const SizedBox(height: 4),
+
+                  // User State Checks
                   Text(
-                    'Compliance: ${GoRouterRoomHelper.getComplianceMessage()}',
+                    'User State Checks:',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    'Good State: ${stats['isUserInGoodStateForAds'] ? '✅' : '❌'}',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Optimal Moment: ${stats['isOptimalAdMoment'] ? '✅' : '❌'}',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    'Healthy Pattern: ${stats['hasHealthyNavigationPattern'] ? '✅' : '❌'}',
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
 
@@ -411,14 +530,6 @@ class RoomAdDebugInfo extends StatelessWidget {
                   Text(
                     'Quick Navs: ${stats['consecutiveQuickNavigations']} | Recent: ${stats['recentNavigationsCount']}',
                     style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                  Text(
-                    'Healthy Pattern: ${stats['hasHealthyNavigationPattern'] ? 'Yes' : 'No'}',
-                    style: TextStyle(
-                        color: stats['hasHealthyNavigationPattern']
-                            ? Colors.green
-                            : Colors.orange,
-                        fontSize: 10),
                   ),
                   if (stats['lastNavigationMinutesAgo'] != null)
                     Text(
@@ -452,6 +563,22 @@ class RoomAdDebugInfo extends StatelessWidget {
 
                   const SizedBox(height: 4),
 
+                  // Next Ad Opportunity
+                  Text(
+                    'Next Ad Opportunity:',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    '${stats['nextAdOpportunity']}',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+
+                  const SizedBox(height: 4),
+
                   // Current Frequency Settings
                   Text(
                     'Ad Frequency (Updated):',
@@ -468,30 +595,6 @@ class RoomAdDebugInfo extends StatelessWidget {
                   Text(
                     'Subsequent: 2 transitions | Max/Session: 5',
                     style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  // Timing Prediction
-                  Text(
-                    'Next Ad Opportunity:',
-                    style: TextStyle(
-                      color: Colors.yellow,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  ),
-                  Text(
-                    '${stats['nextAdOpportunity']}',
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                  Text(
-                    'Optimal Moment: ${stats['isOptimalAdMoment'] ? 'Yes' : 'No'}',
-                    style: TextStyle(
-                        color: stats['isOptimalAdMoment']
-                            ? Colors.green
-                            : Colors.orange,
-                        fontSize: 10),
                   ),
                 ],
               );

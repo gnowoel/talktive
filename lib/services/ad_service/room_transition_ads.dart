@@ -216,39 +216,54 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Check if we should show an interstitial ad right now
   bool shouldShowAdNow() {
+    AdMobCompliance.safeLog('=== Ad Show Check Started ===');
+
     // Validate ad compliance first
     if (!AdMobCompliance.validateAdRequest('interstitial')) {
-      AdMobCompliance.safeLog('Ad request validation failed');
+      AdMobCompliance.safeLog('❌ Ad request validation failed');
       return false;
     }
+    AdMobCompliance.safeLog('✅ Ad compliance validation passed');
 
     // Basic session checks
-    if (_sessionStart == null) return false;
+    if (_sessionStart == null) {
+      AdMobCompliance.safeLog('❌ Session not started');
+      return false;
+    }
+    AdMobCompliance.safeLog('✅ Session started: $_sessionStart');
+
     if (_adsShownThisSession >= _maxAdsPerSession) {
       AdMobCompliance.safeLog(
-          'Session ad limit reached ($_adsShownThisSession/$_maxAdsPerSession)');
+          '❌ Session ad limit reached ($_adsShownThisSession/$_maxAdsPerSession)');
       return false;
     }
+    AdMobCompliance.safeLog('✅ Session ad limit OK ($_adsShownThisSession/$_maxAdsPerSession)');
+
     if (!_isAdReady) {
-      AdMobCompliance.safeLog('Ad not ready');
+      AdMobCompliance.safeLog('❌ Ad not ready (loading: $_isLoading)');
       return false;
     }
+    AdMobCompliance.safeLog('✅ Ad is ready');
 
     // Time-based checks
     final sessionDuration = DateTime.now().difference(_sessionStart!);
     if (sessionDuration.inMinutes < _minSessionMinutesBeforeAds) {
       AdMobCompliance.safeLog(
-          'Session too young (${sessionDuration.inMinutes}min < $_minSessionMinutesBeforeAds min)');
+          '❌ Session too young (${sessionDuration.inSeconds}s < ${_minSessionMinutesBeforeAds * 60}s)');
       return false;
     }
+    AdMobCompliance.safeLog('✅ Session age OK (${sessionDuration.inSeconds}s)');
 
     if (_lastAdShown != null) {
       final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
       if (timeSinceLastAd.inMinutes < _minMinutesBetweenAds) {
         AdMobCompliance.safeLog(
-            'Too soon since last ad (${timeSinceLastAd.inMinutes}min < $_minMinutesBetweenAds min)');
+            '❌ Too soon since last ad (${timeSinceLastAd.inSeconds}s < ${_minMinutesBetweenAds * 60}s)');
         return false;
       }
+      AdMobCompliance.safeLog('✅ Time since last ad OK (${timeSinceLastAd.inSeconds}s)');
+    } else {
+      AdMobCompliance.safeLog('✅ No previous ad shown in session');
     }
 
     // Transition-based logic
@@ -256,33 +271,37 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       // First ad of session - require more transitions
       if (_roomTransitions < _transitionsBeforeFirstAd) {
         AdMobCompliance.safeLog(
-            'Need ${_transitionsBeforeFirstAd - _roomTransitions} more transitions for first ad');
+            '❌ Need ${_transitionsBeforeFirstAd - _roomTransitions} more transitions for first ad (have $_roomTransitions, need $_transitionsBeforeFirstAd)');
         return false;
       }
+      AdMobCompliance.safeLog('✅ First ad transition requirement met ($_roomTransitions >= $_transitionsBeforeFirstAd)');
     } else {
       // Subsequent ads - require fewer transitions
       final transitionsSinceLastAd = _roomTransitions -
           (_adsShownThisSession * _transitionsPerAdAfterFirst);
       if (transitionsSinceLastAd < _transitionsPerAdAfterFirst) {
         AdMobCompliance.safeLog(
-            'Need ${_transitionsPerAdAfterFirst - transitionsSinceLastAd} more transitions');
+            '❌ Need ${_transitionsPerAdAfterFirst - transitionsSinceLastAd} more transitions (have $transitionsSinceLastAd, need $_transitionsPerAdAfterFirst)');
         return false;
       }
+      AdMobCompliance.safeLog('✅ Subsequent ad transition requirement met (transitions since last: $transitionsSinceLastAd)');
     }
 
     // Check if user is in a good state for ads (not disrupting flow)
     if (!_isUserInGoodStateForAds()) {
-      AdMobCompliance.safeLog('User not in good state for ads');
+      AdMobCompliance.safeLog('❌ User not in good state for ads');
       return false;
     }
+    AdMobCompliance.safeLog('✅ User in good state for ads');
 
     // Check if this is an optimal moment for showing an ad
     if (!_isOptimalAdMoment()) {
-      AdMobCompliance.safeLog('Not optimal moment for ad');
+      AdMobCompliance.safeLog('❌ Not optimal moment for ad');
       return false;
     }
+    AdMobCompliance.safeLog('✅ Optimal moment for ad');
 
-    AdMobCompliance.safeLog('✅ Should show ad now!');
+    AdMobCompliance.safeLog('🎯 ✅ SHOULD SHOW AD NOW! All conditions met');
     return true;
   }
 
@@ -689,30 +708,27 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Check if current moment is optimal for showing an ad
   bool _isOptimalAdMoment() {
-    if (!_hasHealthyNavigationPattern()) return false;
+    // Much more permissive - only block in extreme cases
 
-    // Don't show ad if user just started navigating rapidly
-    if (_consecutiveQuickNavigations >= 2) return false;
-
-    // Prefer showing ads when user has been active for a while
-    if (_sessionStart != null) {
-      final sessionDuration = DateTime.now().difference(_sessionStart!);
-      if (sessionDuration.inMinutes < 2) return false;
+    // Allow ads even with unhealthy navigation patterns (for better visibility)
+    // Only block if extremely rapid navigation
+    if (_consecutiveQuickNavigations >= 8) {
+      AdMobCompliance.safeLog('Optimal moment: Too rapid navigation (${_consecutiveQuickNavigations} quick navs)');
+      return false;
     }
 
-    // Check if user seems to be in a good flow state
-    if (_recentNavigations.length >= 2) {
-      final now = DateTime.now();
-      final lastTwo = _recentNavigations.skip(_recentNavigations.length - 2);
-      final timeBetweenLast = now.difference(lastTwo.first);
-
-      // Good timing: not too fast, not too slow
-      if (timeBetweenLast.inSeconds >= 30 && timeBetweenLast.inSeconds <= 180) {
-        return true;
+    // Reduce session requirement significantly (2 minutes -> 15 seconds)
+    if (_sessionStart != null) {
+      final sessionDuration = DateTime.now().difference(_sessionStart!);
+      if (sessionDuration.inSeconds < 15) {
+        AdMobCompliance.safeLog('Optimal moment: Session too new (${sessionDuration.inSeconds}s)');
+        return false;
       }
     }
 
-    return _isHighlyEngagedUser();
+    // Much simpler timing logic - just ensure it's not immediate after app start
+    AdMobCompliance.safeLog('Optimal moment: Good to show ad');
+    return true;
   }
 
   /// Get optimal delay for next ad preload based on current conditions
@@ -731,21 +747,23 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Check if user is in a good state for ads (not disrupting flow)
   bool _isUserInGoodStateForAds() {
-    // Don't interrupt if user is rapidly navigating
-    if (_consecutiveQuickNavigations >= 3) return false;
-
-    // Don't interrupt if user just became active
-    if (_lastNavigationTime != null) {
-      final timeSinceLastNav = DateTime.now().difference(_lastNavigationTime!);
-      if (timeSinceLastNav.inSeconds < 15) return false;
+    // Only block if user is extremely rapidly navigating
+    if (_consecutiveQuickNavigations >= 6) {
+      AdMobCompliance.safeLog('User state: Too rapid navigation ($_consecutiveQuickNavigations quick navs)');
+      return false;
     }
 
-    // Don't interrupt very new sessions
+    // Only block very new sessions (reduced from 45 to 10 seconds)
     if (_sessionStart != null) {
       final sessionDuration = DateTime.now().difference(_sessionStart!);
-      if (sessionDuration.inSeconds < 45) return false;
+      if (sessionDuration.inSeconds < 10) {
+        AdMobCompliance.safeLog('User state: Session too new (${sessionDuration.inSeconds}s)');
+        return false;
+      }
     }
 
+    // Don't block based on recent navigation - ads can show after navigation
+    AdMobCompliance.safeLog('User state: Good for ads');
     return true;
   }
 
@@ -818,6 +836,65 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     _isAdReady = false;
     _isLoading = false;
     await _preloadInterstitialAd();
+  }
+
+  /// Force show an ad immediately (for testing purposes)
+  /// Bypasses all timing and engagement restrictions
+  Future<bool> forceShowAd() async {
+    AdMobCompliance.safeLog('🔧 FORCE SHOW AD - Testing mode');
+
+    if (_interstitialAd == null) {
+      AdMobCompliance.safeLog('❌ No ad loaded - attempting to load first');
+      await forceLoadAd();
+      // Wait a bit for ad to load
+      await Future.delayed(const Duration(seconds: 2));
+      if (_interstitialAd == null) {
+        AdMobCompliance.safeLog('❌ Failed to load ad for force show');
+        return false;
+      }
+    }
+
+    // Validate compliance before showing ad
+    if (!AdMobCompliance.validateAdRequest('interstitial')) {
+      AdMobCompliance.safeLog('❌ Compliance validation failed - cannot force show');
+      return false;
+    }
+
+    try {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (InterstitialAd ad) {
+          AdMobCompliance.logAdShown('interstitial', context: 'force show test');
+          _lastAdShown = DateTime.now();
+          _adsShownThisSession++;
+          notifyListeners();
+        },
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          AdMobCompliance.safeLog('Force shown ad dismissed');
+          ad.dispose();
+          _interstitialAd = null;
+          _isAdReady = false;
+          notifyListeners();
+          // Preload next ad
+          _preloadInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          AdMobCompliance.safeLog('Force shown ad failed to show: $error', forceLog: true);
+          ad.dispose();
+          _interstitialAd = null;
+          _isAdReady = false;
+          notifyListeners();
+          // Try to load again
+          _preloadInterstitialAd();
+        },
+      );
+
+      await _interstitialAd!.show();
+      AdMobCompliance.safeLog('🎯 ✅ FORCE SHOW AD SUCCESS');
+      return true;
+    } catch (e) {
+      AdMobCompliance.safeLog('❌ Error force showing ad: $e', forceLog: true);
+      return false;
+    }
   }
 
   /// Get compliance status specific to room transition ads

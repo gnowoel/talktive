@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'room_transition_ads.dart';
 import 'simplified_room_ads.dart';
 import 'admob_compliance.dart';
+import 'optimized_ad_config.dart';
 
 /// Ad Service Adapter - Compatibility layer for GoRouterRoomHelper
 ///
@@ -21,7 +22,7 @@ class AdServiceAdapter {
   /// Feature flag to control which ad system to use
   /// Set to true to use the new SimplifiedRoomAds system
   /// Set to false to use the current RoomTransitionAds system
-  static const bool _useSimplifiedAdSystem = false;
+  static const bool _useSimplifiedAdSystem = true;
 
   /// Feature flag for A/B testing (overrides _useSimplifiedAdSystem if not null)
   /// This can be dynamically controlled based on user segments
@@ -31,7 +32,7 @@ class AdServiceAdapter {
   static void setABTestConfiguration(bool useSimplified) {
     _abTestUseSimplified = useSimplified;
     debugPrint(
-        'AdServiceAdapter: A/B test set to use ${useSimplified ? 'Simplified' : 'Current'} ad system');
+        'AdServiceAdapter: A/B test set to use ${useSimplified ? 'Optimized' : 'Current'} ad system');
   }
 
   /// Clear A/B test configuration (falls back to feature flag)
@@ -48,7 +49,7 @@ class AdServiceAdapter {
   /// Get the current ad system name for logging/debugging
   String get currentSystemName {
     return _shouldUseSimplifiedSystem
-        ? 'SimplifiedRoomAds'
+        ? 'OptimizedRoomAds'
         : 'RoomTransitionAds';
   }
 
@@ -57,6 +58,7 @@ class AdServiceAdapter {
   /// Initialize the appropriate ad system
   void initialize() {
     debugPrint('AdServiceAdapter: Initializing $currentSystemName');
+    debugPrint('Configuration: ${OptimizedAdConfig.getConfigDescription()}');
 
     if (_shouldUseSimplifiedSystem) {
       SimplifiedRoomAds.instance.initialize();
@@ -398,9 +400,8 @@ class AdServiceAdapter {
   Map<String, dynamic> getSystemConfiguration() {
     if (_shouldUseSimplifiedSystem) {
       return {
-        'system': 'SimplifiedRoomAds',
-        'configuration':
-            SimplifiedRoomAds.instance.getSessionStats()['configuration'],
+        'system': 'OptimizedRoomAds',
+        'configuration': OptimizedAdConfig.getConfigSummary(),
       };
     } else {
       return {
@@ -421,6 +422,88 @@ class AdServiceAdapter {
     debugPrint('A/B Test Override: $_abTestUseSimplified');
     debugPrint('Effective Choice: $_shouldUseSimplifiedSystem');
     debugPrint('Session Stats: ${getSessionStats()}');
+    if (_shouldUseSimplifiedSystem) {
+      debugPrint('Optimized Config: ${OptimizedAdConfig.getConfigDescription()}');
+    }
     debugPrint('=====================================');
+  }
+
+  /// Enable optimized ad system for this user
+  static void enableOptimizedSystem() {
+    setABTestConfiguration(true);
+    debugPrint('AdServiceAdapter: Optimized ad system enabled');
+  }
+
+  /// Disable optimized ad system (fallback to current)
+  static void disableOptimizedSystem() {
+    setABTestConfiguration(false);
+    debugPrint('AdServiceAdapter: Reverted to current ad system');
+  }
+
+  /// Get current configuration details
+  Map<String, dynamic> getCurrentConfiguration() {
+    if (_shouldUseSimplifiedSystem) {
+      return {
+        'system': 'OptimizedRoomAds',
+        'unlimited_sessions': !OptimizedAdConfig.enforceSessionLimits,
+        'progressive_timing': OptimizedAdConfig.useProgressiveTiming,
+        'engagement_aware': true,
+        'configuration': OptimizedAdConfig.getConfigSummary(),
+      };
+    } else {
+      return {
+        'system': 'RoomTransitionAds',
+        'session_limited': true,
+        'progressive_timing': false,
+        'engagement_aware': false,
+        'configuration': 'Legacy hardcoded configuration',
+      };
+    }
+  }
+
+  /// Get migration status and recommendations
+  Map<String, dynamic> getMigrationStatus() {
+    final currentConfig = getCurrentConfiguration();
+    final stats = getSessionStats();
+
+    return {
+      'migration_complete': _shouldUseSimplifiedSystem,
+      'system_in_use': currentSystemName,
+      'unlimited_revenue': currentConfig['unlimited_sessions'] ?? false,
+      'engagement_optimization': currentConfig['engagement_aware'] ?? false,
+      'current_session_performance': {
+        'ads_shown': stats['adsShownThisSession'],
+        'transitions': stats['roomTransitions'],
+        'session_duration_minutes': stats['sessionDurationMinutes'],
+        'engagement_level': stats['userEngagementLevel'] ?? 'unknown',
+      },
+      'recommendations': _getMigrationRecommendations(),
+    };
+  }
+
+  List<String> _getMigrationRecommendations() {
+    List<String> recommendations = [];
+
+    if (!_shouldUseSimplifiedSystem) {
+      recommendations.add('Enable optimized ad system to increase revenue potential');
+      recommendations.add('Remove session limits for unlimited revenue from engaged users');
+      recommendations.add('Use engagement-based timing for better user experience');
+    } else {
+      final stats = getSessionStats();
+      final sessionMinutes = stats['sessionDurationMinutes'] as int;
+      final adsShown = stats['adsShownThisSession'] as int;
+
+      if (sessionMinutes > 15 && adsShown > 0) {
+        recommendations.add('User is highly engaged - unlimited revenue potential active');
+      }
+
+      if (sessionMinutes > 5) {
+        recommendations.add('User reached engaged status - faster ad timing active');
+      }
+
+      recommendations.add('Optimized system active - monitor user experience metrics');
+    }
+
+    return recommendations;
   }
 }

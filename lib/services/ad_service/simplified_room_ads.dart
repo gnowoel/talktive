@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../config/ad_config.dart';
 import 'admob_compliance.dart';
-import 'simplified_ad_config.dart';
+import 'optimized_ad_config.dart';
 
 /// Simplified Room Transition Ads Service
 ///
 /// This service manages interstitial ads between room transitions with:
-/// - Increased ad frequency for better monetization
-/// - Simplified logic for more predictable ad showing
-/// - Maintained user experience and compliance
+/// - Unlimited sessions for maximum revenue potential
+/// - Engagement-based timing for better user experience
+/// - Intelligent preloading for low request-to-impression ratio
+/// - Maintained compliance and user experience
 class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   static SimplifiedRoomAds? _instance;
   static SimplifiedRoomAds get instance => _instance ??= SimplifiedRoomAds._();
@@ -30,20 +31,22 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
 
   // === LIFECYCLE STATE ===
   DateTime? _lastBackgroundTime;
-  DateTime? _lastSessionReset;
-  AppLifecycleState _currentLifecycleState = AppLifecycleState.resumed;
 
-  // === QUICK NAVIGATION TRACKING ===
+  // === NAVIGATION TRACKING ===
   DateTime? _lastNavigationTime;
   int _consecutiveQuickNavigations = 0;
+  List<DateTime> _recentNavigations = [];
 
   // === GETTERS ===
   bool get isAdReady => _isAdReady;
   int get roomTransitions => _roomTransitions;
   int get adsShownThisSession => _adsShownThisSession;
-  bool get hasSessionLimit => SimplifiedAdConfig.shouldEnforceSessionLimits();
-  int? get maxAdsPerSession =>
-      SimplifiedAdConfig.getEffectiveMaxAdsPerSession();
+  bool get hasSessionLimit => OptimizedAdConfig.enforceSessionLimits;
+  int? get maxAdsPerSession => OptimizedAdConfig.maxAdsPerSession;
+  String get userEngagementLevel =>
+      OptimizedAdConfig.getUserEngagementLevel(_sessionStart != null
+          ? DateTime.now().difference(_sessionStart!)
+          : Duration.zero);
 
   /// Initialize the simplified ad service
   void initialize() {
@@ -52,6 +55,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     _adsShownThisSession = 0;
     _lastAdShown = null;
     _consecutiveQuickNavigations = 0;
+    _recentNavigations.clear();
 
     // Register lifecycle observer
     WidgetsBinding.instance.addObserver(this);
@@ -59,18 +63,18 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     // Initialize compliance system
     AdMobCompliance.initialize();
 
-    if (SimplifiedAdConfig.verboseLogging) {
+    if (OptimizedAdConfig.verboseLogging) {
       _logSessionStart();
     }
 
     // Validate configuration
-    if (!SimplifiedAdConfig.validateConfig()) {
-      debugPrint('ERROR: Invalid SimplifiedAdConfig detected');
+    if (!OptimizedAdConfig.validateConfig()) {
+      debugPrint('ERROR: Invalid OptimizedAdConfig detected');
     }
 
-    // Start aggressive ad loading
-    Future.delayed(SimplifiedAdConfig.initialAdLoadDelay, () {
-      if (_shouldLoadAd()) {
+    // Start intelligent ad loading
+    Future.delayed(OptimizedAdConfig.initialAdLoadDelay, () {
+      if (_shouldPreloadAd()) {
         _preloadInterstitialAd();
       }
     });
@@ -79,8 +83,8 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _logSessionStart() {
-    debugPrint('=== SimplifiedRoomAds: Session Started ===');
-    debugPrint('Configuration: ${SimplifiedAdConfig.getConfigDescription()}');
+    debugPrint('=== OptimizedRoomAds: Session Started ===');
+    debugPrint('Configuration: ${OptimizedAdConfig.getConfigDescription()}');
     debugPrint('App ID: ${AdConfig.appId}');
     debugPrint('Interstitial Ad Unit: ${AdConfig.interstitialAdUnitId}');
     debugPrint('Debug Mode: $kDebugMode');
@@ -90,17 +94,18 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     debugPrint('=======================================');
   }
 
-  /// Track room transition with simplified logic
+  /// Track room transition with optimized logic
   void trackRoomTransition() {
     _roomTransitions++;
     _updateNavigationTracking();
 
-    if (SimplifiedAdConfig.verboseLogging) {
-      debugPrint('Room transition tracked: $_roomTransitions total');
+    if (OptimizedAdConfig.verboseLogging) {
+      debugPrint(
+          'Room transition tracked: $_roomTransitions total (engagement: $userEngagementLevel)');
     }
 
-    // Aggressive ad preloading if not ready
-    if (!_isAdReady && !_isLoading && _shouldLoadAd()) {
+    // Intelligent ad preloading if not ready
+    if (_shouldPreloadAd()) {
       _preloadInterstitialAd();
     }
 
@@ -110,11 +115,18 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   void _updateNavigationTracking() {
     final now = DateTime.now();
 
+    // Add to recent navigations list
+    _recentNavigations.add(now);
+
+    // Clean up old navigations (keep only last 5 minutes)
+    _recentNavigations.removeWhere((navTime) =>
+        now.difference(navTime) > OptimizedAdConfig.navigationAnalysisWindow);
+
     if (_lastNavigationTime != null) {
       final timeSinceLastNav = now.difference(_lastNavigationTime!);
 
-      // Count as quick navigation if within 10 seconds
-      if (timeSinceLastNav.inSeconds < 10) {
+      // Count as quick navigation if within quick window
+      if (timeSinceLastNav < OptimizedAdConfig.quickNavigationWindow) {
         _consecutiveQuickNavigations++;
       } else {
         _consecutiveQuickNavigations = 0;
@@ -124,10 +136,10 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     _lastNavigationTime = now;
   }
 
-  /// Simplified ad show decision logic
+  /// Optimized ad show decision logic with engagement-based timing
   bool shouldShowAdNow() {
-    if (SimplifiedAdConfig.verboseLogging) {
-      debugPrint('=== Ad Show Decision Check ===');
+    if (OptimizedAdConfig.verboseLogging) {
+      debugPrint('=== Ad Show Decision Check (${userEngagementLevel}) ===');
     }
 
     // 1. Compliance check (always required)
@@ -148,9 +160,10 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       return false;
     }
 
-    // 4. Session limit check (if enabled)
-    if (SimplifiedAdConfig.shouldEnforceSessionLimits()) {
-      final maxAds = SimplifiedAdConfig.getEffectiveMaxAdsPerSession()!;
+    // 4. Session limit check (if enabled - should be disabled for unlimited)
+    if (OptimizedAdConfig.enforceSessionLimits &&
+        OptimizedAdConfig.maxAdsPerSession != null) {
+      final maxAds = OptimizedAdConfig.maxAdsPerSession!;
       if (_adsShownThisSession >= maxAds) {
         _logDecision('❌ Session limit reached ($_adsShownThisSession/$maxAds)');
         return false;
@@ -159,36 +172,45 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
 
     // 5. Session age check
     final sessionAge = DateTime.now().difference(_sessionStart!);
-    if (sessionAge < SimplifiedAdConfig.minSessionTimeBeforeFirstAd) {
+    if (sessionAge < OptimizedAdConfig.minSessionTimeBeforeFirstAd) {
       _logDecision(
-          '❌ Session too young (${sessionAge.inSeconds}s < ${SimplifiedAdConfig.minSessionTimeBeforeFirstAd.inSeconds}s)');
+          '❌ Session too young (${sessionAge.inSeconds}s < ${OptimizedAdConfig.minSessionTimeBeforeFirstAd.inSeconds}s)');
       return false;
     }
 
-    // 6. Time between ads check
+    // 6. Engagement-based time between ads check
     if (_lastAdShown != null) {
       final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
-      if (timeSinceLastAd < SimplifiedAdConfig.minTimeBetweenAds) {
+      final requiredInterval =
+          OptimizedAdConfig.getTimingForEngagement(sessionAge);
+      if (timeSinceLastAd < requiredInterval) {
         _logDecision(
-            '❌ Too soon since last ad (${timeSinceLastAd.inSeconds}s < ${SimplifiedAdConfig.minTimeBetweenAds.inSeconds}s)');
+            '❌ Too soon since last ad (${timeSinceLastAd.inSeconds}s < ${requiredInterval.inSeconds}s for $userEngagementLevel user)');
         return false;
       }
     }
 
-    // 7. Transition requirement check
-    final requiredTransitions =
-        SimplifiedAdConfig.getTransitionsForNextAd(_adsShownThisSession);
+    // 7. Transition requirement check (behavior-aware)
+    final requiredTransitions = OptimizedAdConfig.getTransitionsRequired(
+        _consecutiveQuickNavigations, _adsShownThisSession == 0);
     if (_roomTransitions < requiredTransitions) {
       _logDecision(
-          '❌ Need ${requiredTransitions - _roomTransitions} more transitions');
+          '❌ Need ${requiredTransitions - _roomTransitions} more transitions (quick navs: $_consecutiveQuickNavigations)');
       return false;
     }
 
-    // 8. Quick navigation spam check (simplified)
+    // 8. User activity and spam protection checks
     if (_consecutiveQuickNavigations >
-        SimplifiedAdConfig.maxConsecutiveQuickNavs) {
+        OptimizedAdConfig.maxConsecutiveQuickNavs) {
       _logDecision(
           '❌ Too many quick navigations ($_consecutiveQuickNavigations)');
+      return false;
+    }
+
+    // 9. User engagement check
+    if (!OptimizedAdConfig.isUserActive(
+        _lastNavigationTime, _recentNavigations.length)) {
+      _logDecision('❌ User not sufficiently active');
       return false;
     }
 
@@ -197,7 +219,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _logDecision(String message) {
-    if (SimplifiedAdConfig.verboseLogging) {
+    if (OptimizedAdConfig.verboseLogging) {
       debugPrint(message);
     }
   }
@@ -228,14 +250,14 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       _interstitialAd = null;
       _isAdReady = false;
 
-      if (SimplifiedAdConfig.verboseLogging) {
+      if (OptimizedAdConfig.verboseLogging) {
         debugPrint(
-            '✅ Ad shown successfully! Session: $_adsShownThisSession/${maxAdsPerSession ?? "unlimited"}');
+            '✅ Ad shown successfully! Session: $_adsShownThisSession/${maxAdsPerSession ?? "unlimited"} (${userEngagementLevel})');
       }
 
-      // Aggressively preload next ad
-      Future.delayed(SimplifiedAdConfig.nextAdLoadDelay, () {
-        if (_shouldLoadAd()) {
+      // Intelligently preload next ad
+      Future.delayed(OptimizedAdConfig.nextAdLoadDelay, () {
+        if (_shouldPreloadAd()) {
           _preloadInterstitialAd();
         }
       });
@@ -258,8 +280,9 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final adUnitId = _getAdUnitId();
 
-      if (SimplifiedAdConfig.verboseLogging) {
-        debugPrint('Loading ad with unit ID: $adUnitId');
+      if (OptimizedAdConfig.verboseLogging) {
+        debugPrint(
+            'Loading ad with unit ID: $adUnitId (engagement: $userEngagementLevel)');
       }
 
       await InterstitialAd.load(
@@ -271,7 +294,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
             _isAdReady = true;
             _isLoading = false;
 
-            if (SimplifiedAdConfig.verboseLogging) {
+            if (OptimizedAdConfig.verboseLogging) {
               debugPrint('✅ Ad loaded successfully');
             }
 
@@ -283,9 +306,9 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
             _isAdReady = false;
             _isLoading = false;
 
-            // Quick retry on failure
-            Future.delayed(SimplifiedAdConfig.adLoadRetryDelay, () {
-              if (!_isAdReady && !_isLoading && _shouldLoadAd()) {
+            // Intelligent retry on failure
+            Future.delayed(OptimizedAdConfig.adLoadRetryDelay, () {
+              if (_shouldPreloadAd()) {
                 _preloadInterstitialAd();
               }
             });
@@ -301,28 +324,21 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Simplified ad loading decision
-  bool _shouldLoadAd() {
-    // Don't load if no session
+  /// Intelligent ad preloading decision
+  bool _shouldPreloadAd() {
+    // Don't preload if no session
     if (_sessionStart == null) return false;
 
-    // Don't load if at session limit
-    if (SimplifiedAdConfig.shouldEnforceSessionLimits()) {
-      final maxAds = SimplifiedAdConfig.getEffectiveMaxAdsPerSession()!;
-      if (_adsShownThisSession >= maxAds) return false;
-    }
-
-    // Don't load if session too young
     final sessionAge = DateTime.now().difference(_sessionStart!);
-    if (sessionAge.inSeconds < 15) return false;
 
-    // Don't load if too soon after last ad
-    if (_lastAdShown != null) {
-      final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
-      if (timeSinceLastAd.inSeconds < 45) return false;
-    }
-
-    return true;
+    // Use optimized preloading logic
+    return OptimizedAdConfig.shouldPreloadAd(
+      isAdReady: _isAdReady,
+      isLoading: _isLoading,
+      lastNavigation: _lastNavigationTime,
+      recentNavigations: _recentNavigations.length,
+      sessionDuration: sessionAge,
+    );
   }
 
   /// Get appropriate ad unit ID using compliance system
@@ -337,8 +353,6 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   /// Handle app lifecycle changes
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _currentLifecycleState = state;
-
     if (state == AppLifecycleState.paused) {
       _lastBackgroundTime = DateTime.now();
     } else if (state == AppLifecycleState.resumed &&
@@ -350,43 +364,39 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   void _handleAppResumed() {
     final backgroundDuration = DateTime.now().difference(_lastBackgroundTime!);
 
-    if (SimplifiedAdConfig.verboseLogging) {
+    if (OptimizedAdConfig.verboseLogging) {
       debugPrint('App resumed after ${backgroundDuration.inMinutes} minutes');
     }
 
-    // Reset session if in background long enough
-    if (backgroundDuration >=
-        SimplifiedAdConfig.backgroundTimeForSessionReset) {
-      _maybeResetSession();
+    // Soft reset session if in background long enough
+    if (backgroundDuration >= OptimizedAdConfig.backgroundTimeForSoftReset) {
+      _maybeSoftResetSession();
     }
 
-    // Load ad if needed
-    if (SimplifiedAdConfig.allowAdsOnAppResume &&
-        !_isAdReady &&
-        !_isLoading &&
-        _shouldLoadAd()) {
-      Future.delayed(const Duration(seconds: 5), () {
+    // Load ad if needed, but respect resume delay
+    Future.delayed(OptimizedAdConfig.noAdsAfterResumeDelay, () {
+      if (_shouldPreloadAd()) {
         _preloadInterstitialAd();
-      });
-    }
+      }
+    });
   }
 
-  void _maybeResetSession() {
-    // Check if enough time has passed since last reset
-    if (_lastSessionReset != null) {
-      final timeSinceReset = DateTime.now().difference(_lastSessionReset!);
-      if (timeSinceReset < SimplifiedAdConfig.minTimeBetweenSessionResets) {
-        return;
-      }
-    }
-
-    if (SimplifiedAdConfig.verboseLogging) {
+  void _maybeSoftResetSession() {
+    if (OptimizedAdConfig.verboseLogging) {
       debugPrint(
-          'Resetting session: ads $_adsShownThisSession -> 0, transitions $_roomTransitions -> 0');
+          'Soft resetting session: keeping engagement level, resetting counters');
     }
 
-    resetSession();
-    _lastSessionReset = DateTime.now();
+    // Soft reset - keep session start time but reset counters
+    // This maintains engagement level while giving fresh ad opportunities
+    _roomTransitions = 0;
+    _consecutiveQuickNavigations = 0;
+    _recentNavigations.clear();
+
+    // Don't reset _adsShownThisSession since we have no session limits
+    // Don't reset _sessionStart to maintain engagement tracking
+
+    notifyListeners();
   }
 
   /// Reset session state
@@ -396,6 +406,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     _adsShownThisSession = 0;
     _lastAdShown = null;
     _consecutiveQuickNavigations = 0;
+    _recentNavigations.clear();
 
     notifyListeners();
   }
@@ -442,7 +453,9 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       'timeSinceLastAdMinutes': timeSinceLastAd,
       'consecutiveQuickNavs': _consecutiveQuickNavigations,
       'canShowAdNow': shouldShowAdNow(),
-      'configuration': SimplifiedAdConfig.getConfigSummary(),
+      'userEngagementLevel': userEngagementLevel,
+      'recentNavigationsCount': _recentNavigations.length,
+      'configuration': OptimizedAdConfig.getConfigSummary(),
     };
   }
 
@@ -471,8 +484,9 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       return 'Ready to show ad';
     }
 
-    if (SimplifiedAdConfig.shouldEnforceSessionLimits()) {
-      final maxAds = SimplifiedAdConfig.getEffectiveMaxAdsPerSession()!;
+    if (OptimizedAdConfig.enforceSessionLimits &&
+        OptimizedAdConfig.maxAdsPerSession != null) {
+      final maxAds = OptimizedAdConfig.maxAdsPerSession!;
       if (_adsShownThisSession >= maxAds) {
         return 'Session limit reached ($maxAds ads)';
       }
@@ -480,11 +494,14 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
 
     if (_lastAdShown != null) {
       final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
-      final remaining = SimplifiedAdConfig.minTimeBetweenAds - timeSinceLastAd;
+      final sessionAge = DateTime.now().difference(_sessionStart!);
+      final requiredInterval =
+          OptimizedAdConfig.getTimingForEngagement(sessionAge);
+      final remaining = requiredInterval - timeSinceLastAd;
       if (remaining.isNegative) {
-        return 'Ready (time condition met)';
+        return 'Ready (time condition met for $userEngagementLevel)';
       } else {
-        return 'Wait ${remaining.inSeconds}s before next ad';
+        return 'Wait ${remaining.inSeconds}s before next ad ($userEngagementLevel)';
       }
     }
 
@@ -509,6 +526,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     return 'Session: ${sessionAge.inMinutes}min, '
         'Last ad: ${timeSinceLastAd?.inMinutes ?? "never"}min ago, '
         'Transitions: $_roomTransitions, '
-        'Ads shown: $_adsShownThisSession';
+        'Ads shown: $_adsShownThisSession, '
+        'Engagement: $userEngagementLevel';
   }
 }

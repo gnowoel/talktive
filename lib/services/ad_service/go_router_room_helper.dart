@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'room_transition_ads.dart';
+
+import 'ad_service_adapter.dart';
 import 'admob_compliance.dart';
 import '../../helpers/routes.dart';
 
@@ -16,7 +16,7 @@ import '../../helpers/routes.dart';
 /// await GoRouterRoomHelper.goToTopic(context, topicId);
 /// ```
 class GoRouterRoomHelper {
-  static final RoomTransitionAds _adManager = RoomTransitionAds.instance;
+  static final AdServiceAdapter _adManager = AdServiceAdapter.instance;
 
   /// Navigate to a chat room with potential ad display
   /// Uses context.go() for tab-level navigation
@@ -75,7 +75,7 @@ class GoRouterRoomHelper {
         'Room transition tracked. Destination: $destination');
 
     // Validate compliance before attempting to show ads
-    final isCompliant = _adManager.validateAndLogCompliance();
+    final isCompliant = _adManager.validateCompliance();
     if (!isCompliant) {
       AdMobCompliance.safeLog(
           'Compliance validation failed - skipping ad display',
@@ -191,14 +191,15 @@ class GoRouterRoomHelper {
 
   /// Validate compliance for room transition ads
   static bool validateCompliance() {
-    return _adManager.validateAndLogCompliance();
+    return _adManager.validateCompliance();
   }
 
   /// Force show an ad immediately (for testing purposes only)
   /// Bypasses all timing and engagement restrictions
   static Future<bool> forceShowAdForTesting() async {
-    AdMobCompliance.safeLog('🔧 Force show ad triggered from navigation helper');
-    return await _adManager.forceShowAd();
+    AdMobCompliance.safeLog(
+        '🔧 Force show ad triggered from navigation helper');
+    return await _adManager.forceShowAdForTesting();
   }
 
   /// Get detailed ad timing information for debugging
@@ -211,11 +212,9 @@ class GoRouterRoomHelper {
       'shouldShowNow': _adManager.shouldShowAdNow(),
       'timingMessage': _adManager.getTimingMessage(),
       'complianceStatus': _adManager.getComplianceStatus(),
-      'nextAdOpportunity': stats['nextAdOpportunity'],
-      'optimalAdMoment': stats['isOptimalAdMoment'],
-      'userInGoodState': stats['isUserInGoodStateForAds'],
-      'engagementLevel': stats['engagementLevel'],
-      'engagementScore': stats['sessionEngagementScore'],
+      'statusMessage': _adManager.getStatusMessage(),
+      'userEngagementLevel': stats['userEngagementLevel'] ?? 'unknown',
+      'systemInUse': _adManager.currentSystemName,
     };
   }
 
@@ -226,22 +225,23 @@ class GoRouterRoomHelper {
     final shouldShow = _adManager.shouldShowAdNow();
     final transitions = stats['roomTransitions'] ?? 0;
     final adsShown = stats['adsShownThisSession'] ?? 0;
-    final maxAds = stats['maxAdsPerSession'] ?? 5;
+    final maxAds = stats['maxAdsPerSession'] ?? 'unlimited';
     final sessionMins = stats['sessionDurationMinutes'] ?? 0;
+    final engagement = stats['userEngagementLevel'] ?? 'unknown';
 
     String status = shouldShow ? '🟢 READY' : '🔴 NOT READY';
 
     return '$status | Ad: ${isReady ? 'Loaded' : 'Loading'} | '
-           'Session: ${sessionMins}min | Transitions: $transitions | '
-           'Ads: $adsShown/$maxAds | ${stats['nextAdOpportunity']}';
+        'Session: ${sessionMins}min ($engagement) | Transitions: $transitions | '
+        'Ads: $adsShown/$maxAds | ${_adManager.getStatusMessage()}';
   }
 
   /// Intelligently schedule ad preloading based on user behavior
   static void _scheduleIntelligentAdPreload(bool adWasJustShown) {
     // If an ad was just shown, wait shorter before preloading the next one
-    final delayMinutes = adWasJustShown ? 2 : 1;
+    final delaySeconds = adWasJustShown ? 30 : 15;
 
-    Future.delayed(Duration(minutes: delayMinutes), () {
+    Future.delayed(Duration(seconds: delaySeconds), () {
       // More permissive conditions for better ad visibility
       final stats = _adManager.getSessionStats();
       final sessionDurationMinutes =
@@ -251,15 +251,10 @@ class GoRouterRoomHelper {
       // Preload if user shows any activity (more permissive)
       if (sessionDurationMinutes > 1 && roomTransitions > 0) {
         // Check if we should preload based on current ad readiness
-        if (!_adManager.isAdReady && _adManager.validateAndLogCompliance()) {
+        if (!_adManager.isAdReady && _adManager.validateCompliance()) {
           AdMobCompliance.safeLog(
               'Intelligently preloading ad after navigation');
-          _adManager.preloadIfAppropriate();
-        }
-      } else {
-        // For users showing high engagement, try aggressive preloading
-        if (!_adManager.isAdReady && _adManager.validateAndLogCompliance()) {
-          _adManager.enableAggressivePreloadingIfEngaged();
+          _adManager.preloadAd();
         }
       }
     });
@@ -382,8 +377,8 @@ class RoomAdDebugInfo extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(success
-                          ? 'Ad force shown successfully!'
-                          : 'Failed to show ad - check logs'),
+                            ? 'Ad force shown successfully!'
+                            : 'Failed to show ad - check logs'),
                         backgroundColor: success ? Colors.green : Colors.red,
                         duration: Duration(seconds: 2),
                       ),
@@ -427,8 +422,9 @@ class RoomAdDebugInfo extends StatelessWidget {
           const SizedBox(height: 4),
 
           // Session Statistics
-          Consumer<RoomTransitionAds>(
-            builder: (context, adManager, child) {
+          Builder(
+            builder: (context) {
+              final adManager = AdServiceAdapter.instance;
               final stats = adManager.getSessionStats();
               final shouldShow = adManager.shouldShowAdNow();
               return Column(
@@ -438,7 +434,9 @@ class RoomAdDebugInfo extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: shouldShow ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+                      color: shouldShow
+                          ? Colors.green.withOpacity(0.3)
+                          : Colors.red.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -462,7 +460,8 @@ class RoomAdDebugInfo extends StatelessWidget {
                         Text(
                           'Ready: ${adManager.isAdReady}',
                           style: TextStyle(
-                            color: adManager.isAdReady ? Colors.green : Colors.red,
+                            color:
+                                adManager.isAdReady ? Colors.green : Colors.red,
                             fontSize: 10,
                           ),
                         ),

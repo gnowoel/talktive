@@ -8,7 +8,7 @@ import '../services/firestore.dart';
 import '../services/messaging.dart';
 import '../services/service_locator.dart';
 import '../services/storage.dart';
-import '../services/ad_service/room_transition_ads.dart';
+import '../services/ad_service/simplified_room_ads.dart';
 
 class Providers extends StatelessWidget {
   final Widget child;
@@ -37,7 +37,7 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Avatar()),
 
         // Room transition ads - simplified approach
-        ChangeNotifierProvider.value(value: RoomTransitionAds.instance),
+        ChangeNotifierProvider.value(value: SimplifiedRoomAds.instance),
       ],
       child: child,
     );

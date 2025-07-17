@@ -442,6 +442,54 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
         ? DateTime.now().difference(_lastAdShown!).inMinutes
         : null;
 
+    // Calculate additional metrics for compatibility
+    final isUserInGoodState = OptimizedAdConfig.isUserActive(
+        _lastNavigationTime, _recentNavigations.length);
+    final canShowAd = shouldShowAdNow();
+    final sessionAge = _sessionStart != null
+        ? DateTime.now().difference(_sessionStart!)
+        : Duration.zero;
+
+    // Calculate time until next ad eligible
+    int? timeUntilNextAdEligible;
+    if (_lastAdShown != null) {
+      final requiredInterval =
+          OptimizedAdConfig.getTimingForEngagement(sessionAge);
+      final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
+      final remaining = requiredInterval - timeSinceLastAd;
+      if (!remaining.isNegative) {
+        timeUntilNextAdEligible = remaining.inMinutes;
+      }
+    }
+
+    // Calculate engagement score (0-100)
+    int sessionEngagementScore = 0;
+    if (sessionDuration > 0) {
+      sessionEngagementScore = (sessionDuration * 10).clamp(0, 100);
+      if (_recentNavigations.length > 3) sessionEngagementScore += 20;
+      if (_consecutiveQuickNavigations < 3) sessionEngagementScore += 10;
+    }
+
+    // Determine next ad opportunity
+    String nextAdOpportunity = 'Ready now';
+    if (!canShowAd) {
+      if (!_isAdReady) {
+        nextAdOpportunity = 'Loading ad...';
+      } else if (timeUntilNextAdEligible != null &&
+          timeUntilNextAdEligible > 0) {
+        nextAdOpportunity = '${timeUntilNextAdEligible}min';
+      } else if (_roomTransitions <
+          OptimizedAdConfig.getTransitionsRequired(
+              _consecutiveQuickNavigations, _adsShownThisSession == 0)) {
+        final needed = OptimizedAdConfig.getTransitionsRequired(
+                _consecutiveQuickNavigations, _adsShownThisSession == 0) -
+            _roomTransitions;
+        nextAdOpportunity = '$needed more transitions';
+      } else {
+        nextAdOpportunity = 'Soon';
+      }
+    }
+
     return {
       'sessionDurationMinutes': sessionDuration,
       'roomTransitions': _roomTransitions,
@@ -452,10 +500,17 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       'isLoading': _isLoading,
       'timeSinceLastAdMinutes': timeSinceLastAd,
       'consecutiveQuickNavs': _consecutiveQuickNavigations,
-      'canShowAdNow': shouldShowAdNow(),
+      'canShowAdNow': canShowAd,
       'userEngagementLevel': userEngagementLevel,
       'recentNavigationsCount': _recentNavigations.length,
       'configuration': OptimizedAdConfig.getConfigSummary(),
+      // Additional fields for test page compatibility
+      'isUserInGoodStateForAds': isUserInGoodState,
+      'isOptimalAdMoment': canShowAd && _isAdReady,
+      'engagementLevel': userEngagementLevel,
+      'sessionEngagementScore': sessionEngagementScore,
+      'nextAdOpportunity': nextAdOpportunity,
+      'timeUntilNextAdEligible': timeUntilNextAdEligible,
     };
   }
 

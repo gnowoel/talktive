@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/ad_service/admob_compliance.dart';
-import '../services/ad_service/room_transition_ads.dart';
+import '../services/ad_service/ad_service_adapter.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
 import '../services/report_cache.dart';
@@ -132,8 +132,8 @@ class _InitializeState extends State<Initialize> {
     try {
       unawaited(MobileAds.instance.initialize());
 
-      // Initialize simple room transition ads
-      RoomTransitionAds.instance.initialize();
+      // Initialize ad service adapter
+      AdServiceAdapter.instance.initialize();
 
       // Initialize AdMob compliance system
       AdMobCompliance.initialize();

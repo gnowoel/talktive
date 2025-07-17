@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/ad_service/room_transition_ads.dart';
+import '../services/ad_service/simplified_room_ads.dart';
 import '../services/ad_service/go_router_room_helper.dart';
 import '../services/ad_service/admob_compliance.dart';
 
@@ -12,7 +12,7 @@ class AdTestPage extends StatefulWidget {
 }
 
 class _AdTestPageState extends State<AdTestPage> {
-  final RoomTransitionAds _adManager = RoomTransitionAds.instance;
+  final SimplifiedRoomAds _adManager = SimplifiedRoomAds.instance;
   String _lastActionResult = '';
   bool _isLoading = false;
 
@@ -36,11 +36,13 @@ class _AdTestPageState extends State<AdTestPage> {
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: _lastActionResult.contains('SUCCESS') || _lastActionResult.contains('✅')
+                  color: _lastActionResult.contains('SUCCESS') ||
+                          _lastActionResult.contains('✅')
                       ? Colors.green.withOpacity(0.2)
                       : Colors.orange.withOpacity(0.2),
                   border: Border.all(
-                    color: _lastActionResult.contains('SUCCESS') || _lastActionResult.contains('✅')
+                    color: _lastActionResult.contains('SUCCESS') ||
+                            _lastActionResult.contains('✅')
                         ? Colors.green
                         : Colors.orange,
                   ),
@@ -49,7 +51,8 @@ class _AdTestPageState extends State<AdTestPage> {
                 child: Text(
                   _lastActionResult,
                   style: TextStyle(
-                    color: _lastActionResult.contains('SUCCESS') || _lastActionResult.contains('✅')
+                    color: _lastActionResult.contains('SUCCESS') ||
+                            _lastActionResult.contains('✅')
                         ? Colors.green[800]
                         : Colors.orange[800],
                     fontWeight: FontWeight.bold,
@@ -67,8 +70,8 @@ class _AdTestPageState extends State<AdTestPage> {
                     Text(
                       'Quick Actions',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -94,7 +97,8 @@ class _AdTestPageState extends State<AdTestPage> {
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _simulateRoomTransition,
+                          onPressed:
+                              _isLoading ? null : _simulateRoomTransition,
                           icon: const Icon(Icons.navigation),
                           label: const Text('Simulate Room Transition'),
                           style: ElevatedButton.styleFrom(
@@ -121,7 +125,7 @@ class _AdTestPageState extends State<AdTestPage> {
             const SizedBox(height: 16),
 
             // Current Status
-            Consumer<RoomTransitionAds>(
+            Consumer<SimplifiedRoomAds>(
               builder: (context, adManager, child) {
                 final stats = adManager.getSessionStats();
                 final shouldShow = adManager.shouldShowAdNow();
@@ -134,9 +138,10 @@ class _AdTestPageState extends State<AdTestPage> {
                       children: [
                         Text(
                           'Current Status',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 12),
 
@@ -144,7 +149,9 @@ class _AdTestPageState extends State<AdTestPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: shouldShow ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                            color: shouldShow
+                                ? Colors.green.withOpacity(0.1)
+                                : Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: shouldShow ? Colors.green : Colors.red,
@@ -159,10 +166,14 @@ class _AdTestPageState extends State<AdTestPage> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  shouldShow ? 'AD READY TO SHOW' : 'AD NOT READY',
+                                  shouldShow
+                                      ? 'AD READY TO SHOW'
+                                      : 'AD NOT READY',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: shouldShow ? Colors.green[800] : Colors.red[800],
+                                    color: shouldShow
+                                        ? Colors.green[800]
+                                        : Colors.red[800],
                                   ),
                                 ),
                               ),
@@ -174,21 +185,31 @@ class _AdTestPageState extends State<AdTestPage> {
 
                         // Status Details
                         _buildStatusRow('Ad Loaded', adManager.isAdReady),
-                        _buildStatusRow('Session Started', stats['sessionDurationMinutes'] > 0),
-                        _buildStatusRow('Enough Transitions', _hasEnoughTransitions(stats)),
-                        _buildStatusRow('Time Requirements Met', _timeRequirementsMet(stats)),
-                        _buildStatusRow('Good User State', stats['isUserInGoodStateForAds'] ?? false),
-                        _buildStatusRow('Optimal Moment', stats['isOptimalAdMoment'] ?? false),
-                        _buildStatusRow('Compliance OK', GoRouterRoomHelper.validateCompliance()),
+                        _buildStatusRow('Session Started',
+                            stats['sessionDurationMinutes'] > 0),
+                        _buildStatusRow(
+                            'Enough Transitions', _hasEnoughTransitions(stats)),
+                        _buildStatusRow('Time Requirements Met',
+                            _timeRequirementsMet(stats)),
+                        _buildStatusRow('Good User State',
+                            stats['isUserInGoodStateForAds'] ?? false),
+                        _buildStatusRow('Optimal Moment',
+                            stats['isOptimalAdMoment'] ?? false),
+                        _buildStatusRow('Compliance OK',
+                            GoRouterRoomHelper.validateCompliance()),
 
                         const SizedBox(height: 12),
 
                         // Key Metrics
-                        Text('Key Metrics:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Key Metrics:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                         Text('Room Transitions: ${stats['roomTransitions']}'),
-                        Text('Ads Shown: ${stats['adsShownThisSession']}/${stats['maxAdsPerSession']}'),
-                        Text('Session Duration: ${stats['sessionDurationMinutes']} minutes'),
-                        Text('Engagement: ${stats['engagementLevel']} (${stats['sessionEngagementScore']}/100)'),
+                        Text(
+                            'Ads Shown: ${stats['adsShownThisSession']}/${stats['maxAdsPerSession']}'),
+                        Text(
+                            'Session Duration: ${stats['sessionDurationMinutes']} minutes'),
+                        Text(
+                            'Engagement: ${stats['engagementLevel']} (${stats['sessionEngagementScore']}/100)'),
                         Text('Next Opportunity: ${stats['nextAdOpportunity']}'),
                       ],
                     ),
@@ -209,8 +230,8 @@ class _AdTestPageState extends State<AdTestPage> {
                     Text(
                       'AdMob Compliance',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Text('Admin User: ${AdMobCompliance.isCurrentUserAdmin}'),
@@ -248,8 +269,8 @@ class _AdTestPageState extends State<AdTestPage> {
                     Text(
                       'Test Room Transitions',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Text('Simulate navigation to rooms to test ad timing:'),
@@ -293,8 +314,8 @@ class _AdTestPageState extends State<AdTestPage> {
                     Text(
                       'Detailed Debug Info',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     FutureBuilder<Map<String, dynamic>>(
@@ -306,7 +327,8 @@ class _AdTestPageState extends State<AdTestPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: info.entries.map((entry) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
                                 child: Text(
                                   '${entry.key}: ${entry.value}',
                                   style: const TextStyle(
@@ -355,7 +377,8 @@ class _AdTestPageState extends State<AdTestPage> {
     if (adsShown == 0) {
       return transitions >= 2; // First ad needs 2 transitions
     } else {
-      return transitions >= (adsShown + 1) * 2; // Subsequent ads need 2 transitions each
+      return transitions >=
+          (adsShown + 1) * 2; // Subsequent ads need 2 transitions each
     }
   }
 
@@ -416,7 +439,8 @@ class _AdTestPageState extends State<AdTestPage> {
     _adManager.trackRoomTransition();
 
     setState(() {
-      _lastActionResult = '✅ Room transition tracked. Check status for changes.';
+      _lastActionResult =
+          '✅ Room transition tracked. Check status for changes.';
     });
   }
 
@@ -428,7 +452,8 @@ class _AdTestPageState extends State<AdTestPage> {
     _adManager.resetSession();
 
     setState(() {
-      _lastActionResult = '✅ Session reset. All counters and timers have been reset.';
+      _lastActionResult =
+          '✅ Session reset. All counters and timers have been reset.';
     });
   }
 
@@ -452,7 +477,8 @@ class _AdTestPageState extends State<AdTestPage> {
       });
     } else {
       setState(() {
-        _lastActionResult = 'Navigated to $destination. No ad shown (conditions not met).';
+        _lastActionResult =
+            'Navigated to $destination. No ad shown (conditions not met).';
       });
     }
   }

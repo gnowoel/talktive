@@ -110,6 +110,7 @@ export const inviteFollowersToTopic = onCall(async (request) => {
 
       batch.set(topicFollowerRef, {
         muted: false,
+        invited: true,
       });
 
       // Add topic to follower's topics collection

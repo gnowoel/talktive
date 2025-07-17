@@ -3,7 +3,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { formatDate, isDebugMode } from './helpers';
-import { StatParams, UserParams } from './types';
+import { StatParams, UserParams, Topic } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -19,6 +19,10 @@ interface TopicMessage {
   userPhotoURL: string;
   content: string;
   createdAt: Timestamp;
+}
+
+interface TopicData extends Topic {
+  tribeId?: string;
 }
 
 interface MessagingError extends Error {
@@ -64,7 +68,7 @@ export const onTopicMessageCreated = onDocumentCreated(
         return;
       }
 
-      const topic = topicDoc.data();
+      const topic = topicDoc.data() as TopicData | undefined;
 
       // Get all followers
       const followersSnapshot = await topicRef
@@ -110,6 +114,9 @@ export const onTopicMessageCreated = onDocumentCreated(
       });
 
       await batch.commit();
+
+      // Check if this is the user's first message in the topic and invite followers if needed
+      await inviteFollowersOnFirstMessage(topicId, message.userId, topic);
 
       await updateUserUpdatedAtAndMessageCount(message.userId, message.createdAt);
       await updateTopicMessagesStats();
@@ -235,6 +242,117 @@ const updateUserUpdatedAtAndMessageCount = async (userId: string, now: Timestamp
     logger.error(error);
   }
 };
+
+/**
+ * Check if this is the user's first message in the topic and invite their followers
+ */
+async function inviteFollowersOnFirstMessage(
+  topicId: string,
+  userId: string,
+  topicData: TopicData | undefined
+): Promise<void> {
+  try {
+    // Check if user is already a follower and has been marked as invited
+    const userFollowerRef = firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('followers')
+      .doc(userId);
+
+    const userFollowerDoc = await userFollowerRef.get();
+
+    // If user is already a follower and has invited flag set to true, skip
+    if (userFollowerDoc.exists && userFollowerDoc.data()?.invited === true) {
+      return;
+    }
+
+    // Get the user's followers
+    const followersSnapshot = await firestore
+      .collection('users')
+      .doc(userId)
+      .collection('followers')
+      .get();
+
+    if (followersSnapshot.empty) {
+      // Mark user as invited even if they have no followers
+      await userFollowerRef.set({
+        muted: false,
+        invited: true
+      }, { merge: true });
+      return;
+    }
+
+    // Get existing topic followers to avoid duplicates
+    const existingFollowersSnapshot = await firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('followers')
+      .get();
+
+    const existingFollowerIds = new Set(
+      existingFollowersSnapshot.docs.map(doc => doc.id)
+    );
+
+    // Filter out followers who are already following the topic
+    const newFollowerIds = followersSnapshot.docs
+      .map(doc => doc.id)
+      .filter(followerId => !existingFollowerIds.has(followerId));
+
+    const now = Timestamp.now();
+    const batch = firestore.batch();
+
+    // Add new followers
+    for (const followerId of newFollowerIds) {
+      // Add follower to topic's followers collection
+      const topicFollowerRef = firestore
+        .collection('topics')
+        .doc(topicId)
+        .collection('followers')
+        .doc(followerId);
+
+      batch.set(topicFollowerRef, {
+        muted: false,
+        invited: false // They were invited by someone else, not their first message
+      });
+
+      // Add topic to follower's topics collection
+      const followerTopicRef = firestore
+        .collection('users')
+        .doc(followerId)
+        .collection('topics')
+        .doc(topicId);
+
+      batch.set(followerTopicRef, {
+        title: topicData?.title || '',
+        creator: topicData?.creator || {},
+        createdAt: topicData?.createdAt || now,
+        updatedAt: topicData?.updatedAt || now,
+        messageCount: topicData?.messageCount || 0,
+        readMessageCount: 0,
+        lastMessageContent: topicData?.lastMessageContent || '',
+        mute: false,
+        tribeId: topicData?.tribeId || null,
+        isPublic: topicData?.isPublic ?? true,
+      });
+    }
+
+    // Mark the posting user as invited
+    batch.set(userFollowerRef, {
+      muted: false,
+      invited: true
+    }, { merge: true });
+
+    await batch.commit();
+
+    if (newFollowerIds.length > 0) {
+      logger.info(`Invited ${newFollowerIds.length} followers to topic ${topicId} for user ${userId}`);
+    }
+
+  } catch (error) {
+    logger.error('Error inviting followers on first message:', error);
+    // Don't rethrow - this shouldn't block the main message creation flow
+  }
+}
 
 const updateTopicMessagesStats = async () => {
   const now = new Date();

@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 
+import '../helpers/content_filter.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
+import '../services/moment_prompts.dart';
 import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 import '../services/ad_service/go_router_room_helper.dart';
@@ -31,6 +33,10 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   final _messageController = TextEditingController();
   final _tribeController = TextEditingController();
   final _tribeFocusNode = FocusNode();
+
+  final MomentPrompts _momentPrompts = MomentPrompts();
+  final ContentFilter _contentFilter = ContentFilter();
+  PersonalizationSuggestion? _currentSuggestion;
   bool _isProcessing = false;
   bool _isPublic = true;
 
@@ -40,14 +46,19 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   @override
   void initState() {
     super.initState();
+
     firestore = context.read<Firestore>();
     userCache = context.read<UserCache>();
     tribeCache = context.read<TribeCache>();
-    _loadTribes();
 
     if (widget.initialTribeId != null) {
       _setInitialTribe();
     }
+    _loadTribes();
+
+    // Add listeners for real-time content filtering
+    _titleController.addListener(_onContentChanged);
+    _messageController.addListener(_onContentChanged);
   }
 
   Future<void> _loadTribes() async {
@@ -79,6 +90,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
   @override
   void dispose() {
+    _titleController.removeListener(_onContentChanged);
+    _messageController.removeListener(_onContentChanged);
     _titleController.dispose();
     _messageController.dispose();
     _tribeController.dispose();
@@ -119,6 +132,27 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     setState(() {
       _selectedTribe = tribe;
       _tribeController.text = tribe.name;
+    });
+  }
+
+  void _onContentChanged() {
+    final title = _titleController.text.trim();
+    final message = _messageController.text.trim();
+
+    if (title.isEmpty) {
+      setState(() {
+        _currentSuggestion = null;
+      });
+      return;
+    }
+
+    final suggestion = _contentFilter.getPersonalizationSuggestion(
+      title,
+      message: message.isEmpty ? null : message,
+    );
+
+    setState(() {
+      _currentSuggestion = suggestion.isGeneric ? suggestion : null;
     });
   }
 
@@ -294,9 +328,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _titleController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Moment Title',
-                                hintText: 'The subject of your moment...',
+                                hintText: _momentPrompts.getTimeBasedPrompt(),
                               ),
                               validator: _validateTitle,
                               maxLength: 100,
@@ -306,13 +340,18 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               controller: _messageController,
                               decoration: const InputDecoration(
                                 labelText: 'First Message',
-                                hintText: 'Share or ask something...',
+                                hintText:
+                                    'Tell your story... What happened? How did it make you feel?',
                               ),
                               validator: _validateMessage,
                               minLines: 2,
                               maxLines: 5,
                               maxLength: 500,
                             ),
+                            if (_currentSuggestion != null) ...[
+                              const SizedBox(height: 16),
+                              _buildSuggestionCard(),
+                            ],
                             const SizedBox(height: 32),
                             FilledButton(
                               onPressed: _isProcessing ? null : _submit,
@@ -538,6 +577,115 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionCard() {
+    if (_currentSuggestion == null) return const SizedBox.shrink();
+
+    return Card(
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.lightbulb_outline,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Make it more personal',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _currentSuggestion!.suggestion,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withOpacity(0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Example:',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _currentSuggestion!.example,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () {
+                _titleController.text = _currentSuggestion!.personalPrompt;
+                _titleController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: _titleController.text.length),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 16,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Try: "${_currentSuggestion!.personalPrompt}"',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

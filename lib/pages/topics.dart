@@ -8,6 +8,7 @@ import '../models/topic.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
+import '../services/moment_prompts.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 import '../services/tribe_cache.dart';
@@ -30,6 +31,7 @@ class _TopicsPageState extends State<TopicsPage> {
   late TribeCache tribeCache;
   late FollowCache followCache;
   late UserCache userCache;
+  final MomentPrompts _momentPrompts = MomentPrompts();
 
   List<Topic> _seenTopics = [];
   List<Topic> _topics = [];
@@ -242,6 +244,11 @@ class _TopicsPageState extends State<TopicsPage> {
             ),
             SizedBox(height: 16),
             Text(
+              'Look for personalized prompts to inspire your sharing - they change throughout the day!',
+              style: TextStyle(height: 1.5),
+            ),
+            SizedBox(height: 16),
+            Text(
               'Moments are public for a limited time, then become private for your followers.',
               style: TextStyle(height: 1.5),
             ),
@@ -269,16 +276,28 @@ class _TopicsPageState extends State<TopicsPage> {
       return 'Account Restricted';
     }
 
-    return _selectedTribe != null
-        ? 'Create Moment in ${_selectedTribe!.name}'
-        : 'Create Moment';
+    if (_selectedTribe != null) {
+      return 'Share moment in ${_selectedTribe!.name}';
+    }
+
+    // Use dynamic prompts for more engaging calls-to-action
+    return _momentPrompts.getTimeBasedPrompt();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final lines = ['No moments here yet. Be', 'the first to share one!', ''];
+    // Use dynamic prompts for empty state
+    final dynamicPrompts = _momentPrompts.getMultiplePrompts(3);
+    final lines = [
+      'No moments here yet!',
+      'Try sharing:',
+      '• ${dynamicPrompts[0]}',
+      '• ${dynamicPrompts[1]}',
+      '• ${dynamicPrompts[2]}',
+      ''
+    ];
 
     final joinedTopicIds = topicCache.topicIds;
     final seenTopicIds = _seenTopics.map((topic) => topic.id).toList();

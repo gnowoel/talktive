@@ -76,7 +76,9 @@ class _NavigationState extends State<Navigation> {
           NavigationDestination(
             label: 'Moments',
             icon: Icon(
-              currentIndex == 1 ? Icons.workspaces : Icons.workspaces_outlined,
+              currentIndex == 1
+                  ? Icons.auto_awesome
+                  : Icons.auto_awesome_outlined,
             ),
           ),
           NavigationDestination(

@@ -67,19 +67,19 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🐛 Bug Fixes',
-                            'Fixed a long-standing bug with undefined values and resolved an issue that caused the Chats page to break.',
+                            '✨ Topics to Moments',
+                            'Renamed "Topics" to "Moments" to encourage people to share personal stories and experiences.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
                             '📱 Ad Support',
-                            'Added occasional interstitial ads when switching between chat or topic rooms to support the app.',
+                            'Added occasional interstitial ads when switching between chats or moments.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '✨ UI Improvements',
+                            '🐛 Bug Fixes & Improvements',
                             'Made minor UI improvements and visual fixes for a better user experience.',
                           ),
                           const SizedBox(height: 48),

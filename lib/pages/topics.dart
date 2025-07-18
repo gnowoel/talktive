@@ -175,10 +175,10 @@ class _TopicsPageState extends State<TopicsPage> {
   Future<void> _showRestrictionDialog() async {
     final colorScheme = Theme.of(context).colorScheme;
 
-    String title = 'Cannot Create Topic';
+    String title = 'Cannot Create Moment';
     List<Widget> content = [
       Text(
-        'Sorry, you need level 6, followers, good reputation and no restrictions to create topics.',
+        'Sorry, you need level 6, followers, good reputation and no restrictions to create moments.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),
@@ -237,17 +237,17 @@ class _TopicsPageState extends State<TopicsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Topics are designed for lightweight or throw-away conversations. Think of them as forum threads rather than group chats.',
+              'Moments are designed for sharing personal experiences and thoughts. Think of them as individual stories rather than group discussions.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Feel free to create multiple topics in a day for different subjects.',
+              'Feel free to share multiple moments in a day for different experiences.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Topics remain public for a limited time. After that, they become private, but participants can still invite their followers to join.',
+              'Moments remain public for a limited time. After that, they become private, but participants can still invite their followers to join.',
               style: TextStyle(height: 1.5),
             ),
           ],
@@ -266,7 +266,7 @@ class _TopicsPageState extends State<TopicsPage> {
     if (_selectedTribe != null) {
       return '${_selectedTribe!.iconEmoji ?? ''} ${_selectedTribe!.name}';
     }
-    return 'Active Topics';
+    return 'Active Moments';
   }
 
   String get _fabTooltip {
@@ -275,15 +275,15 @@ class _TopicsPageState extends State<TopicsPage> {
     }
 
     return _selectedTribe != null
-        ? 'Create Topic in ${_selectedTribe!.name}'
-        : 'Create Topic';
+        ? 'Create Moment in ${_selectedTribe!.name}'
+        : 'Create Moment';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final lines = ['No topics here yet. Be', 'the first to create one!', ''];
+    final lines = ['No moments here yet. Be', 'the first to share one!', ''];
 
     final joinedTopicIds = topicCache.topicIds;
     final seenTopicIds = _seenTopics.map((topic) => topic.id).toList();
@@ -297,7 +297,7 @@ class _TopicsPageState extends State<TopicsPage> {
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _clearFilter,
-                tooltip: 'Show all topics',
+                tooltip: 'Show all moments',
               )
             : null,
         actions: [

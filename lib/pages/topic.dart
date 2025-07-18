@@ -89,7 +89,7 @@ class _TopicPageState extends State<TopicPage> {
         if (mounted) {
           ErrorHandler.showSnackBarMessage(
             context,
-            AppException('The topic has been deleted.'),
+            AppException('The moment has been deleted.'),
             severe: true,
           );
         }
@@ -227,7 +227,7 @@ class _TopicPageState extends State<TopicPage> {
       builder: (context) => AlertDialog(
         title: const Text('Invite Followers'),
         content: const Text(
-          'This will notify your followers and add this topic to their chat list. Do you want to continue?',
+          'This will notify your followers and add this moment to their chat list. Do you want to continue?',
         ),
         actions: [
           TextButton(
@@ -261,7 +261,7 @@ class _TopicPageState extends State<TopicPage> {
           SnackBar(
             content: Text(
               invitedCount > 0
-                  ? 'Invited $invitedCount followers to join this topic!'
+                  ? 'Invited $invitedCount followers to join this moment!'
                   : message,
             ),
             backgroundColor:
@@ -288,9 +288,9 @@ class _TopicPageState extends State<TopicPage> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Make Topic Private'),
+        title: const Text('Make Moment Private'),
         content: const Text(
-          'This will make the topic private and only invited users will be able to access it. This action cannot be undone by moderators or topic owners. Do you want to continue?',
+          'This will make the moment private and only invited users will be able to access it. This action cannot be undone by moderators or moment owners. Do you want to continue?',
         ),
         actions: [
           TextButton(
@@ -310,9 +310,9 @@ class _TopicPageState extends State<TopicPage> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Make Topic Public'),
+        title: const Text('Make Moment Public'),
         content: const Text(
-          'This will make the topic public and visible to all users. Do you want to continue?',
+          'This will make the moment public and visible to all users. Do you want to continue?',
         ),
         actions: [
           TextButton(
@@ -340,7 +340,7 @@ class _TopicPageState extends State<TopicPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Topic has been made private'),
+            content: const Text('Moment has been made private'),
             backgroundColor: theme.colorScheme.primary,
             duration: const Duration(seconds: 3),
           ),
@@ -372,7 +372,7 @@ class _TopicPageState extends State<TopicPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Topic has been made public'),
+            content: const Text('Moment has been made public'),
             backgroundColor: theme.colorScheme.primary,
             duration: const Duration(seconds: 3),
           ),
@@ -443,7 +443,8 @@ class _TopicPageState extends State<TopicPage> {
     final isAdmin = currentUser?.isAdmin ?? false;
     final isModerator = currentUser?.isModerator ?? false;
     final canMakePrivate = isAdmin || isModerator || byMe;
-    final canMakePublic = isAdmin; // Only admins can make private topics public
+    final canMakePublic =
+        isAdmin; // Only admins can make private moments public
 
     return PopScope(
       canPop: false,
@@ -506,7 +507,8 @@ class _TopicPageState extends State<TopicPage> {
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: 'invite',
-                    enabled: !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                    enabled:
+                        !_isInviting && !_isMakingPrivate && !_isMakingPublic,
                     child: Row(
                       children: [
                         _isInviting
@@ -529,7 +531,8 @@ class _TopicPageState extends State<TopicPage> {
                   if (canMakePrivate && (_topic?.isPublic == true)) ...[
                     PopupMenuItem(
                       value: 'make_private',
-                      enabled: !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                      enabled:
+                          !_isInviting && !_isMakingPrivate && !_isMakingPublic,
                       child: Row(
                         children: [
                           _isMakingPrivate
@@ -545,7 +548,9 @@ class _TopicPageState extends State<TopicPage> {
                                 )
                               : const Icon(Icons.lock, size: 18),
                           const SizedBox(width: 8),
-                          Text(_isMakingPrivate ? 'Making Private...' : 'Make Private'),
+                          Text(_isMakingPrivate
+                              ? 'Making Private...'
+                              : 'Make Private'),
                         ],
                       ),
                     ),
@@ -553,7 +558,8 @@ class _TopicPageState extends State<TopicPage> {
                   if (canMakePublic && (_topic?.isPublic == false)) ...[
                     PopupMenuItem(
                       value: 'make_public',
-                      enabled: !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                      enabled:
+                          !_isInviting && !_isMakingPrivate && !_isMakingPublic,
                       child: Row(
                         children: [
                           _isMakingPublic
@@ -569,7 +575,9 @@ class _TopicPageState extends State<TopicPage> {
                                 )
                               : const Icon(Icons.public, size: 18),
                           const SizedBox(width: 8),
-                          Text(_isMakingPublic ? 'Making Public...' : 'Make Public'),
+                          Text(_isMakingPublic
+                              ? 'Making Public...'
+                              : 'Make Public'),
                         ],
                       ),
                     ),

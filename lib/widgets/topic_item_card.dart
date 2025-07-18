@@ -71,11 +71,11 @@ class _TopicItemCardState extends State<TopicItemCard> {
     ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: const Text('Left topic'),
+            content: const Text('Left moment'),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
-                // Restore the topic
+                // Restore the moment
                 widget.onRestore(widget.topic);
               },
             ),

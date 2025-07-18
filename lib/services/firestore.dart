@@ -346,7 +346,7 @@ class Firestore {
       final result = response.data;
 
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to create topic');
+        throw Exception(result['error'] ?? 'Failed to create moment');
       }
 
       final topicId = result['topicId'];
@@ -769,7 +769,7 @@ class Firestore {
       });
 
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to join topic');
+        throw Exception(result.data['error'] ?? 'Failed to join moment');
       }
     } catch (e) {
       throw AppException(e.toString());
@@ -787,7 +787,7 @@ class Firestore {
       });
 
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to mute topic');
+        throw Exception(result.data['error'] ?? 'Failed to mute moment');
       }
     } catch (e) {
       throw AppException(e.toString());
@@ -807,7 +807,7 @@ class Firestore {
 
       if (result.data['success'] != true) {
         throw Exception(
-            result.data['error'] ?? 'Failed to invite followers to topic');
+            result.data['error'] ?? 'Failed to invite followers to moment');
       }
 
       return {
@@ -830,7 +830,8 @@ class Firestore {
       });
 
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to make topic private');
+        throw Exception(
+            result.data['error'] ?? 'Failed to make moment private');
       }
     } catch (e) {
       throw AppException(e.toString());
@@ -848,7 +849,7 @@ class Firestore {
       });
 
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to make topic public');
+        throw Exception(result.data['error'] ?? 'Failed to make moment public');
       }
     } catch (e) {
       throw AppException(e.toString());
@@ -903,7 +904,7 @@ class Firestore {
       final result = response.data;
 
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to recall topic message');
+        throw Exception(result['error'] ?? 'Failed to recall moment message');
       }
     } catch (e) {
       throw AppException(e.toString());
@@ -957,7 +958,7 @@ class Firestore {
       final result = response.data;
 
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to report topic message');
+        throw Exception(result['error'] ?? 'Failed to report moment message');
       }
 
       // Cache the reported message ID
@@ -984,7 +985,7 @@ class Firestore {
       final result = response.data;
 
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to block user from topic');
+        throw Exception(result['error'] ?? 'Failed to block user from moment');
       }
     } catch (e) {
       throw AppException(e.toString());

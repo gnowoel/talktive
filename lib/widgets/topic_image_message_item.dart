@@ -181,7 +181,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
       builder: (context) => AlertDialog(
         title: const Text('Recall Image?'),
         content: const Text(
-          'This image will be removed from the topic. The action cannot be undone.',
+          'This image will be removed from the moment. The action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -304,7 +304,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         ),
         title: const Text('Block this user?'),
         content: const Text(
-          'Blocking this user will ban them from this topic. All their messages will be hidden, and they will lose access to all interactions within the topic.',
+          'Blocking this user will ban them from this moment. All their messages will be hidden, and they will lose access to all interactions within the moment.',
         ),
         actions: [
           TextButton(
@@ -341,7 +341,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
           SnackBar(
             backgroundColor: theme.colorScheme.errorContainer,
             content: Text(
-              'User has been blocked from this topic.',
+              'User has been blocked from this moment.',
               style: TextStyle(color: theme.colorScheme.onErrorContainer),
             ),
           ),

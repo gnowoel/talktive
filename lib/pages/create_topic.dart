@@ -164,7 +164,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Start a Topic'),
+        title: const Text('Share a Moment'),
       ),
       body: SafeArea(
         child: Layout(
@@ -295,8 +295,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             TextFormField(
                               controller: _titleController,
                               decoration: const InputDecoration(
-                                labelText: 'Topic Title',
-                                hintText: 'The subject of your topic...',
+                                labelText: 'Moment Title',
+                                hintText: 'The subject of your moment...',
                               ),
                               validator: _validateTitle,
                               maxLength: 100,
@@ -324,7 +324,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         strokeWidth: 3,
                                       ),
                                     )
-                                  : const Text('Create Topic'),
+                                  : const Text('Create Moment'),
                             ),
                           ],
                         ),
@@ -362,7 +362,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                'About Topics',
+                'About Moments',
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -371,7 +371,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your topic will be public for a limited time before becoming private. Your followers will be notified automatically.',
+            'Your moment will be public for a limited time before becoming private. Your followers will be notified automatically.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -459,7 +459,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Appears on Topics tab for everyone to join',
+                                'Appears on Moments tab for everyone to join',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -531,7 +531,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
           ),
           const SizedBox(height: 12),
           Text(
-            'All your followers will be notified when you create any topic.',
+            'All your followers will be notified when you create any moment.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               fontStyle: FontStyle.italic,

@@ -1,9 +1,13 @@
 # CHANGELOG
 
-## 4.4.1+61
+## 4.4.2+62
 
 - Optimize the ad management system based on AdMob policy
 - Rename "Topics" to "Moments" to encourage personal sharing
+
+## 4.4.1+61 (recalled)
+
+- (N/A)
 
 ## 4.4.0+60
 

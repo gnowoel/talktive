@@ -68,12 +68,12 @@ class _TopicHeartsState extends State<TopicHearts> {
   }
 
   String _getInfoText(Topic? topic) {
-    if (topic == null) return 'New Topic';
+    if (topic == null) return 'New Moment';
 
     final now = serverClock.now;
     final timeLeft = topic.getTimeLeft(now: now);
 
-    if (timeLeft == 0) return 'Topic closed';
+    if (timeLeft == 0) return 'Moment closed';
 
     var text = timeago.format(
       DateTime.fromMillisecondsSinceEpoch(now - timeLeft),

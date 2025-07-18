@@ -76,7 +76,7 @@ class _FriendsPageState extends State<FriendsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'Have something to share with your followers? Head over to the Topics tab!',
+              'Have something to share with your followers? Head over to the Moments tab!',
               style: TextStyle(height: 1.5),
             ),
           ],

@@ -139,15 +139,15 @@ class _TopicItemState extends State<TopicItem> {
         ),
         const SizedBox(height: 16),
         const Text(
-          'You cannot join topics until this restriction expires.',
+          'You cannot join moments until this restriction expires.',
           style: TextStyle(height: 1.5),
         ),
       ];
     } else {
-      title = 'Cannot Join Topic';
+      title = 'Cannot Join Moment';
       content = [
         Text(
-          'Sorry, you need level 5, good reputatioin and no restrictions to join topics.',
+          'Sorry, you need level 5, good reputatioin and no restrictions to join moments.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
@@ -346,7 +346,7 @@ class _TopicItemState extends State<TopicItem> {
       return IconButton(
         icon: const Icon(Icons.keyboard_double_arrow_right),
         onPressed: _handleTap,
-        tooltip: 'Enter topic',
+        tooltip: 'Enter moment',
       );
     }
 
@@ -367,7 +367,7 @@ class _TopicItemState extends State<TopicItem> {
             )
           : const Icon(Icons.keyboard_arrow_right),
       onPressed: _isProcessing ? null : _handleTap,
-      tooltip: 'Join topic',
+      tooltip: 'Join moment',
     );
   }
 }

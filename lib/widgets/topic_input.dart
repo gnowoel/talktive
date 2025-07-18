@@ -82,7 +82,8 @@ class TopicInputState extends State<TopicInput> {
     final user = userCache.user;
     final hasPermission = canSendMessage(user);
     final currentUserId = fireauth.instance.currentUser?.uid;
-    final isBlocked = currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId);
+    final isBlocked = currentUserId != null &&
+        topicFollowersCache.isUserBlocked(currentUserId);
 
     _enabled = hasPermission &&
         timeLeft > 0 &&
@@ -100,7 +101,8 @@ class TopicInputState extends State<TopicInput> {
           final user = userCache.user;
           final hasPermission = canSendMessage(user);
           final currentUserId = fireauth.instance.currentUser?.uid;
-          final isBlocked = currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId);
+          final isBlocked = currentUserId != null &&
+              topicFollowersCache.isUserBlocked(currentUserId);
           _enabled = hasPermission &&
               !widget.topic!.isDummy &&
               !widget.topic!.isClosed &&
@@ -154,11 +156,11 @@ class TopicInputState extends State<TopicInput> {
   Future<void> _sendTextMessage() async {
     try {
       if (widget.topic?.isDummy == true) {
-        throw AppException('The topic has been deleted.');
+        throw AppException('The moment has been deleted.');
       }
 
       if (widget.topic?.isClosed == true) {
-        throw AppException('The topic has been closed.');
+        throw AppException('The moment has been closed.');
       }
 
       const maxLength = 1024;
@@ -192,11 +194,11 @@ class TopicInputState extends State<TopicInput> {
 
     try {
       if (widget.topic?.isDummy == true) {
-        throw AppException('The topic has been deleted.');
+        throw AppException('The moment has been deleted.');
       }
 
       if (widget.topic?.isClosed == true) {
-        throw AppException('The topic has been closed.');
+        throw AppException('The moment has been closed.');
       }
 
       final xFile = await ImagePicker().pickImage(
@@ -252,8 +254,9 @@ class TopicInputState extends State<TopicInput> {
     final user = userCache.user;
     final currentUserId = fireauth.instance.currentUser?.uid;
 
-    if (currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId)) {
-      return 'You are blocked from this topic';
+    if (currentUserId != null &&
+        topicFollowersCache.isUserBlocked(currentUserId)) {
+      return 'You are blocked from this moment';
     }
 
     if (!canSendMessage(user)) {
@@ -275,18 +278,19 @@ class TopicInputState extends State<TopicInput> {
     final currentUserId = fireauth.instance.currentUser?.uid;
     String message;
 
-    if (currentUserId != null && topicFollowersCache.isUserBlocked(currentUserId)) {
+    if (currentUserId != null &&
+        topicFollowersCache.isUserBlocked(currentUserId)) {
       message =
-          'You have been blocked from this topic and cannot send messages or interact within it.';
+          'You have been blocked from this moment and cannot send messages or interact within it.';
     } else if (!canSendMessage(user)) {
       message =
           'Your account has been temporarily restricted due to multiple reports of inappropriate behavior. You cannot send messages until this restriction expires.';
     } else if (widget.topic?.isDummy == true) {
       message =
-          'This topic has been deleted to protect your privacy. Go to the Topics tab to start a new one at any time';
+          'This moment has been deleted to protect your privacy. Go to the Moments tab to start a new one at any time';
     } else if (widget.topic?.isClosed == true) {
       message =
-          'This topic has expired and will be deleted soon. Go to the Topics tab to start a new one at any time.';
+          'This moment has expired and will be deleted soon. Go to the Moments tab to start a new one at any time.';
     } else if (user?.withAlert == true) {
       message =
           'Your account has received reports for inappropriate communications. Please be respectful when chatting. Further reports may result in more severe restrictions.';
@@ -308,8 +312,11 @@ class TopicInputState extends State<TopicInput> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.topic != null &&
-            (!_enabled || userCache.user?.withAlert == true ||
-            (fireauth.instance.currentUser?.uid != null && topicFollowersCache.isUserBlocked(fireauth.instance.currentUser!.uid))))
+            (!_enabled ||
+                userCache.user?.withAlert == true ||
+                (fireauth.instance.currentUser?.uid != null &&
+                    topicFollowersCache
+                        .isUserBlocked(fireauth.instance.currentUser!.uid))))
           _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

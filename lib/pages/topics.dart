@@ -237,17 +237,12 @@ class _TopicsPageState extends State<TopicsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Moments are designed for sharing personal experiences and thoughts. Think of them as individual stories rather than group discussions.',
+              'What happened to you today? Share your experiences, thoughts, and special moments!',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'Feel free to share multiple moments in a day for different experiences.',
-              style: TextStyle(height: 1.5),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Moments remain public for a limited time. After that, they become private, but participants can still invite their followers to join.',
+              'Moments are public for a limited time, then become private for your followers.',
               style: TextStyle(height: 1.5),
             ),
           ],

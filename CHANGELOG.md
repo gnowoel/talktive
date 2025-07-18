@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 4.4.1+61
+
+- Optimize the ad management system based on AdMob policy
+- Rename "Topics" to "Moments" to encourage personal sharing
+
 ## 4.4.0+60
 
 - (what's in 4.3.1+59)

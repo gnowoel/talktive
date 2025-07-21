@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.4.3+63
+
+- Added AdMob CMP integration to comply with European regulations
+
 ## 4.4.2+62
 
 - Optimize the ad management system based on AdMob policy

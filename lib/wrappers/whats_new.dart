@@ -67,14 +67,14 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '✨ Topics to Moments',
-                            'Renamed "Topics" to "Moments" to encourage people to share personal stories and experiences.',
+                            '📱 Ad Support',
+                            'Included privacy consent management to comply with European regulations.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '📱 Ad Support',
-                            'Added occasional interstitial ads when switching between chats or moments.',
+                            '✨ Topics to Moments',
+                            'Renamed "Topics" to "Moments" to encourage people to share personal stories and experiences.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(

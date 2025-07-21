@@ -11,6 +11,7 @@ import 'pages/chats.dart';
 import 'pages/create_topic.dart';
 import 'pages/edit_profile.dart';
 import 'pages/launch.dart';
+import 'pages/privacy_settings_page.dart';
 import 'pages/profile.dart';
 import 'pages/report.dart';
 import 'pages/reports.dart';
@@ -206,6 +207,10 @@ Future<GoRouter> initRouter() async {
       GoRoute(
         path: '/profile/backup',
         builder: (context, state) => const BackupAccountPage(),
+      ),
+      GoRoute(
+        path: '/profile/privacy-settings',
+        builder: (context, state) => const PrivacySettingsPage(),
       ),
       GoRoute(
         path: '/topics/create',

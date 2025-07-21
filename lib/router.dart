@@ -17,7 +17,6 @@ import 'pages/reports.dart';
 import 'pages/topic.dart';
 import 'pages/topics.dart';
 import 'pages/users.dart';
-import 'pages/ad_test_page.dart';
 
 import 'services/messaging.dart';
 import 'services/user_cache.dart';
@@ -215,10 +214,6 @@ Future<GoRouter> initRouter() async {
           return CreateTopicPage(initialTribeId: tribeId);
         },
       ),
-      // GoRoute(
-      //   path: '/debug/ads',
-      //   builder: (context, state) => const AdTestPage(),
-      // ),
     ],
   );
 }

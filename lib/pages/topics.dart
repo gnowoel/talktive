@@ -70,10 +70,7 @@ class _TopicsPageState extends State<TopicsPage> {
               serverClock.now,
               noCache: forceRefresh,
             )
-          : await firestore.fetchTopics(
-              serverClock.now,
-              noCache: forceRefresh,
-            );
+          : await firestore.fetchTopics(serverClock.now, noCache: forceRefresh);
 
       if (mounted) {
         setState(() {
@@ -244,11 +241,6 @@ class _TopicsPageState extends State<TopicsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'Look for personalized prompts to inspire your sharing - they change throughout the day!',
-              style: TextStyle(height: 1.5),
-            ),
-            SizedBox(height: 16),
-            Text(
               'Moments are public for a limited time, then become private for your followers.',
               style: TextStyle(height: 1.5),
             ),
@@ -290,14 +282,15 @@ class _TopicsPageState extends State<TopicsPage> {
 
     // Use dynamic prompts for empty state
     final dynamicPrompts = _momentPrompts.getMultiplePrompts(3);
-    final lines = [
-      'No moments here yet!',
-      'Try sharing:',
-      '• ${dynamicPrompts[0]}',
-      '• ${dynamicPrompts[1]}',
-      '• ${dynamicPrompts[2]}',
-      ''
-    ];
+    // final lines = [
+    //   'No moments here yet!',
+    //   'Try sharing:',
+    //   '• ${dynamicPrompts[0]}',
+    //   '• ${dynamicPrompts[1]}',
+    //   '• ${dynamicPrompts[2]}',
+    //   ''
+    // ];
+    final lines = ['Share your moments with', 'your followers and more!', ''];
 
     final joinedTopicIds = topicCache.topicIds;
     final seenTopicIds = _seenTopics.map((topic) => topic.id).toList();
@@ -405,8 +398,9 @@ class _TopicsPageState extends State<TopicsPage> {
                                         children: [
                                           Text(
                                             tribe.iconEmoji ?? '🏷️',
-                                            style:
-                                                const TextStyle(fontSize: 24),
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                            ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(

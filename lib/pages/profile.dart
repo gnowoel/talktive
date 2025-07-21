@@ -217,9 +217,22 @@ class ProfilePage extends StatelessWidget {
                             ),
                           ],
 
-                          // Backup account button
+                          // Privacy and account buttons
                           const SizedBox(height: 32),
-                          ElevatedButton(
+                          ElevatedButton.icon(
+                            onPressed: () =>
+                                context.push('/profile/privacy-settings'),
+                            icon: const Icon(Icons.privacy_tip),
+                            label: const Text('Privacy Settings'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  theme.colorScheme.primaryContainer,
+                              foregroundColor:
+                                  theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton(
                             onPressed: () => context.push('/profile/backup'),
                             child: const Text('Backup Account'),
                           ),

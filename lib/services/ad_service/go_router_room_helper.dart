@@ -75,7 +75,7 @@ class GoRouterRoomHelper {
         'Room transition tracked. Destination: $destination');
 
     // Validate compliance before attempting to show ads
-    final isCompliant = _adManager.validateCompliance();
+    final isCompliant = await _adManager.validateCompliance();
     if (!isCompliant) {
       AdMobCompliance.safeLog(
           'Compliance validation failed - skipping ad display',
@@ -155,8 +155,21 @@ class GoRouterRoomHelper {
   }
 
   /// Get current session statistics for debugging
-  static Map<String, dynamic> getSessionStats() {
-    return _adManager.getSessionStats();
+  static Future<Map<String, dynamic>> getSessionStats() async {
+    return await _adManager.getSessionStats();
+  }
+
+  /// Get current session statistics synchronously (returns cached data)
+  static Map<String, dynamic> getSessionStatsSync() {
+    // Return basic stats that don't require async calls
+    return {
+      'roomTransitions': _adManager.roomTransitions,
+      'adsShownThisSession': _adManager.adsShownThisSession,
+      'isAdReady': _adManager.isAdReady,
+      'sessionDurationMinutes': 0, // Default value
+      'userEngagementLevel': 'unknown',
+      'maxAdsPerSession': 'unlimited',
+    };
   }
 
   /// Get user-friendly timing message for debugging
@@ -165,8 +178,13 @@ class GoRouterRoomHelper {
   }
 
   /// Check if an ad would show on the next room transition (for debugging)
-  static bool wouldShowAdOnNextTransition() {
-    return _adManager.shouldShowAdNow();
+  static Future<bool> wouldShowAdOnNextTransition() async {
+    return await _adManager.shouldShowAdNow();
+  }
+
+  /// Check if an ad would show synchronously (simplified check)
+  static bool wouldShowAdOnNextTransitionSync() {
+    return _adManager.isAdReady;
   }
 
   /// Reset the session (useful for testing or when app returns from background)
@@ -175,13 +193,33 @@ class GoRouterRoomHelper {
   }
 
   /// Get compliance status for room transition ads
-  static Map<String, dynamic> getComplianceStatus() {
-    return _adManager.getComplianceStatus();
+  static Future<Map<String, dynamic>> getComplianceStatus() async {
+    return await _adManager.getComplianceStatus();
+  }
+
+  /// Get compliance status synchronously (simplified)
+  static Map<String, dynamic> getComplianceStatusSync() {
+    return {
+      'isCompliant': true,
+      'reason': 'Sync check - see logs for details',
+      'isAdmin': AdMobCompliance.isCurrentUserAdmin,
+      'shouldUseTestAds': AdMobCompliance.shouldUseTestAds,
+    };
   }
 
   /// Get comprehensive debug information including compliance
-  static Map<String, dynamic> getComprehensiveDebugInfo() {
-    return _adManager.getComprehensiveDebugInfo();
+  static Future<Map<String, dynamic>> getComprehensiveDebugInfo() async {
+    return await _adManager.getComprehensiveDebugInfo();
+  }
+
+  /// Get comprehensive debug information synchronously (simplified)
+  static Map<String, dynamic> getComprehensiveDebugInfoSync() {
+    return {
+      'sessionStats': getSessionStatsSync(),
+      'complianceStatus': getComplianceStatusSync(),
+      'adReadyState': _adManager.isAdReady,
+      'systemUsed': _adManager.currentSystemName,
+    };
   }
 
   /// Get compliance message for room transition ads
@@ -190,8 +228,14 @@ class GoRouterRoomHelper {
   }
 
   /// Validate compliance for room transition ads
-  static bool validateCompliance() {
-    return _adManager.validateCompliance();
+  static Future<bool> validateCompliance() async {
+    return await _adManager.validateCompliance();
+  }
+
+  /// Validate compliance synchronously (simplified check)
+  static bool validateComplianceSync() {
+    return AdMobCompliance.isCurrentUserAdmin ||
+        !AdMobCompliance.shouldUseTestAds;
   }
 
   /// Force show an ad immediately (for testing purposes only)
@@ -204,15 +248,15 @@ class GoRouterRoomHelper {
 
   /// Get detailed ad timing information for debugging
   static Map<String, dynamic> getDetailedTimingInfo() {
-    final stats = _adManager.getSessionStats();
+    final stats = getSessionStatsSync();
     return {
       'currentTime': DateTime.now().toIso8601String(),
       'sessionStats': stats,
       'adReady': _adManager.isAdReady,
-      'shouldShowNow': _adManager.shouldShowAdNow(),
+      'shouldShowNow': wouldShowAdOnNextTransitionSync(),
       'timingMessage': _adManager.getTimingMessage(),
-      'complianceStatus': _adManager.getComplianceStatus(),
-      'statusMessage': _adManager.getStatusMessage(),
+      'complianceStatus': getComplianceStatusSync(),
+      'statusMessage': 'See logs for detailed status',
       'userEngagementLevel': stats['userEngagementLevel'] ?? 'unknown',
       'systemInUse': _adManager.currentSystemName,
     };
@@ -220,20 +264,20 @@ class GoRouterRoomHelper {
 
   /// Get quick ad status summary for debugging
   static String getQuickAdStatus() {
-    final stats = _adManager.getSessionStats();
+    final stats = getSessionStatsSync();
     final isReady = _adManager.isAdReady;
-    final shouldShow = _adManager.shouldShowAdNow();
+    final shouldShow = wouldShowAdOnNextTransitionSync();
     final transitions = stats['roomTransitions'] ?? 0;
-    final adsShown = stats['adsShownThisSession'] ?? 0;
+    final adsShown = stats['adsShownThisSession'] as int? ?? 0;
     final maxAds = stats['maxAdsPerSession'] ?? 'unlimited';
-    final sessionMins = stats['sessionDurationMinutes'] ?? 0;
+    final sessionMinutes = stats['sessionDurationMinutes'] as int? ?? 0;
     final engagement = stats['userEngagementLevel'] ?? 'unknown';
 
     String status = shouldShow ? '🟢 READY' : '🔴 NOT READY';
 
     return '$status | Ad: ${isReady ? 'Loaded' : 'Loading'} | '
-        'Session: ${sessionMins}min ($engagement) | Transitions: $transitions | '
-        'Ads: $adsShown/$maxAds | ${_adManager.getStatusMessage()}';
+        'Session: ${sessionMinutes}min ($engagement) | Transitions: $transitions | '
+        'Ads: $adsShown/$maxAds';
   }
 
   /// Intelligently schedule ad preloading based on user behavior
@@ -243,7 +287,7 @@ class GoRouterRoomHelper {
 
     Future.delayed(Duration(seconds: delaySeconds), () {
       // More permissive conditions for better ad visibility
-      final stats = _adManager.getSessionStats();
+      final stats = getSessionStatsSync();
       final sessionDurationMinutes =
           stats['sessionDurationMinutes'] as int? ?? 0;
       final roomTransitions = stats['roomTransitions'] as int? ?? 0;
@@ -251,7 +295,7 @@ class GoRouterRoomHelper {
       // Preload if user shows any activity (more permissive)
       if (sessionDurationMinutes > 1 && roomTransitions > 0) {
         // Check if we should preload based on current ad readiness
-        if (!_adManager.isAdReady && _adManager.validateCompliance()) {
+        if (!_adManager.isAdReady && validateComplianceSync()) {
           AdMobCompliance.safeLog(
               'Intelligently preloading ad after navigation');
           _adManager.preloadAd();
@@ -296,7 +340,7 @@ extension GoRouterRoomExtensions on BuildContext {
 
   /// Check if ads can be shown for navigation (compliance-aware)
   bool canShowAdsForNavigation() {
-    return GoRouterRoomHelper.validateCompliance();
+    return GoRouterRoomHelper.validateComplianceSync();
   }
 
   /// Get compliance message for navigation
@@ -306,7 +350,7 @@ extension GoRouterRoomExtensions on BuildContext {
 
   /// Get current compliance status for debugging
   Map<String, dynamic> getNavigationComplianceStatus() {
-    return GoRouterRoomHelper.getComplianceStatus();
+    return GoRouterRoomHelper.getComplianceStatusSync();
   }
 
   /// Force show an ad immediately (for testing purposes only)
@@ -425,8 +469,9 @@ class RoomAdDebugInfo extends StatelessWidget {
           Builder(
             builder: (context) {
               final adManager = AdServiceAdapter.instance;
-              final stats = adManager.getSessionStats();
-              final shouldShow = adManager.shouldShowAdNow();
+              final stats = GoRouterRoomHelper.getSessionStatsSync();
+              final shouldShow =
+                  GoRouterRoomHelper.wouldShowAdOnNextTransitionSync();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

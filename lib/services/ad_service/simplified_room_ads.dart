@@ -433,7 +433,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Get session statistics
-  Map<String, dynamic> getSessionStats() {
+  Future<Map<String, dynamic>> getSessionStats() async {
     final sessionDuration = _sessionStart != null
         ? DateTime.now().difference(_sessionStart!).inMinutes
         : 0;
@@ -445,7 +445,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     // Calculate additional metrics for compatibility
     final isUserInGoodState = OptimizedAdConfig.isUserActive(
         _lastNavigationTime, _recentNavigations.length);
-    final canShowAd = shouldShowAdNow();
+    final canShowAd = await shouldShowAdNow();
     final sessionAge = _sessionStart != null
         ? DateTime.now().difference(_sessionStart!)
         : Duration.zero;
@@ -526,17 +526,18 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       'isUsingTestAdUnit': currentAdUnitId.contains('3940256099942544'),
       'adReadyState': _isAdReady,
       'canShowAd': await shouldShowAdNow(),
-      'complianceValidated': await AdMobCompliance.validateAdRequest('interstitial'),
+      'complianceValidated':
+          await AdMobCompliance.validateAdRequest('interstitial'),
     };
   }
 
   /// Get user-friendly status message
-  String getStatusMessage() {
+  Future<String> getStatusMessage() async {
     if (!_isAdReady) {
       return _isLoading ? 'Loading ad...' : 'No ad loaded';
     }
 
-    if (shouldShowAdNow()) {
+    if (await shouldShowAdNow()) {
       return 'Ready to show ad';
     }
 

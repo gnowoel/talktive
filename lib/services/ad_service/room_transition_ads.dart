@@ -237,7 +237,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
           '❌ Session ad limit reached ($_adsShownThisSession/$_maxAdsPerSession)');
       return false;
     }
-    AdMobCompliance.safeLog('✅ Session ad limit OK ($_adsShownThisSession/$_maxAdsPerSession)');
+    AdMobCompliance.safeLog(
+        '✅ Session ad limit OK ($_adsShownThisSession/$_maxAdsPerSession)');
 
     if (!_isAdReady) {
       AdMobCompliance.safeLog('❌ Ad not ready (loading: $_isLoading)');
@@ -261,7 +262,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
             '❌ Too soon since last ad (${timeSinceLastAd.inSeconds}s < ${_minMinutesBetweenAds * 60}s)');
         return false;
       }
-      AdMobCompliance.safeLog('✅ Time since last ad OK (${timeSinceLastAd.inSeconds}s)');
+      AdMobCompliance.safeLog(
+          '✅ Time since last ad OK (${timeSinceLastAd.inSeconds}s)');
     } else {
       AdMobCompliance.safeLog('✅ No previous ad shown in session');
     }
@@ -274,7 +276,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
             '❌ Need ${_transitionsBeforeFirstAd - _roomTransitions} more transitions for first ad (have $_roomTransitions, need $_transitionsBeforeFirstAd)');
         return false;
       }
-      AdMobCompliance.safeLog('✅ First ad transition requirement met ($_roomTransitions >= $_transitionsBeforeFirstAd)');
+      AdMobCompliance.safeLog(
+          '✅ First ad transition requirement met ($_roomTransitions >= $_transitionsBeforeFirstAd)');
     } else {
       // Subsequent ads - require fewer transitions
       final transitionsSinceLastAd = _roomTransitions -
@@ -284,7 +287,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
             '❌ Need ${_transitionsPerAdAfterFirst - transitionsSinceLastAd} more transitions (have $transitionsSinceLastAd, need $_transitionsPerAdAfterFirst)');
         return false;
       }
-      AdMobCompliance.safeLog('✅ Subsequent ad transition requirement met (transitions since last: $transitionsSinceLastAd)');
+      AdMobCompliance.safeLog(
+          '✅ Subsequent ad transition requirement met (transitions since last: $transitionsSinceLastAd)');
     }
 
     // Check if user is in a good state for ads (not disrupting flow)
@@ -713,7 +717,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     // Allow ads even with unhealthy navigation patterns (for better visibility)
     // Only block if extremely rapid navigation
     if (_consecutiveQuickNavigations >= 8) {
-      AdMobCompliance.safeLog('Optimal moment: Too rapid navigation (${_consecutiveQuickNavigations} quick navs)');
+      AdMobCompliance.safeLog(
+          'Optimal moment: Too rapid navigation (${_consecutiveQuickNavigations} quick navs)');
       return false;
     }
 
@@ -721,7 +726,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     if (_sessionStart != null) {
       final sessionDuration = DateTime.now().difference(_sessionStart!);
       if (sessionDuration.inSeconds < 15) {
-        AdMobCompliance.safeLog('Optimal moment: Session too new (${sessionDuration.inSeconds}s)');
+        AdMobCompliance.safeLog(
+            'Optimal moment: Session too new (${sessionDuration.inSeconds}s)');
         return false;
       }
     }
@@ -749,7 +755,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   bool _isUserInGoodStateForAds() {
     // Only block if user is extremely rapidly navigating
     if (_consecutiveQuickNavigations >= 6) {
-      AdMobCompliance.safeLog('User state: Too rapid navigation ($_consecutiveQuickNavigations quick navs)');
+      AdMobCompliance.safeLog(
+          'User state: Too rapid navigation ($_consecutiveQuickNavigations quick navs)');
       return false;
     }
 
@@ -757,7 +764,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     if (_sessionStart != null) {
       final sessionDuration = DateTime.now().difference(_sessionStart!);
       if (sessionDuration.inSeconds < 10) {
-        AdMobCompliance.safeLog('User state: Session too new (${sessionDuration.inSeconds}s)');
+        AdMobCompliance.safeLog(
+            'User state: Session too new (${sessionDuration.inSeconds}s)');
         return false;
       }
     }
@@ -856,14 +864,16 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
     // Validate compliance before showing ad
     if (!await AdMobCompliance.validateAdRequest('interstitial')) {
-      AdMobCompliance.safeLog('❌ Compliance validation failed - cannot force show');
+      AdMobCompliance.safeLog(
+          '❌ Compliance validation failed - cannot force show');
       return false;
     }
 
     try {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (InterstitialAd ad) {
-          AdMobCompliance.logAdShown('interstitial', context: 'force show test');
+          AdMobCompliance.logAdShown('interstitial',
+              context: 'force show test');
           _lastAdShown = DateTime.now();
           _adsShownThisSession++;
           notifyListeners();
@@ -878,7 +888,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
           _preloadInterstitialAd();
         },
         onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-          AdMobCompliance.safeLog('Force shown ad failed to show: $error', forceLog: true);
+          AdMobCompliance.safeLog('Force shown ad failed to show: $error',
+              forceLog: true);
           ad.dispose();
           _interstitialAd = null;
           _isAdReady = false;
@@ -908,7 +919,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       'isUsingTestAdUnit': currentAdUnitId.contains('3940256099942544'),
       'adReadyState': _isAdReady,
       'canShowAd': await shouldShowAdNow(),
-      'complianceValidated': await AdMobCompliance.validateAdRequest('interstitial'),
+      'complianceValidated':
+          await AdMobCompliance.validateAdRequest('interstitial'),
     };
   }
 
@@ -916,7 +928,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   Future<Map<String, dynamic>> getComprehensiveDebugInfo() async {
     final sessionStats = await getSessionStats();
     final complianceStatus = await getComplianceStatus();
-    final lifecycleStats = getLifecycleStats();
+    final lifecycleStats = await getLifecycleStats();
 
     return {
       'session': sessionStats,
@@ -1004,8 +1016,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Get session statistics including lifecycle info
-  Map<String, dynamic> getLifecycleStats() {
-    final stats = getSessionStats();
+  Future<Map<String, dynamic>> getLifecycleStats() async {
+    final stats = await getSessionStats();
 
     stats.addAll({
       'currentLifecycleState': _currentLifecycleState.toString(),

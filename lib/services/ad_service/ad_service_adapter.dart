@@ -77,11 +77,11 @@ class AdServiceAdapter {
   }
 
   /// Check if ad should be shown now
-  bool shouldShowAdNow() {
+  Future<bool> shouldShowAdNow() async {
     if (_shouldUseSimplifiedSystem) {
-      return SimplifiedRoomAds.instance.shouldShowAdNow();
+      return await SimplifiedRoomAds.instance.shouldShowAdNow();
     } else {
-      return RoomTransitionAds.instance.shouldShowAdNow();
+      return await RoomTransitionAds.instance.shouldShowAdNow();
     }
   }
 
@@ -140,13 +140,13 @@ class AdServiceAdapter {
   }
 
   /// Get session statistics
-  Map<String, dynamic> getSessionStats() {
+  Future<Map<String, dynamic>> getSessionStats() async {
     Map<String, dynamic> baseStats;
 
     if (_shouldUseSimplifiedSystem) {
-      baseStats = SimplifiedRoomAds.instance.getSessionStats();
+      baseStats = await SimplifiedRoomAds.instance.getSessionStats();
     } else {
-      baseStats = RoomTransitionAds.instance.getSessionStats();
+      baseStats = await RoomTransitionAds.instance.getSessionStats();
     }
 
     // Add adapter-specific information
@@ -159,11 +159,11 @@ class AdServiceAdapter {
   }
 
   /// Get compliance status
-  Map<String, dynamic> getComplianceStatus() {
+  Future<Map<String, dynamic>> getComplianceStatus() async {
     if (_shouldUseSimplifiedSystem) {
-      return SimplifiedRoomAds.instance.getComplianceStatus();
+      return await SimplifiedRoomAds.instance.getComplianceStatus();
     } else {
-      return RoomTransitionAds.instance.getComplianceStatus();
+      return await RoomTransitionAds.instance.getComplianceStatus();
     }
   }
 
@@ -177,7 +177,7 @@ class AdServiceAdapter {
   }
 
   /// Get status message
-  String getStatusMessage() {
+  Future<String> getStatusMessage() async {
     if (_shouldUseSimplifiedSystem) {
       return SimplifiedRoomAds.instance.getStatusMessage();
     } else {
@@ -185,7 +185,7 @@ class AdServiceAdapter {
       if (!isAdReady) {
         return 'Ad not ready';
       }
-      if (shouldShowAdNow()) {
+      if (await shouldShowAdNow()) {
         return 'Ready to show ad';
       }
       return 'Ad ready, waiting for conditions';
@@ -193,18 +193,19 @@ class AdServiceAdapter {
   }
 
   /// Get comprehensive debug info
-  Map<String, dynamic> getComprehensiveDebugInfo() {
+  Future<Map<String, dynamic>> getComprehensiveDebugInfo() async {
     Map<String, dynamic> debugInfo;
 
     if (_shouldUseSimplifiedSystem) {
       debugInfo = {
-        'sessionStats': SimplifiedRoomAds.instance.getSessionStats(),
-        'complianceStatus': SimplifiedRoomAds.instance.getComplianceStatus(),
+        'sessionStats': await SimplifiedRoomAds.instance.getSessionStats(),
+        'complianceStatus':
+            await SimplifiedRoomAds.instance.getComplianceStatus(),
         'statusMessage': SimplifiedRoomAds.instance.getStatusMessage(),
         'timingInfo': SimplifiedRoomAds.instance.getTimingInfo(),
       };
     } else {
-      debugInfo = RoomTransitionAds.instance.getComprehensiveDebugInfo();
+      debugInfo = await RoomTransitionAds.instance.getComprehensiveDebugInfo();
     }
 
     // Add adapter-specific debug info
@@ -221,9 +222,9 @@ class AdServiceAdapter {
   // === NAVIGATION SPECIFIC METHODS ===
 
   /// Check if ads can be shown for navigation
-  bool canShowAdsForNavigation() {
+  Future<bool> canShowAdsForNavigation() async {
     // This method exists in both systems through their respective logic
-    return shouldShowAdNow() && isAdReady;
+    return await shouldShowAdNow() && isAdReady;
   }
 
   /// Get navigation compliance message
@@ -232,8 +233,8 @@ class AdServiceAdapter {
   }
 
   /// Get navigation compliance status
-  Map<String, dynamic> getNavigationComplianceStatus() {
-    return AdMobCompliance.getComplianceStatus();
+  Future<Map<String, dynamic>> getNavigationComplianceStatus() async {
+    return await AdMobCompliance.getComplianceStatus();
   }
 
   /// Get compliance message for display
@@ -246,8 +247,8 @@ class AdServiceAdapter {
   }
 
   /// Validate compliance before navigation
-  bool validateCompliance() {
-    return AdMobCompliance.validateAdCompliance();
+  Future<bool> validateCompliance() async {
+    return await AdMobCompliance.validateAdCompliance();
   }
 
   // === HIGH-LEVEL NAVIGATION METHODS ===
@@ -266,7 +267,7 @@ class AdServiceAdapter {
 
     // Try to show ad if appropriate
     bool adShown = false;
-    if (shouldShowAdNow() && isAdReady) {
+    if (await shouldShowAdNow() && isAdReady) {
       try {
         adShown = await showAdIfAppropriate();
         if (adShown) {
@@ -347,9 +348,10 @@ class AdServiceAdapter {
   // === COMPARISON AND TESTING METHODS ===
 
   /// Compare decision between both ad systems (for A/B testing insights)
-  Map<String, dynamic> compareAdDecisions() {
-    final currentDecision = RoomTransitionAds.instance.shouldShowAdNow();
-    final simplifiedDecision = SimplifiedRoomAds.instance.shouldShowAdNow();
+  Future<Map<String, dynamic>> compareAdDecisions() async {
+    final currentDecision = await RoomTransitionAds.instance.shouldShowAdNow();
+    final simplifiedDecision =
+        await SimplifiedRoomAds.instance.shouldShowAdNow();
 
     return {
       'currentSystemDecision': currentDecision,
@@ -357,20 +359,21 @@ class AdServiceAdapter {
       'decisionsMatch': currentDecision == simplifiedDecision,
       'currentSystemReady': RoomTransitionAds.instance.isAdReady,
       'simplifiedSystemReady': SimplifiedRoomAds.instance.isAdReady,
-      'currentSystemStats': RoomTransitionAds.instance.getSessionStats(),
-      'simplifiedSystemStats': SimplifiedRoomAds.instance.getSessionStats(),
+      'currentSystemStats': await RoomTransitionAds.instance.getSessionStats(),
+      'simplifiedSystemStats':
+          await SimplifiedRoomAds.instance.getSessionStats(),
     };
   }
 
   /// Get metrics for A/B testing analysis
-  Map<String, dynamic> getABTestMetrics() {
+  Future<Map<String, dynamic>> getABTestMetrics() async {
     return {
       'systemUsed': currentSystemName,
       'isABTest': _abTestUseSimplified != null,
-      'sessionStats': getSessionStats(),
-      'complianceStatus': getComplianceStatus(),
+      'sessionStats': await getSessionStats(),
+      'complianceStatus': await getComplianceStatus(),
       'adReadyState': isAdReady,
-      'canShowAd': shouldShowAdNow(),
+      'canShowAd': await shouldShowAdNow(),
       'timestamp': DateTime.now().toIso8601String(),
     };
   }
@@ -415,15 +418,16 @@ class AdServiceAdapter {
   }
 
   /// Log system switch for debugging
-  void logSystemInfo() {
+  Future<void> logSystemInfo() async {
     debugPrint('=== AdServiceAdapter System Info ===');
     debugPrint('Current System: $currentSystemName');
     debugPrint('Feature Flag: $_useSimplifiedAdSystem');
     debugPrint('A/B Test Override: $_abTestUseSimplified');
     debugPrint('Effective Choice: $_shouldUseSimplifiedSystem');
-    debugPrint('Session Stats: ${getSessionStats()}');
+    debugPrint('Session Stats: ${await getSessionStats()}');
     if (_shouldUseSimplifiedSystem) {
-      debugPrint('Optimized Config: ${OptimizedAdConfig.getConfigDescription()}');
+      debugPrint(
+          'Optimized Config: ${OptimizedAdConfig.getConfigDescription()}');
     }
     debugPrint('=====================================');
   }
@@ -462,9 +466,9 @@ class AdServiceAdapter {
   }
 
   /// Get migration status and recommendations
-  Map<String, dynamic> getMigrationStatus() {
+  Future<Map<String, dynamic>> getMigrationStatus() async {
     final currentConfig = getCurrentConfiguration();
-    final stats = getSessionStats();
+    final stats = await getSessionStats();
 
     return {
       'migration_complete': _shouldUseSimplifiedSystem,
@@ -477,31 +481,37 @@ class AdServiceAdapter {
         'session_duration_minutes': stats['sessionDurationMinutes'],
         'engagement_level': stats['userEngagementLevel'] ?? 'unknown',
       },
-      'recommendations': _getMigrationRecommendations(),
+      'recommendations': await _getMigrationRecommendations(),
     };
   }
 
-  List<String> _getMigrationRecommendations() {
+  Future<List<String>> _getMigrationRecommendations() async {
     List<String> recommendations = [];
 
     if (!_shouldUseSimplifiedSystem) {
-      recommendations.add('Enable optimized ad system to increase revenue potential');
-      recommendations.add('Remove session limits for unlimited revenue from engaged users');
-      recommendations.add('Use engagement-based timing for better user experience');
+      recommendations
+          .add('Enable optimized ad system to increase revenue potential');
+      recommendations.add(
+          'Remove session limits for unlimited revenue from engaged users');
+      recommendations
+          .add('Use engagement-based timing for better user experience');
     } else {
-      final stats = getSessionStats();
+      final stats = await getSessionStats();
       final sessionMinutes = stats['sessionDurationMinutes'] as int;
       final adsShown = stats['adsShownThisSession'] as int;
 
       if (sessionMinutes > 15 && adsShown > 0) {
-        recommendations.add('User is highly engaged - unlimited revenue potential active');
+        recommendations
+            .add('User is highly engaged - unlimited revenue potential active');
       }
 
       if (sessionMinutes > 5) {
-        recommendations.add('User reached engaged status - faster ad timing active');
+        recommendations
+            .add('User reached engaged status - faster ad timing active');
       }
 
-      recommendations.add('Optimized system active - monitor user experience metrics');
+      recommendations
+          .add('Optimized system active - monitor user experience metrics');
     }
 
     return recommendations;

@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <!-- UMP SDK uses existing Google Mobile Ads permissions for consent management -->
     <application
         android:label="Talktive"
         android:name="${applicationName}"
@@ -33,6 +34,7 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id"/>
+        <!-- UMP SDK for GDPR consent management is integrated through Google Mobile Ads -->
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

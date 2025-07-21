@@ -135,8 +135,11 @@ class _InitializeState extends State<Initialize> {
       // Initialize ad service adapter
       AdServiceAdapter.instance.initialize();
 
-      // Initialize AdMob compliance system
-      AdMobCompliance.initialize();
+      // Initialize AdMob compliance system (includes consent management)
+      await AdMobCompliance.initialize();
+
+      // Request consent if needed for GDPR compliance
+      await AdMobCompliance.requestConsentIfNeeded();
 
       debugPrint('Initialize: Room transition ads initialization started');
       debugPrint('Initialize: AdMob compliance system initialized');

@@ -215,11 +215,11 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Check if we should show an interstitial ad right now
-  bool shouldShowAdNow() {
+  Future<bool> shouldShowAdNow() async {
     AdMobCompliance.safeLog('=== Ad Show Check Started ===');
 
     // Validate ad compliance first
-    if (!AdMobCompliance.validateAdRequest('interstitial')) {
+    if (!await AdMobCompliance.validateAdRequest('interstitial')) {
       AdMobCompliance.safeLog('❌ Ad request validation failed');
       return false;
     }
@@ -307,7 +307,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Show interstitial ad if timing is appropriate
   Future<bool> showAdIfAppropriate() async {
-    if (!shouldShowAdNow()) {
+    if (!await shouldShowAdNow()) {
       return false;
     }
 
@@ -674,7 +674,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Get current session statistics for debugging
-  Map<String, dynamic> getSessionStats() {
+  Future<Map<String, dynamic>> getSessionStats() async {
     final sessionDuration = _sessionStart != null
         ? DateTime.now().difference(_sessionStart!)
         : Duration.zero;
@@ -688,7 +688,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       'roomTransitions': _roomTransitions,
       'adsShownThisSession': _adsShownThisSession,
       'isAdReady': _isAdReady,
-      'shouldShowAdNow': shouldShowAdNow(),
+      'shouldShowAdNow': await shouldShowAdNow(),
       'timeUntilNextAdEligible': getTimeUntilNextAdEligible()?.inMinutes,
       'maxAdsPerSession': _maxAdsPerSession,
       'transitionsNeededForNextAd': _calculateTransitionsNeededForNextAd(),
@@ -768,8 +768,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Predict when next ad opportunity might occur (for debugging)
-  String _predictNextAdOpportunity() {
-    if (!shouldShowAdNow()) {
+  Future<String> _predictNextAdOpportunity() async {
+    if (!await shouldShowAdNow()) {
       if (_adsShownThisSession >= _maxAdsPerSession) {
         return "Session limit reached";
       }
@@ -855,7 +855,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     // Validate compliance before showing ad
-    if (!AdMobCompliance.validateAdRequest('interstitial')) {
+    if (!await AdMobCompliance.validateAdRequest('interstitial')) {
       AdMobCompliance.safeLog('❌ Compliance validation failed - cannot force show');
       return false;
     }
@@ -898,8 +898,8 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Get compliance status specific to room transition ads
-  Map<String, dynamic> getComplianceStatus() {
-    final generalCompliance = AdMobCompliance.getComplianceStatus();
+  Future<Map<String, dynamic>> getComplianceStatus() async {
+    final generalCompliance = await AdMobCompliance.getComplianceStatus();
     final currentAdUnitId = _getInterstitialAdUnitId();
 
     return {
@@ -907,15 +907,15 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       'currentAdUnitId': currentAdUnitId,
       'isUsingTestAdUnit': currentAdUnitId.contains('3940256099942544'),
       'adReadyState': _isAdReady,
-      'canShowAd': shouldShowAdNow(),
-      'complianceValidated': AdMobCompliance.validateAdRequest('interstitial'),
+      'canShowAd': await shouldShowAdNow(),
+      'complianceValidated': await AdMobCompliance.validateAdRequest('interstitial'),
     };
   }
 
   /// Get comprehensive debug information including compliance
-  Map<String, dynamic> getComprehensiveDebugInfo() {
-    final sessionStats = getSessionStats();
-    final complianceStatus = getComplianceStatus();
+  Future<Map<String, dynamic>> getComprehensiveDebugInfo() async {
+    final sessionStats = await getSessionStats();
+    final complianceStatus = await getComplianceStatus();
     final lifecycleStats = getLifecycleStats();
 
     return {
@@ -923,17 +923,17 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       'compliance': complianceStatus,
       'lifecycle': lifecycleStats,
       'timingMessage': getTimingMessage(),
-      'complianceSummary': AdMobCompliance.getComplianceSummary(),
+      'complianceSummary': await AdMobCompliance.getComplianceSummary(),
       'userFriendlyMessage': AdMobCompliance.getUserFriendlyMessage(),
     };
   }
 
   /// Validate compliance and log detailed status
-  bool validateAndLogCompliance() {
-    final isValid = AdMobCompliance.validateAdRequest('interstitial');
+  Future<bool> validateAndLogCompliance() async {
+    final isValid = await AdMobCompliance.validateAdRequest('interstitial');
 
     if (AdMobCompliance.shouldLogVerbose) {
-      final status = getComplianceStatus();
+      final status = await getComplianceStatus();
       AdMobCompliance.safeLog('=== Room Transition Ads Compliance Check ===');
       AdMobCompliance.safeLog('Valid: $isValid');
       AdMobCompliance.safeLog('Admin User: ${status['isAdmin']}');

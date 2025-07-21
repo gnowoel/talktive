@@ -137,13 +137,13 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Optimized ad show decision logic with engagement-based timing
-  bool shouldShowAdNow() {
+  Future<bool> shouldShowAdNow() async {
     if (OptimizedAdConfig.verboseLogging) {
       debugPrint('=== Ad Show Decision Check (${userEngagementLevel}) ===');
     }
 
     // 1. Compliance check (always required)
-    if (!AdMobCompliance.validateAdRequest('interstitial')) {
+    if (!await AdMobCompliance.validateAdRequest('interstitial')) {
       _logDecision('❌ Compliance validation failed');
       return false;
     }
@@ -226,7 +226,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Show ad if appropriate with simplified flow
   Future<bool> showAdIfAppropriate() async {
-    if (!shouldShowAdNow()) {
+    if (!await shouldShowAdNow()) {
       return false;
     }
 
@@ -515,8 +515,9 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Get compliance status
-  Map<String, dynamic> getComplianceStatus() {
-    final generalCompliance = AdMobCompliance.getComplianceStatus();
+  /// Get compliance status specific to simplified room ads
+  Future<Map<String, dynamic>> getComplianceStatus() async {
+    final generalCompliance = await AdMobCompliance.getComplianceStatus();
     final currentAdUnitId = _getAdUnitId();
 
     return {
@@ -524,8 +525,8 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       'currentAdUnitId': currentAdUnitId,
       'isUsingTestAdUnit': currentAdUnitId.contains('3940256099942544'),
       'adReadyState': _isAdReady,
-      'canShowAd': shouldShowAdNow(),
-      'complianceValidated': AdMobCompliance.validateAdRequest('interstitial'),
+      'canShowAd': await shouldShowAdNow(),
+      'complianceValidated': await AdMobCompliance.validateAdRequest('interstitial'),
     };
   }
 

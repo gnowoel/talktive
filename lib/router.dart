@@ -78,8 +78,9 @@ Future<GoRouter> initRouter() async {
                       final chatId = state.pathParameters['id']!;
                       final encodedChatCreatedAt =
                           state.uri.queryParameters['chatCreatedAt'] ?? '0';
-                      final chatCreatedAt =
-                          Uri.decodeComponent(encodedChatCreatedAt);
+                      final chatCreatedAt = Uri.decodeComponent(
+                        encodedChatCreatedAt,
+                      );
 
                       final userStub = UserStub(createdAt: 0, updatedAt: 0);
                       final chatStub = ChatStub(
@@ -101,11 +102,14 @@ Future<GoRouter> initRouter() async {
                       final topicId = state.pathParameters['id']!;
                       final encodedTopicCreatorId =
                           state.uri.queryParameters['topicCreatorId'] ?? '';
-                      final topicCreatorId =
-                          Uri.decodeComponent(encodedTopicCreatorId);
+                      final topicCreatorId = Uri.decodeComponent(
+                        encodedTopicCreatorId,
+                      );
 
                       return TopicPage(
-                          topicId: topicId, topicCreatorId: topicCreatorId);
+                        topicId: topicId,
+                        topicCreatorId: topicCreatorId,
+                      );
                     },
                   ),
                 ],
@@ -173,9 +177,7 @@ Future<GoRouter> initRouter() async {
             return const ReportsPage();
           }
           // Return unauthorized state
-          return const Scaffold(
-            body: Center(child: Text('Unauthorized')),
-          );
+          return const Scaffold(body: Center(child: Text('Unauthorized')));
         },
       ),
       GoRoute(
@@ -213,10 +215,10 @@ Future<GoRouter> initRouter() async {
           return CreateTopicPage(initialTribeId: tribeId);
         },
       ),
-      GoRoute(
-        path: '/debug/ads',
-        builder: (context, state) => const AdTestPage(),
-      ),
+      // GoRoute(
+      //   path: '/debug/ads',
+      //   builder: (context, state) => const AdTestPage(),
+      // ),
     ],
   );
 }

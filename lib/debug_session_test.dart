@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'services/ad_service/ad_service_adapter.dart';
-import 'services/ad_service/simplified_room_ads.dart';
-import 'services/ad_service/admob_compliance.dart';
+
 import 'services/ad_service/optimized_ad_config.dart';
 
 /// Debug widget to test session initialization and ad service functionality
@@ -25,7 +24,7 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
     _runInitialTest();
   }
 
-  void _runInitialTest() async {
+  Future<void> _runInitialTest() async {
     setState(() {
       _isTesting = true;
       _testResults = 'Running initial session test...';
@@ -37,9 +36,8 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
       adapter.initialize();
 
       // Get session status
-      final stats = adapter.getSessionStats();
-      final statusMessage = adapter.getStatusMessage();
-      final shouldShow = adapter.shouldShowAdNow();
+      final stats = await adapter.getSessionStats();
+      final statusMessage = await adapter.getStatusMessage();
 
       setState(() {
         _sessionStats = stats;
@@ -58,7 +56,7 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
     }
   }
 
-  void _testRoomTransition() async {
+  Future<void> _testRoomTransition() async {
     setState(() {
       _isTesting = true;
       _testResults = 'Testing room transition...';
@@ -66,12 +64,12 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
 
     try {
       final adapter = AdServiceAdapter.instance;
-      final beforeTransitions = adapter.getRoomTransitions();
+      final beforeTransitions = adapter.roomTransitions;
 
       adapter.trackRoomTransition();
 
-      final afterTransitions = adapter.getRoomTransitions();
-      final stats = adapter.getSessionStats();
+      final afterTransitions = adapter.roomTransitions;
+      final stats = await adapter.getSessionStats();
 
       setState(() {
         _sessionStats = stats;
@@ -87,7 +85,7 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
     }
   }
 
-  void _testAdDecision() async {
+  Future<void> _testAdDecision() async {
     setState(() {
       _isTesting = true;
       _testResults = 'Testing ad decision logic...';
@@ -95,9 +93,9 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
 
     try {
       final adapter = AdServiceAdapter.instance;
-      final shouldShow = adapter.shouldShowAdNow();
-      final stats = adapter.getSessionStats();
-      final statusMessage = adapter.getStatusMessage();
+      final shouldShow = await adapter.shouldShowAdNow();
+      final stats = await adapter.getSessionStats();
+      final statusMessage = await adapter.getStatusMessage();
 
       setState(() {
         _sessionStats = stats;
@@ -115,7 +113,7 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
     }
   }
 
-  void _resetSession() async {
+  Future<void> _resetSession() async {
     setState(() {
       _isTesting = true;
       _testResults = 'Resetting session...';
@@ -125,7 +123,7 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
       final adapter = AdServiceAdapter.instance;
       adapter.resetSession();
 
-      final stats = adapter.getSessionStats();
+      final stats = await adapter.getSessionStats();
 
       setState(() {
         _sessionStats = stats;
@@ -311,8 +309,7 @@ class _DebugSessionTestState extends State<DebugSessionTest> {
                     Text(
                         'System: ${AdServiceAdapter.instance.currentSystemName}'),
                     Text('Config: ${OptimizedAdConfig.getConfigDescription()}'),
-                    Text(
-                        'Compliance: ${AdMobCompliance.getComplianceStatus()['isCompliant'] == true ? "Valid" : "Invalid"}'),
+                    const Text('Compliance: Check logs for status'),
                     const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: () {

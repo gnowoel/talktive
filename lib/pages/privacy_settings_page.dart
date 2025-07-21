@@ -19,7 +19,7 @@ class PrivacySettingsPage extends StatefulWidget {
 
 class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
   bool _isLoading = false;
-  Map<String, dynamic>? _consentInfo;
+
   String? _statusMessage;
   String? _error;
   bool _canShowPersonalized = false;
@@ -39,14 +39,14 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
     });
 
     try {
-      final consentInfo = await ConsentService.instance.getConsentDebugInfo();
       final statusMessage = await AdMobCompliance.getConsentStatusMessage();
-      final canPersonalized = await ConsentService.instance.canShowPersonalizedAds();
-      final canNonPersonalized = await ConsentService.instance.canShowNonPersonalizedAds();
+      final canPersonalized =
+          await ConsentService.instance.canShowPersonalizedAds();
+      final canNonPersonalized =
+          await ConsentService.instance.canShowNonPersonalizedAds();
       final inConsentRegion = await ConsentService.instance.isInConsentRegion();
 
       setState(() {
-        _consentInfo = consentInfo;
         _statusMessage = statusMessage;
         _canShowPersonalized = canPersonalized;
         _canShowNonPersonalized = canNonPersonalized;
@@ -223,9 +223,12 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                             const SizedBox(height: 8),
                             Text(
                               _statusMessage!,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
                             ),
                           ],
                         ],
@@ -275,8 +278,12 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                           Row(
                             children: [
                               Icon(
-                                _canShowPersonalized ? Icons.check_circle : Icons.cancel,
-                                color: _canShowPersonalized ? Colors.green : Colors.red,
+                                _canShowPersonalized
+                                    ? Icons.check_circle
+                                    : Icons.cancel,
+                                color: _canShowPersonalized
+                                    ? Colors.green
+                                    : Colors.red,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -286,13 +293,15 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                                   children: [
                                     const Text(
                                       'Personalized Ads',
-                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
                                     ),
                                     Text(
                                       _canShowPersonalized
                                           ? 'Ads tailored to your interests'
                                           : 'Generic ads not based on your data',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -306,8 +315,12 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                           Row(
                             children: [
                               Icon(
-                                _canShowNonPersonalized ? Icons.check_circle : Icons.cancel,
-                                color: _canShowNonPersonalized ? Colors.green : Colors.red,
+                                _canShowNonPersonalized
+                                    ? Icons.check_circle
+                                    : Icons.cancel,
+                                color: _canShowNonPersonalized
+                                    ? Colors.green
+                                    : Colors.red,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -317,13 +330,15 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                                   children: [
                                     const Text(
                                       'Non-Personalized Ads',
-                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
                                     ),
                                     Text(
                                       _canShowNonPersonalized
                                           ? 'Standard ads without personal targeting'
                                           : 'Ad serving currently restricted',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -377,13 +392,17 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.info_outline, color: Colors.blue.shade700),
+                              Icon(Icons.info_outline,
+                                  color: Colors.blue.shade700),
                               const SizedBox(width: 8),
                               Text(
                                 'About Privacy & Ads',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.blue.shade700,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.blue.shade700,
+                                    ),
                               ),
                             ],
                           ),

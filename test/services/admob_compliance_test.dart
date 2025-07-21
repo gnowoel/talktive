@@ -43,8 +43,8 @@ void main() {
     });
 
     group('Compliance Status', () {
-      test('should return correct compliance status structure', () {
-        final status = AdMobCompliance.getComplianceStatus();
+      test('should return correct compliance status structure', () async {
+        final status = await AdMobCompliance.getComplianceStatus();
 
         expect(status, isA<Map<String, dynamic>>());
         expect(status['isCompliant'], isTrue);
@@ -56,8 +56,8 @@ void main() {
         expect(status.containsKey('policyReference'), isTrue);
       });
 
-      test('should have valid policy reference', () {
-        final status = AdMobCompliance.getComplianceStatus();
+      test('should have valid policy reference', () async {
+        final status = await AdMobCompliance.getComplianceStatus();
         final policyRef = status['policyReference'] as String;
 
         expect(policyRef, isNotEmpty);
@@ -96,30 +96,30 @@ void main() {
     });
 
     group('Ad Request Validation', () {
-      test('should validate banner ad request', () {
-        final isValid = AdMobCompliance.validateAdRequest('banner');
+      test('should validate banner ad request', () async {
+        final isValid = await AdMobCompliance.validateAdRequest('banner');
         expect(isValid, isTrue);
       });
 
-      test('should validate interstitial ad request', () {
-        final isValid = AdMobCompliance.validateAdRequest('interstitial');
+      test('should validate interstitial ad request', () async {
+        final isValid = await AdMobCompliance.validateAdRequest('interstitial');
         expect(isValid, isTrue);
       });
 
-      test('should validate rewarded ad request', () {
-        final isValid = AdMobCompliance.validateAdRequest('rewarded');
+      test('should validate rewarded ad request', () async {
+        final isValid = await AdMobCompliance.validateAdRequest('rewarded');
         expect(isValid, isTrue);
       });
 
-      test('should handle unknown ad type gracefully', () {
-        final isValid = AdMobCompliance.validateAdRequest('unknown');
+      test('should handle unknown ad type gracefully', () async {
+        final isValid = await AdMobCompliance.validateAdRequest('unknown');
         expect(isValid, isTrue); // Should still be valid (graceful handling)
       });
     });
 
     group('Detailed Compliance Info', () {
-      test('should return detailed compliance information', () {
-        final info = AdMobCompliance.getDetailedComplianceInfo();
+      test('should return detailed compliance information', () async {
+        final info = await AdMobCompliance.getDetailedComplianceInfo();
 
         expect(info, isA<Map<String, dynamic>>());
         expect(info.containsKey('timestamp'), isTrue);
@@ -134,8 +134,8 @@ void main() {
         expect(info.containsKey('adUnitType'), isTrue);
       });
 
-      test('should have valid timestamp in detailed info', () {
-        final info = AdMobCompliance.getDetailedComplianceInfo();
+      test('should have valid timestamp in detailed info', () async {
+        final info = await AdMobCompliance.getDetailedComplianceInfo();
         final timestamp = info['timestamp'] as String;
 
         expect(timestamp, isNotEmpty);
@@ -144,8 +144,8 @@ void main() {
     });
 
     group('Compliance Summary', () {
-      test('should return non-empty compliance summary', () {
-        final summary = AdMobCompliance.getComplianceSummary();
+      test('should return non-empty compliance summary', () async {
+        final summary = await AdMobCompliance.getComplianceSummary();
         expect(summary, isA<String>());
         expect(summary, isNotEmpty);
         expect(summary, startsWith('AdMob Compliance:'));

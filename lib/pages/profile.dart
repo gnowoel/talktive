@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../helpers/helpers.dart';
 
 import '../services/user_cache.dart';
+import '../services/ad_service/consent_service.dart';
+import '../services/ad_service/admob_compliance.dart';
 import '../widgets/layout.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -219,19 +221,38 @@ class ProfilePage extends StatelessWidget {
 
                           // Privacy and account buttons
                           const SizedBox(height: 32),
-                          ElevatedButton.icon(
-                            onPressed: () =>
-                                context.push('/profile/privacy-settings'),
-                            icon: const Icon(Icons.privacy_tip),
-                            label: const Text('Privacy Settings'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  theme.colorScheme.primaryContainer,
-                              foregroundColor:
-                                  theme.colorScheme.onPrimaryContainer,
-                            ),
+                          FutureBuilder<bool>(
+                            future: ConsentService.instance.isInConsentRegion(),
+                            builder: (context, snapshot) {
+                              final isInConsentRegion = snapshot.data ?? false;
+                              final isAdmin =
+                                  AdMobCompliance.isCurrentUserAdmin;
+                              final showPrivacySettings =
+                                  isInConsentRegion || isAdmin;
+
+                              return Column(
+                                children: [
+                                  if (showPrivacySettings) ...[
+                                    ElevatedButton.icon(
+                                      onPressed: () => context
+                                          .push('/profile/privacy-settings'),
+                                      icon: const Icon(Icons.privacy_tip),
+                                      label: Text(isAdmin && !isInConsentRegion
+                                          ? 'Privacy Settings (Admin)'
+                                          : 'Privacy Settings'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            theme.colorScheme.primaryContainer,
+                                        foregroundColor: theme
+                                            .colorScheme.onPrimaryContainer,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                ],
+                              );
+                            },
                           ),
-                          const SizedBox(height: 16),
                           OutlinedButton(
                             onPressed: () => context.push('/profile/backup'),
                             child: const Text('Backup Account'),

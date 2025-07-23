@@ -65,10 +65,10 @@ class AdRequestHelper {
           await _consentService.canShowPersonalizedAds();
       final canShowNonPersonalized =
           await _consentService.canShowNonPersonalizedAds();
-      final isConsentRequired = await _consentService.isConsentRequired();
+      final isConsentRequired = await _consentService.isInConsentRegion();
 
-      // Determine if we can make ad requests
-      bool canMakeRequest = canRequestAds || canShowNonPersonalized;
+      // Determine if we can make ad requests (simplified logic)
+      bool canMakeRequest = canRequestAds;
 
       // Determine ad type
       AdType recommendedAdType = AdType.personalized;
@@ -101,7 +101,7 @@ class AdRequestHelper {
     } catch (e) {
       _logError('Failed to validate ad request: $e');
 
-      // Return permissive fallback
+      // Return permissive fallback (simplified)
       return AdRequestValidation(
         canRequestAds: true,
         recommendedAdType: AdType.personalized,
@@ -122,10 +122,11 @@ class AdRequestHelper {
     List<String>? keywords,
   }) async {
     try {
+      // Validate consent before attempting to load ad
       final validation = await validateAdRequest();
 
       if (!validation.canRequestAds) {
-        _logAdRequest('Cannot request banner ad: ${validation.message}');
+        _logAdRequest('Cannot load ad: ${validation.message}');
         return null;
       }
 
@@ -258,7 +259,8 @@ class AdRequestHelper {
       _logAdRequest('Initializing Mobile Ads SDK...');
 
       // Initialize the consent service first
-      await _consentService.initialize();
+      final consentInitialized = await _consentService.initialize();
+      _logAdRequest('Consent service initialized: $consentInitialized');
 
       // Initialize Mobile Ads SDK
       await MobileAds.instance.initialize();

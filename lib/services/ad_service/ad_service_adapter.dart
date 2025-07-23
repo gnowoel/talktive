@@ -56,33 +56,15 @@ class AdServiceAdapter {
 
   // === UNIFIED INTERFACE ===
 
-  /// Initialize the appropriate ad system with consent handling
-  Future<void> initialize() async {
-    debugPrint('AdServiceAdapter: Initializing $currentSystemName with consent handling');
+  /// Initialize the appropriate ad system
+  void initialize() {
+    debugPrint('AdServiceAdapter: Initializing $currentSystemName');
     debugPrint('Configuration: ${OptimizedAdConfig.getConfigDescription()}');
 
-    try {
-      // Initialize consent-aware ad system first
-      final canShowAds = await AdRequestHelper.instance.handleConsentAndInitialize();
-      debugPrint('AdServiceAdapter: Consent initialization completed, can show ads: $canShowAds');
-
-      // Initialize the appropriate ad system
-      if (_shouldUseSimplifiedSystem) {
-        SimplifiedRoomAds.instance.initialize();
-      } else {
-        RoomTransitionAds.instance.initialize();
-      }
-
-      debugPrint('AdServiceAdapter: $currentSystemName initialized successfully');
-    } catch (e) {
-      debugPrint('AdServiceAdapter: Failed to initialize with consent: $e');
-
-      // Fallback: Initialize ad system without consent (will handle gracefully)
-      if (_shouldUseSimplifiedSystem) {
-        SimplifiedRoomAds.instance.initialize();
-      } else {
-        RoomTransitionAds.instance.initialize();
-      }
+    if (_shouldUseSimplifiedSystem) {
+      SimplifiedRoomAds.instance.initialize();
+    } else {
+      RoomTransitionAds.instance.initialize();
     }
   }
 
@@ -101,7 +83,8 @@ class AdServiceAdapter {
       // First validate consent
       final validation = await AdRequestHelper.instance.validateAdRequest();
       if (!validation.canRequestAds) {
-        debugPrint('AdServiceAdapter: Cannot show ad due to consent: ${validation.message}');
+        debugPrint(
+            'AdServiceAdapter: Cannot show ad due to consent: ${validation.message}');
         return false;
       }
 
@@ -123,7 +106,8 @@ class AdServiceAdapter {
       // Validate consent before attempting to show ad
       final validation = await AdRequestHelper.instance.validateAdRequest();
       if (!validation.canRequestAds) {
-        debugPrint('AdServiceAdapter: Cannot show ad due to consent: ${validation.message}');
+        debugPrint(
+            'AdServiceAdapter: Cannot show ad due to consent: ${validation.message}');
         return false;
       }
 

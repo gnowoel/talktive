@@ -4,143 +4,142 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'admob_compliance.dart';
 
-/// Consent Management Service for GDPR compliance
+/// Simplified Consent Management Service for GDPR compliance
 ///
-/// This service handles user consent for personalized ads in the EEA, UK, and Switzerland
-/// using Google's User Messaging Platform (UMP) SDK to resolve "No CMP" AdMob policy issues.
+/// This service handles user consent for personalized ads using Google's UMP SDK.
+/// It's designed to be robust, simple, and fail gracefully without breaking ads.
 class ConsentService {
   static ConsentService? _instance;
   static ConsentService get instance => _instance ??= ConsentService._();
 
   ConsentService._();
 
+  // Storage keys
   static const String _consentStatusKey = 'consent_status';
   static const String _lastConsentRequestKey = 'last_consent_request';
-  static const String _consentVersionKey = 'consent_version';
   static const String _userRegionKey = 'user_region';
 
-  // Current consent version - increment when privacy policy changes
-  static const int currentConsentVersion = 1;
+  // Configuration
+  static const bool _forceEeaTesting =
+      false; // Set to true ONLY for GDPR testing
 
-  // Set to true only when explicitly testing GDPR compliance
-  static const bool _forceEeaTesting = false;
-
+  // Simple state management
   bool _isInitialized = false;
-  bool _isRequestingConsent = false;
-  bool _initializationFailed = false;
-  final Completer<void> _initializationCompleter = Completer<void>();
+  bool _isInitializing = false;
+  String? _initializationError;
 
   /// Initialize the consent service
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-    if (_initializationCompleter.isCompleted)
-      return _initializationCompleter.future;
+  /// Returns true if successful, false if failed (but ads can still work)
+  Future<bool> initialize() async {
+    if (_isInitialized) return true;
+    if (_isInitializing) {
+      // Wait for ongoing initialization
+      while (_isInitializing && !_isInitialized) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      return _isInitialized;
+    }
+
+    _isInitializing = true;
+    _initializationError = null;
 
     try {
-      // Update consent information
       await _updateConsentInformation();
       _isInitialized = true;
-      _initializationFailed = false;
-
-      if (!_initializationCompleter.isCompleted) {
-        _initializationCompleter.complete();
-      }
-
-      _logConsentStatus('Consent service initialized successfully');
+      _log('Consent service initialized successfully');
+      return true;
     } catch (e) {
-      _initializationFailed = true;
-      _logError('Failed to initialize consent service: $e');
-
-      if (!_initializationCompleter.isCompleted) {
-        _initializationCompleter.complete(); // Complete anyway to not block ads
-      }
-
-      // Don't rethrow - allow ads to continue with fallback behavior
+      _initializationError = e.toString();
+      _logError('Consent service initialization failed: $e');
+      return false;
+    } finally {
+      _isInitializing = false;
     }
   }
 
-  /// Update consent information from Google
+  /// Update consent information from Google UMP
   Future<void> _updateConsentInformation() async {
     final completer = Completer<void>();
 
-    try {
-      // Only set debug geography when explicitly testing GDPR
-      ConsentDebugSettings? debugSettings;
-      if (kDebugMode && _forceEeaTesting) {
-        debugSettings = ConsentDebugSettings(
-          debugGeography: DebugGeography.debugGeographyEea,
-          testIdentifiers: [
-            // Add your test device IDs here if needed
-          ],
-        );
-        _logConsentStatus('Debug mode: Forcing EEA geography for testing');
-      }
-
-      final params = ConsentRequestParameters(
-        consentDebugSettings: debugSettings,
+    // Configure debug settings if needed
+    ConsentDebugSettings? debugSettings;
+    if (kDebugMode && _forceEeaTesting) {
+      debugSettings = ConsentDebugSettings(
+        debugGeography: DebugGeography.debugGeographyEea,
+        testIdentifiers: [], // Add test device IDs if needed
       );
-
-      ConsentInformation.instance.requestConsentInfoUpdate(
-        params,
-        () async {
-          _logConsentStatus('Consent information updated successfully');
-          await _saveRegionInfo();
-          completer.complete();
-        },
-        (FormError error) {
-          _logError('Failed to update consent information: ${error.message}');
-          // Complete anyway to not block initialization
-          completer.complete();
-        },
-      );
-
-      return completer.future;
-    } catch (e) {
-      _logError('Exception in _updateConsentInformation: $e');
-      // Don't rethrow - complete to avoid blocking
-      return;
+      _log('Debug mode: Forcing EEA geography for testing');
     }
+
+    final params = ConsentRequestParameters(
+      consentDebugSettings: debugSettings,
+    );
+
+    // Request consent info update
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      params,
+      () async {
+        try {
+          await _cacheRegionInfo();
+          _log('Consent information updated successfully');
+          completer.complete();
+        } catch (e) {
+          _logError('Failed to cache region info: $e');
+          completer.complete(); // Complete anyway
+        }
+      },
+      (FormError error) {
+        _logError('UMP consent info update failed: ${error.message}');
+        completer.complete(); // Complete anyway to not block
+      },
+    );
+
+    return completer.future.timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        _logError('Consent info update timed out');
+        // Don't throw - just continue
+      },
+    );
   }
 
-  /// Save region information for debugging
-  Future<void> _saveRegionInfo() async {
+  /// Cache region information for faster access
+  Future<void> _cacheRegionInfo() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final status = await getConsentStatus();
+      final status = await ConsentInformation.instance.getConsentStatus();
 
       String region = 'unknown';
-      if (status == ConsentStatus.notRequired) {
-        region = 'non_eea';
-      } else if (status == ConsentStatus.required ||
-          status == ConsentStatus.obtained) {
-        region = 'eea';
+      switch (status) {
+        case ConsentStatus.notRequired:
+          region = 'non_eea';
+          break;
+        case ConsentStatus.required:
+        case ConsentStatus.obtained:
+          region = 'eea';
+          break;
+        case ConsentStatus.unknown:
+          region = 'unknown';
+          break;
       }
 
       await prefs.setString(_userRegionKey, region);
-      _logConsentStatus('User region saved: $region');
+      await prefs.setInt(
+          _lastConsentRequestKey, DateTime.now().millisecondsSinceEpoch);
+      _log('Cached region info: $region');
     } catch (e) {
-      _logError('Failed to save region info: $e');
-    }
-  }
-
-  /// Check if consent is required
-  Future<bool> isConsentRequired() async {
-    if (!_isInitialized) await initialize();
-
-    try {
-      final status = await getConsentStatus();
-      return status == ConsentStatus.required;
-    } catch (e) {
-      _logError('Failed to check if consent required: $e');
-      return false; // Default to not required to avoid blocking ads
+      _logError('Failed to cache region info: $e');
+      // Don't rethrow - not critical
     }
   }
 
   /// Get current consent status
   Future<ConsentStatus> getConsentStatus() async {
-    if (!_isInitialized && !_initializationFailed) await initialize();
-
     try {
+      if (!_isInitialized) {
+        final success = await initialize();
+        if (!success) return ConsentStatus.unknown;
+      }
       return await ConsentInformation.instance.getConsentStatus();
     } catch (e) {
       _logError('Failed to get consent status: $e');
@@ -148,11 +147,25 @@ class ConsentService {
     }
   }
 
+  /// Check if user is in a region that requires consent
+  Future<bool> isInConsentRegion() async {
+    try {
+      final status = await getConsentStatus();
+      return status == ConsentStatus.required ||
+          status == ConsentStatus.obtained;
+    } catch (e) {
+      _logError('Failed to check consent region: $e');
+      return false; // Default to not requiring consent
+    }
+  }
+
   /// Check if consent form is available
   Future<bool> isConsentFormAvailable() async {
-    if (!_isInitialized && !_initializationFailed) await initialize();
-
     try {
+      if (!_isInitialized) {
+        final success = await initialize();
+        if (!success) return false;
+      }
       return await ConsentInformation.instance.isConsentFormAvailable();
     } catch (e) {
       _logError('Failed to check consent form availability: $e');
@@ -160,176 +173,131 @@ class ConsentService {
     }
   }
 
-  /// Check if privacy options are required
-  Future<bool> isPrivacyOptionsRequired() async {
-    if (!_isInitialized && !_initializationFailed) await initialize();
-
+  /// Request consent from user if needed
+  Future<ConsentStatus> requestConsent() async {
     try {
-      return await ConsentInformation.instance
-              .getPrivacyOptionsRequirementStatus() ==
-          PrivacyOptionsRequirementStatus.required;
+      final currentStatus = await getConsentStatus();
+
+      // Don't show form if not needed
+      if (currentStatus == ConsentStatus.notRequired ||
+          currentStatus == ConsentStatus.obtained) {
+        _log('Consent not needed, current status: $currentStatus');
+        return currentStatus;
+      }
+
+      // Check if form is available
+      final formAvailable = await isConsentFormAvailable();
+      if (!formAvailable) {
+        _log(
+            'Consent form not available, using current status: $currentStatus');
+        return currentStatus;
+      }
+
+      // Show consent form
+      final completer = Completer<ConsentStatus>();
+
+      ConsentForm.loadAndShowConsentFormIfRequired((FormError? error) async {
+        if (error != null) {
+          _logError('Consent form error: ${error.message}');
+        }
+
+        try {
+          final newStatus =
+              await ConsentInformation.instance.getConsentStatus();
+          await _cacheRegionInfo();
+          _log('Consent request completed with status: $newStatus');
+          completer.complete(newStatus);
+        } catch (e) {
+          _logError('Failed to get status after consent: $e');
+          completer.complete(currentStatus);
+        }
+      });
+
+      return await completer.future.timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          _logError('Consent request timed out');
+          return currentStatus;
+        },
+      );
     } catch (e) {
-      _logError('Failed to check privacy options requirement: $e');
+      _logError('Consent request failed: $e');
+      return await getConsentStatus(); // Return current status as fallback
+    }
+  }
+
+  /// Show privacy options form (where required)
+  Future<bool> showPrivacyOptionsForm() async {
+    try {
+      final isRequired = await ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus();
+      if (isRequired != PrivacyOptionsRequirementStatus.required) {
+        _log('Privacy options not required');
+        return false;
+      }
+
+      final completer = Completer<bool>();
+
+      ConsentForm.showPrivacyOptionsForm((FormError? error) {
+        if (error != null) {
+          _logError('Privacy options form error: ${error.message}');
+          completer.complete(false);
+        } else {
+          _log('Privacy options form shown successfully');
+          completer.complete(true);
+        }
+      });
+
+      return await completer.future.timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          _logError('Privacy options form timed out');
+          return false;
+        },
+      );
+    } catch (e) {
+      _logError('Failed to show privacy options: $e');
       return false;
     }
   }
 
-  /// Request consent from user (only if in consent-required region)
-  Future<ConsentStatus> requestConsent() async {
-    if (!_isInitialized && !_initializationFailed) await initialize();
-    if (_isRequestingConsent) {
-      _logConsentStatus('Consent request already in progress');
-      return await getConsentStatus();
-    }
-
-    _isRequestingConsent = true;
-    final completer = Completer<ConsentStatus>();
-
-    try {
-      // Check current status first
-      final status = await getConsentStatus();
-
-      // Don't show consent form if not in EEA/consent region
-      if (status == ConsentStatus.notRequired) {
-        _logConsentStatus('Consent not required in this region: $status');
-        _isRequestingConsent = false;
-        return status;
-      }
-
-      // Don't show consent form if already obtained
-      if (status == ConsentStatus.obtained) {
-        _logConsentStatus('Consent already obtained: $status');
-        _isRequestingConsent = false;
-        return status;
-      }
-
-      // Check if form is available before attempting to show
-      final formAvailable = await isConsentFormAvailable();
-      if (!formAvailable) {
-        _logConsentStatus(
-            'Consent form not available, using current status: $status');
-        _isRequestingConsent = false;
-        return status;
-      }
-
-      // Load and show consent form if required
-      ConsentForm.loadAndShowConsentFormIfRequired(
-          (FormError? loadAndShowError) async {
-        try {
-          if (loadAndShowError != null) {
-            _logError('Consent form error: ${loadAndShowError.message}');
-            // Don't fail completely - get current status
-            final currentStatus = await getConsentStatus();
-            completer.complete(currentStatus);
-          } else {
-            // Consent has been gathered or was not required
-            final newStatus = await getConsentStatus();
-            await _saveConsentStatus();
-            _logConsentStatus(
-                'Consent request completed with status: $newStatus');
-            completer.complete(newStatus);
-          }
-        } catch (e) {
-          _logError('Error in consent form callback: $e');
-          final fallbackStatus = await getConsentStatus();
-          completer.complete(fallbackStatus);
-        }
-        _isRequestingConsent = false;
-      });
-
-      return completer.future;
-    } catch (e) {
-      _isRequestingConsent = false;
-      _logError('Failed to request consent: $e');
-      // Return current status instead of throwing
-      return await getConsentStatus();
-    }
-  }
-
-  /// Show privacy options form
-  Future<void> showPrivacyOptionsForm() async {
-    if (!_isInitialized && !_initializationFailed) await initialize();
-
-    final completer = Completer<void>();
-
-    try {
-      ConsentForm.showPrivacyOptionsForm((FormError? formError) {
-        if (formError != null) {
-          _logError('Privacy options form error: ${formError.message}');
-          completer.completeError(formError);
-        } else {
-          _logConsentStatus('Privacy options form shown successfully');
-          completer.complete();
-        }
-      });
-
-      return completer.future;
-    } catch (e) {
-      _logError('Failed to show privacy options form: $e');
-      rethrow;
-    }
-  }
-
-  /// Save consent status to preferences
-  Future<void> _saveConsentStatus() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      final status = await getConsentStatus();
-
-      await prefs.setInt(_consentStatusKey, status.index);
-      await prefs.setInt(
-          _lastConsentRequestKey, DateTime.now().millisecondsSinceEpoch);
-      await prefs.setInt(_consentVersionKey, currentConsentVersion);
-
-      _logConsentStatus('Consent status saved: $status');
-    } catch (e) {
-      _logError('Failed to save consent status: $e');
-    }
-  }
-
-  /// Clear stored consent status
-  Future<void> _clearConsentStatus() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_consentStatusKey);
-      await prefs.remove(_lastConsentRequestKey);
-      await prefs.remove(_consentVersionKey);
-      await prefs.remove(_userRegionKey);
-    } catch (e) {
-      _logError('Failed to clear consent status: $e');
-    }
-  }
-
-  /// Reset consent (for testing or privacy settings)
+  /// Reset consent (for testing or user request)
   Future<void> resetConsent() async {
     try {
-      if (_isInitialized) {
-        ConsentInformation.instance.reset();
-      }
-      await _clearConsentStatus();
-      _logConsentStatus('Consent reset successfully');
+      ConsentInformation.instance.reset();
+      await _clearStoredData();
+      _log('Consent reset successfully');
     } catch (e) {
       _logError('Failed to reset consent: $e');
     }
   }
 
-  /// Check if ads can be requested (more permissive approach)
-  Future<bool> canRequestAds() async {
-    if (!_isInitialized && !_initializationFailed) await initialize();
-
+  /// Clear stored consent data
+  Future<void> _clearStoredData() async {
     try {
-      // If initialization failed, allow ads with fallback behavior
-      if (_initializationFailed) {
-        _logConsentStatus('Initialization failed, allowing ads with fallback');
-        return true;
-      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_consentStatusKey);
+      await prefs.remove(_lastConsentRequestKey);
+      await prefs.remove(_userRegionKey);
+    } catch (e) {
+      _logError('Failed to clear stored data: $e');
+    }
+  }
 
+  /// Check if ads can be requested
+  Future<bool> canRequestAds() async {
+    try {
+      if (!_isInitialized) {
+        final success = await initialize();
+        if (!success) {
+          _log('Initialization failed, allowing ads with fallback');
+          return true; // Fail open for ads
+        }
+      }
       return await ConsentInformation.instance.canRequestAds();
     } catch (e) {
       _logError('Failed to check if can request ads: $e');
-      // Default to true to avoid blocking ads completely
-      return true;
+      return true; // Fail open for ads
     }
   }
 
@@ -349,134 +317,34 @@ class ConsentService {
     try {
       final status = await getConsentStatus();
 
-      // Non-personalized ads can be shown in these cases:
-      // 1. Consent not required (non-EEA)
-      // 2. Consent obtained (EEA with consent)
-      // 3. When ads can be requested (fallback)
-      if (status == ConsentStatus.notRequired ||
-          status == ConsentStatus.obtained) {
-        return true;
+      // Non-personalized ads can be shown in most cases
+      switch (status) {
+        case ConsentStatus.notRequired:
+        case ConsentStatus.obtained:
+          return true;
+        case ConsentStatus.required:
+        case ConsentStatus.unknown:
+          return await canRequestAds();
       }
-
-      // Fallback check
-      return await canRequestAds();
     } catch (e) {
       _logError('Failed to check non-personalized ads: $e');
-      // Default to true for non-personalized ads as they're less restrictive
-      return true;
+      return true; // Fail open for non-personalized ads
     }
   }
 
-  /// Get comprehensive consent status for debugging
-  Future<Map<String, dynamic>> getConsentDebugInfo() async {
-    try {
-      final status = await getConsentStatus();
-      final isRequired = await isConsentRequired();
-      final formAvailable = await isConsentFormAvailable();
-      final canPersonalized = await canShowPersonalizedAds();
-      final canNonPersonalized = await canShowNonPersonalizedAds();
-      final canRequest = await canRequestAds();
-      final privacyOptionsRequired = await isPrivacyOptionsRequired();
-
-      final prefs = await SharedPreferences.getInstance();
-      final savedRegion = prefs.getString(_userRegionKey) ?? 'unknown';
-
-      return {
-        'consentStatus': status.toString(),
-        'isConsentRequired': isRequired,
-        'isConsentFormAvailable': formAvailable,
-        'canShowPersonalizedAds': canPersonalized,
-        'canShowNonPersonalizedAds': canNonPersonalized,
-        'canRequestAds': canRequest,
-        'privacyOptionsRequired': privacyOptionsRequired,
-        'isInitialized': _isInitialized,
-        'initializationFailed': _initializationFailed,
-        'isRequestingConsent': _isRequestingConsent,
-        'consentVersion': currentConsentVersion,
-        'debugMode': kDebugMode,
-        'forceEeaTesting': _forceEeaTesting,
-        'userRegion': savedRegion,
-        'timestamp': DateTime.now().toIso8601String(),
-      };
-    } catch (e) {
-      return {
-        'error': 'Failed to get consent debug info: $e',
-        'timestamp': DateTime.now().toIso8601String(),
-      };
-    }
-  }
-
-  /// Check if consent should be requested automatically
-  Future<bool> shouldRequestConsent() async {
-    try {
-      // Don't auto-request if already requesting
-      if (_isRequestingConsent) return false;
-
-      final status = await getConsentStatus();
-
-      // Only request consent if in EEA region and status requires it
-      if (status == ConsentStatus.required) {
-        return await isConsentFormAvailable();
-      }
-
-      return false;
-    } catch (e) {
-      _logError('Failed to check if should request consent: $e');
-      return false;
-    }
-  }
-
-  /// Initialize and request consent if needed (improved version)
-  Future<ConsentStatus> initializeAndRequestConsent() async {
-    await initialize();
-
-    try {
-      final status = await getConsentStatus();
-
-      // Only show consent form if actually required
-      if (status == ConsentStatus.required) {
-        return await requestConsent();
-      }
-
-      _logConsentStatus('Consent not required or already handled: $status');
-      return status;
-    } catch (e) {
-      _logError('Failed to initialize and request consent: $e');
-      return ConsentStatus.unknown;
-    }
-  }
-
-  /// Validate that consent is properly configured for ad requests
-  Future<bool> validateConsentForAdRequest() async {
-    try {
-      final canRequest = await canRequestAds();
-      final status = await getConsentStatus();
-
-      _logConsentStatus(
-          'Ad request validation - Status: $status, Can request: $canRequest');
-
-      return canRequest;
-    } catch (e) {
-      _logError('Failed to validate consent for ad request: $e');
-      return true; // Default to allowing ads
-    }
-  }
-
-  /// Get ad request parameters based on consent status
+  /// Get ad request parameters based on consent
   Future<Map<String, String>> getAdRequestParameters() async {
     try {
       final canPersonalized = await canShowPersonalizedAds();
       final status = await getConsentStatus();
 
-      Map<String, String> params = {};
-
-      // For EEA users without consent, request non-personalized ads
+      // Add npa=1 for non-personalized ads in EEA regions
       if (status == ConsentStatus.required && !canPersonalized) {
-        params['npa'] = '1'; // Non-personalized ads
-        _logConsentStatus('Requesting non-personalized ads (npa=1)');
+        _log('Adding npa=1 parameter for non-personalized ads');
+        return {'npa': '1'};
       }
 
-      return params;
+      return {};
     } catch (e) {
       _logError('Failed to get ad request parameters: $e');
       return {};
@@ -487,7 +355,6 @@ class ConsentService {
   Future<String> getConsentStatusMessage() async {
     try {
       final status = await getConsentStatus();
-
       switch (status) {
         case ConsentStatus.unknown:
           return 'Consent status unknown';
@@ -499,46 +366,127 @@ class ConsentService {
           return 'Consent obtained for personalized ads';
       }
     } catch (e) {
+      _logError('Failed to get consent status message: $e');
       return 'Unable to determine consent status';
     }
   }
 
-  /// Log consent-related messages
-  void _logConsentStatus(String message) {
-    if (AdMobCompliance.shouldLogVerbose || kDebugMode) {
-      debugPrint('[Consent Service] $message');
-    }
-  }
-
-  /// Log consent-related errors
-  void _logError(String message) {
-    debugPrint('[Consent Service ERROR] $message');
-  }
-
-  /// Check if we're in a region that requires consent
-  Future<bool> isInConsentRegion() async {
-    try {
-      final status = await getConsentStatus();
-      return status == ConsentStatus.required ||
-          status == ConsentStatus.obtained;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Get stored region information
+  /// Get cached user region
   Future<String> getUserRegion() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_userRegionKey) ?? 'unknown';
     } catch (e) {
+      _logError('Failed to get user region: $e');
       return 'unknown';
     }
+  }
+
+  /// Validate consent for ad requests
+  Future<bool> validateConsentForAdRequest() async {
+    try {
+      final canRequest = await canRequestAds();
+      final status = await getConsentStatus();
+      _log('Ad request validation - Status: $status, Can request: $canRequest');
+      return canRequest;
+    } catch (e) {
+      _logError('Consent validation failed: $e');
+      return true; // Fail open for ads
+    }
+  }
+
+  /// Get comprehensive debug information
+  Future<Map<String, dynamic>> getConsentDebugInfo() async {
+    try {
+      final status = await getConsentStatus();
+      final canRequest = await canRequestAds();
+      final canPersonalized = await canShowPersonalizedAds();
+      final canNonPersonalized = await canShowNonPersonalizedAds();
+      final inConsentRegion = await isInConsentRegion();
+      final formAvailable = await isConsentFormAvailable();
+      final region = await getUserRegion();
+
+      return {
+        'consentStatus': status.toString(),
+        'canRequestAds': canRequest,
+        'canShowPersonalizedAds': canPersonalized,
+        'canShowNonPersonalizedAds': canNonPersonalized,
+        'isInConsentRegion': inConsentRegion,
+        'isConsentFormAvailable': formAvailable,
+        'userRegion': region,
+        'isInitialized': _isInitialized,
+        'initializationError': _initializationError,
+        'forceEeaTesting': _forceEeaTesting,
+        'debugMode': kDebugMode,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+    } catch (e) {
+      return {
+        'error': 'Failed to get debug info: $e',
+        'isInitialized': _isInitialized,
+        'initializationError': _initializationError,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+    }
+  }
+
+  /// Initialize and request consent if needed (convenience method)
+  Future<ConsentStatus> initializeAndRequestConsent() async {
+    try {
+      final initialized = await initialize();
+      if (!initialized) {
+        _logError('Initialization failed, returning unknown status');
+        return ConsentStatus.unknown;
+      }
+
+      final status = await getConsentStatus();
+
+      // Only request consent if actually required
+      if (status == ConsentStatus.required) {
+        return await requestConsent();
+      }
+
+      _log('Consent initialization completed with status: $status');
+      return status;
+    } catch (e) {
+      _logError('Failed to initialize and request consent: $e');
+      return ConsentStatus.unknown;
+    }
+  }
+
+  /// Check if privacy options are required
+  Future<bool> isPrivacyOptionsRequired() async {
+    try {
+      if (!_isInitialized) {
+        final success = await initialize();
+        if (!success) return false;
+      }
+
+      final status = await ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus();
+      return status == PrivacyOptionsRequirementStatus.required;
+    } catch (e) {
+      _logError('Failed to check privacy options requirement: $e');
+      return false;
+    }
+  }
+
+  /// Log regular messages (only in debug mode or for admins)
+  void _log(String message) {
+    if (kDebugMode || AdMobCompliance.shouldLogVerbose) {
+      debugPrint('[ConsentService] $message');
+    }
+  }
+
+  /// Log error messages (always shown)
+  void _logError(String message) {
+    debugPrint('[ConsentService ERROR] $message');
   }
 
   /// Dispose resources
   void dispose() {
     _isInitialized = false;
-    _initializationFailed = false;
+    _isInitializing = false;
+    _initializationError = null;
   }
 }

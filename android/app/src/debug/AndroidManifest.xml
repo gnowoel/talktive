@@ -4,6 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
     <application
         android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true"

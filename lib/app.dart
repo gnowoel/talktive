@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+
+import 'services/edge_to_edge_manager.dart';
 import 'package:go_router/go_router.dart';
 
 import 'router.dart';
 import 'services/messaging.dart';
 import 'theme.dart';
+import 'widgets/edge_to_edge_wrapper.dart';
 import 'wrappers/verify_user.dart';
 import 'wrappers/current_user.dart';
 import 'wrappers/initialize.dart';
@@ -39,6 +42,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       final messaging = Messaging();
       messaging.clearAllNotifications();
+
+      // Update system UI overlay style when app is resumed
+      EdgeToEdgeManager.instance.updateForContext(context);
     }
   }
 
@@ -66,6 +72,21 @@ class _AppState extends State<App> with WidgetsBindingObserver {
                         debugShowCheckedModeBanner: false,
                         title: 'Talktive',
                         theme: getTheme(context),
+                        builder: (context, child) {
+                          // Update system UI overlay style when theme changes
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            EdgeToEdgeManager.instance
+                                .updateForContext(context);
+                          });
+
+                          return EdgeToEdgeWrapper(
+                            includeTop:
+                                false, // Let individual screens handle top padding
+                            includeBottom:
+                                false, // Let individual screens handle bottom padding
+                            child: child ?? const SizedBox.shrink(),
+                          );
+                        },
                       );
                     },
                   ),

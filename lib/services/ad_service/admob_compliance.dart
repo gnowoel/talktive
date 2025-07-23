@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../user_cache.dart';
-import 'ad_request_helper.dart';
+
 import 'consent_service.dart';
 
 /// AdMob compliance utility class to ensure adherence to AdMob policies
@@ -30,24 +30,12 @@ class AdMobCompliance {
     final isDebugMode = kDebugMode;
     final useTestAds = shouldUseTestAds;
 
-    // Get comprehensive consent status
+    // Get consent status information
     Map<String, dynamic> consentInfo = {};
-    Map<String, dynamic> adRequestInfo = {};
     try {
       consentInfo = await ConsentService.instance.getConsentDebugInfo();
-      final validation = await AdRequestHelper.instance.validateAdRequest();
-      adRequestInfo = {
-        'canRequestAds': validation.canRequestAds,
-        'recommendedAdType': validation.recommendedAdType.name,
-        'consentStatus': validation.consentStatus.toString(),
-        'validationMessage': validation.message,
-        'requiresConsent': validation.requiresConsent,
-        'canShowPersonalized': validation.canShowPersonalized,
-        'canShowNonPersonalized': validation.canShowNonPersonalized,
-      };
     } catch (e) {
       consentInfo = {'error': 'Failed to get consent info: $e'};
-      adRequestInfo = {'error': 'Failed to get ad request info: $e'};
     }
 
     String reason;
@@ -73,7 +61,6 @@ class AdMobCompliance {
       'policyReference':
           'AdMob Policy: Publishers may not click their own ads or use any means to inflate impressions and/or clicks artificially',
       'consentInfo': consentInfo,
-      'adRequestInfo': adRequestInfo,
     };
   }
 
@@ -88,12 +75,8 @@ class AdMobCompliance {
     debugPrint('Using Test Ads: ${status['shouldUseTestAds']}');
     debugPrint('Ad Unit Type: ${status['adUnitType']}');
     final consentInfo = status['consentInfo'] as Map<String, dynamic>;
-    final adRequestInfo = status['adRequestInfo'] as Map<String, dynamic>;
     debugPrint('Consent Status: ${consentInfo['consentStatus'] ?? 'Unknown'}');
-    debugPrint(
-        'Can Request Ads: ${adRequestInfo['canRequestAds'] ?? 'Unknown'}');
-    debugPrint(
-        'Recommended Ad Type: ${adRequestInfo['recommendedAdType'] ?? 'Unknown'}');
+    debugPrint('Can Request Ads: ${consentInfo['canRequestAds'] ?? 'Unknown'}');
     debugPrint('==============================');
   }
 
@@ -120,17 +103,16 @@ class AdMobCompliance {
   static Future<bool> validateAdCompliance() async {
     final status = await getComplianceStatus();
 
-    // Check consent compliance using the new system
+    // Check consent compliance
     try {
-      final validation = await AdRequestHelper.instance.validateAdRequest();
-      if (!validation.canRequestAds) {
-        safeLog('Ad compliance failed: ${validation.message}');
+      final canRequest = await ConsentService.instance.canRequestAds();
+      if (!canRequest) {
+        safeLog('Ad compliance failed: Cannot request ads due to consent');
         return false;
       }
-      safeLog(
-          'Ad compliance validated: ${validation.recommendedAdType.name} ads allowed');
+      safeLog('Ad compliance validated: Ads can be requested');
     } catch (e) {
-      safeLog('Ad compliance warning: Validation error: $e');
+      safeLog('Ad compliance warning: Consent check error: $e');
       // Don't block ads if consent service fails, but log the issue
     }
 
@@ -160,12 +142,12 @@ class AdMobCompliance {
 
   /// Initialize compliance checking (call this when user logs in or app starts)
   static Future<void> initialize() async {
-    // Initialize consent and ad request system
+    // Initialize consent service
     try {
-      await AdRequestHelper.instance.handleConsentAndInitialize();
-      safeLog('Consent and ad request system initialized successfully');
+      final success = await ConsentService.instance.initialize();
+      safeLog('Consent service initialized: $success');
     } catch (e) {
-      safeLog('Warning: Failed to initialize consent and ad system: $e');
+      safeLog('Warning: Failed to initialize consent service: $e');
     }
 
     if (shouldLogVerbose) {
@@ -183,11 +165,9 @@ class AdMobCompliance {
   static Future<String> getComplianceSummary() async {
     final status = await getComplianceStatus();
     final consentInfo = status['consentInfo'] as Map<String, dynamic>;
-    final adRequestInfo = status['adRequestInfo'] as Map<String, dynamic>;
     final consentStatus = consentInfo['consentStatus'] ?? 'Unknown';
-    final canRequestAds = adRequestInfo['canRequestAds'] ?? false;
-    final adType = adRequestInfo['recommendedAdType'] ?? 'Unknown';
-    return 'AdMob Compliance: ${status['adUnitType']} ads (${status['reason']}) | Consent: $consentStatus | Can Request: $canRequestAds | Ad Type: $adType';
+    final canRequestAds = consentInfo['canRequestAds'] ?? false;
+    return 'AdMob Compliance: ${status['adUnitType']} ads (${status['reason']}) | Consent: $consentStatus | Can Request: $canRequestAds';
   }
 
   /// Check if ads should be shown to current user (considering admin status)
@@ -265,18 +245,17 @@ class AdMobCompliance {
   /// Request consent if needed (convenience method)
   static Future<void> requestConsentIfNeeded() async {
     try {
-      await AdRequestHelper.instance.handleConsentAndInitialize();
-      safeLog('Consent request and ad initialization completed');
+      await ConsentService.instance.initializeAndRequestConsent();
+      safeLog('Consent request completed');
     } catch (e) {
-      safeLog('Failed to request consent and initialize ads: $e');
+      safeLog('Failed to request consent: $e');
     }
   }
 
   /// Check if we can show personalized ads
   static Future<bool> canShowPersonalizedAds() async {
     try {
-      final validation = await AdRequestHelper.instance.validateAdRequest();
-      return validation.canShowPersonalized;
+      return await ConsentService.instance.canShowPersonalizedAds();
     } catch (e) {
       safeLog('Failed to check personalized ads permission: $e');
       return false;

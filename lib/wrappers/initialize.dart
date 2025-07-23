@@ -7,8 +7,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/ad_service/admob_compliance.dart';
+import '../services/ad_service/consent_service.dart';
 import '../services/ad_service/ad_service_adapter.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
@@ -127,24 +129,32 @@ class _InitializeState extends State<Initialize> {
     await messaging.addListeners();
     debugPrint('Initialize: Messaging services initialized');
 
-    // Initialize ads with consent handling using the new system
+    // Initialize ads with simplified consent handling
     try {
       debugPrint('Initialize: Starting ads and consent initialization...');
 
-      // Initialize ad service adapter with consent handling
-      await AdServiceAdapter.instance.initialize();
+      // Initialize consent service (fails gracefully)
+      final consentInitialized = await ConsentService.instance.initialize();
+      debugPrint(
+          'Initialize: Consent service initialized: $consentInitialized');
 
-      debugPrint('Initialize: Ad service adapter initialized with consent');
+      // Initialize Mobile Ads SDK
+      await MobileAds.instance.initialize();
+      debugPrint('Initialize: Mobile Ads SDK initialized');
 
-      debugPrint('Initialize: Ads and consent initialization completed');
+      // Initialize ad service adapter
+      AdServiceAdapter.instance.initialize();
+      debugPrint('Initialize: Ad service adapter initialized');
 
       // Log compliance status for debugging
       if (kDebugMode) {
         await AdMobCompliance.logComplianceStatus();
       }
+
+      debugPrint('Initialize: Ads and consent initialization completed');
     } catch (e) {
       debugPrint('Initialize: Failed to initialize ads and consent: $e');
-      // Continue without ads rather than crashing - the new system handles failures gracefully
+      // Continue without ads rather than crashing - simplified system handles failures gracefully
     }
 
     debugPrint('Initialize: All services initialization completed');

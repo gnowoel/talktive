@@ -7,7 +7,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/ad_service/admob_compliance.dart';
 import '../services/ad_service/ad_service_adapter.dart';
@@ -128,24 +127,24 @@ class _InitializeState extends State<Initialize> {
     await messaging.addListeners();
     debugPrint('Initialize: Messaging services initialized');
 
-    // Initialize AdMob SDK for room transition ads using unawaited for better performance
+    // Initialize ads with consent handling using the new system
     try {
-      unawaited(MobileAds.instance.initialize());
+      debugPrint('Initialize: Starting ads and consent initialization...');
 
-      // Initialize ad service adapter
-      AdServiceAdapter.instance.initialize();
+      // Initialize ad service adapter with consent handling
+      await AdServiceAdapter.instance.initialize();
 
-      // Initialize AdMob compliance system (includes consent management)
-      await AdMobCompliance.initialize();
+      debugPrint('Initialize: Ad service adapter initialized with consent');
 
-      // Request consent if needed for GDPR compliance
-      await AdMobCompliance.requestConsentIfNeeded();
+      debugPrint('Initialize: Ads and consent initialization completed');
 
-      debugPrint('Initialize: Room transition ads initialization started');
-      debugPrint('Initialize: AdMob compliance system initialized');
+      // Log compliance status for debugging
+      if (kDebugMode) {
+        await AdMobCompliance.logComplianceStatus();
+      }
     } catch (e) {
-      debugPrint('Initialize: Failed to initialize room transition ads: $e');
-      // Continue without ads rather than crashing
+      debugPrint('Initialize: Failed to initialize ads and consent: $e');
+      // Continue without ads rather than crashing - the new system handles failures gracefully
     }
 
     debugPrint('Initialize: All services initialization completed');

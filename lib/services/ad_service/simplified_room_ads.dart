@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../config/ad_config.dart';
+import 'ad_request_helper.dart';
 import 'admob_compliance.dart';
 import 'optimized_ad_config.dart';
 
@@ -17,6 +18,9 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
   static SimplifiedRoomAds get instance => _instance ??= SimplifiedRoomAds._();
 
   SimplifiedRoomAds._();
+
+  // === AD REQUEST HELPER ===
+  final AdRequestHelper _adRequestHelper = AdRequestHelper.instance;
 
   // === SESSION STATE ===
   DateTime? _sessionStart;
@@ -235,6 +239,23 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
       return false;
     }
 
+    // Validate consent before showing ad
+    try {
+      final validation = await _adRequestHelper.validateAdRequest();
+      if (!validation.canRequestAds) {
+        _logDecision('❌ Cannot show ad due to consent: ${validation.message}');
+        return false;
+      }
+
+      if (OptimizedAdConfig.verboseLogging) {
+        debugPrint(
+            '✅ Consent validated for ad display (${validation.recommendedAdType.name})');
+      }
+    } catch (e) {
+      debugPrint('❌ Consent validation failed: $e');
+      return false;
+    }
+
     try {
       // Log compliance context
       AdMobCompliance.logAdShown('interstitial', context: 'room_transition');
@@ -270,7 +291,7 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Preload interstitial ad with simplified logic
+  /// Preload interstitial ad with consent-aware logic
   Future<void> _preloadInterstitialAd() async {
     if (_isLoading || _isAdReady) return;
 
@@ -278,45 +299,56 @@ class SimplifiedRoomAds extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
 
     try {
+      // Validate consent before attempting to load ad
+      final validation = await _adRequestHelper.validateAdRequest();
+
+      if (!validation.canRequestAds) {
+        if (OptimizedAdConfig.verboseLogging) {
+          debugPrint('❌ Cannot load ad: ${validation.message}');
+        }
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
       final adUnitId = _getAdUnitId();
 
       if (OptimizedAdConfig.verboseLogging) {
         debugPrint(
-            'Loading ad with unit ID: $adUnitId (engagement: $userEngagementLevel)');
+            'Loading ad with unit ID: $adUnitId (engagement: $userEngagementLevel, ad type: ${validation.recommendedAdType.name})');
       }
 
-      await InterstitialAd.load(
+      // Use AdRequestHelper to load ad with proper consent handling
+      final interstitialAd = await _adRequestHelper.loadInterstitialAd(
         adUnitId: adUnitId,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (InterstitialAd ad) {
-            _interstitialAd = ad;
-            _isAdReady = true;
-            _isLoading = false;
-
-            if (OptimizedAdConfig.verboseLogging) {
-              debugPrint('✅ Ad loaded successfully');
-            }
-
-            notifyListeners();
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            debugPrint('❌ Failed to load ad: $error');
-            _interstitialAd = null;
-            _isAdReady = false;
-            _isLoading = false;
-
-            // Intelligent retry on failure
-            Future.delayed(OptimizedAdConfig.adLoadRetryDelay, () {
-              if (_shouldPreloadAd()) {
-                _preloadInterstitialAd();
-              }
-            });
-
-            notifyListeners();
-          },
-        ),
+        keywords: ['gaming', 'social', 'chat'],
       );
+
+      if (interstitialAd != null) {
+        _interstitialAd = interstitialAd;
+        _isAdReady = true;
+        _isLoading = false;
+
+        if (OptimizedAdConfig.verboseLogging) {
+          debugPrint('✅ Ad loaded successfully with consent handling');
+        }
+
+        notifyListeners();
+      } else {
+        debugPrint('❌ Failed to load ad: AdRequestHelper returned null');
+        _interstitialAd = null;
+        _isAdReady = false;
+        _isLoading = false;
+
+        // Intelligent retry on failure
+        Future.delayed(OptimizedAdConfig.adLoadRetryDelay, () {
+          if (_shouldPreloadAd()) {
+            _preloadInterstitialAd();
+          }
+        });
+
+        notifyListeners();
+      }
     } catch (e) {
       debugPrint('❌ Exception loading ad: $e');
       _isLoading = false;

@@ -5,6 +5,7 @@ import 'room_transition_ads.dart';
 import 'simplified_room_ads.dart';
 import 'admob_compliance.dart';
 import 'optimized_ad_config.dart';
+import 'ad_request_helper.dart';
 
 /// Ad Service Adapter - Compatibility layer for GoRouterRoomHelper
 ///
@@ -55,15 +56,33 @@ class AdServiceAdapter {
 
   // === UNIFIED INTERFACE ===
 
-  /// Initialize the appropriate ad system
-  void initialize() {
-    debugPrint('AdServiceAdapter: Initializing $currentSystemName');
+  /// Initialize the appropriate ad system with consent handling
+  Future<void> initialize() async {
+    debugPrint('AdServiceAdapter: Initializing $currentSystemName with consent handling');
     debugPrint('Configuration: ${OptimizedAdConfig.getConfigDescription()}');
 
-    if (_shouldUseSimplifiedSystem) {
-      SimplifiedRoomAds.instance.initialize();
-    } else {
-      RoomTransitionAds.instance.initialize();
+    try {
+      // Initialize consent-aware ad system first
+      final canShowAds = await AdRequestHelper.instance.handleConsentAndInitialize();
+      debugPrint('AdServiceAdapter: Consent initialization completed, can show ads: $canShowAds');
+
+      // Initialize the appropriate ad system
+      if (_shouldUseSimplifiedSystem) {
+        SimplifiedRoomAds.instance.initialize();
+      } else {
+        RoomTransitionAds.instance.initialize();
+      }
+
+      debugPrint('AdServiceAdapter: $currentSystemName initialized successfully');
+    } catch (e) {
+      debugPrint('AdServiceAdapter: Failed to initialize with consent: $e');
+
+      // Fallback: Initialize ad system without consent (will handle gracefully)
+      if (_shouldUseSimplifiedSystem) {
+        SimplifiedRoomAds.instance.initialize();
+      } else {
+        RoomTransitionAds.instance.initialize();
+      }
     }
   }
 
@@ -76,21 +95,47 @@ class AdServiceAdapter {
     }
   }
 
-  /// Check if ad should be shown now
+  /// Check if ad should be shown now (with consent validation)
   Future<bool> shouldShowAdNow() async {
-    if (_shouldUseSimplifiedSystem) {
-      return await SimplifiedRoomAds.instance.shouldShowAdNow();
-    } else {
-      return await RoomTransitionAds.instance.shouldShowAdNow();
+    try {
+      // First validate consent
+      final validation = await AdRequestHelper.instance.validateAdRequest();
+      if (!validation.canRequestAds) {
+        debugPrint('AdServiceAdapter: Cannot show ad due to consent: ${validation.message}');
+        return false;
+      }
+
+      // Then check ad system specific logic
+      if (_shouldUseSimplifiedSystem) {
+        return await SimplifiedRoomAds.instance.shouldShowAdNow();
+      } else {
+        return await RoomTransitionAds.instance.shouldShowAdNow();
+      }
+    } catch (e) {
+      debugPrint('AdServiceAdapter: Error checking if should show ad: $e');
+      return false;
     }
   }
 
-  /// Show ad if appropriate
+  /// Show ad if appropriate (with consent validation)
   Future<bool> showAdIfAppropriate() async {
-    if (_shouldUseSimplifiedSystem) {
-      return await SimplifiedRoomAds.instance.showAdIfAppropriate();
-    } else {
-      return await RoomTransitionAds.instance.showAdIfAppropriate();
+    try {
+      // Validate consent before attempting to show ad
+      final validation = await AdRequestHelper.instance.validateAdRequest();
+      if (!validation.canRequestAds) {
+        debugPrint('AdServiceAdapter: Cannot show ad due to consent: ${validation.message}');
+        return false;
+      }
+
+      // Show ad using appropriate system
+      if (_shouldUseSimplifiedSystem) {
+        return await SimplifiedRoomAds.instance.showAdIfAppropriate();
+      } else {
+        return await RoomTransitionAds.instance.showAdIfAppropriate();
+      }
+    } catch (e) {
+      debugPrint('AdServiceAdapter: Error showing ad: $e');
+      return false;
     }
   }
 
@@ -149,12 +194,26 @@ class AdServiceAdapter {
       baseStats = await RoomTransitionAds.instance.getSessionStats();
     }
 
-    // Add adapter-specific information
+    // Add adapter-specific and consent information
+    Map<String, dynamic> consentInfo = {};
+    try {
+      final validation = await AdRequestHelper.instance.validateAdRequest();
+      consentInfo = {
+        'canRequestAds': validation.canRequestAds,
+        'recommendedAdType': validation.recommendedAdType.name,
+        'consentStatus': validation.consentStatus.toString(),
+        'consentMessage': validation.message,
+      };
+    } catch (e) {
+      consentInfo = {'consentError': 'Failed to get consent info: $e'};
+    }
+
     return {
       ...baseStats,
       'adSystemUsed': currentSystemName,
       'isABTest': _abTestUseSimplified != null,
       'adapterVersion': '1.0.0',
+      'consentInfo': consentInfo,
     };
   }
 

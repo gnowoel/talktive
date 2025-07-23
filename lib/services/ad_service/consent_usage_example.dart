@@ -56,7 +56,6 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
 
       // Step 3: Get debug information
       await _updateDebugInfo();
-
     } catch (e) {
       setState(() {
         _statusMessage = 'Initialization failed: $e';
@@ -187,10 +186,11 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
         _statusMessage = 'Requesting consent...';
       });
 
-      final status = await _consentService.requestConsent();
+      await _consentService.requestConsent();
+      final statusMessage = await _consentService.getConsentStatusMessage();
 
       setState(() {
-        _statusMessage = 'Consent status: ${await _consentService.getConsentStatusMessage()}';
+        _statusMessage = 'Consent status: $statusMessage';
       });
 
       // Reload ads after consent change
@@ -200,7 +200,6 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
       }
 
       await _updateDebugInfo();
-
     } catch (e) {
       setState(() {
         _statusMessage = 'Consent request failed: $e';
@@ -215,7 +214,8 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
 
       if (!isRequired) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Privacy options not available in your region')),
+          const SnackBar(
+              content: Text('Privacy options not available in your region')),
         );
         return;
       }
@@ -229,7 +229,6 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
       }
 
       await _updateDebugInfo();
-
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to show privacy options: $e')),
@@ -256,7 +255,6 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
 
       // Reinitialize
       await _initializeAdsWithConsent();
-
     } catch (e) {
       setState(() {
         _statusMessage = 'Reset failed: $e';
@@ -348,7 +346,9 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
                     runSpacing: 8,
                     children: [
                       ElevatedButton(
-                        onPressed: _interstitialAd != null ? _showInterstitialAd : null,
+                        onPressed: _interstitialAd != null
+                            ? _showInterstitialAd
+                            : null,
                         child: const Text('Show Interstitial'),
                       ),
                       ElevatedButton(
@@ -374,11 +374,13 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'Debug Info',
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                   IconButton(
                                     onPressed: _updateDebugInfo,
@@ -391,7 +393,8 @@ class _ConsentUsageExampleState extends State<ConsentUsageExample> {
                                 child: SingleChildScrollView(
                                   child: Text(
                                     _formatDebugInfo(_debugInfo!),
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ),
                               ),

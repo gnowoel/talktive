@@ -1,7 +1,7 @@
 name: talktive
 description: "A simple anonymous group chat app"
 publish_to: "none"
-version: 4.4.3+63
+version: 4.4.4+64
 
 environment:
   sdk: ">=3.3.4 <4.0.0"
@@ -31,6 +31,7 @@ dependencies:
   shared_preferences: ^2.3.3
   timeago: ^3.6.1
   unicode_emojis: ^0.4.0
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

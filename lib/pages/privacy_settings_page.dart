@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/ad_service/consent_service.dart';
 import '../services/ad_service/admob_compliance.dart';
 import '../widgets/consent_debug_widget.dart';
@@ -18,7 +19,33 @@ class PrivacySettingsPage extends StatefulWidget {
 }
 
 class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
-  bool _isLoading = false;
+  bool _isLoading = true;
+
+  /// Launch the privacy policy URL in the default browser
+  Future<void> _launchPrivacyPolicy() async {
+    final Uri url = Uri.parse('https://talktive.app/privacy');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not open privacy policy page'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error opening privacy policy page'),
+          ),
+        );
+      }
+    }
+  }
 
   String? _statusMessage;
   String? _error;
@@ -803,14 +830,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Navigate to privacy policy page when available
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Privacy policy link coming soon'),
-                        ),
-                      );
-                    },
+                    onPressed: _launchPrivacyPolicy,
                     icon: const Icon(Icons.open_in_new),
                     label: const Text('View Privacy Policy'),
                     style: ElevatedButton.styleFrom(

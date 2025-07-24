@@ -67,20 +67,20 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '📱 Ad Support',
-                            'Included privacy consent management to comply with European regulations.',
+                            '📱 Android 15 Support',
+                            'Targeted Android 15 to comply with Google Play policy requirements.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '✨ Topics to Moments',
-                            'Renamed "Topics" to "Moments" to encourage people to share personal stories and experiences.',
+                            '✨ Edge-to-Edge Display',
+                            'Enabled edge-to-edge display on Android devices for a more immersive experience.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🐛 Bug Fixes & Improvements',
-                            'Made minor UI improvements and visual fixes for a better user experience.',
+                            '🛡️ Privacy Compliance',
+                            'Display AdMob consent form only in EEA regions for better privacy management.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

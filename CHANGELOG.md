@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 4.4.4+64
+
+- Enabled edge-to-edge display on Android devices
+- Targeted Android 15 to comply with Google Play policy
+- Displayed AdMob consent form only in EEA regions
+
 ## 4.4.3+63
 
 - Added AdMob CMP integration to comply with European regulations

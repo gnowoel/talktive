@@ -22,6 +22,8 @@ class ConsentService {
   // Configuration
   static const bool _forceEeaTesting =
       false; // Set to true ONLY for GDPR testing
+  static const bool _disableConsentInDebug =
+      true; // Disable consent requirements in debug mode for easier testing
 
   // Simple state management
   bool _isInitialized = false;
@@ -63,12 +65,20 @@ class ConsentService {
 
     // Configure debug settings if needed
     ConsentDebugSettings? debugSettings;
-    if (kDebugMode && _forceEeaTesting) {
-      debugSettings = ConsentDebugSettings(
-        debugGeography: DebugGeography.debugGeographyEea,
-        testIdentifiers: [], // Add test device IDs if needed
-      );
-      _log('Debug mode: Forcing EEA geography for testing');
+    if (kDebugMode) {
+      if (_forceEeaTesting) {
+        debugSettings = ConsentDebugSettings(
+          debugGeography: DebugGeography.debugGeographyEea,
+          testIdentifiers: [], // Add test device IDs if needed
+        );
+        _log('Debug mode: Forcing EEA geography for testing');
+      } else if (_disableConsentInDebug) {
+        debugSettings = ConsentDebugSettings(
+          debugGeography: DebugGeography.debugGeographyNotEea,
+          testIdentifiers: [], // Add test device IDs if needed
+        );
+        _log('Debug mode: Disabling consent requirements for easier testing');
+      }
     }
 
     final params = ConsentRequestParameters(
@@ -287,6 +297,12 @@ class ConsentService {
   /// Check if ads can be requested
   Future<bool> canRequestAds() async {
     try {
+      // In debug mode with consent disabled, always allow ad requests
+      if (kDebugMode && _disableConsentInDebug) {
+        _log('Debug mode: Bypassing consent check, allowing ad requests');
+        return true;
+      }
+
       if (!_isInitialized) {
         final success = await initialize();
         if (!success) {
@@ -294,37 +310,62 @@ class ConsentService {
           return true; // Fail open for ads
         }
       }
-      return await ConsentInformation.instance.canRequestAds();
+
+      final canRequest = await ConsentInformation.instance.canRequestAds();
+      _log('Consent check result: canRequestAds = $canRequest');
+      return canRequest;
     } catch (e) {
       _logError('Failed to check if can request ads: $e');
-      return true; // Fail open for ads
+      // In debug mode, be more permissive
+      final fallback = kDebugMode ? true : true; // Always fail open for now
+      _log('Using fallback canRequestAds = $fallback');
+      return fallback;
     }
   }
 
   /// Check if personalized ads can be shown
   Future<bool> canShowPersonalizedAds() async {
     try {
+      // In debug mode with consent disabled, allow personalized ads
+      if (kDebugMode && _disableConsentInDebug) {
+        _log('Debug mode: Allowing personalized ads');
+        return true;
+      }
+
       final status = await getConsentStatus();
-      return status == ConsentStatus.obtained;
+      final canShow = status == ConsentStatus.obtained;
+      _log('Personalized ads check: status = $status, canShow = $canShow');
+      return canShow;
     } catch (e) {
       _logError('Failed to check personalized ads: $e');
-      return false;
+      // In debug mode, be more permissive
+      return kDebugMode && _disableConsentInDebug;
     }
   }
 
   /// Check if non-personalized ads can be shown
   Future<bool> canShowNonPersonalizedAds() async {
     try {
+      // In debug mode with consent disabled, always allow non-personalized ads
+      if (kDebugMode && _disableConsentInDebug) {
+        _log('Debug mode: Allowing non-personalized ads');
+        return true;
+      }
+
       final status = await getConsentStatus();
+      _log('Non-personalized ads check: status = $status');
 
       // Non-personalized ads can be shown in most cases
       switch (status) {
         case ConsentStatus.notRequired:
         case ConsentStatus.obtained:
+          _log('Non-personalized ads allowed (not required or obtained)');
           return true;
         case ConsentStatus.required:
         case ConsentStatus.unknown:
-          return await canRequestAds();
+          final canRequest = await canRequestAds();
+          _log('Non-personalized ads: canRequestAds = $canRequest');
+          return canRequest;
       }
     } catch (e) {
       _logError('Failed to check non-personalized ads: $e');
@@ -382,6 +423,11 @@ class ConsentService {
     }
   }
 
+  /// Check if consent is being bypassed in debug mode
+  bool isConsentBypassedInDebug() {
+    return kDebugMode && _disableConsentInDebug;
+  }
+
   /// Validate consent for ad requests
   Future<bool> validateConsentForAdRequest() async {
     try {
@@ -418,6 +464,8 @@ class ConsentService {
         'initializationError': _initializationError,
         'forceEeaTesting': _forceEeaTesting,
         'debugMode': kDebugMode,
+        'disableConsentInDebug': _disableConsentInDebug,
+        'consentBypassedInDebug': isConsentBypassedInDebug(),
         'timestamp': DateTime.now().toIso8601String(),
       };
     } catch (e) {
@@ -425,6 +473,8 @@ class ConsentService {
         'error': 'Failed to get debug info: $e',
         'isInitialized': _isInitialized,
         'initializationError': _initializationError,
+        'debugMode': kDebugMode,
+        'consentBypassedInDebug': isConsentBypassedInDebug(),
         'timestamp': DateTime.now().toIso8601String(),
       };
     }
@@ -433,6 +483,13 @@ class ConsentService {
   /// Initialize and request consent if needed (convenience method)
   Future<ConsentStatus> initializeAndRequestConsent() async {
     try {
+      // In debug mode with consent disabled, return a permissive status
+      if (kDebugMode && _disableConsentInDebug) {
+        _log(
+            'Debug mode: Skipping consent initialization, returning not required');
+        return ConsentStatus.notRequired;
+      }
+
       final initialized = await initialize();
       if (!initialized) {
         _logError('Initialization failed, returning unknown status');
@@ -481,6 +538,50 @@ class ConsentService {
   /// Log error messages (always shown)
   void _logError(String message) {
     debugPrint('[ConsentService ERROR] $message');
+  }
+
+  /// Quick test method to verify consent bypass works in debug mode
+  static Future<void> testConsentBypass() async {
+    if (!kDebugMode) {
+      debugPrint('[ConsentTest] Not in debug mode - skipping test');
+      return;
+    }
+
+    debugPrint('🧪 Testing Consent Bypass in Debug Mode...');
+
+    try {
+      final service = ConsentService.instance;
+
+      // Test initialization
+      final initialized = await service.initialize();
+      debugPrint('✓ Initialized: $initialized');
+
+      // Test bypass status
+      final bypassActive = service.isConsentBypassedInDebug();
+      debugPrint('✓ Bypass Active: $bypassActive');
+
+      // Test ad request permissions
+      final canRequest = await service.canRequestAds();
+      debugPrint('✓ Can Request Ads: $canRequest');
+
+      final canPersonalized = await service.canShowPersonalizedAds();
+      debugPrint('✓ Can Show Personalized: $canPersonalized');
+
+      final canNonPersonalized = await service.canShowNonPersonalizedAds();
+      debugPrint('✓ Can Show Non-Personalized: $canNonPersonalized');
+
+      // Overall result
+      final success = bypassActive && canRequest && canNonPersonalized;
+      debugPrint('🎯 Test Result: ${success ? "✅ PASS" : "❌ FAIL"}');
+
+      if (!success) {
+        debugPrint('💡 Check that _disableConsentInDebug is set to true');
+      }
+    } catch (e) {
+      debugPrint('❌ Test failed with error: $e');
+    }
+
+    debugPrint('🏁 Consent bypass test completed\n');
   }
 
   /// Dispose resources

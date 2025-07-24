@@ -77,6 +77,9 @@ class AdMobCompliance {
     final consentInfo = status['consentInfo'] as Map<String, dynamic>;
     debugPrint('Consent Status: ${consentInfo['consentStatus'] ?? 'Unknown'}');
     debugPrint('Can Request Ads: ${consentInfo['canRequestAds'] ?? 'Unknown'}');
+    if (kDebugMode) {
+      debugPrint('Debug Consent Bypass: Active');
+    }
     debugPrint('==============================');
   }
 
@@ -110,9 +113,21 @@ class AdMobCompliance {
         safeLog('Ad compliance failed: Cannot request ads due to consent');
         return false;
       }
-      safeLog('Ad compliance validated: Ads can be requested');
+
+      // In debug mode, log that consent is being bypassed if applicable
+      if (kDebugMode) {
+        safeLog(
+            'Ad compliance validated: Ads can be requested (debug mode may bypass consent)');
+      } else {
+        safeLog('Ad compliance validated: Ads can be requested');
+      }
     } catch (e) {
       safeLog('Ad compliance warning: Consent check error: $e');
+      // In debug mode, be more permissive with consent failures
+      if (kDebugMode) {
+        safeLog('Debug mode: Allowing ads despite consent check failure');
+        return status['isCompliant'] as bool;
+      }
       // Don't block ads if consent service fails, but log the issue
     }
 
@@ -146,8 +161,16 @@ class AdMobCompliance {
     try {
       final success = await ConsentService.instance.initialize();
       safeLog('Consent service initialized: $success');
+
+      if (kDebugMode) {
+        safeLog('Debug mode: Consent requirements may be bypassed for testing');
+      }
     } catch (e) {
       safeLog('Warning: Failed to initialize consent service: $e');
+      if (kDebugMode) {
+        safeLog(
+            'Debug mode: Consent service failure is non-blocking for test ads');
+      }
     }
 
     if (shouldLogVerbose) {
@@ -227,6 +250,13 @@ class AdMobCompliance {
     final isValid = await validateAdCompliance();
     if (!isValid) {
       safeLog('Ad request validation failed for type: $adType', forceLog: true);
+
+      // In debug mode, provide additional context about consent bypass
+      if (kDebugMode) {
+        safeLog(
+            'Debug mode: If this is a consent issue, it may be bypassed for test ads',
+            forceLog: true);
+      }
       return false;
     }
 

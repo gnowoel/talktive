@@ -163,7 +163,9 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                 const Icon(Icons.privacy_tip, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
-                  widget.isAdminPanel ? 'Consent Management (Admin)' : 'Privacy Settings',
+                  widget.isAdminPanel
+                      ? 'Consent Management (Admin)'
+                      : 'Privacy Settings',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const Spacer(),
@@ -209,19 +211,23 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(_consentDebugInfo!['consentStatus'] ?? 'unknown')
+                    color: _getStatusColor(
+                            _consentDebugInfo!['consentStatus'] ?? 'unknown')
                         .withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: _getStatusColor(_consentDebugInfo!['consentStatus'] ?? 'unknown')
+                      color: _getStatusColor(
+                              _consentDebugInfo!['consentStatus'] ?? 'unknown')
                           .withOpacity(0.3),
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        _getStatusIcon(_consentDebugInfo!['consentStatus'] ?? 'unknown'),
-                        color: _getStatusColor(_consentDebugInfo!['consentStatus'] ?? 'unknown'),
+                        _getStatusIcon(
+                            _consentDebugInfo!['consentStatus'] ?? 'unknown'),
+                        color: _getStatusColor(
+                            _consentDebugInfo!['consentStatus'] ?? 'unknown'),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -230,7 +236,8 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                           children: [
                             Text(
                               'Consent Status: ${_consentDebugInfo!['consentStatus'] ?? 'Unknown'}',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             if (_consentStatusMessage != null)
                               Text(
@@ -296,9 +303,11 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                             _consentDebugInfo!['canShowPersonalizedAds'] == true
                                 ? Icons.check_circle
                                 : Icons.cancel,
-                            color: _consentDebugInfo!['canShowPersonalizedAds'] == true
-                                ? Colors.green
-                                : Colors.red,
+                            color:
+                                _consentDebugInfo!['canShowPersonalizedAds'] ==
+                                        true
+                                    ? Colors.green
+                                    : Colors.red,
                             size: 16,
                           ),
                           const SizedBox(width: 8),
@@ -309,10 +318,13 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                       Row(
                         children: [
                           Icon(
-                            _consentDebugInfo!['canShowNonPersonalizedAds'] == true
+                            _consentDebugInfo!['canShowNonPersonalizedAds'] ==
+                                    true
                                 ? Icons.check_circle
                                 : Icons.cancel,
-                            color: _consentDebugInfo!['canShowNonPersonalizedAds'] == true
+                            color: _consentDebugInfo![
+                                        'canShowNonPersonalizedAds'] ==
+                                    true
                                 ? Colors.green
                                 : Colors.red,
                             size: 16,
@@ -327,7 +339,8 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
               ],
 
               // Debug Information (Admin/Debug only)
-              if ((widget.showDebugInfo || widget.isAdminPanel) && _consentDebugInfo != null) ...[
+              if ((widget.showDebugInfo || widget.isAdminPanel) &&
+                  _consentDebugInfo != null) ...[
                 const SizedBox(height: 16),
                 ExpansionTile(
                   title: const Text('Debug Information'),
@@ -349,7 +362,8 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                           ),
                           const SizedBox(height: 8),
                           ..._consentDebugInfo!.entries.map((entry) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -357,13 +371,16 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                                       width: 120,
                                       child: Text(
                                         '${entry.key}:',
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
                                         '${entry.value}',
-                                        style: Theme.of(context).textTheme.bodySmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
                                       ),
                                     ),
                                   ],
@@ -390,7 +407,8 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              _complianceInfo!['complianceSummary'] ?? 'No summary available',
+                              _complianceInfo!['complianceSummary'] ??
+                                  'No summary available',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],

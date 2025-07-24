@@ -281,7 +281,7 @@ class _TopicsPageState extends State<TopicsPage> {
     final theme = Theme.of(context);
 
     // Use dynamic prompts for empty state
-    final dynamicPrompts = _momentPrompts.getMultiplePrompts(3);
+    // final dynamicPrompts = _momentPrompts.getMultiplePrompts(3);
     // final lines = [
     //   'No moments here yet!',
     //   'Try sharing:',

@@ -7,10 +7,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/ad_service/admob_compliance.dart';
-import '../services/ad_service/consent_service.dart';
+import '../services/ad_service/new/robust_consent_service.dart';
+import '../services/ad_service/new/robust_ad_request_helper.dart';
 import '../services/ad_service/ad_service_adapter.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
@@ -129,32 +129,45 @@ class _InitializeState extends State<Initialize> {
     await messaging.addListeners();
     debugPrint('Initialize: Messaging services initialized');
 
-    // Initialize ads with simplified consent handling
+    // Initialize ads with robust consent handling
     try {
       debugPrint('Initialize: Starting ads and consent initialization...');
 
-      // Initialize consent service (fails gracefully)
-      final consentInitialized = await ConsentService.instance.initialize();
+      // Initialize robust consent service first
+      final consentInitialized =
+          await RobustConsentService.instance.initialize();
       debugPrint(
-          'Initialize: Consent service initialized: $consentInitialized');
+          'Initialize: Robust consent service initialized: $consentInitialized');
 
-      // Initialize Mobile Ads SDK
-      await MobileAds.instance.initialize();
-      debugPrint('Initialize: Mobile Ads SDK initialized');
+      // Initialize Mobile Ads SDK with consent validation
+      final adsInitialized =
+          await RobustAdRequestHelper.instance.initializeMobileAds();
+      debugPrint('Initialize: Mobile Ads SDK initialized: $adsInitialized');
 
       // Initialize ad service adapter
       AdServiceAdapter.instance.initialize();
       debugPrint('Initialize: Ad service adapter initialized');
 
+      // Check if consent is blocking ads
+      final consentBlock =
+          await RobustAdRequestHelper.instance.checkConsentBlocking();
+      if (consentBlock.isBlocked) {
+        debugPrint(
+            'Initialize: WARNING - Ads blocked by consent: ${consentBlock.reason}');
+        debugPrint('Initialize: Action needed: ${consentBlock.action}');
+      }
+
       // Log compliance status for debugging
       if (kDebugMode) {
         await AdMobCompliance.logComplianceStatus();
+        final stats = RobustAdRequestHelper.instance.getRequestStats();
+        debugPrint('Initialize: Ad request stats: $stats');
       }
 
       debugPrint('Initialize: Ads and consent initialization completed');
     } catch (e) {
       debugPrint('Initialize: Failed to initialize ads and consent: $e');
-      // Continue without ads rather than crashing - simplified system handles failures gracefully
+      // Continue without ads rather than crashing
     }
 
     debugPrint('Initialize: All services initialization completed');

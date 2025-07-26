@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../config/ad_config.dart';
-import 'ad_request_helper.dart';
+import 'new/robust_ad_request_helper.dart';
+
 import 'admob_compliance.dart';
 
 /// Manages interstitial ads specifically for room transitions (chat ↔ topic)
@@ -16,7 +17,7 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
   RoomTransitionAds._();
 
   // === AD REQUEST HELPER ===
-  final AdRequestHelper _adRequestHelper = AdRequestHelper.instance;
+  final RobustAdRequestHelper _adRequestHelper = RobustAdRequestHelper.instance;
 
   // Current session state
   DateTime? _sessionStart;
@@ -329,12 +330,11 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       final validation = await _adRequestHelper.validateAdRequest();
       if (!validation.canRequestAds) {
         AdMobCompliance.safeLog(
-            'Cannot show ad due to consent: ${validation.message}');
+            'Cannot show ad due to consent: ${validation.reason}');
         return false;
       }
 
-      AdMobCompliance.safeLog(
-          'Consent validated for ad display (${validation.recommendedAdType.name})');
+      AdMobCompliance.safeLog('Consent validated for ad display');
     } catch (e) {
       AdMobCompliance.safeLog('Consent validation failed: $e', forceLog: true);
       return false;
@@ -413,15 +413,14 @@ class RoomTransitionAds extends ChangeNotifier with WidgetsBindingObserver {
       final validation = await _adRequestHelper.validateAdRequest();
 
       if (!validation.canRequestAds) {
-        AdMobCompliance.safeLog('Cannot load ad: ${validation.message}');
+        AdMobCompliance.safeLog('Cannot load ad: ${validation.reason}');
         _isLoading = false;
         notifyListeners();
         return;
       }
 
       final adUnitId = _getInterstitialAdUnitId();
-      AdMobCompliance.safeLog(
-          'Loading ad with unit ID: $adUnitId (ad type: ${validation.recommendedAdType.name})');
+      AdMobCompliance.safeLog('Loading ad with unit ID: $adUnitId');
 
       // Use AdRequestHelper to load ad with proper consent handling
       final interstitialAd = await _adRequestHelper.loadInterstitialAd(

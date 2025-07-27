@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 4.4.5+65
+
+- Improved the AdMob consent form implementation
+- Refactored the edge-to-edge functionality
+- Update dependencies
+
 ## 4.4.4+64
 
 - Enabled edge-to-edge display on Android devices

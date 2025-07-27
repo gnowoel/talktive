@@ -141,56 +141,68 @@ class ProfilePage extends StatelessWidget {
 
                                     // Priority order: warning > alert > moderator > very_poor > poor > newcomer > excellent > good
                                     if (userStatus == 'warning') {
-                                      widgets.add(_Badge(
-                                        label: 'Warning',
-                                        backgroundColor:
-                                            theme.colorScheme.errorContainer,
-                                        textColor:
-                                            theme.colorScheme.onErrorContainer,
-                                      ));
+                                      widgets.add(
+                                        _Badge(
+                                          label: 'Warning',
+                                          backgroundColor:
+                                              theme.colorScheme.errorContainer,
+                                          textColor: theme
+                                              .colorScheme.onErrorContainer,
+                                        ),
+                                      );
                                     } else if (userStatus == 'alert') {
-                                      widgets.add(_Badge(
-                                        label: 'Alert',
-                                        backgroundColor:
-                                            theme.colorScheme.tertiaryContainer,
-                                        textColor: theme
-                                            .colorScheme.onTertiaryContainer,
-                                      ));
+                                      widgets.add(
+                                        _Badge(
+                                          label: 'Alert',
+                                          backgroundColor: theme
+                                              .colorScheme.tertiaryContainer,
+                                          textColor: theme
+                                              .colorScheme.onTertiaryContainer,
+                                        ),
+                                      );
                                     } else if (user.isModerator &&
                                         !user.isAdmin) {
-                                      widgets.add(_Badge(
-                                        label: 'Moderator',
-                                        backgroundColor:
-                                            theme.colorScheme.primaryContainer,
-                                        textColor: theme
-                                            .colorScheme.onPrimaryContainer,
-                                      ));
+                                      widgets.add(
+                                        _Badge(
+                                          label: 'Moderator',
+                                          backgroundColor: theme
+                                              .colorScheme.primaryContainer,
+                                          textColor: theme
+                                              .colorScheme.onPrimaryContainer,
+                                        ),
+                                      );
                                     } else if (user.reputationLevel ==
                                         'very_poor') {
-                                      widgets.add(_Badge(
-                                        label: 'Poor Reputation',
-                                        backgroundColor:
-                                            theme.colorScheme.errorContainer,
-                                        textColor:
-                                            theme.colorScheme.onErrorContainer,
-                                      ));
+                                      widgets.add(
+                                        _Badge(
+                                          label: 'Poor Reputation',
+                                          backgroundColor:
+                                              theme.colorScheme.errorContainer,
+                                          textColor: theme
+                                              .colorScheme.onErrorContainer,
+                                        ),
+                                      );
                                     } else if (user.reputationLevel == 'poor') {
-                                      widgets.add(_Badge(
-                                        label: 'Caution',
-                                        backgroundColor: theme
-                                            .colorScheme.errorContainer
-                                            .withValues(alpha: 0.7),
-                                        textColor:
-                                            theme.colorScheme.onErrorContainer,
-                                      ));
+                                      widgets.add(
+                                        _Badge(
+                                          label: 'Caution',
+                                          backgroundColor: theme
+                                              .colorScheme.errorContainer
+                                              .withValues(alpha: 0.7),
+                                          textColor: theme
+                                              .colorScheme.onErrorContainer,
+                                        ),
+                                      );
                                     } else if (userStatus == 'newcomer') {
-                                      widgets.add(_Badge(
-                                        label: 'New User',
-                                        backgroundColor:
-                                            theme.colorScheme.primaryContainer,
-                                        textColor: theme
-                                            .colorScheme.onPrimaryContainer,
-                                      ));
+                                      widgets.add(
+                                        _Badge(
+                                          label: 'New User',
+                                          backgroundColor: theme
+                                              .colorScheme.primaryContainer,
+                                          textColor: theme
+                                              .colorScheme.onPrimaryContainer,
+                                        ),
+                                      );
                                       // } else if (user.reputationLevel ==
                                       //     'excellent') {
                                       //   widgets.add(_Badge(
@@ -221,6 +233,18 @@ class ProfilePage extends StatelessWidget {
 
                           // Privacy and account buttons
                           const SizedBox(height: 32),
+                          ElevatedButton.icon(
+                            onPressed: () => context.push('/profile/backup'),
+                            icon: const Icon(Icons.backup),
+                            label: const Text('Backup Account'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  theme.colorScheme.primaryContainer,
+                              foregroundColor:
+                                  theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           FutureBuilder<bool>(
                             future: ConsentService.instance.isInConsentRegion(),
                             builder: (context, snapshot) {
@@ -233,29 +257,21 @@ class ProfilePage extends StatelessWidget {
                               return Column(
                                 children: [
                                   if (showPrivacySettings) ...[
-                                    ElevatedButton.icon(
-                                      onPressed: () => context
-                                          .push('/profile/privacy-settings'),
+                                    OutlinedButton.icon(
+                                      onPressed: () => context.push(
+                                        '/profile/privacy-settings',
+                                      ),
                                       icon: const Icon(Icons.privacy_tip),
-                                      label: Text(isAdmin && !isInConsentRegion
-                                          ? 'Privacy Settings (Admin)'
-                                          : 'Privacy Settings'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            theme.colorScheme.primaryContainer,
-                                        foregroundColor: theme
-                                            .colorScheme.onPrimaryContainer,
+                                      label: Text(
+                                        isAdmin && !isInConsentRegion
+                                            ? 'Privacy Settings (Admin)'
+                                            : 'Privacy Settings',
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
                                   ],
                                 ],
                               );
                             },
-                          ),
-                          OutlinedButton(
-                            onPressed: () => context.push('/profile/backup'),
-                            child: const Text('Backup Account'),
                           ),
                         ],
                       ),

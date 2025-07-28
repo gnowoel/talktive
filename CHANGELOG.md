@@ -4,7 +4,7 @@
 
 - Improved the AdMob consent form implementation
 - Refactored the edge-to-edge functionality
-- Update dependencies
+- Updated dependencies
 
 ## 4.4.4+64
 

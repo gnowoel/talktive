@@ -29,17 +29,20 @@ class EdgeToEdgeManager {
       DeviceOrientation.landscapeRight,
     ]);
 
-    // Enable edge-to-edge by setting transparent system bars
-    _setTransparentSystemBars();
+    // Enable edge-to-edge by setting system UI mode
+    // For Android 15+, we don't set colors as they're deprecated
+    _configureSystemUIMode();
   }
 
-  /// Set transparent system bars for edge-to-edge display
-  void _setTransparentSystemBars() {
+  /// Configure system UI mode without setting deprecated color properties
+  void _configureSystemUIMode() {
+    // For Android 15+, we only set the brightness properties
+    // The system handles transparency automatically with edge-to-edge
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
   }
@@ -48,15 +51,13 @@ class EdgeToEdgeManager {
   void updateForTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
 
+    // Only set brightness properties for Android 15+ compatibility
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness:
             isDark ? Brightness.light : Brightness.dark,
-        systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
   }
@@ -69,14 +70,12 @@ class EdgeToEdgeManager {
 
   /// Configure system UI for splash screen or launch
   void configureLaunchStyle() {
+    // Only set brightness properties for Android 15+ compatibility
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
   }
@@ -100,22 +99,20 @@ class EdgeToEdgeManager {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
 
+    // Only set brightness properties for Android 15+ compatibility
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarColor: isDark ? Colors.black26 : Colors.white24,
         systemNavigationBarIconBrightness:
             isDark ? Brightness.light : Brightness.dark,
-        systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
   }
 
   /// Reset to default edge-to-edge configuration
   Future<void> resetToDefault() async {
-    _setTransparentSystemBars();
+    _configureSystemUIMode();
     await showSystemUI();
   }
 
@@ -163,10 +160,8 @@ class EdgeToEdgeManager {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness:
             isDark ? Brightness.light : Brightness.dark,
       ),
@@ -188,14 +183,12 @@ class EdgeToEdgeManager {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
 
+    // Only return brightness properties for Android 15+ compatibility
     return SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
       statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
       statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      systemNavigationBarColor: Colors.transparent,
       systemNavigationBarIconBrightness:
           isDark ? Brightness.light : Brightness.dark,
-      systemNavigationBarDividerColor: Colors.transparent,
     );
   }
 }

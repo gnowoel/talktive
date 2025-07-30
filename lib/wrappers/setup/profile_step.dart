@@ -186,7 +186,7 @@ class _ProfileStepState extends State<ProfileStep> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Tell us about yourself',
+                        'About You',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 32),
@@ -194,20 +194,22 @@ class _ProfileStepState extends State<ProfileStep> {
                         controller: _displayNameController,
                         decoration: const InputDecoration(
                           labelText: 'Display Name',
-                          hintText: 'What do people call you?',
+                          hintText: 'What should we call you?',
                         ),
                         validator: _validateDisplayName,
+                        maxLength: 30,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _descriptionController,
                         decoration: const InputDecoration(
-                          labelText: 'Self Introduction',
-                          hintText: 'Tell us a bit about yourself',
+                          labelText: 'Current Status',
+                          hintText: 'What would you like to share?',
                         ),
                         validator: _validateDescription,
                         minLines: 2,
                         maxLines: 3,
+                        maxLength: 200,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(

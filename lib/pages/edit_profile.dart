@@ -177,34 +177,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _displayNameController,
                       decoration: const InputDecoration(
                         labelText: 'Display Name',
-                        hintText: 'What do people call you?',
+                        hintText: 'What should we call you?',
                       ),
                       validator: _validateDisplayName,
+                      maxLength: 30,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
-                        labelText: 'Self Introduction',
-                        hintText: 'Tell us a bit about yourself',
+                        labelText: 'Current Status',
+                        hintText: 'What would you like to share?',
                       ),
                       validator: _validateDescription,
                       minLines: 2,
                       maxLines: 3,
+                      maxLength: 200,
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       decoration: const InputDecoration(labelText: 'Gender'),
                       value: _selectedGender,
-                      items:
-                          _genderOptions
-                              .map(
-                                (option) => DropdownMenuItem(
-                                  value: option['value'],
-                                  child: Text(option['label']!),
-                                ),
-                              )
-                              .toList(),
+                      items: _genderOptions
+                          .map(
+                            (option) => DropdownMenuItem(
+                              value: option['value'],
+                              child: Text(option['label']!),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (value) {
                         setState(() => _selectedGender = value);
                       },
@@ -213,16 +214,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     const SizedBox(height: 32),
                     FilledButton(
                       onPressed: _isProcessing ? null : _submit,
-                      child:
-                          _isProcessing
-                              ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                ),
-                              )
-                              : const Text('Save'),
+                      child: _isProcessing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 3),
+                            )
+                          : const Text('Save'),
                     ),
                   ],
                 ),

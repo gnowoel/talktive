@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../helpers/helpers.dart';
 
 import '../services/user_cache.dart';
-import '../services/ad_service/consent_service.dart';
+import '../services/ad_service/improved_consent_manager.dart';
 import '../services/ad_service/admob_compliance.dart';
 import '../widgets/layout.dart';
 
@@ -246,7 +247,9 @@ class ProfilePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           FutureBuilder<bool>(
-                            future: ConsentService.instance.isInConsentRegion(),
+                            future: Future.value(
+                                ImprovedConsentManager.instance.consentStatus !=
+                                    ConsentStatus.notRequired),
                             builder: (context, snapshot) {
                               final isInConsentRegion = snapshot.data ?? false;
                               final isAdmin =

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../user_cache.dart';
 
-import 'consent_service.dart';
+import 'improved_consent_manager.dart';
 
 /// AdMob compliance utility class to ensure adherence to AdMob policies
 ///
@@ -33,7 +33,7 @@ class AdMobCompliance {
     // Get consent status information
     Map<String, dynamic> consentInfo = {};
     try {
-      consentInfo = await ConsentService.instance.getConsentDebugInfo();
+      consentInfo = ImprovedConsentManager.instance.getDebugInfo();
     } catch (e) {
       consentInfo = {'error': 'Failed to get consent info: $e'};
     }
@@ -108,7 +108,7 @@ class AdMobCompliance {
 
     // Check consent compliance
     try {
-      final canRequest = await ConsentService.instance.canRequestAds();
+      final canRequest = ImprovedConsentManager.instance.canRequestAds;
       if (!canRequest) {
         safeLog('Ad compliance failed: Cannot request ads due to consent');
         return false;
@@ -159,8 +159,9 @@ class AdMobCompliance {
   static Future<void> initialize() async {
     // Initialize consent service
     try {
-      final success = await ConsentService.instance.initialize();
-      safeLog('Consent service initialized: $success');
+      // Consent service is initialized in app startup
+      ImprovedConsentManager.instance.initializeAsync();
+      safeLog('Consent service initialization started');
 
       if (kDebugMode) {
         safeLog('Debug mode: Consent requirements may be bypassed for testing');
@@ -273,9 +274,10 @@ class AdMobCompliance {
   }
 
   /// Request consent if needed (convenience method)
+  /// Request consent if needed
   static Future<void> requestConsentIfNeeded() async {
     try {
-      await ConsentService.instance.initializeAndRequestConsent();
+      await ImprovedConsentManager.instance.requestConsentManually();
       safeLog('Consent request completed');
     } catch (e) {
       safeLog('Failed to request consent: $e');
@@ -285,7 +287,7 @@ class AdMobCompliance {
   /// Check if we can show personalized ads
   static Future<bool> canShowPersonalizedAds() async {
     try {
-      return await ConsentService.instance.canShowPersonalizedAds();
+      return ImprovedConsentManager.instance.canShowPersonalizedAds;
     } catch (e) {
       safeLog('Failed to check personalized ads permission: $e');
       return false;
@@ -295,7 +297,14 @@ class AdMobCompliance {
   /// Get consent status message for UI
   static Future<String> getConsentStatusMessage() async {
     try {
-      return await ConsentService.instance.getConsentStatusMessage();
+      final canRequest = ImprovedConsentManager.instance.canRequestAds;
+      if (!canRequest) {
+        return 'Consent required for ads';
+      } else if (ImprovedConsentManager.instance.canShowPersonalizedAds) {
+        return 'Personalized ads enabled';
+      } else {
+        return 'Non-personalized ads only';
+      }
     } catch (e) {
       return 'Consent status unavailable';
     }

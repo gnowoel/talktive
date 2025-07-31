@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/ad_service/consent_service.dart';
+import '../services/ad_service/improved_consent_manager.dart';
 import '../services/ad_service/admob_compliance.dart';
 
 /// Debug widget for consent management and privacy settings
@@ -40,7 +40,7 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
     });
 
     try {
-      final consentInfo = await ConsentService.instance.getConsentDebugInfo();
+      final consentInfo = ImprovedConsentManager.instance.getDebugInfo();
       final complianceInfo = await AdMobCompliance.getDetailedComplianceInfo();
       final statusMessage = await AdMobCompliance.getConsentStatusMessage();
 
@@ -62,7 +62,7 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
     setState(() => _isLoading = true);
 
     try {
-      await ConsentService.instance.requestConsent();
+      await ImprovedConsentManager.instance.requestConsentManually();
       await _loadConsentInfo();
 
       if (mounted) {
@@ -93,7 +93,7 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
     setState(() => _isLoading = true);
 
     try {
-      await ConsentService.instance.resetConsent();
+      await ImprovedConsentManager.instance.resetConsent();
       await _loadConsentInfo();
 
       if (mounted) {

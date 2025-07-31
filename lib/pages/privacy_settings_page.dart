@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import '../services/ad_service/new/robust_consent_service.dart';
-import '../services/ad_service/new/robust_ad_request_helper.dart';
+import '../services/ad_service/improved_consent_manager.dart';
 import '../services/ad_service/admob_compliance.dart';
 
 class PrivacySettingsPage extends StatefulWidget {
@@ -12,8 +11,8 @@ class PrivacySettingsPage extends StatefulWidget {
 }
 
 class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
-  final RobustConsentService _consentService = RobustConsentService.instance;
-  final RobustAdRequestHelper _adRequestHelper = RobustAdRequestHelper.instance;
+  final ImprovedConsentManager _consentManager =
+      ImprovedConsentManager.instance;
 
   bool _isLoading = true;
   bool _isUpdatingConsent = false;
@@ -41,22 +40,26 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
 
     try {
       // Get current consent validation
-      final validation = await _consentService.validateConsentForAds();
+      // For improved consent manager, we check directly
+      _canRequestAds = _consentManager.canRequestAds;
 
       // Get consent status
-      final consentStatus = await _consentService.getConsentStatus();
+      final consentStatus = _consentManager.consentStatus;
 
       // Get debug info and stats
-      final debugInfo = await _consentService.getDebugInfo();
-      final requestStats = _adRequestHelper.getRequestStats();
+      final debugInfo = _consentManager.getDebugInfo();
+      // Stats not available in simplified system
+      final stats = {'message': 'Using simplified ad system'};
 
       setState(() {
         _consentStatus = consentStatus;
-        _canRequestAds = validation.canRequestAds;
-        _statusMessage = validation.message;
-        _actionNeeded = validation.action;
+        _canRequestAds = _canRequestAds;
+        _statusMessage = _canRequestAds
+            ? 'Ads can be requested'
+            : 'Consent required for ads';
+        _actionNeeded = _canRequestAds ? 'none' : 'request_consent';
         _debugInfo = debugInfo;
-        _requestStats = requestStats;
+        _requestStats = stats;
         _isLoading = false;
       });
     } catch (e) {
@@ -74,7 +77,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
 
     try {
       // Request consent
-      final result = await _consentService.requestConsent();
+      final result = await _consentManager.requestConsentManually();
 
       if (result.success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -86,7 +89,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update preferences: ${result.message}'),
+            content: Text('Failed to update privacy preferences'),
             backgroundColor: Colors.red,
           ),
         );
@@ -114,7 +117,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
     });
 
     try {
-      final success = await _consentService.showPrivacyOptionsForm();
+      final success = await _consentManager.showPrivacyOptions();
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -173,7 +176,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
     });
 
     try {
-      await _consentService.resetConsent();
+      await _consentManager.resetConsent();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

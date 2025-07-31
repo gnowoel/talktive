@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'ad_service_adapter.dart';
+import 'simple_ad_manager.dart';
 import 'admob_compliance.dart';
 import '../../helpers/routes.dart';
 
@@ -16,7 +16,7 @@ import '../../helpers/routes.dart';
 /// await GoRouterRoomHelper.goToTopic(context, topicId);
 /// ```
 class GoRouterRoomHelper {
-  static final AdServiceAdapter _adManager = AdServiceAdapter.instance;
+  static final SimpleAdAdapter _adManager = SimpleAdAdapter.instance;
 
   /// Navigate to a chat room with potential ad display
   /// Uses context.go() for tab-level navigation
@@ -468,7 +468,7 @@ class RoomAdDebugInfo extends StatelessWidget {
           // Session Statistics
           Builder(
             builder: (context) {
-              final adManager = AdServiceAdapter.instance;
+              final adManager = SimpleAdAdapter.instance;
               final stats = GoRouterRoomHelper.getSessionStatsSync();
               final shouldShow =
                   GoRouterRoomHelper.wouldShowAdOnNextTransitionSync();

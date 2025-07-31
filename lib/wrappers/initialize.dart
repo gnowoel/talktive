@@ -8,10 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../services/ad_service/admob_compliance.dart';
-import '../services/ad_service/new/robust_consent_service.dart';
-import '../services/ad_service/new/robust_ad_request_helper.dart';
-import '../services/ad_service/ad_service_adapter.dart';
+import '../services/ad_service/improved_ad_manager.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
 import '../services/report_cache.dart';
@@ -129,46 +126,24 @@ class _InitializeState extends State<Initialize> {
     await messaging.addListeners();
     debugPrint('Initialize: Messaging services initialized');
 
-    // Initialize ads with robust consent handling
-    try {
-      debugPrint('Initialize: Starting ads and consent initialization...');
+    // Initialize ads with improved non-blocking approach
+    debugPrint('Initialize: Starting ads initialization...');
 
-      // Initialize robust consent service first
-      final consentInitialized =
-          await RobustConsentService.instance.initialize();
-      debugPrint(
-          'Initialize: Robust consent service initialized: $consentInitialized');
+    // Initialize the improved ad manager asynchronously
+    // This won't block app startup - ads will initialize in background
+    ImprovedAdManager.instance.initializeAsync().then((_) {
+      debugPrint('Initialize: Ads initialization completed in background');
 
-      // Initialize Mobile Ads SDK with consent validation
-      final adsInitialized =
-          await RobustAdRequestHelper.instance.initializeMobileAds();
-      debugPrint('Initialize: Mobile Ads SDK initialized: $adsInitialized');
-
-      // Initialize ad service adapter
-      AdServiceAdapter.instance.initialize();
-      debugPrint('Initialize: Ad service adapter initialized');
-
-      // Check if consent is blocking ads
-      final consentBlock =
-          await RobustAdRequestHelper.instance.checkConsentBlocking();
-      if (consentBlock.isBlocked) {
-        debugPrint(
-            'Initialize: WARNING - Ads blocked by consent: ${consentBlock.reason}');
-        debugPrint('Initialize: Action needed: ${consentBlock.action}');
-      }
-
-      // Log compliance status for debugging
+      // Log statistics in debug mode
       if (kDebugMode) {
-        await AdMobCompliance.logComplianceStatus();
-        final stats = RobustAdRequestHelper.instance.getRequestStats();
-        debugPrint('Initialize: Ad request stats: $stats');
+        final stats = ImprovedAdManager.instance.getStatistics();
+        debugPrint('Initialize: Ad manager stats: $stats');
       }
+    }).catchError((error) {
+      debugPrint('Initialize: Background ads initialization error: $error');
+    });
 
-      debugPrint('Initialize: Ads and consent initialization completed');
-    } catch (e) {
-      debugPrint('Initialize: Failed to initialize ads and consent: $e');
-      // Continue without ads rather than crashing
-    }
+    debugPrint('Initialize: Ads initialization started (non-blocking)');
 
     debugPrint('Initialize: All services initialization completed');
   }

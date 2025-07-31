@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'improved_ad_manager.dart';
 import 'improved_consent_manager.dart';
+import 'improved_room_ads.dart';
 
 /// Adapter to integrate improved ad manager with existing ad service
 /// This provides a bridge between the old ad service API and the new improved system
@@ -30,6 +31,16 @@ class ImprovedAdServiceAdapter {
 
     // Start async initialization of ad manager
     await _adManager.initializeAsync();
+
+    // Also initialize the improved room ads for session tracking
+    // This ensures room-based ad logic works properly
+    try {
+      await ImprovedRoomAds.instance.initialize();
+      _log('Improved room ads initialized for session tracking');
+    } catch (e) {
+      _logError('Failed to initialize improved room ads: $e');
+      // Continue anyway - the base ad system can still work
+    }
 
     _log('Ad service adapter initialized');
   }

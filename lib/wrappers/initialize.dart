@@ -8,7 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../services/ad_service/improved_ad_manager.dart';
+import '../services/ad_service/improved_ad_service_adapter.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
 import '../services/report_cache.dart';
@@ -129,15 +129,15 @@ class _InitializeState extends State<Initialize> {
     // Initialize ads with improved non-blocking approach
     debugPrint('Initialize: Starting ads initialization...');
 
-    // Initialize the improved ad manager asynchronously
+    // Initialize the improved ad service adapter asynchronously
     // This won't block app startup - ads will initialize in background
-    ImprovedAdManager.instance.initializeAsync().then((_) {
+    ImprovedAdServiceAdapter.instance.initialize().then((_) {
       debugPrint('Initialize: Ads initialization completed in background');
 
       // Log statistics in debug mode
       if (kDebugMode) {
-        final stats = ImprovedAdManager.instance.getStatistics();
-        debugPrint('Initialize: Ad manager stats: $stats');
+        final stats = ImprovedAdServiceAdapter.instance.getStatistics();
+        debugPrint('Initialize: Ad service stats: $stats');
       }
     }).catchError((error) {
       debugPrint('Initialize: Background ads initialization error: $error');

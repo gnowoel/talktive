@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:talktive3/services/ad_service/simple_ad_manager.dart';
-import 'package:talktive3/services/user_cache.dart';
-import 'package:talktive3/models/user.dart';
+import 'package:talktive/services/ad_service/simple_ad_manager.dart';
+import 'package:talktive/services/user_cache.dart';
+import 'package:talktive/models/user.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 
@@ -68,7 +68,8 @@ void main() {
       // Test the progressive interval calculation
       final regularUser = User(
         id: 'regular123',
-        createdAt: DateTime.now().millisecondsSinceEpoch - (30 * 24 * 60 * 60 * 1000),
+        createdAt:
+            DateTime.now().millisecondsSinceEpoch - (30 * 24 * 60 * 60 * 1000),
         updatedAt: DateTime.now().millisecondsSinceEpoch,
         displayName: 'Test User',
         messageCount: 50,
@@ -92,7 +93,8 @@ void main() {
     test('should respect minimum time between ads', () async {
       final regularUser = User(
         id: 'regular123',
-        createdAt: DateTime.now().millisecondsSinceEpoch - (30 * 24 * 60 * 60 * 1000),
+        createdAt:
+            DateTime.now().millisecondsSinceEpoch - (30 * 24 * 60 * 60 * 1000),
         updatedAt: DateTime.now().millisecondsSinceEpoch,
         displayName: 'Test User',
         messageCount: 50,

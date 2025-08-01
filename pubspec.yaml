@@ -44,6 +44,8 @@ dev_dependencies:
     git: https://github.com/gnowoel/fake_firebase_database
   integration_test:
     sdk: flutter
+  mockito: ^5.4.4
+  build_runner: ^2.4.8
 
 flutter:
   uses-material-design: true

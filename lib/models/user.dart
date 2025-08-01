@@ -100,8 +100,8 @@ class User {
 
   bool get _isNewcomer {
     final serverNow = ServerClock().now;
-    final twoDays = 24 * 60 * 60 * 1000;
-    return serverNow - createdAt < twoDays;
+    final oneDay = 24 * 60 * 60 * 1000;
+    return serverNow - createdAt < oneDay;
   }
 
   String get status {

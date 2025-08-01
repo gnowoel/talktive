@@ -5,6 +5,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'improved_consent_manager.dart';
 import '../../config/ad_config.dart';
 
+import '../../services/user_cache.dart';
+
 /// Simple ad manager without complex session management
 /// Just loads ads and shows them based on simple timing rules
 class SimpleAdManager {
@@ -23,12 +25,24 @@ class SimpleAdManager {
   bool _isLoading = false;
   bool _isInitialized = false;
 
-  // Simple timing control
+  // User-aware timing control
   DateTime? _lastAdShown;
   int _adsShownCount = 0;
-  static const Duration _minTimeBetweenAds = Duration(minutes: 2);
-  static const Duration _firstAdDelay = Duration(seconds: 30);
   DateTime? _initTime;
+
+  // Progressive timing intervals based on user status
+  static const Duration _newcomerFirstAdDelay = Duration(minutes: 5);
+  static const Duration _regularFirstAdDelay = Duration(minutes: 2);
+  static const Duration _minTimeBetweenAds = Duration(seconds: 90);
+
+  // Progressive interval multipliers (gradually decrease frequency)
+  static const List<double> _intervalMultipliers = [
+    3.0,  // First interval: 3x base (4.5-9 minutes)
+    2.5,  // Second interval: 2.5x base (3.75-7.5 minutes)
+    2.0,  // Third interval: 2x base (3-6 minutes)
+    1.5,  // Fourth interval: 1.5x base (2.25-4.5 minutes)
+    1.0,  // Fifth+ interval: 1x base (1.5-3 minutes)
+  ];
 
   // Ad unit IDs
   String get _interstitialAdUnitId {
@@ -130,6 +144,42 @@ class SimpleAdManager {
     }
   }
 
+  /// Get appropriate interval based on user status and ad count
+  Duration _getAdInterval() {
+    // Base interval depends on user status
+    final user = UserCache().user;
+    final bool isNewcomer = user != null && user.status == 'newcomer';
+    final Duration baseInterval = isNewcomer
+        ? Duration(minutes: 3)  // 3 minute base for newcomers
+        : Duration(minutes: 2); // 2 minute base for regular users
+
+    // Apply progressive multiplier based on how many ads shown
+    final multiplierIndex = _adsShownCount.clamp(0, _intervalMultipliers.length - 1);
+    final multiplier = _intervalMultipliers[multiplierIndex];
+
+    // Calculate actual interval
+    final interval = Duration(
+      milliseconds: (baseInterval.inMilliseconds * multiplier).round()
+    );
+
+    // Ensure we never go below minimum
+    return interval.compareTo(_minTimeBetweenAds) > 0 ? interval : _minTimeBetweenAds;
+  }
+
+  /// Get first ad delay based on user status
+  Duration _getFirstAdDelay() {
+    final user = UserCache().user;
+    if (user == null) return _regularFirstAdDelay;
+
+    // Give newcomers more time to explore
+    if (user.status == 'newcomer') {
+      return _newcomerFirstAdDelay;
+    }
+
+    // Regular users get standard delay
+    return _regularFirstAdDelay;
+  }
+
   /// Check if we should show an ad now
   bool shouldShowAd() {
     // Not initialized yet
@@ -152,18 +202,20 @@ class SimpleAdManager {
 
     // Too soon after initialization
     final timeSinceInit = DateTime.now().difference(_initTime!);
-    if (timeSinceInit < _firstAdDelay) {
+    final firstAdDelay = _getFirstAdDelay();
+    if (timeSinceInit < firstAdDelay) {
       debugPrint(
-          '[SimpleAdManager] Too soon after init: ${timeSinceInit.inSeconds}s < ${_firstAdDelay.inSeconds}s');
+          '[SimpleAdManager] Too soon after init: ${timeSinceInit.inSeconds}s < ${firstAdDelay.inSeconds}s');
       return false;
     }
 
     // Too soon after last ad
     if (_lastAdShown != null) {
       final timeSinceLastAd = DateTime.now().difference(_lastAdShown!);
-      if (timeSinceLastAd < _minTimeBetweenAds) {
+      final requiredInterval = _getAdInterval();
+      if (timeSinceLastAd < requiredInterval) {
         debugPrint(
-            '[SimpleAdManager] Too soon since last ad: ${timeSinceLastAd.inSeconds}s < ${_minTimeBetweenAds.inSeconds}s');
+            '[SimpleAdManager] Too soon since last ad: ${timeSinceLastAd.inSeconds}s < ${requiredInterval.inSeconds}s');
         return false;
       }
     }
@@ -227,6 +279,9 @@ class SimpleAdManager {
       'timeSinceLastAd': _lastAdShown != null
           ? '${DateTime.now().difference(_lastAdShown!).inSeconds}s'
           : 'no ads shown',
+      'currentInterval': '${_getAdInterval().inSeconds}s',
+      'userStatus': UserCache().user?.status ?? 'unknown',
+      'userLevel': UserCache().user?.level ?? 0,
     };
   }
 
@@ -329,7 +384,9 @@ class SimpleAdAdapter {
   String getTimingMessage() {
     final status = _adManager.getStatus();
     final timeSinceLastAd = status['timeSinceLastAd'] ?? 'never';
-    return 'Simple timing: Next ad available after 2 minutes (last: $timeSinceLastAd)';
+    final currentInterval = status['currentInterval'] ?? 'unknown';
+    final userStatus = status['userStatus'] ?? 'unknown';
+    return 'Adaptive timing: Next ad in $currentInterval (user: $userStatus, last: $timeSinceLastAd)';
   }
 
   /// Get room transitions (always 0 for simple system)
@@ -359,8 +416,11 @@ class SimpleAdAdapter {
       'system': 'SimpleAdManager',
       'status': _adManager.getStatus(),
       'config': {
-        'minTimeBetweenAds': '2 minutes',
-        'firstAdDelay': '30 seconds',
+        'minTimeBetweenAds': '${SimpleAdManager._minTimeBetweenAds.inSeconds}s',
+        'newcomerFirstDelay': '${SimpleAdManager._newcomerFirstAdDelay.inMinutes} minutes',
+        'regularFirstDelay': '${SimpleAdManager._regularFirstAdDelay.inMinutes} minutes',
+        'intervalStrategy': 'progressive',
+        'adsShown': _adManager._adsShownCount,
       }
     };
   }

@@ -67,6 +67,12 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
+                            '🚀 Performance Boost',
+                            'Improved message loading performance in large chat rooms.',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureCard(
+                            Theme.of(context),
                             '🛠️ Initialization Fix',
                             'Fixed an initialization problem that would make the app halt.',
                           ),

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.4.7+67
+
+- Improved message loading performance in large chat rooms
+
 ## 4.4.6+66
 
 - Fixed an initialization problem that would make the app halt

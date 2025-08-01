@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.4.6+66
+
+- Fixed an initialization problem that would make the app halt
+
 ## 4.4.5+65
 
 - Improved the AdMob consent form implementation

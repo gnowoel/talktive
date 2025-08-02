@@ -76,7 +76,13 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
   // Scroll management
   static const double _scrollThreshold = 200.0;
+  static const double _loadingIndicatorHeight =
+      64.0; // Height of loading indicator + padding
   Timer? _scrollDebouncer;
+
+  // Scroll position preservation
+  double? _savedScrollOffset;
+  double? _savedMaxScrollExtent;
 
   @override
   void initState() {
@@ -362,10 +368,16 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     debugPrint(
         'PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
 
-    // Save scroll position before loading
-    final savedScrollOffset = widget.scrollController.hasClients
-        ? widget.scrollController.position.pixels
-        : 0.0;
+    // Save precise scroll metrics before loading
+    if (widget.scrollController.hasClients) {
+      final position = widget.scrollController.position;
+      _savedScrollOffset = position.pixels;
+      _savedMaxScrollExtent = position.maxScrollExtent;
+    } else {
+      // Fallback when controller doesn't have clients yet
+      _savedScrollOffset = 0.0;
+      _savedMaxScrollExtent = 0.0;
+    }
 
     if (!mounted) return;
     setState(() {
@@ -383,8 +395,6 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
       if (!mounted) return;
 
-      final oldMessageCount = _messages.length;
-
       setState(() {
         _messages = List.from(result.items);
         _hasMore = result.hasMore;
@@ -395,30 +405,12 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           'PaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
 
-      // Maintain scroll position after adding messages
-      if (mounted && widget.scrollController.hasClients) {
-        final newMessagesCount = _messages.length - oldMessageCount;
-        if (newMessagesCount > 0) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && widget.scrollController.hasClients) {
-              // Try to maintain visual position by adjusting for new content
-              // If user was at the top, stay at the top
-              if (savedScrollOffset < 100) {
-                widget.scrollController.jumpTo(0);
-              } else {
-                // Otherwise, try to maintain the visual position
-                // This is approximate but should work for most cases
-                final approximateMessageHeight = 100.0 * newMessagesCount;
-                widget.scrollController.jumpTo(
-                  savedScrollOffset + approximateMessageHeight,
-                );
-              }
-            }
-          });
-        }
-      }
+      // Precisely maintain scroll position after adding messages
+      _adjustScrollPosition();
     } catch (e) {
       debugPrint('Error loading more messages: $e');
+      // Try to preserve scroll position even on error if we have saved values
+      _adjustScrollPosition();
       if (!mounted) return;
       setState(() {
         _hasMore = false;
@@ -457,6 +449,47 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   bool _shouldShowSeparator() {
     final readCount = _getReadMessageCount();
     return readCount > 0 && _messages.length > readCount;
+  }
+
+  void _adjustScrollPosition() {
+    if (mounted &&
+        widget.scrollController.hasClients &&
+        _savedScrollOffset != null &&
+        _savedMaxScrollExtent != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.scrollController.hasClients) {
+          final currentMaxScrollExtent =
+              widget.scrollController.position.maxScrollExtent;
+
+          // Calculate the height of newly added content
+          final addedContentHeight =
+              currentMaxScrollExtent - _savedMaxScrollExtent!;
+
+          // Account for the loading indicator that will be removed
+          final adjustedContentHeight =
+              addedContentHeight - _loadingIndicatorHeight;
+
+          // Calculate new scroll position to maintain visual position
+          final newScrollOffset = _savedScrollOffset! + adjustedContentHeight;
+
+          // Ensure we don't scroll beyond bounds
+          final clampedOffset = newScrollOffset.clamp(
+            0.0,
+            currentMaxScrollExtent,
+          );
+
+          widget.scrollController.jumpTo(clampedOffset);
+        }
+
+        // Clear saved values after adjustment
+        _savedScrollOffset = null;
+        _savedMaxScrollExtent = null;
+      });
+    } else {
+      // Clear saved values if we can't adjust
+      _savedScrollOffset = null;
+      _savedMaxScrollExtent = null;
+    }
   }
 
   int _getItemCount() {

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,9 +33,6 @@ class ImprovedConsentManager {
   // Debug configuration
   static const bool _bypassConsentInDebug = true;
 
-  // Platform-specific configuration
-  bool get _isWebPlatform => kIsWeb;
-
   /// Initialize consent manager without blocking app startup
   /// Returns immediately and initializes in background
   void initializeAsync() {
@@ -53,15 +50,7 @@ class ImprovedConsentManager {
       // First, load cached values for immediate availability
       await _loadCachedValues();
 
-      // Check if we're on web platform
-      if (_isWebPlatform) {
-        _log('Web platform detected - using web-safe consent handling');
-        _setWebSafeDefaults();
-        _isInitialized = true;
-        return;
-      }
-
-      // Then update from UMP SDK with retries (mobile platforms only)
+      // Then update from UMP SDK with retries
       bool success = false;
       for (int retry = 0; retry < _maxRetries && !success; retry++) {
         if (retry > 0) {
@@ -120,12 +109,6 @@ class ImprovedConsentManager {
   /// Update consent information from UMP SDK
   Future<bool> _updateConsentInfo() async {
     try {
-      // Skip UMP SDK on web platforms
-      if (_isWebPlatform) {
-        _log('Skipping UMP SDK update on web platform');
-        return true;
-      }
-
       final completer = Completer<bool>();
 
       // Configure debug settings
@@ -147,16 +130,12 @@ class ImprovedConsentManager {
         () async {
           // Success callback
           await _onConsentInfoUpdated();
-          if (!completer.isCompleted) {
-            completer.complete(true);
-          }
+          completer.complete(true);
         },
         (FormError error) {
           // Error callback
           _logError('UMP update error: ${error.message}');
-          if (!completer.isCompleted) {
-            completer.complete(false);
-          }
+          completer.complete(false);
         },
       );
 
@@ -165,10 +144,7 @@ class ImprovedConsentManager {
         _initTimeout,
         onTimeout: () {
           _logError('Consent info update timed out');
-          if (!completer.isCompleted) {
-            return false;
-          }
-          return completer.future;
+          return false;
         },
       );
     } catch (e) {
@@ -232,24 +208,6 @@ class ImprovedConsentManager {
     }
   }
 
-  /// Set web-safe default values for web platforms
-  void _setWebSafeDefaults() {
-    if (kDebugMode) {
-      // In debug mode on web, allow all ads for testing
-      _currentStatus = ConsentStatus.obtained;
-      _canRequestAds = true;
-      _log('Web platform debug mode: Using permissive values');
-    } else {
-      // In production on web, use safe defaults
-      // Since UMP SDK is not fully supported on web, assume consent not required
-      // but only allow non-personalized ads to be safe
-      _currentStatus = ConsentStatus.notRequired;
-      _canRequestAds = true;
-      _log('Web platform: Using web-safe default values');
-    }
-    _lastUpdateTime = DateTime.now();
-  }
-
   /// Check if consent form should be shown automatically
   bool _shouldAutoShowConsentForm() {
     return _currentStatus == ConsentStatus.required ||
@@ -268,12 +226,6 @@ class ImprovedConsentManager {
   /// Show consent form with proper error handling
   Future<bool> _showConsentForm() async {
     try {
-      // Skip consent form on web platforms
-      if (_isWebPlatform) {
-        _log('Consent form not supported on web platform');
-        return false;
-      }
-
       // Check if form is available
       final isAvailable =
           await ConsentInformation.instance.isConsentFormAvailable();
@@ -291,24 +243,18 @@ class ImprovedConsentManager {
           consentForm.show((FormError? error) async {
             if (error != null) {
               _logError('Error showing form: ${error.message}');
-              if (!completer.isCompleted) {
-                completer.complete(false);
-              }
+              completer.complete(false);
             } else {
               _log('Consent form closed by user');
               // Update consent status after form
               await _onConsentInfoUpdated();
-              if (!completer.isCompleted) {
-                completer.complete(true);
-              }
+              completer.complete(true);
             }
           });
         },
         (FormError error) {
           _logError('Failed to load form: ${error.message}');
-          if (!completer.isCompleted) {
-            completer.complete(false);
-          }
+          completer.complete(false);
         },
       );
 
@@ -327,10 +273,6 @@ class ImprovedConsentManager {
     if (kDebugMode && _bypassConsentInDebug) {
       return true;
     }
-    if (_isWebPlatform) {
-      // On web, always allow non-personalized ads
-      return true;
-    }
     return _canRequestAds;
   }
 
@@ -339,10 +281,6 @@ class ImprovedConsentManager {
     if (kDebugMode && _bypassConsentInDebug) {
       return true;
     }
-    if (_isWebPlatform) {
-      // On web, be conservative and only allow personalized ads in debug mode
-      return kDebugMode;
-    }
     return _currentStatus == ConsentStatus.obtained ||
         _currentStatus == ConsentStatus.notRequired;
   }
@@ -350,10 +288,6 @@ class ImprovedConsentManager {
   /// Check if non-personalized ads can be shown
   bool get canShowNonPersonalizedAds {
     if (kDebugMode && _bypassConsentInDebug) {
-      return true;
-    }
-    if (_isWebPlatform) {
-      // On web, always allow non-personalized ads
       return true;
     }
     // Always allow non-personalized ads if we can request ads at all
@@ -419,12 +353,6 @@ class ImprovedConsentManager {
   /// Show privacy options form
   Future<bool> showPrivacyOptions() async {
     try {
-      // Skip privacy options on web platforms
-      if (_isWebPlatform) {
-        _log('Privacy options form not supported on web platform');
-        return false;
-      }
-
       // Ensure we're initialized
       if (!_isInitialized) {
         await _waitForInitialization();
@@ -435,15 +363,11 @@ class ImprovedConsentManager {
       ConsentForm.showPrivacyOptionsForm((FormError? error) async {
         if (error != null) {
           _logError('Privacy options error: ${error.message}');
-          if (!completer.isCompleted) {
-            completer.complete(false);
-          }
+          completer.complete(false);
         } else {
           // Update consent status after form
           await _onConsentInfoUpdated();
-          if (!completer.isCompleted) {
-            completer.complete(true);
-          }
+          completer.complete(true);
         }
       });
 
@@ -471,10 +395,7 @@ class ImprovedConsentManager {
   /// Reset consent (for testing)
   Future<void> resetConsent() async {
     try {
-      // Only reset UMP SDK on mobile platforms
-      if (!_isWebPlatform) {
-        ConsentInformation.instance.reset();
-      }
+      ConsentInformation.instance.reset();
 
       // Clear cached values
       final prefs = await SharedPreferences.getInstance();
@@ -502,7 +423,6 @@ class ImprovedConsentManager {
     return {
       'initialized': _isInitialized,
       'initializing': _isInitializing,
-      'platform': _isWebPlatform ? 'web' : 'mobile',
       'consentStatus': _currentStatus.toString(),
       'canRequestAds': _canRequestAds,
       'canShowPersonalizedAds': canShowPersonalizedAds,

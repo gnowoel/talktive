@@ -97,13 +97,13 @@ class _TopicPageState extends State<TopicPage> {
         }
       } else {
         setState(() => _topic = topic);
-        // Update topic cache with the latest data
-        topicCache.updateTopic(topic);
-        // Sync total message count with pagination service
+        // Sync total message count with pagination service first
         paginatedMessageService.updateTopicTotalMessageCount(
           widget.topicId,
           topic.messageCount,
         );
+        // Then update topic cache with the latest data
+        topicCache.updateTopic(topic);
       }
     });
 
@@ -210,18 +210,19 @@ class _TopicPageState extends State<TopicPage> {
   void _updateMessageCount(int count) {
     if (_messageCount != count) {
       _messageCount = count;
-      // Get the actual total count from the service if available
-      final totalCount =
-          paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
-      if (totalCount != null &&
-          _topic != null &&
-          totalCount != _topic!.messageCount) {
-        // Update the local topic object with the accurate count
-        setState(() {
-          _topic = _topic!.copyWith(messageCount: totalCount);
-        });
-        // Update the topic cache with the new message count
-        topicCache.updateTopic(_topic!);
+
+      // Always sync with the total count from pagination service
+      final totalCount = paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      if (totalCount != null && _topic != null) {
+        // Update the local topic object with the accurate count if different
+        if (totalCount != _topic!.messageCount) {
+          final updatedTopic = _topic!.copyWith(messageCount: totalCount);
+          setState(() {
+            _topic = updatedTopic;
+          });
+          // Immediately update the cache to ensure consistency
+          topicCache.updateTopic(updatedTopic);
+        }
       }
       // Update user message status based on message count
       final newStatus = _checkUserMessageStatus();
@@ -424,7 +425,11 @@ class _TopicPageState extends State<TopicPage> {
       final selfId = fireauth.instance.currentUser?.uid;
       if (selfId == null || _topic == null) return;
 
-      final count = _messageCount;
+      // Use the latest message count from pagination service
+      final latestTotalCount = paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      final count = latestTotalCount ?? _messageCount;
+
+      // Skip if no change needed
       if (count == 0 || count == _topic!.readMessageCount) {
         return;
       }
@@ -432,8 +437,12 @@ class _TopicPageState extends State<TopicPage> {
       // Store original topic for rollback
       final originalTopic = _topic!;
 
-      // Optimistically update the topic cache immediately
-      final updatedTopic = _topic!.copyWith(readMessageCount: count);
+      // Create updated topic with both message count and read count
+      final updatedTopic = _topic!.copyWith(
+        readMessageCount: count,
+        messageCount: latestTotalCount ?? _topic!.messageCount,
+      );
+      // Optimistically update UI and cache
       setState(() {
         _topic = updatedTopic;
       });

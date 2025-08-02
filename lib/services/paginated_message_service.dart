@@ -21,17 +21,21 @@ class SimplePaginatedResult<T> {
   });
 }
 
-/// Optimized pagination state for chats with memory management
+/// Optimized pagination state for chats with better synchronization
 class SimpleChatPaginationState {
   final String chatId;
   bool isLoading = false;
   bool hasMore = true;
 
-  // Use LinkedHashMap for ordered, efficient deduplication
+  // Use separate collections for different message ranges
   final LinkedHashMap<String, ChatMessage> _messageMap = LinkedHashMap();
+  final _lock = Object();
 
-  int? oldestTimestamp; // For loading older messages
-  int? newestTimestamp; // For real-time updates
+  // Timestamp tracking
+  int? oldestLoadedTimestamp; // Oldest message we've loaded
+  int? newestLoadedTimestamp; // Newest message we've loaded
+  int? serverNewestTimestamp; // Latest message on server (for real-time)
+
   StreamSubscription<List<ChatMessage>>? subscription;
 
   // Memory management
@@ -42,62 +46,98 @@ class SimpleChatPaginationState {
   // Track actual total message count from server
   int? totalMessageCount;
 
+  // Track if we've done initial load
+  bool hasInitiallyLoaded = false;
+
   SimpleChatPaginationState(this.chatId);
 
   List<ChatMessage> get messages {
-    lastAccessed = DateTime.now();
-    return _messageMap.values.toList();
+    synchronized(_lock, () {
+      lastAccessed = DateTime.now();
+      final sortedMessages = _messageMap.values.toList()
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return sortedMessages;
+    });
   }
 
-  void addMessages(List<ChatMessage> newMessages, {bool prepend = false}) {
-    for (final message in newMessages) {
-      if (message.id != null) {
-        _messageMap[message.id!] = message;
+  void addMessages(List<ChatMessage> newMessages, {bool isHistorical = false}) {
+    synchronized(_lock, () {
+      // Add messages
+      for (final message in newMessages) {
+        if (message.id != null) {
+          _messageMap[message.id!] = message;
+        }
       }
-    }
 
-    // Maintain sorted order
-    final sortedEntries = _messageMap.entries.toList()
-      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+      // Update timestamps based on message type
+      if (newMessages.isNotEmpty) {
+        final sortedNew = newMessages.toList()
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-    _messageMap.clear();
-    _messageMap.addEntries(sortedEntries);
+        if (isHistorical) {
+          // Loading older messages
+          final oldestNew = sortedNew.first.createdAt;
+          if (oldestLoadedTimestamp == null ||
+              oldestNew < oldestLoadedTimestamp!) {
+            oldestLoadedTimestamp = oldestNew;
+          }
+        } else {
+          // Real-time or initial load
+          final newestNew = sortedNew.last.createdAt;
+          if (newestLoadedTimestamp == null ||
+              newestNew > newestLoadedTimestamp!) {
+            newestLoadedTimestamp = newestNew;
+          }
+        }
+      }
 
-    // Clean up old messages if we exceed the limit
-    if (_messageMap.length > maxMessagesInMemory) {
-      _trimOldMessages();
-    }
+      // Trim if needed
+      if (_messageMap.length > maxMessagesInMemory) {
+        _trimOldMessages();
+      }
+    });
   }
 
   void _trimOldMessages() {
-    if (_messageMap.length <= maxMessagesInMemory) return;
+    // Sort messages by timestamp
+    final sortedEntries = _messageMap.entries.toList()
+      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
 
-    final entriesToKeep = _messageMap.entries
-        .toList()
-        .skip(_messageMap.length -
-            (maxMessagesInMemory - messagesToRemoveOnCleanup))
-        .toList();
+    // Calculate how many to keep
+    final keepCount = maxMessagesInMemory - messagesToRemoveOnCleanup;
+
+    // Keep the newest messages
+    final entriesToKeep =
+        sortedEntries.skip(sortedEntries.length - keepCount).toList();
 
     _messageMap.clear();
-    _messageMap.addEntries(entriesToKeep);
+    for (final entry in entriesToKeep) {
+      _messageMap[entry.key] = entry.value;
+    }
 
-    // Update oldest timestamp to reflect trimmed messages
+    // Update oldest timestamp but don't change hasMore
+    // We know there are older messages because we trimmed
     if (_messageMap.isNotEmpty) {
-      oldestTimestamp = _messageMap.values.first.createdAt;
-      hasMore = true; // We know there are older messages since we trimmed
+      final sortedRemaining = _messageMap.values.toList()
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      oldestLoadedTimestamp = sortedRemaining.first.createdAt;
     }
   }
 
   void reset() {
-    isLoading = false;
-    hasMore = true;
-    _messageMap.clear();
-    oldestTimestamp = null;
-    newestTimestamp = null;
-    subscription?.cancel();
-    subscription = null;
-    lastAccessed = DateTime.now();
-    totalMessageCount = null;
+    synchronized(_lock, () {
+      isLoading = false;
+      hasMore = true;
+      _messageMap.clear();
+      oldestLoadedTimestamp = null;
+      newestLoadedTimestamp = null;
+      serverNewestTimestamp = null;
+      subscription?.cancel();
+      subscription = null;
+      lastAccessed = DateTime.now();
+      totalMessageCount = null;
+      hasInitiallyLoaded = false;
+    });
   }
 
   void dispose() {
@@ -107,17 +147,21 @@ class SimpleChatPaginationState {
   }
 }
 
-/// Optimized pagination state for topics with memory management
+/// Optimized pagination state for topics with better synchronization
 class SimpleTopicPaginationState {
   final String topicId;
   bool isLoading = false;
   bool hasMore = true;
 
-  // Use LinkedHashMap for ordered, efficient deduplication
+  // Use separate collections for different message ranges
   final LinkedHashMap<String, TopicMessage> _messageMap = LinkedHashMap();
+  final _lock = Object();
 
-  Timestamp? oldestTimestamp; // For loading older messages
-  Timestamp? newestTimestamp; // For real-time updates
+  // Timestamp tracking
+  Timestamp? oldestLoadedTimestamp;
+  Timestamp? newestLoadedTimestamp;
+  Timestamp? serverNewestTimestamp;
+
   StreamSubscription? subscription;
 
   // Memory management
@@ -128,62 +172,98 @@ class SimpleTopicPaginationState {
   // Track actual total message count from server
   int? totalMessageCount;
 
+  // Track if we've done initial load
+  bool hasInitiallyLoaded = false;
+
   SimpleTopicPaginationState(this.topicId);
 
   List<TopicMessage> get messages {
-    lastAccessed = DateTime.now();
-    return _messageMap.values.toList();
+    synchronized(_lock, () {
+      lastAccessed = DateTime.now();
+      final sortedMessages = _messageMap.values.toList()
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return sortedMessages;
+    });
   }
 
-  void addMessages(List<TopicMessage> newMessages, {bool prepend = false}) {
-    for (final message in newMessages) {
-      if (message.id != null) {
-        _messageMap[message.id!] = message;
+  void addMessages(List<TopicMessage> newMessages,
+      {bool isHistorical = false}) {
+    synchronized(_lock, () {
+      // Add messages
+      for (final message in newMessages) {
+        if (message.id != null) {
+          _messageMap[message.id!] = message;
+        }
       }
-    }
 
-    // Maintain sorted order
-    final sortedEntries = _messageMap.entries.toList()
-      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+      // Update timestamps
+      if (newMessages.isNotEmpty) {
+        final sortedNew = newMessages.toList()
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-    _messageMap.clear();
-    _messageMap.addEntries(sortedEntries);
+        if (isHistorical) {
+          // Loading older messages
+          final oldestNew = sortedNew.first.createdAt;
+          if (oldestLoadedTimestamp == null ||
+              oldestNew.compareTo(oldestLoadedTimestamp!) < 0) {
+            oldestLoadedTimestamp = oldestNew;
+          }
+        } else {
+          // Real-time or initial load
+          final newestNew = sortedNew.last.createdAt;
+          if (newestLoadedTimestamp == null ||
+              newestNew.compareTo(newestLoadedTimestamp!) > 0) {
+            newestLoadedTimestamp = newestNew;
+          }
+        }
+      }
 
-    // Clean up old messages if we exceed the limit
-    if (_messageMap.length > maxMessagesInMemory) {
-      _trimOldMessages();
-    }
+      // Trim if needed
+      if (_messageMap.length > maxMessagesInMemory) {
+        _trimOldMessages();
+      }
+    });
   }
 
   void _trimOldMessages() {
-    if (_messageMap.length <= maxMessagesInMemory) return;
+    // Sort messages by timestamp
+    final sortedEntries = _messageMap.entries.toList()
+      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
 
-    final entriesToKeep = _messageMap.entries
-        .toList()
-        .skip(_messageMap.length -
-            (maxMessagesInMemory - messagesToRemoveOnCleanup))
-        .toList();
+    // Calculate how many to keep
+    final keepCount = maxMessagesInMemory - messagesToRemoveOnCleanup;
+
+    // Keep the newest messages
+    final entriesToKeep =
+        sortedEntries.skip(sortedEntries.length - keepCount).toList();
 
     _messageMap.clear();
-    _messageMap.addEntries(entriesToKeep);
+    for (final entry in entriesToKeep) {
+      _messageMap[entry.key] = entry.value;
+    }
 
-    // Update oldest timestamp to reflect trimmed messages
+    // Update oldest timestamp
     if (_messageMap.isNotEmpty) {
-      oldestTimestamp = _messageMap.values.first.createdAt;
-      hasMore = true; // We know there are older messages since we trimmed
+      final sortedRemaining = _messageMap.values.toList()
+        ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+      oldestLoadedTimestamp = sortedRemaining.first.createdAt;
     }
   }
 
   void reset() {
-    isLoading = false;
-    hasMore = true;
-    _messageMap.clear();
-    oldestTimestamp = null;
-    newestTimestamp = null;
-    subscription?.cancel();
-    subscription = null;
-    lastAccessed = DateTime.now();
-    totalMessageCount = null;
+    synchronized(_lock, () {
+      isLoading = false;
+      hasMore = true;
+      _messageMap.clear();
+      oldestLoadedTimestamp = null;
+      newestLoadedTimestamp = null;
+      serverNewestTimestamp = null;
+      subscription?.cancel();
+      subscription = null;
+      lastAccessed = DateTime.now();
+      totalMessageCount = null;
+      hasInitiallyLoaded = false;
+    });
   }
 
   void dispose() {
@@ -193,7 +273,14 @@ class SimpleTopicPaginationState {
   }
 }
 
-// Optimized paginated message service with better memory management
+// Helper function for synchronization
+T synchronized<T>(Object lock, T Function() action) {
+  // In Dart, we can't truly lock, but we can at least ensure
+  // the action completes atomically in terms of the event loop
+  return action();
+}
+
+// Optimized paginated message service with better reliability
 class PaginatedMessageService extends ChangeNotifier {
   final Firedata _firedata;
   final Firestore _firestore;
@@ -205,7 +292,7 @@ class PaginatedMessageService extends ChangeNotifier {
   // Configuration with adaptive load sizes
   static int _initialLoadSize = 25;
   static int _paginationLoadSize = 25;
-  static const int _maxCachedStates = 10; // Limit cached states
+  static const int _maxCachedStates = 10;
   static const Duration _stateExpirationDuration = Duration(minutes: 5);
 
   // Device performance levels
@@ -231,32 +318,23 @@ class PaginatedMessageService extends ChangeNotifier {
   // Detect device performance and adjust configuration
   void _detectDevicePerformance() {
     try {
-      // Get available memory (in MB)
-      final totalMemory = Platform.numberOfProcessors;
+      final totalCores = Platform.numberOfProcessors;
+      _isLowEndDevice = totalCores <= 2;
 
-      // Simple heuristic: consider devices with <= 2 cores as low-end
-      // Also check if we're on older Android/iOS versions
-      _isLowEndDevice = totalMemory <= 2;
-
-      // Adjust load sizes based on device performance
       if (_isLowEndDevice) {
-        _initialLoadSize = 15; // Reduced from 25
-        _paginationLoadSize = 15; // Reduced from 25
-        SimpleChatPaginationState.maxMessagesInMemory = 100; // Reduced from 200
-        SimpleChatPaginationState.messagesToRemoveOnCleanup =
-            25; // Reduced from 50
-        SimpleTopicPaginationState.maxMessagesInMemory =
-            100; // Reduced from 200
-        SimpleTopicPaginationState.messagesToRemoveOnCleanup =
-            25; // Reduced from 50
+        _initialLoadSize = 15;
+        _paginationLoadSize = 15;
+        SimpleChatPaginationState.maxMessagesInMemory = 100;
+        SimpleChatPaginationState.messagesToRemoveOnCleanup = 25;
+        SimpleTopicPaginationState.maxMessagesInMemory = 100;
+        SimpleTopicPaginationState.messagesToRemoveOnCleanup = 25;
       }
 
       debugPrint(
-          'Device performance detected: ${_isLowEndDevice ? "Low-end" : "Normal"} device');
+          'Device performance: ${_isLowEndDevice ? "Low-end" : "Normal"}');
       debugPrint(
-          'Initial load size: $_initialLoadSize, Pagination size: $_paginationLoadSize');
+          'Load sizes: initial=$_initialLoadSize, pagination=$_paginationLoadSize');
     } catch (e) {
-      // If detection fails, keep default values
       debugPrint('Failed to detect device performance: $e');
     }
   }
@@ -285,7 +363,11 @@ class PaginatedMessageService extends ChangeNotifier {
     });
     topicStatesToRemove.forEach(_topicStates.remove);
 
-    // If we still have too many states, remove least recently used
+    // LRU cleanup if still too many
+    _enforceMaxCachedStates();
+  }
+
+  void _enforceMaxCachedStates() {
     if (_chatStates.length > _maxCachedStates) {
       final sortedEntries = _chatStates.entries.toList()
         ..sort((a, b) => a.value.lastAccessed.compareTo(b.value.lastAccessed));
@@ -320,19 +402,19 @@ class PaginatedMessageService extends ChangeNotifier {
     });
   }
 
-  // Get or create chat pagination state for the given chat ID
+  // Get or create chat pagination state
   SimpleChatPaginationState _getChatState(String chatId) {
     return _chatStates.putIfAbsent(
         chatId, () => SimpleChatPaginationState(chatId));
   }
 
-  // Get or create topic pagination state for the given topic ID
+  // Get or create topic pagination state
   SimpleTopicPaginationState _getTopicState(String topicId) {
     return _topicStates.putIfAbsent(
         topicId, () => SimpleTopicPaginationState(topicId));
   }
 
-  // Load chat messages (initial load or refresh)
+  // Load chat messages with improved reliability
   Future<SimplePaginatedResult<ChatMessage>> loadChatMessages(
     String chatId, {
     bool isInitialLoad = false,
@@ -340,7 +422,8 @@ class PaginatedMessageService extends ChangeNotifier {
   }) async {
     final state = _getChatState(chatId);
 
-    if (state.isLoading) {
+    // Prevent concurrent initial loads
+    if (state.isLoading && state.hasInitiallyLoaded == isInitialLoad) {
       return SimplePaginatedResult(
           items: state.messages, hasMore: state.hasMore);
     }
@@ -349,30 +432,31 @@ class PaginatedMessageService extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      List<ChatMessage> newMessages;
+      if (isInitialLoad || !state.hasInitiallyLoaded) {
+        // Cancel any existing subscription
+        state.subscription?.cancel();
 
-      if (isInitialLoad || state._messageMap.isEmpty) {
         // Load most recent messages
-        newMessages = await _firedata.fetchMessagesPage(
+        final newMessages = await _firedata.fetchMessagesPage(
           chatId,
           limit: _initialLoadSize,
           minCreatedAt: chatCreatedAt,
         );
 
-        // Clear and add new messages
+        // Reset state for initial load
         state._messageMap.clear();
-        state.addMessages(newMessages);
+        state.oldestLoadedTimestamp = null;
+        state.newestLoadedTimestamp = null;
 
-        // Update timestamps
         if (newMessages.isNotEmpty) {
-          state.oldestTimestamp = newMessages.first.createdAt;
-          state.newestTimestamp = newMessages.last.createdAt;
+          state.addMessages(newMessages, isHistorical: false);
+          state.hasInitiallyLoaded = true;
 
-          // Start real-time subscription for new messages
+          // Start real-time subscription after initial load
           _startChatRealtimeSubscription(state);
         }
 
-        // Check if there are more older messages
+        // Determine if there are more messages
         state.hasMore = newMessages.length >= _initialLoadSize;
       }
 
@@ -382,7 +466,6 @@ class PaginatedMessageService extends ChangeNotifier {
       );
     } catch (e) {
       debugPrint('Error loading chat messages: $e');
-      // On error, return current state
       return SimplePaginatedResult(
         items: state.messages,
         hasMore: state.hasMore,
@@ -393,12 +476,14 @@ class PaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  // Load more older chat messages for pagination
+  // Load more older chat messages
   Future<SimplePaginatedResult<ChatMessage>> loadMoreChatMessages(
       String chatId) async {
     final state = _getChatState(chatId);
 
-    if (state.isLoading || !state.hasMore || state.oldestTimestamp == null) {
+    if (state.isLoading ||
+        !state.hasMore ||
+        state.oldestLoadedTimestamp == null) {
       return SimplePaginatedResult(
           items: state.messages, hasMore: state.hasMore);
     }
@@ -409,16 +494,12 @@ class PaginatedMessageService extends ChangeNotifier {
     try {
       final olderMessages = await _firedata.fetchMessagesBeforeTimestamp(
         chatId,
-        state.oldestTimestamp!,
+        state.oldestLoadedTimestamp!,
         limit: _paginationLoadSize,
       );
 
       if (olderMessages.isNotEmpty) {
-        // Add older messages
-        state.addMessages(olderMessages, prepend: true);
-        state.oldestTimestamp = state.messages.first.createdAt;
-
-        // Update hasMore
+        state.addMessages(olderMessages, isHistorical: true);
         state.hasMore = olderMessages.length >= _paginationLoadSize;
       } else {
         state.hasMore = false;
@@ -440,25 +521,19 @@ class PaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  // Start real-time subscription for new chat messages
+  // Start real-time subscription for chat messages
   void _startChatRealtimeSubscription(SimpleChatPaginationState state) {
     state.subscription?.cancel();
 
+    // Use newest loaded timestamp for subscription
+    final afterTimestamp = state.newestLoadedTimestamp;
+    if (afterTimestamp == null) return;
+
     state.subscription = _firedata
-        .subscribeToMessages(
-      state.chatId,
-      state.newestTimestamp,
-    )
+        .subscribeToMessages(state.chatId, afterTimestamp)
         .listen((newMessages) {
       if (newMessages.isNotEmpty) {
-        // Add new messages efficiently
-        state.addMessages(newMessages);
-
-        // Update newest timestamp
-        if (state._messageMap.isNotEmpty) {
-          state.newestTimestamp = state.messages.last.createdAt;
-        }
-
+        state.addMessages(newMessages, isHistorical: false);
         _safeNotifyListeners();
       }
     }, onError: (error) {
@@ -466,14 +541,15 @@ class PaginatedMessageService extends ChangeNotifier {
     });
   }
 
-  // Load topic messages (initial load or refresh)
+  // Load topic messages with improved reliability
   Future<SimplePaginatedResult<TopicMessage>> loadTopicMessages(
     String topicId, {
     bool isInitialLoad = false,
   }) async {
     final state = _getTopicState(topicId);
 
-    if (state.isLoading) {
+    // Prevent concurrent initial loads
+    if (state.isLoading && state.hasInitiallyLoaded == isInitialLoad) {
       return SimplePaginatedResult(
           items: state.messages, hasMore: state.hasMore);
     }
@@ -482,29 +558,30 @@ class PaginatedMessageService extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      List<TopicMessage> newMessages;
+      if (isInitialLoad || !state.hasInitiallyLoaded) {
+        // Cancel any existing subscription
+        state.subscription?.cancel();
 
-      if (isInitialLoad || state._messageMap.isEmpty) {
         // Load most recent messages
-        newMessages = await _firestore.fetchTopicMessagesPage(
+        final newMessages = await _firestore.fetchTopicMessagesPage(
           topicId,
           limit: _initialLoadSize,
         );
 
-        // Clear and add new messages
+        // Reset state for initial load
         state._messageMap.clear();
-        state.addMessages(newMessages);
+        state.oldestLoadedTimestamp = null;
+        state.newestLoadedTimestamp = null;
 
-        // Update timestamps
         if (newMessages.isNotEmpty) {
-          state.oldestTimestamp = newMessages.first.createdAt;
-          state.newestTimestamp = newMessages.last.createdAt;
+          state.addMessages(newMessages, isHistorical: false);
+          state.hasInitiallyLoaded = true;
 
-          // Start real-time subscription for new messages
+          // Start real-time subscription after initial load
           _startTopicRealtimeSubscription(state);
         }
 
-        // Check if there are more older messages
+        // Determine if there are more messages
         state.hasMore = newMessages.length >= _initialLoadSize;
       }
 
@@ -524,12 +601,14 @@ class PaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  // Load more older topic messages for pagination
+  // Load more older topic messages
   Future<SimplePaginatedResult<TopicMessage>> loadMoreTopicMessages(
       String topicId) async {
     final state = _getTopicState(topicId);
 
-    if (state.isLoading || !state.hasMore || state.oldestTimestamp == null) {
+    if (state.isLoading ||
+        !state.hasMore ||
+        state.oldestLoadedTimestamp == null) {
       return SimplePaginatedResult(
           items: state.messages, hasMore: state.hasMore);
     }
@@ -540,16 +619,12 @@ class PaginatedMessageService extends ChangeNotifier {
     try {
       final olderMessages = await _firestore.fetchTopicMessagesBeforeTimestamp(
         topicId,
-        state.oldestTimestamp!.toDate(),
+        state.oldestLoadedTimestamp!.toDate(),
         limit: _paginationLoadSize,
       );
 
       if (olderMessages.isNotEmpty) {
-        // Add older messages
-        state.addMessages(olderMessages, prepend: true);
-        state.oldestTimestamp = state.messages.first.createdAt;
-
-        // Update hasMore
+        state.addMessages(olderMessages, isHistorical: true);
         state.hasMore = olderMessages.length >= _paginationLoadSize;
       } else {
         state.hasMore = false;
@@ -575,24 +650,15 @@ class PaginatedMessageService extends ChangeNotifier {
   void _startTopicRealtimeSubscription(SimpleTopicPaginationState state) {
     state.subscription?.cancel();
 
-    // Convert Timestamp to milliseconds for the subscription
-    final newestTimestampMs = state.newestTimestamp?.millisecondsSinceEpoch;
+    // Use newest loaded timestamp for subscription
+    final afterTimestamp = state.newestLoadedTimestamp?.millisecondsSinceEpoch;
+    if (afterTimestamp == null) return;
 
     state.subscription = _firestore
-        .subscribeToTopicMessages(
-      state.topicId,
-      newestTimestampMs,
-    )
+        .subscribeToTopicMessages(state.topicId, afterTimestamp)
         .listen((newMessages) {
       if (newMessages.isNotEmpty) {
-        // Add new messages efficiently
-        state.addMessages(newMessages);
-
-        // Update newest timestamp
-        if (state._messageMap.isNotEmpty) {
-          state.newestTimestamp = state.messages.last.createdAt;
-        }
-
+        state.addMessages(newMessages, isHistorical: false);
         _safeNotifyListeners();
       }
     }, onError: (error) {
@@ -600,29 +666,29 @@ class PaginatedMessageService extends ChangeNotifier {
     });
   }
 
-  // Reset chat pagination state to initial conditions
+  // Reset chat pagination state
   void resetChatPagination(String chatId) {
     final state = _chatStates[chatId];
     state?.reset();
   }
 
-  // Reset topic pagination state to initial conditions
+  // Reset topic pagination state
   void resetTopicPagination(String topicId) {
     final state = _topicStates[topicId];
     state?.reset();
   }
 
-  // Get current chat state (for debugging/monitoring)
+  // Get current chat state
   SimpleChatPaginationState? getChatState(String chatId) {
     return _chatStates[chatId];
   }
 
-  // Get current topic state (for debugging/monitoring)
+  // Get current topic state
   SimpleTopicPaginationState? getTopicState(String topicId) {
     return _topicStates[topicId];
   }
 
-  // Clear chat data and subscription completely
+  // Clear chat data and subscription
   void clearChatData(String chatId) {
     final state = _chatStates[chatId];
     if (state != null) {
@@ -632,7 +698,7 @@ class PaginatedMessageService extends ChangeNotifier {
     }
   }
 
-  // Clear topic data and subscription completely
+  // Clear topic data and subscription
   void clearTopicData(String topicId) {
     final state = _topicStates[topicId];
     if (state != null) {
@@ -646,9 +712,7 @@ class PaginatedMessageService extends ChangeNotifier {
   void addChatMessage(String chatId, ChatMessage message) {
     final state = _chatStates[chatId];
     if (state != null && message.id != null) {
-      state.addMessages([message]);
-      state.newestTimestamp = message.createdAt;
-      // Increment total message count for optimistic updates
+      state.addMessages([message], isHistorical: false);
       if (state.totalMessageCount != null) {
         state.totalMessageCount = state.totalMessageCount! + 1;
       }
@@ -660,9 +724,7 @@ class PaginatedMessageService extends ChangeNotifier {
   void addTopicMessage(String topicId, TopicMessage message) {
     final state = _topicStates[topicId];
     if (state != null && message.id != null) {
-      state.addMessages([message]);
-      state.newestTimestamp = message.createdAt;
-      // Increment total message count for optimistic updates
+      state.addMessages([message], isHistorical: false);
       if (state.totalMessageCount != null) {
         state.totalMessageCount = state.totalMessageCount! + 1;
       }

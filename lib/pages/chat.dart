@@ -81,13 +81,13 @@ class _ChatPageState extends State<ChatPage> {
             _chat = chat;
             _chatPopulated = true;
           });
-          // Update chat cache with the latest data
-          chatCache.updateChat(chat);
-          // Sync total message count with pagination service
+          // Sync total message count with pagination service first
           paginatedMessageService.updateChatTotalMessageCount(
             _chat.id,
             chat.messageCount,
           );
+          // Then update chat cache with the latest data
+          chatCache.updateChat(chat);
         }
       } else {
         if (chat.isDummy) {
@@ -108,13 +108,13 @@ class _ChatPageState extends State<ChatPage> {
             _chat = chat;
             _chatPopulated = true;
           });
-          // Update chat cache with the latest data
-          chatCache.updateChat(chat);
-          // Sync total message count with pagination service
+          // Sync total message count with pagination service first
           paginatedMessageService.updateChatTotalMessageCount(
             _chat.id,
             chat.messageCount,
           );
+          // Then update chat cache with the latest data
+          chatCache.updateChat(chat);
         }
       }
     });
@@ -169,16 +169,19 @@ class _ChatPageState extends State<ChatPage> {
   void _updateMessageCount(int count) {
     if (_messageCount != count) {
       _messageCount = count;
-      // Get the actual total count from the service if available
-      final totalCount =
-          paginatedMessageService.getChatTotalMessageCount(_chat.id);
-      if (totalCount != null && totalCount != _chat.messageCount) {
-        // Update the local chat object with the accurate count
-        setState(() {
-          _chat = _chat.copyWith(messageCount: totalCount);
-        });
-        // Update the chat cache with the new message count
-        chatCache.updateChat(_chat);
+
+      // Always sync with the total count from pagination service
+      final totalCount = paginatedMessageService.getChatTotalMessageCount(_chat.id);
+      if (totalCount != null) {
+        // Update the local chat object with the accurate count if different
+        if (totalCount != _chat.messageCount) {
+          final updatedChat = _chat.copyWith(messageCount: totalCount);
+          setState(() {
+            _chat = updatedChat;
+          });
+          // Immediately update the cache to ensure consistency
+          chatCache.updateChat(updatedChat);
+        }
       }
     }
   }
@@ -192,7 +195,11 @@ class _ChatPageState extends State<ChatPage> {
       final selfId = fireauth.instance.currentUser?.uid;
       if (selfId == null) return;
 
-      final count = _messageCount;
+      // Use the latest message count from pagination service
+      final latestTotalCount = paginatedMessageService.getChatTotalMessageCount(_chat.id);
+      final count = latestTotalCount ?? _messageCount;
+
+      // Skip if no change needed
       if (count == 0 || count == _chat.readMessageCount) {
         return;
       }
@@ -200,8 +207,13 @@ class _ChatPageState extends State<ChatPage> {
       // Store original chat for rollback
       final originalChat = _chat;
 
-      // Optimistically update the chat cache immediately
-      final updatedChat = _chat.copyWith(readMessageCount: count);
+      // Create updated chat with both message count and read count
+      final updatedChat = _chat.copyWith(
+        readMessageCount: count,
+        messageCount: latestTotalCount ?? _chat.messageCount,
+      );
+
+      // Optimistically update UI and cache
       setState(() {
         _chat = updatedChat;
       });

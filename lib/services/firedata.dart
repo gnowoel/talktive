@@ -343,8 +343,8 @@ class Firedata {
         query = query.endBefore(endBeforeTimestamp);
       }
 
-      // Apply limit
-      query = query.limitToFirst(limit);
+      // Apply limit - use limitToLast to get newest messages for initial load
+      query = query.limitToLast(limit);
 
       final snapshot = await query.get();
       final messages = <ChatMessage>[];
@@ -385,9 +385,10 @@ class Firedata {
   }) async {
     try {
       final ref = instance.ref('messages/$chatId');
+      // Use endAt with beforeTimestamp - 1 to exclude the boundary message
       final query = ref
           .orderByChild('createdAt')
-          .endBefore(beforeTimestamp)
+          .endAt(beforeTimestamp - 1)
           .limitToLast(limit);
 
       final snapshot = await query.get();

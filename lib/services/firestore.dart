@@ -707,6 +707,42 @@ class Firestore {
     }
   }
 
+  /// Fetch topic messages after a specific timestamp (for real-time updates)
+  Future<List<TopicMessage>> fetchTopicMessagesAfterTimestamp(
+    String topicId,
+    DateTime afterTimestamp, {
+    int limit = 25,
+  }) async {
+    try {
+      final query = instance
+          .collection('topics')
+          .doc(topicId)
+          .collection('messages')
+          .orderBy('createdAt')
+          .where('createdAt', isGreaterThan: Timestamp.fromDate(afterTimestamp))
+          .limit(limit);
+
+      final snapshot = await query.get();
+      final messages = <TopicMessage>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final type = data['type'] as String;
+
+        if (type == 'image') {
+          messages.add(TopicImageMessage.fromJson({'id': doc.id, ...data}));
+        } else {
+          messages.add(TopicTextMessage.fromJson({'id': doc.id, ...data}));
+        }
+      }
+
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return messages;
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
   Future<void> sendTopicTextMessage({
     required String topicId,
     required String userId,
@@ -1004,7 +1040,7 @@ class Firestore {
           .collection('topics')
           .doc(topicId)
           .collection('messages')
-          .orderBy('createdAt');
+          .orderBy('createdAt', descending: true);
 
       // Apply pagination cursors
       if (startAfterDoc != null) {
@@ -1069,43 +1105,6 @@ class Firestore {
       }
 
       // Sort in ascending order (oldest first)
-      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      return messages;
-    } catch (e) {
-      throw AppException(e.toString());
-    }
-  }
-
-  /// Fetch topic messages after a specific timestamp (for loading newer messages)
-  Future<List<TopicMessage>> fetchTopicMessagesAfterTimestamp(
-    String topicId,
-    DateTime afterTimestamp, {
-    int limit = 25,
-  }) async {
-    try {
-      final timestamp = Timestamp.fromDate(afterTimestamp);
-      final query = instance
-          .collection('topics')
-          .doc(topicId)
-          .collection('messages')
-          .orderBy('createdAt')
-          .where('createdAt', isGreaterThan: timestamp)
-          .limit(limit);
-
-      final snapshot = await query.get();
-      final messages = <TopicMessage>[];
-
-      for (final doc in snapshot.docs) {
-        final data = doc.data();
-        final type = data['type'] as String;
-
-        if (type == 'image') {
-          messages.add(TopicImageMessage.fromJson({'id': doc.id, ...data}));
-        } else {
-          messages.add(TopicTextMessage.fromJson({'id': doc.id, ...data}));
-        }
-      }
-
       messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
       return messages;
     } catch (e) {

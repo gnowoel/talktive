@@ -141,9 +141,25 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   void _scrollToBottom() {
     if (!widget.scrollController.hasClients) return;
 
-    final controller = widget.scrollController;
-    final bottom = controller.position.maxScrollExtent;
-    controller.jumpTo(bottom);
+    try {
+      final controller = widget.scrollController;
+      final position = controller.position;
+      final bottom = position.maxScrollExtent;
+
+      // Use animateTo for smoother scrolling if we're close
+      if ((bottom - position.pixels).abs() < 500) {
+        controller.animateTo(
+          bottom,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      } else {
+        // Jump directly if we're far away
+        controller.jumpTo(bottom);
+      }
+    } catch (e) {
+      debugPrint('Error scrolling to bottom: $e');
+    }
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
@@ -175,8 +191,14 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   bool _handleScrollMetricsNotification(
     ScrollMetricsNotification notification,
   ) {
-    if (_isSticky) {
-      _scrollToBottom();
+    // Only auto-scroll if we're sticky and the metrics changed due to new content
+    if (_isSticky &&
+        notification.metrics.maxScrollExtent > notification.metrics.pixels) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.scrollController.hasClients) {
+          _scrollToBottom();
+        }
+      });
     }
     return false;
   }
@@ -304,11 +326,22 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           'PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
 
-      // Scroll to bottom after initial load
-      if (mounted) {
+      // Ensure we scroll to bottom after initial load
+      // Use multiple post-frame callbacks to ensure layout is complete
+      if (mounted && _messages.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && widget.scrollController.hasClients) {
             _scrollToBottom();
+            // Double-check after another frame
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && widget.scrollController.hasClients) {
+                final position = widget.scrollController.position;
+                // If we're not at the bottom, try again
+                if (position.pixels < position.maxScrollExtent - 10) {
+                  _scrollToBottom();
+                }
+              }
+            });
           }
         });
       }
@@ -368,11 +401,18 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         if (newMessagesCount > 0) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && widget.scrollController.hasClients) {
-              // Estimate height of new messages and adjust scroll
-              final approximateMessageHeight = 80.0 * newMessagesCount;
-              widget.scrollController.jumpTo(
-                savedScrollOffset + approximateMessageHeight,
-              );
+              // Try to maintain visual position by adjusting for new content
+              // If user was at the top, stay at the top
+              if (savedScrollOffset < 100) {
+                widget.scrollController.jumpTo(0);
+              } else {
+                // Otherwise, try to maintain the visual position
+                // This is approximate but should work for most cases
+                final approximateMessageHeight = 100.0 * newMessagesCount;
+                widget.scrollController.jumpTo(
+                  savedScrollOffset + approximateMessageHeight,
+                );
+              }
             }
           });
         }

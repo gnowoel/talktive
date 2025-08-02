@@ -52,6 +52,8 @@ class SimpleChatPaginationState {
   }
 
   void addMessages(List<ChatMessage> newMessages) {
+    debugPrint('ChatState[$chatId]: Adding ${newMessages.length} messages');
+
     for (final message in newMessages) {
       if (message.id != null) {
         _messageMap[message.id!] = message;
@@ -66,6 +68,9 @@ class SimpleChatPaginationState {
       final oldestNew = sorted.first.createdAt;
       final newestNew = sorted.last.createdAt;
 
+      debugPrint(
+          'ChatState[$chatId]: New messages range: $oldestNew - $newestNew');
+
       if (oldestTimestamp == null || oldestNew < oldestTimestamp!) {
         oldestTimestamp = oldestNew;
       }
@@ -73,34 +78,49 @@ class SimpleChatPaginationState {
       if (newestTimestamp == null || newestNew > newestTimestamp!) {
         newestTimestamp = newestNew;
       }
+
+      debugPrint(
+          'ChatState[$chatId]: Updated timestamps - oldest: $oldestTimestamp, newest: $newestTimestamp');
     }
 
     // Clean up old messages if we exceed the limit
     if (_messageMap.length > maxMessagesInMemory) {
       _trimOldMessages();
     }
+
+    debugPrint(
+        'ChatState[$chatId]: Total messages in memory: ${_messageMap.length}');
   }
 
   void _trimOldMessages() {
-    final sorted = messages; // Already sorted
-    if (sorted.length <= maxMessagesInMemory) return;
+    // Don't trim if we're below the limit
+    if (_messageMap.length <= maxMessagesInMemory) return;
 
-    // Keep the newest messages
-    final toKeep = sorted
-        .skip(sorted.length - (maxMessagesInMemory - messagesToRemoveOnCleanup))
-        .toList();
+    debugPrint(
+        'ChatState[$chatId]: Trimming messages from ${_messageMap.length} to ${maxMessagesInMemory}');
 
-    _messageMap.clear();
-    for (final message in toKeep) {
-      if (message.id != null) {
-        _messageMap[message.id!] = message;
+    // Sort all messages to maintain proper order
+    final sorted = messages; // This gets sorted messages
+    final toRemove = sorted.length - maxMessagesInMemory;
+
+    // Remove oldest messages
+    final messagesToRemove = sorted.take(toRemove).toList();
+    for (final msg in messagesToRemove) {
+      if (msg.id != null) {
+        _messageMap.remove(msg.id);
       }
     }
 
-    // Update oldest timestamp
-    if (toKeep.isNotEmpty) {
-      oldestTimestamp = toKeep.first.createdAt;
+    // Update oldest timestamp to reflect the new oldest message
+    if (_messageMap.isNotEmpty) {
+      final remaining = messages;
+      if (remaining.isNotEmpty) {
+        oldestTimestamp = remaining.first.createdAt;
+      }
     }
+
+    debugPrint(
+        'ChatState[$chatId]: After trim - messages: ${_messageMap.length}');
   }
 
   void reset() {
@@ -153,6 +173,8 @@ class SimpleTopicPaginationState {
   }
 
   void addMessages(List<TopicMessage> newMessages) {
+    debugPrint('TopicState[$topicId]: Adding ${newMessages.length} messages');
+
     for (final message in newMessages) {
       if (message.id != null) {
         _messageMap[message.id!] = message;
@@ -167,6 +189,9 @@ class SimpleTopicPaginationState {
       final oldestNew = sorted.first.createdAt;
       final newestNew = sorted.last.createdAt;
 
+      debugPrint(
+          'TopicState[$topicId]: New messages range: ${oldestNew.toDate()} - ${newestNew.toDate()}');
+
       if (oldestTimestamp == null ||
           oldestNew.compareTo(oldestTimestamp!) < 0) {
         oldestTimestamp = oldestNew;
@@ -176,34 +201,49 @@ class SimpleTopicPaginationState {
           newestNew.compareTo(newestTimestamp!) > 0) {
         newestTimestamp = newestNew;
       }
+
+      debugPrint(
+          'TopicState[$topicId]: Updated timestamps - oldest: ${oldestTimestamp?.toDate()}, newest: ${newestTimestamp?.toDate()}');
     }
 
     // Clean up old messages if we exceed the limit
     if (_messageMap.length > maxMessagesInMemory) {
       _trimOldMessages();
     }
+
+    debugPrint(
+        'TopicState[$topicId]: Total messages in memory: ${_messageMap.length}');
   }
 
   void _trimOldMessages() {
-    final sorted = messages; // Already sorted
-    if (sorted.length <= maxMessagesInMemory) return;
+    // Don't trim if we're below the limit
+    if (_messageMap.length <= maxMessagesInMemory) return;
 
-    // Keep the newest messages
-    final toKeep = sorted
-        .skip(sorted.length - (maxMessagesInMemory - messagesToRemoveOnCleanup))
-        .toList();
+    debugPrint(
+        'TopicState[$topicId]: Trimming messages from ${_messageMap.length} to ${maxMessagesInMemory}');
 
-    _messageMap.clear();
-    for (final message in toKeep) {
-      if (message.id != null) {
-        _messageMap[message.id!] = message;
+    // Sort all messages to maintain proper order
+    final sorted = messages; // This gets sorted messages
+    final toRemove = sorted.length - maxMessagesInMemory;
+
+    // Remove oldest messages
+    final messagesToRemove = sorted.take(toRemove).toList();
+    for (final msg in messagesToRemove) {
+      if (msg.id != null) {
+        _messageMap.remove(msg.id);
       }
     }
 
-    // Update oldest timestamp
-    if (toKeep.isNotEmpty) {
-      oldestTimestamp = toKeep.first.createdAt;
+    // Update oldest timestamp to reflect the new oldest message
+    if (_messageMap.isNotEmpty) {
+      final remaining = messages;
+      if (remaining.isNotEmpty) {
+        oldestTimestamp = remaining.first.createdAt;
+      }
     }
+
+    debugPrint(
+        'TopicState[$topicId]: After trim - messages: ${_messageMap.length}');
   }
 
   void reset() {
@@ -341,7 +381,12 @@ class PaginatedMessageService extends ChangeNotifier {
   }) async {
     final state = _getChatState(chatId);
 
+    debugPrint(
+        'loadChatMessages: chatId=$chatId, isInitialLoad=$isInitialLoad');
+
     if (state.isLoading) {
+      debugPrint(
+          'loadChatMessages: Already loading, returning cached messages');
       return SimplePaginatedResult(
           items: state.messages, hasMore: state.hasMore);
     }
@@ -351,6 +396,8 @@ class PaginatedMessageService extends ChangeNotifier {
 
     try {
       if (isInitialLoad || state._messageMap.isEmpty) {
+        debugPrint('loadChatMessages: Performing initial load');
+
         // Cancel existing subscription
         state.subscription?.cancel();
 
@@ -361,11 +408,14 @@ class PaginatedMessageService extends ChangeNotifier {
           minCreatedAt: chatCreatedAt,
         );
 
-        // Clear and add new messages
+        debugPrint('loadChatMessages: Fetched ${newMessages.length} messages');
+
+        // Clear existing messages only on initial load
         state._messageMap.clear();
         state.oldestTimestamp = null;
         state.newestTimestamp = null;
 
+        // Add new messages (should be the latest messages now)
         state.addMessages(newMessages);
 
         // Start real-time subscription if we have messages
@@ -375,6 +425,9 @@ class PaginatedMessageService extends ChangeNotifier {
 
         // Check if there are more older messages
         state.hasMore = newMessages.length >= _initialLoadSize;
+
+        debugPrint(
+            'loadChatMessages: Initial load complete - hasMore=${state.hasMore}');
       }
 
       return SimplePaginatedResult(
@@ -398,7 +451,12 @@ class PaginatedMessageService extends ChangeNotifier {
       String chatId) async {
     final state = _getChatState(chatId);
 
+    debugPrint(
+        'loadMoreChatMessages: chatId=$chatId, oldestTimestamp=${state.oldestTimestamp}');
+
     if (state.isLoading || !state.hasMore || state.oldestTimestamp == null) {
+      debugPrint(
+          'loadMoreChatMessages: Skipping - isLoading=${state.isLoading}, hasMore=${state.hasMore}');
       return SimplePaginatedResult(
           items: state.messages, hasMore: state.hasMore);
     }
@@ -413,12 +471,18 @@ class PaginatedMessageService extends ChangeNotifier {
         limit: _paginationLoadSize,
       );
 
+      debugPrint(
+          'loadMoreChatMessages: Fetched ${olderMessages.length} older messages');
+
       if (olderMessages.isNotEmpty) {
         state.addMessages(olderMessages);
         state.hasMore = olderMessages.length >= _paginationLoadSize;
       } else {
         state.hasMore = false;
       }
+
+      debugPrint(
+          'loadMoreChatMessages: Complete - total messages=${state.messages.length}, hasMore=${state.hasMore}');
 
       return SimplePaginatedResult(
         items: state.messages,
@@ -446,6 +510,8 @@ class PaginatedMessageService extends ChangeNotifier {
         .subscribeToMessages(state.chatId, state.newestTimestamp!)
         .listen((newMessages) {
       if (newMessages.isNotEmpty) {
+        debugPrint(
+            'ChatSubscription[${state.chatId}]: Received ${newMessages.length} new messages');
         state.addMessages(newMessages);
         _safeNotifyListeners();
       }
@@ -480,11 +546,12 @@ class PaginatedMessageService extends ChangeNotifier {
           limit: _initialLoadSize,
         );
 
-        // Clear and add new messages
+        // Clear existing messages only on initial load
         state._messageMap.clear();
         state.oldestTimestamp = null;
         state.newestTimestamp = null;
 
+        // Add new messages (should be the latest messages now)
         state.addMessages(newMessages);
 
         // Start real-time subscription if we have messages

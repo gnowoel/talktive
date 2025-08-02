@@ -39,6 +39,9 @@ class SimpleChatPaginationState {
   static int messagesToRemoveOnCleanup = 50;
   DateTime lastAccessed = DateTime.now();
 
+  // Track actual total message count from server
+  int? totalMessageCount;
+
   SimpleChatPaginationState(this.chatId);
 
   List<ChatMessage> get messages {
@@ -94,6 +97,7 @@ class SimpleChatPaginationState {
     subscription?.cancel();
     subscription = null;
     lastAccessed = DateTime.now();
+    totalMessageCount = null;
   }
 
   void dispose() {
@@ -120,6 +124,9 @@ class SimpleTopicPaginationState {
   static int maxMessagesInMemory = 200;
   static int messagesToRemoveOnCleanup = 50;
   DateTime lastAccessed = DateTime.now();
+
+  // Track actual total message count from server
+  int? totalMessageCount;
 
   SimpleTopicPaginationState(this.topicId);
 
@@ -176,6 +183,7 @@ class SimpleTopicPaginationState {
     subscription?.cancel();
     subscription = null;
     lastAccessed = DateTime.now();
+    totalMessageCount = null;
   }
 
   void dispose() {
@@ -640,6 +648,10 @@ class PaginatedMessageService extends ChangeNotifier {
     if (state != null && message.id != null) {
       state.addMessages([message]);
       state.newestTimestamp = message.createdAt;
+      // Increment total message count for optimistic updates
+      if (state.totalMessageCount != null) {
+        state.totalMessageCount = state.totalMessageCount! + 1;
+      }
       _safeNotifyListeners();
     }
   }
@@ -650,8 +662,40 @@ class PaginatedMessageService extends ChangeNotifier {
     if (state != null && message.id != null) {
       state.addMessages([message]);
       state.newestTimestamp = message.createdAt;
+      // Increment total message count for optimistic updates
+      if (state.totalMessageCount != null) {
+        state.totalMessageCount = state.totalMessageCount! + 1;
+      }
       _safeNotifyListeners();
     }
+  }
+
+  // Update total message count for a chat
+  void updateChatTotalMessageCount(String chatId, int totalCount) {
+    final state = _chatStates[chatId];
+    if (state != null) {
+      state.totalMessageCount = totalCount;
+      _safeNotifyListeners();
+    }
+  }
+
+  // Update total message count for a topic
+  void updateTopicTotalMessageCount(String topicId, int totalCount) {
+    final state = _topicStates[topicId];
+    if (state != null) {
+      state.totalMessageCount = totalCount;
+      _safeNotifyListeners();
+    }
+  }
+
+  // Get total message count for a chat
+  int? getChatTotalMessageCount(String chatId) {
+    return _chatStates[chatId]?.totalMessageCount;
+  }
+
+  // Get total message count for a topic
+  int? getTopicTotalMessageCount(String topicId) {
+    return _topicStates[topicId]?.totalMessageCount;
   }
 
   @override

@@ -5,13 +5,14 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../models/topic.dart';
+import '../models/user.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
-import '../services/topic_followers_cache.dart';
 import '../services/message_meta_cache.dart';
-
 import '../services/paginated_message_service.dart';
+import '../services/topic_cache.dart';
+import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 
@@ -43,6 +44,7 @@ class _TopicPageState extends State<TopicPage> {
   late FollowCache followCache;
   late TopicFollowersCache topicFollowersCache;
   late MessageMetaCache messageMetaCache;
+  late TopicCache topicCache;
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription topicSubscription;
@@ -95,6 +97,13 @@ class _TopicPageState extends State<TopicPage> {
         }
       } else {
         setState(() => _topic = topic);
+        // Update topic cache with the latest data
+        topicCache.updateTopic(topic);
+        // Sync total message count with pagination service
+        paginatedMessageService.updateTopicTotalMessageCount(
+          widget.topicId,
+          topic.messageCount,
+        );
       }
     });
 
@@ -112,6 +121,7 @@ class _TopicPageState extends State<TopicPage> {
     userCache = Provider.of<UserCache>(context);
     followCache = Provider.of<FollowCache>(context);
     messageMetaCache = Provider.of<MessageMetaCache>(context);
+    topicCache = Provider.of<TopicCache>(context);
 
     // Subscribe to message metadata for real-time recall updates
     if (!_hasSubscribedToMessageMeta) {
@@ -200,6 +210,19 @@ class _TopicPageState extends State<TopicPage> {
   void _updateMessageCount(int count) {
     if (_messageCount != count) {
       _messageCount = count;
+      // Get the actual total count from the service if available
+      final totalCount =
+          paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      if (totalCount != null &&
+          _topic != null &&
+          totalCount != _topic!.messageCount) {
+        // Update the local topic object with the accurate count
+        setState(() {
+          _topic = _topic!.copyWith(messageCount: totalCount);
+        });
+        // Update the topic cache with the new message count
+        topicCache.updateTopic(_topic!);
+      }
       // Update user message status based on message count
       final newStatus = _checkUserMessageStatus();
       if (_userHasSentMessage != newStatus) {

@@ -7,6 +7,7 @@ import 'package:talktive/widgets/status_notice.dart';
 import '../helpers/exception.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
+import '../services/chat_cache.dart';
 
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
@@ -37,6 +38,7 @@ class _ChatPageState extends State<ChatPage> {
   late Firedata firedata;
   late FollowCache followCache;
   late MessageMetaCache messageMetaCache;
+  late ChatCache chatCache;
 
   late PaginatedMessageService paginatedMessageService;
   late StreamSubscription chatSubscription;
@@ -79,6 +81,13 @@ class _ChatPageState extends State<ChatPage> {
             _chat = chat;
             _chatPopulated = true;
           });
+          // Update chat cache with the latest data
+          chatCache.updateChat(chat);
+          // Sync total message count with pagination service
+          paginatedMessageService.updateChatTotalMessageCount(
+            _chat.id,
+            chat.messageCount,
+          );
         }
       } else {
         if (chat.isDummy) {
@@ -99,6 +108,13 @@ class _ChatPageState extends State<ChatPage> {
             _chat = chat;
             _chatPopulated = true;
           });
+          // Update chat cache with the latest data
+          chatCache.updateChat(chat);
+          // Sync total message count with pagination service
+          paginatedMessageService.updateChatTotalMessageCount(
+            _chat.id,
+            chat.messageCount,
+          );
         }
       }
     });
@@ -113,6 +129,7 @@ class _ChatPageState extends State<ChatPage> {
     theme = Theme.of(context);
     followCache = Provider.of<FollowCache>(context);
     messageMetaCache = Provider.of<MessageMetaCache>(context);
+    chatCache = Provider.of<ChatCache>(context);
 
     // Subscribe to message metadata for real-time recall updates
     if (!_hasSubscribedToMessageMeta) {
@@ -152,6 +169,17 @@ class _ChatPageState extends State<ChatPage> {
   void _updateMessageCount(int count) {
     if (_messageCount != count) {
       _messageCount = count;
+      // Get the actual total count from the service if available
+      final totalCount =
+          paginatedMessageService.getChatTotalMessageCount(_chat.id);
+      if (totalCount != null && totalCount != _chat.messageCount) {
+        // Update the local chat object with the accurate count
+        setState(() {
+          _chat = _chat.copyWith(messageCount: totalCount);
+        });
+        // Update the chat cache with the new message count
+        chatCache.updateChat(_chat);
+      }
     }
   }
 

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'consent_manager_facade.dart';
+import 'improved_consent_manager.dart';
 import '../../config/ad_config.dart';
 
 import '../../services/user_cache.dart';
@@ -16,7 +16,8 @@ class SimpleAdManager {
   SimpleAdManager._();
 
   // Core components
-  final ConsentManagerFacade _consentManager = ConsentManagerFacade.instance;
+  final ImprovedConsentManager _consentManager =
+      ImprovedConsentManager.instance;
 
   // Ad state
   InterstitialAd? _interstitialAd;
@@ -36,11 +37,11 @@ class SimpleAdManager {
 
   // Progressive interval multipliers (gradually decrease frequency)
   static const List<double> _intervalMultipliers = [
-    3.0, // First interval: 3x base (4.5-9 minutes)
-    2.5, // Second interval: 2.5x base (3.75-7.5 minutes)
-    2.0, // Third interval: 2x base (3-6 minutes)
-    1.5, // Fourth interval: 1.5x base (2.25-4.5 minutes)
-    1.0, // Fifth+ interval: 1x base (1.5-3 minutes)
+    3.0,  // First interval: 3x base (4.5-9 minutes)
+    2.5,  // Second interval: 2.5x base (3.75-7.5 minutes)
+    2.0,  // Third interval: 2x base (3-6 minutes)
+    1.5,  // Fourth interval: 1.5x base (2.25-4.5 minutes)
+    1.0,  // Fifth+ interval: 1x base (1.5-3 minutes)
   ];
 
   // Ad unit IDs
@@ -58,7 +59,7 @@ class SimpleAdManager {
     debugPrint('[SimpleAdManager] Initializing...');
 
     // Initialize consent manager (non-blocking)
-    await _consentManager.initialize();
+    _consentManager.initializeAsync();
 
     // Initialize Mobile Ads SDK
     try {
@@ -149,22 +150,20 @@ class SimpleAdManager {
     final user = UserCache().user;
     final bool isNewcomer = user != null && user.status == 'newcomer';
     final Duration baseInterval = isNewcomer
-        ? Duration(minutes: 3) // 3 minute base for newcomers
+        ? Duration(minutes: 3)  // 3 minute base for newcomers
         : Duration(minutes: 2); // 2 minute base for regular users
 
     // Apply progressive multiplier based on how many ads shown
-    final multiplierIndex =
-        _adsShownCount.clamp(0, _intervalMultipliers.length - 1);
+    final multiplierIndex = _adsShownCount.clamp(0, _intervalMultipliers.length - 1);
     final multiplier = _intervalMultipliers[multiplierIndex];
 
     // Calculate actual interval
     final interval = Duration(
-        milliseconds: (baseInterval.inMilliseconds * multiplier).round());
+      milliseconds: (baseInterval.inMilliseconds * multiplier).round()
+    );
 
     // Ensure we never go below minimum
-    return interval.compareTo(_minTimeBetweenAds) > 0
-        ? interval
-        : _minTimeBetweenAds;
+    return interval.compareTo(_minTimeBetweenAds) > 0 ? interval : _minTimeBetweenAds;
   }
 
   /// Get first ad delay based on user status
@@ -418,10 +417,8 @@ class SimpleAdAdapter {
       'status': _adManager.getStatus(),
       'config': {
         'minTimeBetweenAds': '${SimpleAdManager._minTimeBetweenAds.inSeconds}s',
-        'newcomerFirstDelay':
-            '${SimpleAdManager._newcomerFirstAdDelay.inMinutes} minutes',
-        'regularFirstDelay':
-            '${SimpleAdManager._regularFirstAdDelay.inMinutes} minutes',
+        'newcomerFirstDelay': '${SimpleAdManager._newcomerFirstAdDelay.inMinutes} minutes',
+        'regularFirstDelay': '${SimpleAdManager._regularFirstAdDelay.inMinutes} minutes',
         'intervalStrategy': 'progressive',
         'adsShown': _adManager._adsShownCount,
       }

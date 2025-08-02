@@ -197,10 +197,32 @@ class _ChatPageState extends State<ChatPage> {
         return;
       }
 
-      await firedata.updateChat(selfId, chat.id, readMessageCount: count);
+      // Store original chat for rollback
+      final originalChat = _chat;
+
+      // Optimistically update the chat cache immediately
+      final updatedChat = _chat.copyWith(readMessageCount: count);
+      setState(() {
+        _chat = updatedChat;
+      });
+      chatCache.updateChat(updatedChat);
+
+      try {
+        await firedata.updateChat(selfId, chat.id, readMessageCount: count);
+      } catch (updateError) {
+        // Revert optimistic update on failure
+        if (mounted) {
+          setState(() {
+            _chat = originalChat;
+          });
+          chatCache.updateChat(originalChat);
+        }
+        debugPrint('Failed to update read message count: $updateError');
+        rethrow; // Re-throw to be caught by outer catch
+      }
     } catch (e) {
-      // Silently fail for read count updates as they're not critical
-      debugPrint('Failed to update read message count: $e');
+      // Log the error but don't show to user
+      debugPrint('Error in _updateReadMessageCount: $e');
     }
   }
 
@@ -221,7 +243,7 @@ class _ChatPageState extends State<ChatPage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        _updateReadMessageCount(_chat); // No wait
+        await _updateReadMessageCount(_chat);
         if (context.mounted) {
           Navigator.pop(context, result);
         }

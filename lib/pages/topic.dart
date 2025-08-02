@@ -422,21 +422,43 @@ class _TopicPageState extends State<TopicPage> {
   Future<void> _updateReadMessageCount() async {
     try {
       final selfId = fireauth.instance.currentUser?.uid;
-      if (selfId == null) return;
+      if (selfId == null || _topic == null) return;
 
       final count = _messageCount;
-      if (count == 0 || count == _topic?.readMessageCount) {
+      if (count == 0 || count == _topic!.readMessageCount) {
         return;
       }
 
-      await firestore.updateTopicReadMessageCount(
-        selfId,
-        widget.topicId,
-        readMessageCount: count,
-      );
+      // Store original topic for rollback
+      final originalTopic = _topic!;
+
+      // Optimistically update the topic cache immediately
+      final updatedTopic = _topic!.copyWith(readMessageCount: count);
+      setState(() {
+        _topic = updatedTopic;
+      });
+      topicCache.updateTopic(updatedTopic);
+
+      try {
+        await firestore.updateTopicReadMessageCount(
+          selfId,
+          widget.topicId,
+          readMessageCount: count,
+        );
+      } catch (updateError) {
+        // Revert optimistic update on failure
+        if (mounted) {
+          setState(() {
+            _topic = originalTopic;
+          });
+          topicCache.updateTopic(originalTopic);
+        }
+        debugPrint('Failed to update read message count: $updateError');
+        rethrow; // Re-throw to be caught by outer catch
+      }
     } catch (e) {
-      // Silently fail for read count updates as they're not critical
-      debugPrint('Failed to update read message count: $e');
+      // Log the error but don't show to user
+      debugPrint('Error in _updateReadMessageCount: $e');
     }
   }
 
@@ -473,7 +495,7 @@ class _TopicPageState extends State<TopicPage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        _updateReadMessageCount(); // No wait
+        await _updateReadMessageCount();
         if (context.mounted) {
           Navigator.pop(context, result);
         }

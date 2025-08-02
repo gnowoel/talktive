@@ -75,12 +75,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   ScrollNotification? _lastNotification;
 
   // Scroll management
-  static const double _scrollThreshold =
-      200.0; // Pixels from top to trigger load
+  static const double _scrollThreshold = 200.0;
   Timer? _scrollDebouncer;
-  double? _lastScrollPosition;
-  int _retryCount = 0;
-  static const int _maxRetries = 3;
 
   @override
   void initState() {
@@ -145,23 +141,9 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   void _scrollToBottom() {
     if (!widget.scrollController.hasClients) return;
 
-    try {
-      final controller = widget.scrollController;
-      final bottom = controller.position.maxScrollExtent;
-
-      // Use animateTo for smoother experience on initial load
-      if (_initialLoadComplete && (bottom - controller.position.pixels).abs() < 500) {
-        controller.animateTo(
-          bottom,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      } else {
-        controller.jumpTo(bottom);
-      }
-    } catch (e) {
-      debugPrint('Error scrolling to bottom: $e');
-    }
+    final controller = widget.scrollController;
+    final bottom = controller.position.maxScrollExtent;
+    controller.jumpTo(bottom);
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
@@ -202,19 +184,13 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   void _onScroll() {
     if (!widget.scrollController.hasClients) return;
 
-    final controller = widget.scrollController;
-    final position = controller.position;
+    final position = widget.scrollController.position;
 
     // Check if user scrolled near the top and load more messages
     if (position.pixels <= _scrollThreshold && _hasMore && !_isLoading) {
-      // Debounce scroll loading to prevent excessive calls
       _scrollDebouncer?.cancel();
-      _scrollDebouncer = Timer(const Duration(milliseconds: 100), () {
-        if (mounted &&
-            _hasMore &&
-            !_isLoading &&
-            widget.scrollController.hasClients &&
-            widget.scrollController.position.pixels <= _scrollThreshold) {
+      _scrollDebouncer = Timer(const Duration(milliseconds: 150), () {
+        if (mounted && _hasMore && !_isLoading) {
           _loadMoreMessages();
         }
       });
@@ -224,13 +200,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   void _onServiceUpdated() {
     // Update messages from service state when it changes (for real-time updates)
     if (_initialLoadComplete && mounted && !_isLoading) {
-      // Debounce updates to prevent excessive rebuilds
-      _scrollDebouncer?.cancel();
-      _scrollDebouncer = Timer(const Duration(milliseconds: 50), () {
-        if (mounted) {
-          _updateMessagesFromService();
-        }
-      });
+      _updateMessagesFromService();
     }
   }
 
@@ -255,22 +225,18 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         serviceHasMore = state.hasMore;
       }
 
-      // Check if messages actually changed
-      final currentMessageIds = _messages.map(_getMessageId).toList();
-      final newMessageIds = serviceMessages.map(_getMessageId).toList();
-
-      // Early return if no real change
-      if (currentMessageIds.length == newMessageIds.length &&
+      // Early return if no change needed
+      if (_messages.length == serviceMessages.length &&
           _hasMore == serviceHasMore &&
-          currentMessageIds.isNotEmpty &&
-          newMessageIds.isNotEmpty &&
-          currentMessageIds.last == newMessageIds.last) {
+          serviceMessages.isNotEmpty &&
+          _messages.isNotEmpty &&
+          _getMessageId(serviceMessages.last) ==
+              _getMessageId(_messages.last)) {
         return;
       }
 
       final wasAtBottom = _isSticky;
-      final oldMessageCount = _messages.length;
-      final hadNewMessages = serviceMessages.length > oldMessageCount;
+      final hadNewMessages = serviceMessages.length > _messages.length;
 
       setState(() {
         _messages = List.from(serviceMessages);
@@ -282,13 +248,9 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
       // Auto-scroll to bottom for new messages if user was at bottom
       if (wasAtBottom && hadNewMessages && mounted) {
-        // Use a slightly longer delay to ensure layout is complete
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && widget.scrollController.hasClients) {
-            // Double-check we're still supposed to be at bottom
-            if (_isSticky) {
-              _scrollToBottom();
-            }
+            _scrollToBottom();
           }
         });
       }
@@ -336,52 +298,28 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         _hasMore = result.hasMore;
         _initialLoadComplete = true;
         _isLoading = false;
-        _retryCount = 0; // Reset retry count on success
-        _isSticky = true; // Ensure we start sticky
       });
 
       debugPrint(
           'PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
 
-      // Scroll to bottom after initial load with a slight delay
+      // Scroll to bottom after initial load
       if (mounted) {
-        // Use multiple frames to ensure layout is complete
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && widget.scrollController.hasClients) {
             _scrollToBottom();
-            // Double-check scroll position after another frame
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted && widget.scrollController.hasClients && _isSticky) {
-                _scrollToBottom();
-              }
-            });
           }
         });
       }
     } catch (e) {
       debugPrint('Error loading initial messages: $e');
       if (!mounted) return;
-
-      // Implement retry logic for transient failures
-      if (_retryCount < _maxRetries) {
-        _retryCount++;
-        setState(() {
-          _isLoading = false;
-        });
-        // Retry with exponential backoff
-        Future.delayed(Duration(seconds: _retryCount), () {
-          if (mounted) {
-            _loadInitialMessages();
-          }
-        });
-      } else {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-          _initialLoadComplete = true; // Mark as complete even on error
-        });
-      }
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+        _initialLoadComplete = true;
+      });
     }
   }
 
@@ -391,14 +329,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     debugPrint(
         'PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
 
-    // Save current scroll state
-    double? savedPixels;
-    double? savedMaxExtent;
-    if (widget.scrollController.hasClients) {
-      savedPixels = widget.scrollController.position.pixels;
-      savedMaxExtent = widget.scrollController.position.maxScrollExtent;
-      _lastScrollPosition = savedPixels;
-    }
+    // Save scroll position before loading
+    final savedScrollOffset = widget.scrollController.hasClients
+        ? widget.scrollController.position.pixels
+        : 0.0;
 
     if (!mounted) return;
     setState(() {
@@ -429,33 +363,16 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       widget.updateMessageCount(_messages.length);
 
       // Maintain scroll position after adding messages
-      if (mounted &&
-          widget.scrollController.hasClients &&
-          _lastScrollPosition != null) {
+      if (mounted && widget.scrollController.hasClients) {
         final newMessagesCount = _messages.length - oldMessageCount;
         if (newMessagesCount > 0) {
-          // Use a more accurate approach: measure actual content height change
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && widget.scrollController.hasClients) {
-              // Get current max scroll extent
-              final currentMaxExtent = widget.scrollController.position.maxScrollExtent;
-
-              // The difference in max extent gives us the actual height added
-              // This is more accurate than estimating message heights
-              final extentDifference = currentMaxExtent - _lastScrollPosition!;
-
-              // Jump to the position that maintains visual continuity
+              // Estimate height of new messages and adjust scroll
+              final approximateMessageHeight = 80.0 * newMessagesCount;
               widget.scrollController.jumpTo(
-                _lastScrollPosition!,
+                savedScrollOffset + approximateMessageHeight,
               );
-
-              // If we're way off, try the approximation
-              if ((widget.scrollController.position.pixels - _lastScrollPosition!).abs() > 200) {
-                final approximateMessageHeight = 100.0 * newMessagesCount;
-                widget.scrollController.jumpTo(
-                  _lastScrollPosition! + approximateMessageHeight,
-                );
-              }
             }
           });
         }
@@ -463,9 +380,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     } catch (e) {
       debugPrint('Error loading more messages: $e');
       if (!mounted) return;
-      // Don't show error for pagination failures, just stop loading
       setState(() {
-        _hasMore = false; // Prevent further attempts
+        _hasMore = false;
       });
     } finally {
       if (mounted) {

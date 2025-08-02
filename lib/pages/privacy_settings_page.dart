@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import '../services/ad_service/improved_consent_manager.dart';
+import '../services/ad_service/consent_manager_facade.dart';
 import '../services/ad_service/admob_compliance.dart';
 
 class PrivacySettingsPage extends StatefulWidget {
@@ -11,8 +11,7 @@ class PrivacySettingsPage extends StatefulWidget {
 }
 
 class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
-  final ImprovedConsentManager _consentManager =
-      ImprovedConsentManager.instance;
+  final ConsentManagerFacade _consentManager = ConsentManagerFacade.instance;
 
   bool _isLoading = true;
   bool _isUpdatingConsent = false;

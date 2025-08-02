@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import '../user_cache.dart';
 
-import 'improved_consent_manager.dart';
+import 'consent_manager_facade.dart';
 
 /// AdMob compliance utility class to ensure adherence to AdMob policies
 ///
@@ -12,6 +12,9 @@ class AdMobCompliance {
   static AdMobCompliance get instance => _instance ??= AdMobCompliance._();
 
   AdMobCompliance._();
+
+  /// Check if we're running on web platform
+  static bool get isWebPlatform => kIsWeb;
 
   /// Check if the current user is an admin
   static bool get isCurrentUserAdmin {
@@ -33,7 +36,7 @@ class AdMobCompliance {
     // Get consent status information
     Map<String, dynamic> consentInfo = {};
     try {
-      consentInfo = ImprovedConsentManager.instance.getDebugInfo();
+      consentInfo = ConsentManagerFacade.instance.getDebugInfo();
     } catch (e) {
       consentInfo = {'error': 'Failed to get consent info: $e'};
     }
@@ -108,7 +111,7 @@ class AdMobCompliance {
 
     // Check consent compliance
     try {
-      final canRequest = ImprovedConsentManager.instance.canRequestAds;
+      final canRequest = ConsentManagerFacade.instance.canRequestAds;
       if (!canRequest) {
         safeLog('Ad compliance failed: Cannot request ads due to consent');
         return false;
@@ -118,14 +121,23 @@ class AdMobCompliance {
       if (kDebugMode) {
         safeLog(
             'Ad compliance validated: Ads can be requested (debug mode may bypass consent)');
+      } else if (isWebPlatform) {
+        safeLog(
+            'Ad compliance validated: Ads can be requested (web platform using safe defaults)');
       } else {
         safeLog('Ad compliance validated: Ads can be requested');
       }
     } catch (e) {
       safeLog('Ad compliance warning: Consent check error: $e');
-      // In debug mode, be more permissive with consent failures
+
+      // Handle consent errors based on platform and mode
       if (kDebugMode) {
         safeLog('Debug mode: Allowing ads despite consent check failure');
+        return status['isCompliant'] as bool;
+      } else if (isWebPlatform) {
+        safeLog(
+            'Web platform: Using fallback consent validation due to UMP SDK limitations');
+        // On web, be more lenient since UMP SDK has limited support
         return status['isCompliant'] as bool;
       }
       // Don't block ads if consent service fails, but log the issue
@@ -159,18 +171,31 @@ class AdMobCompliance {
   static Future<void> initialize() async {
     // Initialize consent service
     try {
+      if (isWebPlatform) {
+        safeLog(
+            'Web platform detected - consent service will use web-safe defaults');
+      }
+
       // Consent service is initialized in app startup
-      ImprovedConsentManager.instance.initializeAsync();
+      await ConsentManagerFacade.instance.initialize();
       safeLog('Consent service initialization started');
 
       if (kDebugMode) {
         safeLog('Debug mode: Consent requirements may be bypassed for testing');
+      }
+
+      if (isWebPlatform) {
+        safeLog('Web platform: UMP SDK limitations handled automatically');
       }
     } catch (e) {
       safeLog('Warning: Failed to initialize consent service: $e');
       if (kDebugMode) {
         safeLog(
             'Debug mode: Consent service failure is non-blocking for test ads');
+      }
+      if (isWebPlatform) {
+        safeLog(
+            'Web platform: Using fallback consent handling due to UMP SDK limitations');
       }
     }
 
@@ -274,22 +299,35 @@ class AdMobCompliance {
   }
 
   /// Request consent if needed (convenience method)
-  /// Request consent if needed
   static Future<void> requestConsentIfNeeded() async {
     try {
-      await ImprovedConsentManager.instance.requestConsentManually();
+      if (isWebPlatform) {
+        safeLog(
+            'Web platform: Consent forms not supported, using default consent handling');
+        return;
+      }
+
+      await ConsentManagerFacade.instance.requestConsentManually();
       safeLog('Consent request completed');
     } catch (e) {
       safeLog('Failed to request consent: $e');
+      if (isWebPlatform) {
+        safeLog('Web platform: Consent request failure handled gracefully');
+      }
     }
   }
 
   /// Check if we can show personalized ads
   static Future<bool> canShowPersonalizedAds() async {
     try {
-      return ImprovedConsentManager.instance.canShowPersonalizedAds;
+      return ConsentManagerFacade.instance.canShowPersonalizedAds;
     } catch (e) {
       safeLog('Failed to check personalized ads permission: $e');
+      if (isWebPlatform) {
+        safeLog(
+            'Web platform: Defaulting to non-personalized ads due to UMP SDK limitations');
+        return kDebugMode; // Only allow personalized ads in debug mode on web
+      }
       return false;
     }
   }
@@ -297,15 +335,24 @@ class AdMobCompliance {
   /// Get consent status message for UI
   static Future<String> getConsentStatusMessage() async {
     try {
-      final canRequest = ImprovedConsentManager.instance.canRequestAds;
+      final canRequest = ConsentManagerFacade.instance.canRequestAds;
       if (!canRequest) {
-        return 'Consent required for ads';
-      } else if (ImprovedConsentManager.instance.canShowPersonalizedAds) {
-        return 'Personalized ads enabled';
+        return isWebPlatform
+            ? 'Web platform: Using safe ad defaults'
+            : 'Consent required for ads';
+      } else if (ConsentManagerFacade.instance.canShowPersonalizedAds) {
+        return isWebPlatform
+            ? 'Web platform: Debug mode ads'
+            : 'Personalized ads enabled';
       } else {
-        return 'Non-personalized ads only';
+        return isWebPlatform
+            ? 'Web platform: Non-personalized ads'
+            : 'Non-personalized ads only';
       }
     } catch (e) {
+      if (isWebPlatform) {
+        return 'Web platform: Safe ad defaults due to UMP SDK limitations';
+      }
       return 'Consent status unavailable';
     }
   }

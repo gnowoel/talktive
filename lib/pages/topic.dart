@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../models/topic.dart';
-import '../models/user.dart';
+
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
@@ -212,7 +212,8 @@ class _TopicPageState extends State<TopicPage> {
       _messageCount = count;
 
       // Always sync with the total count from pagination service
-      final totalCount = paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      final totalCount =
+          paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
       if (totalCount != null && _topic != null) {
         // Update the local topic object with the accurate count if different
         if (totalCount != _topic!.messageCount) {
@@ -426,7 +427,8 @@ class _TopicPageState extends State<TopicPage> {
       if (selfId == null || _topic == null) return;
 
       // Use the latest message count from pagination service
-      final latestTotalCount = paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      final latestTotalCount =
+          paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
       final count = latestTotalCount ?? _messageCount;
 
       // Skip if no change needed

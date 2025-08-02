@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## 4.4.7+67
+## 4.4.8+68
+
+- (what's for 4.4.7+67)
+
+## 4.4.7+67 (unpublished)
 
 - Improved message loading performance in large chat rooms
 
@@ -35,7 +39,7 @@
 
 ## 4.4.0+60
 
-- (what's in 4.3.1+59)
+- (what's for 4.3.1+59)
 - Resolved a user-reported issue that caused the Chats page to break
 - Added occasional interstitial ads when switching between chat or topic rooms
 - Made minor UI improvements and visual fixes
@@ -126,7 +130,7 @@
 
 ## 3.4.3+47
 
-- (what's in 3.4.2+46)
+- (what's for 3.4.2+46)
 - Disabled the Add and Remove User buttons while processing
 - Added a null check for the user when displaying the Users page
 - Added a loading indicator while fetching users

@@ -70,6 +70,18 @@ class _WhatsNewState extends State<WhatsNew> {
                             '🚀 Performance Boost',
                             'Improved message loading performance in large chat rooms.',
                           ),
+                          const SizedBox(height: 32),
+                          Text(
+                            'Previously',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),

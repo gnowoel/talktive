@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../models/chat_message.dart';
@@ -285,7 +286,8 @@ class PaginatedMessageService extends ChangeNotifier {
 
   PaginatedMessageService(this._firedata, this._firestore) {
     // Adjust for low-end devices
-    if (Platform.numberOfProcessors <= 2) {
+    // On web, assume it's a low-end device for conservative memory usage
+    if (kIsWeb || Platform.numberOfProcessors <= 2) {
       _initialLoadSize = 15;
       _paginationLoadSize = 15;
       SimpleChatPaginationState.maxMessagesInMemory = 100;

@@ -291,36 +291,107 @@ class Firestore {
   Future<void> followUser(String followerId, String followeeId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('follow');
+      final callable = functions.httpsCallable(
+        'follow',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final result = await callable.call({
         'followerId': followerId,
         'followeeId': followeeId,
       });
 
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to follow user');
+        final errorMessage = result.data['error'] ?? 'Failed to follow user';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException('You don\'t have permission to follow this user.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to follow user. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to follow user. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
   Future<void> unfollowUser(String followerId, String followeeId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('unfollow');
+      final callable = functions.httpsCallable(
+        'unfollow',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final result = await callable.call({
         'followerId': followerId,
         'followeeId': followeeId,
       });
 
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to unfollow user');
+        final errorMessage = result.data['error'] ?? 'Failed to unfollow user';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to unfollow this user.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to unfollow user. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to unfollow user. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -333,7 +404,12 @@ class Firestore {
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('createTopic');
+      final callable = functions.httpsCallable(
+        'createTopic',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 20),
+        ),
+      );
 
       final response = await callable.call({
         'userId': user.id,
@@ -345,8 +421,13 @@ class Firestore {
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to create moment');
+        final errorMessage = result['error'] ?? 'Failed to create moment';
+        throw Exception(errorMessage);
       }
 
       final topicId = result['topicId'];
@@ -358,8 +439,33 @@ class Firestore {
       }
 
       return _createInitialDummyTopic(topicId, user, isPublic);
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException('You don\'t have permission to create moments.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to create moment. Please try again.');
+      }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to create moment. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -797,36 +903,106 @@ class Firestore {
   Future<void> joinTopic(String userId, String topicId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('joinTopic');
+      final callable = functions.httpsCallable(
+        'joinTopic',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final result = await callable.call({
         'userId': userId,
         'topicId': topicId,
       });
 
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to join moment');
+        final errorMessage = result.data['error'] ?? 'Failed to join moment';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException('You don\'t have permission to join this moment.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to join moment. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to join moment. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
   Future<void> muteTopic(String userId, String topicId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('muteTopic');
+      final callable = functions.httpsCallable(
+        'muteTopic',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final result = await callable.call({
         'userId': userId,
         'topicId': topicId,
       });
 
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to mute moment');
+        final errorMessage = result.data['error'] ?? 'Failed to mute moment';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException('You don\'t have permission to mute this moment.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to mute moment. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to mute moment. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -834,61 +1010,166 @@ class Firestore {
       String userId, String topicId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('inviteFollowersToTopic');
+      final callable = functions.httpsCallable(
+        'inviteFollowersToTopic',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 20),
+        ),
+      );
 
       final result = await callable.call({
         'userId': userId,
         'topicId': topicId,
       });
 
-      if (result.data['success'] != true) {
-        throw Exception(
-            result.data['error'] ?? 'Failed to invite followers to moment');
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
       }
 
-      return {
-        'invitedCount': result.data['invitedCount'] ?? 0,
-        'message': result.data['message'] ?? '',
-      };
+      if (result.data['success'] != true) {
+        final errorMessage =
+            result.data['error'] ?? 'Failed to invite followers to moment';
+        throw Exception(errorMessage);
+      }
+
+      return result.data;
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException('You don\'t have permission to invite followers.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to invite followers. Please try again.');
+      }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to invite followers. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
   Future<void> makeTopicPrivate(String userId, String topicId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('makeTopicPrivate');
+      final callable = functions.httpsCallable(
+        'makeTopicPrivate',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final result = await callable.call({
         'userId': userId,
         'topicId': topicId,
       });
 
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result.data['success'] != true) {
-        throw Exception(
-            result.data['error'] ?? 'Failed to make moment private');
+        final errorMessage =
+            result.data['error'] ?? 'Failed to make moment private';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to make this moment private.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to make moment private. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to make moment private. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
   Future<void> makeTopicPublic(String userId, String topicId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('makeTopicPublic');
+      final callable = functions.httpsCallable(
+        'makeTopicPublic',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final result = await callable.call({
         'userId': userId,
         'topicId': topicId,
       });
 
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result.data['success'] != true) {
-        throw Exception(result.data['error'] ?? 'Failed to make moment public');
+        final errorMessage =
+            result.data['error'] ?? 'Failed to make moment public';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to make this moment public.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to make moment public. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to make moment public. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -929,7 +1210,12 @@ class Firestore {
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('recallMessage');
+      final callable = functions.httpsCallable(
+        'recallMessage',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final response = await callable.call({
         'messageId': messageId,
@@ -939,11 +1225,44 @@ class Firestore {
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to recall moment message');
+        final errorMessage = result['error'] ?? 'Failed to recall moment message';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to recall this message.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        case 'not-found':
+          throw AppException('Message not found or already recalled.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to recall message. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to recall message. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -954,7 +1273,12 @@ class Firestore {
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('reportMessage');
+      final callable = functions.httpsCallable(
+        'reportMessage',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final response = await callable.call({
         'chatId': chatId,
@@ -964,15 +1288,48 @@ class Firestore {
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to report message');
+        final errorMessage = result['error'] ?? 'Failed to report message';
+        throw Exception(errorMessage);
       }
 
       // Cache the reported message ID
       final reportCache = ReportCacheService();
       await reportCache.addReportedMessage(messageId);
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to report this message.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        case 'not-found':
+          throw AppException('Message not found.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to report message. Please try again.');
+      }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to report message. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -983,7 +1340,12 @@ class Firestore {
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('reportTopicMessage');
+      final callable = functions.httpsCallable(
+        'reportTopicMessage',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final response = await callable.call({
         'topicId': topicId,
@@ -993,15 +1355,48 @@ class Firestore {
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to report moment message');
+        final errorMessage = result['error'] ?? 'Failed to report moment message';
+        throw Exception(errorMessage);
       }
 
       // Cache the reported message ID
       final reportCache = ReportCacheService();
       await reportCache.addReportedMessage(messageId);
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to report this message.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        case 'not-found':
+          throw AppException('Message not found.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to report message. Please try again.');
+      }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to report message. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -1011,7 +1406,12 @@ class Firestore {
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('blockUserFromTopic');
+      final callable = functions.httpsCallable(
+        'blockUserFromTopic',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final response = await callable.call({
         'topicId': topicId,
@@ -1020,11 +1420,44 @@ class Firestore {
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to block user from moment');
+        final errorMessage = result['error'] ?? 'Failed to block user from moment';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to block users from this moment.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        case 'not-found':
+          throw AppException('User or moment not found.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to block user. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      String errorMessage = 'Failed to block user. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 

@@ -490,27 +490,90 @@ class Firedata {
     try {
       final chatId = ([self.id, other.id]..sort()).join();
 
-      // Call the Cloud Function
+      // Call the Cloud Function with timeout and retry logic
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('initiateConversation');
+      final callable = functions.httpsCallable(
+        'initiateConversation',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 30),
+        ),
+      );
 
-      final response = await callable.call({
-        'senderId': self.id,
-        'receiverId': other.id,
-        'message': message,
-      });
+      HttpsCallableResult? response;
+      int retryCount = 0;
+      const maxRetries = 3;
+
+      while (retryCount < maxRetries) {
+        try {
+          response = await callable.call({
+            'senderId': self.id,
+            'receiverId': other.id,
+            'message': message,
+          });
+          break; // Success, exit retry loop
+        } catch (e) {
+          retryCount++;
+          if (retryCount >= maxRetries) {
+            rethrow; // Re-throw the last error if all retries failed
+          }
+
+          // Wait before retrying (exponential backoff)
+          await Future.delayed(Duration(milliseconds: 500 * retryCount));
+        }
+      }
+
+      if (response == null) {
+        throw Exception(
+            'Failed to get response from server after $maxRetries attempts');
+      }
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to create conversation');
+        final errorMessage = result['error'] ?? 'Failed to create conversation';
+        throw Exception(errorMessage);
       }
 
       final chatCreatedAt = result['chatCreatedAt'];
+      if (chatCreatedAt == null) {
+        throw Exception('Invalid response: missing chat creation time');
+      }
 
       return _createInitialDummyChat(chatId, chatCreatedAt, other);
+    } on FirebaseFunctionsException catch (e) {
+      // Handle specific Firebase Functions errors
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to perform this action.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to start conversation. Please try again.');
+      }
     } catch (e) {
-      throw AppException(e.toString());
+      // Handle any other errors
+      String errorMessage = 'Failed to start conversation. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 
@@ -655,10 +718,15 @@ class Firedata {
     }
   }
 
-  Future<void> recallMessage(String chatId, String messageId) async {
+  Future<void> recallChatMessage(String chatId, String messageId) async {
     try {
       final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('recallMessage');
+      final callable = functions.httpsCallable(
+        'recallMessage',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
 
       final response = await callable.call({
         'messageId': messageId,
@@ -668,11 +736,46 @@ class Firedata {
 
       final result = response.data;
 
+      if (result == null) {
+        throw Exception('Received empty response from server');
+      }
+
       if (result['success'] != true) {
-        throw Exception(result['error'] ?? 'Failed to recall chat message');
+        final errorMessage = result['error'] ?? 'Failed to recall chat message';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      // Handle specific Firebase Functions errors
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException(
+              'You don\'t have permission to recall this message.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        case 'not-found':
+          throw AppException('Message not found or already recalled.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to recall message. Please try again.');
       }
     } catch (e) {
-      throw AppException(e.toString());
+      // Handle any other errors
+      String errorMessage = 'Failed to recall message. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
     }
   }
 

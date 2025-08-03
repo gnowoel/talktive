@@ -252,7 +252,7 @@ class _ChatTextMessageItemState extends State<ChatTextMessageItem> {
     final messenger = ScaffoldMessenger.of(context);
 
     try {
-      await firedata.recallMessage(widget.chatId, widget.message.id!);
+      await firedata.recallChatMessage(widget.chatId, widget.message.id!);
       if (mounted) {
         messenger.showSnackBar(
           const SnackBar(

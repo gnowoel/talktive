@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -74,7 +76,18 @@ class _UserItemState extends State<UserItem> {
     _doAction(() async {
       final self = userCache.user!;
       final other = widget.user;
-      final message = '${self.description}';
+
+      // Validate user data before attempting to greet
+      if (self.description == null || self.description!.trim().isEmpty) {
+        throw AppException(
+            'Please add a description to your profile before starting a conversation.');
+      }
+
+      if (other.id.isEmpty) {
+        throw AppException('Invalid user selected. Please try again.');
+      }
+
+      final message = self.description!.trim();
       final chat = await firedata.greetUser(self, other, message);
       final chatCreatedAt = chat.createdAt.toString();
 
@@ -95,6 +108,34 @@ class _UserItemState extends State<UserItem> {
     } on AppException catch (e) {
       if (mounted) {
         ErrorHandler.showSnackBarMessage(context, e);
+      }
+    } on TimeoutException catch (_) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+            context,
+            AppException(
+                'Request timed out. Please check your connection and try again.'));
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        String errorMessage = 'An unexpected error occurred. Please try again.';
+
+        final errorStr = e.toString().toLowerCase();
+        if (errorStr.contains('network') || errorStr.contains('connection')) {
+          errorMessage =
+              'Network error. Please check your connection and try again.';
+        } else if (errorStr.contains('permission')) {
+          errorMessage = 'You don\'t have permission to perform this action.';
+        } else if (errorStr.contains('timeout')) {
+          errorMessage = 'Request timed out. Please try again.';
+        }
+
+        ErrorHandler.showSnackBarMessage(context, AppException(errorMessage));
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context,
+            AppException('An unexpected error occurred. Please try again.'));
       }
     } finally {
       if (mounted) {

@@ -139,16 +139,16 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
 
     // Dispose pagination state to prevent memory leaks and excessive subscriptions
-    try {
-      if (_messageService != null) {
+    if (_messageService != null) {
+      try {
         if (widget.type == MessageListType.chat) {
           _messageService!.disposeChatState(widget.id);
         } else {
           _messageService!.disposeTopicState(widget.id);
         }
+      } catch (e) {
+        debugPrint('Error disposing pagination state: $e');
       }
-    } catch (e) {
-      debugPrint('Error disposing pagination state: $e');
     }
 
     super.dispose();
@@ -299,12 +299,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         });
       }
     } catch (e) {
-      debugPrint('Error loading initial messages: $e');
+      debugPrint('Error updating from service: $e');
       if (mounted) {
         setState(() {
-          _isLoading = false;
-          _errorMessage = 'Failed to load messages: ${e.toString()}';
-          _currentInitialLoadId = null;
+          _errorMessage = 'Failed to update messages: ${e.toString()}';
         });
       }
     }
@@ -315,8 +313,6 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
     // Prevent duplicate initial loads for the same ID
     if (_currentInitialLoadId == widget.id) {
-      debugPrint(
-          'PaginatedMessageList: Already loading initial messages for ${widget.type.name} ${widget.id}');
       return;
     }
 
@@ -386,6 +382,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         _errorMessage = e.toString();
         _isLoading = false;
         _initialLoadComplete = true;
+        _currentInitialLoadId = null;
       });
     }
   }

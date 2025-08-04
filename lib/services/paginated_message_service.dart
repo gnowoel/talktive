@@ -334,14 +334,13 @@ class PaginatedMessageService extends ChangeNotifier {
     // Clean up oldest chat states if we exceed the limit
     if (_chatStates.length > _maxCachedStates) {
       final sortedEntries = _chatStates.entries.toList()
-        ..sort(
-            (a, b) => a.value.lastAccessTime.compareTo(b.value.lastAccessTime));
+        ..sort((a, b) => a.value.lastAccessed.compareTo(b.value.lastAccessed));
 
       final toRemove =
           sortedEntries.take(_chatStates.length - _maxCachedStates);
       for (final entry in toRemove) {
         debugPrint(
-            'PAGINATION: CLEANUP - Removing old chat state: ${entry.key} (last accessed: ${entry.value.lastAccessTime})');
+            'Removing old chat state: ${entry.key} (messages: ${entry.value.messages.length})');
         entry.value.subscription?.cancel();
         entry.value.dispose();
         _chatStates.remove(entry.key);
@@ -351,13 +350,13 @@ class PaginatedMessageService extends ChangeNotifier {
     // Clean up oldest topic states if we exceed the limit
     if (_topicStates.length > _maxCachedStates) {
       final sortedEntries = _topicStates.entries.toList()
-        ..sort(
-            (a, b) => a.value.lastAccessTime.compareTo(b.value.lastAccessTime));
+        ..sort((a, b) => a.value.lastAccessed.compareTo(b.value.lastAccessed));
 
       final toRemove =
           sortedEntries.take(_topicStates.length - _maxCachedStates);
       for (final entry in toRemove) {
-        debugPrint('Removing old topic state: ${entry.key}');
+        debugPrint(
+            'Removing old topic state: ${entry.key} (messages: ${entry.value.messages.length})');
         entry.value.subscription?.cancel();
         entry.value.dispose();
         _topicStates.remove(entry.key);
@@ -380,8 +379,9 @@ class PaginatedMessageService extends ChangeNotifier {
     final state = _chatStates.putIfAbsent(
         chatId, () => SimpleChatPaginationState(chatId));
 
-    debugPrint(
-        'PAGINATION: Getting chat state for $chatId - ${isNewState ? "CREATING NEW" : "REUSING EXISTING"} (total states: ${_chatStates.length})');
+    if (isNewState) {
+      debugPrint('Creating new chat state for $chatId');
+    }
 
     // Always enforce state limits when getting a state
     _enforceMaxCachedStates();
@@ -395,8 +395,9 @@ class PaginatedMessageService extends ChangeNotifier {
     final state = _topicStates.putIfAbsent(
         topicId, () => SimpleTopicPaginationState(topicId));
 
-    debugPrint(
-        'PAGINATION: Getting topic state for $topicId - ${isNewState ? "CREATING NEW" : "REUSING EXISTING"} (total states: ${_topicStates.length})');
+    if (isNewState) {
+      debugPrint('Creating new topic state for $topicId');
+    }
 
     // Always enforce state limits when getting a state
     _enforceMaxCachedStates();
@@ -413,7 +414,7 @@ class PaginatedMessageService extends ChangeNotifier {
     final state = _getChatState(chatId);
 
     debugPrint(
-        'PAGINATION: loadChatMessages - chatId=$chatId, isInitialLoad=$isInitialLoad, existingMessages=${state.messages.length}');
+        'loadChatMessages: chatId=$chatId, isInitialLoad=$isInitialLoad');
 
     if (state.isLoading) {
       debugPrint(
@@ -433,16 +434,14 @@ class PaginatedMessageService extends ChangeNotifier {
         state.subscription?.cancel();
 
         // Load most recent messages
-        debugPrint(
-            'PAGINATION: Fetching initial messages from database - limit=$_initialLoadSize');
+        // Load most recent messages
         final newMessages = await _firedata.fetchMessagesPage(
           chatId,
           limit: _initialLoadSize,
           minCreatedAt: chatCreatedAt,
         );
 
-        debugPrint(
-            'PAGINATION: DATABASE DOWNLOAD - Fetched ${newMessages.length} initial messages for chat $chatId');
+        debugPrint('Fetched ${newMessages.length} initial messages');
 
         // Clear existing messages only on initial load
         state._messageMap.clear();
@@ -499,16 +498,14 @@ class PaginatedMessageService extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      debugPrint(
-          'PAGINATION: Fetching older messages from database - limit=$_paginationLoadSize, beforeTimestamp=${state.oldestTimestamp}');
+      // Fetch older messages
       final olderMessages = await _firedata.fetchMessagesBeforeTimestamp(
         chatId,
         state.oldestTimestamp!,
         limit: _paginationLoadSize,
       );
 
-      debugPrint(
-          'PAGINATION: DATABASE DOWNLOAD - Fetched ${olderMessages.length} older messages for chat $chatId');
+      debugPrint('Fetched ${olderMessages.length} older messages');
 
       if (olderMessages.isNotEmpty) {
         state.addMessages(olderMessages);
@@ -542,14 +539,13 @@ class PaginatedMessageService extends ChangeNotifier {
 
     if (state.newestTimestamp == null) return;
 
-    debugPrint(
-        'PAGINATION: Starting realtime subscription for chat ${state.chatId} from timestamp ${state.newestTimestamp}');
+    // Start realtime subscription from newest timestamp
     state.subscription = _firedata
         .subscribeToMessages(state.chatId, state.newestTimestamp!)
         .listen((newMessages) {
       if (newMessages.isNotEmpty) {
         debugPrint(
-            'PAGINATION: REALTIME SUBSCRIPTION - Received ${newMessages.length} new messages for chat ${state.chatId}');
+            'Chat[${state.chatId}]: Received ${newMessages.length} new messages');
         state.addMessages(newMessages);
         _safeNotifyListeners();
       }
@@ -672,7 +668,7 @@ class PaginatedMessageService extends ChangeNotifier {
         .listen((newMessages) {
       if (newMessages.isNotEmpty) {
         debugPrint(
-            'PAGINATION: REALTIME SUBSCRIPTION - Received ${newMessages.length} new messages for topic ${state.topicId}');
+            'Topic[${state.topicId}]: Received ${newMessages.length} new messages');
         state.addMessages(newMessages);
         _safeNotifyListeners();
       }
@@ -781,8 +777,7 @@ class PaginatedMessageService extends ChangeNotifier {
   void disposeChatState(String chatId) {
     final state = _chatStates[chatId];
     if (state != null) {
-      debugPrint(
-          'PAGINATION: MANUAL DISPOSAL - Disposing chat state: $chatId (had ${state.messages.length} messages)');
+      debugPrint('Disposing chat state: $chatId');
       state.subscription?.cancel();
       state.dispose();
       _chatStates.remove(chatId);
@@ -794,8 +789,7 @@ class PaginatedMessageService extends ChangeNotifier {
   void disposeTopicState(String topicId) {
     final state = _topicStates[topicId];
     if (state != null) {
-      debugPrint(
-          'PAGINATION: MANUAL DISPOSAL - Disposing topic state: $topicId (had ${state.messages.length} messages)');
+      debugPrint('Disposing topic state: $topicId');
       state.subscription?.cancel();
       state.dispose();
       _topicStates.remove(topicId);

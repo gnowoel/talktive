@@ -84,6 +84,9 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   double? _savedScrollOffset;
   double? _savedMaxScrollExtent;
 
+  // Track current initial load to prevent duplicates
+  String? _currentInitialLoadId;
+
   @override
   void initState() {
     super.initState();
@@ -133,6 +136,19 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       _messageService?.removeListener(_onServiceUpdated);
     } catch (e) {
       debugPrint('Error removing service listener: $e');
+    }
+
+    // Dispose pagination state to prevent memory leaks and excessive subscriptions
+    try {
+      if (_messageService != null) {
+        if (widget.type == MessageListType.chat) {
+          _messageService!.disposeChatState(widget.id);
+        } else {
+          _messageService!.disposeTopicState(widget.id);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error disposing pagination state: $e');
     }
 
     super.dispose();
@@ -283,10 +299,12 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         });
       }
     } catch (e) {
-      debugPrint('Error updating from service: $e');
+      debugPrint('Error loading initial messages: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to update messages: ${e.toString()}';
+          _isLoading = false;
+          _errorMessage = 'Failed to load messages: ${e.toString()}';
+          _currentInitialLoadId = null;
         });
       }
     }
@@ -295,8 +313,17 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   Future<void> _loadInitialMessages() async {
     if (_isLoading || _messageService == null) return;
 
+    // Prevent duplicate initial loads for the same ID
+    if (_currentInitialLoadId == widget.id) {
+      debugPrint(
+          'PaginatedMessageList: Already loading initial messages for ${widget.type.name} ${widget.id}');
+      return;
+    }
+
     debugPrint(
         'PaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
+
+    _currentInitialLoadId = widget.id;
 
     if (!mounted) return;
     setState(() {
@@ -326,6 +353,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         _hasMore = result.hasMore;
         _initialLoadComplete = true;
         _isLoading = false;
+        _currentInitialLoadId = null;
       });
 
       debugPrint(

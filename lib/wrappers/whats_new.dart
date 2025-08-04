@@ -67,26 +67,14 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🚀 Performance Boost',
-                            'Improved message loading performance in large chat rooms.',
-                          ),
-                          const SizedBox(height: 32),
-                          Text(
-                            'Previously',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                            '⚡ Database Optimization',
+                            'Reduced database access for paginated message loading.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🛠️ Initialization Fix',
-                            'Fixed an initialization problem that would make the app halt.',
+                            '🛡️ Better Error Handling',
+                            'Improved error handling when accessing backend functions.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

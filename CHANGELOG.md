@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 4.4.9+69
+
+- Reduced database access for paginated message loading
+- Improve error handling when accessing backend functions
+
 ## 4.4.8+68
 
 - (what's for 4.4.7+67)

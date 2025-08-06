@@ -31,6 +31,24 @@ export const createTopic = onCall(async (request) => {
       };
     }
 
+    // Default to "Friend Finder" tribe if no tribe specified
+    let finalTribeId = tribeId;
+    if (!tribeId) {
+      try {
+        const friendFinderQuery = await firestore
+          .collection('tribes')
+          .where('name', '==', 'Friend Finder')
+          .limit(1)
+          .get();
+
+        if (!friendFinderQuery.empty) {
+          finalTribeId = friendFinderQuery.docs[0].id;
+        }
+      } catch (error) {
+        logger.info('Could not find Friend Finder tribe, proceeding without tribe');
+      }
+    }
+
     const now = Timestamp.now();
     const user = userDoc.data() as User;
     const creator: User = {
@@ -52,7 +70,7 @@ export const createTopic = onCall(async (request) => {
       updatedAt: now,
       messageCount: 0, // Sync to downstream
       lastMessageContent: message, // Sync to downstream
-      tribeId: tribeId || null,
+      tribeId: finalTribeId || null,
       isPublic: isPublic ?? true, // Sync to downstream
     });
 
@@ -104,7 +122,7 @@ export const createTopic = onCall(async (request) => {
       readMessageCount: 0, // Prevent showing divider after the first message
       lastMessageContent: message, // Sync from upstream
       mute: false,
-      tribeId: tribeId || null,
+      tribeId: finalTribeId || null,
       isPublic: isPublic ?? true, // Sync from upstream
     });
 
@@ -146,7 +164,7 @@ export const createTopic = onCall(async (request) => {
         readMessageCount: 0, // Follower hasn't read the first message yet
         lastMessageContent: message, // Copy from upstream
         mute: false,
-        tribeId: tribeId || null,
+        tribeId: finalTribeId || null,
         isPublic: isPublic ?? true,
       });
     }
@@ -154,9 +172,9 @@ export const createTopic = onCall(async (request) => {
     // Commit all operations
     await batch.commit();
 
-    // If a tribe was specified, increment its topic count
-    if (tribeId) {
-      const tribeRef = firestore.collection('tribes').doc(tribeId);
+    // If a tribe was specified or defaulted, increment its topic count
+    if (finalTribeId) {
+      const tribeRef = firestore.collection('tribes').doc(finalTribeId);
       await tribeRef.update({
         topicCount: FieldValue.increment(1),
         updatedAt: now,

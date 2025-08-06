@@ -9,7 +9,6 @@ import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
 import '../../services/firestore.dart';
-import '../../services/tribe_cache.dart';
 
 class ProfileStep extends StatefulWidget {
   final VoidCallback onNext;
@@ -27,7 +26,6 @@ class _ProfileStepState extends State<ProfileStep> {
   late Firedata firedata;
   late Avatar avatar;
   late Firestore firestore;
-  late TribeCache tribeCache;
 
   late String _photoURL;
   late TextEditingController _displayNameController;
@@ -54,7 +52,6 @@ class _ProfileStepState extends State<ProfileStep> {
     firedata = context.read<Firedata>();
     avatar = context.read<Avatar>();
     firestore = context.read<Firestore>();
-    tribeCache = context.read<TribeCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -155,49 +152,16 @@ class _ProfileStepState extends State<ProfileStep> {
 
         // Create introduction topic after profile update
         try {
-          // Create updated user object with new profile info
-          final updatedUser = User(
-            id: _user!.id,
-            createdAt: _user!.createdAt,
-            updatedAt: _user!.updatedAt,
-            languageCode: languageCode,
-            photoURL: _photoURL,
-            displayName: displayName,
-            description: description,
-            gender: _selectedGender!,
-            fcmToken: _user!.fcmToken,
-            revivedAt: _user!.revivedAt,
-            messageCount: _user!.messageCount,
-            reportCount: _user!.reportCount,
-            role: _user!.role,
-            followeeCount: _user!.followeeCount,
-            followerCount: _user!.followerCount,
-          );
-
-          // Try to get the Friend Finder tribe, but don't fail if unavailable
-          String? friendFinderTribeId;
-          try {
-            // Ensure tribes are loaded before getting tribe by name
-            await tribeCache.fetchTribes();
-            final friendFinderTribe = tribeCache.getTribeByName('Friend Finder');
-            friendFinderTribeId = friendFinderTribe?.id;
-
-            if (friendFinderTribeId == null) {
-              debugPrint('Friend Finder tribe not found, creating topic without tribe');
-            }
-          } catch (tribeError) {
-            debugPrint('Failed to load tribes, creating topic without tribe: $tribeError');
-          }
-
           // Note: We bypass normal topic creation permissions here since this is
           // an introduction topic created during user setup. Normal topic creation
           // requires advanced level permissions (see permissions.dart), but new users
           // should be able to introduce themselves regardless of their level.
+          // The backend will fetch fresh user data and default to "Friend Finder" tribe.
           await firestore.createTopic(
-            user: updatedUser,
+            user: _user!,
             title: displayName,
             message: description,
-            tribeId: friendFinderTribeId,
+            tribeId: null, // Backend will default to "Friend Finder"
             isPublic: true,
           );
         } catch (e) {

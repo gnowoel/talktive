@@ -213,12 +213,12 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                   decoration: BoxDecoration(
                     color: _getStatusColor(
                             _consentDebugInfo!['consentStatus'] ?? 'unknown')
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _getStatusColor(
                               _consentDebugInfo!['consentStatus'] ?? 'unknown')
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(

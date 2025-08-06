@@ -80,6 +80,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       final result = await _consentManager.requestConsentManually();
 
       if (result.success) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Privacy preferences updated successfully'),
@@ -87,6 +88,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
           ),
         );
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update privacy preferences'),
@@ -98,6 +100,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       // Reload privacy info
       await _loadPrivacyInfo();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
@@ -120,6 +123,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       final success = await _consentManager.showPrivacyOptions();
 
       if (success) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Privacy options updated'),
@@ -134,6 +138,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       // Reload privacy info
       await _loadPrivacyInfo();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
@@ -178,6 +183,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
     try {
       await _consentManager.resetConsent();
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Privacy preferences reset'),
@@ -188,6 +194,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       // Reload privacy info
       await _loadPrivacyInfo();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error resetting consent: $e'),
@@ -250,7 +257,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.2),
+                    color: statusColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: statusColor),
                   ),

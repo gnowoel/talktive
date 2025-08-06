@@ -155,8 +155,8 @@ class GoRouterRoomHelper {
   }
 
   /// Get current session statistics for debugging
-  static Future<Map<String, dynamic>> getSessionStats() async {
-    return await _adManager.getSessionStats();
+  static Map<String, dynamic> getSessionStats() {
+    return _adManager.getSessionStats();
   }
 
   /// Get current session statistics synchronously (returns cached data)
@@ -208,8 +208,8 @@ class GoRouterRoomHelper {
   }
 
   /// Get comprehensive debug information including compliance
-  static Future<Map<String, dynamic>> getComprehensiveDebugInfo() async {
-    return await _adManager.getComprehensiveDebugInfo();
+  static Map<String, dynamic> getComprehensiveDebugInfo() {
+    return _adManager.getComprehensiveDebugInfo();
   }
 
   /// Get comprehensive debug information synchronously (simplified)
@@ -480,8 +480,8 @@ class RoomAdDebugInfo extends StatelessWidget {
                     padding: EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: shouldShow
-                          ? Colors.green.withOpacity(0.3)
-                          : Colors.red.withOpacity(0.3),
+                          ? Colors.green.withValues(alpha: 0.3)
+                          : Colors.red.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(

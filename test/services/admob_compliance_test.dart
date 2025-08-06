@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../lib/services/ad_service/admob_compliance.dart';
+import 'package:talktive/services/ad_service/admob_compliance.dart';
 
 void main() {
   group('AdMobCompliance Tests', () {

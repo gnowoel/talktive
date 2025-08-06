@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.5.0+70
+
+- Introduce new users to the community upon signing up.
+
 ## 4.4.9+69
 
 - Reduced database access for paginated message loading

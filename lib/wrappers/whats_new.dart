@@ -67,6 +67,24 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
+                            '👋 Community Welcome',
+                            'Introduce new users to the community upon signing up.',
+                          ),
+                          const SizedBox(height: 32),
+                          Text(
+                            'Previously',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureCard(
+                            Theme.of(context),
                             '⚡ Database Optimization',
                             'Reduced database access for paginated message loading.',
                           ),

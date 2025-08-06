@@ -98,7 +98,7 @@ class SimpleChatPaginationState {
     if (_messageMap.length <= maxMessagesInMemory) return;
 
     debugPrint(
-        'ChatState[$chatId]: Trimming messages from ${_messageMap.length} to ${maxMessagesInMemory}');
+        'ChatState[$chatId]: Trimming messages from ${_messageMap.length} to $maxMessagesInMemory');
 
     // Sort all messages to maintain proper order
     final sorted = messages; // This gets sorted messages
@@ -221,7 +221,7 @@ class SimpleTopicPaginationState {
     if (_messageMap.length <= maxMessagesInMemory) return;
 
     debugPrint(
-        'TopicState[$topicId]: Trimming messages from ${_messageMap.length} to ${maxMessagesInMemory}');
+        'TopicState[$topicId]: Trimming messages from ${_messageMap.length} to $maxMessagesInMemory');
 
     // Sort all messages to maintain proper order
     final sorted = messages; // This gets sorted messages

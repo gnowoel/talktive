@@ -5,12 +5,7 @@ class Tag extends StatelessWidget {
   final String? tooltip;
   final Widget? child;
 
-  const Tag({
-    super.key,
-    this.status,
-    this.tooltip,
-    this.child,
-  });
+  const Tag({super.key, this.status, this.tooltip, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +20,7 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.errorContainer,
             border: Border.all(color: theme.colorScheme.inversePrimary),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'warning',
@@ -50,9 +43,7 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.tertiaryContainer,
             border: Border.all(color: theme.colorScheme.inversePrimary),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'alert',
@@ -61,6 +52,36 @@ class Tag extends StatelessWidget {
               color: theme.colorScheme.onTertiaryContainer,
             ),
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      );
+    }
+
+    if (status == 'introduction') {
+      return Tooltip(
+        message: 'New member introduction',
+        child: Container(
+          margin: const EdgeInsets.only(top: 6, bottom: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primaryContainer,
+            border: Border.all(color: theme.colorScheme.inversePrimary),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.waving_hand, size: 12),
+              const SizedBox(width: 4),
+              Text(
+                'intro',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       );
@@ -75,9 +96,7 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer,
             border: Border.all(color: theme.colorScheme.inversePrimary),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'new',
@@ -100,9 +119,7 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.secondaryContainer,
             border: Border.all(color: theme.colorScheme.inversePrimary),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'trusted',
@@ -125,16 +142,11 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHigh,
             border: Border.all(color: theme.colorScheme.inversePrimary),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'good',
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.colorScheme.onSurface,
-            ),
+            style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -150,9 +162,7 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.errorContainer.withValues(alpha: 0.7),
             border: Border.all(color: theme.colorScheme.inversePrimary),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'caution',
@@ -175,9 +185,7 @@ class Tag extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.errorContainer,
             border: Border.all(color: theme.colorScheme.error),
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Text(
             'avoid',
@@ -204,9 +212,7 @@ class Tag extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceBright,
           border: Border.all(color: theme.colorScheme.inversePrimary),
-          borderRadius: BorderRadius.all(
-            Radius.circular(16),
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
         child: child,
       ),

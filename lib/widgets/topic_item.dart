@@ -333,17 +333,7 @@ class _TopicItemState extends State<TopicItem> {
                 ),
                 if (widget.topic.creator.followerCount == 0) ...[
                   const SizedBox(width: 4),
-                  Tag(
-                    tooltip: 'New member introduction',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.waving_hand, size: 12),
-                        const SizedBox(width: 4),
-                        Text('Intro', style: TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                  ),
+                  Tag(status: 'introduction'),
                 ],
               ],
             ),

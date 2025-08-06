@@ -9,6 +9,7 @@ import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
 import '../../services/firestore.dart';
+import '../../services/tribe_cache.dart';
 
 class ProfileStep extends StatefulWidget {
   final VoidCallback onNext;
@@ -26,6 +27,7 @@ class _ProfileStepState extends State<ProfileStep> {
   late Firedata firedata;
   late Avatar avatar;
   late Firestore firestore;
+  late TribeCache tribeCache;
 
   late String _photoURL;
   late TextEditingController _displayNameController;
@@ -52,6 +54,7 @@ class _ProfileStepState extends State<ProfileStep> {
     firedata = context.read<Firedata>();
     avatar = context.read<Avatar>();
     firestore = context.read<Firestore>();
+    tribeCache = context.read<TribeCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -150,6 +153,8 @@ class _ProfileStepState extends State<ProfileStep> {
           gender: _selectedGender!,
         );
 
+        final friendFinderTribe = tribeCache.getTribeByName('Friend Finder');
+
         // Create introduction topic after profile update
         try {
           // Note: We bypass normal topic creation permissions here since this is
@@ -161,7 +166,7 @@ class _ProfileStepState extends State<ProfileStep> {
             user: _user!,
             title: displayName,
             message: description,
-            tribeId: null, // Backend will default to "Friend Finder"
+            tribeId: friendFinderTribe?.id, // Defaults to "Friend Finder"
             isPublic: true,
           );
         } catch (e) {

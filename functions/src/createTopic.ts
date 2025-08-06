@@ -61,6 +61,7 @@ export const createTopic = onCall(async (request) => {
       gender: user.gender,
       revivedAt: user.revivedAt,
       messageCount: user.messageCount,
+      followerCount: user.followerCount ?? 0,
     };
 
     const topicRef = await firestore.collection('topics').add({

@@ -8,6 +8,8 @@ import '../../models/user.dart';
 import '../../services/avatar.dart';
 import '../../services/fireauth.dart';
 import '../../services/firedata.dart';
+import '../../services/firestore.dart';
+import '../../services/tribe_cache.dart';
 
 class ProfileStep extends StatefulWidget {
   final VoidCallback onNext;
@@ -24,6 +26,8 @@ class _ProfileStepState extends State<ProfileStep> {
   late Fireauth fireauth;
   late Firedata firedata;
   late Avatar avatar;
+  late Firestore firestore;
+  late TribeCache tribeCache;
 
   late String _photoURL;
   late TextEditingController _displayNameController;
@@ -49,6 +53,8 @@ class _ProfileStepState extends State<ProfileStep> {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     avatar = context.read<Avatar>();
+    firestore = context.read<Firestore>();
+    tribeCache = context.read<TribeCache>();
 
     final userId = fireauth.instance.currentUser!.uid;
 
@@ -137,6 +143,7 @@ class _ProfileStepState extends State<ProfileStep> {
         var displayName = _displayNameController.text.trim();
         var description = _descriptionController.text.trim();
 
+        // Update user profile first
         await firedata.updateProfile(
           userId: _user!.id,
           languageCode: languageCode,
@@ -145,6 +152,58 @@ class _ProfileStepState extends State<ProfileStep> {
           description: description,
           gender: _selectedGender!,
         );
+
+        // Create introduction topic after profile update
+        try {
+          // Create updated user object with new profile info
+          final updatedUser = User(
+            id: _user!.id,
+            createdAt: _user!.createdAt,
+            updatedAt: _user!.updatedAt,
+            languageCode: languageCode,
+            photoURL: _photoURL,
+            displayName: displayName,
+            description: description,
+            gender: _selectedGender!,
+            fcmToken: _user!.fcmToken,
+            revivedAt: _user!.revivedAt,
+            messageCount: _user!.messageCount,
+            reportCount: _user!.reportCount,
+            role: _user!.role,
+            followeeCount: _user!.followeeCount,
+            followerCount: _user!.followerCount,
+          );
+
+          // Try to get the Friend Finder tribe, but don't fail if unavailable
+          String? friendFinderTribeId;
+          try {
+            // Ensure tribes are loaded before getting tribe by name
+            await tribeCache.fetchTribes();
+            final friendFinderTribe = tribeCache.getTribeByName('Friend Finder');
+            friendFinderTribeId = friendFinderTribe?.id;
+
+            if (friendFinderTribeId == null) {
+              debugPrint('Friend Finder tribe not found, creating topic without tribe');
+            }
+          } catch (tribeError) {
+            debugPrint('Failed to load tribes, creating topic without tribe: $tribeError');
+          }
+
+          // Note: We bypass normal topic creation permissions here since this is
+          // an introduction topic created during user setup. Normal topic creation
+          // requires advanced level permissions (see permissions.dart), but new users
+          // should be able to introduce themselves regardless of their level.
+          await firestore.createTopic(
+            user: updatedUser,
+            title: displayName,
+            message: description,
+            tribeId: friendFinderTribeId,
+            isPublic: true,
+          );
+        } catch (e) {
+          // Log the error but don't prevent proceeding since profile update succeeded
+          debugPrint('Failed to create introduction topic: $e');
+        }
 
         widget.onNext();
       } on AppException catch (e) {
@@ -186,7 +245,7 @@ class _ProfileStepState extends State<ProfileStep> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'About You',
+                        'Introduce Yourself',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 32),
@@ -204,7 +263,7 @@ class _ProfileStepState extends State<ProfileStep> {
                         controller: _descriptionController,
                         decoration: const InputDecoration(
                           labelText: 'Current Status',
-                          hintText: 'What would you like to share?',
+                          hintText: 'What would you like to share right now?',
                         ),
                         validator: _validateDescription,
                         minLines: 2,

@@ -84,12 +84,12 @@ class _TopicItemCardState extends State<TopicItemCard> {
         )
         .closed
         .then((reason) {
-      // Only mute the chat if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _muteTopic();
-      }
-    });
+          // Only mute the chat if the SnackBar was closed by timeout
+          // and not by user action (pressing undo)
+          if (reason == SnackBarClosedReason.timeout) {
+            _muteTopic();
+          }
+        });
   }
 
   Future<void> _enterTopic() async {
@@ -135,8 +135,8 @@ class _TopicItemCardState extends State<TopicItemCard> {
     final textColor = colorScheme.onSurface;
 
     final newMessageCount = widget.topic.unreadCount;
-    final lastMessageContent =
-        (widget.topic.lastMessageContent ?? '').replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent = (widget.topic.lastMessageContent ?? '')
+        .replaceAll(RegExp(r'\s+'), ' ');
 
     final topic = widget.topic;
     final creator = topic.creator;
@@ -232,6 +232,20 @@ class _TopicItemCardState extends State<TopicItemCard> {
                         ],
                       ),
                     ),
+                    if (widget.topic.creator.followerCount == 0) ...[
+                      const SizedBox(width: 4),
+                      Tag(
+                        tooltip: 'New member introduction',
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.waving_hand, size: 12),
+                            const SizedBox(width: 4),
+                            Text('Intro', style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

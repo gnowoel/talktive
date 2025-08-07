@@ -143,15 +143,15 @@ class _TopicItemState extends State<TopicItem> {
         ),
       ];
     } else {
-      title = 'Cannot Join Moment';
+      title = 'Account Restricted';
       content = [
         Text(
-          'Sorry, you need level 5, good reputatioin and no restrictions to join moments.',
+          'Your account has been temporarily restricted due to multiple reports.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
         const Text(
-          'This helps maintain quality discussions in our community.',
+          'You cannot join moments until this restriction expires.',
           style: TextStyle(height: 1.5),
         ),
       ];

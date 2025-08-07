@@ -18,7 +18,7 @@ bool canGreetFemaleNewcomer(User? user) {
 
 bool canJoinTopic(User? user) {
   if (user == null) return false;
-  return _isIntermediate(user);
+  return _isBasic(user);
 }
 
 bool canCreateTopic(User? user, FollowCache? followCache) {

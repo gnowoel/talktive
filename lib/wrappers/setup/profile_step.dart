@@ -232,7 +232,7 @@ class _ProfileStepState extends State<ProfileStep> {
                         controller: _descriptionController,
                         decoration: const InputDecoration(
                           labelText: 'Current Status',
-                          hintText: 'What would you like to share right now?',
+                          hintText: 'Tell us who you are and why you\'re here.',
                         ),
                         validator: _validateDescription,
                         minLines: 2,

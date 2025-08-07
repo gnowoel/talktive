@@ -6,6 +6,7 @@ import { logger } from 'firebase-functions';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { formatDate, isDebugMode } from './helpers';
+import { User } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -101,8 +102,139 @@ const setup = async () => {
   try {
     await setupDailyStats(today);
     await setupDailyStats(tomorrow);
+    await setupDailyTopic(today);
+    await setupDailyTopic(tomorrow);
   } catch (error) {
     logger.error(error);
+  }
+};
+
+const setupDailyTopic = async (timestamp: Date) => {
+  const dateString = formatDate(timestamp);
+  const topicTitle = new Date(timestamp).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }); // Format: "Aug 7, 2025"
+
+  try {
+    // Check if a topic with this title already exists
+    const existingTopicQuery = await firestore
+      .collection('topics')
+      .where('title', '==', topicTitle)
+      .limit(1)
+      .get();
+
+    if (!existingTopicQuery.empty) {
+      // Topic already exists for this date
+      return;
+    }
+
+    // Get the first admin user from RTDB
+    const adminsSnapshot = await db.ref('admins').once('value');
+    const adminsData = adminsSnapshot.val();
+
+    if (!adminsData) {
+      logger.warn('No admin users found in /admins path');
+      return;
+    }
+
+    const firstAdminId = Object.keys(adminsData)[0];
+
+    // Get the admin user document from Firestore
+    const adminUserDoc = await firestore.collection('users').doc(firstAdminId).get();
+    if (!adminUserDoc.exists) {
+      logger.warn(`Admin user ${firstAdminId} not found in Firestore`);
+      return;
+    }
+
+    const adminUser = adminUserDoc.data() as User;
+    const now = Timestamp.now();
+    const creator: User = {
+      id: firstAdminId,
+      createdAt: adminUser.createdAt || 0,
+      updatedAt: adminUser.updatedAt || 0,
+      photoURL: adminUser.photoURL,
+      displayName: adminUser.displayName,
+      languageCode: adminUser.languageCode,
+      gender: adminUser.gender,
+      revivedAt: adminUser.revivedAt,
+      messageCount: adminUser.messageCount,
+      followerCount: adminUser.followerCount ?? 0,
+    };
+
+    const welcomeMessage = `Welcome everyone! Let's get to know each other.\n\nPlease be respectful. Long press on a message to report it.\n\nClick on the profile picture, then click "Follow" to add a friend. You can chat with them privately at any time.`;
+
+    // Create the topic
+    const topicRef = await firestore.collection('topics').add({
+      title: topicTitle,
+      creator,
+      createdAt: now,
+      updatedAt: now,
+      messageCount: 0,
+      lastMessageContent: welcomeMessage,
+      tribeId: null,
+      isPublic: false, // Initially private
+    });
+
+    const topicId = topicRef.id;
+
+    // Use a batch write for atomic operations
+    const batch = firestore.batch();
+
+    // Add first welcome message
+    const messageRef = firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('messages')
+      .doc();
+
+    batch.set(messageRef, {
+      type: 'text',
+      userId: firstAdminId,
+      userDisplayName: adminUser.displayName ?? '',
+      userPhotoURL: adminUser.photoURL ?? '',
+      content: welcomeMessage,
+      createdAt: now,
+    });
+
+    // Add creator to followers collection
+    const followerRef = firestore
+      .collection('topics')
+      .doc(topicId)
+      .collection('followers')
+      .doc(firstAdminId);
+
+    batch.set(followerRef, {
+      muted: false,
+    });
+
+    // Add topic reference to admin user's topics collection
+    const userTopicRef = firestore
+      .collection('users')
+      .doc(firstAdminId)
+      .collection('topics')
+      .doc(topicId);
+
+    batch.set(userTopicRef, {
+      title: topicTitle,
+      creator,
+      createdAt: now,
+      updatedAt: now,
+      messageCount: 0,
+      readMessageCount: 0,
+      lastMessageContent: welcomeMessage,
+      mute: false,
+      tribeId: null,
+      isPublic: false,
+    });
+
+    // Commit all operations
+    await batch.commit();
+
+    logger.info(`Created daily topic for ${dateString}: ${topicTitle}`);
+  } catch (error) {
+    logger.error(`Error creating daily topic for ${dateString}:`, error);
   }
 };
 

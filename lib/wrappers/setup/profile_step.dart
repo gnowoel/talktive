@@ -153,26 +153,26 @@ class _ProfileStepState extends State<ProfileStep> {
           gender: _selectedGender!,
         );
 
-        final friendFinderTribe = tribeCache.getTribeByName('Friend Finder');
+        // final friendFinderTribe = tribeCache.getTribeByName('Friend Finder');
 
-        // Create introduction topic after profile update
-        try {
-          // Note: We bypass normal topic creation permissions here since this is
-          // an introduction topic created during user setup. Normal topic creation
-          // requires advanced level permissions (see permissions.dart), but new users
-          // should be able to introduce themselves regardless of their level.
-          // The backend will fetch fresh user data and default to "Friend Finder" tribe.
-          await firestore.createTopic(
-            user: _user!,
-            title: displayName,
-            message: description,
-            tribeId: friendFinderTribe?.id, // Defaults to "Friend Finder"
-            isPublic: true,
-          );
-        } catch (e) {
-          // Log the error but don't prevent proceeding since profile update succeeded
-          debugPrint('Failed to create introduction topic: $e');
-        }
+        // // Create introduction topic after profile update
+        // try {
+        //   // Note: We bypass normal topic creation permissions here since this is
+        //   // an introduction topic created during user setup. Normal topic creation
+        //   // requires advanced level permissions (see permissions.dart), but new users
+        //   // should be able to introduce themselves regardless of their level.
+        //   // The backend will fetch fresh user data and default to "Friend Finder" tribe.
+        //   await firestore.createTopic(
+        //     user: _user!,
+        //     title: displayName,
+        //     message: description,
+        //     tribeId: friendFinderTribe?.id, // Defaults to "Friend Finder"
+        //     isPublic: true,
+        //   );
+        // } catch (e) {
+        //   // Log the error but don't prevent proceeding since profile update succeeded
+        //   debugPrint('Failed to create introduction topic: $e');
+        // }
 
         widget.onNext();
       } on AppException catch (e) {

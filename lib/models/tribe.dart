@@ -80,5 +80,12 @@ class Tribe {
   bool get isActive =>
       isNotDummy &&
       createdAt + activePeriod > DateTime.now().millisecondsSinceEpoch;
-}
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Tribe && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+}

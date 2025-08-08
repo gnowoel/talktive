@@ -67,8 +67,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '👋 Community Welcome',
-                            'Introduce new users to the community upon signing up.',
+                            '📝 Easier Moments',
+                            'Made creating Moments easier to encourage sharing.',
                           ),
                           const SizedBox(height: 32),
                           Text(

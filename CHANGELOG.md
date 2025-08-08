@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## 4.5.1+71
+
+- Made creating Moments easier to encourage sharing
+
 ## 4.5.0+70
 
-- Introduce new users to the community upon signing up.
+- Introduce new users to the community upon signing up
 
 ## 4.4.9+69
 

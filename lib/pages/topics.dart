@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
-import '../helpers/permissions.dart';
+
 import '../models/topic.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
-import '../services/follow_cache.dart';
+
 
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 import '../services/tribe_cache.dart';
-import '../services/user_cache.dart';
+
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
 import '../widgets/topic_list.dart';
@@ -29,8 +29,6 @@ class _TopicsPageState extends State<TopicsPage> {
   late Firestore firestore;
   late TopicCache topicCache;
   late TribeCache tribeCache;
-  late FollowCache followCache;
-  late UserCache userCache;
 
   List<Topic> _seenTopics = [];
   List<Topic> _topics = [];
@@ -48,8 +46,6 @@ class _TopicsPageState extends State<TopicsPage> {
     firestore = context.read<Firestore>();
     topicCache = context.read<TopicCache>();
     tribeCache = context.read<TribeCache>();
-    followCache = context.read<FollowCache>();
-    userCache = context.read<UserCache>();
     _fetchTopics();
     _fetchTribes();
   }
@@ -165,59 +161,7 @@ class _TopicsPageState extends State<TopicsPage> {
     );
   }
 
-  bool _canCreateTopic() {
-    final user = userCache.user;
-    return canCreateTopic(user, followCache);
-  }
 
-  Future<void> _showRestrictionDialog() async {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    String title = 'Cannot Create Moment';
-    List<Widget> content = [
-      Text(
-        'Sorry, you need level 6, followers, good reputation and no restrictions to create moments.',
-        style: TextStyle(height: 1.5, color: colorScheme.error),
-      ),
-      const SizedBox(height: 16),
-      const Text(
-        'This helps maintain quality discussions in our community.',
-        style: TextStyle(height: 1.5),
-      ),
-    ];
-
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: content,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _handleCreateTopic() {
-    if (!_canCreateTopic()) {
-      _showRestrictionDialog();
-      return;
-    }
-
-    // Pass the selected tribe ID if a category is filtered
-    final route = _selectedTribe != null
-        ? '/topics/create?tribeId=${_selectedTribe!.id}'
-        : '/topics/create';
-
-    context.push(route);
-  }
 
   @override
   void dispose() {
@@ -262,17 +206,7 @@ class _TopicsPageState extends State<TopicsPage> {
     return 'Active Moments';
   }
 
-  String get _fabTooltip {
-    if (!_canCreateTopic()) {
-      return 'Account Restricted';
-    }
 
-    if (_selectedTribe != null) {
-      return 'Share moment in ${_selectedTribe!.name}';
-    }
-
-    return 'Share a moment';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -303,12 +237,7 @@ class _TopicsPageState extends State<TopicsPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _handleCreateTopic,
-        tooltip: _fabTooltip,
-        heroTag: "topics_fab",
-        child: const Icon(Icons.add),
-      ),
+
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refreshTopics,

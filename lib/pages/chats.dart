@@ -1,13 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/permissions.dart';
 import '../helpers/time.dart';
 import '../models/room.dart';
 import '../services/chat_cache.dart';
+import '../services/follow_cache.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
+import '../services/tribe_cache.dart';
+import '../services/user_cache.dart';
 import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 import '../widgets/info_notice.dart';
@@ -24,11 +29,14 @@ class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late ChatCache chatCache;
   late TopicCache topicCache;
+  late FollowCache followCache;
+  late UserCache userCache;
+  late TribeCache tribeCache;
   List<Room> _items = []; // Stores both chats and topics
   Timer? _timer;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     settings = context.read<Settings>();
   }
@@ -38,6 +46,9 @@ class _ChatsPageState extends State<ChatsPage> {
     super.didChangeDependencies();
     chatCache = Provider.of<ChatCache>(context);
     topicCache = Provider.of<TopicCache>(context);
+    followCache = Provider.of<FollowCache>(context);
+    userCache = Provider.of<UserCache>(context);
+    tribeCache = Provider.of<TribeCache>(context);
     _setItemsAgain();
   }
 
@@ -107,6 +118,63 @@ class _ChatsPageState extends State<ChatsPage> {
     );
   }
 
+  bool _canCreateTopic() {
+    final user = userCache.user;
+    return canCreateTopic(user, followCache);
+  }
+
+  String get _fabTooltip {
+    if (!_canCreateTopic()) {
+      return 'Account Restricted';
+    }
+
+    return 'Share a moment';
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    String title = 'Cannot Create Moment';
+    List<Widget> content = [
+      Text(
+        'Sorry, you need level 6, followers, good reputation and no restrictions to create moments.',
+        style: TextStyle(height: 1.5, color: colorScheme.error),
+      ),
+      const SizedBox(height: 16),
+      const Text(
+        'This helps maintain quality discussions in our community.',
+        style: TextStyle(height: 1.5),
+      ),
+    ];
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleCreateTopic() {
+    if (!_canCreateTopic()) {
+      _showRestrictionDialog();
+      return;
+    }
+
+    context.push('/topics/create');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -125,6 +193,12 @@ class _ChatsPageState extends State<ChatsPage> {
             tooltip: 'Help',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _handleCreateTopic,
+        tooltip: _fabTooltip,
+        heroTag: "chats_fab",
+        child: const Icon(Icons.add),
       ),
       body: SafeArea(
         child: _items.isEmpty

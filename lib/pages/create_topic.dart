@@ -4,10 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 
-import '../helpers/content_filter.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
-import '../services/moment_prompts.dart';
+
 import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 import '../services/ad_service/go_router_room_helper.dart';
@@ -34,9 +33,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   final _tribeController = TextEditingController();
   final _tribeFocusNode = FocusNode();
 
-  final MomentPrompts _momentPrompts = MomentPrompts();
-  final ContentFilter _contentFilter = ContentFilter();
-  PersonalizationSuggestion? _currentSuggestion;
   bool _isProcessing = false;
   bool _isPublic = true;
 
@@ -136,24 +132,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   }
 
   void _onContentChanged() {
-    final title = _titleController.text.trim();
-    final message = _messageController.text.trim();
-
-    if (title.isEmpty) {
-      setState(() {
-        _currentSuggestion = null;
-      });
-      return;
-    }
-
-    final suggestion = _contentFilter.getPersonalizationSuggestion(
-      title,
-      message: message.isEmpty ? null : message,
-    );
-
-    setState(() {
-      _currentSuggestion = suggestion.isGeneric ? suggestion : null;
-    });
+    // Content validation can be added here if needed
   }
 
   // Tribe creation is no longer allowed - using only predefined tribes
@@ -241,8 +220,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         Wrap(
                                           spacing: 8,
                                           runSpacing: 8,
-                                          children:
-                                              _predefinedTribes.map((tribe) {
+                                          children: _predefinedTribes.map((
+                                            tribe,
+                                          ) {
                                             final isSelected =
                                                 _selectedTribe?.id == tribe.id;
                                             return InkWell(
@@ -255,24 +235,30 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8),
+                                                      horizontal: 12,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: BoxDecoration(
                                                   color: isSelected
-                                                      ? theme.colorScheme
-                                                          .primaryContainer
-                                                      : theme.colorScheme
-                                                          .surfaceContainerLow,
+                                                      ? theme
+                                                            .colorScheme
+                                                            .primaryContainer
+                                                      : theme
+                                                            .colorScheme
+                                                            .surfaceContainerLow,
                                                   borderRadius:
                                                       BorderRadius.circular(16),
                                                   border: Border.all(
                                                     color: isSelected
                                                         ? theme
-                                                            .colorScheme.primary
+                                                              .colorScheme
+                                                              .primary
                                                         : theme
-                                                            .colorScheme.outline
-                                                            .withValues(
-                                                                alpha: 0.5),
+                                                              .colorScheme
+                                                              .outline
+                                                              .withValues(
+                                                                alpha: 0.5,
+                                                              ),
                                                     width: 1,
                                                   ),
                                                 ),
@@ -283,19 +269,20 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                                     Text(
                                                       tribe.iconEmoji ?? '🏷️',
                                                       style: const TextStyle(
-                                                          fontSize: 18),
+                                                        fontSize: 18,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 8),
                                                     Text(
                                                       tribe.name,
-                                                      style: theme
-                                                          .textTheme.bodyMedium
-                                                          ?.copyWith(
+                                                      style: theme.textTheme.bodyMedium?.copyWith(
                                                         color: isSelected
-                                                            ? theme.colorScheme
-                                                                .onPrimaryContainer
-                                                            : theme.colorScheme
-                                                                .onSurface,
+                                                            ? theme
+                                                                  .colorScheme
+                                                                  .onPrimaryContainer
+                                                            : theme
+                                                                  .colorScheme
+                                                                  .onSurface,
                                                         // fontWeight: isSelected
                                                         //     ? FontWeight.bold
                                                         //     : FontWeight.normal,
@@ -309,8 +296,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         ),
                                         if (state.hasError)
                                           Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8),
+                                            padding: const EdgeInsets.only(
+                                              top: 8,
+                                            ),
                                             child: Text(
                                               state.errorText!,
                                               style: TextStyle(
@@ -330,7 +318,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               controller: _titleController,
                               decoration: InputDecoration(
                                 labelText: 'Moment Title',
-                                hintText: _momentPrompts.getTimeBasedPrompt(),
+                                hintText:
+                                    'What would you like to share at the moment?',
                               ),
                               validator: _validateTitle,
                               maxLength: 100,
@@ -348,10 +337,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                               maxLines: 5,
                               maxLength: 500,
                             ),
-                            if (_currentSuggestion != null) ...[
-                              const SizedBox(height: 16),
-                              _buildSuggestionCard(),
-                            ],
+
                             const SizedBox(height: 32),
                             FilledButton(
                               onPressed: _isProcessing ? null : _submit,
@@ -381,10 +367,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
   Widget buildAboutTopics() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
@@ -422,10 +405,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
   Widget buildTopicVisibility() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
@@ -469,8 +449,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: _isPublic
-                          ? theme.colorScheme.primaryContainer
-                              .withValues(alpha: 0.5)
+                          ? theme.colorScheme.primaryContainer.withValues(
+                              alpha: 0.5,
+                            )
                           : theme.colorScheme.surfaceContainerLow,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(8),
@@ -524,8 +505,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: !_isPublic
-                          ? theme.colorScheme.primaryContainer
-                              .withValues(alpha: 0.5)
+                          ? theme.colorScheme.primaryContainer.withValues(
+                              alpha: 0.5,
+                            )
                           : theme.colorScheme.surfaceContainerLow,
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(8),
@@ -577,115 +559,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSuggestionCard() {
-    if (_currentSuggestion == null) return const SizedBox.shrink();
-
-    return Card(
-      color: theme.colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.lightbulb_outline,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Make it more personal',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _currentSuggestion!.suggestion,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Example:',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _currentSuggestion!.example,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontStyle: FontStyle.italic,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () {
-                _titleController.text = _currentSuggestion!.personalPrompt;
-                _titleController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: _titleController.text.length),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.edit_outlined,
-                      size: 16,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Try: "${_currentSuggestion!.personalPrompt}"',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

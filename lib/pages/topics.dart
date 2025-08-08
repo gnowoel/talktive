@@ -8,7 +8,7 @@ import '../models/topic.dart';
 import '../models/tribe.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
-import '../services/moment_prompts.dart';
+
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 import '../services/tribe_cache.dart';
@@ -31,7 +31,6 @@ class _TopicsPageState extends State<TopicsPage> {
   late TribeCache tribeCache;
   late FollowCache followCache;
   late UserCache userCache;
-  final MomentPrompts _momentPrompts = MomentPrompts();
 
   List<Topic> _seenTopics = [];
   List<Topic> _topics = [];
@@ -272,24 +271,13 @@ class _TopicsPageState extends State<TopicsPage> {
       return 'Share moment in ${_selectedTribe!.name}';
     }
 
-    // Use dynamic prompts for more engaging calls-to-action
-    return _momentPrompts.getTimeBasedPrompt();
+    return 'Share a moment';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Use dynamic prompts for empty state
-    // final dynamicPrompts = _momentPrompts.getMultiplePrompts(3);
-    // final lines = [
-    //   'No moments here yet!',
-    //   'Try sharing:',
-    //   '• ${dynamicPrompts[0]}',
-    //   '• ${dynamicPrompts[1]}',
-    //   '• ${dynamicPrompts[2]}',
-    //   ''
-    // ];
     final lines = ['Share your moments with', 'your followers and more!', ''];
 
     final joinedTopicIds = topicCache.topicIds;
@@ -407,15 +395,17 @@ class _TopicsPageState extends State<TopicsPage> {
                                             tribe.name,
                                             style: theme.textTheme.labelMedium!
                                                 .copyWith(
-                                              color: isSelected
-                                                  ? theme.colorScheme
-                                                      .onPrimaryContainer
-                                                  : theme.colorScheme
-                                                      .onSecondaryContainer,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.w600
-                                                  : FontWeight.normal,
-                                            ),
+                                                  color: isSelected
+                                                      ? theme
+                                                            .colorScheme
+                                                            .onPrimaryContainer
+                                                      : theme
+                                                            .colorScheme
+                                                            .onSecondaryContainer,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
+                                                ),
                                             textAlign: TextAlign.center,
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 2,
@@ -460,44 +450,44 @@ class _TopicsPageState extends State<TopicsPage> {
                           ),
                         )
                       : _topics.isEmpty
-                          ? SingleChildScrollView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              child: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.6,
-                                child: Center(
-                                  child: _selectedTribe?.description != null
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(32.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                _selectedTribe!.description!,
-                                                style: theme.textTheme.bodyLarge
-                                                    ?.copyWith(
-                                                  color: theme.colorScheme
+                      ? SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: Center(
+                              child: _selectedTribe?.description != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(32.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            _selectedTribe!.description!,
+                                            style: theme.textTheme.bodyLarge
+                                                ?.copyWith(
+                                                  color: theme
+                                                      .colorScheme
                                                       .onSurfaceVariant,
                                                   height: 1.5,
                                                 ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const SizedBox(height: 16),
-                                            ],
+                                            textAlign: TextAlign.center,
                                           ),
-                                        )
-                                      : Info(lines: lines),
-                                ),
-                              ),
-                            )
-                          : TopicList(
-                              topics: _topics,
-                              joinedTopicIds: joinedTopicIds,
-                              seenTopicIds: seenTopicIds,
-                              showTribeTags: _selectedTribe == null,
-                              onTribeSelected: _selectTribe,
+                                          const SizedBox(height: 16),
+                                        ],
+                                      ),
+                                    )
+                                  : Info(lines: lines),
                             ),
+                          ),
+                        )
+                      : TopicList(
+                          topics: _topics,
+                          joinedTopicIds: joinedTopicIds,
+                          seenTopicIds: seenTopicIds,
+                          showTribeTags: _selectedTribe == null,
+                          onTribeSelected: _selectTribe,
+                        ),
                 ),
               ],
             ),

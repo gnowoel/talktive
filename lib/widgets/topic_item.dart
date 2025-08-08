@@ -209,8 +209,8 @@ class _TopicItemState extends State<TopicItem> {
     final cardColor = widget.hasJoined
         ? colorScheme.surfaceContainerHigh
         : (widget.hasSeen
-              ? colorScheme.surfaceContainerHigh
-              : colorScheme.secondaryContainer);
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
     return Card(
@@ -282,7 +282,18 @@ class _TopicItemState extends State<TopicItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.showTribeTag) ...[
-              const SizedBox(height: 2),
+              // const SizedBox(height: 2),
+              const SizedBox(height: 4),
+              Text(
+                formatText(
+                  // It's actually firstMessageContent
+                  widget.topic.lastMessageContent,
+                ),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(height: 1.2),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 4),
             ] else ...[
               const SizedBox(height: 4),
               Text(

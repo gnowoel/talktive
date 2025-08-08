@@ -31,17 +31,22 @@ class SimpleAdManager {
   DateTime? _initTime;
 
   // Progressive timing intervals based on user status
-  static const Duration _newcomerFirstAdDelay = Duration(minutes: 5);
-  static const Duration _regularFirstAdDelay = Duration(minutes: 2);
-  static const Duration _minTimeBetweenAds = Duration(seconds: 90);
+  // IMPROVED TIMING STRATEGY:
+  // - Newcomers: First ad at 3min, then every ~3min, 2.6min, 2.25min, 1.9min, 1.5min
+  // - Regular users: First ad at 1.5min, then every ~2min, 1.75min, 1.5min, 1.25min, 1min
+  // - Minimum 60s between ads to prevent disruption
+  // - Progressive decrease keeps frequency reasonable while increasing revenue
+  static const Duration _newcomerFirstAdDelay = Duration(minutes: 3);
+  static const Duration _regularFirstAdDelay = Duration(seconds: 90);
+  static const Duration _minTimeBetweenAds = Duration(seconds: 60);
 
   // Progressive interval multipliers (gradually decrease frequency)
   static const List<double> _intervalMultipliers = [
-    3.0,  // First interval: 3x base (4.5-9 minutes)
-    2.5,  // Second interval: 2.5x base (3.75-7.5 minutes)
-    2.0,  // Third interval: 2x base (3-6 minutes)
-    1.5,  // Fourth interval: 1.5x base (2.25-4.5 minutes)
-    1.0,  // Fifth+ interval: 1x base (1.5-3 minutes)
+    2.0, // First interval: 2x base (~3-2 minutes)
+    1.75, // Second interval: 1.75x base (~2.6-1.75 minutes)
+    1.5, // Third interval: 1.5x base (~2.25-1.5 minutes)
+    1.25, // Fourth interval: 1.25x base (~1.9-1.25 minutes)
+    1.0, // Fifth+ interval: 1x base (~1.5-1 minutes)
   ];
 
   // Ad unit IDs
@@ -150,20 +155,22 @@ class SimpleAdManager {
     final user = UserCache().user;
     final bool isNewcomer = user != null && user.status == 'newcomer';
     final Duration baseInterval = isNewcomer
-        ? Duration(minutes: 3)  // 3 minute base for newcomers
-        : Duration(minutes: 2); // 2 minute base for regular users
+        ? Duration(seconds: 90) // 1.5 minute base for newcomers
+        : Duration(seconds: 60); // 1 minute base for regular users
 
     // Apply progressive multiplier based on how many ads shown
-    final multiplierIndex = _adsShownCount.clamp(0, _intervalMultipliers.length - 1);
+    final multiplierIndex =
+        _adsShownCount.clamp(0, _intervalMultipliers.length - 1);
     final multiplier = _intervalMultipliers[multiplierIndex];
 
     // Calculate actual interval
     final interval = Duration(
-      milliseconds: (baseInterval.inMilliseconds * multiplier).round()
-    );
+        milliseconds: (baseInterval.inMilliseconds * multiplier).round());
 
     // Ensure we never go below minimum
-    return interval.compareTo(_minTimeBetweenAds) > 0 ? interval : _minTimeBetweenAds;
+    return interval.compareTo(_minTimeBetweenAds) > 0
+        ? interval
+        : _minTimeBetweenAds;
   }
 
   /// Get first ad delay based on user status
@@ -417,8 +424,10 @@ class SimpleAdAdapter {
       'status': _adManager.getStatus(),
       'config': {
         'minTimeBetweenAds': '${SimpleAdManager._minTimeBetweenAds.inSeconds}s',
-        'newcomerFirstDelay': '${SimpleAdManager._newcomerFirstAdDelay.inMinutes} minutes',
-        'regularFirstDelay': '${SimpleAdManager._regularFirstAdDelay.inMinutes} minutes',
+        'newcomerFirstDelay':
+            '${SimpleAdManager._newcomerFirstAdDelay.inMinutes} minutes',
+        'regularFirstDelay':
+            '${SimpleAdManager._regularFirstAdDelay.inMinutes} minutes',
         'intervalStrategy': 'progressive',
         'adsShown': _adManager._adsShownCount,
       }

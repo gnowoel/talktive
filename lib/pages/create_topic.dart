@@ -48,7 +48,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
     // Prefill message field with user's description
     final currentUser = userCache.user;
-    if (currentUser?.description != null && currentUser!.description!.isNotEmpty) {
+    if (currentUser?.description != null &&
+        currentUser!.description!.isNotEmpty) {
       _messageController.text = currentUser.description!;
     }
 
@@ -101,8 +102,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     super.dispose();
   }
 
-
-
   String? _validateMessage(String? value) {
     value = value?.trim();
     if (value == null || value.isEmpty) {
@@ -121,10 +120,12 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     return null;
   }
 
-  void _selectTribe(Tribe tribe) {
+  void _selectTribe(Tribe? tribe) {
     setState(() {
       _selectedTribe = tribe;
-      _tribeController.text = tribe.name;
+      if (tribe != null) {
+        _tribeController.text = tribe.name;
+      }
     });
   }
 
@@ -198,30 +199,34 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextFormField(
-                                        controller: _messageController,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Current Status',
-                                          hintText: 'What would you like to share with us at the moment?',
-                                        ),
-                                        validator: _validateMessage,
-                                        minLines: 3,
-                                        maxLines: 6,
-                                        maxLength: 500,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      onPressed: () {
-                                        _messageController.clear();
-                                      },
-                                      icon: const Icon(Icons.clear),
-                                      tooltip: 'Clear text',
-                                    ),
-                                  ],
+                                TextFormField(
+                                  controller: _messageController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Current Status',
+                                    hintText:
+                                        'What would you like to share with us at the moment?',
+                                    suffixIcon:
+                                        _messageController.text.isNotEmpty
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _messageController.clear();
+                                                  });
+                                                },
+                                                icon: const Icon(Icons.clear),
+                                                tooltip: 'Clear text',
+                                              )
+                                            : null,
+                                  ),
+                                  validator: _validateMessage,
+                                  minLines: 3,
+                                  maxLines: 6,
+                                  maxLength: 500,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      // Trigger rebuild to show/hide clear button
+                                    });
+                                  },
                                 ),
                               ],
                             ),
@@ -237,6 +242,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                 DropdownButtonFormField<Tribe>(
                                   value: _selectedTribe,
                                   decoration: const InputDecoration(
+                                    labelText: 'Category',
                                     hintText: 'Select a category',
                                   ),
                                   validator: _validateTribe,
@@ -244,23 +250,22 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                     return DropdownMenuItem<Tribe>(
                                       value: tribe,
                                       child: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
                                             tribe.iconEmoji ?? '🏷️',
-                                            style: const TextStyle(fontSize: 16),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
                                           ),
                                           const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(tribe.name),
-                                          ),
+                                          Text(tribe.name),
                                         ],
                                       ),
                                     );
                                   }).toList(),
                                   onChanged: (Tribe? newTribe) {
-                                    if (newTribe != null) {
-                                      _selectTribe(newTribe);
-                                    }
+                                    _selectTribe(newTribe);
                                   },
                                 ),
                               ],
@@ -294,39 +299,15 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   }
 
   Widget buildAboutTopics() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                size: 20,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'About Moments',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Your moment will be public for a limited time before becoming private. Your followers will be notified automatically.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Text(
+        'What would you like to share at the moment?',
+        style: theme.textTheme.headlineSmall?.copyWith(
+          color: theme.colorScheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

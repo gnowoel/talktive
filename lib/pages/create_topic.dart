@@ -28,7 +28,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   late TribeCache tribeCache;
 
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   final _tribeController = TextEditingController();
   final _tribeFocusNode = FocusNode();
@@ -47,13 +46,18 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     userCache = context.read<UserCache>();
     tribeCache = context.read<TribeCache>();
 
+    // Prefill message field with user's description
+    final currentUser = userCache.user;
+    if (currentUser?.description != null && currentUser!.description!.isNotEmpty) {
+      _messageController.text = currentUser.description!;
+    }
+
+    _loadTribes();
+
     if (widget.initialTribeId != null) {
       _setInitialTribe();
     }
-    _loadTribes();
 
-    // Add listeners for real-time content filtering
-    _titleController.addListener(_onContentChanged);
     _messageController.addListener(_onContentChanged);
   }
 
@@ -62,6 +66,10 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     if (!mounted) return;
     setState(() {
       _predefinedTribes = tribeCache.predefinedTribes;
+      // Set "Friend Finder" as default (first entry)
+      if (_predefinedTribes.isNotEmpty && _selectedTribe == null) {
+        _selectedTribe = _predefinedTribes.first;
+      }
     });
   }
 
@@ -86,25 +94,14 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
   @override
   void dispose() {
-    _titleController.removeListener(_onContentChanged);
     _messageController.removeListener(_onContentChanged);
-    _titleController.dispose();
     _messageController.dispose();
     _tribeController.dispose();
     _tribeFocusNode.dispose();
     super.dispose();
   }
 
-  String? _validateTitle(String? value) {
-    value = value?.trim();
-    if (value == null || value.isEmpty) {
-      return 'Please enter a title';
-    }
-    if (value.length < 3) {
-      return 'Title must be at least 3 characters';
-    }
-    return null;
-  }
+
 
   String? _validateMessage(String? value) {
     value = value?.trim();
@@ -117,8 +114,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     return null;
   }
 
-  String? _validateTribe(String? value) {
-    if (_selectedTribe == null) {
+  String? _validateTribe(Tribe? value) {
+    if (value == null) {
       return 'Please select a category';
     }
     return null;
@@ -135,11 +132,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     // Content validation can be added here if needed
   }
 
-  // Tribe creation is no longer allowed - using only predefined tribes
-
   Future<void> _submit() async {
-    if (_isProcessing) return;
-
     if (_formKey.currentState!.validate()) {
       final user = userCache.user;
       if (user == null) return;
@@ -150,7 +143,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       try {
         final topic = await firestore.createTopic(
           user: user,
-          title: _titleController.text.trim(),
+          title: user.displayName ?? 'Moment',
           message: _messageController.text.trim(),
           tribeId: _selectedTribe?.id,
           isPublic: _isPublic,
@@ -194,7 +187,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                         child: Column(
                           children: [
                             Icon(
-                              Icons.campaign,
+                              Icons.auto_awesome,
                               size: 64,
                               color: theme.colorScheme.primary,
                             ),
@@ -205,137 +198,72 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _messageController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Current Status',
+                                          hintText: 'What would you like to share with us at the moment?',
+                                        ),
+                                        validator: _validateMessage,
+                                        minLines: 3,
+                                        maxLines: 6,
+                                        maxLength: 500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      onPressed: () {
+                                        _messageController.clear();
+                                      },
+                                      icon: const Icon(Icons.clear),
+                                      tooltip: 'Clear text',
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
                                   'Category',
                                   style: theme.textTheme.titleMedium,
                                 ),
                                 const SizedBox(height: 8),
-                                FormField<String>(
+                                DropdownButtonFormField<Tribe>(
+                                  value: _selectedTribe,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Select a category',
+                                  ),
                                   validator: _validateTribe,
-                                  builder: (FormFieldState<String> state) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 8,
-                                          children: _predefinedTribes.map((
-                                            tribe,
-                                          ) {
-                                            final isSelected =
-                                                _selectedTribe?.id == tribe.id;
-                                            return InkWell(
-                                              onTap: () {
-                                                _selectTribe(tribe);
-                                                state.didChange(tribe.id);
-                                              },
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: isSelected
-                                                      ? theme
-                                                            .colorScheme
-                                                            .primaryContainer
-                                                      : theme
-                                                            .colorScheme
-                                                            .surfaceContainerLow,
-                                                  borderRadius:
-                                                      BorderRadius.circular(16),
-                                                  border: Border.all(
-                                                    color: isSelected
-                                                        ? theme
-                                                              .colorScheme
-                                                              .primary
-                                                        : theme
-                                                              .colorScheme
-                                                              .outline
-                                                              .withValues(
-                                                                alpha: 0.5,
-                                                              ),
-                                                    width: 1,
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Text(
-                                                      tribe.iconEmoji ?? '🏷️',
-                                                      style: const TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    Text(
-                                                      tribe.name,
-                                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                                        color: isSelected
-                                                            ? theme
-                                                                  .colorScheme
-                                                                  .onPrimaryContainer
-                                                            : theme
-                                                                  .colorScheme
-                                                                  .onSurface,
-                                                        // fontWeight: isSelected
-                                                        //     ? FontWeight.bold
-                                                        //     : FontWeight.normal,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                        if (state.hasError)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 8,
-                                            ),
-                                            child: Text(
-                                              state.errorText!,
-                                              style: TextStyle(
-                                                color: theme.colorScheme.error,
-                                                fontSize: 12,
-                                              ),
-                                            ),
+                                  items: _predefinedTribes.map((tribe) {
+                                    return DropdownMenuItem<Tribe>(
+                                      value: tribe,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            tribe.iconEmoji ?? '🏷️',
+                                            style: const TextStyle(fontSize: 16),
                                           ),
-                                      ],
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(tribe.name),
+                                          ),
+                                        ],
+                                      ),
                                     );
+                                  }).toList(),
+                                  onChanged: (Tribe? newTribe) {
+                                    if (newTribe != null) {
+                                      _selectTribe(newTribe);
+                                    }
                                   },
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _titleController,
-                              decoration: InputDecoration(
-                                labelText: 'Moment Title',
-                                hintText:
-                                    'What would you like to share at the moment?',
-                              ),
-                              validator: _validateTitle,
-                              maxLength: 100,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _messageController,
-                              decoration: const InputDecoration(
-                                labelText: 'First Message',
-                                hintText:
-                                    'Tell your story... What happened? How did it make you feel?',
-                              ),
-                              validator: _validateMessage,
-                              minLines: 2,
-                              maxLines: 5,
-                              maxLength: 500,
                             ),
 
                             const SizedBox(height: 32),

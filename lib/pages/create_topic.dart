@@ -204,7 +204,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Current Status',
                                     hintText:
-                                        'What would you like to share with us at the moment?',
+                                        'Tell your story... What happened? How did it make you feel?',
                                     suffixIcon:
                                         _messageController.text.isNotEmpty
                                             ? IconButton(
@@ -219,7 +219,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                             : null,
                                   ),
                                   validator: _validateMessage,
-                                  minLines: 3,
+                                  // minLines: 3,
+                                  // maxLines: 6,
+                                  minLines: 1,
                                   maxLines: 6,
                                   maxLength: 500,
                                   onChanged: (value) {
@@ -234,11 +236,11 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Category',
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 8),
+                                // Text(
+                                //   'Category',
+                                //   style: theme.textTheme.titleMedium,
+                                // ),
+                                // const SizedBox(height: 8),
                                 DropdownButtonFormField<Tribe>(
                                   value: _selectedTribe,
                                   decoration: const InputDecoration(

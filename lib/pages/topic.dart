@@ -17,6 +17,7 @@ import '../services/user_cache.dart';
 import '../theme.dart';
 
 import '../widgets/layout.dart';
+import '../widgets/status_notice.dart';
 import '../widgets/topic_hearts.dart';
 import '../widgets/topic_input.dart';
 import '../widgets/paginated_message_list.dart';
@@ -486,6 +487,40 @@ class _TopicPageState extends State<TopicPage> {
     );
   }
 
+  bool _shouldShowWelcomeMessage() {
+    final currentUserId = fireauth.instance.currentUser?.uid;
+    final currentUser = userCache.user;
+    final topic = _topic;
+
+    if (currentUserId == null || currentUser == null || topic == null) {
+      return false;
+    }
+
+    // Don't show if current user is the topic creator
+    if (currentUserId == widget.topicCreatorId) {
+      return false;
+    }
+
+    // Don't show if current user is a newcomer (follower count must be > 0)
+    if ((currentUser.followerCount ?? 0) <= 0) {
+      return false;
+    }
+
+    // Show only if topic creator has 0 followers (newcomer)
+    return topic.creator.followerCount == 0;
+  }
+
+  Widget _buildWelcomeMessageBox() {
+    final creatorName = _topic?.creator.displayName ?? 'this user';
+    return StatusNotice(
+      content:
+          'Welcome $creatorName to the community! Say hello and help them feel at home.',
+      icon: Icons.waving_hand_outlined,
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      foregroundColor: theme.colorScheme.onSurface,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final customColors = theme.extension<CustomColors>()!;
@@ -650,6 +685,9 @@ class _TopicPageState extends State<TopicPage> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
+                if (_shouldShowWelcomeMessage()) ...[
+                  _buildWelcomeMessageBox(),
+                ],
                 Expanded(
                   child: PaginatedMessageList.topic(
                     id: widget.topicId,

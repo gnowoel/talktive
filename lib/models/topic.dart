@@ -131,4 +131,6 @@ class Topic extends Room {
   bool get isNotMuted => !isMuted;
 
   bool get isActive => isNotClosed && isNotMuted;
+
+  bool get isTwoPersonTopic => tribeId == null;
 }

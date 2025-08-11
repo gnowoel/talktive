@@ -116,7 +116,10 @@ export const onTopicMessageCreated = onDocumentCreated(
       await batch.commit();
 
       // Check if this is the user's first message in the topic and invite followers if needed
-      await inviteFollowersOnFirstMessage(topicId, message.userId, topic);
+      // Skip for two-person topics (topics without tribeId)
+      if (topic?.tribeId) {
+        await inviteFollowersOnFirstMessage(topicId, message.userId, topic);
+      }
 
       await updateUserUpdatedAtAndMessageCount(message.userId, message.createdAt);
       await updateTopicMessagesStats();

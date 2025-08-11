@@ -45,6 +45,11 @@ export const makeTopicPublic = onCall(async (request) => {
 
     const topicData = topicSnapshot.data() as Topic;
 
+    // Check if this is a two-person topic (no tribeId) - these cannot be made public
+    if (!topicData.tribeId) {
+      throw new Error('Two-person topics cannot be made public');
+    }
+
     // Check if topic is already public
     if (topicData.isPublic === true) {
       throw new Error('Topic is already public');

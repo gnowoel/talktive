@@ -62,6 +62,7 @@ export interface Topic {
   lastMessageContent?: string | null;
   mute?: boolean;
   isPublic?: boolean;
+  tribeId?: string | null;
   reportCount?: number;
 }
 

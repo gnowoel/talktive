@@ -71,11 +71,12 @@ class _TopicItemCardState extends State<TopicItemCard> {
     ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: const Text('Left moment'),
+            content: Text(
+                widget.topic.isTwoPersonTopic ? 'Left chat' : 'Left moment'),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
-                // Restore the moment
+                // Restore the conversation
                 widget.onRestore(widget.topic);
               },
             ),
@@ -84,12 +85,12 @@ class _TopicItemCardState extends State<TopicItemCard> {
         )
         .closed
         .then((reason) {
-          // Only mute the chat if the SnackBar was closed by timeout
-          // and not by user action (pressing undo)
-          if (reason == SnackBarClosedReason.timeout) {
-            _muteTopic();
-          }
-        });
+      // Only mute the chat if the SnackBar was closed by timeout
+      // and not by user action (pressing undo)
+      if (reason == SnackBarClosedReason.timeout) {
+        _muteTopic();
+      }
+    });
   }
 
   Future<void> _enterTopic() async {
@@ -131,15 +132,22 @@ class _TopicItemCardState extends State<TopicItemCard> {
       widget.topic.updatedAt,
     );
 
-    final cardColor = colorScheme.surfaceContainerHigh;
-    final textColor = colorScheme.onSurface;
+    final cardColor = widget.topic.isTwoPersonTopic
+        ? colorScheme.tertiaryContainer
+        : colorScheme.surfaceContainerHigh;
+    final textColor = widget.topic.isTwoPersonTopic
+        ? colorScheme.onTertiaryContainer
+        : colorScheme.onSurface;
 
     final newMessageCount = widget.topic.unreadCount;
-    final lastMessageContent = (widget.topic.lastMessageContent ?? '')
-        .replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent =
+        (widget.topic.lastMessageContent ?? '').replaceAll(RegExp(r'\s+'), ' ');
 
     final topic = widget.topic;
     final creator = topic.creator;
+
+    // For two-person topics, creator contains the other party's info
+    final isThisTwoPersonTopic = topic.isTwoPersonTopic;
 
     return Dismissible(
       key: Key(topic.id),
@@ -180,7 +188,9 @@ class _TopicItemCardState extends State<TopicItemCard> {
                 ],
                 Expanded(
                   child: Text(
-                    widget.topic.title,
+                    isThisTwoPersonTopic
+                        ? (creator.displayName ?? 'Chat')
+                        : widget.topic.title,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -198,45 +208,110 @@ class _TopicItemCardState extends State<TopicItemCard> {
                 ),
                 const SizedBox(height: 4),
                 Row(
-                  children: [
-                    Tag(
-                      tooltip: 'Messages',
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.message_outlined, size: 12),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${widget.topic.messageCount}',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Tag(
-                      tooltip: 'Last updated',
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.schedule, size: 12),
-                          const SizedBox(width: 4),
-                          Text(
-                            timeago.format(
-                              updatedAt,
-                              locale: 'en_short',
-                              clock: now,
+                  children: isThisTwoPersonTopic
+                      ? [
+                          // Display partner info like ChatItemCard for two-person topics
+                          Tag(
+                            tooltip: '${getLongGenderName(creator.gender!)}',
+                            child: Text(
+                              creator.gender!,
+                              style: TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            style: TextStyle(fontSize: 12),
                           ),
+                          const SizedBox(width: 4),
+                          Tag(
+                            tooltip:
+                                '${getLanguageName(creator.languageCode!)}',
+                            child: Text(
+                              creator.languageCode!,
+                              style: TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Tag(
+                            tooltip: 'Experience Level',
+                            child: Text(
+                              'L${creator.level}',
+                              style: TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Tag(
+                            tooltip: 'Last updated',
+                            child: Text(
+                              timeago.format(
+                                updatedAt,
+                                locale: 'en_short',
+                                clock: now,
+                              ),
+                              style: TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          ...() {
+                            final userStatus = creator.status;
+                            if (userStatus == 'warning') {
+                              return [
+                                const SizedBox(width: 4),
+                                Tag(status: 'warning')
+                              ];
+                            } else if (userStatus == 'alert') {
+                              return [
+                                const SizedBox(width: 4),
+                                Tag(status: 'alert')
+                              ];
+                            } else if (userStatus == 'newcomer') {
+                              return [
+                                const SizedBox(width: 4),
+                                Tag(status: 'newcomer')
+                              ];
+                            }
+                            return <Widget>[];
+                          }(),
+                        ]
+                      : [
+                          // Regular topic tags
+                          Tag(
+                            tooltip: 'Messages',
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.message_outlined, size: 12),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${widget.topic.messageCount}',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Tag(
+                            tooltip: 'Last updated',
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.schedule, size: 12),
+                                const SizedBox(width: 4),
+                                Text(
+                                  timeago.format(
+                                    updatedAt,
+                                    locale: 'en_short',
+                                    clock: now,
+                                  ),
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (widget.topic.creator.followerCount == 0) ...[
+                            const SizedBox(width: 4),
+                            Tag(status: 'introduction'),
+                          ],
                         ],
-                      ),
-                    ),
-                    if (widget.topic.creator.followerCount == 0) ...[
-                      const SizedBox(width: 4),
-                      Tag(status: 'introduction'),
-                    ],
-                  ],
                 ),
               ],
             ),

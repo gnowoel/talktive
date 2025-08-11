@@ -401,6 +401,7 @@ class Firestore {
     required String message,
     String? tribeId,
     bool isPublic = true,
+    String? targetUserId,
   }) async {
     try {
       final functions = FirebaseFunctions.instance;
@@ -417,6 +418,7 @@ class Firestore {
         'message': message,
         'tribeId': tribeId,
         'isPublic': isPublic,
+        'targetUserId': targetUserId,
       });
 
       final result = response.data;

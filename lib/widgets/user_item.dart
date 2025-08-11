@@ -10,6 +10,7 @@ import '../models/user.dart';
 import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
@@ -37,6 +38,7 @@ class UserItem extends StatefulWidget {
 class _UserItemState extends State<UserItem> {
   late Fireauth fireauth;
   late Firedata firedata;
+  late Firestore firestore;
   late UserCache userCache;
   late ChatCache chatCache;
   late FollowCache followCache;
@@ -49,6 +51,7 @@ class _UserItemState extends State<UserItem> {
     super.initState();
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     userCache = context.read<UserCache>();
     chatCache = context.read<ChatCache>();
   }
@@ -60,6 +63,8 @@ class _UserItemState extends State<UserItem> {
     isFriend = followCache.isFollowing(widget.user.id);
   }
 
+  // Handle existing chats created with the old system (backward compatibility)
+  // New conversations will be created as topics via _greetUser()
   Future<void> _enterChat() async {
     _doAction(() async {
       final userId = fireauth.instance.currentUser!.uid;
@@ -88,11 +93,18 @@ class _UserItemState extends State<UserItem> {
       }
 
       final message = self.description!.trim();
-      final chat = await firedata.greetUser(self, other, message);
-      final chatCreatedAt = chat.createdAt.toString();
+      // Create a private topic for two users instead of a chat
+      final topic = await firestore.createTopic(
+        user: self,
+        title: '${self.displayName} & ${other.displayName}',
+        message: message,
+        tribeId: null, // No tribe for private conversations
+        isPublic: false, // Private topic for two users
+        targetUserId: other.id, // Restrict to just these two users
+      );
 
       if (mounted) {
-        await context.goToChat(chat.id, chatCreatedAt);
+        await context.goToTopic(topic.id, topic.creator.id);
       }
     });
   }

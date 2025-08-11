@@ -42,6 +42,24 @@ export const joinTopic = onCall(async (request) => {
     // Access data after checking for existence and assert its type
     const topicData = topicDoc.data() as Topic;
 
+    // Check if this is a two-person topic (no tribeId) and prevent additional joins
+    if (!topicData.tribeId) {
+      const followersSnapshot = await topicRef.collection('followers').get();
+      const currentFollowerCount = followersSnapshot.size;
+
+      // If there are already 2 followers in a two-person topic, don't allow more
+      if (currentFollowerCount >= 2) {
+        // Check if the requesting user is already one of the followers
+        const existingFollower = followersSnapshot.docs.find(doc => doc.id === userId);
+        if (!existingFollower) {
+          return {
+            success: false,
+            error: 'This is a private conversation'
+          };
+        }
+      }
+    }
+
     // Check if the user is already following this topic
     const followerRef = topicRef.collection('followers').doc(userId);
     const followerDoc = await followerRef.get();

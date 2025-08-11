@@ -71,6 +71,15 @@ export const inviteFollowersToTopic = onCall(async (request) => {
 
     // Get topic data
     const topicData = topicDoc.data();
+
+    // Check if this is a two-person topic (no tribeId) - these cannot invite followers
+    if (!topicData?.tribeId) {
+      return {
+        success: false,
+        error: 'Cannot invite followers to private conversations'
+      };
+    }
+
     const now = Timestamp.now();
 
     // Get existing topic followers to avoid duplicates

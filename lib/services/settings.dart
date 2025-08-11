@@ -4,6 +4,7 @@ final whatsNewVersion = '4.5.1+71';
 final setupWizardVersion = '3.0.4+28';
 final usersPageNoticeVersion = 'true'; // Next time will use verion number
 final chatsPageNoticeVersion = '4.3.0+58';
+final topicPageNoticeVersion = 'true';
 
 class Settings {
   Settings._();
@@ -14,6 +15,7 @@ class Settings {
   String? _savedSetupWizardVersion;
   String? _savedUsersPageNoticeVersion;
   String? _savedChatsPageNoticeVersion;
+  String? _savedTopicPageNoticeVersion;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,6 +34,10 @@ class Settings {
     );
     _savedChatsPageNoticeVersion = await Prefs.getString(
       'chatsPageNoticeVersion',
+      prefs: prefs,
+    );
+    _savedTopicPageNoticeVersion = await Prefs.getString(
+      'topicPageNoticeVersion',
       prefs: prefs,
     );
 
@@ -120,6 +126,11 @@ class Settings {
     _savedChatsPageNoticeVersion = chatsPageNoticeVersion;
   }
 
+  Future<void> saveTopicPageNoticeVersion() async {
+    await Prefs.setString('topicPageNoticeVersion', topicPageNoticeVersion);
+    _savedTopicPageNoticeVersion = topicPageNoticeVersion;
+  }
+
   Future<void> removeSetupWizardVersion() async {
     await Prefs.remove('setupWizardVerions');
     _savedSetupWizardVersion = null;
@@ -132,6 +143,8 @@ class Settings {
       _savedUsersPageNoticeVersion != usersPageNoticeVersion;
   bool get shouldShowChatsPageNotice =>
       _savedChatsPageNoticeVersion != chatsPageNoticeVersion;
+  bool get shouldShowTopicPageNotice =>
+      _savedTopicPageNoticeVersion != topicPageNoticeVersion;
 
   bool get shouldHideSetupWizard => !shouldShowSetupWizard;
 }

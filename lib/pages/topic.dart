@@ -11,11 +11,13 @@ import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/message_meta_cache.dart';
 import '../services/paginated_message_service.dart';
+import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 
+import '../widgets/info_notice.dart';
 import '../widgets/layout.dart';
 import '../widgets/status_notice.dart';
 import '../widgets/topic_hearts.dart';
@@ -39,6 +41,7 @@ class TopicPage extends StatefulWidget {
 
 class _TopicPageState extends State<TopicPage> {
   late ThemeData theme;
+  late Settings settings;
   late Fireauth fireauth;
   late Firestore firestore;
   late UserCache userCache;
@@ -66,6 +69,7 @@ class _TopicPageState extends State<TopicPage> {
   void initState() {
     super.initState();
 
+    settings = context.read<Settings>();
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
     topicFollowersCache = context.read<TopicFollowersCache>();
@@ -521,6 +525,30 @@ class _TopicPageState extends State<TopicPage> {
     );
   }
 
+  bool _shouldShowTopicCreatorNotice() {
+    final currentUserId = fireauth.instance.currentUser?.uid;
+    final topic = _topic;
+
+    if (currentUserId == null || topic == null) {
+      return false;
+    }
+
+    // Only show for topic creators
+    if (currentUserId != widget.topicCreatorId) {
+      return false;
+    }
+
+    // Check settings to see if notice should be shown
+    return settings.shouldShowTopicPageNotice;
+  }
+
+  Widget _buildTopicCreatorNotice() {
+    return InfoNotice(
+      content: 'You can LONG-PRESS a message to block a user.',
+      onDismiss: () => settings.saveTopicPageNoticeVersion(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final customColors = theme.extension<CustomColors>()!;
@@ -687,6 +715,9 @@ class _TopicPageState extends State<TopicPage> {
                 const SizedBox(height: 10),
                 if (_shouldShowWelcomeMessage()) ...[
                   _buildWelcomeMessageBox(),
+                ],
+                if (_shouldShowTopicCreatorNotice()) ...[
+                  _buildTopicCreatorNotice(),
                 ],
                 Expanded(
                   child: PaginatedMessageList.topic(

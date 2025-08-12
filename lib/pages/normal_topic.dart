@@ -737,7 +737,6 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
                   onSendTextMessage: _sendTextMessage,
                   onSendImageMessage: _sendImageMessage,
                   onInsertMention: _insertMention,
-                  isTwoPersonTopic: false,
                 ),
               ],
             ),

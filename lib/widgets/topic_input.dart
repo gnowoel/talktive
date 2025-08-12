@@ -19,6 +19,7 @@ class TopicInput extends StatefulWidget {
   final Future<void> Function(String) onSendTextMessage;
   final Future<void> Function(String) onSendImageMessage;
   final void Function(String)? onInsertMention;
+  final bool isTwoPersonTopic;
 
   const TopicInput({
     super.key,
@@ -27,6 +28,7 @@ class TopicInput extends StatefulWidget {
     required this.onSendTextMessage,
     required this.onSendImageMessage,
     this.onInsertMention,
+    this.isTwoPersonTopic = false,
   });
 
   @override
@@ -323,7 +325,9 @@ class TopicInputState extends State<TopicInput> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow,
+              color: widget.isTwoPersonTopic
+                  ? theme.colorScheme.tertiaryContainer
+                  : theme.colorScheme.surfaceContainerLow,
               borderRadius: const BorderRadius.all(Radius.circular(32)),
               border: Border.all(
                 color: theme.colorScheme.surfaceContainerHighest,
@@ -357,7 +361,10 @@ class TopicInputState extends State<TopicInput> {
                       maxLines: 12,
                       controller: _controller,
                       decoration: InputDecoration.collapsed(
-                        hintText: _showText(enabledText: 'Share publicly'),
+                        hintText: _showText(
+                            enabledText: widget.isTwoPersonTopic
+                                ? 'Chat privately'
+                                : 'Share publicly'),
                         hintStyle: TextStyle(color: theme.colorScheme.outline),
                       ),
                     ),

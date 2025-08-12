@@ -185,7 +185,7 @@ class _ChatsPageState extends State<ChatsPage> {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surfaceContainerLow,
-        title: const Text('Messages'),
+        title: const Text('My Chats'),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),

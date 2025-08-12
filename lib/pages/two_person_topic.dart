@@ -415,7 +415,6 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
                   onSendTextMessage: _sendTextMessage,
                   onSendImageMessage: _sendImageMessage,
                   onInsertMention: _insertMention,
-                  isTwoPersonTopic: true,
                 ),
               ],
             ),

@@ -11,13 +11,11 @@ import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/message_meta_cache.dart';
 import '../services/paginated_message_service.dart';
-import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 
-import '../widgets/info_notice.dart';
 import '../widgets/layout.dart';
 import '../widgets/status_notice.dart';
 import '../widgets/topic_hearts.dart';
@@ -41,7 +39,6 @@ class TwoPersonTopicPage extends StatefulWidget {
 
 class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
   late ThemeData theme;
-  late Settings settings;
   late Fireauth fireauth;
   late Firestore firestore;
   late UserCache userCache;
@@ -66,7 +63,6 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
   void initState() {
     super.initState();
 
-    settings = context.read<Settings>();
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
     topicFollowersCache = context.read<TopicFollowersCache>();
@@ -304,75 +300,46 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
     }
   }
 
-  void _showCreatorInfo(BuildContext context) {
+  void _showUserInfo(BuildContext context) {
     if (_topic == null) return;
 
+    // In two-person topics, the _topic.creator always contains the OTHER person's info
+    // because the createTopic function stores the other participant as the "creator"
     showDialog(
       context: context,
       builder: (context) => UserInfoLoader(
-        userId: widget.topicCreatorId,
+        userId: _topic!.creator.id,
         photoURL: _topic!.creator.photoURL ?? '',
         displayName: _topic!.creator.displayName ?? '',
       ),
     );
   }
 
-  bool _shouldShowWelcomeMessage() {
-    final currentUserId = fireauth.instance.currentUser?.uid;
-    final currentUser = userCache.user;
-    final topic = _topic;
-
-    if (currentUserId == null || currentUser == null || topic == null) {
-      return false;
-    }
-
-    // Don't show if current user is the topic creator
-    if (currentUserId == widget.topicCreatorId) {
-      return false;
-    }
-
-    // Don't show if current user is a newcomer (follower count must be > 0)
-    if ((currentUser.followerCount ?? 0) <= 0) {
-      return false;
-    }
-
-    // Show only if topic creator has 0 followers (newcomer)
-    return topic.creator.followerCount == 0;
-  }
-
-  Widget _buildWelcomeMessageBox() {
-    final creatorName = _topic?.creator.displayName ?? 'this user';
+  Widget _buildAlertBox() {
     return StatusNotice(
       content:
-          'Welcome $creatorName to the community! Say hello and help them feel at home.',
-      icon: Icons.waving_hand_outlined,
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
-      foregroundColor: theme.colorScheme.onSurface,
+          'This user has been reported for sending offensive messages. Be careful!',
+      icon: Icons.error_outline,
+      backgroundColor: theme.colorScheme.tertiaryContainer,
+      foregroundColor: theme.colorScheme.onTertiaryContainer,
     );
   }
 
-  bool _shouldShowTopicCreatorNotice() {
-    final currentUserId = fireauth.instance.currentUser?.uid;
-    final topic = _topic;
-
-    if (currentUserId == null || topic == null) {
-      return false;
-    }
-
-    // Only show for topic creators
-    if (currentUserId != widget.topicCreatorId) {
-      return false;
-    }
-
-    // Check settings to see if notice should be shown
-    return settings.shouldShowTopicPageNotice;
+  Widget _buildWarningBox() {
+    return StatusNotice(
+      content:
+          'This user has been reported for inappropriate behavior. Stay safe!',
+      icon: Icons.error_outline,
+      backgroundColor: theme.colorScheme.errorContainer,
+      foregroundColor: theme.colorScheme.onErrorContainer,
+    );
   }
 
-  Widget _buildTopicCreatorNotice() {
-    return InfoNotice(
-      content: 'You can LONG-PRESS a message to block a user.',
-      onDismiss: () => settings.saveTopicPageNoticeVersion(),
-    );
+  String? _getOtherPersonStatus() {
+    if (_topic == null) return null;
+
+    // In two-person topics, _topic.creator always contains the OTHER person's info
+    return _topic!.creator.status;
   }
 
   @override
@@ -381,9 +348,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
 
     final creator = _topic?.creator;
     final displayName = creator?.displayName;
-    final isFriend = followCache.isFollowing(widget.topicCreatorId);
-    final currentUserId = fireauth.instance.currentUser!.uid;
-    final byMe = widget.topicCreatorId == currentUserId;
+    final isFriend = followCache.isFollowing(creator?.id ?? '');
 
     return PopScope(
       canPop: false,
@@ -395,14 +360,14 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: theme.colorScheme.tertiaryContainer,
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
         appBar: AppBar(
-          backgroundColor: theme.colorScheme.tertiaryContainer,
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
           title: GestureDetector(
-            onTap: () => _showCreatorInfo(context),
+            onTap: () => _showUserInfo(context),
             child: Row(
               children: [
-                if ((byMe || isFriend) &&
+                if (isFriend &&
                     displayName != null &&
                     displayName.isNotEmpty) ...[
                   Icon(
@@ -426,11 +391,10 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
-                if (_shouldShowWelcomeMessage()) ...[
-                  _buildWelcomeMessageBox(),
-                ],
-                if (_shouldShowTopicCreatorNotice()) ...[
-                  _buildTopicCreatorNotice(),
+                if (_getOtherPersonStatus() == 'warning') ...[
+                  _buildWarningBox(),
+                ] else if (_getOtherPersonStatus() == 'alert') ...[
+                  _buildAlertBox(),
                 ],
                 Expanded(
                   child: PaginatedMessageList.topic(
@@ -441,6 +405,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
                     updateMessageCount: _updateMessageCount,
                     onInsertMention: _insertMention,
                     readMessageCount: _topic?.readMessageCount,
+                    isTwoPersonTopic: true,
                   ),
                 ),
                 TopicInput(

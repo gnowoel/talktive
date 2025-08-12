@@ -32,6 +32,7 @@ class PaginatedMessageList extends StatefulWidget {
   // Topic-specific properties
   final String? topicCreatorId;
   final int? readMessageCount;
+  final bool isTwoPersonTopic;
 
   const PaginatedMessageList.chat({
     super.key,
@@ -44,7 +45,8 @@ class PaginatedMessageList extends StatefulWidget {
     this.reporterUserId,
   })  : type = MessageListType.chat,
         topicCreatorId = null,
-        readMessageCount = null;
+        readMessageCount = null,
+        isTwoPersonTopic = false;
 
   const PaginatedMessageList.topic({
     super.key,
@@ -55,6 +57,7 @@ class PaginatedMessageList extends StatefulWidget {
     required this.updateMessageCount,
     required this.readMessageCount,
     this.onInsertMention,
+    this.isTwoPersonTopic = false,
   })  : type = MessageListType.topic,
         chat = null,
         reporterUserId = null;
@@ -664,6 +667,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           topicCreatorId: widget.topicCreatorId!,
           message: topicMessage,
           onInsertMention: widget.onInsertMention,
+          hideDisplayName: widget.isTwoPersonTopic,
         );
       } else {
         return TopicTextMessageItem(
@@ -672,6 +676,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           topicCreatorId: widget.topicCreatorId!,
           message: topicMessage as TopicTextMessage,
           onInsertMention: widget.onInsertMention,
+          hideDisplayName: widget.isTwoPersonTopic,
         );
       }
     }

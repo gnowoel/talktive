@@ -25,6 +25,7 @@ class TopicImageMessageItem extends StatefulWidget {
   final String topicCreatorId;
   final TopicImageMessage message;
   final void Function(String)? onInsertMention;
+  final bool hideDisplayName;
 
   const TopicImageMessageItem({
     super.key,
@@ -32,6 +33,7 @@ class TopicImageMessageItem extends StatefulWidget {
     required this.topicCreatorId,
     required this.message,
     this.onInsertMention,
+    this.hideDisplayName = false,
   });
 
   @override
@@ -582,32 +584,34 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 4, bottom: 2),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (followCache.isFollowing(widget.message.userId)) ...[
-                        Icon(
-                          Icons.grade,
-                          size: 16,
-                          color:
-                              theme.extension<CustomColors>()!.friendIndicator,
+                if (!widget.hideDisplayName)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (followCache.isFollowing(widget.message.userId)) ...[
+                          Icon(
+                            Icons.grade,
+                            size: 16,
+                            color: theme
+                                .extension<CustomColors>()!
+                                .friendIndicator,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          widget.message.userDisplayName,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.7),
+                          ),
                         ),
-                        const SizedBox(width: 4),
                       ],
-                      Text(
-                        widget.message.userDisplayName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -645,32 +649,34 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 4, bottom: 2),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (followCache.isFollowing(widget.message.userId)) ...[
-                        Icon(
-                          Icons.grade,
-                          size: 16,
-                          color:
-                              theme.extension<CustomColors>()!.friendIndicator,
+                if (!widget.hideDisplayName)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4, bottom: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (followCache.isFollowing(widget.message.userId)) ...[
+                          Icon(
+                            Icons.grade,
+                            size: 16,
+                            color: theme
+                                .extension<CustomColors>()!
+                                .friendIndicator,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          widget.message.userDisplayName,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.7),
+                          ),
                         ),
-                        const SizedBox(width: 4),
                       ],
-                      Text(
-                        widget.message.userDisplayName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

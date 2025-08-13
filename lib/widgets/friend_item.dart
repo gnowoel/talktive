@@ -6,8 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../helpers/helpers.dart';
 import '../models/follow.dart';
 import '../models/user.dart';
-import '../services/chat_cache.dart';
-import '../services/firedata.dart';
+import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
@@ -26,9 +25,8 @@ class FriendItem extends StatefulWidget {
 }
 
 class _FriendItemState extends State<FriendItem> {
-  late Firedata firedata;
+  late Firestore firestore;
   late UserCache userCache;
-  late ChatCache chatCache;
   late FollowCache followCache;
   late bool isFriend;
 
@@ -37,9 +35,8 @@ class _FriendItemState extends State<FriendItem> {
   @override
   void initState() {
     super.initState();
-    firedata = context.read<Firedata>();
+    firestore = context.read<Firestore>();
     userCache = context.read<UserCache>();
-    chatCache = context.read<ChatCache>();
   }
 
   @override
@@ -62,38 +59,42 @@ class _FriendItemState extends State<FriendItem> {
     );
   }
 
-  Future<void> _enterChat() async {
-    _doAction(() async {
-      final userId = userCache.user!.id;
-      final friend = widget.friend;
-      final chatId = ([userId, friend.id]..sort()).join();
-      final chat = chatCache.getChat(chatId);
-      final chatCreatedAt = chat?.createdAt.toString() ?? '0';
-
-      await context.goToChat(chatId, chatCreatedAt);
-    });
-  }
-
   Future<void> _greetUser() async {
     _doAction(() async {
       final self = userCache.user!;
-      final other = User(
-        id: widget.friend.id,
-        createdAt: 0,
-        updatedAt: 0,
-        languageCode: widget.friend.user.languageCode ?? '',
-        photoURL: widget.friend.user.photoURL ?? '',
-        displayName: widget.friend.user.displayName ?? '',
-        description: widget.friend.user.description ?? '',
-        gender: widget.friend.user.gender ?? '',
+      final other = User.fromStub(
+        key: widget.friend.id,
+        value: widget.friend.user,
       );
 
-      final message = '${self.description}';
-      final chat = await firedata.greetUser(self, other, message);
-      final chatCreatedAt = chat.createdAt.toString();
+      // Prevent users from chatting with themselves
+      if (self.id == other.id) {
+        throw AppException('You cannot start a conversation with yourself.');
+      }
+
+      // Validate user data before attempting to greet
+      if (self.description == null || self.description!.trim().isEmpty) {
+        throw AppException(
+            'Please add a description to your profile before starting a conversation.');
+      }
+
+      if (other.id.isEmpty) {
+        throw AppException('Invalid user selected. Please try again.');
+      }
+
+      final message = self.description!.trim();
+      // Create a private topic for two users
+      final topic = await firestore.createTopic(
+        user: self,
+        title: '${self.displayName} & ${other.displayName}',
+        message: message,
+        tribeId: null, // No tribe for private conversations
+        isPublic: false, // Private topic for two users
+        targetUserId: other.id, // Restrict to just these two users
+      );
 
       if (mounted) {
-        await context.goToChat(chat.id, chatCreatedAt);
+        await context.goToTopic(topic.id, topic.creator.id);
       }
     });
   }
@@ -353,29 +354,24 @@ class _FriendItemState extends State<FriendItem> {
   }
 
   IconButton _buildIconButton() {
-    final userId = userCache.user!.id;
-    final chatId = ([userId, widget.friend.id]..sort()).join();
-
-    if (chatCache.hasChat(chatId)) {
-      return IconButton(
-        icon: Icon(Icons.chat_outlined),
-        onPressed: _enterChat,
-        tooltip: 'Chat',
-      );
-    }
-
     if (!_canChatWithUser()) {
       return IconButton(
         icon: Icon(Icons.chat_outlined),
-        onPressed: null,
+        onPressed: _handleGreet,
         tooltip: 'Restricted',
       );
     }
 
     return IconButton(
-      icon: Icon(Icons.chat_outlined),
+      icon: _isProcessing
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(Icons.chat_outlined),
       onPressed: _handleGreet,
-      tooltip: 'Chat',
+      tooltip: 'Start chatting',
     );
   }
 }

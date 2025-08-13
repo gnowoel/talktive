@@ -67,8 +67,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '📝 Easier Moments',
-                            'Made creating Moments easier to encourage sharing.',
+                            '💬 Efficient Chats',
+                            'Reimplemented 1-on-1 chats in a more efficient way.',
                           ),
                           const SizedBox(height: 32),
                           Text(
@@ -85,14 +85,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '⚡ Database Optimization',
-                            'Reduced database access for paginated message loading.',
-                          ),
-                          const SizedBox(height: 16),
-                          _buildFeatureCard(
-                            Theme.of(context),
-                            '🛡️ Better Error Handling',
-                            'Improved error handling when accessing backend functions.',
+                            '📝 Easier Moments',
+                            'Made creating Moments easier to encourage sharing.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

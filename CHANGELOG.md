@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.6.0+72
+
+- Reimplemented 1-on-1 chats in a more efficient way
+
 ## 4.5.1+71
 
 - Made creating Moments easier to encourage sharing

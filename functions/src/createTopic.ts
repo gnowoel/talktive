@@ -31,6 +31,14 @@ export const createTopic = onCall(async (request) => {
       };
     }
 
+    // Prevent users from creating topics with themselves
+    if (targetUserId && userId === targetUserId) {
+      return {
+        success: false,
+        error: 'Cannot create a conversation with yourself'
+      };
+    }
+
     // Default to "Friend Finder" tribe if no tribe specified and not a two-person topic
     let finalTribeId = tribeId;
     if (!tribeId && !targetUserId) {

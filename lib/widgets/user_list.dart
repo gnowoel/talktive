@@ -5,19 +5,13 @@ import 'user_item.dart';
 
 class UserList extends StatelessWidget {
   final List<User> users;
-  final List<String> knownUserIds;
   final List<String> seenUserIds;
 
   const UserList({
     super.key,
     required this.users,
-    required this.knownUserIds,
     required this.seenUserIds,
   });
-
-  bool _hasKnown(User user) {
-    return knownUserIds.contains(user.id);
-  }
 
   bool _hasSeen(User user) {
     return seenUserIds.contains(user.id);
@@ -33,7 +27,6 @@ class UserList extends StatelessWidget {
         return UserItem(
           key: ValueKey(user.id),
           user: user,
-          hasKnown: _hasKnown(user),
           hasSeen: _hasSeen(user),
         );
       },

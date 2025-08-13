@@ -7,7 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../helpers/helpers.dart';
 import '../models/user.dart';
-import '../services/chat_cache.dart';
+
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
@@ -21,13 +21,11 @@ import 'user_info_loader.dart';
 
 class UserItem extends StatefulWidget {
   final User user;
-  final bool hasKnown;
   final bool hasSeen;
 
   const UserItem({
     super.key,
     required this.user,
-    required this.hasKnown,
     required this.hasSeen,
   });
 
@@ -40,7 +38,6 @@ class _UserItemState extends State<UserItem> {
   late Firedata firedata;
   late Firestore firestore;
   late UserCache userCache;
-  late ChatCache chatCache;
   late FollowCache followCache;
   late bool isFriend;
 
@@ -53,7 +50,6 @@ class _UserItemState extends State<UserItem> {
     firedata = context.read<Firedata>();
     firestore = context.read<Firestore>();
     userCache = context.read<UserCache>();
-    chatCache = context.read<ChatCache>();
   }
 
   @override
@@ -63,24 +59,17 @@ class _UserItemState extends State<UserItem> {
     isFriend = followCache.isFollowing(widget.user.id);
   }
 
-  // Handle existing chats created with the old system (backward compatibility)
-  // New conversations will be created as topics via _greetUser()
-  Future<void> _enterChat() async {
-    _doAction(() async {
-      final userId = fireauth.instance.currentUser!.uid;
-      final partner = widget.user;
-      final chatId = ([userId, partner.id]..sort()).join();
-      final chat = chatCache.getChat(chatId);
-      final chatCreatedAt = chat?.createdAt.toString() ?? '0';
 
-      await context.goToChat(chatId, chatCreatedAt);
-    });
-  }
 
   Future<void> _greetUser() async {
     _doAction(() async {
       final self = userCache.user!;
       final other = widget.user;
+
+      // Prevent users from chatting with themselves
+      if (self.id == other.id) {
+        throw AppException('You cannot start a conversation with yourself.');
+      }
 
       // Validate user data before attempting to greet
       if (self.description == null || self.description!.trim().isEmpty) {
@@ -162,6 +151,9 @@ class _UserItemState extends State<UserItem> {
 
     if (self == null) return false;
 
+    // Prevent users from chatting with themselves
+    if (self.id == other.id) return false;
+
     // Check basic message sending permission
     if (!canSendMessage(self)) return false;
 
@@ -181,8 +173,21 @@ class _UserItemState extends State<UserItem> {
     String title;
     List<Widget> content;
 
-    // Check if user can send messages at all
-    if (!canSendMessage(self)) {
+    // Check if user is trying to chat with themselves
+    if (self.id == other.id) {
+      title = 'Invalid Action';
+      content = [
+        Text(
+          'You cannot start a conversation with yourself.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Please select a different user to chat with.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else if (!canSendMessage(self)) {
       title = 'Account Restricted';
       content = [
         Text(
@@ -232,11 +237,6 @@ class _UserItemState extends State<UserItem> {
   }
 
   Future<void> _handleTap() async {
-    if (widget.hasKnown) {
-      await _enterChat();
-      return;
-    }
-
     if (!_canChatWithUser()) {
       await _showRestrictionDialog();
       return;
@@ -269,11 +269,9 @@ class _UserItemState extends State<UserItem> {
       widget.user.updatedAt,
     );
 
-    final cardColor = widget.hasKnown
+    final cardColor = widget.hasSeen
         ? colorScheme.surfaceContainerHigh
-        : (widget.hasSeen
-            ? colorScheme.surfaceContainerHigh
-            : colorScheme.secondaryContainer);
+        : colorScheme.secondaryContainer;
     final textColor = colorScheme.onSurface;
 
     final userStatus = widget.user.status;
@@ -396,14 +394,6 @@ class _UserItemState extends State<UserItem> {
   }
 
   Widget _buildIconButton() {
-    if (widget.hasKnown) {
-      return IconButton(
-        icon: const Icon(Icons.people_alt_outlined),
-        onPressed: _handleTap,
-        tooltip: 'Enter chat',
-      );
-    }
-
     if (!_canChatWithUser()) {
       return IconButton(
         icon: const Icon(Icons.block_outlined),

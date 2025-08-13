@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/chat.dart';
 import '../models/user.dart';
-import '../services/chat_cache.dart';
+
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 
@@ -27,7 +26,6 @@ class _UsersPageState extends State<UsersPage> {
   late Fireauth fireauth;
   late Firestore firestore;
   late ServerClock serverClock;
-  late ChatCache chatCache;
 
   List<User> _seenUsers = [];
   List<User> _users = [];
@@ -45,18 +43,11 @@ class _UsersPageState extends State<UsersPage> {
     fireauth = context.read<Fireauth>();
     firestore = context.read<Firestore>();
     serverClock = context.read<ServerClock>();
-    chatCache = context.read<ChatCache>();
 
     _selectedGender = null;
     _selectedLanguage = null;
 
-    _fetchUsers(chatCache.chats);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    chatCache = Provider.of<ChatCache>(context);
+    _fetchUsers();
   }
 
   void _handleGenderChanged(String? value) {
@@ -91,11 +82,10 @@ class _UsersPageState extends State<UsersPage> {
 
   Future<void> _refreshUsers({bool noCache = false}) async {
     await Future.delayed(const Duration(seconds: 1));
-    _fetchUsers(chatCache.chats, noCache: noCache);
+    _fetchUsers(noCache: noCache);
   }
 
-  Future<void> _fetchUsers(
-    List<Chat> chats, {
+  Future<void> _fetchUsers({
     bool noCache = false,
   }) async {
     final userId = fireauth.instance.currentUser!.uid;
@@ -126,20 +116,8 @@ class _UsersPageState extends State<UsersPage> {
     return users;
   }
 
-  List<String> _knownUserIds(List<Chat> chats) {
-    final userId = fireauth.instance.currentUser!.uid;
-    final partnerIds = _partnerIds(userId, chats);
-    return [userId, ...partnerIds];
-  }
-
   List<String> _seenUserIds() {
     return _seenUsers.map((user) => user.id).toList();
-  }
-
-  List<String> _partnerIds(String userId, List<Chat> chats) {
-    return chats.map((chat) {
-      return chat.id.replaceFirst(userId, '');
-    }).toList();
   }
 
   @override
@@ -153,8 +131,6 @@ class _UsersPageState extends State<UsersPage> {
     const lines = ['No more users here.', 'Try again later.', ''];
     const info = 'Please do not give out personal information to strangers.';
 
-    final chats = chatCache.chats;
-    final knownUserIds = _knownUserIds(chats);
     final seenUserIds = _seenUserIds();
     final users = _filterUsers();
 
@@ -198,7 +174,6 @@ class _UsersPageState extends State<UsersPage> {
                                 )
                               : UserList(
                                   users: users,
-                                  knownUserIds: knownUserIds,
                                   seenUserIds: seenUserIds,
                                 ),
                     ),

@@ -121,23 +121,25 @@ class User {
     return (log(messageCount!) / log(3)).ceil();
   }
 
-  /// Calculate reputation score based on total reports vs total messages.
-  /// Uses a dampened formula to balance the impact of reports against activity.
-  /// Formula: 1.0 - (totalReports / sqrt(totalMessages + dampening))
-  /// Where dampening = (totalMessages * 0.1).clamp(5.0, 50.0) to provide stability
+  /// Calculate reputation score based on follower-to-total-connections ratio.
+  /// Uses the formula: followerCount / (followerCount + followeeCount)
+  ///
+  /// The theory is that trustworthy users tend to have more followers relative
+  /// to the number of people they follow, while less trustworthy users tend to
+  /// follow more people than follow them back.
   ///
   /// Returns a value between 0.0 and 1.0, where 1.0 is perfect reputation.
-  /// Returns 1.0 if messageCount or reportCount is 0 or null.
+  /// Returns 0.5 (neutral) if both followerCount and followeeCount are 0 or null.
   double get reputationScore {
-    if (messageCount == null || messageCount! <= 0) return 1.0;
-    if (reportCount == null || reportCount! <= 0) return 1.0;
+    final followers = followerCount ?? 0;
+    final followees = followeeCount ?? 0;
+    final totalConnections = followers + followees;
 
-    // Apply dampening to prevent extreme drops from limited data
-    final dampening = (messageCount! * 0.1).clamp(5.0, 50.0);
-    final adjustedTotal = messageCount! + dampening;
-    // final ratio = sqrt(reportCount!) / adjustedTotal;
-    final ratio = reportCount! / sqrt(adjustedTotal);
-    final score = 1.0 - ratio;
+    // Return neutral score if user has no connections
+    if (totalConnections == 0) return 0.5;
+
+    // Calculate follower-to-total-connections ratio
+    final score = followers / totalConnections;
 
     // Ensure score is between 0.0 and 1.0
     return score.clamp(0.0, 1.0);

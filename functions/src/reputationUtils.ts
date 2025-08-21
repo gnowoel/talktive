@@ -15,24 +15,26 @@ export const REPUTATION_THRESHOLDS = {
 } as const;
 
 /**
- * Calculate reputation score based on total reports vs total messages.
- * Uses a dampened formula to balance the impact of reports against activity.
+ * Calculate reputation score based on follower-to-total-connections ratio.
+ * Uses the formula: followerCount / (followerCount + followeeCount)
  *
- * Formula: 1.0 - (totalReports / sqrt(totalMessages + dampening))
- * Where dampening = (totalMessages * 0.1).clamp(5.0, 50.0) to provide stability
+ * The theory is that trustworthy users tend to have more followers relative
+ * to the number of people they follow, while less trustworthy users tend to
+ * follow more people than follow them back.
  *
- * @param user - User object containing messageCount and reportCount
+ * @param user - User object containing followerCount and followeeCount
  * @returns reputation score between 0.0 and 1.0, where 1.0 is perfect reputation
  */
 export const calculateReputationScore = (user: User): number => {
-  if (!user.messageCount || user.messageCount <= 0) return 1.0;
-  if (!user.reportCount || user.reportCount <= 0) return 1.0;
+  const followers = user.followerCount ?? 0;
+  const followees = user.followeeCount ?? 0;
+  const totalConnections = followers + followees;
 
-  // Apply dampening to prevent extreme drops from limited data
-  const dampening = Math.max(5.0, Math.min(50.0, user.messageCount * 0.1));
-  const adjustedTotal = user.messageCount + dampening;
-  const ratio = user.reportCount / Math.sqrt(adjustedTotal);
-  const score = 1.0 - ratio;
+  // Return neutral score if user has no connections
+  if (totalConnections === 0) return 0.5;
+
+  // Calculate follower-to-total-connections ratio
+  const score = followers / totalConnections;
 
   // Ensure score is between 0.0 and 1.0
   return Math.max(0.0, Math.min(1.0, score));
@@ -95,8 +97,8 @@ export const getReputationSummary = (user: User) => {
   return {
     score: Math.round(score * 1000) / 1000, // Round to 3 decimal places
     level,
-    messageCount: user.messageCount || 0,
-    reportCount: user.reportCount || 0,
+    followerCount: user.followerCount || 0,
+    followeeCount: user.followeeCount || 0,
     hasGoodReputation: hasGoodReputation(user),
     hasPoorReputation: hasPoorReputation(user),
   };

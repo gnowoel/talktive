@@ -10,7 +10,7 @@ The `resetTrustedUserStatus` Cloud Function resets the `reportCount` and `revive
 
 1. **Reputation Calculation**: Uses the new follower-based reputation system where reputation = `followerCount / (followerCount + followeeCount)`
 2. **Threshold**: Only resets users with reputation scores above 0.60 (fair level)
-3. **Batch Processing**: Processes users in configurable batches to avoid database overload
+3. **Database-Level Pagination**: Uses Firebase Realtime Database pagination to process users in batches, preventing memory overflow
 4. **Safety Features**: Includes dry-run mode and detailed logging
 
 ## Setup
@@ -28,7 +28,26 @@ firebase functions:config:set admin.token="your-secure-admin-token-here"
 # Add: ADMIN_TOKEN = your-secure-admin-token-here
 ```
 
-### 2. Deploy the Function
+### 2. Cloud Function Configuration
+
+For processing large user datasets, configure appropriate memory and timeout settings:
+
+```bash
+# Deploy with increased memory and timeout
+firebase deploy --only functions:resetTrustedUserStatus
+
+# Or configure in functions source code:
+export const resetTrustedUserStatus = functions
+  .runWith({ memory: '1GB', timeoutSeconds: 540 })
+  .https.onRequest(async (req, res) => { ... });
+```
+
+**Recommended settings:**
+- **Memory**: 512MB - 1GB (for datasets > 10,000 users)
+- **Timeout**: 540 seconds (9 minutes maximum)
+- **CPU**: Default is sufficient due to database-level pagination
+
+### 3. Deploy the Function
 
 Make sure the function is included in your `index.ts` and deploy:
 
@@ -39,7 +58,7 @@ npm run deploy
 firebase deploy --only functions:resetTrustedUserStatus
 ```
 
-### 3. Configure the Script
+### 4. Configure the Script
 
 Edit `reset-trusted-users.sh` and update these values:
 
@@ -162,9 +181,14 @@ firebase functions:log --only resetTrustedUserStatus --follow
 
 ### Batch Size Recommendations
 
+The function now uses database-level pagination, so memory usage is controlled regardless of total user count:
+
 - **Small datasets** (< 1,000 users): Use batch size 50-100
 - **Medium datasets** (1,000-10,000 users): Use batch size 100-200
-- **Large datasets** (> 10,000 users): Use batch size 200-500
+- **Large datasets** (> 10,000 users): Use batch size 100-300
+- **Very large datasets** (> 50,000 users): Use batch size 100-200 with 1GB memory
+
+**Note**: Larger batch sizes are no longer needed since the function doesn't load all users into memory.
 
 ## Troubleshooting
 
@@ -179,12 +203,13 @@ firebase functions:log --only resetTrustedUserStatus --follow
    - Check the function URL is correct
 
 3. **Timeout Errors**
-   - Reduce batch size
-   - The function has a default timeout; consider increasing it for large datasets
+   - Increase Cloud Function timeout (up to 540 seconds)
+   - Consider processing in smaller batches if dataset is extremely large
 
-4. **Memory Issues**
-   - Reduce batch size
-   - Consider increasing Cloud Function memory allocation
+4. **503 Service Unavailable / Memory Issues**
+   - Increase Cloud Function memory allocation (512MB or 1GB recommended)
+   - The new implementation uses database pagination to prevent memory overflow
+   - If still occurring, ensure you're using the updated version with database-level batching
 
 ### Monitoring Progress
 
@@ -214,9 +239,10 @@ If you need to rollback changes, you would need to:
 ## Performance
 
 - Processing ~1,000 users takes approximately 30-60 seconds
-- Database read operations are optimized by fetching all users at once
+- Database read operations use pagination to fetch users in configurable batches
+- Memory usage is constant regardless of total user count (typically 100-200MB)
 - Batch writes prevent overwhelming the Realtime Database
-- Function memory usage scales with batch size
+- Function can handle datasets of any size with appropriate timeout configuration
 
 ## Support
 

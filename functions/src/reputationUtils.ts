@@ -81,8 +81,7 @@ export const hasPoorReputation = (user: User): boolean => {
 export const getRestrictionMultiplier = (user: User): number => {
   const reputationScore = calculateReputationScore(user);
   // Invert the score so poor reputation leads to longer restrictions
-  // Apply minimum multiplier of 0.1 to prevent extremely long restrictions
-  return Math.max(0.1, 1.0 - reputationScore);
+  return 1.0 - reputationScore;
 };
 
 /**

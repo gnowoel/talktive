@@ -53,8 +53,8 @@ export const getUser = async (userId: string): Promise<User | null> => {
  * Calculates the old revivedAt timestamp based on current time and user data
  */
 export const getOldRevivedAt = (now: number, user: User) => {
-  const then = now - 7 * oneDay;
-  const oldRevivedAt = Math.max(user.revivedAt ?? 0, then);
+  const start = now - 7 * oneDay;
+  const oldRevivedAt = Math.max(user.revivedAt ?? 0, start);
   return oldRevivedAt;
 };
 
@@ -62,17 +62,13 @@ export const getOldRevivedAt = (now: number, user: User) => {
  * Calculates the new revivedAt timestamp based on reputation and restrictions
  */
 export const getNewRevivedAt = async (now: number, oldRevivedAt: number, user: User) => {
-  const then = now - 7 * oneDay;
-  const remaining = oldRevivedAt - then;
-
-  let days = Math.ceil(remaining / oneDay);
-  if (days < 1) days = 1;
+  const start = now - 7 * oneDay;
+  const penalty = Math.max(oldRevivedAt - start, oneDay);
 
   // Calculate restriction multiplier based on reputation score
   const restrictionMultiplier = getRestrictionMultiplier(user);
-  days = Math.max(Math.ceil(days * restrictionMultiplier), 1);
+  const newRevivedAt = Math.max(oldRevivedAt, start) + penalty * restrictionMultiplier
 
-  const newRevivedAt = oldRevivedAt + days * oneDay;
   return Math.min(newRevivedAt, now + 21 * oneDay);
 };
 

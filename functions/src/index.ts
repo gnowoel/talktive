@@ -22,5 +22,6 @@ export { makeTopicPrivate } from './makeTopicPrivate';
 export { makeTopicPublic } from './makeTopicPublic';
 export { recallMessage } from './recallMessage';
 export { getUserDisplayName } from './getUserDisplayName';
+export { resetTrustedUserStatus } from './resetTrustedUserStatus';
 // export { default as migrateChatData } from './migrateChatData';
 // export { default as fixPartnerData } from './fixPartnerData';

@@ -31,12 +31,15 @@ export const resetTrustedUserStatus = onRequest(
         return;
       }
 
-      logger.info('Starting trusted user status reset process...');
+      logger.info('Starting trusted user status reset process for active users with completed profiles...');
 
       const batchSize = parseInt(req.body.batchSize) || 100; // Default batch size
       const dryRun = req.body.dryRun === 'true' || req.body.dryRun === true;
 
-      logger.info(`Configuration: batchSize=${batchSize}, dryRun=${dryRun}`);
+      // Calculate cutoff for recent activity (3 weeks = 21 days)
+      const threeWeeksAgo = Date.now() - (21 * 24 * 60 * 60 * 1000);
+
+      logger.info(`Configuration: batchSize=${batchSize}, dryRun=${dryRun}, activityCutoff=${new Date(threeWeeksAgo).toISOString()}`);
 
       const usersRef = db.ref('users');
 
@@ -46,21 +49,24 @@ export const resetTrustedUserStatus = onRequest(
       const errors: Array<{ userId: string, error: string }> = [];
 
       // Process users in database-level batches to prevent memory overflow
+      // Query by updatedAt first (recent activity), then filter by completed profiles in code
       let lastKey: string | null = null;
+      let lastUpdatedAt: number | null = null;
       let hasMoreUsers = true;
       let batchNumber = 0;
       let totalFetched = 0;
+      let skippedIncomplete = 0;
 
-      logger.info('Starting database-level batch processing...');
+      logger.info('Starting database-level batch processing for recently active users...');
 
       while (hasMoreUsers) {
         batchNumber++;
         logger.info(`Processing database batch ${batchNumber} (batch size: ${batchSize}), lastKey: ${lastKey}`);
 
-        // Create query for next batch of users
-        let query = usersRef.orderByKey().limitToFirst(batchSize + 1); // Get one extra to check if there are more
-        if (lastKey) {
-          query = query.startAt(lastKey);
+        // Create query for users active within last 3 weeks, ordered by updatedAt
+        let query = usersRef.orderByChild('updatedAt').startAt(threeWeeksAgo).limitToFirst(batchSize + 1); // Get one extra to check if there are more
+        if (lastUpdatedAt !== null && lastKey) {
+          query = query.startAt(threeWeeksAgo, lastKey);
         }
 
         const snapshot = await query.once('value');
@@ -107,10 +113,11 @@ export const resetTrustedUserStatus = onRequest(
 
         logger.info(`Fetched ${batchUserIds.length} users in batch ${batchNumber} (total so far: ${totalFetched})`);
 
-        // Update lastKey for next iteration
+        // Update lastKey and lastUpdatedAt for next iteration
         if (batchUserIds.length > 0) {
           lastKey = batchUserIds[batchUserIds.length - 1];
-          logger.info(`Updated lastKey to: ${lastKey}`);
+          lastUpdatedAt = batchUsers[lastKey]?.updatedAt || null;
+          logger.info(`Updated lastKey to: ${lastKey}, lastUpdatedAt: ${lastUpdatedAt}`);
         }
 
         // Process current batch
@@ -126,11 +133,19 @@ export const resetTrustedUserStatus = onRequest(
                   return;
                 }
 
+                // Check if user has completed profile (filter should be null)
+                const hasCompletedProfile = user.filter === null;
+                if (!hasCompletedProfile) {
+                  skippedIncomplete++;
+                  processedCount++;
+                  return;
+                }
+
                 const reputationScore = calculateReputationScore(user);
                 const reputationLevel = getReputationLevel(reputationScore);
 
-                // Reset users with reputation level higher than 'fair'
-                // This means 'good' and 'excellent' users will be reset
+                // Reset users with reputation level higher than 'fair' who are recently active
+                // This means 'good' and 'excellent' users with recent activity will be reset
                 const shouldReset = reputationScore > REPUTATION_THRESHOLDS.FAIR;
 
                 if (shouldReset) {
@@ -154,7 +169,8 @@ export const resetTrustedUserStatus = onRequest(
                     logger.info(
                       `${dryRun ? '[DRY RUN] ' : ''}Reset user ${userId} - ` +
                       `Reputation: ${reputationLevel} (${reputationScore.toFixed(3)}) - ` +
-                      `Followers: ${user.followerCount || 0}, Following: ${user.followeeCount || 0}`
+                      `Followers: ${user.followerCount || 0}, Following: ${user.followeeCount || 0} - ` +
+                      `Last active: ${new Date(user.updatedAt || 0).toISOString()} - Filter: ${user.filter}`
                     );
                   }
                 }
@@ -163,7 +179,7 @@ export const resetTrustedUserStatus = onRequest(
 
                 // Log progress every 500 processed users
                 if (processedCount % 500 === 0) {
-                  logger.info(`Progress: ${processedCount} users processed, ${resetCount} users reset`);
+                  logger.info(`Progress: ${processedCount} users processed, ${resetCount} users reset, ${skippedIncomplete} incomplete profiles skipped`);
                 }
 
               } catch (error) {
@@ -181,15 +197,15 @@ export const resetTrustedUserStatus = onRequest(
         // Wait for current batch to complete before processing next batch
         await Promise.all(batchPromises);
 
-        logger.info(`Completed database batch ${batchNumber} (${resetCount} users reset so far, ${processedCount} users processed)`);
+        logger.info(`Completed database batch ${batchNumber} (${resetCount} users reset so far, ${processedCount} users processed, ${skippedIncomplete} incomplete profiles skipped)`);
 
         // Clear batch data from memory to prevent accumulation
         Object.keys(batchUsers).forEach(key => delete batchUsers[key]);
       }
 
-      logger.info(`Database-level batch processing completed. Total batches: ${batchNumber}, Total users fetched: ${totalFetched}`);
+      logger.info(`Database-level batch processing completed. Total batches: ${batchNumber}, Total users fetched: ${totalFetched}, Incomplete profiles skipped: ${skippedIncomplete}`);
 
-      const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} users, reset ${resetCount} trusted users with good reputation (score > ${REPUTATION_THRESHOLDS.FAIR})`;
+      const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} recently active users, reset ${resetCount} trusted users with completed profiles and good reputation (score > ${REPUTATION_THRESHOLDS.FAIR})`;
       logger.info(message);
 
       const result = {
@@ -200,6 +216,8 @@ export const resetTrustedUserStatus = onRequest(
         dryRun,
         sampleResetUsers: resetUsers.slice(0, 10), // Return first 10 for reference
         totalResetUsers: resetCount,
+        skippedIncompleteUsers: skippedIncomplete,
+        activityCutoffDate: new Date(threeWeeksAgo).toISOString(),
         errors: errors.length > 0 ? errors.slice(0, 5) : undefined, // Return first 5 errors if any
         errorCount: errors.length,
         reputationThreshold: REPUTATION_THRESHOLDS.FAIR,

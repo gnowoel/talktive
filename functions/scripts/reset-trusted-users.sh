@@ -2,7 +2,8 @@
 
 # Script to reset trusted user status using the Cloud Function
 # This script calls the resetTrustedUserStatus function to reset reportCount and revivedAt
-# for users with good reputation (score > 0.60)
+# for users with completed profiles who are recently active and have good reputation
+# Criteria: filter=null, updatedAt within 3 weeks, reputation score > 0.60
 
 set -e # Exit on error
 
@@ -89,12 +90,16 @@ call_reset_function() {
     if command -v jq &>/dev/null; then
       local processed_count=$(echo "$body" | jq -r '.processedCount // "N/A"')
       local reset_count=$(echo "$body" | jq -r '.resetCount // "N/A"')
+      local skipped_incomplete=$(echo "$body" | jq -r '.skippedIncompleteUsers // "N/A"')
       local dry_run_status=$(echo "$body" | jq -r '.dryRun // "N/A"')
+      local activity_cutoff=$(echo "$body" | jq -r '.activityCutoffDate // "N/A"')
 
       echo ""
       print_status $BLUE "📈 Summary:"
       echo "  • Total Users Processed: $processed_count"
       echo "  • Users Reset: $reset_count"
+      echo "  • Incomplete Profiles Skipped: $skipped_incomplete"
+      echo "  • Activity Cutoff Date: $activity_cutoff"
       echo "  • Dry Run Mode: $dry_run_status"
     fi
   else
@@ -115,7 +120,7 @@ call_reset_function() {
 show_help() {
   echo "Usage: $0 [OPTIONS]"
   echo ""
-  echo "Reset trusted user status for users with good reputation"
+  echo "Reset trusted user status for recently active users with completed profiles and good reputation"
   echo ""
   echo "Options:"
   echo "  -d, --dry-run           Perform a dry run (default: true)"
@@ -126,7 +131,7 @@ show_help() {
   echo "Examples:"
   echo "  $0                      # Dry run with default settings"
   echo "  $0 --dry-run            # Explicit dry run"
-  echo "  $0 --execute            # Execute actual reset"
+  echo "  $0 --execute            # Execute actual reset for recently active users"
   echo "  $0 -e -b 50             # Execute with batch size of 50"
   echo ""
   echo "Configuration:"
@@ -183,7 +188,10 @@ echo ""
 # Confirm execution if not dry run
 if [ "$DRY_RUN" = "false" ]; then
   print_status $YELLOW "⚠️  WARNING: This will perform ACTUAL RESET of user data!"
-  echo "This will reset reportCount and revivedAt to 0 for all users with reputation > 0.60"
+  echo "This will reset reportCount and revivedAt to 0 for users meeting ALL criteria:"
+  echo "  • Recently active (updatedAt within last 3 weeks)"
+  echo "  • Completed profile (filter = null)"
+  echo "  • Good reputation (score > 0.60)"
   echo ""
   read -p "Are you sure you want to continue? (type 'yes' to confirm): " confirmation
 

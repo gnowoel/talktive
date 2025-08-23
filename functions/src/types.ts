@@ -26,6 +26,7 @@ export interface User {
   role?: string | null;
   followeeCount?: number | null;
   followerCount?: number | null;
+  filter?: string | null;
 }
 
 export interface Pair {

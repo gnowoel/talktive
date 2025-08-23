@@ -49,17 +49,18 @@ export const resetTrustedUserStatus = onRequest(
       let lastKey: string | null = null;
       let hasMoreUsers = true;
       let batchNumber = 0;
+      let totalFetched = 0;
 
       logger.info('Starting database-level batch processing...');
 
       while (hasMoreUsers) {
         batchNumber++;
-        logger.info(`Processing database batch ${batchNumber} (batch size: ${batchSize})`);
+        logger.info(`Processing database batch ${batchNumber} (batch size: ${batchSize}), lastKey: ${lastKey}`);
 
         // Create query for next batch of users
-        let query = usersRef.orderByKey().limitToFirst(batchSize);
+        let query = usersRef.orderByKey().limitToFirst(batchSize + 1); // Get one extra to check if there are more
         if (lastKey) {
-          query = query.startAfter(lastKey);
+          query = query.startAt(lastKey);
         }
 
         const snapshot = await query.once('value');
@@ -70,19 +71,46 @@ export const resetTrustedUserStatus = onRequest(
           break;
         }
 
-        const batchUsers = snapshot.val();
-        const batchUserIds = Object.keys(batchUsers);
+        const allBatchUsers = snapshot.val();
+        let batchUsers = allBatchUsers;
+        let batchUserIds = Object.keys(allBatchUsers);
 
-        logger.info(`Fetched ${batchUserIds.length} users in batch ${batchNumber}`);
+        // If this is not the first batch, skip the first user (as it's the lastKey from previous batch)
+        if (lastKey && batchUserIds.length > 0 && batchUserIds[0] === lastKey) {
+          batchUserIds.shift(); // Remove first element
+          const { [lastKey]: _removed, ...remainingUsers } = batchUsers;
+          batchUsers = remainingUsers;
+        }
 
-        // If we got fewer users than the batch size, this is the last batch
-        if (batchUserIds.length < batchSize) {
+        // Check if we have more users after this batch
+        if (batchUserIds.length > batchSize) {
+          // We have more users, so we'll continue after this batch
+          hasMoreUsers = true;
+          // Remove the extra user from processing but keep it as indicator
+          const extraUserId = batchUserIds.pop();
+          if (extraUserId) {
+            const { [extraUserId]: _removed, ...limitedUsers } = batchUsers;
+            batchUsers = limitedUsers;
+          }
+        } else if (batchUserIds.length === 0) {
+          // No users to process in this batch
+          logger.info(`No new users in batch ${batchNumber}, ending pagination`);
+          hasMoreUsers = false;
+          break;
+        } else {
+          // This is the last batch
           hasMoreUsers = false;
         }
+
+        batchUserIds = Object.keys(batchUsers);
+        totalFetched += batchUserIds.length;
+
+        logger.info(`Fetched ${batchUserIds.length} users in batch ${batchNumber} (total so far: ${totalFetched})`);
 
         // Update lastKey for next iteration
         if (batchUserIds.length > 0) {
           lastKey = batchUserIds[batchUserIds.length - 1];
+          logger.info(`Updated lastKey to: ${lastKey}`);
         }
 
         // Process current batch
@@ -159,7 +187,7 @@ export const resetTrustedUserStatus = onRequest(
         Object.keys(batchUsers).forEach(key => delete batchUsers[key]);
       }
 
-      logger.info(`Database-level batch processing completed. Total batches: ${batchNumber}`);
+      logger.info(`Database-level batch processing completed. Total batches: ${batchNumber}, Total users fetched: ${totalFetched}`);
 
       const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} users, reset ${resetCount} trusted users with good reputation (score > ${REPUTATION_THRESHOLDS.FAIR})`;
       logger.info(message);

@@ -64,9 +64,11 @@ export const resetTrustedUserStatus = onRequest(
         logger.info(`Processing database batch ${batchNumber} (batch size: ${batchSize}), lastKey: ${lastKey}`);
 
         // Create query for users active within last 3 weeks, ordered by updatedAt
-        let query = usersRef.orderByChild('updatedAt').startAt(threeWeeksAgo).limitToFirst(batchSize + 1); // Get one extra to check if there are more
+        let query = usersRef.orderByChild('updatedAt').limitToFirst(batchSize + 1); // Get one extra to check if there are more
         if (lastUpdatedAt !== null && lastKey) {
-          query = query.startAt(threeWeeksAgo, lastKey);
+          query = query.startAt(lastUpdatedAt, lastKey);
+        } else {
+          query = query.startAt(threeWeeksAgo);
         }
 
         const snapshot = await query.once('value');

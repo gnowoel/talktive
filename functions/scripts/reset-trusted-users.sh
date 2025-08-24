@@ -2,8 +2,8 @@
 
 # Script to reset trusted user status using the Cloud Function
 # This script calls the resetTrustedUserStatus function to reset reportCount and revivedAt
-# for users with completed profiles who are recently active, have recent restrictions, and have good reputation
-# Criteria: filter=null/undefined, updatedAt within 1 week, revivedAt within 1 week, reputation score > 0.60
+# for users with completed profiles who are recently active, have recent restrictions or reports, and have good reputation
+# Criteria: filter=null/undefined, updatedAt within 1 week, (revivedAt within 1 week OR reportCount > 0), reputation score >= 0.40
 
 set -e # Exit on error
 
@@ -120,7 +120,7 @@ call_reset_function() {
 show_help() {
   echo "Usage: $0 [OPTIONS]"
   echo ""
-  echo "Reset trusted user status for users active within the past week with completed profiles, recent restrictions, and good reputation"
+  echo "Reset trusted user status for users active within the past week with completed profiles, recent restrictions or reports, and good reputation"
   echo ""
   echo "Options:"
   echo "  -d, --dry-run           Perform a dry run (default: true)"
@@ -191,7 +191,7 @@ if [ "$DRY_RUN" = "false" ]; then
   echo "This will reset reportCount and revivedAt to 0 for users meeting ALL criteria:"
   echo "  • Recently active (updatedAt within last 1 week)"
   echo "  • Completed profile (filter = null or undefined)"
-  echo "  • Recent restrictions (revivedAt within last 1 week)"
+  echo "  • Recent restrictions OR any reports (revivedAt within 1 week OR reportCount > 0)"
   echo "  • Fair reputation (score >= 0.40)"
   echo ""
   read -p "Are you sure you want to continue? (type 'yes' to confirm): " confirmation

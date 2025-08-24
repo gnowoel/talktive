@@ -67,8 +67,14 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '💬 Efficient Chats',
-                            'Reimplemented 1-on-1 chats in a more efficient way.',
+                            '🛡️ Enhanced Trust System',
+                            'Made trusted users less likely to be affected by intentional reports.',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureCard(
+                            Theme.of(context),
+                            '📸 Picture Permissions',
+                            'Allowed only experienced users to send pictures.',
                           ),
                           const SizedBox(height: 32),
                           Text(
@@ -85,8 +91,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '📝 Easier Moments',
-                            'Made creating Moments easier to encourage sharing.',
+                            '💬 Efficient Chats',
+                            'Reimplemented 1-on-1 chats in a more efficient way.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

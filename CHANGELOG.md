@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 4.6.1+73
+
+- Made trusted users less likely be affected by intentional reports
+- Allowed only experienced users to send pictures
+- Updated dependencies
+
 ## 4.6.0+72
 
 - Reimplemented 1-on-1 chats in a more efficient way

@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-final whatsNewVersion = '4.6.0+72';
+final whatsNewVersion = '4.6.1+73';
 final setupWizardVersion = '3.0.4+28';
 final usersPageNoticeVersion = 'true'; // Next time will use verion number
 final chatsPageNoticeVersion = '4.3.0+58';

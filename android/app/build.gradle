@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "app.talktive"
-    compileSdk 35
+    compileSdk 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -57,8 +57,8 @@ android {
         applicationId "app.talktive"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23
-        targetSdkVersion 35
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 

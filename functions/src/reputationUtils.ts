@@ -8,10 +8,10 @@ import { User } from './types';
  * Reputation level thresholds - keep in sync with client-side Dart code
  */
 export const REPUTATION_THRESHOLDS = {
-  EXCELLENT: 0.90,
-  GOOD: 0.80,
-  FAIR: 0.60,
-  POOR: 0.40,
+  EXCELLENT: 0.80,
+  GOOD: 0.60,
+  FAIR: 0.40,
+  POOR: 0.20,
 } as const;
 
 /**
@@ -54,7 +54,7 @@ export const getReputationLevel = (score: number): string => {
 };
 
 /**
- * Check if user has good reputation (score >= 0.80)
+ * Check if user has good reputation (score >= 0.60)
  * @param user - User object
  * @returns true if user has good reputation
  */
@@ -63,7 +63,7 @@ export const hasGoodReputation = (user: User): boolean => {
 };
 
 /**
- * Check if user has poor reputation (score < 0.60)
+ * Check if user has poor reputation (score < 0.40)
  * @param user - User object
  * @returns true if user has poor reputation
  */

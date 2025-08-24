@@ -82,10 +82,12 @@ class NormalTopicInputState extends State<NormalTopicInput> {
     final user = userCache.user;
     final hasPermission = canSendMessage(user);
     final currentUserId = fireauth.instance.currentUser?.uid;
-    final isBlocked = currentUserId != null &&
+    final isBlocked =
+        currentUserId != null &&
         topicFollowersCache.isUserBlocked(currentUserId);
 
-    _enabled = hasPermission &&
+    _enabled =
+        hasPermission &&
         timeLeft > 0 &&
         !widget.topic!.isDummy &&
         !widget.topic!.isClosed &&
@@ -101,9 +103,11 @@ class NormalTopicInputState extends State<NormalTopicInput> {
           final user = userCache.user;
           final hasPermission = canSendMessage(user);
           final currentUserId = fireauth.instance.currentUser?.uid;
-          final isBlocked = currentUserId != null &&
+          final isBlocked =
+              currentUserId != null &&
               topicFollowersCache.isUserBlocked(currentUserId);
-          _enabled = hasPermission &&
+          _enabled =
+              hasPermission &&
               !widget.topic!.isDummy &&
               !widget.topic!.isClosed &&
               !isBlocked;
@@ -124,7 +128,7 @@ class NormalTopicInputState extends State<NormalTopicInput> {
 
   bool _canSendPicture() {
     final user = userCache.user;
-    return canSendPicture(user);
+    return canSendPublicPicture(user);
   }
 
   Future<void> _showPictureRestrictionDialog() async {
@@ -279,10 +283,12 @@ class NormalTopicInputState extends State<NormalTopicInput> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed =
+          event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
@@ -363,8 +369,9 @@ class NormalTopicInputState extends State<NormalTopicInput> {
             (!_enabled ||
                 userCache.user?.withAlert == true ||
                 (fireauth.instance.currentUser?.uid != null &&
-                    topicFollowersCache
-                        .isUserBlocked(fireauth.instance.currentUser!.uid))))
+                    topicFollowersCache.isUserBlocked(
+                      fireauth.instance.currentUser!.uid,
+                    ))))
           _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

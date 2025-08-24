@@ -79,7 +79,8 @@ class ChatInputState extends State<ChatInput> {
     final user = userCache.user;
     final hasPermission = canSendMessage(user);
 
-    _enabled = hasPermission &&
+    _enabled =
+        hasPermission &&
         timeLeft > 0 &&
         widget.chat.isNotDummy &&
         widget.chat.isNotClosed;
@@ -190,7 +191,7 @@ class ChatInputState extends State<ChatInput> {
 
   bool _canSendPicture() {
     final user = userCache.user;
-    return canSendPicture(user);
+    return canSendPrivatePicture(user);
   }
 
   Future<void> _showPictureRestrictionDialog() async {
@@ -199,7 +200,7 @@ class ChatInputState extends State<ChatInput> {
     const title = 'Cannot Send Picture';
     final content = [
       Text(
-        'Sorry, you need level 6, good reputation and no restrictions to send pictures.',
+        'Sorry, you need level 4, decent reputation and no restrictions to send pictures.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),
@@ -300,10 +301,12 @@ class ChatInputState extends State<ChatInput> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed =
+          event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {

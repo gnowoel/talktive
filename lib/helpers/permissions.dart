@@ -27,7 +27,12 @@ bool canCreateTopic(User? user) {
   return _isIntermediate(user);
 }
 
-bool canSendPicture(User? user) {
+bool canSendPrivatePicture(User? user) {
+  if (user == null) return false;
+  return _isIntermediate(user);
+}
+
+bool canSendPublicPicture(User? user) {
   if (user == null) return false;
   return _isAdvanced(user);
 }

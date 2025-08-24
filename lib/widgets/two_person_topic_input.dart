@@ -82,10 +82,12 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
     final user = userCache.user;
     final hasPermission = canSendMessage(user);
     final currentUserId = fireauth.instance.currentUser?.uid;
-    final isBlocked = currentUserId != null &&
+    final isBlocked =
+        currentUserId != null &&
         topicFollowersCache.isUserBlocked(currentUserId);
 
-    _enabled = hasPermission &&
+    _enabled =
+        hasPermission &&
         timeLeft > 0 &&
         !widget.topic!.isDummy &&
         !widget.topic!.isClosed &&
@@ -101,9 +103,11 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
           final user = userCache.user;
           final hasPermission = canSendMessage(user);
           final currentUserId = fireauth.instance.currentUser?.uid;
-          final isBlocked = currentUserId != null &&
+          final isBlocked =
+              currentUserId != null &&
               topicFollowersCache.isUserBlocked(currentUserId);
-          _enabled = hasPermission &&
+          _enabled =
+              hasPermission &&
               !widget.topic!.isDummy &&
               !widget.topic!.isClosed &&
               !isBlocked;
@@ -124,7 +128,7 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
 
   bool _canSendPicture() {
     final user = userCache.user;
-    return canSendPicture(user);
+    return canSendPrivatePicture(user);
   }
 
   Future<void> _showPictureRestrictionDialog() async {
@@ -133,7 +137,7 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
     const title = 'Cannot Send Picture';
     final content = [
       Text(
-        'Sorry, you need level 6, good reputation and no restrictions to send pictures.',
+        'Sorry, you need level 4, decent reputation and no restrictions to send pictures.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),
@@ -279,10 +283,12 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
 
   KeyEventResult _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      final isCtrlOrCommandPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isCtrlOrCommandPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
 
-      final isEnterPressed = event.logicalKey == LogicalKeyboardKey.enter ||
+      final isEnterPressed =
+          event.logicalKey == LogicalKeyboardKey.enter ||
           event.logicalKey == LogicalKeyboardKey.numpadEnter;
 
       if (isCtrlOrCommandPressed && isEnterPressed) {
@@ -363,8 +369,9 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
             (!_enabled ||
                 userCache.user?.withAlert == true ||
                 (fireauth.instance.currentUser?.uid != null &&
-                    topicFollowersCache
-                        .isUserBlocked(fireauth.instance.currentUser!.uid))))
+                    topicFollowersCache.isUserBlocked(
+                      fireauth.instance.currentUser!.uid,
+                    ))))
           _buildStatusNotice(),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

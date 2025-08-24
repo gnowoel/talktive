@@ -145,19 +145,19 @@ class User {
     return score.clamp(0.0, 1.0);
   }
 
-  /// Check if user has good reputation (score >= 0.80)
-  bool get hasGoodReputation => reputationScore >= 0.80;
+  /// Check if user has good reputation (score >= 0.60)
+  bool get hasGoodReputation => reputationScore >= 0.60;
 
-  /// Check if user has poor reputation (score < 0.60)
-  bool get hasPoorReputation => reputationScore < 0.60;
+  /// Check if user has poor reputation (score < 0.40)
+  bool get hasPoorReputation => reputationScore < 0.40;
 
   /// Get reputation level as a string for display purposes
   String get reputationLevel {
     final score = reputationScore;
-    if (score >= 0.90) return level >= 6 ? 'excellent' : 'fair';
-    if (score >= 0.80) return level >= 6 ? 'good' : 'fair';
-    if (score >= 0.60) return 'fair';
-    if (score >= 0.40) return 'poor';
+    if (score >= 0.80) return level >= 6 ? 'excellent' : 'fair';
+    if (score >= 0.60) return level >= 6 ? 'good' : 'fair';
+    if (score >= 0.40) return 'fair';
+    if (score >= 0.20) return 'poor';
     return 'very_poor';
   }
 

@@ -1,5 +1,6 @@
 import '../models/user.dart';
-import '../services/follow_cache.dart';
+
+// Abilities
 
 bool canSendMessage(User? user) {
   if (user == null) return false;
@@ -21,9 +22,9 @@ bool canJoinTopic(User? user) {
   return _isBasic(user);
 }
 
-bool canCreateTopic(User? user, FollowCache? followCache) {
+bool canCreateTopic(User? user) {
   if (user == null) return false;
-  return _isAdvanced(user, followCache);
+  return _isIntermediate(user);
 }
 
 // Three levels
@@ -36,42 +37,40 @@ bool _isBasic(User? user) {
 bool _isIntermediate(User? user) {
   if (user == null) return false;
 
-  return _hasGoodReputation(user) &&
-      _hasIntermediateLevelExperience(user) &&
-      _withoutWarning(user);
+  return _withoutWarning(user) &&
+      _hasDecentReputation(user) &&
+      _hasIntermediateLevelExperience(user);
 }
 
-bool _isAdvanced(User? user, FollowCache? followCache) {
-  if (user == null) return false;
-  if (followCache == null) return false;
+// bool _isAdvanced(User? user) {
+//   if (user == null) return false;
 
-  return _hasGoodReputation(user) &&
-      _hasHighLevelExperience(user) &&
-      _withoutWarning(user) &&
-      _hasFollowers(followCache);
-}
+//   return _withoutWarning(user) &&
+//       _hasDecentReputation(user) &&
+//       _hasHighLevelExperience(user);
+// }
 
-bool _hasGoodReputation(User? user) {
+bool _hasDecentReputation(User? user) {
   if (user == null) return false;
-  return user.hasGoodReputation;
+  return user.hasDecentReputation;
 }
 
 bool _hasIntermediateLevelExperience(User? user) {
   if (user == null) return false;
-  return user.level >= 5; // 81 messages
+  return user.level >= 4; // 27 messages
 }
 
-bool _hasHighLevelExperience(User? user) {
-  if (user == null) return false;
-  return user.level >= 6; // 244 messages
-}
+// bool _hasHighLevelExperience(User? user) {
+//   if (user == null) return false;
+//   return user.level >= 6; // 244 messages
+// }
+
+// bool _hasFollowers(FollowCache? followCache) {
+//   if (followCache == null) return false;
+//   return followCache.followers.isNotEmpty;
+// }
 
 bool _withoutWarning(User? user) {
   if (user == null) return false;
   return !user.withWarning;
-}
-
-bool _hasFollowers(FollowCache? followCache) {
-  if (followCache == null) return false;
-  return followCache.followers.isNotEmpty;
 }

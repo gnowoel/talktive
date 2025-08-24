@@ -59,8 +59,6 @@ class _UserItemState extends State<UserItem> {
     isFriend = followCache.isFollowing(widget.user.id);
   }
 
-
-
   Future<void> _greetUser() async {
     _doAction(() async {
       final self = userCache.user!;
@@ -364,13 +362,13 @@ class _UserItemState extends State<UserItem> {
                     } else if (widget.user.isModerator &&
                         !widget.user.isAdmin) {
                       return [const SizedBox(width: 4), Tag(status: 'mod')];
-                    } else if (widget.user.reputationLevel == 'very_poor') {
-                      return [
-                        const SizedBox(width: 4),
-                        Tag(status: 'very_poor')
-                      ];
-                    } else if (widget.user.reputationLevel == 'poor') {
-                      return [const SizedBox(width: 4), Tag(status: 'poor')];
+                      // } else if (widget.user.reputationLevel == 'very_poor') {
+                      //   return [
+                      //     const SizedBox(width: 4),
+                      //     Tag(status: 'very_poor')
+                      //   ];
+                      // } else if (widget.user.reputationLevel == 'poor') {
+                      //   return [const SizedBox(width: 4), Tag(status: 'poor')];
                     } else if (userStatus == 'newcomer') {
                       return [
                         const SizedBox(width: 4),

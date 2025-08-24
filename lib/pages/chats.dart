@@ -8,7 +8,6 @@ import '../helpers/permissions.dart';
 import '../helpers/time.dart';
 import '../models/room.dart';
 import '../services/chat_cache.dart';
-import '../services/follow_cache.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../services/tribe_cache.dart';
@@ -29,7 +28,6 @@ class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late ChatCache chatCache;
   late TopicCache topicCache;
-  late FollowCache followCache;
   late UserCache userCache;
   late TribeCache tribeCache;
   List<Room> _items = []; // Stores both chats and topics
@@ -46,7 +44,6 @@ class _ChatsPageState extends State<ChatsPage> {
     super.didChangeDependencies();
     chatCache = Provider.of<ChatCache>(context);
     topicCache = Provider.of<TopicCache>(context);
-    followCache = Provider.of<FollowCache>(context);
     userCache = Provider.of<UserCache>(context);
     tribeCache = Provider.of<TribeCache>(context);
     _setItemsAgain();
@@ -120,7 +117,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
   bool _canCreateTopic() {
     final user = userCache.user;
-    return canCreateTopic(user, followCache);
+    return canCreateTopic(user);
   }
 
   String get _fabTooltip {
@@ -137,7 +134,7 @@ class _ChatsPageState extends State<ChatsPage> {
     String title = 'Cannot Create Moment';
     List<Widget> content = [
       Text(
-        'Sorry, you need level 6, followers, good reputation and no restrictions to create moments.',
+        'Sorry, you need level 4, decent reputation and no restrictions to create moments.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),

@@ -172,28 +172,28 @@ class ProfilePage extends StatelessWidget {
                                               .colorScheme.onPrimaryContainer,
                                         ),
                                       );
-                                    } else if (user.reputationLevel ==
-                                        'very_poor') {
-                                      widgets.add(
-                                        _Badge(
-                                          label: 'Poor Reputation',
-                                          backgroundColor:
-                                              theme.colorScheme.errorContainer,
-                                          textColor: theme
-                                              .colorScheme.onErrorContainer,
-                                        ),
-                                      );
-                                    } else if (user.reputationLevel == 'poor') {
-                                      widgets.add(
-                                        _Badge(
-                                          label: 'Caution',
-                                          backgroundColor: theme
-                                              .colorScheme.errorContainer
-                                              .withValues(alpha: 0.7),
-                                          textColor: theme
-                                              .colorScheme.onErrorContainer,
-                                        ),
-                                      );
+                                      // } else if (user.reputationLevel ==
+                                      //     'very_poor') {
+                                      //   widgets.add(
+                                      //     _Badge(
+                                      //       label: 'Poor Reputation',
+                                      //       backgroundColor:
+                                      //           theme.colorScheme.errorContainer,
+                                      //       textColor: theme
+                                      //           .colorScheme.onErrorContainer,
+                                      //     ),
+                                      //   );
+                                      // } else if (user.reputationLevel == 'poor') {
+                                      //   widgets.add(
+                                      //     _Badge(
+                                      //       label: 'Caution',
+                                      //       backgroundColor: theme
+                                      //           .colorScheme.errorContainer
+                                      //           .withValues(alpha: 0.7),
+                                      //       textColor: theme
+                                      //           .colorScheme.onErrorContainer,
+                                      //     ),
+                                      //   );
                                     } else if (userStatus == 'newcomer') {
                                       widgets.add(
                                         _Badge(

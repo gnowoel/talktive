@@ -27,6 +27,11 @@ bool canCreateTopic(User? user) {
   return _isIntermediate(user);
 }
 
+bool canSendPicture(User? user) {
+  if (user == null) return false;
+  return _isAdvanced(user);
+}
+
 // Three levels
 
 bool _isBasic(User? user) {
@@ -42,17 +47,22 @@ bool _isIntermediate(User? user) {
       _hasIntermediateLevelExperience(user);
 }
 
-// bool _isAdvanced(User? user) {
-//   if (user == null) return false;
+bool _isAdvanced(User? user) {
+  if (user == null) return false;
 
-//   return _withoutWarning(user) &&
-//       _hasDecentReputation(user) &&
-//       _hasHighLevelExperience(user);
-// }
+  return _withoutWarning(user) &&
+      _hasGoodReputation(user) &&
+      _hasHighLevelExperience(user);
+}
 
 bool _hasDecentReputation(User? user) {
   if (user == null) return false;
   return user.hasDecentReputation;
+}
+
+bool _hasGoodReputation(User? user) {
+  if (user == null) return false;
+  return user.hasGoodReputation;
 }
 
 bool _hasIntermediateLevelExperience(User? user) {
@@ -60,10 +70,10 @@ bool _hasIntermediateLevelExperience(User? user) {
   return user.level >= 4; // 27 messages
 }
 
-// bool _hasHighLevelExperience(User? user) {
-//   if (user == null) return false;
-//   return user.level >= 6; // 244 messages
-// }
+bool _hasHighLevelExperience(User? user) {
+  if (user == null) return false;
+  return user.level >= 6; // 244 messages
+}
 
 // bool _hasFollowers(FollowCache? followCache) {
 //   if (followCache == null) return false;

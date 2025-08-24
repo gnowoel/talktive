@@ -192,7 +192,7 @@ if [ "$DRY_RUN" = "false" ]; then
   echo "  • Recently active (updatedAt within last 1 week)"
   echo "  • Completed profile (filter = null or undefined)"
   echo "  • Recent restrictions (revivedAt within last 1 week)"
-  echo "  • Good reputation (score >= 0.60)"
+  echo "  • Fair reputation (score >= 0.40)"
   echo ""
   read -p "Are you sure you want to continue? (type 'yes' to confirm): " confirmation
 

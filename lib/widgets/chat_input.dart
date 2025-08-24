@@ -188,6 +188,54 @@ class ChatInputState extends State<ChatInput> {
     });
   }
 
+  bool _canSendPicture() {
+    final user = userCache.user;
+    return canSendPicture(user);
+  }
+
+  Future<void> _showPictureRestrictionDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    const title = 'Cannot Send Picture';
+    final content = [
+      Text(
+        'Sorry, you need level 6, good reputation and no restrictions to send pictures.',
+        style: TextStyle(height: 1.5, color: colorScheme.error),
+      ),
+      const SizedBox(height: 16),
+      const Text(
+        'This helps maintain quality discussions in our community.',
+        style: TextStyle(height: 1.5),
+      ),
+    ];
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleSendImageMessage() async {
+    if (!_canSendPicture()) {
+      await _showPictureRestrictionDialog();
+      return;
+    }
+    await _sendImageMessage();
+  }
+
   Future<void> _sendImageMessage() async {
     final user = userCache.user!;
 
@@ -334,7 +382,7 @@ class ChatInputState extends State<ChatInput> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: _enabled ? _sendImageMessage : null,
+                  onPressed: _enabled ? _handleSendImageMessage : null,
                   icon: _isUploading
                       ? const SizedBox(
                           width: 20,

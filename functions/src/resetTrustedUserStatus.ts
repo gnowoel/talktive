@@ -155,9 +155,9 @@ export const resetTrustedUserStatus = onRequest(
                 const reputationScore = calculateReputationScore(user);
                 const reputationLevel = getReputationLevel(reputationScore);
 
-                // Reset users with good or excellent reputation who are recently active and have recent restrictions
-                // This means 'good' and 'excellent' users with recent activity and restrictions will be reset
-                const shouldReset = reputationScore >= REPUTATION_THRESHOLDS.GOOD;
+                // Reset users with fair, good, or excellent reputation who are recently active and have recent restrictions
+                // This means 'fair', 'good' and 'excellent' users with recent activity and restrictions will be reset
+                const shouldReset = reputationScore >= REPUTATION_THRESHOLDS.FAIR;
 
                 if (shouldReset) {
                   resetUsers.push({
@@ -216,7 +216,7 @@ export const resetTrustedUserStatus = onRequest(
 
       logger.info(`Database-level batch processing completed. Total batches: ${batchNumber}, Total users fetched: ${totalFetched}, Users skipped: ${skippedIncomplete}`);
 
-      const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} users active within the past week, reset ${resetCount} trusted users with completed profiles, recent restrictions, and good reputation (score >= ${REPUTATION_THRESHOLDS.GOOD})`;
+      const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} users active within the past week, reset ${resetCount} trusted users with completed profiles, recent restrictions, and good reputation (score >= ${REPUTATION_THRESHOLDS.FAIR})`;
       logger.info(message);
 
       const result = {
@@ -231,7 +231,7 @@ export const resetTrustedUserStatus = onRequest(
         activityCutoffDate: new Date(oneWeekAgo).toISOString(),
         errors: errors.length > 0 ? errors.slice(0, 5) : undefined, // Return first 5 errors if any
         errorCount: errors.length,
-        reputationThreshold: REPUTATION_THRESHOLDS.GOOD,
+        reputationThreshold: REPUTATION_THRESHOLDS.FAIR,
       };
 
       res.status(200).json(result);

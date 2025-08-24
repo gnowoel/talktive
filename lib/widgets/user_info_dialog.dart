@@ -249,10 +249,10 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 ] else if (widget.user!.isModerator &&
                     !widget.user!.isAdmin) ...[
                   Tag(status: 'mod'),
-                ] else if (widget.user!.reputationLevel == 'very_poor') ...[
-                  Tag(status: 'very_poor'),
-                ] else if (widget.user!.reputationLevel == 'poor') ...[
-                  Tag(status: 'poor'),
+                  // ] else if (widget.user!.reputationLevel == 'very_poor') ...[
+                  //   Tag(status: 'very_poor'),
+                  // ] else if (widget.user!.reputationLevel == 'poor') ...[
+                  //   Tag(status: 'poor'),
                 ] else if (userStatus == 'newcomer') ...[
                   Tag(status: 'newcomer'),
                   // ] else if (widget.user!.reputationLevel == 'excellent') ...[

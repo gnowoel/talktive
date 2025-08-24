@@ -148,6 +148,9 @@ class User {
   /// Check if user has good reputation (score >= 0.60)
   bool get hasGoodReputation => reputationScore >= 0.60;
 
+  /// Check if user has decent reputation (score >= 0.40)
+  bool get hasDecentReputation => reputationScore >= 0.40;
+
   /// Check if user has poor reputation (score < 0.40)
   bool get hasPoorReputation => reputationScore < 0.40;
 

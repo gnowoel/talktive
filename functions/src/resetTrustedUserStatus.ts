@@ -143,10 +143,11 @@ export const resetTrustedUserStatus = onRequest(
                   return;
                 }
 
-                // Check if user has active restrictions within the past week
-                // Only reset if revivedAt is within the past week (indicating recent restrictions)
+                // Check if user has recent restrictions OR any report count
+                // Reset if either revivedAt is within the past week OR reportCount > 0
                 const hasRecentRestrictions = user.revivedAt && user.revivedAt >= oneWeekAgo;
-                if (!hasRecentRestrictions) {
+                const hasReports = user.reportCount && user.reportCount > 0;
+                if (!hasRecentRestrictions && !hasReports) {
                   skippedIncomplete++; // Using same counter for simplicity
                   processedCount++;
                   return;
@@ -155,8 +156,8 @@ export const resetTrustedUserStatus = onRequest(
                 const reputationScore = calculateReputationScore(user);
                 const reputationLevel = getReputationLevel(reputationScore);
 
-                // Reset users with fair, good, or excellent reputation who are recently active and have recent restrictions
-                // This means 'fair', 'good' and 'excellent' users with recent activity and restrictions will be reset
+                // Reset users with fair, good, or excellent reputation who are recently active and have recent restrictions OR any reports
+                // This means 'fair', 'good' and 'excellent' users with recent activity and (recent restrictions OR report count > 0) will be reset
                 const shouldReset = reputationScore >= REPUTATION_THRESHOLDS.FAIR;
 
                 if (shouldReset) {
@@ -190,7 +191,7 @@ export const resetTrustedUserStatus = onRequest(
 
                 // Log progress every 500 processed users
                 if (processedCount % 500 === 0) {
-                  logger.info(`Progress: ${processedCount} users processed, ${resetCount} users reset, ${skippedIncomplete} users skipped (incomplete profiles or no recent restrictions)`);
+                  logger.info(`Progress: ${processedCount} users processed, ${resetCount} users reset, ${skippedIncomplete} users skipped (incomplete profiles or no recent restrictions/reports)`);
                 }
 
               } catch (error) {
@@ -208,7 +209,7 @@ export const resetTrustedUserStatus = onRequest(
         // Wait for current batch to complete before processing next batch
         await Promise.all(batchPromises);
 
-        logger.info(`Completed database batch ${batchNumber} (${resetCount} users reset so far, ${processedCount} users processed, ${skippedIncomplete} users skipped)`);
+        logger.info(`Completed database batch ${batchNumber} (${resetCount} users reset so far, ${processedCount} users processed, ${skippedIncomplete} users skipped (incomplete profiles or no restrictions/reports))`);
 
         // Clear batch data from memory to prevent accumulation
         Object.keys(batchUsers).forEach(key => delete batchUsers[key]);
@@ -216,7 +217,7 @@ export const resetTrustedUserStatus = onRequest(
 
       logger.info(`Database-level batch processing completed. Total batches: ${batchNumber}, Total users fetched: ${totalFetched}, Users skipped: ${skippedIncomplete}`);
 
-      const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} users active within the past week, reset ${resetCount} trusted users with completed profiles, recent restrictions, and good reputation (score >= ${REPUTATION_THRESHOLDS.FAIR})`;
+      const message = `${dryRun ? '[DRY RUN] ' : ''}Successfully processed ${processedCount} users active within the past week, reset ${resetCount} trusted users with completed profiles, recent restrictions or reports, and good reputation (score >= ${REPUTATION_THRESHOLDS.FAIR})`;
       logger.info(message);
 
       const result = {

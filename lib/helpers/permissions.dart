@@ -4,12 +4,12 @@ import '../models/user.dart';
 
 bool canSendMessage(User? user) {
   if (user == null) return false;
-  return _isBasic(user);
+  return _isBeginner(user);
 }
 
 bool canReportOthers(User? user) {
   if (user == null) return false;
-  return _isBasic(user);
+  return _isIntermediate(user);
 }
 
 bool canGreetFemaleNewcomer(User? user) {
@@ -19,7 +19,7 @@ bool canGreetFemaleNewcomer(User? user) {
 
 bool canJoinTopic(User? user) {
   if (user == null) return false;
-  return _isBasic(user);
+  return _isBeginner(user);
 }
 
 bool canCreateTopic(User? user) {
@@ -37,9 +37,9 @@ bool canSendPublicPicture(User? user) {
   return _isAdvanced(user);
 }
 
-// Three levels
+// Levels
 
-bool _isBasic(User? user) {
+bool _isBeginner(User? user) {
   if (user == null) return false;
   return _withoutWarning(user);
 }
@@ -59,6 +59,8 @@ bool _isAdvanced(User? user) {
       _hasGoodReputation(user) &&
       _hasHighLevelExperience(user);
 }
+
+// Utilities
 
 bool _hasDecentReputation(User? user) {
   if (user == null) return false;

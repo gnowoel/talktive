@@ -21,7 +21,7 @@ import '../widgets/info_notice.dart';
 import '../widgets/layout.dart';
 import '../widgets/status_notice.dart';
 import '../widgets/topic_hearts.dart';
-import '../widgets/topic_input.dart';
+import '../widgets/normal_topic_input.dart';
 import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
@@ -55,7 +55,8 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
-  final GlobalKey<TopicInputState> _inputKey = GlobalKey<TopicInputState>();
+  final GlobalKey<NormalTopicInputState> _inputKey =
+      GlobalKey<NormalTopicInputState>();
 
   Topic? _topic;
   int _messageCount = 0;
@@ -730,7 +731,7 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
                     readMessageCount: _topic?.readMessageCount,
                   ),
                 ),
-                TopicInput(
+                NormalTopicInput(
                   key: _inputKey,
                   topic: _topic,
                   focusNode: _focusNode,

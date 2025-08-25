@@ -19,7 +19,7 @@ import '../theme.dart';
 import '../widgets/layout.dart';
 import '../widgets/status_notice.dart';
 import '../widgets/topic_hearts.dart';
-import '../widgets/topic_input.dart';
+import '../widgets/two_person_topic_input.dart';
 import '../widgets/paginated_message_list.dart';
 import '../widgets/user_info_loader.dart';
 
@@ -52,7 +52,8 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
 
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
-  final GlobalKey<TopicInputState> _inputKey = GlobalKey<TopicInputState>();
+  final GlobalKey<TwoPersonTopicInputState> _inputKey =
+      GlobalKey<TwoPersonTopicInputState>();
 
   Topic? _topic;
   int _messageCount = 0;
@@ -408,7 +409,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
                     isTwoPersonTopic: true,
                   ),
                 ),
-                TopicInput(
+                TwoPersonTopicInput(
                   key: _inputKey,
                   topic: _topic,
                   focusNode: _focusNode,

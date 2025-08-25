@@ -284,7 +284,7 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
           await firestore.inviteFollowersToTopic(userId, widget.topicId);
 
       if (mounted) {
-        final invitedCount = result['invitedCount'] as int;
+        final invitedCount = (result['invitedCount'] as num).toInt();
         final message = result['message'] as String;
 
         ScaffoldMessenger.of(context).showSnackBar(

@@ -684,7 +684,7 @@ class Firedata {
           if (partner == null) return Transaction.abort();
 
           final json = Map<String, dynamic>.from(partner as Map);
-          final oldRevivedAt = json['revivedAt'] as int?;
+          final oldRevivedAt = (json['revivedAt'] as num?)?.toInt();
           final startAt = max(oldRevivedAt ?? 0, serverNow);
           revivedAt = startAt + milliseconds;
 

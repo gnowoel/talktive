@@ -32,8 +32,8 @@ class Report {
       status: json['status'] as String,
       resolution: json['resolution'] as String?,
       adminId: json['adminId'] as String?,
-      createdAt: json['createdAt'] as int,
-      revivedAt: json['revivedAt'] as int?,
+      createdAt: (json['createdAt'] as num).toInt(),
+      revivedAt: (json['revivedAt'] as num?)?.toInt(),
     );
   }
 

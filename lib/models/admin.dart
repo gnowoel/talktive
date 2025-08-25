@@ -15,8 +15,8 @@ class Admin {
     return Admin(
       id: json['id'] as String,
       role: json['role'] as String,
-      createdAt: json['createdAt'] as int,
-      updatedAt: json['updatedAt'] as int,
+      createdAt: (json['createdAt'] as num).toInt(),
+      updatedAt: (json['updatedAt'] as num).toInt(),
     );
   }
 }

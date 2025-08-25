@@ -131,13 +131,13 @@ class ChatStub {
 
   factory ChatStub.fromJson(Map<String, dynamic> json) {
     return ChatStub(
-      createdAt: json['createdAt'] as int,
-      updatedAt: json['updatedAt'] as int,
+      createdAt: (json['createdAt'] as num).toInt(),
+      updatedAt: (json['updatedAt'] as num).toInt(),
       partner: UserStub.fromJson(
         Map<String, dynamic>.from(json['partner'] as Map),
       ),
-      messageCount: json['messageCount'] as int,
-      readMessageCount: json['readMessageCount'] as int?,
+      messageCount: (json['messageCount'] as num).toInt(),
+      readMessageCount: (json['readMessageCount'] as num?)?.toInt(),
       firstUserId: json['firstUserId'] as String?,
       lastMessageContent: json['lastMessageContent'] as String?,
       mute: json['mute'] as bool?,

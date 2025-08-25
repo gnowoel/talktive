@@ -25,8 +25,8 @@ class Follow {
   factory Follow.fromJson(Map<String, dynamic> json) {
     return Follow(
       id: json['id'] as String,
-      createdAt: json['createdAt'] as int,
-      updatedAt: json['updatedAt'] as int,
+      createdAt: (json['createdAt'] as num).toInt(),
+      updatedAt: (json['updatedAt'] as num).toInt(),
       user: UserStub.fromJson(Map<String, dynamic>.from(json['user'] as Map)),
     );
   }

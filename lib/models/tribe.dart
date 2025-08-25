@@ -58,10 +58,10 @@ class Tribe {
       id: id,
       name: json['name'] as String,
       createdAt: (json['createdAt'] as Timestamp).millisecondsSinceEpoch,
-      topicCount: json['topicCount'] as int? ?? 0,
+      topicCount: (json['topicCount'] as num?)?.toInt() ?? 0,
       description: json['description'] as String?,
       iconEmoji: json['iconEmoji'] as String?,
-      sort: json['sort'] as int?,
+      sort: (json['sort'] as num?)?.toInt(),
     );
   }
 

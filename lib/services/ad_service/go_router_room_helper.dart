@@ -268,9 +268,10 @@ class GoRouterRoomHelper {
     final isReady = _adManager.isAdReady;
     final shouldShow = wouldShowAdOnNextTransitionSync();
     final transitions = stats['roomTransitions'] ?? 0;
-    final adsShown = stats['adsShownThisSession'] as int? ?? 0;
+    final adsShown = (stats['adsShownThisSession'] as num?)?.toInt() ?? 0;
     final maxAds = stats['maxAdsPerSession'] ?? 'unlimited';
-    final sessionMinutes = stats['sessionDurationMinutes'] as int? ?? 0;
+    final sessionMinutes =
+        (stats['sessionDurationMinutes'] as num?)?.toInt() ?? 0;
     final engagement = stats['userEngagementLevel'] ?? 'unknown';
 
     String status = shouldShow ? '🟢 READY' : '🔴 NOT READY';
@@ -289,8 +290,8 @@ class GoRouterRoomHelper {
       // More permissive conditions for better ad visibility
       final stats = getSessionStatsSync();
       final sessionDurationMinutes =
-          stats['sessionDurationMinutes'] as int? ?? 0;
-      final roomTransitions = stats['roomTransitions'] as int? ?? 0;
+          (stats['sessionDurationMinutes'] as num?)?.toInt() ?? 0;
+      final roomTransitions = (stats['roomTransitions'] as num?)?.toInt() ?? 0;
 
       // Preload if user shows any activity (more permissive)
       if (sessionDurationMinutes > 1 && roomTransitions > 0) {

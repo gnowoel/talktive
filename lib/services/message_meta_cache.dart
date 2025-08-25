@@ -28,7 +28,7 @@ class MessageMeta {
           ? (json['recalledAt'] as Timestamp).toDate()
           : null,
       recalledBy: json['recalledBy'] as String?,
-      reportCount: json['reportCount'] as int?,
+      reportCount: (json['reportCount'] as num?)?.toInt(),
       lastReportedAt: json['lastReportedAt'] != null
           ? (json['lastReportedAt'] as Timestamp).toDate()
           : null,

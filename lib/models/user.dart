@@ -228,20 +228,20 @@ class UserStub {
 
   factory UserStub.fromJson(Map<String, dynamic> json) {
     return UserStub(
-      createdAt: json['createdAt'] as int,
-      updatedAt: json['updatedAt'] as int,
+      createdAt: (json['createdAt'] as num).toInt(),
+      updatedAt: (json['updatedAt'] as num).toInt(),
       languageCode: json['languageCode'] as String?,
       photoURL: json['photoURL'] as String?,
       displayName: json['displayName'] as String?,
       description: json['description'] as String?,
       gender: json['gender'] as String?,
       fcmToken: json['fcmToken'] as String?,
-      revivedAt: json['revivedAt'] as int?,
-      messageCount: json['messageCount'] as int?,
-      reportCount: json['reportCount'] as int?,
+      revivedAt: (json['revivedAt'] as num?)?.toInt(),
+      messageCount: (json['messageCount'] as num?)?.toInt(),
+      reportCount: (json['reportCount'] as num?)?.toInt(),
       role: json['role'] as String?,
-      followeeCount: json['followeeCount'] as int?,
-      followerCount: json['followerCount'] as int?,
+      followeeCount: (json['followeeCount'] as num?)?.toInt(),
+      followerCount: (json['followerCount'] as num?)?.toInt(),
     );
   }
 }

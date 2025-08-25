@@ -123,10 +123,10 @@ class ChatTextMessage extends ChatMessage {
       userDisplayName: json['userDisplayName'] as String,
       userPhotoURL: json['userPhotoURL'] as String,
       content: json['content'] as String,
-      createdAt: json['createdAt'] as int,
+      createdAt: (json['createdAt'] as num).toInt(),
       recalled: json['recalled'] as bool? ?? false,
-      revivedAt: json['revivedAt'] as int?,
-      reportCount: json['reportCount'] as int?,
+      revivedAt: (json['revivedAt'] as num?)?.toInt(),
+      reportCount: (json['reportCount'] as num?)?.toInt(),
     );
   }
 }
@@ -205,10 +205,10 @@ class ChatImageMessage extends ChatMessage {
       userPhotoURL: json['userPhotoURL'] as String,
       content: json['content'] as String,
       uri: json['uri'] as String,
-      createdAt: json['createdAt'] as int,
+      createdAt: (json['createdAt'] as num).toInt(),
       recalled: json['recalled'] as bool? ?? false,
-      revivedAt: json['revivedAt'] as int?,
-      reportCount: json['reportCount'] as int?,
+      revivedAt: (json['revivedAt'] as num?)?.toInt(),
+      reportCount: (json['reportCount'] as num?)?.toInt(),
     );
   }
 }

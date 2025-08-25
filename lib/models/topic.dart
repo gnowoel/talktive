@@ -94,13 +94,13 @@ class Topic extends Room {
       createdAt: (json['createdAt'] as Timestamp).millisecondsSinceEpoch,
       updatedAt: updatedAt,
       creator: creator,
-      messageCount: json['messageCount'] as int,
-      readMessageCount: json['readMessageCount'] as int?,
+      messageCount: (json['messageCount'] as num).toInt(),
+      readMessageCount: (json['readMessageCount'] as num?)?.toInt(),
       lastMessageContent: json['lastMessageContent'] as String?,
       mute: json['mute'] as bool?,
       tribeId: json['tribeId'] as String?,
       isPublic: json['isPublic'] as bool? ?? true,
-      reportCount: json['reportCount'] as int? ?? 0,
+      reportCount: (json['reportCount'] as num?)?.toInt() ?? 0,
     );
   }
 

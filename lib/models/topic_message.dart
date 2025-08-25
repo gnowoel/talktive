@@ -72,7 +72,7 @@ class TopicTextMessage extends TopicMessage {
       content: json['content'] as String,
       createdAt: createdAt,
       recalled: json['recalled'] as bool? ?? false,
-      reportCount: json['reportCount'] as int?,
+      reportCount: (json['reportCount'] as num?)?.toInt(),
     );
   }
 }
@@ -126,7 +126,7 @@ class TopicImageMessage extends TopicMessage {
       content: json['content'] as String,
       createdAt: createdAt,
       recalled: json['recalled'] as bool? ?? false,
-      reportCount: json['reportCount'] as int?,
+      reportCount: (json['reportCount'] as num?)?.toInt(),
     );
   }
 }

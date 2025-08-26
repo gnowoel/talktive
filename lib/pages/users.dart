@@ -129,8 +129,15 @@ class _UsersPageState extends State<UsersPage> {
 
   List<User> _filterUsers() {
     final userId = fireauth.instance.currentUser!.uid;
+    final serverNow = serverClock.now;
     final users = _users.where((user) {
-      return user.id != userId;
+      // Filter out current user
+      if (user.id == userId) return false;
+
+      // Filter out users with future revivedAt (timeout)
+      if (user.revivedAt != null && user.revivedAt! >= serverNow) return false;
+
+      return true;
     }).toList();
     return users;
   }

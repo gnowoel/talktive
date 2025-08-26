@@ -76,7 +76,8 @@ class _UserItemState extends State<UserItem> {
       // Validate user data before attempting to greet
       if (self.description == null || self.description!.trim().isEmpty) {
         throw AppException(
-            'Please add a description to your profile before starting a conversation.');
+          'Please add a description to your profile before starting a conversation.',
+        );
       }
 
       if (other.id.isEmpty) {
@@ -106,6 +107,31 @@ class _UserItemState extends State<UserItem> {
         fireauth.instance.currentUser!.uid,
         widget.user.id,
       );
+
+      // Update the user cache with new revivedAt value (24 hours from now)
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final oneDayFromNow = now + (24 * 60 * 60 * 1000);
+
+      final updatedUser = User(
+        id: widget.user.id,
+        createdAt: widget.user.createdAt,
+        updatedAt: widget.user.updatedAt,
+        languageCode: widget.user.languageCode,
+        photoURL: widget.user.photoURL,
+        displayName: widget.user.displayName,
+        description: widget.user.description,
+        gender: widget.user.gender,
+        fcmToken: widget.user.fcmToken,
+        revivedAt: oneDayFromNow,
+        messageCount: widget.user.messageCount,
+        reportCount: widget.user.reportCount,
+        role: widget.user.role,
+        followeeCount: widget.user.followeeCount,
+        followerCount: widget.user.followerCount,
+      );
+
+      // Update the Firestore cache directly
+      firestore.updateUserInCache(updatedUser);
     });
   }
 
@@ -144,48 +170,14 @@ class _UserItemState extends State<UserItem> {
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
-    if (_isProcessing) return;
-
-    if (!mounted) return;
-    setState(() => _isProcessing = true);
-
     try {
       await action();
-    } on AppException catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
-      }
-    } on TimeoutException catch (_) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(
-            context,
-            AppException(
-                'Request timed out. Please check your connection and try again.'));
-      }
-    } on Exception catch (e) {
-      if (mounted) {
-        String errorMessage = 'An unexpected error occurred. Please try again.';
-
-        final errorStr = e.toString().toLowerCase();
-        if (errorStr.contains('network') || errorStr.contains('connection')) {
-          errorMessage =
-              'Network error. Please check your connection and try again.';
-        } else if (errorStr.contains('permission')) {
-          errorMessage = 'You don\'t have permission to perform this action.';
-        } else if (errorStr.contains('timeout')) {
-          errorMessage = 'Request timed out. Please try again.';
-        }
-
-        ErrorHandler.showSnackBarMessage(context, AppException(errorMessage));
-      }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context,
-            AppException('An unexpected error occurred. Please try again.'));
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
       }
     }
   }
@@ -425,7 +417,7 @@ class _UserItemState extends State<UserItem> {
                     } else if (userStatus == 'newcomer') {
                       return [
                         const SizedBox(width: 4),
-                        Tag(status: 'newcomer')
+                        Tag(status: 'newcomer'),
                       ];
                       // } else if (widget.user.reputationLevel == 'excellent') {
                       //   return [const SizedBox(width: 4), Tag(status: 'excellent')];

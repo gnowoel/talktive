@@ -156,6 +156,20 @@ class Firestore {
     _lastUserUpdatedAt = null;
   }
 
+  void updateUserInCache(User updatedUser) {
+    // Update user in _cachedUsers list
+    final userIndex = _cachedUsers.indexWhere((u) => u.id == updatedUser.id);
+    if (userIndex != -1) {
+      _cachedUsers[userIndex] = updatedUser;
+    }
+
+    // Update user in _userCache map
+    final cachedUser = _userCache[updatedUser.id];
+    if (cachedUser != null) {
+      _userCache[updatedUser.id] = _CachedUser(updatedUser);
+    }
+  }
+
   bool _shouldRefreshUsersCache(int serverNow) {
     if (_cachedUsers.isEmpty) return true;
 
@@ -293,9 +307,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'follow',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -317,14 +329,16 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException('You don\'t have permission to follow this user.');
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to follow user. Please try again.');
+            e.message ?? 'Failed to follow user. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to follow user. Please try again.';
@@ -346,9 +360,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'unfollow',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -370,15 +382,18 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to unfollow this user.');
+            'You don\'t have permission to unfollow this user.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to unfollow user. Please try again.');
+            e.message ?? 'Failed to unfollow user. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to unfollow user. Please try again.';
@@ -400,9 +415,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'applyUserAlert',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -425,15 +438,18 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to timeout this user.');
+            'You don\'t have permission to timeout this user.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to apply user timeout. Please try again.');
+            e.message ?? 'Failed to apply user timeout. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to apply user timeout. Please try again.';
@@ -462,9 +478,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'createTopic',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 20),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 20)),
       );
 
       final response = await callable.call({
@@ -502,14 +516,16 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException('You don\'t have permission to create moments.');
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to create moment. Please try again.');
+            e.message ?? 'Failed to create moment. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to create moment. Please try again.';
@@ -544,8 +560,10 @@ class Firestore {
       final snapshot = await instance
           .collection('tribes')
           .orderBy('sort') // Primary sort by sort field
-          .orderBy('topicCount',
-              descending: true) // Secondary sort by popularity
+          .orderBy(
+            'topicCount',
+            descending: true,
+          ) // Secondary sort by popularity
           .limit(100)
           .get();
 
@@ -628,8 +646,10 @@ class Firestore {
 
       // Filter out topics with null tribeId (redundant for tribe-specific fetch, but defensive)
       return cachedTopics
-          .where((topic) =>
-              topic.updatedAt > activePeriodAgo && topic.tribeId != null)
+          .where(
+            (topic) =>
+                topic.updatedAt > activePeriodAgo && topic.tribeId != null,
+          )
           .toList();
     } catch (e) {
       throw AppException(e.toString());
@@ -705,8 +725,10 @@ class Firestore {
 
       // Filter out topics with null tribeId and apply time filter
       return _cachedTopics
-          .where((topic) =>
-              topic.updatedAt > activePeriodAgo && topic.tribeId != null)
+          .where(
+            (topic) =>
+                topic.updatedAt > activePeriodAgo && topic.tribeId != null,
+          )
           .toList();
     } catch (e) {
       throw AppException(e.toString());
@@ -747,8 +769,10 @@ class Firestore {
   /// Get total cached topics count across all tribes
   int getTotalCachedTopicsCount() {
     return _cachedTopics.length +
-        _cachedTopicsByTribe.values
-            .fold(0, (result, topics) => result + topics.length);
+        _cachedTopicsByTribe.values.fold(
+          0,
+          (result, topics) => result + topics.length,
+        );
   }
 
   bool _shouldRefreshTopicsCache(int serverNow) {
@@ -962,9 +986,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'joinTopic',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -986,14 +1008,16 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException('You don\'t have permission to join this moment.');
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to join moment. Please try again.');
+            e.message ?? 'Failed to join moment. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to join moment. Please try again.';
@@ -1015,9 +1039,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'muteTopic',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -1039,14 +1061,16 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException('You don\'t have permission to mute this moment.');
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to mute moment. Please try again.');
+            e.message ?? 'Failed to mute moment. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to mute moment. Please try again.';
@@ -1064,14 +1088,14 @@ class Firestore {
   }
 
   Future<Map<String, dynamic>> inviteFollowersToTopic(
-      String userId, String topicId) async {
+    String userId,
+    String topicId,
+  ) async {
     try {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'inviteFollowersToTopic',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 20),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 20)),
       );
 
       final result = await callable.call({
@@ -1096,14 +1120,16 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException('You don\'t have permission to invite followers.');
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to invite followers. Please try again.');
+            e.message ?? 'Failed to invite followers. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to invite followers. Please try again.';
@@ -1125,9 +1151,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'makeTopicPrivate',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -1150,15 +1174,18 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to make this moment private.');
+            'You don\'t have permission to make this moment private.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to make moment private. Please try again.');
+            e.message ?? 'Failed to make moment private. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to make moment private. Please try again.';
@@ -1180,9 +1207,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'makeTopicPublic',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final result = await callable.call({
@@ -1205,15 +1230,18 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to make this moment public.');
+            'You don\'t have permission to make this moment public.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         default:
           throw AppException(
-              e.message ?? 'Failed to make moment public. Please try again.');
+            e.message ?? 'Failed to make moment public. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to make moment public. Please try again.';
@@ -1269,9 +1297,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'recallMessage',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final response = await callable.call({
@@ -1297,17 +1323,20 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to recall this message.');
+            'You don\'t have permission to recall this message.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         case 'not-found':
           throw AppException('Message not found or already recalled.');
         default:
           throw AppException(
-              e.message ?? 'Failed to recall message. Please try again.');
+            e.message ?? 'Failed to recall message. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to recall message. Please try again.';
@@ -1333,9 +1362,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'reportMessage',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final response = await callable.call({
@@ -1364,17 +1391,20 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to report this message.');
+            'You don\'t have permission to report this message.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         case 'not-found':
           throw AppException('Message not found.');
         default:
           throw AppException(
-              e.message ?? 'Failed to report message. Please try again.');
+            e.message ?? 'Failed to report message. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to report message. Please try again.';
@@ -1400,9 +1430,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'reportTopicMessage',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final response = await callable.call({
@@ -1432,17 +1460,20 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to report this message.');
+            'You don\'t have permission to report this message.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         case 'not-found':
           throw AppException('Message not found.');
         default:
           throw AppException(
-              e.message ?? 'Failed to report message. Please try again.');
+            e.message ?? 'Failed to report message. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to report message. Please try again.';
@@ -1467,9 +1498,7 @@ class Firestore {
       final functions = FirebaseFunctions.instance;
       final callable = functions.httpsCallable(
         'blockUserFromTopic',
-        options: HttpsCallableOptions(
-          timeout: const Duration(seconds: 15),
-        ),
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
       );
 
       final response = await callable.call({
@@ -1494,17 +1523,20 @@ class Firestore {
           throw AppException('Request timed out. Please try again.');
         case 'unavailable':
           throw AppException(
-              'Service temporarily unavailable. Please try again.');
+            'Service temporarily unavailable. Please try again.',
+          );
         case 'permission-denied':
           throw AppException(
-              'You don\'t have permission to block users from this moment.');
+            'You don\'t have permission to block users from this moment.',
+          );
         case 'unauthenticated':
           throw AppException('Please sign in to continue.');
         case 'not-found':
           throw AppException('User or moment not found.');
         default:
           throw AppException(
-              e.message ?? 'Failed to block user. Please try again.');
+            e.message ?? 'Failed to block user. Please try again.',
+          );
       }
     } catch (e) {
       String errorMessage = 'Failed to block user. Please try again.';

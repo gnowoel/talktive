@@ -22,15 +22,11 @@ import 'user_info_loader.dart';
 class UserItem extends StatefulWidget {
   final User user;
   final bool hasSeen;
-  final Function(User)? onRemove;
-  final Function(User)? onRestore;
 
   const UserItem({
     super.key,
     required this.user,
     required this.hasSeen,
-    this.onRemove,
-    this.onRestore,
   });
 
   @override
@@ -96,49 +92,6 @@ class _UserItemState extends State<UserItem> {
 
       if (mounted) {
         await context.goToTopic(topic.id, topic.creator.id);
-      }
-    });
-  }
-
-  Future<void> _unlistUser() async {
-    _doAction(() async {
-      await firestore.makeUserPrivate(
-        fireauth.instance.currentUser!.uid,
-        widget.user.id,
-      );
-    });
-  }
-
-  void _handleDismiss(DismissDirection direction) {
-    // Remove the user from the list
-    if (widget.onRemove != null) {
-      widget.onRemove!(widget.user);
-    }
-
-    // Show snackbar with undo option
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(
-            content: const Text('User unlisted'),
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                // Restore the user
-                if (widget.onRestore != null) {
-                  widget.onRestore!(widget.user);
-                }
-              },
-            ),
-            duration: const Duration(seconds: 3),
-          ),
-        )
-        .closed
-        .then((reason) {
-      // Only unlist the user if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _unlistUser();
       }
     });
   }
@@ -321,12 +274,7 @@ class _UserItemState extends State<UserItem> {
 
     final userStatus = widget.user.status;
 
-    final currentUser = userCache.user;
-    final canUnlist = (currentUser?.isAdminOrModerator == true) &&
-        widget.onRemove != null &&
-        widget.onRestore != null;
-
-    final cardContent = Card(
+    return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
       color: cardColor,
@@ -441,24 +389,6 @@ class _UserItemState extends State<UserItem> {
         trailing: _buildIconButton(),
       ),
     );
-
-    if (canUnlist) {
-      return Dismissible(
-        key: Key(widget.user.id),
-        background: Container(
-          color: colorScheme.error,
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
-          child: Icon(Icons.visibility_off, color: colorScheme.onError),
-        ),
-        direction:
-            DismissDirection.startToEnd, // Only allow left to right swipe
-        onDismissed: _handleDismiss,
-        child: cardContent,
-      );
-    }
-
-    return cardContent;
   }
 
   Widget _buildIconButton() {

@@ -118,52 +118,6 @@ void main() {
       expect(json['role'], 'admin');
     });
 
-    test('UserStub fromJson parses isPublic correctly when true', () {
-      final json = {
-        'createdAt': 1234567890,
-        'updatedAt': 1234567890,
-        'isPublic': true,
-        'displayName': 'Test User',
-      };
-
-      final userStub = UserStub.fromJson(json);
-      expect(userStub.isPublic, true);
-    });
-
-    test('UserStub fromJson parses isPublic correctly when false', () {
-      final json = {
-        'createdAt': 1234567890,
-        'updatedAt': 1234567890,
-        'isPublic': false,
-        'displayName': 'Test User',
-      };
-
-      final userStub = UserStub.fromJson(json);
-      expect(userStub.isPublic, false);
-    });
-
-    test('UserStub fromJson handles null isPublic', () {
-      final json = {
-        'createdAt': 1234567890,
-        'updatedAt': 1234567890,
-        'isPublic': null,
-      };
-
-      final userStub = UserStub.fromJson(json);
-      expect(userStub.isPublic, null);
-    });
-
-    test('UserStub toJson includes isPublic', () {
-      final userStub = UserStub(
-        createdAt: 1234567890,
-        updatedAt: 1234567890,
-        isPublic: false,
-      );
-
-      final json = userStub.toJson();
-      expect(json['isPublic'], false);
-    });
-
     test('User.fromStub preserves role', () {
       final userStub = UserStub(
         createdAt: 1234567890,
@@ -178,56 +132,6 @@ void main() {
       expect(user.isModerator, true);
       expect(user.isAdmin, false);
       expect(user.isAdminOrModerator, true);
-    });
-
-    test('User.fromStub preserves isPublic when true', () {
-      final userStub = UserStub(
-        createdAt: 1234567890,
-        updatedAt: 1234567890,
-        isPublic: true,
-        displayName: 'Test User',
-      );
-
-      final user = User.fromStub(key: 'test-user', value: userStub);
-
-      expect(user.isPublic, true);
-    });
-
-    test('User.fromStub preserves isPublic when false', () {
-      final userStub = UserStub(
-        createdAt: 1234567890,
-        updatedAt: 1234567890,
-        isPublic: false,
-        displayName: 'Test User',
-      );
-
-      final user = User.fromStub(key: 'test-user', value: userStub);
-
-      expect(user.isPublic, false);
-    });
-
-    test('User.fromStub defaults isPublic to true when null', () {
-      final userStub = UserStub(
-        createdAt: 1234567890,
-        updatedAt: 1234567890,
-        isPublic: null,
-        displayName: 'Test User',
-      );
-
-      final user = User.fromStub(key: 'test-user', value: userStub);
-
-      expect(user.isPublic, true);
-    });
-
-    test('User constructor defaults isPublic to true', () {
-      final user = User(
-        id: 'test-user',
-        createdAt: 1234567890,
-        updatedAt: 1234567890,
-        displayName: 'Test User',
-      );
-
-      expect(user.isPublic, true);
     });
   });
 }

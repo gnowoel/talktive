@@ -20,7 +20,6 @@ export { reportTopicMessage } from './reportTopicMessage';
 export { blockUserFromTopic } from './blockUserFromTopic';
 export { makeTopicPrivate } from './makeTopicPrivate';
 export { makeTopicPublic } from './makeTopicPublic';
-export { makeUserPrivate } from './makeUserPrivate';
 export { recallMessage } from './recallMessage';
 export { getUserDisplayName } from './getUserDisplayName';
 export { resetTrustedUserStatus } from './resetTrustedUserStatus';

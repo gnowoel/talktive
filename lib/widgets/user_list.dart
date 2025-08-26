@@ -6,15 +6,11 @@ import 'user_item.dart';
 class UserList extends StatelessWidget {
   final List<User> users;
   final List<String> seenUserIds;
-  final Function(User)? onRemove;
-  final Function(User)? onRestore;
 
   const UserList({
     super.key,
     required this.users,
     required this.seenUserIds,
-    this.onRemove,
-    this.onRestore,
   });
 
   bool _hasSeen(User user) {
@@ -32,8 +28,6 @@ class UserList extends StatelessWidget {
           key: ValueKey(user.id),
           user: user,
           hasSeen: _hasSeen(user),
-          onRemove: onRemove,
-          onRestore: onRestore,
         );
       },
     );

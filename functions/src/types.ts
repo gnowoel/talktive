@@ -27,7 +27,6 @@ export interface User {
   followeeCount?: number | null;
   followerCount?: number | null;
   filter?: string | null;
-  isPublic?: boolean;
 }
 
 export interface Pair {

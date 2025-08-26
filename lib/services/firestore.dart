@@ -86,7 +86,10 @@ class Firestore {
       // Start building the query
       var query = instance
           .collection('users')
-          .where('revivedAt', isLessThan: serverNow); // Filter out banned users
+          .where('revivedAt', isLessThan: serverNow) // Filter out banned users
+          .where('isPublic',
+              isNotEqualTo:
+                  false); // Filter out unlisted users (includes null for backward compatibility)
 
       // Add gender filter if specified
       if (genderFilter != null) {
@@ -382,6 +385,60 @@ class Firestore {
       }
     } catch (e) {
       String errorMessage = 'Failed to unfollow user. Please try again.';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+
+      throw AppException(errorMessage);
+    }
+  }
+
+  Future<void> makeUserPrivate(
+      String currentUserId, String targetUserId) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable(
+        'makeUserPrivate',
+        options: HttpsCallableOptions(
+          timeout: const Duration(seconds: 15),
+        ),
+      );
+
+      final result = await callable.call({
+        'currentUserId': currentUserId,
+        'targetUserId': targetUserId,
+      });
+
+      if (result.data == null) {
+        throw Exception('Received empty response from server');
+      }
+
+      if (result.data['success'] != true) {
+        final errorMessage = result.data['error'] ?? 'Failed to unlist user';
+        throw Exception(errorMessage);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'deadline-exceeded':
+          throw AppException('Request timed out. Please try again.');
+        case 'unavailable':
+          throw AppException(
+              'Service temporarily unavailable. Please try again.');
+        case 'permission-denied':
+          throw AppException('You don\'t have permission to unlist this user.');
+        case 'unauthenticated':
+          throw AppException('Please sign in to continue.');
+        default:
+          throw AppException(
+              e.message ?? 'Failed to unlist user. Please try again.');
+      }
+    } catch (e) {
+      String errorMessage = 'Failed to unlist user. Please try again.';
 
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
@@ -1232,7 +1289,8 @@ class Firestore {
       }
 
       if (result['success'] != true) {
-        final errorMessage = result['error'] ?? 'Failed to recall moment message';
+        final errorMessage =
+            result['error'] ?? 'Failed to recall moment message';
         throw Exception(errorMessage);
       }
     } on FirebaseFunctionsException catch (e) {
@@ -1362,7 +1420,8 @@ class Firestore {
       }
 
       if (result['success'] != true) {
-        final errorMessage = result['error'] ?? 'Failed to report moment message';
+        final errorMessage =
+            result['error'] ?? 'Failed to report moment message';
         throw Exception(errorMessage);
       }
 
@@ -1427,7 +1486,8 @@ class Firestore {
       }
 
       if (result['success'] != true) {
-        final errorMessage = result['error'] ?? 'Failed to block user from moment';
+        final errorMessage =
+            result['error'] ?? 'Failed to block user from moment';
         throw Exception(errorMessage);
       }
     } on FirebaseFunctionsException catch (e) {

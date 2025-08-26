@@ -18,6 +18,7 @@ class User {
   final String? role;
   final int? followeeCount;
   final int? followerCount;
+  final bool isPublic;
 
   const User({
     required this.id,
@@ -35,6 +36,7 @@ class User {
     this.role,
     this.followeeCount,
     this.followerCount,
+    this.isPublic = true,
   });
 
   Map<String, dynamic> toJson() {
@@ -54,6 +56,7 @@ class User {
       'role': role,
       'followeeCount': followeeCount,
       'followerCount': followerCount,
+      'isPublic': isPublic,
     };
   }
 
@@ -74,6 +77,7 @@ class User {
       role: value.role,
       followeeCount: value.followeeCount,
       followerCount: value.followerCount,
+      isPublic: value.isPublic ?? true,
     );
   }
 
@@ -189,6 +193,7 @@ class UserStub {
   final String? role;
   final int? followeeCount;
   final int? followerCount;
+  final bool? isPublic;
 
   const UserStub({
     required this.createdAt,
@@ -205,6 +210,7 @@ class UserStub {
     this.role,
     this.followeeCount,
     this.followerCount,
+    this.isPublic,
   });
 
   Map<String, dynamic> toJson() {
@@ -223,6 +229,7 @@ class UserStub {
       'role': role,
       'followeeCount': followeeCount,
       'followerCount': followerCount,
+      'isPublic': isPublic,
     };
   }
 
@@ -242,6 +249,7 @@ class UserStub {
       role: json['role'] as String?,
       followeeCount: (json['followeeCount'] as num?)?.toInt(),
       followerCount: (json['followerCount'] as num?)?.toInt(),
+      isPublic: json['isPublic'] as bool?,
     );
   }
 }

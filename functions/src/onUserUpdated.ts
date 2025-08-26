@@ -20,6 +20,7 @@ const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
     await updateUserPriority(userId, user, userBefore);
     await updateUserCache(userId, user);
     await updatePartnerDataInChats(userId, user, userBefore);
+    await handleUserAutoRelisting(userId, user, userBefore);
   } catch (error) {
     logger.error(error);
   }
@@ -61,6 +62,7 @@ const updateUserCache = async (userId: string, user: User) => {
       role: user.role ?? null,
       followeeCount: user.followeeCount ?? null,
       followerCount: user.followerCount ?? null,
+      isPublic: user.isPublic ?? true, // Default to public for backward compatibility
     };
 
     const userRef = firestore.collection(USERS_COLLECTION).doc(userId);
@@ -103,7 +105,7 @@ const updatePartnerDataInChats = async (userId: string, user: User, userBefore: 
     const updatedPartnerData = createPartnerData(user);
 
     // Create batch updates for all chats where this user is a partner
-    const updates: { [key: string]: any } = {};
+    const updates: { [key: string]: ReturnType<typeof createPartnerData> } = {};
 
     for (const chatId of chatIds) {
       // Extract the other user's ID from the chat ID
@@ -162,6 +164,38 @@ const createPartnerData = (user: User) => {
     revivedAt: user.revivedAt ?? null,
     messageCount: user.messageCount ?? null,
   };
+};
+
+const handleUserAutoRelisting = async (userId: string, user: User, userBefore: User) => {
+  // Skip if user is still incomplete
+  if (isNew(user)) {
+    return;
+  }
+
+  // Check if the only change was isPublic (to prevent infinite loops)
+  const isPublicChanged = user.isPublic !== userBefore.isPublic;
+  const descriptionChanged = user.description !== userBefore.description;
+
+  // Skip if only isPublic changed (this happens during auto-relisting)
+  if (isPublicChanged && !descriptionChanged) {
+    return;
+  }
+
+  // Check if description has changed and user was previously unlisted
+  const wasUnlisted = userBefore.isPublic === false;
+  const isCurrentlyUnlisted = user.isPublic === false;
+
+  if (descriptionChanged && (wasUnlisted || isCurrentlyUnlisted)) {
+    try {
+      // Auto-relist the user by setting isPublic to true
+      const userRef = db.ref(`users/${userId}`);
+      await userRef.update({ isPublic: true });
+
+      logger.info(`Auto-relisted user ${userId} after description change`);
+    } catch (error) {
+      logger.error(`Error auto-relisting user ${userId}:`, error);
+    }
+  }
 };
 
 export default onUserUpdated;

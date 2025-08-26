@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 4.6.2+74
+
+- Enhanced security measures to protect the community
+- Fixed various bugs to improve app stability
+
 ## 4.6.1+73
 
 - Made trusted users less likely be affected by intentional reports

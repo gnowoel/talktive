@@ -133,5 +133,37 @@ void main() {
       expect(user.isAdmin, false);
       expect(user.isAdminOrModerator, true);
     });
+
+    test('User copyWith creates new instance with updated fields', () {
+      final originalUser = User(
+        id: 'test-user',
+        createdAt: 1234567890,
+        updatedAt: 1234567890,
+        displayName: 'Original Name',
+        revivedAt: null,
+        role: 'user',
+      );
+
+      final updatedUser = originalUser.copyWith(
+        displayName: 'Updated Name',
+        revivedAt: 9999999999,
+        role: 'moderator',
+      );
+
+      // Check that specified fields are updated
+      expect(updatedUser.displayName, 'Updated Name');
+      expect(updatedUser.revivedAt, 9999999999);
+      expect(updatedUser.role, 'moderator');
+
+      // Check that unspecified fields remain the same
+      expect(updatedUser.id, 'test-user');
+      expect(updatedUser.createdAt, 1234567890);
+      expect(updatedUser.updatedAt, 1234567890);
+
+      // Ensure original user is unchanged
+      expect(originalUser.displayName, 'Original Name');
+      expect(originalUser.revivedAt, null);
+      expect(originalUser.role, 'user');
+    });
   });
 }

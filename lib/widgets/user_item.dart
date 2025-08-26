@@ -112,22 +112,8 @@ class _UserItemState extends State<UserItem> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final oneDayFromNow = now + (24 * 60 * 60 * 1000);
 
-      final updatedUser = User(
-        id: widget.user.id,
-        createdAt: widget.user.createdAt,
-        updatedAt: widget.user.updatedAt,
-        languageCode: widget.user.languageCode,
-        photoURL: widget.user.photoURL,
-        displayName: widget.user.displayName,
-        description: widget.user.description,
-        gender: widget.user.gender,
-        fcmToken: widget.user.fcmToken,
+      final updatedUser = widget.user.copyWith(
         revivedAt: oneDayFromNow,
-        messageCount: widget.user.messageCount,
-        reportCount: widget.user.reportCount,
-        role: widget.user.role,
-        followeeCount: widget.user.followeeCount,
-        followerCount: widget.user.followerCount,
       );
 
       // Update the Firestore cache directly

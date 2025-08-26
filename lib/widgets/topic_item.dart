@@ -25,6 +25,8 @@ class TopicItem extends StatefulWidget {
   final bool hasSeen;
   final bool showTribeTag;
   final void Function(Tribe)? onTribeSelected;
+  final Function(Topic)? onRemove;
+  final Function(Topic)? onRestore;
 
   const TopicItem({
     super.key,
@@ -33,6 +35,8 @@ class TopicItem extends StatefulWidget {
     required this.hasSeen,
     this.showTribeTag = false,
     this.onTribeSelected,
+    this.onRemove,
+    this.onRestore,
   });
 
   @override
@@ -66,6 +70,62 @@ class _TopicItemState extends State<TopicItem> {
     isFriend = followCache.isFollowing(widget.topic.creator.id);
   }
 
+  Future<void> _unlistTopic() async {
+    _doAction(() async {
+      await firestore.makeTopicPrivate(
+        fireauth.instance.currentUser!.uid,
+        widget.topic.id,
+      );
+    });
+  }
+
+  void _handleDismiss(DismissDirection direction) {
+    // Remove the topic from the list
+    if (widget.onRemove != null) {
+      widget.onRemove!(widget.topic);
+    }
+
+    // Show snackbar with undo option
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: const Text('Topic unlisted'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                // Restore the topic
+                if (widget.onRestore != null) {
+                  widget.onRestore!(widget.topic);
+                }
+              },
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        )
+        .closed
+        .then((reason) {
+      // Only unlist the topic if the SnackBar was closed by timeout
+      // and not by user action (pressing undo)
+      if (reason == SnackBarClosedReason.timeout) {
+        _unlistTopic();
+      }
+    });
+  }
+
+  Future<void> _doAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    }
+  }
+
   Future<void> _joinTopic() async {
     if (_isProcessing) return;
 
@@ -80,13 +140,6 @@ class _TopicItemState extends State<TopicItem> {
 
       if (mounted) {
         await context.goToTopic(topicId, topicCreatorId);
-      }
-    } catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(
-          context,
-          e is AppException ? e : AppException(e.toString()),
-        );
       }
     } finally {
       if (mounted) {
@@ -213,7 +266,12 @@ class _TopicItemState extends State<TopicItem> {
             : colorScheme.secondaryContainer);
     final textColor = colorScheme.onSurface;
 
-    return Card(
+    final currentUser = userCache.user;
+    final canUnlist = (byMe || (currentUser?.isAdminOrModerator == true)) &&
+        widget.onRemove != null &&
+        widget.onRestore != null;
+
+    final cardContent = Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
       color: cardColor,
@@ -353,6 +411,24 @@ class _TopicItemState extends State<TopicItem> {
         trailing: _buildIconButton(),
       ),
     );
+
+    if (canUnlist) {
+      return Dismissible(
+        key: Key(widget.topic.id),
+        background: Container(
+          color: colorScheme.error,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
+          child: Icon(Icons.visibility_off, color: colorScheme.onError),
+        ),
+        direction:
+            DismissDirection.startToEnd, // Only allow left to right swipe
+        onDismissed: _handleDismiss,
+        child: cardContent,
+      );
+    }
+
+    return cardContent;
   }
 
   Widget _buildIconButton() {

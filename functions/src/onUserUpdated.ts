@@ -103,7 +103,7 @@ const updatePartnerDataInChats = async (userId: string, user: User, userBefore: 
     const updatedPartnerData = createPartnerData(user);
 
     // Create batch updates for all chats where this user is a partner
-    const updates: { [key: string]: any } = {};
+    const updates: { [key: string]: ReturnType<typeof createPartnerData> } = {};
 
     for (const chatId of chatIds) {
       // Extract the other user's ID from the chat ID

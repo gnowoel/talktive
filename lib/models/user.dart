@@ -77,6 +77,42 @@ class User {
     );
   }
 
+  User copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    String? languageCode,
+    String? photoURL,
+    String? displayName,
+    String? description,
+    String? gender,
+    String? fcmToken,
+    int? revivedAt,
+    int? messageCount,
+    int? reportCount,
+    String? role,
+    int? followeeCount,
+    int? followerCount,
+  }) {
+    return User(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      languageCode: languageCode ?? this.languageCode,
+      photoURL: photoURL ?? this.photoURL,
+      displayName: displayName ?? this.displayName,
+      description: description ?? this.description,
+      gender: gender ?? this.gender,
+      fcmToken: fcmToken ?? this.fcmToken,
+      revivedAt: revivedAt ?? this.revivedAt,
+      messageCount: messageCount ?? this.messageCount,
+      reportCount: reportCount ?? this.reportCount,
+      role: role ?? this.role,
+      followeeCount: followeeCount ?? this.followeeCount,
+      followerCount: followerCount ?? this.followerCount,
+    );
+  }
+
   bool get isNew {
     return languageCode == null ||
         photoURL == null ||

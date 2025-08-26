@@ -62,6 +62,9 @@ class _TopicsPageState extends State<TopicsPage> {
             )
           : await firestore.fetchTopics(serverClock.now, noCache: forceRefresh);
 
+      // Sort topics by createdAt in descending order (newest first)
+      topics.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
       if (mounted) {
         setState(() {
           _seenTopics = _topics;

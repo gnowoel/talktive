@@ -94,7 +94,7 @@ export const joinTopic = onCall(async (request) => {
       updatedAt: topicData.updatedAt,
       messageCount: topicData.messageCount,
       readMessageCount: 0, // New follower hasn't read any messages yet
-      lastMessageContent: topicData.lastMessageContent, // It's actually the firstMessageContent
+      lastMessageContent: topicData.lastMessageContent ?? null, // It's actually the firstMessageContent
       mute: false,
       tribeId: topicData.tribeId || null,
       isPublic: topicData.isPublic ?? true,

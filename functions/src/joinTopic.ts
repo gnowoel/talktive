@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
-import { Topic } from './types';
+import { Topic, UserTopicRecord } from './types';
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -87,7 +87,7 @@ export const joinTopic = onCall(async (request) => {
       .collection('topics')
       .doc(topicId);
 
-    batch.set(userTopicRef, {
+    const userTopicRecord: UserTopicRecord = {
       title: topicData.title,
       creator: topicData.creator,
       createdAt: topicData.createdAt,
@@ -96,7 +96,11 @@ export const joinTopic = onCall(async (request) => {
       readMessageCount: 0, // New follower hasn't read any messages yet
       lastMessageContent: topicData.lastMessageContent, // It's actually the firstMessageContent
       mute: false,
-    });
+      tribeId: topicData.tribeId || null,
+      isPublic: topicData.isPublic ?? true,
+    };
+
+    batch.set(userTopicRef, userTopicRecord);
 
     // Commit all operations
     await batch.commit();

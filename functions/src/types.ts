@@ -67,6 +67,19 @@ export interface Topic {
   reportCount?: number;
 }
 
+export interface UserTopicRecord {
+  title: string;
+  creator: User;
+  createdAt: admin.firestore.Timestamp;
+  updatedAt: admin.firestore.Timestamp;
+  messageCount: number;
+  readMessageCount: number;
+  lastMessageContent: string | null;
+  mute: boolean;
+  tribeId: string | null;
+  isPublic: boolean;
+}
+
 export interface Message {
   id?: string;
   userId: string;

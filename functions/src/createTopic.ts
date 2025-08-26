@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onCall } from 'firebase-functions/v2/https';
-import { StatParams, User } from './types';
+import { StatParams, User, UserTopicRecord } from './types';
 import { formatDate, isDebugMode } from './helpers';
 
 if (!admin.apps.length) {
@@ -122,7 +122,7 @@ export const createTopic = onCall(async (request) => {
       .collection('topics')
       .doc(topicId);
 
-    batch.set(userTopicRef, {
+    const userTopicRecord: UserTopicRecord = {
       title,
       creator,
       createdAt: now,
@@ -133,7 +133,9 @@ export const createTopic = onCall(async (request) => {
       mute: false,
       tribeId: finalTribeId || null,
       isPublic: isPublic ?? true, // Sync from upstream
-    });
+    };
+
+    batch.set(userTopicRef, userTopicRecord);
 
     // Handle follower addition based on topic type
     if (targetUserId) {
@@ -172,7 +174,7 @@ export const createTopic = onCall(async (request) => {
           .collection('topics')
           .doc(topicId);
 
-        batch.set(targetTopicRef, {
+        const targetUserTopicRecord: UserTopicRecord = {
           title: user.displayName || 'Two-person chat', // Target user sees creator's name as title
           creator, // Target user sees creator as the "creator"
           createdAt: now,
@@ -183,7 +185,9 @@ export const createTopic = onCall(async (request) => {
           mute: false,
           tribeId: finalTribeId || null,
           isPublic: isPublic ?? true,
-        });
+        };
+
+        batch.set(targetTopicRef, targetUserTopicRecord);
 
         // Add topic reference to creator's topics collection with target user's info
         const userTopicRef = firestore
@@ -192,7 +196,7 @@ export const createTopic = onCall(async (request) => {
           .collection('topics')
           .doc(topicId);
 
-        batch.set(userTopicRef, {
+        const creatorTopicRecord: UserTopicRecord = {
           title: targetUser.displayName || 'Two-person chat', // Creator sees target's name as title
           creator: targetUserStub, // Creator sees target user as the "creator"
           createdAt: now,
@@ -203,7 +207,9 @@ export const createTopic = onCall(async (request) => {
           mute: false,
           tribeId: finalTribeId || null,
           isPublic: isPublic ?? true,
-        });
+        };
+
+        batch.set(userTopicRef, creatorTopicRecord);
 
       }
     } else {
@@ -214,7 +220,7 @@ export const createTopic = onCall(async (request) => {
         .collection('topics')
         .doc(topicId);
 
-      batch.set(userTopicRef, {
+      const regularTopicRecord: UserTopicRecord = {
         title,
         creator,
         createdAt: now,
@@ -225,7 +231,9 @@ export const createTopic = onCall(async (request) => {
         mute: false,
         tribeId: finalTribeId || null,
         isPublic: isPublic ?? true,
-      });
+      };
+
+      batch.set(userTopicRef, regularTopicRecord);
 
       // Regular topic: add all followers
       const followersSnapshot = await firestore
@@ -256,7 +264,7 @@ export const createTopic = onCall(async (request) => {
           .collection('topics')
           .doc(topicId);
 
-        batch.set(followerTopicRef, {
+        const followerTopicRecord: UserTopicRecord = {
           title,
           creator,
           createdAt: now,
@@ -267,7 +275,9 @@ export const createTopic = onCall(async (request) => {
           mute: false,
           tribeId: finalTribeId || null,
           isPublic: isPublic ?? true,
-        });
+        };
+
+        batch.set(followerTopicRef, followerTopicRecord);
       }
     }
 

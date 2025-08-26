@@ -159,6 +159,25 @@ class _TopicsPageState extends State<TopicsPage> {
     );
   }
 
+  void _removeTopic(Topic topic) {
+    setState(() {
+      _topics.removeWhere((t) => t.id == topic.id);
+    });
+  }
+
+  void _restoreTopic(Topic topic) {
+    setState(() {
+      // Insert the topic back at the correct position based on createdAt
+      final insertIndex =
+          _topics.indexWhere((t) => t.createdAt < topic.createdAt);
+      if (insertIndex == -1) {
+        _topics.add(topic);
+      } else {
+        _topics.insert(insertIndex, topic);
+      }
+    });
+  }
+
   @override
   void dispose() {
     _tribeScrollController.dispose();
@@ -407,6 +426,8 @@ class _TopicsPageState extends State<TopicsPage> {
                               seenTopicIds: seenTopicIds,
                               showTribeTags: _selectedTribe == null,
                               onTribeSelected: _selectTribe,
+                              onRemove: _removeTopic,
+                              onRestore: _restoreTopic,
                             ),
                 ),
               ],

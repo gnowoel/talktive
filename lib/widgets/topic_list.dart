@@ -10,6 +10,8 @@ class TopicList extends StatelessWidget {
   final List<String> seenTopicIds;
   final bool showTribeTags;
   final void Function(Tribe)? onTribeSelected;
+  final Function(Topic)? onRemove;
+  final Function(Topic)? onRestore;
 
   const TopicList({
     super.key,
@@ -18,6 +20,8 @@ class TopicList extends StatelessWidget {
     required this.seenTopicIds,
     this.showTribeTags = false,
     this.onTribeSelected,
+    this.onRemove,
+    this.onRestore,
   });
 
   bool _hasJoined(Topic topic) {
@@ -42,6 +46,8 @@ class TopicList extends StatelessWidget {
           hasSeen: _hasSeen(topic),
           showTribeTag: showTribeTags,
           onTribeSelected: onTribeSelected,
+          onRemove: onRemove,
+          onRestore: onRestore,
         );
       },
     );

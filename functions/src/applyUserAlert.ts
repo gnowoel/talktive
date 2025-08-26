@@ -84,14 +84,14 @@ export const applyUserAlert = onCall(async (request) => {
     });
 
     // Also update the user cache in Firestore for consistency
-    const firestoreUserRef = firestore.collection('users').doc(targetUserId);
-    const firestoreUserSnapshot = await firestoreUserRef.get();
+    // const firestoreUserRef = firestore.collection('users').doc(targetUserId);
+    // const firestoreUserSnapshot = await firestoreUserRef.get();
 
-    if (firestoreUserSnapshot.exists) {
-      await firestoreUserRef.update({
-        revivedAt: oneDayFromNow,
-      });
-    }
+    // if (firestoreUserSnapshot.exists) {
+    //   await firestoreUserRef.update({
+    //     revivedAt: oneDayFromNow,
+    //   });
+    // }
 
     logger.info(`User ${targetUserId} given 1-day timeout by ${requesterId} (${requesterData.role})`);
 

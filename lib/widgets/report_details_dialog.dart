@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -57,52 +58,74 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
 
     return AlertDialog(
       title: Text('Report Details'),
-      content: RadioGroup<String>(
-        groupValue: _resolution,
-        onChanged: (value) {
-          if (value == null) return;
-          setState(() {
-            _resolution = value;
-          });
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Status: ${widget.report.status}'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Status: ${widget.report.status}'),
+          const SizedBox(height: 16),
+          Text('Created: ${timeago.format(createdAt, clock: now)}'),
+          if (widget.report.revivedAt != null) ...[
             const SizedBox(height: 16),
-            Text('Created: ${timeago.format(createdAt, clock: now)}'),
-            if (widget.report.revivedAt != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                'Revived: ${DateTime.fromMillisecondsSinceEpoch(widget.report.revivedAt!).difference(now).inDays}d',
-              ),
-            ],
-            const SizedBox(height: 16),
-            const Text('Suspension duration:'),
-            const SizedBox(height: 16),
-            RadioListTile<String>(
-              title: const Text('No suspension'),
-              value: '0',
-            ),
-            RadioListTile<String>(
-              title: const Text('1 day'),
-              value: '1',
-            ),
-            RadioListTile<String>(
-              title: const Text('3 days'),
-              value: '3',
-            ),
-            RadioListTile<String>(
-              title: const Text('7 days'),
-              value: '7',
-            ),
-            RadioListTile<String>(
-              title: const Text('14 days'),
-              value: '14',
+            Text(
+              'Revived: ${DateTime.fromMillisecondsSinceEpoch(widget.report.revivedAt!).difference(now).inDays}d',
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          const Text('Suspension duration:'),
+          const SizedBox(height: 16),
+          const SizedBox(height: 16),
+          RadioListTile<String>(
+            title: const Text('No suspension'),
+            value: '0',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('1 day'),
+            value: '1',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('3 days'),
+            value: '3',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('7 days'),
+            value: '7',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: const Text('14 days'),
+            value: '14',
+            groupValue: _resolution,
+            onChanged: (value) {
+              setState(() {
+                _resolution = value!;
+              });
+            },
+          ),
+        ],
       ),
       actions: [
         TextButton(

@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -380,26 +381,40 @@ class _RoleUpdateDialogState extends State<_RoleUpdateDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Update Role for ${widget.user.displayName}'),
-      content: RadioGroup<String?>(
-        groupValue: _selectedRole,
-        onChanged: (value) => setState(() => _selectedRole = value),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String?>(
-              title: const Text('Regular User'),
-              value: null,
-            ),
-            RadioListTile<String?>(
-              title: const Text('Moderator'),
-              value: 'moderator',
-            ),
-            RadioListTile<String?>(
-              title: const Text('Admin'),
-              value: 'admin',
-            ),
-          ],
-        ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          RadioListTile<String?>(
+            title: const Text('Regular User'),
+            value: null,
+            groupValue: _selectedRole,
+            onChanged: (value) {
+              setState(() {
+                _selectedRole = value;
+              });
+            },
+          ),
+          RadioListTile<String?>(
+            title: const Text('Moderator'),
+            value: 'moderator',
+            groupValue: _selectedRole,
+            onChanged: (value) {
+              setState(() {
+                _selectedRole = value;
+              });
+            },
+          ),
+          RadioListTile<String?>(
+            title: const Text('Admin'),
+            value: 'admin',
+            groupValue: _selectedRole,
+            onChanged: (value) {
+              setState(() {
+                _selectedRole = value;
+              });
+            },
+          ),
+        ],
       ),
       actions: [
         TextButton(

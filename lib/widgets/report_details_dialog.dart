@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -73,7 +72,6 @@ class _ReportDetailsDialogState extends State<ReportDetailsDialog> {
           ],
           const SizedBox(height: 16),
           const Text('Suspension duration:'),
-          const SizedBox(height: 16),
           const SizedBox(height: 16),
           RadioListTile<String>(
             title: const Text('No suspension'),

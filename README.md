@@ -30,15 +30,15 @@ No one but the participants can see your conversations. Expired rooms are not pu
 
 The technical details can be found in the blog post:
 
-* [The Challenges of Building a Simple Chat App with Flutter and Firebase](https://medium.com/@gnowoel/the-challenges-of-building-a-simple-chat-app-with-flutter-and-firebase-b9f0a2f0f889)
+- [The Challenges of Building a Simple Chat App with Flutter and Firebase](https://medium.com/@gnowoel/the-challenges-of-building-a-simple-chat-app-with-flutter-and-firebase-b9f0a2f0f889)
 
 ## Firebase setup
 
 Create a new Firebase project, and enable the following services:
 
-* Authentication (Anonymous)
-* Realtime Database
-* Functions
+- Authentication (Anonymous)
+- Realtime Database
+- Functions
 
 In order to use Cloud Functions, we need to upgrade the project to the Blaze plan (pay-as-you-go).
 
@@ -67,24 +67,24 @@ $ firebase init
 
 Select the following services:
 
-* Firestore
-* Functions
-* Storage
-* Emulators
-* Realtime Database
+- Firestore
+- Functions
+- Storage
+- Emulators
+- Realtime Database
 
 For "Functions", select:
 
-* TypeScript
+- TypeScript
 
 For "Emulators", select:
 
-* Authentication Emulator
-* Functions Emulator
-* Firestore Emulator
-* Database Emulator
-* Pub/Sub Emulator
-* Storage Emulator
+- Authentication Emulator
+- Functions Emulator
+- Firestore Emulator
+- Database Emulator
+- Pub/Sub Emulator
+- Storage Emulator
 
 ## Running
 
@@ -97,7 +97,7 @@ $ npm run build:watch
 Start Emulators Suite, and take a note of the URL for the HTTP request:
 
 ```
-$ firebase emulators:start
+$ firebase emulators:start --import='../fixtures' --export-on-exit
 ```
 
 Trigger the scheduler once with an HTTP request, using the URL from the previous step:

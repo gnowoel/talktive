@@ -240,22 +240,23 @@ class _ProfileStepState extends State<ProfileStep> {
                         maxLength: 200,
                       ),
                       const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: 'Gender'),
-                        value: _selectedGender,
-                        items: _genderOptions
-                            .map(
-                              (option) => DropdownMenuItem(
-                                value: option['value'],
-                                child: Text(option['label']!),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => _selectedGender = value);
-                        },
-                        validator: _validateGender,
-                      ),
+                        DropdownButtonFormField<String>(
+                          key: ValueKey(_selectedGender),
+                          decoration: const InputDecoration(labelText: 'Gender'),
+                          initialValue: _selectedGender,
+                          items: _genderOptions
+                              .map(
+                                (option) => DropdownMenuItem(
+                                  value: option['value'],
+                                  child: Text(option['label']!),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() => _selectedGender = value);
+                          },
+                          validator: _validateGender,
+                        ),
                       const SizedBox(height: 32),
                       FilledButton(
                         onPressed: _isProcessing ? null : _submit,

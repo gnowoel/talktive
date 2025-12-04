@@ -9,15 +9,15 @@ environment:
 dependencies:
   async: ^2.11.0
   cached_network_image: ^3.4.1
-  cloud_firestore: ^5.6.1
-  cloud_functions: ^5.3.4
+  cloud_firestore: ^6.1.0
+  cloud_functions: ^6.0.4
   collection: ^1.19.1
   connectivity_plus: ^7.0.0
-  firebase_auth: ^5.1.0
-  firebase_core: ^3.1.0
-  firebase_database: ^11.0.1
-  firebase_messaging: ^15.1.6
-  firebase_storage: ^12.3.5
+  firebase_auth: ^6.1.2
+  firebase_core: ^4.2.1
+  firebase_database: ^12.1.0
+  firebase_messaging: ^16.0.4
+  firebase_storage: ^13.0.4
   flutter:
     sdk: flutter
   flutter_local_notifications: ^19.0.0
@@ -38,10 +38,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.1
-  firebase_core_platform_interface: ^6.0.0
-  firebase_auth_mocks: ^0.14.0
-  fake_firebase_database:
-    git: https://github.com/gnowoel/fake_firebase_database
+  firebase_auth_mocks: ^0.15.1
   integration_test:
     sdk: flutter
   mockito: ^5.4.4

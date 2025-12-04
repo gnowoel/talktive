@@ -156,6 +156,9 @@ class _UserItemState extends State<UserItem> {
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
+    setState(() {
+      _isProcessing = true;
+    });
     try {
       await action();
     } catch (e) {
@@ -165,6 +168,11 @@ class _UserItemState extends State<UserItem> {
           e is AppException ? e : AppException(e.toString()),
         );
       }
+    }
+    if (mounted) {
+      setState(() {
+        _isProcessing = false;
+      });
     }
   }
 

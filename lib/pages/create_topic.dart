@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -242,7 +244,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                 // ),
                                 // const SizedBox(height: 8),
                                 DropdownButtonFormField<Tribe>(
-                                  value: _selectedTribe,
+                                  initialValue: _selectedTribe,
                                   decoration: const InputDecoration(
                                     labelText: 'Category',
                                     hintText: 'Select a category',

@@ -242,7 +242,7 @@ class _ProfileStepState extends State<ProfileStep> {
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(labelText: 'Gender'),
-                        value: _selectedGender,
+                        initialValue: _selectedGender,
                         items: _genderOptions
                             .map(
                               (option) => DropdownMenuItem(

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.6.3+75
+
+- Updated dependencies
+
 ## 4.6.2+74
 
 - Enhanced security measures to protect the community

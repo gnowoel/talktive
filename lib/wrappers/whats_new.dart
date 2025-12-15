@@ -67,14 +67,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🔒 Enhanced Security',
-                            'Enhanced security measures to protect the community.',
-                          ),
-                          const SizedBox(height: 16),
-                          _buildFeatureCard(
-                            Theme.of(context),
-                            '🐛 Bug Fixes',
-                            'Fixed various bugs to improve app stability.',
+                            '🔧 Maintenance Update',
+                            'Updated dependencies.',
                           ),
                           const SizedBox(height: 32),
                           Text(
@@ -91,14 +85,14 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🛡️ Enhanced Trust System',
-                            'Made trusted users less likely to be affected by intentional reports.',
+                            '🔒 Enhanced Security',
+                            'Enhanced security measures to protect the community.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '📸 Picture Permissions',
-                            'Allowed only experienced users to send pictures.',
+                            '🐛 Bug Fixes',
+                            'Fixed various bugs to improve app stability.',
                           ),
                           const SizedBox(height: 48),
                           FilledButton(

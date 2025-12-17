@@ -17,7 +17,7 @@ const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
   const user: User = event.data.after.val();
 
   try {
-    await updateUserPriority(userId, user, userBefore);
+
     await updateUserCache(userId, user);
     await updatePartnerDataInChats(userId, user, userBefore);
   } catch (error) {
@@ -25,20 +25,7 @@ const onUserUpdated = onValueUpdated('/users/{userId}', async (event) => {
   }
 });
 
-// TODO: Just a fallback, as we no longer use priority of a user in newer versions
-const updateUserPriority = async (userId: string, user: User, userBefore: User) => {
-  if (isNew(user)) return;
-  if (user.updatedAt === userBefore.updatedAt) return;
 
-  const userRef = db.ref(`users/${userId}`);
-  const priority = -1 * user.updatedAt;
-
-  await userRef.setPriority(priority, (error) => {
-    if (error) {
-      logger.error(error);
-    }
-  });
-};
 
 // TODO: Cache timestamps and execute no more than once per minute for a user
 const updateUserCache = async (userId: string, user: User) => {

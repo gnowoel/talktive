@@ -10,7 +10,6 @@ import '../models/topic_message.dart';
 import '../models/tribe.dart';
 import '../models/user.dart';
 import '../helpers/exception.dart';
-import 'report_cache.dart';
 
 class Firestore {
   final FirebaseFirestore instance;
@@ -1381,10 +1380,6 @@ class Firestore {
         final errorMessage = result['error'] ?? 'Failed to report message';
         throw Exception(errorMessage);
       }
-
-      // Cache the reported message ID
-      final reportCache = ReportCacheService();
-      await reportCache.addReportedMessage(messageId);
     } on FirebaseFunctionsException catch (e) {
       switch (e.code) {
         case 'deadline-exceeded':
@@ -1450,10 +1445,6 @@ class Firestore {
             result['error'] ?? 'Failed to report moment message';
         throw Exception(errorMessage);
       }
-
-      // Cache the reported message ID
-      final reportCache = ReportCacheService();
-      await reportCache.addReportedMessage(messageId);
     } on FirebaseFunctionsException catch (e) {
       switch (e.code) {
         case 'deadline-exceeded':

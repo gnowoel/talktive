@@ -1,8 +1,7 @@
 export { default as onUserRegistered } from './onUserRegistered';
 export { default as onUserUpdated } from './onUserUpdated';
 
-export { default as onReportCreated } from './onReportCreated';
-export { default as onFirestoreUserCreated } from './onFirestoreUserCreated';
+export { default as onFirestoreReportCreated } from './onFirestoreReportCreated';
 export { onTopicMessageCreated } from './onTopicMessageCreated';
 
 export { follow, unfollow } from './follow';

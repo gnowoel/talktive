@@ -1,14 +1,13 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { User } from './types';
-import { isDebugMode } from './helpers';
 import { getRestrictionMultiplier } from './reputationUtils';
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-const db = admin.database();
+const firestore = admin.firestore();
 
 const oneDay = 1 * 24 * 60 * 60 * 1000;
 const twoWeeks = 14 * oneDay;
@@ -24,29 +23,21 @@ export const getRestrictionLevel = (revivedAt: number | null | undefined, now: n
 };
 
 /**
- * Determines if partner chats need to be updated based on restriction level changes
- */
-export const shouldUpdatePartnerChats = (
-  oldRevivedAt: number | null | undefined,
-  newRevivedAt: number,
-  now: number
-): boolean => {
-  const oldLevel = getRestrictionLevel(oldRevivedAt, now);
-  const newLevel = getRestrictionLevel(newRevivedAt, now);
-  return oldLevel !== newLevel;
-};
-
-/**
- * Fetches a user from the Realtime Database
+ * Fetches a user from Firestore
  */
 export const getUser = async (userId: string): Promise<User | null> => {
-  const userRef = db.ref(`users/${userId}`);
-  const snapshot = await userRef.get();
+  try {
+    const userRef = firestore.collection('users').doc(userId);
+    const snapshot = await userRef.get();
 
-  if (!snapshot.exists()) return null;
+    if (!snapshot.exists) return null;
 
-  const user: User = snapshot.val();
-  return user;
+    const user = snapshot.data() as User;
+    return user;
+  } catch (error) {
+    logger.error(`Error fetching user ${userId}:`, error);
+    return null;
+  }
 };
 
 /**
@@ -73,85 +64,25 @@ export const getNewRevivedAt = async (now: number, oldRevivedAt: number, user: U
 };
 
 /**
- * Updates a user's revivedAt timestamp and increments their reportCount
+ * Updates a user's revivedAt timestamp and increments their reportCount in Firestore
  */
 export const updateUserRevivedAtAndReportCount = async (userId: string, revivedAt: number) => {
   try {
-    const userRef = db.ref(`users/${userId}`);
+    const userRef = firestore.collection('users').doc(userId);
 
-    // `ServerValue` doesn't work with Emulators Suite
-    if (isDebugMode()) {
-      // Get current user data to manually increment reportCount
-      const userSnapshot = await userRef.get();
-      const currentUser = userSnapshot.val();
-      const currentReportCount = currentUser?.reportCount || 0;
+    await userRef.update({
+      revivedAt,
+      reportCount: admin.firestore.FieldValue.increment(1),
+    });
 
-      await userRef.update({
-        revivedAt,
-        reportCount: currentReportCount + 1,
-      });
-    } else {
-      // Update revivedAt and increment reportCount atomically
-      await userRef.update({
-        revivedAt,
-        reportCount: admin.database.ServerValue.increment(1),
-      });
-    }
-
-    logger.info(`User ${userId} revivedAt and reportCount updated`);
+    logger.info(`User ${userId} revivedAt and reportCount updated in Firestore`);
   } catch (error) {
     logger.error(`Error updating user ${userId} revivedAt and reportCount:`, error);
   }
 };
 
 /**
- * Updates all partner chats with the new revivedAt timestamp
- */
-export const updatePartnerChatsRevivedAt = async (userId: string, revivedAt: number) => {
-  try {
-    // Get all chat IDs where this user is a partner
-    const userChatsRef = db.ref(`chats/${userId}`);
-    const snapshot = await userChatsRef.get();
-
-    if (!snapshot.exists()) return;
-
-    const chatIds = Object.keys(snapshot.val());
-
-    // Update each chat's partner revivedAt for all other users
-    const updatePromises = chatIds.map(async (chatId) => {
-      const partnerId = chatId.replace(userId, '');
-      await updateChatPartnerRevivedAt(partnerId, chatId, revivedAt);
-    });
-
-    await Promise.all(updatePromises);
-  } catch (error) {
-    logger.error('Error updating partner chats revivedAt:', error);
-  }
-};
-
-/**
- * Updates a specific chat's partner revivedAt timestamp
- */
-export const updateChatPartnerRevivedAt = async (
-  userId: string,
-  chatId: string,
-  revivedAt: number
-): Promise<void> => {
-  const chatRef = db.ref(`chats/${userId}/${chatId}`);
-
-  try {
-    const snapshot = await chatRef.get();
-    if (!snapshot.exists()) return;
-
-    await chatRef.child('partner').update({ revivedAt });
-  } catch (error) {
-    logger.error(`Error updating chat ${chatId} for user ${userId}:`, error);
-  }
-};
-
-/**
- * Applies moderation penalties to a user (updates revivedAt and reportCount, updates partner chats)
- * Only updates partner chats if the restriction level changes
+ * Applies moderation penalties to a user (updates revivedAt and reportCount)
  */
 export const applyModerationPenalty = async (userId: string) => {
   try {
@@ -168,17 +99,16 @@ export const applyModerationPenalty = async (userId: string) => {
     // Update the user's revivedAt and reportCount
     await updateUserRevivedAtAndReportCount(userId, newRevivedAt);
 
-    // Only update partner chats if restriction level changed
-    if (shouldUpdatePartnerChats(user.revivedAt, newRevivedAt, now)) {
-      const oldLevel = getRestrictionLevel(user.revivedAt, now);
-      const newLevel = getRestrictionLevel(newRevivedAt, now);
-      await updatePartnerChatsRevivedAt(userId, newRevivedAt);
+    const oldLevel = getRestrictionLevel(user.revivedAt, now);
+    const newLevel = getRestrictionLevel(newRevivedAt, now);
+
+    if (oldLevel !== newLevel) {
       logger.info(`Moderation penalty applied to user ${userId} - restriction level changed from ${oldLevel} to ${newLevel}`);
     } else {
-      const currentLevel = getRestrictionLevel(user.revivedAt, now);
-      logger.info(`Moderation penalty applied to user ${userId} - restriction level unchanged (${currentLevel})`);
+      logger.info(`Moderation penalty applied to user ${userId} - restriction level unchanged (${oldLevel})`);
     }
   } catch (error) {
     logger.error(`Error applying moderation penalty to user ${userId}:`, error);
   }
 };
+

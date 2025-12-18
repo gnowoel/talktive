@@ -25,6 +25,14 @@ abstract class TopicMessage {
   String get content;
 
   Map<String, dynamic> toJson();
+
+  static TopicMessage fromJson(Map<String, dynamic> json) {
+    final type = json['type'] as String?;
+    if (type == 'image') {
+      return TopicImageMessage.fromJson(json);
+    }
+    return TopicTextMessage.fromJson(json);
+  }
 }
 
 class TopicTextMessage extends TopicMessage {

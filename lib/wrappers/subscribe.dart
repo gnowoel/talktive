@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/chat_cache.dart';
 import '../services/fireauth.dart';
 import '../services/firedata.dart';
 import '../services/firestore.dart';
@@ -35,7 +34,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
   late ServerClock serverClock;
   late UserCache userCache;
   late FollowCache followCache;
-  late ChatCache chatCache;
+
   late TopicCache topicCache;
   late TribeCache tribeCache;
 
@@ -43,7 +42,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
   late StreamSubscription userSubscription;
   late StreamSubscription followeesSubscription;
   late StreamSubscription followersSubscription;
-  late StreamSubscription chatsSubscription;
+
   late StreamSubscription fcmTokenSubscription;
   late StreamSubscription topicsSubscription;
 
@@ -86,7 +85,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
     serverClock = context.read<ServerClock>();
     userCache = context.read<UserCache>();
     followCache = context.read<FollowCache>();
-    chatCache = context.read<ChatCache>();
+
     topicCache = context.read<TopicCache>();
     tribeCache = context.read<TribeCache>();
 
@@ -107,10 +106,6 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
       }),
       firestore.subscribeToFollowers(userId).listen((followers) {
         followCache.updateFollowers(followers);
-      }),
-      firedata.subscribeToChats(userId).listen((chats) {
-        chatCache.updateChats(chats);
-        // Cleanup is now handled by the SQLite cache system
       }),
       firestore.subscribeToTopics(userId).listen((topics) {
         topicCache.updateTopics(topics);

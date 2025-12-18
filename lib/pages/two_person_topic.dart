@@ -213,7 +213,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
       // Always sync with the total count from pagination service
       final totalCount =
           paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
-      if (totalCount != null && _topic != null) {
+      if (_topic != null) {
         // Update the local topic object with the accurate count if different
         if (totalCount != _topic!.messageCount) {
           final updatedTopic = _topic!.copyWith(messageCount: totalCount);
@@ -257,7 +257,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
       // Use the latest message count from pagination service
       final latestTotalCount =
           paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
-      final count = latestTotalCount ?? _messageCount;
+      final count = latestTotalCount;
 
       // Skip if no change needed
       if (count == 0 || count == _topic!.readMessageCount) {
@@ -270,7 +270,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
       // Create updated topic with both message count and read count
       final updatedTopic = _topic!.copyWith(
         readMessageCount: count,
-        messageCount: latestTotalCount ?? _topic!.messageCount,
+        messageCount: latestTotalCount,
       );
       // Optimistically update UI and cache
       setState(() {
@@ -398,7 +398,7 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
                   _buildAlertBox(),
                 ],
                 Expanded(
-                  child: PaginatedMessageList.topic(
+                  child: PaginatedMessageList(
                     id: widget.topicId,
                     topicCreatorId: widget.topicCreatorId,
                     focusNode: _focusNode,

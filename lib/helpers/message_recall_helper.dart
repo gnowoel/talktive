@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../models/chat_message.dart';
+
 import '../models/topic_message.dart';
 import '../services/message_meta_cache.dart';
 
@@ -10,91 +10,6 @@ const int _maxMessageIdLength = 100;
 ///
 /// These extensions provide convenient methods to check if messages are recalled,
 /// with automatic fallback to the original recalled field for backward compatibility.
-
-extension ChatMessageRecallHelper on ChatMessage {
-  /// Check if this chat message is recalled using MessageMetaCache with fallback
-  ///
-  /// This method first checks the MessageMetaCache for real-time recall status,
-  /// and falls back to the message's original recalled field if cache is unavailable.
-  bool isRecalledWithCache(MessageMetaCache? messageMetaCache) {
-    try {
-      if (messageMetaCache == null) {
-        // No cache available, use original field
-        if (kDebugMode) {
-          debugPrint('ChatMessage: No messageMetaCache available, using original recalled field: $recalled');
-        }
-        return recalled;
-      }
-
-      final messageId = id ?? '';
-      if (!MessageRecallHelper.isValidMessageId(messageId)) {
-        // Invalid message ID, use original field
-        if (kDebugMode) {
-          debugPrint('ChatMessage: Invalid messageId "$messageId", using original recalled field: $recalled');
-        }
-        return recalled;
-      }
-
-      // Use cache with fallback to original field
-      return messageMetaCache.isMessageRecalledWithFallback(messageId, recalled);
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('ChatMessage: Error checking recall status for message ${id ?? 'null'}: $e');
-      }
-      // On error, fall back to original field
-      return recalled;
-    }
-  }
-
-  /// Check if this chat message can be recalled by the current user
-  ///
-  /// A message can be recalled if:
-  /// - It has not been recalled yet
-  /// - It has a valid message ID
-  /// - The user has appropriate permissions (checked elsewhere)
-  bool canBeRecalled(MessageMetaCache? messageMetaCache) {
-    try {
-      // Check if message has valid ID first
-      if (!MessageRecallHelper.isValidMessageId(id)) {
-        return false;
-      }
-
-      // Check if message is already recalled
-      if (isRecalledWithCache(messageMetaCache)) {
-        return false;
-      }
-
-      // Additional validations can be added here
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('ChatMessage: Error checking if message can be recalled for ${id ?? 'null'}: $e');
-      }
-      return false;
-    }
-  }
-
-  /// Get user-friendly recall status text for this chat message
-  String getRecallStatusText(MessageMetaCache? messageMetaCache) {
-    try {
-      if (isRecalledWithCache(messageMetaCache)) {
-        return MessageRecallHelper.getRecallDisplayText(type);
-      }
-      return content;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('ChatMessage: Error getting recall status text for ${id ?? 'null'}: $e');
-      }
-      // Fall back to original content on error
-      return content;
-    }
-  }
-
-  /// Get detailed recall information for debugging
-  Map<String, dynamic> getRecallDebugInfo(MessageMetaCache? messageMetaCache) {
-    return MessageRecallHelper.getRecallDebugInfo(this, messageMetaCache);
-  }
-}
 
 extension TopicMessageRecallHelper on TopicMessage {
   /// Check if this topic message is recalled using MessageMetaCache with fallback
@@ -108,7 +23,8 @@ extension TopicMessageRecallHelper on TopicMessage {
       if (messageMetaCache == null) {
         // No cache available, use original field
         if (kDebugMode) {
-          debugPrint('TopicMessage: No messageMetaCache available, using original recalled field: $recalledValue');
+          debugPrint(
+              'TopicMessage: No messageMetaCache available, using original recalled field: $recalledValue');
         }
         return recalledValue;
       }
@@ -117,16 +33,19 @@ extension TopicMessageRecallHelper on TopicMessage {
       if (!MessageRecallHelper.isValidMessageId(messageId)) {
         // Invalid message ID, use original field
         if (kDebugMode) {
-          debugPrint('TopicMessage: Invalid messageId "$messageId", using original recalled field: $recalledValue');
+          debugPrint(
+              'TopicMessage: Invalid messageId "$messageId", using original recalled field: $recalledValue');
         }
         return recalledValue;
       }
 
       // Use cache with fallback to original field
-      return messageMetaCache.isMessageRecalledWithFallback(messageId, recalledValue);
+      return messageMetaCache.isMessageRecalledWithFallback(
+          messageId, recalledValue);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('TopicMessage: Error checking recall status for message ${id ?? 'null'}: $e');
+        debugPrint(
+            'TopicMessage: Error checking recall status for message ${id ?? 'null'}: $e');
       }
       // On error, fall back to original field
       return recalled ?? false;
@@ -155,7 +74,8 @@ extension TopicMessageRecallHelper on TopicMessage {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('TopicMessage: Error checking if message can be recalled for ${id ?? 'null'}: $e');
+        debugPrint(
+            'TopicMessage: Error checking if message can be recalled for ${id ?? 'null'}: $e');
       }
       return false;
     }
@@ -171,7 +91,8 @@ extension TopicMessageRecallHelper on TopicMessage {
       return content;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('TopicMessage: Error getting recall status text for ${id ?? 'null'}: $e');
+        debugPrint(
+            'TopicMessage: Error getting recall status text for ${id ?? 'null'}: $e');
       }
       // Fall back to original content on error
       return content;
@@ -199,14 +120,13 @@ class MessageRecallHelper {
     try {
       if (message == null) {
         if (kDebugMode) {
-          debugPrint('MessageRecallHelper: Null message provided to isMessageRecalled');
+          debugPrint(
+              'MessageRecallHelper: Null message provided to isMessageRecalled');
         }
         return false;
       }
 
-      if (message is ChatMessage) {
-        return message.isRecalledWithCache(messageMetaCache);
-      } else if (message is TopicMessage) {
+      if (message is TopicMessage) {
         return message.isRecalledWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -217,7 +137,8 @@ class MessageRecallHelper {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error checking if message is recalled: $e');
+        debugPrint(
+            'MessageRecallHelper: Error checking if message is recalled: $e');
       }
       return false;
     }
@@ -231,14 +152,13 @@ class MessageRecallHelper {
     try {
       if (message == null) {
         if (kDebugMode) {
-          debugPrint('MessageRecallHelper: Null message provided to canMessageBeRecalled');
+          debugPrint(
+              'MessageRecallHelper: Null message provided to canMessageBeRecalled');
         }
         return false;
       }
 
-      if (message is ChatMessage) {
-        return message.canBeRecalled(messageMetaCache);
-      } else if (message is TopicMessage) {
+      if (message is TopicMessage) {
         return message.canBeRecalled(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -249,7 +169,8 @@ class MessageRecallHelper {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error checking if message can be recalled: $e');
+        debugPrint(
+            'MessageRecallHelper: Error checking if message can be recalled: $e');
       }
       return false;
     }
@@ -263,14 +184,13 @@ class MessageRecallHelper {
     try {
       if (message == null) {
         if (kDebugMode) {
-          debugPrint('MessageRecallHelper: Null message provided to getMessageRecallStatusText');
+          debugPrint(
+              'MessageRecallHelper: Null message provided to getMessageRecallStatusText');
         }
         return '';
       }
 
-      if (message is ChatMessage) {
-        return message.getRecallStatusText(messageMetaCache);
-      } else if (message is TopicMessage) {
+      if (message is TopicMessage) {
         return message.getRecallStatusText(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -281,7 +201,8 @@ class MessageRecallHelper {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error getting message recall status text: $e');
+        debugPrint(
+            'MessageRecallHelper: Error getting message recall status text: $e');
       }
       return message?.content ?? '';
     }
@@ -302,7 +223,8 @@ class MessageRecallHelper {
       // Check for reasonable length limits
       if (trimmedId.length > _maxMessageIdLength) {
         if (kDebugMode) {
-          debugPrint('MessageRecallHelper: Message ID too long: ${trimmedId.length} characters');
+          debugPrint(
+              'MessageRecallHelper: Message ID too long: ${trimmedId.length} characters');
         }
         return false;
       }
@@ -311,7 +233,8 @@ class MessageRecallHelper {
       final validFormat = RegExp(r'^[a-zA-Z0-9_\-]+$').hasMatch(trimmedId);
       if (!validFormat) {
         if (kDebugMode) {
-          debugPrint('MessageRecallHelper: Invalid message ID format: "$trimmedId"');
+          debugPrint(
+              'MessageRecallHelper: Invalid message ID format: "$trimmedId"');
         }
         return false;
       }
@@ -319,7 +242,8 @@ class MessageRecallHelper {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error validating message ID "$messageId": $e');
+        debugPrint(
+            'MessageRecallHelper: Error validating message ID "$messageId": $e');
       }
       return false;
     }
@@ -330,9 +254,7 @@ class MessageRecallHelper {
     try {
       if (message == null) return null;
 
-      if (message is ChatMessage) {
-        return message.id;
-      } else if (message is TopicMessage) {
+      if (message is TopicMessage) {
         return message.id;
       } else {
         if (kDebugMode) {
@@ -370,7 +292,8 @@ class MessageRecallHelper {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error checking recall functionality availability: $e');
+        debugPrint(
+            'MessageRecallHelper: Error checking recall functionality availability: $e');
       }
       return false;
     }
@@ -398,7 +321,8 @@ class MessageRecallHelper {
         'cacheValue': messageId != null && messageMetaCache != null
             ? messageMetaCache.isMessageRecalled(messageId)
             : null,
-        'recallFunctionalityAvailable': isRecallFunctionalityAvailable(message, messageMetaCache),
+        'recallFunctionalityAvailable':
+            isRecallFunctionalityAvailable(message, messageMetaCache),
         'timestamp': DateTime.now().toIso8601String(),
       };
     } catch (e) {
@@ -413,15 +337,14 @@ class MessageRecallHelper {
   /// Helper to get the original recalled field value
   static bool? _getOriginalRecalledField(dynamic message) {
     try {
-      if (message is ChatMessage) {
-        return message.recalled;
-      } else if (message is TopicMessage) {
+      if (message is TopicMessage) {
         return message.recalled;
       }
       return null;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error getting original recalled field: $e');
+        debugPrint(
+            'MessageRecallHelper: Error getting original recalled field: $e');
       }
       return null;
     }
@@ -454,7 +377,8 @@ class MessageRecallHelper {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('MessageRecallHelper: Error in batch check recall status: $e');
+        debugPrint(
+            'MessageRecallHelper: Error in batch check recall status: $e');
       }
     }
 
@@ -489,7 +413,8 @@ class MessageRecallHelper {
         'validMessages': validMessages,
         'recalledMessages': recalledMessages,
         'invalidIds': invalidIds,
-        'recallRate': validMessages > 0 ? (recalledMessages / validMessages) : 0.0,
+        'recallRate':
+            validMessages > 0 ? (recalledMessages / validMessages) : 0.0,
         'cacheAvailable': messageMetaCache != null,
         'timestamp': DateTime.now().toIso8601String(),
       };

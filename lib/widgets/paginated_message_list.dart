@@ -3,64 +3,36 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/chat_message.dart';
 import '../models/topic_message.dart';
-import '../models/chat.dart';
 import '../services/paginated_message_service.dart';
-import 'chat_image_message_item.dart';
-import 'chat_text_message_item.dart';
 import 'topic_image_message_item.dart';
 import 'topic_text_message_item.dart';
 import 'message_separator.dart';
-import 'info.dart';
-
-enum MessageListType { chat, topic }
 
 class PaginatedMessageList extends StatefulWidget {
   // Common properties
-  final MessageListType type;
-  final String id; // chatId or topicId
+  final String id; // topicId
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
-  final void Function(String)? onInsertMention;
-
-  // Chat-specific properties
-  final Chat? chat;
-  final String? reporterUserId;
+  final void Function(String)? onInsertMention; // Made nullable to match usage
 
   // Topic-specific properties
   final String? topicCreatorId;
   final int? readMessageCount;
   final bool isTwoPersonTopic;
 
-  const PaginatedMessageList.chat({
-    super.key,
-    required this.id,
-    required this.chat,
-    required this.focusNode,
-    required this.scrollController,
-    required this.updateMessageCount,
-    this.onInsertMention,
-    this.reporterUserId,
-  })  : type = MessageListType.chat,
-        topicCreatorId = null,
-        readMessageCount = null,
-        isTwoPersonTopic = false;
-
-  const PaginatedMessageList.topic({
+  const PaginatedMessageList({
     super.key,
     required this.id,
     required this.topicCreatorId,
     required this.focusNode,
     required this.scrollController,
     required this.updateMessageCount,
-    required this.readMessageCount,
+    required this.readMessageCount, // Made required
     this.onInsertMention,
-    this.isTwoPersonTopic = false,
-  })  : type = MessageListType.topic,
-        chat = null,
-        reporterUserId = null;
+    this.isTwoPersonTopic = false, // Default false
+  });
 
   @override
   State<PaginatedMessageList> createState() => _PaginatedMessageListState();
@@ -142,13 +114,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
 
     // Dispose pagination state to prevent memory leaks and excessive subscriptions
+    // Dispose pagination state to prevent memory leaks and excessive subscriptions
     if (_messageService != null) {
       try {
-        if (widget.type == MessageListType.chat) {
-          _messageService!.disposeChatState(widget.id);
-        } else {
-          _messageService!.disposeTopicState(widget.id);
-        }
+        _messageService!.disposeTopicState(widget.id);
       } catch (e) {
         debugPrint('Error disposing pagination state: $e');
       }
@@ -258,19 +227,11 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       List<dynamic> serviceMessages;
       bool serviceHasMore;
 
-      if (widget.type == MessageListType.chat) {
-        final state = _messageService!.getChatState(widget.id);
-        if (state == null || state.isLoading) return;
+      final state = _messageService!.getTopicState(widget.id);
+      if (state == null || state.isLoading) return;
 
-        serviceMessages = state.messages;
-        serviceHasMore = state.hasMore;
-      } else {
-        final state = _messageService!.getTopicState(widget.id);
-        if (state == null || state.isLoading) return;
-
-        serviceMessages = state.messages;
-        serviceHasMore = state.hasMore;
-      }
+      serviceMessages = state.messages;
+      serviceHasMore = state.hasMore;
 
       // Early return if no change needed
       if (_messages.length == serviceMessages.length &&
@@ -320,7 +281,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
 
     debugPrint(
-        'PaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
+        'PaginatedMessageList: Loading initial messages for topic ${widget.id}');
 
     _currentInitialLoadId = widget.id;
 
@@ -333,18 +294,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     try {
       late SimplePaginatedResult result;
 
-      if (widget.type == MessageListType.chat) {
-        result = await _messageService!.loadChatMessages(
-          widget.id,
-          isInitialLoad: true,
-          chatCreatedAt: widget.chat?.createdAt,
-        );
-      } else {
-        result = await _messageService!.loadTopicMessages(
-          widget.id,
-          isInitialLoad: true,
-        );
-      }
+      result = await _messageService!.loadTopicMessages(
+        widget.id,
+        isInitialLoad: true,
+      );
 
       if (!mounted) return;
       setState(() {
@@ -394,7 +347,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     if (_isLoading || !_hasMore || _messageService == null) return;
 
     debugPrint(
-        'PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
+        'PaginatedMessageList: Loading more messages for topic ${widget.id}');
 
     // Save precise scroll metrics before loading
     if (widget.scrollController.hasClients) {
@@ -415,11 +368,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     try {
       late SimplePaginatedResult result;
 
-      if (widget.type == MessageListType.chat) {
-        result = await _messageService!.loadMoreChatMessages(widget.id);
-      } else {
-        result = await _messageService!.loadMoreTopicMessages(widget.id);
-      }
+      result = await _messageService!.loadMoreTopicMessages(widget.id);
 
       if (!mounted) return;
 
@@ -453,25 +402,14 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   }
 
   String _getMessageId(dynamic message) {
-    if (message is ChatMessage) {
-      return message.id ?? '';
-    } else if (message is TopicMessage) {
+    if (message is TopicMessage) {
       return message.id ?? '';
     }
     return '';
   }
 
-  bool _isNewChat() {
-    return widget.type == MessageListType.chat &&
-        (widget.chat?.isDummy == true || _messages.isEmpty);
-  }
-
   int _getReadMessageCount() {
-    if (widget.type == MessageListType.chat) {
-      return widget.chat?.readMessageCount ?? 0;
-    } else {
-      return widget.readMessageCount ?? 0;
-    }
+    return widget.readMessageCount ?? 0;
   }
 
   bool _shouldShowSeparator() {
@@ -570,14 +508,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     return Listener(
       onPointerDown: (details) => FocusScope.of(context).unfocus(),
       onPointerMove: (details) => FocusScope.of(context).unfocus(),
-      child: _isNewChat() ? _buildInfo() : _buildMessageList(),
-    );
-  }
-
-  Widget _buildInfo() {
-    const lines = ['Say hi or send a photo', 'to your new friend.'];
-    return const SizedBox.expand(
-      child: AbsorbPointer(child: Info(lines: lines)),
+      child: _buildMessageList(),
     );
   }
 
@@ -639,46 +570,25 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   }
 
   Widget _buildSingleMessageItem(dynamic message) {
-    if (widget.type == MessageListType.chat) {
-      final chatMessage = message as ChatMessage;
-      if (chatMessage is ChatImageMessage) {
-        return ChatImageMessageItem(
-          key: ValueKey(chatMessage.id),
-          chatId: widget.id,
-          message: chatMessage,
-          reporterUserId: widget.reporterUserId,
-          onInsertMention: widget.onInsertMention,
-        );
-      } else {
-        return ChatTextMessageItem(
-          key: ValueKey(chatMessage.id),
-          chatId: widget.id,
-          message: chatMessage as ChatTextMessage,
-          reporterUserId: widget.reporterUserId,
-          onInsertMention: widget.onInsertMention,
-        );
-      }
+    final topicMessage = message as TopicMessage;
+    if (topicMessage is TopicImageMessage) {
+      return TopicImageMessageItem(
+        key: ValueKey(topicMessage.id),
+        topicId: widget.id,
+        topicCreatorId: widget.topicCreatorId!,
+        message: topicMessage,
+        onInsertMention: widget.onInsertMention,
+        hideDisplayName: widget.isTwoPersonTopic,
+      );
     } else {
-      final topicMessage = message as TopicMessage;
-      if (topicMessage is TopicImageMessage) {
-        return TopicImageMessageItem(
-          key: ValueKey(topicMessage.id),
-          topicId: widget.id,
-          topicCreatorId: widget.topicCreatorId!,
-          message: topicMessage,
-          onInsertMention: widget.onInsertMention,
-          hideDisplayName: widget.isTwoPersonTopic,
-        );
-      } else {
-        return TopicTextMessageItem(
-          key: ValueKey(topicMessage.id),
-          topicId: widget.id,
-          topicCreatorId: widget.topicCreatorId!,
-          message: topicMessage as TopicTextMessage,
-          onInsertMention: widget.onInsertMention,
-          hideDisplayName: widget.isTwoPersonTopic,
-        );
-      }
+      return TopicTextMessageItem(
+        key: ValueKey(topicMessage.id),
+        topicId: widget.id,
+        topicCreatorId: widget.topicCreatorId!,
+        message: topicMessage as TopicTextMessage,
+        onInsertMention: widget.onInsertMention,
+        hideDisplayName: widget.isTwoPersonTopic,
+      );
     }
   }
 }

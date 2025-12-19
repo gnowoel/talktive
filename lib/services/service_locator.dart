@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'paginated_message_service.dart';
-
 import 'fireauth.dart';
 import 'firedata.dart';
 import 'firestore.dart';
@@ -14,7 +13,7 @@ import 'topic_followers_cache.dart';
 import 'message_meta_cache.dart';
 import 'topic_cache.dart';
 import 'tribe_cache.dart';
-
+import 'chat_cache.dart';
 import 'report_cache.dart';
 import 'settings.dart';
 import 'server_clock.dart';
@@ -31,7 +30,6 @@ class ServiceLocator {
 
   // Services
   PaginatedMessageService? _paginatedMessageService;
-
   ErrorRecoveryService? _errorRecoveryService;
 
   bool _isInitialized = false;
@@ -136,7 +134,6 @@ class ServiceLocator {
     try {
       // Dispose managed services
       _paginatedMessageService?.dispose();
-
       _errorRecoveryService?.dispose();
 
       // Dispose singleton cache services
@@ -161,6 +158,14 @@ class ServiceLocator {
       } catch (e) {
         if (kDebugMode) {
           print('ServiceLocator: Error disposing TopicCache: $e');
+        }
+      }
+
+      try {
+        ChatCache().dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          print('ServiceLocator: Error disposing ChatCache: $e');
         }
       }
 
@@ -236,7 +241,9 @@ class ServiceLocator {
       ChangeNotifierProvider<TribeCache>(
         create: (_) => TribeCache(firestore),
       ),
-
+      ChangeNotifierProvider<ChatCache>(
+        create: (_) => ChatCache(),
+      ),
       Provider<ReportCacheService>(
         create: (_) => ReportCacheService(),
       ),
@@ -271,6 +278,12 @@ class ServiceLocator {
     try {
       final stats = <String, dynamic>{};
 
+      if (_paginatedMessageService != null) {
+        stats['simple_paginated_service_initialized'] = true;
+        // Add pagination state statistics if needed
+        // Could add counts of active chat/topic states, etc.
+      }
+
       if (_errorRecoveryService != null) {
         stats['error_recovery_initialized'] = true;
         final errorStats = _errorRecoveryService!.getStats();
@@ -293,7 +306,7 @@ class ServiceLocator {
   Future<void> clearAllMessageData() async {
     try {
       // Clear all pagination states
-      _paginatedMessageService?.dispose(); // Or specific clear method if added
+      _paginatedMessageService?.dispose();
       _paginatedMessageService = null;
 
       if (kDebugMode) {

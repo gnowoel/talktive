@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/time.dart';
-
+import '../services/chat_cache.dart';
 import '../services/topic_cache.dart';
 
 class Navigation extends StatefulWidget {
@@ -18,20 +18,21 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
+  late ChatCache chatCache;
   late TopicCache topicCache;
   Timer? _timer;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
+    chatCache = Provider.of<ChatCache>(context);
     topicCache = Provider.of<TopicCache>(context);
     _refreshActiveItems();
   }
 
   void _refreshActiveItems() {
     final nextTime = getNextTime(
-      0, // Removed chatCache.getTimeLeft()
+      chatCache.getTimeLeft(),
       topicCache.getTimeLeft(),
     );
 
@@ -61,7 +62,7 @@ class _NavigationState extends State<Navigation> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = widget.navigationShell.currentIndex;
-    final unreadCount = topicCache.unreadCount;
+    final unreadCount = chatCache.unreadCount + topicCache.unreadCount;
 
     return Scaffold(
       body: widget.navigationShell,

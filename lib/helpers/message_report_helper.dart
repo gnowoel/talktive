@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-
+import '../models/chat_message.dart';
 import '../models/topic_message.dart';
 import '../services/message_meta_cache.dart';
 import '../config/message_report_config.dart';
@@ -21,6 +21,183 @@ const int _maxMessageIdLength = 100;
 ///
 /// These extensions provide convenient methods to check if messages are reported,
 /// with automatic fallback to the original reportCount field for backward compatibility.
+
+extension ChatMessageReportHelper on ChatMessage {
+  /// Get report count using MessageMetaCache with fallback
+  ///
+  /// This method first checks the MessageMetaCache for real-time report count,
+  /// and falls back to the message's original reportCount field if cache is unavailable.
+  int getReportCountWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      if (messageMetaCache == null) {
+        // No cache available, use original field
+        if (kDebugMode) {
+          debugPrint(
+              'ChatMessage: No messageMetaCache available, using original reportCount field: ${reportCount ?? 0}');
+        }
+        return reportCount ?? 0;
+      }
+
+      final messageId = id ?? '';
+      if (!MessageReportHelper.isValidMessageId(messageId)) {
+        // Invalid message ID, use original field
+        if (kDebugMode) {
+          debugPrint(
+              'ChatMessage: Invalid messageId "$messageId", using original reportCount field: ${reportCount ?? 0}');
+        }
+        return reportCount ?? 0;
+      }
+
+      // Use cache with fallback to original field
+      return messageMetaCache.getMessageReportCountWithFallback(
+          messageId, reportCount ?? 0);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking report count for message ${id ?? 'null'}: $e');
+      }
+      // On error, fall back to original field
+      return reportCount ?? 0;
+    }
+  }
+
+  /// Check if this chat message is flagged for review
+  bool isFlaggedWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount >= MessageReportConfig.flagThreshold &&
+          currentReportCount < MessageReportConfig.hideThreshold;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message is flagged for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if this chat message is hidden due to reports
+  bool isHiddenWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount >= MessageReportConfig.hideThreshold &&
+          currentReportCount < MessageReportConfig.severeThreshold;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message is hidden for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if this chat message is marked as severe
+  bool isSevereWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount >= MessageReportConfig.severeThreshold;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message is severe for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if this chat message has any report-related restrictions
+  bool isReportedWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount > 0;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message is reported for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Get the current report status using cache
+  String? getReportStatusWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.getReportStatus(currentReportCount);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error getting report status for ${id ?? 'null'}: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Get a user-friendly description of the message's report status using cache
+  String getReportStatusDescriptionWithCache(
+      MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.getStatusDescription(currentReportCount);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error getting report status description for ${id ?? 'null'}: $e');
+      }
+      return 'No reports';
+    }
+  }
+
+  /// Check if message should be visible using cache data
+  bool shouldShowWithCache(MessageMetaCache? messageMetaCache,
+      {bool isAdmin = false}) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.shouldShowMessage(currentReportCount,
+          isAdmin: isAdmin);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message should show for ${id ?? 'null'}: $e');
+      }
+      return true; // Default to showing on error
+    }
+  }
+
+  /// Check if message needs content warning using cache data
+  bool shouldShowContentWarningWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return MessageReportConfig.shouldShowContentWarning(currentReportCount);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking content warning for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if message is reported but still revealable using cache data
+  bool isReportedButRevealableWithCache(MessageMetaCache? messageMetaCache) {
+    try {
+      final currentReportCount = getReportCountWithCache(messageMetaCache);
+      return currentReportCount > 0 &&
+          currentReportCount < MessageReportConfig.hideThreshold;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            'ChatMessage: Error checking if message is reported but revealable for ${id ?? 'null'}: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Get detailed report information for debugging
+  Map<String, dynamic> getReportDebugInfo(MessageMetaCache? messageMetaCache) {
+    return MessageReportHelper.getReportDebugInfo(this, messageMetaCache);
+  }
+}
 
 extension TopicMessageReportHelper on TopicMessage {
   /// Get report count using MessageMetaCache with fallback
@@ -222,7 +399,9 @@ class MessageReportHelper {
         return 0;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.getReportCountWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.getReportCountWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -254,7 +433,9 @@ class MessageReportHelper {
         return false;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.isFlaggedWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.isFlaggedWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -286,7 +467,9 @@ class MessageReportHelper {
         return false;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.isHiddenWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.isHiddenWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -318,7 +501,9 @@ class MessageReportHelper {
         return false;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.isSevereWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.isSevereWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -350,7 +535,9 @@ class MessageReportHelper {
         return false;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.isReportedWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.isReportedWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -382,7 +569,9 @@ class MessageReportHelper {
         return false;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.isReportedButRevealableWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.isReportedButRevealableWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -414,7 +603,9 @@ class MessageReportHelper {
         return null;
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.getReportStatusWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.getReportStatusWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -446,7 +637,9 @@ class MessageReportHelper {
         return 'No reports';
       }
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.getReportStatusDescriptionWithCache(messageMetaCache);
+      } else if (message is TopicMessage) {
         return message.getReportStatusDescriptionWithCache(messageMetaCache);
       } else {
         if (kDebugMode) {
@@ -510,7 +703,9 @@ class MessageReportHelper {
     try {
       if (message == null) return null;
 
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.id;
+      } else if (message is TopicMessage) {
         return message.id;
       } else {
         if (kDebugMode) {
@@ -601,7 +796,9 @@ class MessageReportHelper {
   /// Helper to get the original reportCount field value
   static int? _getOriginalReportCountField(dynamic message) {
     try {
-      if (message is TopicMessage) {
+      if (message is ChatMessage) {
+        return message.reportCount;
+      } else if (message is TopicMessage) {
         return message.reportCount;
       }
       return null;

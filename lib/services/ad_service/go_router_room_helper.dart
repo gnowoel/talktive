@@ -18,6 +18,17 @@ import '../../helpers/routes.dart';
 class GoRouterRoomHelper {
   static final SimpleAdAdapter _adManager = SimpleAdAdapter.instance;
 
+  /// Navigate to a chat room with potential ad display
+  /// Uses context.go() for tab-level navigation
+  static Future<void> goToChat(
+      BuildContext context, String chatId, String chatCreatedAt) async {
+    await _navigateToRoom(
+      context: context,
+      destination: encodeChatRoute(chatId, chatCreatedAt),
+      navigationMethod: _NavigationMethod.go,
+    );
+  }
+
   /// Navigate to a topic room with potential ad display
   /// Uses context.go() for tab-level navigation
   static Future<void> goToTopic(
@@ -26,6 +37,17 @@ class GoRouterRoomHelper {
       context: context,
       destination: encodeTopicRoute(topicId, topicCreatorId),
       navigationMethod: _NavigationMethod.go,
+    );
+  }
+
+  /// Push to a chat room with potential ad display
+  /// Uses context.push() for modal/overlay navigation
+  static Future<T?> pushToChat<T>(
+      BuildContext context, String chatId, String chatCreatedAt) async {
+    return await _navigateToRoom<T>(
+      context: context,
+      destination: encodeChatRoute(chatId, chatCreatedAt),
+      navigationMethod: _NavigationMethod.push,
     );
   }
 
@@ -286,9 +308,19 @@ class GoRouterRoomHelper {
 
 /// Extension methods for even easier navigation
 extension GoRouterRoomExtensions on BuildContext {
+  /// Navigate to chat with room transition ads
+  Future<void> goToChat(String chatId, String chatCreatedAt) async {
+    await GoRouterRoomHelper.goToChat(this, chatId, chatCreatedAt);
+  }
+
   /// Navigate to topic with room transition ads
   Future<void> goToTopic(String topicId, String topicCreatorId) async {
     await GoRouterRoomHelper.goToTopic(this, topicId, topicCreatorId);
+  }
+
+  /// Push to chat with room transition ads
+  Future<T?> pushToChat<T>(String chatId, String chatCreatedAt) async {
+    return await GoRouterRoomHelper.pushToChat<T>(this, chatId, chatCreatedAt);
   }
 
   /// Push to topic with room transition ads
@@ -325,6 +357,16 @@ extension GoRouterRoomExtensions on BuildContext {
   /// Force show an ad immediately (for testing purposes only)
   Future<bool> forceShowAdForTesting() async {
     return await GoRouterRoomHelper.forceShowAdForTesting();
+  }
+
+  /// Navigate to chat with compliance validation
+  Future<void> goToChatSafe(String chatId, String chatCreatedAt) async {
+    if (canShowAdsForNavigation()) {
+      await goToChat(chatId, chatCreatedAt);
+    } else {
+      // Navigate without ads for compliance
+      goWithoutAd(encodeChatRoute(chatId, chatCreatedAt));
+    }
   }
 
   /// Navigate to topic with compliance validation

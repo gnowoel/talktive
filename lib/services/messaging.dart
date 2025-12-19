@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:go_router/go_router.dart';
 import '../helpers/platform.dart';
 import '../helpers/routes.dart';
 import '../router.dart';
@@ -161,7 +161,12 @@ class Messaging {
     final context = rootNavigatorKey.currentContext!;
 
     if (data['type'] == 'chat') {
-      // Chat notifications are no longer supported
+      final chatId = data['chatId'] as String;
+      final chatCreatedAt = data['chatCreatedAt'] as String;
+
+      GoRouter.of(context).go('/chats');
+      GoRouterRoomHelper.pushWithoutAd(
+          context, encodeChatRoute(chatId, chatCreatedAt));
     } else {
       final topicId = data['topicId'] as String;
       final topicCreatorId = data['topicCreatorId'] as String;
@@ -177,7 +182,12 @@ class Messaging {
       final context = rootNavigatorKey.currentContext!;
 
       if (data['type'] == 'chat') {
-        // Chat notifications are no longer supported
+        final chatId = data['chatId'] as String;
+        final chatCreatedAt = data['chatCreatedAt'] as String;
+
+        GoRouter.of(context).go('/chats');
+        GoRouterRoomHelper.pushWithoutAd(
+            context, encodeChatRoute(chatId, chatCreatedAt));
       } else {
         final topicId = data['topicId'] as String;
         final topicCreatorId = data['topicCreatorId'] as String;
@@ -200,8 +210,10 @@ class Messaging {
             as Map<String, dynamic>;
 
         if (data['type'] == 'chat') {
-          // Chat notifications are no longer supported
-          return null;
+          final chatId = data['chatId'] as String;
+          final chatCreatedAt = data['chatCreatedAt'] as String;
+
+          return encodeChatLaunchRoute(chatId, chatCreatedAt);
         } else {
           final topicId = data['topicId'] as String;
           final topicCreatorId = data['topicCreatorId'] as String;

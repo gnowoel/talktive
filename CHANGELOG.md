@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.6.4+76
+
+- Resolved an issue that prevented users from leaving conversations
+
 ## 4.6.3+75
 
 - Updated dependencies

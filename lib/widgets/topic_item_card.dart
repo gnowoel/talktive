@@ -6,13 +6,11 @@ import 'normal_topic_item_card.dart';
 class TopicItemCard extends StatelessWidget {
   final Topic topic;
   final Function(Topic) onRemove;
-  final Function(Topic) onRestore;
 
   const TopicItemCard({
     super.key,
     required this.topic,
     required this.onRemove,
-    required this.onRestore,
   });
 
   @override
@@ -22,13 +20,11 @@ class TopicItemCard extends StatelessWidget {
       return TwoPersonTopicItemCard(
         topic: topic,
         onRemove: onRemove,
-        onRestore: onRestore,
       );
     } else {
       return NormalTopicItemCard(
         topic: topic,
         onRemove: onRemove,
-        onRestore: onRestore,
       );
     }
   }

@@ -7,7 +7,6 @@ import '../helpers/helpers.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
 import '../services/fireauth.dart';
-import '../services/firedata.dart';
 import '../services/ad_service/go_router_room_helper.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
@@ -18,13 +17,11 @@ import 'user_info_loader.dart';
 class ChatItemCard extends StatefulWidget {
   final Chat chat;
   final Function(Chat) onRemove;
-  final Function(Chat) onRestore;
 
   const ChatItemCard({
     super.key,
     required this.chat,
     required this.onRemove,
-    required this.onRestore,
   });
 
   @override
@@ -33,7 +30,6 @@ class ChatItemCard extends StatefulWidget {
 
 class _ChatItemCardState extends State<ChatItemCard> {
   late Fireauth fireauth;
-  late Firedata firedata;
   late FollowCache followCache;
   late User partner;
   late bool isFriend;
@@ -42,7 +38,6 @@ class _ChatItemCardState extends State<ChatItemCard> {
   void initState() {
     super.initState();
     fireauth = context.read<Fireauth>();
-    firedata = context.read<Firedata>();
 
     final chatId = widget.chat.id;
     final selfId = fireauth.instance.currentUser!.uid;
@@ -58,43 +53,8 @@ class _ChatItemCardState extends State<ChatItemCard> {
     isFriend = followCache.isFollowing(partner.id);
   }
 
-  Future<void> _muteChat() async {
-    _doAction(() async {
-      await firedata.muteChat(
-        fireauth.instance.currentUser!.uid,
-        widget.chat.id,
-      );
-    });
-  }
-
   void _handleDismiss(DismissDirection direction) {
-    // Remove the chat from the list
     widget.onRemove(widget.chat);
-
-    // Show snackbar with undo option
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(
-            content: const Text('Left chat'),
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                // Restore the chat
-                widget.onRestore(widget.chat);
-              },
-            ),
-            duration: const Duration(seconds: 3),
-          ),
-        )
-        .closed
-        .then((reason) {
-      // Only mute the chat if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _muteChat();
-      }
-    });
   }
 
   Future<void> _enterChat() async {

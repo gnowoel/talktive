@@ -23,6 +23,8 @@ class ChatList extends StatefulWidget {
 class _ChatListState extends State<ChatList> {
   late List<Room> _items;
 
+  static const Duration _undoDuration = Duration(seconds: 4);
+
   final Set<String> _removedItemIds = {};
   final Map<String, Timer> _undoTimers = {};
   String? _lastSwipedItemId;
@@ -37,15 +39,17 @@ class _ChatListState extends State<ChatList> {
   void didUpdateWidget(ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.items != oldWidget.items) {
-      // Remove IDs from _removedItemIds if they are no longer in the new list
-      // (assuming backend has processed the removal)
       final newItemIds = widget.items.map((e) => e.id).toSet();
-      _removedItemIds.removeWhere((id) => !newItemIds.contains(id));
 
-      // Also clean up any timers for items that are gone effectively?
-      // Actually strictly speaking we should let the timer fire to ensure mute happens
-      // even if the list updates, unless the item comes back?
-      // For safety, let's keep timers running unless explicitly restored.
+      final removedIdsNowGone =
+          _removedItemIds.where((id) => !newItemIds.contains(id)).toList();
+      for (final id in removedIdsNowGone) {
+        _removedItemIds.remove(id);
+        _undoTimers.remove(id)?.cancel();
+        if (_lastSwipedItemId == id) {
+          _lastSwipedItemId = null;
+        }
+      }
 
       _updateItems();
     }
@@ -79,6 +83,10 @@ class _ChatListState extends State<ChatList> {
   }
 
   void _removeItem(Room item) {
+    if (_removedItemIds.contains(item.id)) {
+      return;
+    }
+
     // 1. Optimistic remove
     setState(() {
       _removedItemIds.add(item.id);
@@ -88,13 +96,11 @@ class _ChatListState extends State<ChatList> {
     _lastSwipedItemId = item.id;
 
     // 2. Schedule actual mute/leave
-    _undoTimers[item.id]?.cancel(); // Cancel any existing one just in case
-    _undoTimers[item.id] = Timer(const Duration(seconds: 4), () {
+    _undoTimers[item.id]?.cancel();
+    _undoTimers[item.id] = Timer(_undoDuration, () {
       _muteItem(item);
       _undoTimers.remove(item.id);
       if (mounted) {
-        // Optional: Local clean up if needed, but the list update from backend usually handles it
-        // If this item is still the one showing the SnackBar, hide it
         if (_lastSwipedItemId == item.id) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         }
@@ -102,8 +108,9 @@ class _ChatListState extends State<ChatList> {
     });
 
     // 3. Show SnackBar (purely visual/interactive now)
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
           item is Topic && !item.isTwoPersonTopic ? 'Left moment' : 'Left chat',
@@ -114,7 +121,7 @@ class _ChatListState extends State<ChatList> {
             _restoreItem(item);
           },
         ),
-        duration: const Duration(seconds: 4),
+        duration: _undoDuration,
       ),
     );
   }

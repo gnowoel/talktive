@@ -17,30 +17,44 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   late List<Room> _items;
+  final Set<String> _removedItemIds = {};
 
   @override
   void initState() {
     super.initState();
-    _items = List.from(widget.items);
+    _updateItems();
   }
 
   @override
   void didUpdateWidget(ChatList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.items != oldWidget.items) {
-      _items = List.from(widget.items);
+      // Remove IDs from _removedItemIds if they are no longer in the new list
+      // (assuming backend has processed the removal)
+      final newItemIds = widget.items.map((e) => e.id).toSet();
+      _removedItemIds.removeWhere((id) => !newItemIds.contains(id));
+
+      _updateItems();
     }
+  }
+
+  void _updateItems() {
+    _items = widget.items
+        .where((item) => !_removedItemIds.contains(item.id))
+        .toList();
   }
 
   void _removeItem(Room item) {
     setState(() {
-      _items.remove(item);
+      _removedItemIds.add(item.id);
+      _updateItems();
     });
   }
 
-  void _restoreItem(Room item, int index) {
+  void _restoreItem(Room item) {
     setState(() {
-      _items.insert(index, item);
+      _removedItemIds.remove(item.id);
+      _updateItems();
     });
   }
 
@@ -57,14 +71,14 @@ class _ChatListState extends State<ChatList> {
             key: ValueKey(item.id),
             chat: item,
             onRemove: _removeItem,
-            onRestore: (chat) => _restoreItem(chat, index),
+            onRestore: _restoreItem,
           );
         } else if (item is Topic) {
           return TopicItemCard(
             key: ValueKey(item.id),
             topic: item,
             onRemove: _removeItem,
-            onRestore: (topic) => _restoreItem(topic, index),
+            onRestore: _restoreItem,
           );
         }
 

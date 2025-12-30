@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,7 @@ class ChatList extends StatefulWidget {
 class _ChatListState extends State<ChatList> {
   late List<Room> _items;
   final Set<String> _removedItemIds = {};
+  final Map<String, Timer> _undoTimers = {};
 
   @override
   void initState() {
@@ -38,8 +40,21 @@ class _ChatListState extends State<ChatList> {
       final newItemIds = widget.items.map((e) => e.id).toSet();
       _removedItemIds.removeWhere((id) => !newItemIds.contains(id));
 
+      // Also clean up any timers for items that are gone effectively?
+      // Actually strictly speaking we should let the timer fire to ensure mute happens
+      // even if the list updates, unless the item comes back?
+      // For safety, let's keep timers running unless explicitly restored.
+
       _updateItems();
     }
+  }
+
+  @override
+  void dispose() {
+    for (var timer in _undoTimers.values) {
+      timer.cancel();
+    }
+    super.dispose();
   }
 
   void _updateItems() {
@@ -68,38 +83,46 @@ class _ChatListState extends State<ChatList> {
       _updateItems();
     });
 
-    // 2. Show SnackBar
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(
-            content: Text(
-              item is Topic && !item.isTwoPersonTopic
-                  ? 'Left moment'
-                  : 'Left chat',
-            ),
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                _restoreItem(item);
-              },
-            ),
-            duration: const Duration(seconds: 3),
-          ),
-        )
-        .closed
-        .then((reason) {
-      if (reason == SnackBarClosedReason.timeout) {
-        _muteItem(item);
+    // 2. Schedule actual mute/leave
+    _undoTimers[item.id]?.cancel(); // Cancel any existing one just in case
+    _undoTimers[item.id] = Timer(const Duration(seconds: 4), () {
+      _muteItem(item);
+      _undoTimers.remove(item.id);
+      if (mounted) {
+        // Optional: Local clean up if needed, but the list update from backend usually handles it
       }
     });
+
+    // 3. Show SnackBar (purely visual/interactive now)
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          item is Topic && !item.isTwoPersonTopic ? 'Left moment' : 'Left chat',
+        ),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            _restoreItem(item);
+          },
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void _restoreItem(Room item) {
+    // Cancel the pending mute timer
+    _undoTimers[item.id]?.cancel();
+    _undoTimers.remove(item.id);
+
     setState(() {
       _removedItemIds.remove(item.id);
       _updateItems();
     });
+
+    // Hide the SnackBar if we just undid it
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   @override

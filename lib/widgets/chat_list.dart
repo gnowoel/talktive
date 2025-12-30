@@ -22,8 +22,10 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   late List<Room> _items;
+
   final Set<String> _removedItemIds = {};
   final Map<String, Timer> _undoTimers = {};
+  String? _lastSwipedItemId;
 
   @override
   void initState() {
@@ -83,6 +85,8 @@ class _ChatListState extends State<ChatList> {
       _updateItems();
     });
 
+    _lastSwipedItemId = item.id;
+
     // 2. Schedule actual mute/leave
     _undoTimers[item.id]?.cancel(); // Cancel any existing one just in case
     _undoTimers[item.id] = Timer(const Duration(seconds: 4), () {
@@ -90,6 +94,10 @@ class _ChatListState extends State<ChatList> {
       _undoTimers.remove(item.id);
       if (mounted) {
         // Optional: Local clean up if needed, but the list update from backend usually handles it
+        // If this item is still the one showing the SnackBar, hide it
+        if (_lastSwipedItemId == item.id) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        }
       }
     });
 
@@ -106,7 +114,7 @@ class _ChatListState extends State<ChatList> {
             _restoreItem(item);
           },
         ),
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 4),
       ),
     );
   }

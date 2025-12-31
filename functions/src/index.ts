@@ -1,9 +1,6 @@
 export { default as onUserRegistered } from './onUserRegistered';
 export { default as onUserUpdated } from './onUserUpdated';
-export { default as onPairCreated } from './onPairCreated';
-export { default as onPairUpdated } from './onPairUpdated';
-export { default as onMessageCreated } from './onMessageCreated';
-export { default as onReportCreated } from './onReportCreated';
+
 export { default as onFirestoreUserCreated } from './onFirestoreUserCreated';
 export { onTopicMessageCreated } from './onTopicMessageCreated';
 export { initiateConversation } from './initiateConversation';

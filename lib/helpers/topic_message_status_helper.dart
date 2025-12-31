@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/topic_message.dart';
 import '../config/message_report_config.dart';
-import '../services/report_cache.dart';
+
 import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 import 'message_recall_helper.dart';
@@ -11,7 +11,8 @@ class TopicMessageStatusHelper {
   TopicMessageStatusHelper._();
 
   /// Check if a message is from a blocked user
-  static bool isFromBlockedUser(TopicMessage message, TopicFollowersCache followersCache) {
+  static bool isFromBlockedUser(
+      TopicMessage message, TopicFollowersCache followersCache) {
     return followersCache.isUserBlocked(message.userId);
   }
 
@@ -30,9 +31,12 @@ class TopicMessageStatusHelper {
   }
 
   /// Check if a topic message should be visible to regular users
-  static bool shouldShowMessage(TopicMessage message, {bool isAdmin = false, TopicFollowersCache? followersCache}) {
+  static bool shouldShowMessage(TopicMessage message,
+      {bool isAdmin = false, TopicFollowersCache? followersCache}) {
     // Blocked users' messages are always hidden (except for admins)
-    if (followersCache != null && !isAdmin && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        !isAdmin &&
+        followersCache.isUserBlocked(message.userId)) {
       return false;
     }
 
@@ -63,9 +67,11 @@ class TopicMessageStatusHelper {
   }
 
   /// Get content for copying (original for hidden, replacement for removed)
-  static String getCopyContent(TopicMessage message, String originalContent, {TopicFollowersCache? followersCache}) {
+  static String getCopyContent(TopicMessage message, String originalContent,
+      {TopicFollowersCache? followersCache}) {
     // Blocked users' content cannot be copied
-    if (followersCache != null && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        followersCache.isUserBlocked(message.userId)) {
       return getBlockedUserMessageContent(message);
     }
 
@@ -138,10 +144,8 @@ class TopicMessageStatusHelper {
 
   /// Check if a topic message can be reported (not recently reported)
   static Future<bool> canReportMessage(String messageId) async {
-    final reportCache = ReportCacheService();
-    await reportCache.initialize();
-    final isRecentlyReported = await reportCache.isRecentlyReported(messageId);
-    return !isRecentlyReported;
+    // Report caching is temporarily disabled or moved to MessageMetaCache
+    return true;
   }
 
   /// Check if report option should be shown considering cache
@@ -156,10 +160,8 @@ class TopicMessageStatusHelper {
 
   /// Check if a topic message was recently reported and should show placeholder
   static Future<bool> isRecentlyReported(TopicMessage message) async {
-    if (message.id == null) return false;
-    final reportCache = ReportCacheService();
-    await reportCache.initialize();
-    return await reportCache.isRecentlyReported(message.id!);
+    // Report caching is temporarily disabled or moved to MessageMetaCache
+    return false;
   }
 
   /// Check if topic message should show reported placeholder but is revealable
@@ -177,9 +179,11 @@ class TopicMessageStatusHelper {
 
   /// Get content for copying reported topic messages (always return original for text)
   static String getReportedCopyContent(
-      TopicMessage message, String originalContent, {TopicFollowersCache? followersCache}) {
+      TopicMessage message, String originalContent,
+      {TopicFollowersCache? followersCache}) {
     // Blocked users' content cannot be copied
-    if (followersCache != null && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        followersCache.isUserBlocked(message.userId)) {
       return getBlockedUserMessageContent(message);
     }
 
@@ -202,7 +206,9 @@ class TopicMessageStatusHelper {
     final actions = <String>[];
 
     // No actions available for blocked users' messages (except for admins)
-    if (followersCache != null && !isAdmin && followersCache.isUserBlocked(message.userId)) {
+    if (followersCache != null &&
+        !isAdmin &&
+        followersCache.isUserBlocked(message.userId)) {
       return actions;
     }
 

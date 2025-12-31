@@ -8,9 +8,6 @@ const refreshThreshold = kDebugMode
     ? 1 * 60 * 1000 // 1 minute
     : 12 * 60 * 60 * 1000; // 12 hours
 
-int? getNextTime(int? chatNextTime, int? topicNextTime) {
-  if (chatNextTime != null && topicNextTime != null) {
-    return chatNextTime < topicNextTime ? chatNextTime : topicNextTime;
-  }
-  return chatNextTime ?? topicNextTime;
+int? getNextTime(int? topicNextTime) {
+  return topicNextTime;
 }

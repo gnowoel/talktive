@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import '../services/ad_service/simple_ad_manager.dart';
 import '../services/avatar.dart';
 import '../services/messaging.dart';
-import '../services/report_cache.dart';
+
 import '../services/service_locator.dart';
 import '../services/settings.dart' as my;
 import '../theme.dart';
@@ -111,10 +111,6 @@ class _InitializeState extends State<Initialize> {
     final settings = my.Settings();
     await settings.load();
     debugPrint('Initialize: Settings loaded');
-
-    final reportCache = ReportCacheService();
-    await reportCache.initialize();
-    debugPrint('Initialize: ReportCache initialized');
 
     final avatar = Avatar();
     avatar.init();

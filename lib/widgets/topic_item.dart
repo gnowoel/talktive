@@ -259,17 +259,29 @@ class _TopicItemState extends State<TopicItem> {
       widget.topic.updatedAt,
     );
 
-    final cardColor = widget.hasJoined
-        ? colorScheme.surfaceContainerHigh
-        : (widget.hasSeen
-            ? colorScheme.surfaceContainerHigh
-            : colorScheme.secondaryContainer);
-    final textColor = colorScheme.onSurface;
+    final isTwoPerson = widget.topic.isTwoPersonTopic;
+    Color cardColor;
+    Color textColor = colorScheme.onSurface;
+
+    if (isTwoPerson) {
+      cardColor = colorScheme.tertiaryContainer;
+      textColor = colorScheme.onTertiaryContainer;
+    } else {
+      cardColor = widget.hasJoined
+          ? colorScheme.surfaceContainerHigh
+          : (widget.hasSeen
+              ? colorScheme.surfaceContainerHigh
+              : colorScheme.secondaryContainer);
+    }
 
     final currentUser = userCache.user;
-    final canUnlist = (byMe || (currentUser?.isAdminOrModerator == true)) &&
-        widget.onRemove != null &&
-        widget.onRestore != null;
+    // Allow unlisting if you heavily manage it (admin/creator) OR if you just want to leave (hasJoined)
+    // Note: _handleDismiss handles the logic (creating snackbar w/ undo).
+    // The actual action is passed via onRemove.
+    final canUnlist = widget.hasJoined ||
+        (byMe || (currentUser?.isAdminOrModerator == true)) &&
+            widget.onRemove != null &&
+            widget.onRestore != null;
 
     final cardContent = Card(
       elevation: 0,

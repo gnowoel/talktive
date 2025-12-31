@@ -13,8 +13,7 @@ import 'topic_followers_cache.dart';
 import 'message_meta_cache.dart';
 import 'topic_cache.dart';
 import 'tribe_cache.dart';
-import 'chat_cache.dart';
-import 'report_cache.dart';
+
 import 'settings.dart';
 import 'server_clock.dart';
 import 'avatar.dart';
@@ -109,11 +108,9 @@ class ServiceLocator {
 
   /// Create simplified paginated message service with dependencies
   PaginatedMessageService createPaginatedMessageService({
-    required Firedata firedata,
     required Firestore firestore,
   }) {
     _paginatedMessageService ??= PaginatedMessageService(
-      firedata,
       firestore,
     );
 
@@ -158,14 +155,6 @@ class ServiceLocator {
       } catch (e) {
         if (kDebugMode) {
           print('ServiceLocator: Error disposing TopicCache: $e');
-        }
-      }
-
-      try {
-        ChatCache().dispose();
-      } catch (e) {
-        if (kDebugMode) {
-          print('ServiceLocator: Error disposing ChatCache: $e');
         }
       }
 
@@ -241,25 +230,16 @@ class ServiceLocator {
       ChangeNotifierProvider<TribeCache>(
         create: (_) => TribeCache(firestore),
       ),
-      ChangeNotifierProvider<ChatCache>(
-        create: (_) => ChatCache(),
-      ),
-      Provider<ReportCacheService>(
-        create: (_) => ReportCacheService(),
-      ),
 
       // New simplified message service
-      ChangeNotifierProxyProvider2<Firedata, Firestore,
-          PaginatedMessageService>(
+      ChangeNotifierProxyProvider<Firestore, PaginatedMessageService>(
         create: (context) =>
             ServiceLocator.instance.createPaginatedMessageService(
-          firedata: firedata,
           firestore: firestore,
         ),
-        update: (context, firedata, firestore, previous) {
+        update: (context, firestore, previous) {
           return previous ??
               ServiceLocator.instance.createPaginatedMessageService(
-                firedata: firedata,
                 firestore: firestore,
               );
         },

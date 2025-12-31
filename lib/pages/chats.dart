@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/exception.dart';
 import '../helpers/permissions.dart';
-import '../helpers/time.dart';
-import '../models/room.dart';
-import '../services/chat_cache.dart';
+import '../models/topic.dart';
+import '../services/firestore.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
-import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
-import '../widgets/chat_list.dart';
+import '../widgets/layout.dart';
+import '../widgets/topic_list.dart';
 import '../widgets/info.dart';
 import '../widgets/info_notice.dart';
-import '../widgets/layout.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
@@ -26,26 +25,24 @@ class ChatsPage extends StatefulWidget {
 
 class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
-  late ChatCache chatCache;
   late TopicCache topicCache;
   late UserCache userCache;
-  late TribeCache tribeCache;
-  List<Room> _items = []; // Stores both chats and topics
+  late Firestore firestore;
+  List<Topic> _items = [];
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     settings = context.read<Settings>();
+    firestore = context.read<Firestore>();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    chatCache = Provider.of<ChatCache>(context);
     topicCache = Provider.of<TopicCache>(context);
     userCache = Provider.of<UserCache>(context);
-    tribeCache = Provider.of<TribeCache>(context);
     _setItemsAgain();
   }
 
@@ -56,16 +53,12 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void _setItemsAgain() {
-    final activeChats = List<Room>.from(chatCache.activeChats);
-    final activeTopics = List<Room>.from(topicCache.activeTopics);
+    // Get active topics from cache
+    final activeTopics = List<Topic>.from(topicCache.activeTopics);
 
-    _items = [...activeChats, ...activeTopics]
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    _items = activeTopics..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-    final nextTime = getNextTime(
-      chatCache.getTimeLeft(),
-      topicCache.getTimeLeft(),
-    );
+    final nextTime = topicCache.getTimeLeft();
 
     if (nextTime == null) return;
 
@@ -90,12 +83,12 @@ class _ChatsPageState extends State<ChatsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Chats expire over time and are permanently deleted to protect your privacy.',
+              'Moments expire over time and are permanently deleted to protect your privacy.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
             Text(
-              'SWIPE LEFT on any chat to leave it if you no longer wish to participate.',
+              'SWIPE LEFT on any moment to leave it if you no longer wish to participate.',
               style: TextStyle(height: 1.5),
             ),
             SizedBox(height: 16),
@@ -172,11 +165,29 @@ class _ChatsPageState extends State<ChatsPage> {
     context.push('/topics/create');
   }
 
+  Future<void> _removeTopic(Topic topic) async {
+    try {
+      final user = userCache.user;
+      if (user == null) return;
+      await firestore.muteTopic(user.id, topic.id);
+    } on AppException catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(context, e);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const lines = ['Please add some', 'more users first.', ''];
     const info = 'Report by LONG-PRESSING a message and selecting "Report".';
+
+    // Topics list params
+    final joinedTopicIds = topicCache.topicIds;
+    // Assuming all active topics are "seen" or handled by internal logic
+    // Passing empty list for seen means they might show "New"?
+    // Let's pass all IDs as seen to minimize noise for "My Chats"
+    final seenTopicIds = _items.map((e) => e.id).toList();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -199,7 +210,9 @@ class _ChatsPageState extends State<ChatsPage> {
       ),
       body: SafeArea(
         child: _items.isEmpty
-            ? Center(child: Info(lines: lines))
+            ? Center(
+                child: Info(
+                    lines: ['You have no active', 'conversations yet.', '']))
             : Layout(
                 child: Column(
                   children: [
@@ -209,7 +222,15 @@ class _ChatsPageState extends State<ChatsPage> {
                         content: info,
                         onDismiss: () => settings.saveChatsPageVersion(),
                       ),
-                    Expanded(child: ChatList(items: _items)),
+                    Expanded(
+                      child: TopicList(
+                        topics: _items,
+                        joinedTopicIds: joinedTopicIds,
+                        seenTopicIds: seenTopicIds,
+                        onRemove: _removeTopic,
+                        // onRestore: _restoreTopic, // Optional
+                      ),
+                    ),
                   ],
                 ),
               ),

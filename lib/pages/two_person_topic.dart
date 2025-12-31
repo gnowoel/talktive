@@ -398,14 +398,14 @@ class _TwoPersonTopicPageState extends State<TwoPersonTopicPage> {
                   _buildAlertBox(),
                 ],
                 Expanded(
-                  child: PaginatedMessageList.topic(
+                  child: PaginatedMessageList(
                     id: widget.topicId,
                     topicCreatorId: widget.topicCreatorId,
                     focusNode: _focusNode,
                     scrollController: _scrollController,
                     updateMessageCount: _updateMessageCount,
                     onInsertMention: _insertMention,
-                    readMessageCount: _topic?.readMessageCount,
+                    readMessageCount: _topic?.readMessageCount ?? 0,
                     isTwoPersonTopic: true,
                   ),
                 ),

@@ -6,40 +6,6 @@ import '../services/ad_service/go_router_room_helper.dart';
 
 import '../theme.dart';
 
-class LaunchChatPage extends StatefulWidget {
-  final String chatId;
-  final String chatCreatedAt;
-
-  const LaunchChatPage({
-    super.key,
-    required this.chatId,
-    required this.chatCreatedAt,
-  });
-
-  @override
-  State<LaunchChatPage> createState() => _LaunchChatPageState();
-}
-
-class _LaunchChatPageState extends State<LaunchChatPage> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      final initialRoute = encodeChatRoute(widget.chatId, widget.chatCreatedAt);
-      context.goWithoutAd(initialRoute);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: getTheme(context),
-      // TODO: Show circular progress indicator
-      home: const Scaffold(body: SizedBox.shrink()),
-    );
-  }
-}
-
 class LaunchTopicPage extends StatefulWidget {
   final String topicId;
   final String topicCreatorId;

@@ -3,52 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/chat_message.dart';
 import '../models/topic_message.dart';
-import '../models/chat.dart';
 import '../services/paginated_message_service.dart';
-import 'chat_image_message_item.dart';
-import 'chat_text_message_item.dart';
 import 'topic_image_message_item.dart';
 import 'topic_text_message_item.dart';
 import 'message_separator.dart';
-import 'info.dart';
-
-enum MessageListType { chat, topic }
 
 class PaginatedMessageList extends StatefulWidget {
-  // Common properties
-  final MessageListType type;
-  final String id; // chatId or topicId
+  final String id; // topicId
+  final String topicCreatorId;
   final FocusNode focusNode;
   final ScrollController scrollController;
   final void Function(int) updateMessageCount;
+  final int readMessageCount;
   final void Function(String)? onInsertMention;
-
-  // Chat-specific properties
-  final Chat? chat;
-  final String? reporterUserId;
-
-  // Topic-specific properties
-  final String? topicCreatorId;
-  final int? readMessageCount;
   final bool isTwoPersonTopic;
 
-  const PaginatedMessageList.chat({
-    super.key,
-    required this.id,
-    required this.chat,
-    required this.focusNode,
-    required this.scrollController,
-    required this.updateMessageCount,
-    this.onInsertMention,
-    this.reporterUserId,
-  })  : type = MessageListType.chat,
-        topicCreatorId = null,
-        readMessageCount = null,
-        isTwoPersonTopic = false;
-
-  const PaginatedMessageList.topic({
+  const PaginatedMessageList({
     super.key,
     required this.id,
     required this.topicCreatorId,
@@ -58,9 +29,7 @@ class PaginatedMessageList extends StatefulWidget {
     required this.readMessageCount,
     this.onInsertMention,
     this.isTwoPersonTopic = false,
-  })  : type = MessageListType.topic,
-        chat = null,
-        reporterUserId = null;
+  });
 
   @override
   State<PaginatedMessageList> createState() => _PaginatedMessageListState();
@@ -69,7 +38,7 @@ class PaginatedMessageList extends StatefulWidget {
 class _PaginatedMessageListState extends State<PaginatedMessageList> {
   PaginatedMessageService? _messageService;
 
-  List<dynamic> _messages = []; // Can be ChatMessage or TopicMessage
+  List<TopicMessage> _messages = [];
   bool _isLoading = false;
   bool _hasMore = true;
   bool _isSticky = true;
@@ -79,8 +48,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
 
   // Scroll management
   static const double _scrollThreshold = 200.0;
-  static const double _loadingIndicatorHeight =
-      64.0; // Height of loading indicator + padding
+  static const double _loadingIndicatorHeight = 64.0;
   Timer? _scrollDebouncer;
 
   // Scroll position preservation
@@ -141,14 +109,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       debugPrint('Error removing service listener: $e');
     }
 
-    // Dispose pagination state to prevent memory leaks and excessive subscriptions
+    // Dispose pagination state
     if (_messageService != null) {
       try {
-        if (widget.type == MessageListType.chat) {
-          _messageService!.disposeChatState(widget.id);
-        } else {
-          _messageService!.disposeTopicState(widget.id);
-        }
+        _messageService!.disposeTopicState(widget.id);
       } catch (e) {
         debugPrint('Error disposing pagination state: $e');
       }
@@ -214,8 +178,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   }
 
   bool _handleScrollMetricsNotification(
-    ScrollMetricsNotification notification,
-  ) {
+      ScrollMetricsNotification notification) {
     // Only auto-scroll if we're sticky and the metrics changed due to new content
     if (_isSticky &&
         notification.metrics.maxScrollExtent > notification.metrics.pixels) {
@@ -255,30 +218,18 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     if (!mounted || _messageService == null) return;
 
     try {
-      List<dynamic> serviceMessages;
-      bool serviceHasMore;
+      final state = _messageService!.getTopicState(widget.id);
+      if (state == null || state.isLoading) return;
 
-      if (widget.type == MessageListType.chat) {
-        final state = _messageService!.getChatState(widget.id);
-        if (state == null || state.isLoading) return;
-
-        serviceMessages = state.messages;
-        serviceHasMore = state.hasMore;
-      } else {
-        final state = _messageService!.getTopicState(widget.id);
-        if (state == null || state.isLoading) return;
-
-        serviceMessages = state.messages;
-        serviceHasMore = state.hasMore;
-      }
+      final serviceMessages = List<TopicMessage>.from(state.messages);
+      final serviceHasMore = state.hasMore;
 
       // Early return if no change needed
       if (_messages.length == serviceMessages.length &&
           _hasMore == serviceHasMore &&
           serviceMessages.isNotEmpty &&
           _messages.isNotEmpty &&
-          _getMessageId(serviceMessages.last) ==
-              _getMessageId(_messages.last)) {
+          serviceMessages.last.id == _messages.last.id) {
         return;
       }
 
@@ -286,7 +237,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       final hadNewMessages = serviceMessages.length > _messages.length;
 
       setState(() {
-        _messages = List.from(serviceMessages);
+        _messages = serviceMessages;
         _hasMore = serviceHasMore;
         _errorMessage = null;
       });
@@ -320,7 +271,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
 
     debugPrint(
-        'PaginatedMessageList: Loading initial messages for ${widget.type.name} ${widget.id}');
+        'PaginatedMessageList: Loading initial messages for topic ${widget.id}');
 
     _currentInitialLoadId = widget.id;
 
@@ -331,24 +282,14 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     });
 
     try {
-      late SimplePaginatedResult result;
-
-      if (widget.type == MessageListType.chat) {
-        result = await _messageService!.loadChatMessages(
-          widget.id,
-          isInitialLoad: true,
-          chatCreatedAt: widget.chat?.createdAt,
-        );
-      } else {
-        result = await _messageService!.loadTopicMessages(
-          widget.id,
-          isInitialLoad: true,
-        );
-      }
+      final result = await _messageService!.loadTopicMessages(
+        widget.id,
+        isInitialLoad: true,
+      );
 
       if (!mounted) return;
       setState(() {
-        _messages = List.from(result.items);
+        _messages = List<TopicMessage>.from(result.items);
         _hasMore = result.hasMore;
         _initialLoadComplete = true;
         _isLoading = false;
@@ -360,7 +301,6 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       widget.updateMessageCount(_messages.length);
 
       // Ensure we scroll to bottom after initial load
-      // Use multiple post-frame callbacks to ensure layout is complete
       if (mounted && _messages.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && widget.scrollController.hasClients) {
@@ -369,7 +309,6 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted && widget.scrollController.hasClients) {
                 final position = widget.scrollController.position;
-                // If we're not at the bottom, try again
                 if (position.pixels < position.maxScrollExtent - 10) {
                   _scrollToBottom();
                 }
@@ -394,7 +333,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     if (_isLoading || !_hasMore || _messageService == null) return;
 
     debugPrint(
-        'PaginatedMessageList: Loading more messages for ${widget.type.name} ${widget.id}');
+        'PaginatedMessageList: Loading more messages for topic ${widget.id}');
 
     // Save precise scroll metrics before loading
     if (widget.scrollController.hasClients) {
@@ -402,7 +341,6 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       _savedScrollOffset = position.pixels;
       _savedMaxScrollExtent = position.maxScrollExtent;
     } else {
-      // Fallback when controller doesn't have clients yet
       _savedScrollOffset = 0.0;
       _savedMaxScrollExtent = 0.0;
     }
@@ -413,31 +351,23 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     });
 
     try {
-      late SimplePaginatedResult result;
-
-      if (widget.type == MessageListType.chat) {
-        result = await _messageService!.loadMoreChatMessages(widget.id);
-      } else {
-        result = await _messageService!.loadMoreTopicMessages(widget.id);
-      }
+      final result = await _messageService!.loadMoreTopicMessages(widget.id);
 
       if (!mounted) return;
 
       setState(() {
-        _messages = List.from(result.items);
+        _messages = List<TopicMessage>.from(result.items);
         _hasMore = result.hasMore;
-        _errorMessage = null; // Clear previous errors on success
+        _errorMessage = null;
       });
 
       debugPrint(
           'PaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore');
       widget.updateMessageCount(_messages.length);
 
-      // Precisely maintain scroll position after adding messages
       _adjustScrollPosition();
     } catch (e) {
       debugPrint('Error loading more messages: $e');
-      // Try to preserve scroll position even on error if we have saved values
       _adjustScrollPosition();
       if (!mounted) return;
       setState(() {
@@ -452,26 +382,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
   }
 
-  String _getMessageId(dynamic message) {
-    if (message is ChatMessage) {
-      return message.id ?? '';
-    } else if (message is TopicMessage) {
-      return message.id ?? '';
-    }
-    return '';
-  }
-
-  bool _isNewChat() {
-    return widget.type == MessageListType.chat &&
-        (widget.chat?.isDummy == true || _messages.isEmpty);
-  }
-
   int _getReadMessageCount() {
-    if (widget.type == MessageListType.chat) {
-      return widget.chat?.readMessageCount ?? 0;
-    } else {
-      return widget.readMessageCount ?? 0;
-    }
+    return widget.readMessageCount;
   }
 
   bool _shouldShowSeparator() {
@@ -488,19 +400,11 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
         if (mounted && widget.scrollController.hasClients) {
           final currentMaxScrollExtent =
               widget.scrollController.position.maxScrollExtent;
-
-          // Calculate the height of newly added content
           final addedContentHeight =
               currentMaxScrollExtent - _savedMaxScrollExtent!;
-
-          // Account for the loading indicator that will be removed
           final adjustedContentHeight =
               addedContentHeight - _loadingIndicatorHeight;
-
-          // Calculate new scroll position to maintain visual position
           final newScrollOffset = _savedScrollOffset! + adjustedContentHeight;
-
-          // Ensure we don't scroll beyond bounds
           final clampedOffset = newScrollOffset.clamp(
             0.0,
             currentMaxScrollExtent,
@@ -509,12 +413,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           widget.scrollController.jumpTo(clampedOffset);
         }
 
-        // Clear saved values after adjustment
         _savedScrollOffset = null;
         _savedMaxScrollExtent = null;
       });
     } else {
-      // Clear saved values if we can't adjust
       _savedScrollOffset = null;
       _savedMaxScrollExtent = null;
     }
@@ -570,14 +472,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     return Listener(
       onPointerDown: (details) => FocusScope.of(context).unfocus(),
       onPointerMove: (details) => FocusScope.of(context).unfocus(),
-      child: _isNewChat() ? _buildInfo() : _buildMessageList(),
-    );
-  }
-
-  Widget _buildInfo() {
-    const lines = ['Say hi or send a photo', 'to your new friend.'];
-    return const SizedBox.expand(
-      child: AbsorbPointer(child: Info(lines: lines)),
+      child: _buildMessageList(),
     );
   }
 
@@ -590,7 +485,6 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
           controller: widget.scrollController,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
-            // Loading indicator at top
             if (_isLoading && _messages.isNotEmpty)
               const SliverToBoxAdapter(
                 child: Padding(
@@ -600,16 +494,12 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
                   ),
                 ),
               ),
-
-            // Messages list
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 _buildMessageItem,
                 childCount: _getItemCount(),
               ),
             ),
-
-            // Bottom padding for better UX
             const SliverToBoxAdapter(
               child: SizedBox(height: 16),
             ),
@@ -622,12 +512,10 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   Widget _buildMessageItem(BuildContext context, int index) {
     final readCount = _getReadMessageCount();
 
-    // Handle separator
     if (_shouldShowSeparator() && index == readCount) {
       return const MessageSeparator(label: 'New messages');
     }
 
-    // Adjust index for separator
     final messageIndex =
         _shouldShowSeparator() && index > readCount ? index - 1 : index;
 
@@ -638,47 +526,25 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     return _buildSingleMessageItem(_messages[messageIndex]);
   }
 
-  Widget _buildSingleMessageItem(dynamic message) {
-    if (widget.type == MessageListType.chat) {
-      final chatMessage = message as ChatMessage;
-      if (chatMessage is ChatImageMessage) {
-        return ChatImageMessageItem(
-          key: ValueKey(chatMessage.id),
-          chatId: widget.id,
-          message: chatMessage,
-          reporterUserId: widget.reporterUserId,
-          onInsertMention: widget.onInsertMention,
-        );
-      } else {
-        return ChatTextMessageItem(
-          key: ValueKey(chatMessage.id),
-          chatId: widget.id,
-          message: chatMessage as ChatTextMessage,
-          reporterUserId: widget.reporterUserId,
-          onInsertMention: widget.onInsertMention,
-        );
-      }
+  Widget _buildSingleMessageItem(TopicMessage message) {
+    if (message is TopicImageMessage) {
+      return TopicImageMessageItem(
+        key: ValueKey(message.id),
+        topicId: widget.id,
+        topicCreatorId: widget.topicCreatorId,
+        message: message,
+        onInsertMention: widget.onInsertMention,
+        hideDisplayName: widget.isTwoPersonTopic,
+      );
     } else {
-      final topicMessage = message as TopicMessage;
-      if (topicMessage is TopicImageMessage) {
-        return TopicImageMessageItem(
-          key: ValueKey(topicMessage.id),
-          topicId: widget.id,
-          topicCreatorId: widget.topicCreatorId!,
-          message: topicMessage,
-          onInsertMention: widget.onInsertMention,
-          hideDisplayName: widget.isTwoPersonTopic,
-        );
-      } else {
-        return TopicTextMessageItem(
-          key: ValueKey(topicMessage.id),
-          topicId: widget.id,
-          topicCreatorId: widget.topicCreatorId!,
-          message: topicMessage as TopicTextMessage,
-          onInsertMention: widget.onInsertMention,
-          hideDisplayName: widget.isTwoPersonTopic,
-        );
-      }
+      return TopicTextMessageItem(
+        key: ValueKey(message.id),
+        topicId: widget.id,
+        topicCreatorId: widget.topicCreatorId,
+        message: message as TopicTextMessage,
+        onInsertMention: widget.onInsertMention,
+        hideDisplayName: widget.isTwoPersonTopic,
+      );
     }
   }
 }

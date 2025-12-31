@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:talktive/pages/friends.dart';
 
-import 'models/chat.dart';
 import 'models/user.dart';
 import 'pages/backup_account.dart';
-import 'pages/chat.dart';
 import 'pages/chats.dart';
 import 'pages/create_topic.dart';
 import 'pages/edit_profile.dart';
+import 'pages/friends.dart';
 import 'pages/launch.dart';
 import 'pages/privacy_settings_page.dart';
 import 'pages/profile.dart';
-import 'pages/report.dart';
 import 'pages/reports.dart';
 import 'pages/topic.dart';
 import 'pages/topics.dart';
@@ -73,30 +70,6 @@ Future<GoRouter> initRouter() async {
                   GoRoute(
                     parentNavigatorKey:
                         rootNavigatorKey, // Hide the navigation bar
-                    path: '/chats/:id',
-                    builder: (context, state) {
-                      final chatId = state.pathParameters['id']!;
-                      final encodedChatCreatedAt =
-                          state.uri.queryParameters['chatCreatedAt'] ?? '0';
-                      final chatCreatedAt = Uri.decodeComponent(
-                        encodedChatCreatedAt,
-                      );
-
-                      final userStub = UserStub(createdAt: 0, updatedAt: 0);
-                      final chatStub = ChatStub(
-                        createdAt: int.tryParse(chatCreatedAt) ?? 0,
-                        updatedAt: 0,
-                        partner: userStub,
-                        messageCount: 0,
-                      );
-                      final chat = Chat.fromStub(key: chatId, value: chatStub);
-
-                      return ChatPage(chat: chat);
-                    },
-                  ),
-                  GoRoute(
-                    parentNavigatorKey:
-                        rootNavigatorKey, // Hide the navigation bar
                     path: '/topics/:id',
                     builder: (context, state) {
                       final topicId = state.pathParameters['id']!;
@@ -139,17 +112,6 @@ Future<GoRouter> initRouter() async {
         ],
       ),
       GoRoute(
-        path: '/launch/chat/:id',
-        builder: (context, state) {
-          final chatId = state.pathParameters['id']!;
-          final encodedChatCreatedAt =
-              state.uri.queryParameters['chatCreatedAt'] ?? '0';
-          final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
-
-          return LaunchChatPage(chatId: chatId, chatCreatedAt: chatCreatedAt);
-        },
-      ),
-      GoRoute(
         path: '/launch/topic/:id',
         builder: (context, state) {
           final topicId = state.pathParameters['id']!;
@@ -178,30 +140,6 @@ Future<GoRouter> initRouter() async {
           }
           // Return unauthorized state
           return const Scaffold(body: Center(child: Text('Unauthorized')));
-        },
-      ),
-      GoRoute(
-        path: '/admin/reports/:id',
-        builder: (context, state) {
-          final chatId = state.pathParameters['id']!;
-
-          final encodedUserId = state.uri.queryParameters['userId'] ?? '';
-          final userId = Uri.decodeComponent(encodedUserId);
-
-          final encodedChatCreatedAt =
-              state.uri.queryParameters['chatCreatedAt'] ?? '0';
-          final chatCreatedAt = Uri.decodeComponent(encodedChatCreatedAt);
-
-          final userStub = UserStub(createdAt: 0, updatedAt: 0);
-          final chatStub = ChatStub(
-            createdAt: int.tryParse(chatCreatedAt) ?? 0,
-            updatedAt: 0,
-            partner: userStub,
-            messageCount: 0,
-          );
-          final chat = Chat.fromStub(key: chatId, value: chatStub);
-
-          return ReportPage(userId: userId, chat: chat);
         },
       ),
       GoRoute(

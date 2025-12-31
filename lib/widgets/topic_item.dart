@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:talktive/helpers/text.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../helpers/exception.dart';
-import '../helpers/permissions.dart';
+import '../helpers/helpers.dart';
 
 import '../models/topic.dart';
 import '../models/tribe.dart';
@@ -79,38 +77,48 @@ class _TopicItemState extends State<TopicItem> {
     });
   }
 
-  void _handleDismiss(DismissDirection direction) {
-    // Remove the topic from the list
+  Future<void> _leaveTopic() async {
     if (widget.onRemove != null) {
       widget.onRemove!(widget.topic);
     }
 
-    // Show snackbar with undo option
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(
-            content: const Text('Topic unlisted'),
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                // Restore the topic
-                if (widget.onRestore != null) {
-                  widget.onRestore!(widget.topic);
-                }
-              },
-            ),
-            duration: const Duration(seconds: 3),
-          ),
-        )
-        .closed
-        .then((reason) {
-      // Only unlist the topic if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _unlistTopic();
-      }
-    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          widget.topic.isTwoPersonTopic ? 'Left chat' : 'Left moment',
+        ),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            if (widget.onRestore != null) {
+              widget.onRestore!(widget.topic);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _confirmDismiss(DismissDirection direction) async {
+    if (direction == DismissDirection.startToEnd) {
+      // Unlist (Left to Right)
+      final currentUser = userCache.user;
+      final canUnlist = byMe || (currentUser?.isAdminOrModerator == true);
+      return canUnlist;
+    } else if (direction == DismissDirection.endToStart) {
+      // Leave (Right to Left)
+      return widget.hasJoined;
+    }
+    return false;
+  }
+
+  void _handleDismiss(DismissDirection direction) {
+    if (direction == DismissDirection.startToEnd) {
+      _unlistTopic();
+    } else {
+      _leaveTopic();
+    }
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
@@ -275,13 +283,11 @@ class _TopicItemState extends State<TopicItem> {
     }
 
     final currentUser = userCache.user;
-    // Allow unlisting if you heavily manage it (admin/creator) OR if you just want to leave (hasJoined)
-    // Note: _handleDismiss handles the logic (creating snackbar w/ undo).
-    // The actual action is passed via onRemove.
-    final canUnlist = widget.hasJoined ||
-        (byMe || (currentUser?.isAdminOrModerator == true)) &&
-            widget.onRemove != null &&
-            widget.onRestore != null;
+    final canUnlist = (byMe || (currentUser?.isAdminOrModerator == true)) &&
+        widget.onRemove != null &&
+        widget.onRestore != null;
+
+    final canLeave = widget.hasJoined && widget.onRemove != null;
 
     final cardContent = Card(
       elevation: 0,
@@ -339,7 +345,9 @@ class _TopicItemState extends State<TopicItem> {
                 // ],
                 Expanded(
                   child: Text(
-                    widget.topic.title,
+                    isTwoPerson
+                        ? (widget.topic.creator.displayName ?? 'Chat')
+                        : widget.topic.title,
                     overflow: TextOverflow.ellipsis,
                     maxLines: widget.showTribeTag ? 3 : 1,
                   ),
@@ -351,48 +359,54 @@ class _TopicItemState extends State<TopicItem> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.showTribeTag) ...[
-              // const SizedBox(height: 2),
-              const SizedBox(height: 4),
-              Text(
-                formatText(
-                  // It's actually firstMessageContent
-                  widget.topic.lastMessageContent,
-                ),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(height: 1.2),
-                maxLines: 3,
+            const SizedBox(height: 4),
+            Text(
+              formatText(
+                widget.topic.lastMessageContent,
               ),
-              const SizedBox(height: 4),
-            ] else ...[
-              const SizedBox(height: 4),
-              Text(
-                formatText(
-                  // It's actually firstMessageContent
-                  widget.topic.lastMessageContent,
-                ),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(height: 1.2),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 4),
-            ],
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(height: 1.2),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 4),
             Row(
               children: [
-                Tag(
-                  tooltip: 'Messages',
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.message_outlined, size: 12),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${widget.topic.messageCount}',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
+                if (isTwoPerson) ...[
+                  // Display partner info for two-person topics
+                  Tag(
+                    tooltip:
+                        '${getLongGenderName(widget.topic.creator.gender ?? "?")}',
+                    child: Text(
+                      widget.topic.creator.gender ?? "?",
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: 'Experience Level',
+                    child: Text(
+                      'L${widget.topic.creator.level}',
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ] else ...[
+                  Tag(
+                    tooltip: 'Messages',
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.message_outlined, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.topic.messageCount}',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(width: 4),
                 Tag(
                   tooltip: 'Last updated',
@@ -412,7 +426,8 @@ class _TopicItemState extends State<TopicItem> {
                     ],
                   ),
                 ),
-                if (widget.topic.creator.followerCount == 0) ...[
+                if (!isTwoPerson &&
+                    widget.topic.creator.followerCount == 0) ...[
                   const SizedBox(width: 4),
                   Tag(status: 'introduction'),
                 ],
@@ -424,23 +439,67 @@ class _TopicItemState extends State<TopicItem> {
       ),
     );
 
-    if (canUnlist) {
-      return Dismissible(
-        key: Key(widget.topic.id),
-        background: Container(
-          color: colorScheme.error,
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
-          child: Icon(Icons.visibility_off, color: colorScheme.onError),
-        ),
-        direction:
-            DismissDirection.startToEnd, // Only allow left to right swipe
-        onDismissed: _handleDismiss,
-        child: cardContent,
-      );
+    final unlistBackground = Container(
+      color: colorScheme.errorContainer,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
+      child: Row(
+        children: [
+          Icon(Icons.visibility_off, color: colorScheme.onErrorContainer),
+          const SizedBox(width: 8),
+          Text('Unlist',
+              style: TextStyle(
+                  color: colorScheme.onErrorContainer,
+                  fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+
+    final leaveBackground = Container(
+      color: colorScheme.error,
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text('Leave',
+              style: TextStyle(
+                  color: colorScheme.onError, fontWeight: FontWeight.bold)),
+          const SizedBox(width: 8),
+          Icon(Icons.logout, color: colorScheme.onError),
+        ],
+      ),
+    );
+
+    Widget? background;
+    Widget? secondaryBackground;
+    DismissDirection direction;
+
+    if (canUnlist && canLeave) {
+      background = unlistBackground;
+      secondaryBackground = leaveBackground;
+      direction = DismissDirection.horizontal;
+    } else if (canUnlist) {
+      background = unlistBackground;
+      secondaryBackground = null;
+      direction = DismissDirection.startToEnd;
+    } else if (canLeave) {
+      background = leaveBackground;
+      secondaryBackground = null;
+      direction = DismissDirection.endToStart;
+    } else {
+      return cardContent;
     }
 
-    return cardContent;
+    return Dismissible(
+      key: Key(widget.topic.id),
+      background: background,
+      secondaryBackground: secondaryBackground,
+      direction: direction,
+      confirmDismiss: _confirmDismiss,
+      onDismissed: _handleDismiss,
+      child: cardContent,
+    );
   }
 
   Widget _buildIconButton() {

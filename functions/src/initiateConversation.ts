@@ -30,7 +30,7 @@ if (!admin.apps.length) {
 //   error?: string;
 // }
 
-export const initiateConversation = onCall(async (request) => {
+export const initiateConversation = onCall(async (_request) => {
   throw new HttpsError('failed-precondition', 'Please upgrade your app to the latest version to start a conversation.');
 });
 

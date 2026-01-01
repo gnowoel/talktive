@@ -77,48 +77,34 @@ class _TopicItemState extends State<TopicItem> {
     });
   }
 
-  Future<void> _leaveTopic() async {
+  void _handleDismiss(DismissDirection direction) {
     if (widget.onRemove != null) {
       widget.onRemove!(widget.topic);
     }
 
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          widget.topic.isTwoPersonTopic ? 'Left chat' : 'Left moment',
-        ),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            if (widget.onRestore != null) {
-              widget.onRestore!(widget.topic);
-            }
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<bool?> _confirmDismiss(DismissDirection direction) async {
-    if (direction == DismissDirection.startToEnd) {
-      // Unlist (Left to Right)
-      final currentUser = userCache.user;
-      final canUnlist = byMe || (currentUser?.isAdminOrModerator == true);
-      return canUnlist;
-    } else if (direction == DismissDirection.endToStart) {
-      // Leave (Right to Left)
-      return widget.hasJoined;
-    }
-    return false;
-  }
-
-  void _handleDismiss(DismissDirection direction) {
-    if (direction == DismissDirection.startToEnd) {
-      _unlistTopic();
-    } else {
-      _leaveTopic();
-    }
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger
+        .showSnackBar(
+          SnackBar(
+            content: const Text('Moment unlisted'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                if (widget.onRestore != null) {
+                  widget.onRestore!(widget.topic);
+                }
+              },
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        )
+        .closed
+        .then((reason) {
+      if (reason == SnackBarClosedReason.timeout) {
+        _unlistTopic();
+      }
+    });
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
@@ -287,8 +273,6 @@ class _TopicItemState extends State<TopicItem> {
         widget.onRemove != null &&
         widget.onRestore != null;
 
-    final canLeave = widget.hasJoined && widget.onRemove != null;
-
     final cardContent = Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -455,48 +439,14 @@ class _TopicItemState extends State<TopicItem> {
       ),
     );
 
-    final leaveBackground = Container(
-      color: colorScheme.error,
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text('Leave',
-              style: TextStyle(
-                  color: colorScheme.onError, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 8),
-          Icon(Icons.logout, color: colorScheme.onError),
-        ],
-      ),
-    );
-
-    Widget? background;
-    Widget? secondaryBackground;
-    DismissDirection direction;
-
-    if (canUnlist && canLeave) {
-      background = unlistBackground;
-      secondaryBackground = leaveBackground;
-      direction = DismissDirection.horizontal;
-    } else if (canUnlist) {
-      background = unlistBackground;
-      secondaryBackground = null;
-      direction = DismissDirection.startToEnd;
-    } else if (canLeave) {
-      background = leaveBackground;
-      secondaryBackground = null;
-      direction = DismissDirection.endToStart;
-    } else {
+    if (!canUnlist) {
       return cardContent;
     }
 
     return Dismissible(
       key: Key(widget.topic.id),
-      background: background,
-      secondaryBackground: secondaryBackground,
-      direction: direction,
-      confirmDismiss: _confirmDismiss,
+      background: unlistBackground,
+      direction: DismissDirection.startToEnd,
       onDismissed: _handleDismiss,
       child: cardContent,
     );

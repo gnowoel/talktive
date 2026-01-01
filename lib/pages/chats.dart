@@ -4,15 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/exception.dart';
 import '../helpers/permissions.dart';
 import '../models/topic.dart';
-import '../services/firestore.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../services/user_cache.dart';
 import '../widgets/layout.dart';
-import '../widgets/topic_list.dart';
+import '../widgets/chat_list.dart';
 import '../widgets/info.dart';
 import '../widgets/info_notice.dart';
 
@@ -27,7 +25,6 @@ class _ChatsPageState extends State<ChatsPage> {
   late Settings settings;
   late TopicCache topicCache;
   late UserCache userCache;
-  late Firestore firestore;
   List<Topic> _items = [];
   Timer? _timer;
 
@@ -35,7 +32,6 @@ class _ChatsPageState extends State<ChatsPage> {
   void initState() {
     super.initState();
     settings = context.read<Settings>();
-    firestore = context.read<Firestore>();
   }
 
   @override
@@ -165,29 +161,10 @@ class _ChatsPageState extends State<ChatsPage> {
     context.push('/topics/create');
   }
 
-  Future<void> _removeTopic(Topic topic) async {
-    try {
-      final user = userCache.user;
-      if (user == null) return;
-      await firestore.muteTopic(user.id, topic.id);
-    } on AppException catch (e) {
-      if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const info = 'Report by LONG-PRESSING a message and selecting "Report".';
-
-    // Topics list params
-    final joinedTopicIds = topicCache.topicIds;
-    // Assuming all active topics are "seen" or handled by internal logic
-    // Passing empty list for seen means they might show "New"?
-    // Let's pass all IDs as seen to minimize noise for "My Chats"
-    final seenTopicIds = _items.map((e) => e.id).toList();
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surfaceContainerLow,
@@ -222,15 +199,7 @@ class _ChatsPageState extends State<ChatsPage> {
                         content: info,
                         onDismiss: () => settings.saveChatsPageVersion(),
                       ),
-                    Expanded(
-                      child: TopicList(
-                        topics: _items,
-                        joinedTopicIds: joinedTopicIds,
-                        seenTopicIds: seenTopicIds,
-                        onRemove: _removeTopic,
-                        // onRestore: _restoreTopic, // Optional
-                      ),
-                    ),
+                    Expanded(child: ChatList(items: _items)),
                   ],
                 ),
               ),

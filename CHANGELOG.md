@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.6.5+77
+
+- Simplified the codebase by removing legacy features
+
 ## 4.6.4+76
 
 - Resolved an issue that prevented users from leaving conversations

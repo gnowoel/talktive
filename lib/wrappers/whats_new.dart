@@ -67,8 +67,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '👆 Swipe to Leave',
-                            'Resolved an issue that prevented users from leaving conversations.',
+                            '🧹 Simplified Codebase',
+                            'Simplified the codebase by removing legacy features.',
                           ),
                           const SizedBox(height: 32),
                           Text(
@@ -85,8 +85,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 16),
                           _buildFeatureCard(
                             Theme.of(context),
-                            '🔧 Maintenance Update',
-                            'Updated dependencies.',
+                            '👆 Swipe to Leave',
+                            'Resolved an issue that prevented users from leaving conversations.',
                           ),
                           const SizedBox(height: 16),
                           _buildFeatureCard(

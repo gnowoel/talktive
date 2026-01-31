@@ -8,6 +8,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'serverpod_client.dart';
 import 'services/edge_to_edge_manager.dart';
 import 'services/messaging.dart';
 
@@ -23,6 +24,9 @@ Future<void> main() async {
 
   // Initialize edge-to-edge display support
   await EdgeToEdgeManager.initialize();
+
+  // Initialize Serverpod Client
+  await initializeServerpodClient();
 
   // Firebase core initialization is essential and should stay in main()
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

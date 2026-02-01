@@ -98,7 +98,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
                                   child: FloatingActionButton(
                                     mini: true,
                                     onPressed: widget.onExit,
-                                    tooltip: 'Switch Version',
                                     child: const Icon(Icons.exit_to_app),
                                   ),
                                 ),

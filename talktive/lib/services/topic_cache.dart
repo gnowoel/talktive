@@ -7,8 +7,8 @@ class TopicCache extends ChangeNotifier {
   final Map<String, Topic> _topics = {};
 
   TopicCache._();
-  static final TopicCache _instance = TopicCache._();
-  factory TopicCache() => _instance;
+  static TopicCache? _instance;
+  factory TopicCache() => _instance ??= TopicCache._();
 
   List<Topic> get topics => _topics.values.toList();
   List<Topic> get activeTopics =>
@@ -63,6 +63,7 @@ class TopicCache extends ChangeNotifier {
   @override
   void dispose() {
     _topics.clear();
+    _instance = null;
     super.dispose();
   }
 }

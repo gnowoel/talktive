@@ -5,9 +5,9 @@ import '../models/emoji.dart';
 class Avatar extends ChangeNotifier {
   Avatar._();
 
-  static final Avatar _instance = Avatar._();
+  static Avatar? _instance;
 
-  factory Avatar() => _instance;
+  factory Avatar() => _instance ??= Avatar._();
 
   Emoji _emoji = Emoji.random();
 
@@ -34,8 +34,14 @@ class Avatar extends ChangeNotifier {
 
   void _saveEmoji(Emoji emoji) {
     _emoji = emoji;
+
     notifyListeners();
   }
 
+  @override
+  void dispose() {
+    _instance = null;
 
+    super.dispose();
+  }
 }

@@ -7,8 +7,8 @@ class FollowCache extends ChangeNotifier {
   final Map<String, Follow> _followers = {};
 
   FollowCache._();
-  static final FollowCache _instance = FollowCache._();
-  factory FollowCache() => _instance;
+  static FollowCache? _instance;
+  factory FollowCache() => _instance ??= FollowCache._();
 
   List<Follow> get followees => _followees.values.toList();
   List<Follow> get followers => _followers.values.toList();
@@ -72,6 +72,7 @@ class FollowCache extends ChangeNotifier {
   void dispose() {
     _followees.clear();
     _followers.clear();
+    _instance = null;
     super.dispose();
   }
 }

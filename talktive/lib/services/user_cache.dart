@@ -4,8 +4,8 @@ import '../models/user.dart';
 
 class UserCache extends ChangeNotifier {
   UserCache._();
-  static final UserCache _instance = UserCache._();
-  factory UserCache() => _instance;
+  static UserCache? _instance;
+  factory UserCache() => _instance ??= UserCache._();
 
   User? _user;
   User? get user => _user;
@@ -18,6 +18,7 @@ class UserCache extends ChangeNotifier {
   @override
   void dispose() {
     _user = null;
+    _instance = null;
     super.dispose();
   }
 }

@@ -58,7 +58,7 @@ class _InitializeState extends State<Initialize> {
   Future<void> _initializeEmulators(String host) async {
     try {
       FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
-      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+      FirebaseFirestore.instance.useFirestoreEmulator(host, 8088);
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       await FirebaseStorage.instance.useStorageEmulator(host, 9199);
       FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
@@ -77,7 +77,8 @@ class _InitializeState extends State<Initialize> {
       if (!ServiceLocator.instance.isInitialized) {
         if (ServiceLocator.instance.isInitializing) {
           debugPrint(
-              'Initialize: Waiting for ongoing ServiceLocator initialization...');
+            'Initialize: Waiting for ongoing ServiceLocator initialization...',
+          );
           // Wait for ongoing initialization to complete
           while (ServiceLocator.instance.isInitializing) {
             await Future.delayed(const Duration(milliseconds: 100));
@@ -87,10 +88,12 @@ class _InitializeState extends State<Initialize> {
           if (!ServiceLocator.instance.isInitialized &&
               ServiceLocator.instance.initializationError != null) {
             throw Exception(
-                'ServiceLocator initialization failed: ${ServiceLocator.instance.initializationError}');
+              'ServiceLocator initialization failed: ${ServiceLocator.instance.initializationError}',
+            );
           }
           debugPrint(
-              'Initialize: ServiceLocator initialization completed (was waiting)');
+            'Initialize: ServiceLocator initialization completed (was waiting)',
+          );
         } else {
           debugPrint('Initialize: Starting ServiceLocator initialization...');
           // Initialize ServiceLocator if not already done
@@ -103,7 +106,8 @@ class _InitializeState extends State<Initialize> {
     } catch (e) {
       debugPrint('Failed to initialize ServiceLocator: $e');
       throw Exception(
-          'Critical service initialization failed. Please restart the app.');
+        'Critical service initialization failed. Please restart the app.',
+      );
     }
 
     debugPrint('Initialize: Starting other services initialization...');
@@ -127,17 +131,20 @@ class _InitializeState extends State<Initialize> {
 
     // Initialize the simple ad adapter asynchronously
     // This won't block app startup - ads will initialize in background
-    SimpleAdAdapter.instance.initialize().then((_) {
-      debugPrint('Initialize: Ads initialization completed in background');
+    SimpleAdAdapter.instance
+        .initialize()
+        .then((_) {
+          debugPrint('Initialize: Ads initialization completed in background');
 
-      // Log statistics in debug mode
-      if (kDebugMode) {
-        final stats = SimpleAdAdapter.instance.getSessionStats();
-        debugPrint('Initialize: Ad service stats: $stats');
-      }
-    }).catchError((error) {
-      debugPrint('Initialize: Background ads initialization error: $error');
-    });
+          // Log statistics in debug mode
+          if (kDebugMode) {
+            final stats = SimpleAdAdapter.instance.getSessionStats();
+            debugPrint('Initialize: Ad service stats: $stats');
+          }
+        })
+        .catchError((error) {
+          debugPrint('Initialize: Background ads initialization error: $error');
+        });
 
     debugPrint('Initialize: Ads initialization started (non-blocking)');
 

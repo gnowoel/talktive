@@ -6,11 +6,11 @@ import 'package:flutter/rendering.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-import 'app.dart';
 import 'firebase_options.dart';
 import 'serverpod_client.dart';
 import 'services/edge_to_edge_manager.dart';
 import 'services/messaging.dart';
+import 'version_selector.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -34,5 +34,5 @@ Future<void> main() async {
   // Background message handler needs to be registered early
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  runApp(const App());
+  runApp(const VersionSelector());
 }

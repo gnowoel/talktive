@@ -18,7 +18,9 @@ import 'wrappers/whats_new.dart';
 const useEmulators = true;
 
 class App extends StatefulWidget {
-  const App({super.key});
+  final VoidCallback? onExit;
+
+  const App({super.key, this.onExit});
 
   @override
   State<App> createState() => _AppState();
@@ -75,16 +77,32 @@ class _AppState extends State<App> with WidgetsBindingObserver {
                         builder: (context, child) {
                           // Update system UI overlay style when theme changes
                           WidgetsBinding.instance.addPostFrameCallback((_) {
-                            EdgeToEdgeManager.instance
-                                .updateForContext(context);
+                            EdgeToEdgeManager.instance.updateForContext(
+                              context,
+                            );
                           });
 
-                          return EdgeToEdgeWrapper(
-                            includeTop:
-                                false, // Let individual screens handle top padding
-                            includeBottom:
-                                false, // Let individual screens handle bottom padding
-                            child: child ?? const SizedBox.shrink(),
+                          return Stack(
+                            children: [
+                              EdgeToEdgeWrapper(
+                                includeTop:
+                                    false, // Let individual screens handle top padding
+                                includeBottom:
+                                    false, // Let individual screens handle bottom padding
+                                child: child ?? const SizedBox.shrink(),
+                              ),
+                              if (widget.onExit != null)
+                                Positioned(
+                                  bottom: 100,
+                                  right: 20,
+                                  child: FloatingActionButton(
+                                    mini: true,
+                                    onPressed: widget.onExit,
+                                    tooltip: 'Switch Version',
+                                    child: const Icon(Icons.exit_to_app),
+                                  ),
+                                ),
+                            ],
                           );
                         },
                       );

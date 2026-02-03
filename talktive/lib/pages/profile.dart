@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../helpers/helpers.dart';
+import '../services/version_service.dart';
 
 import '../services/user_cache.dart';
 import '../services/ad_service/improved_consent_manager.dart';
@@ -91,7 +92,7 @@ class ProfilePage extends StatelessWidget {
                                   _Badge(
                                     label:
                                         getLanguageName(user.languageCode!) ??
-                                            '',
+                                        '',
                                     borderColor:
                                         theme.colorScheme.outlineVariant,
                                   ),
@@ -148,7 +149,8 @@ class ProfilePage extends StatelessWidget {
                                           backgroundColor:
                                               theme.colorScheme.errorContainer,
                                           textColor: theme
-                                              .colorScheme.onErrorContainer,
+                                              .colorScheme
+                                              .onErrorContainer,
                                         ),
                                       );
                                     } else if (userStatus == 'alert') {
@@ -156,9 +158,11 @@ class ProfilePage extends StatelessWidget {
                                         _Badge(
                                           label: 'Alert',
                                           backgroundColor: theme
-                                              .colorScheme.tertiaryContainer,
+                                              .colorScheme
+                                              .tertiaryContainer,
                                           textColor: theme
-                                              .colorScheme.onTertiaryContainer,
+                                              .colorScheme
+                                              .onTertiaryContainer,
                                         ),
                                       );
                                     } else if (user.isModerator &&
@@ -167,9 +171,11 @@ class ProfilePage extends StatelessWidget {
                                         _Badge(
                                           label: 'Moderator',
                                           backgroundColor: theme
-                                              .colorScheme.primaryContainer,
+                                              .colorScheme
+                                              .primaryContainer,
                                           textColor: theme
-                                              .colorScheme.onPrimaryContainer,
+                                              .colorScheme
+                                              .onPrimaryContainer,
                                         ),
                                       );
                                       // } else if (user.reputationLevel ==
@@ -199,9 +205,11 @@ class ProfilePage extends StatelessWidget {
                                         _Badge(
                                           label: 'New User',
                                           backgroundColor: theme
-                                              .colorScheme.primaryContainer,
+                                              .colorScheme
+                                              .primaryContainer,
                                           textColor: theme
-                                              .colorScheme.onPrimaryContainer,
+                                              .colorScheme
+                                              .onPrimaryContainer,
                                         ),
                                       );
                                       // } else if (user.reputationLevel ==
@@ -248,8 +256,9 @@ class ProfilePage extends StatelessWidget {
                           const SizedBox(height: 16),
                           FutureBuilder<bool>(
                             future: Future.value(
-                                ImprovedConsentManager.instance.consentStatus !=
-                                    ConsentStatus.notRequired),
+                              ImprovedConsentManager.instance.consentStatus !=
+                                  ConsentStatus.notRequired,
+                            ),
                             builder: (context, snapshot) {
                               final isInConsentRegion = snapshot.data ?? false;
                               final isAdmin =
@@ -286,14 +295,30 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: user?.isAdminOrModerator == true
-          ? FloatingActionButton(
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (user?.isAdminOrModerator == true) ...[
+            FloatingActionButton(
               onPressed: () => context.push('/admin/reports'),
               tooltip: 'Admin Panel',
               heroTag: "profile_admin_fab",
               child: const Icon(Icons.admin_panel_settings),
-            )
-          : null,
+            ),
+            const SizedBox(height: 16),
+          ],
+          FloatingActionButton(
+            onPressed: () {
+              final versionService = context.read<VersionService?>();
+              versionService?.onExit?.call();
+            },
+            tooltip: 'Switch Version',
+            heroTag: "version_switch_fab",
+            child: const Icon(Icons.exit_to_app),
+          ),
+        ],
+      ),
     );
   }
 }

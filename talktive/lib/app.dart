@@ -55,6 +55,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return Initialize(
       useEmulators: useEmulators,
       child: Providers(
+        onExit: widget.onExit,
         child: VerifyUser(
           child: WhatsNew(
             child: Setup(
@@ -82,26 +83,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
                             );
                           });
 
-                          return Stack(
-                            children: [
-                              EdgeToEdgeWrapper(
-                                includeTop:
-                                    false, // Let individual screens handle top padding
-                                includeBottom:
-                                    false, // Let individual screens handle bottom padding
-                                child: child ?? const SizedBox.shrink(),
-                              ),
-                              if (widget.onExit != null)
-                                Positioned(
-                                  bottom: 100,
-                                  right: 20,
-                                  child: FloatingActionButton(
-                                    mini: true,
-                                    onPressed: widget.onExit,
-                                    child: const Icon(Icons.exit_to_app),
-                                  ),
-                                ),
-                            ],
+                          return EdgeToEdgeWrapper(
+                            includeTop:
+                                false, // Let individual screens handle top padding
+                            includeBottom:
+                                false, // Let individual screens handle bottom padding
+                            child: child ?? const SizedBox.shrink(),
                           );
                         },
                       );

@@ -8,11 +8,13 @@ import '../services/firestore.dart';
 import '../services/messaging.dart';
 import '../services/service_locator.dart';
 import '../services/storage.dart';
+import '../services/version_service.dart';
 
 class Providers extends StatelessWidget {
   final Widget child;
+  final VoidCallback? onExit;
 
-  const Providers({super.key, required this.child});
+  const Providers({super.key, required this.child, this.onExit});
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class Providers extends StatelessWidget {
         // Additional services not managed by ServiceLocator
         Provider(create: (context) => Storage()),
         Provider(create: (context) => Messaging()),
+        Provider(create: (context) => VersionService(onExit: onExit)),
         ChangeNotifierProvider(create: (context) => Avatar()),
       ],
       child: child,

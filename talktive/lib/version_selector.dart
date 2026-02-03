@@ -35,39 +35,79 @@ class _VersionSelectorState extends State<VersionSelector> {
     }
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
       home: Scaffold(
-        appBar: AppBar(title: const Text('Select Version')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Choose your backend:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () => _selectVersion(AppVersion.firebase),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 20,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  // App Branding
+                  const Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 80,
+                    color: Colors.blue,
                   ),
-                ),
-                child: const Text('Firebase (Old)'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => _selectVersion(AppVersion.serverpod),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 20,
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Talktive',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
                   ),
-                ),
-                child: const Text('Serverpod (New)'),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Anonymous Chat',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                  const Spacer(),
+
+                  // Primary Action
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: () => _selectVersion(AppVersion.firebase),
+                      style: FilledButton.styleFrom(
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text('Start'),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Secondary Action
+                  TextButton(
+                    onPressed: () => _selectVersion(AppVersion.serverpod),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.grey[600],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.shield_outlined, size: 16),
+                        SizedBox(width: 8),
+                        Text('New safer version'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

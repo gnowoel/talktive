@@ -75,12 +75,16 @@ class LoggingService extends ChangeNotifier {
 
     _isInitialized = true;
 
-    info('LoggingService initialized', category: 'system', metadata: {
-      'min_level': minLogLevel.name,
-      'file_logging': enableFileLogging,
-      'remote_logging': enableRemoteLogging,
-      'console_logging': enableConsoleLogging,
-    });
+    info(
+      'LoggingService initialized',
+      category: 'system',
+      metadata: {
+        'min_level': minLogLevel.name,
+        'file_logging': enableFileLogging,
+        'remote_logging': enableRemoteLogging,
+        'console_logging': enableConsoleLogging,
+      },
+    );
   }
 
   /// Log a debug message
@@ -92,8 +96,15 @@ class LoggingService extends ChangeNotifier {
     String? sessionId,
     StackTrace? stackTrace,
   }) {
-    _log(LogLevel.debug, message, category, metadata, userId, sessionId,
-        stackTrace);
+    _log(
+      LogLevel.debug,
+      message,
+      category,
+      metadata,
+      userId,
+      sessionId,
+      stackTrace,
+    );
   }
 
   /// Log an info message
@@ -105,8 +116,15 @@ class LoggingService extends ChangeNotifier {
     String? sessionId,
     StackTrace? stackTrace,
   }) {
-    _log(LogLevel.info, message, category, metadata, userId, sessionId,
-        stackTrace);
+    _log(
+      LogLevel.info,
+      message,
+      category,
+      metadata,
+      userId,
+      sessionId,
+      stackTrace,
+    );
   }
 
   /// Log a warning message
@@ -118,8 +136,15 @@ class LoggingService extends ChangeNotifier {
     String? sessionId,
     StackTrace? stackTrace,
   }) {
-    _log(LogLevel.warning, message, category, metadata, userId, sessionId,
-        stackTrace);
+    _log(
+      LogLevel.warning,
+      message,
+      category,
+      metadata,
+      userId,
+      sessionId,
+      stackTrace,
+    );
   }
 
   /// Log an error message
@@ -138,8 +163,15 @@ class LoggingService extends ChangeNotifier {
       errorMetadata['exception_type'] = exception.runtimeType.toString();
     }
 
-    _log(LogLevel.error, message, category, errorMetadata, userId, sessionId,
-        stackTrace);
+    _log(
+      LogLevel.error,
+      message,
+      category,
+      errorMetadata,
+      userId,
+      sessionId,
+      stackTrace,
+    );
   }
 
   /// Log a critical error message
@@ -158,8 +190,15 @@ class LoggingService extends ChangeNotifier {
       criticalMetadata['exception_type'] = exception.runtimeType.toString();
     }
 
-    _log(LogLevel.critical, message, category, criticalMetadata, userId,
-        sessionId, stackTrace);
+    _log(
+      LogLevel.critical,
+      message,
+      category,
+      criticalMetadata,
+      userId,
+      sessionId,
+      stackTrace,
+    );
   }
 
   /// Log performance metrics
@@ -178,13 +217,14 @@ class LoggingService extends ChangeNotifier {
     perfMetadata['operation'] = operation;
 
     _log(
-        LogLevel.info,
-        'Performance: $operation took ${duration.inMilliseconds}ms',
-        category,
-        perfMetadata,
-        userId,
-        sessionId,
-        null);
+      LogLevel.info,
+      'Performance: $operation took ${duration.inMilliseconds}ms',
+      category,
+      perfMetadata,
+      userId,
+      sessionId,
+      null,
+    );
   }
 
   /// Log user action for analytics
@@ -201,8 +241,15 @@ class LoggingService extends ChangeNotifier {
     actionMetadata['target'] = target;
     actionMetadata['timestamp'] = DateTime.now().toIso8601String();
 
-    _log(LogLevel.info, 'User action: $action on $target', category,
-        actionMetadata, userId, sessionId, null);
+    _log(
+      LogLevel.info,
+      'User action: $action on $target',
+      category,
+      actionMetadata,
+      userId,
+      sessionId,
+      null,
+    );
   }
 
   /// Log network operation
@@ -234,8 +281,15 @@ class LoggingService extends ChangeNotifier {
     }
 
     final level = statusCode >= 400 ? LogLevel.error : LogLevel.info;
-    _log(level, 'Network: $method $url -> $statusCode', category,
-        networkMetadata, userId, sessionId, null);
+    _log(
+      level,
+      'Network: $method $url -> $statusCode',
+      category,
+      networkMetadata,
+      userId,
+      sessionId,
+      null,
+    );
   }
 
   /// Get logs by category
@@ -313,13 +367,15 @@ class LoggingService extends ChangeNotifier {
     }
 
     if (category != null) {
-      logsToExport =
-          logsToExport.where((log) => log.category == category).toList();
+      logsToExport = logsToExport
+          .where((log) => log.category == category)
+          .toList();
     }
 
     if (since != null) {
-      logsToExport =
-          logsToExport.where((log) => log.timestamp.isAfter(since)).toList();
+      logsToExport = logsToExport
+          .where((log) => log.timestamp.isAfter(since))
+          .toList();
     }
 
     if (limit != null && logsToExport.length > limit) {
@@ -526,8 +582,10 @@ class LoggingService extends ChangeNotifier {
 
     try {
       final logLines = logs.map((log) => jsonEncode(log.toJson())).join('\n');
-      await _currentLogFile!
-          .writeAsString('$logLines\n', mode: FileMode.append);
+      await _currentLogFile!.writeAsString(
+        '$logLines\n',
+        mode: FileMode.append,
+      );
 
       // Check if we need to rotate the log file
       await _checkLogRotation();
@@ -595,7 +653,8 @@ class LoggingService extends ChangeNotifier {
       if (logFiles.length > _maxLogFiles) {
         // Sort by modification time and delete oldest
         logFiles.sort(
-            (a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
+          (a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()),
+        );
 
         for (int i = 0; i < logFiles.length - _maxLogFiles; i++) {
           await logFiles[i].delete();
@@ -632,7 +691,8 @@ class LoggingService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         throw Exception(
-            'Remote logging failed with status: ${response.statusCode}');
+          'Remote logging failed with status: ${response.statusCode}',
+        );
       }
 
       client.close();
@@ -698,15 +758,23 @@ class LoggingService extends ChangeNotifier {
       await prefs.setBool('${_prefsPrefix}enabled', _isEnabled);
       await prefs.setBool('${_prefsPrefix}file_logging', _enableFileLogging);
       await prefs.setBool(
-          '${_prefsPrefix}remote_logging', _enableRemoteLogging);
+        '${_prefsPrefix}remote_logging',
+        _enableRemoteLogging,
+      );
       await prefs.setBool(
-          '${_prefsPrefix}console_logging', _enableConsoleLogging);
+        '${_prefsPrefix}console_logging',
+        _enableConsoleLogging,
+      );
       await prefs.setBool(
-          '${_prefsPrefix}performance_logging', _enablePerformanceLogging);
+        '${_prefsPrefix}performance_logging',
+        _enablePerformanceLogging,
+      );
 
       if (_remoteEndpoint != null) {
         await prefs.setString(
-            '${_prefsPrefix}remote_endpoint', _remoteEndpoint!);
+          '${_prefsPrefix}remote_endpoint',
+          _remoteEndpoint!,
+        );
       }
       if (_apiKey != null) {
         await prefs.setString('${_prefsPrefix}api_key', _apiKey!);
@@ -721,19 +789,14 @@ class LoggingService extends ChangeNotifier {
     _flushTimer?.cancel();
     _cleanupTimer?.cancel();
     flushLogs(); // Final flush
+    _instance = null;
     super.dispose();
   }
 }
 
 // Enums and data classes
 
-enum LogLevel {
-  debug,
-  info,
-  warning,
-  error,
-  critical,
-}
+enum LogLevel { debug, info, warning, error, critical }
 
 class LogEntry {
   final LogLevel level;

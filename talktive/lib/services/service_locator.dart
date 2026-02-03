@@ -79,7 +79,8 @@ class ServiceLocator {
       } catch (e) {
         if (kDebugMode) {
           print(
-              'ServiceLocator: Error recovery service initialization failed: $e');
+            'ServiceLocator: Error recovery service initialization failed: $e',
+          );
           print('ServiceLocator: Continuing without error recovery service');
         }
         // Error recovery service is optional, continue without it
@@ -110,9 +111,7 @@ class ServiceLocator {
   PaginatedMessageService createPaginatedMessageService({
     required Firestore firestore,
   }) {
-    _paginatedMessageService ??= PaginatedMessageService(
-      firestore,
-    );
+    _paginatedMessageService ??= PaginatedMessageService(firestore);
 
     return _paginatedMessageService!;
   }
@@ -124,6 +123,17 @@ class ServiceLocator {
   /// Get error recovery service instance (nullable)
   ErrorRecoveryService? get errorRecoveryService {
     return _errorRecoveryService;
+  }
+
+  /// Reset service references without disposing them (let Provider handle disposal)
+  void reset() {
+    _paginatedMessageService = null;
+    _errorRecoveryService = null;
+    _isInitialized = false;
+
+    if (kDebugMode) {
+      print('ServiceLocator: Services reset (references cleared)');
+    }
   }
 
   /// Dispose all services
@@ -204,39 +214,25 @@ class ServiceLocator {
       Provider<Firestore>.value(value: firestore),
 
       // Singleton services
-      Provider<Settings>(
-        create: (_) => Settings(),
-      ),
-      Provider<ServerClock>(
-        create: (_) => ServerClock(),
-      ),
+      Provider<Settings>(create: (_) => Settings()),
+      Provider<ServerClock>(create: (_) => ServerClock()),
 
       // Cache services (keep these as they're still useful)
-      ChangeNotifierProvider<UserCache>(
-        create: (_) => UserCache(),
-      ),
-      ChangeNotifierProvider<FollowCache>(
-        create: (_) => FollowCache(),
-      ),
+      ChangeNotifierProvider<UserCache>(create: (_) => UserCache()),
+      ChangeNotifierProvider<FollowCache>(create: (_) => FollowCache()),
       ChangeNotifierProvider<TopicFollowersCache>(
         create: (_) => TopicFollowersCache(),
       ),
       ChangeNotifierProvider<MessageMetaCache>(
         create: (_) => MessageMetaCache(),
       ),
-      ChangeNotifierProvider<TopicCache>(
-        create: (_) => TopicCache(),
-      ),
-      ChangeNotifierProvider<TribeCache>(
-        create: (_) => TribeCache(firestore),
-      ),
+      ChangeNotifierProvider<TopicCache>(create: (_) => TopicCache()),
+      ChangeNotifierProvider<TribeCache>(create: (_) => TribeCache(firestore)),
 
       // New simplified message service
       ChangeNotifierProxyProvider<Firestore, PaginatedMessageService>(
-        create: (context) =>
-            ServiceLocator.instance.createPaginatedMessageService(
-          firestore: firestore,
-        ),
+        create: (context) => ServiceLocator.instance
+            .createPaginatedMessageService(firestore: firestore),
         update: (context, firestore, previous) {
           return previous ??
               ServiceLocator.instance.createPaginatedMessageService(

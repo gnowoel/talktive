@@ -18,9 +18,7 @@ import 'wrappers/whats_new.dart';
 const useEmulators = true;
 
 class App extends StatefulWidget {
-  final VoidCallback? onExit;
-
-  const App({super.key, this.onExit});
+  const App({super.key});
 
   @override
   State<App> createState() => _AppState();
@@ -55,7 +53,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return Initialize(
       useEmulators: useEmulators,
       child: Providers(
-        onExit: widget.onExit,
         child: VerifyUser(
           child: WhatsNew(
             child: Setup(

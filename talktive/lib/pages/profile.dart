@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../helpers/helpers.dart';
-import '../services/version_service.dart';
 
 import '../services/user_cache.dart';
 import '../services/ad_service/improved_consent_manager.dart';
@@ -295,30 +294,14 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (user?.isAdminOrModerator == true) ...[
-            FloatingActionButton(
+      floatingActionButton: user?.isAdminOrModerator == true
+          ? FloatingActionButton(
               onPressed: () => context.push('/admin/reports'),
               tooltip: 'Admin Panel',
               heroTag: "profile_admin_fab",
               child: const Icon(Icons.admin_panel_settings),
-            ),
-            const SizedBox(height: 16),
-          ],
-          FloatingActionButton(
-            onPressed: () {
-              final versionService = context.read<VersionService?>();
-              versionService?.onExit?.call();
-            },
-            tooltip: 'Switch Version',
-            heroTag: "version_switch_fab",
-            child: const Icon(Icons.exit_to_app),
-          ),
-        ],
-      ),
+            )
+          : null,
     );
   }
 }

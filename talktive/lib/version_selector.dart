@@ -29,7 +29,7 @@ class _VersionSelectorState extends State<VersionSelector> {
   @override
   Widget build(BuildContext context) {
     if (_selectedVersion == AppVersion.firebase) {
-      return App(onExit: _reset);
+      return const App();
     } else if (_selectedVersion == AppVersion.serverpod) {
       return ServerpodApp(onExit: _reset);
     }

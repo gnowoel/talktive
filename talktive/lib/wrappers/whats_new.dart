@@ -67,19 +67,23 @@ class _WhatsNewState extends State<WhatsNew> {
                           const SizedBox(height: 32),
                           _buildFeatureCard(
                             Theme.of(context),
+                            '✨ New Safer Version',
+                            'Introduced a preview of the new safer version.',
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFeatureCard(
+                            Theme.of(context),
                             '🧹 Simplified Codebase',
                             'Simplified the codebase by removing legacy features.',
                           ),
                           const SizedBox(height: 32),
                           Text(
                             'Previously',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                           ),
                           const SizedBox(height: 16),

@@ -1,6 +1,11 @@
 # CHANGELOG
 
-## 4.6.5+77
+## 4.7.0+78
+
+- Introduced a new safer version preview
+- Simplified the codebase by removing legacy features
+
+## 4.6.5+77 (unpublished)
 
 - Simplified the codebase by removing legacy features
 

@@ -202,14 +202,15 @@ class ServiceLocator {
   }
 
   /// Create providers for the widget tree
-  static List<SingleChildWidget> createProviders({
-    required Fireauth fireauth,
-    required Firedata firedata,
-  }) {
+  static List<SingleChildWidget> createProviders() {
     return [
       // Core Firebase services
-      Provider<Fireauth>.value(value: fireauth),
-      Provider<Firedata>.value(value: firedata),
+      Provider<Fireauth>(
+        create: (_) => Fireauth(Fireauth.firebaseAuth),
+      ),
+      Provider<Firedata>(
+        create: (_) => Firedata(Firedata.firebaseDatabase),
+      ),
       Provider<Firestore>(
         create: (_) => Firestore(Firestore.firebaseFirestore),
         dispose: (_, service) => service.dispose(),

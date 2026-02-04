@@ -18,17 +18,10 @@ class Providers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Create Firebase service instances
-    final fireauth = Fireauth(Fireauth.firebaseAuth);
-    final firedata = Firedata(Firedata.firebaseDatabase);
-
     return MultiProvider(
       providers: [
         // Use ServiceLocator to create optimized providers
-        ...ServiceLocator.createProviders(
-          fireauth: fireauth,
-          firedata: firedata,
-        ),
+        ...ServiceLocator.createProviders(),
 
         // Additional services not managed by ServiceLocator
         Provider(create: (context) => Storage()),

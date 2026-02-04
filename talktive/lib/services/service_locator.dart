@@ -205,45 +205,30 @@ class ServiceLocator {
   static List<SingleChildWidget> createProviders() {
     return [
       // Core Firebase services
-      Provider<Fireauth>(
-        create: (_) => Fireauth(Fireauth.firebaseAuth),
-      ),
-      Provider<Firedata>(
-        create: (_) => Firedata(Firedata.firebaseDatabase),
-      ),
+      Provider<Fireauth>(create: (_) => Fireauth(Fireauth.firebaseAuth)),
+      Provider<Firedata>(create: (_) => Firedata(Firedata.firebaseDatabase)),
       Provider<Firestore>(
         create: (_) => Firestore(Firestore.firebaseFirestore),
         dispose: (_, service) => service.dispose(),
       ),
 
       // Singleton services
-      Provider<Settings>(
-        create: (_) => Settings(),
-      ),
-      Provider<ServerClock>(
-        create: (_) => ServerClock(),
-      ),
+      Provider<Settings>(create: (_) => Settings()),
+      Provider<ServerClock>(create: (_) => ServerClock()),
 
       // Cache services (keep these as they're still useful)
-      ChangeNotifierProvider<UserCache>(
-        create: (_) => UserCache(),
-      ),
-      ChangeNotifierProvider<FollowCache>(
-        create: (_) => FollowCache(),
-      ),
+      ChangeNotifierProvider<UserCache>(create: (_) => UserCache()),
+      ChangeNotifierProvider<FollowCache>(create: (_) => FollowCache()),
       ChangeNotifierProvider<TopicFollowersCache>(
         create: (_) => TopicFollowersCache(),
       ),
       ChangeNotifierProvider<MessageMetaCache>(
         create: (_) => MessageMetaCache(),
       ),
-      ChangeNotifierProvider<TopicCache>(
-        create: (_) => TopicCache(),
-      ),
+      ChangeNotifierProvider<TopicCache>(create: (_) => TopicCache()),
       ChangeNotifierProxyProvider<Firestore, TribeCache>(
-        create: (context) => TribeCache(
-          Provider.of<Firestore>(context, listen: false),
-        ),
+        create: (context) =>
+            TribeCache(Provider.of<Firestore>(context, listen: false)),
         update: (context, firestore, previous) =>
             previous ?? TribeCache(firestore),
       ),
@@ -252,8 +237,8 @@ class ServiceLocator {
       ChangeNotifierProxyProvider<Firestore, PaginatedMessageService>(
         create: (context) =>
             ServiceLocator.instance.createPaginatedMessageService(
-          firestore: Provider.of<Firestore>(context, listen: false),
-        ),
+              firestore: Provider.of<Firestore>(context, listen: false),
+            ),
         update: (context, firestore, previous) {
           return previous ??
               ServiceLocator.instance.createPaginatedMessageService(
@@ -262,6 +247,13 @@ class ServiceLocator {
         },
       ),
 
+      // Error recovery service (optional)
+      if (ServiceLocator.instance.errorRecoveryService != null)
+        ChangeNotifierProvider<ErrorRecoveryService>(
+          create: (_) => ServiceLocator.instance.errorRecoveryService!,
+        ),
+    ];
+  }
 
   /// Get memory usage statistics for debugging
   Future<Map<String, dynamic>> getMemoryStats() async {

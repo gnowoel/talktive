@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import 'router.dart';
 import 'services/messaging.dart';
-import 'services/service_locator.dart';
 import 'theme.dart';
 import 'widgets/edge_to_edge_wrapper.dart';
 import 'wrappers/verify_user.dart';

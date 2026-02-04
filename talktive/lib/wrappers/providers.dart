@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/avatar.dart';
-import '../services/fireauth.dart';
-import '../services/firedata.dart';
-import '../services/firestore.dart';
 import '../services/messaging.dart';
 import '../services/service_locator.dart';
 import '../services/storage.dart';

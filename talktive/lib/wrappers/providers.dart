@@ -21,7 +21,6 @@ class Providers extends StatelessWidget {
     // Create Firebase service instances
     final fireauth = Fireauth(Fireauth.firebaseAuth);
     final firedata = Firedata(Firedata.firebaseDatabase);
-    final firestore = Firestore(Firestore.firebaseFirestore);
 
     return MultiProvider(
       providers: [
@@ -29,7 +28,6 @@ class Providers extends StatelessWidget {
         ...ServiceLocator.createProviders(
           fireauth: fireauth,
           firedata: firedata,
-          firestore: firestore,
         ),
 
         // Additional services not managed by ServiceLocator

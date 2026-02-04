@@ -155,6 +155,7 @@ class _InitializeState extends State<Initialize> {
   void dispose() {
     // Dispose ServiceLocator and all its managed services
     if (ServiceLocator.instance.isInitialized) {
+      ServiceLocator.instance.reset();
       ServiceLocator.instance.dispose();
     }
     super.dispose();

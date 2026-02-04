@@ -37,7 +37,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    ServiceLocator.instance.reset();
     super.dispose();
   }
 

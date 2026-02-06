@@ -273,6 +273,33 @@ class EndpointMessage extends _i2.EndpointRef {
   );
 }
 
+/// {@category Endpoint}
+class EndpointResident extends _i2.EndpointRef {
+  EndpointResident(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'resident';
+
+  /// Creates a new anonymous resident/user and returns the authentication key as JSON string
+  _i3.Future<String> createResident({
+    required String name,
+    required String avatar,
+    required String gender,
+    required String country,
+    required String bio,
+  }) => caller.callServerEndpoint<String>(
+    'resident',
+    'createResident',
+    {
+      'name': name,
+      'avatar': avatar,
+      'gender': gender,
+      'country': country,
+      'bio': bio,
+    },
+  );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -337,6 +364,7 @@ class Client extends _i2.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     message = EndpointMessage(this);
+    resident = EndpointResident(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -347,6 +375,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointMessage message;
 
+  late final EndpointResident resident;
+
   late final EndpointGreeting greeting;
 
   late final Modules modules;
@@ -356,6 +386,7 @@ class Client extends _i2.ServerpodClientShared {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'message': message,
+    'resident': resident,
     'greeting': greeting,
   };
 

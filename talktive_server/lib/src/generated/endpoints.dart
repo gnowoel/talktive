@@ -14,12 +14,13 @@ import 'package:serverpod/serverpod.dart' as _i1;
 import '../auth/email_idp_endpoint.dart' as _i2;
 import '../auth/jwt_refresh_endpoint.dart' as _i3;
 import '../endpoints/message_endpoint.dart' as _i4;
-import '../greetings/greeting_endpoint.dart' as _i5;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i6;
+import '../endpoints/resident_endpoint.dart' as _i5;
+import '../greetings/greeting_endpoint.dart' as _i6;
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i7;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i7;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i8;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i9;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -43,7 +44,13 @@ class Endpoints extends _i1.EndpointDispatch {
           'message',
           null,
         ),
-      'greeting': _i5.GreetingEndpoint()
+      'resident': _i5.ResidentEndpoint()
+        ..initialize(
+          server,
+          'resident',
+          null,
+        ),
+      'greeting': _i6.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -312,6 +319,55 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['resident'] = _i1.EndpointConnector(
+      name: 'resident',
+      endpoint: endpoints['resident']!,
+      methodConnectors: {
+        'createResident': _i1.MethodConnector(
+          name: 'createResident',
+          params: {
+            'name': _i1.ParameterDescription(
+              name: 'name',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'avatar': _i1.ParameterDescription(
+              name: 'avatar',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'gender': _i1.ParameterDescription(
+              name: 'gender',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'bio': _i1.ParameterDescription(
+              name: 'bio',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i5.ResidentEndpoint)
+                  .createResident(
+                    session,
+                    name: params['name'],
+                    avatar: params['avatar'],
+                    gender: params['gender'],
+                    country: params['country'],
+                    bio: params['bio'],
+                  ),
+        ),
+      },
+    );
     connectors['greeting'] = _i1.EndpointConnector(
       name: 'greeting',
       endpoint: endpoints['greeting']!,
@@ -329,17 +385,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i5.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i6.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth'] = _i6.Endpoints()..initializeEndpoints(server);
-    modules['serverpod_auth_idp'] = _i7.Endpoints()
+    modules['serverpod_auth'] = _i7.Endpoints()..initializeEndpoints(server);
+    modules['serverpod_auth_idp'] = _i8.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i8.Endpoints()
+    modules['serverpod_auth_core'] = _i9.Endpoints()
       ..initializeEndpoints(server);
   }
 }

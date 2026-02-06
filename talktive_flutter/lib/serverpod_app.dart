@@ -7,7 +7,7 @@ import 'config/theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
 import 'screens/onboarding/profile_setup_screen.dart';
-import 'screens/plaza/plaza_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'screens/chat/chat_screen.dart';
 
 class ServerpodApp extends StatelessWidget {
@@ -43,10 +43,7 @@ class ServerpodApp extends StatelessWidget {
           path: '/profile-setup',
           builder: (context, state) => const ProfileSetupScreen(),
         ),
-        GoRoute(
-          path: '/',
-          builder: (context, state) => PlazaScreen(onExit: onExit),
-        ),
+        GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
         GoRoute(
           path: '/chat/:channelId',
           builder: (context, state) {

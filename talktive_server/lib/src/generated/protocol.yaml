@@ -11,5 +11,7 @@ jwtRefresh:
 message:
   - sendMessage:
   - listMessages:
+resident:
+  - createResident:
 greeting:
   - hello:

@@ -13,13 +13,20 @@ class MessageEndpoint extends Endpoint {
   }) async {
     final authenticationInfo = session.authenticated;
     final senderId = authenticationInfo?.userId;
+
+    session.log(
+      'sendMessage: Auth Info: $authenticationInfo, Sender ID: $senderId',
+    );
+
     if (senderId == null) {
+      session.log('sendMessage: User NOT authenticated');
       throw Exception('Not authenticated');
     }
 
     // 1. Fetch channel to verify access and type
     final channel = await Channel.db.findById(session, channelId);
     if (channel == null) {
+      session.log('sendMessage: Channel $channelId not found');
       throw Exception('Channel not found');
     }
 
@@ -29,6 +36,7 @@ class MessageEndpoint extends Endpoint {
       where: (t) => t.userInfoId.equals(senderId),
     );
     if (sender == null) {
+      session.log('sendMessage: Resident not found for User $senderId');
       throw Exception('Resident not found');
     }
 
@@ -96,7 +104,35 @@ class MessageEndpoint extends Endpoint {
       });
     }
   }
-}
 
-// We need a helper class for subscription requests if we use typed stream messages.
-// But for now, let's assume standard handling or simpler Post.
+  /// Fetches the history of messages for a channel.
+  Future<List<Message>> listMessages(
+    Session session,
+    int channelId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    // 1. Verify access (optional: check if user is member of channel)
+    // For Plaza (floor 0), it's public. For others, check membership.
+    final channel = await Channel.db.findById(session, channelId);
+    if (channel == null) {
+      throw Exception('Channel not found');
+    }
+
+    // TODO: Add membership check for private/group channels
+
+    // 2. Fetch messages
+    return await Message.db.find(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+      limit: limit,
+      offset: offset,
+      include: Message.include(
+        channel:
+            Channel.include(), // Optional: include channel details if needed
+      ),
+    );
+  }
+}

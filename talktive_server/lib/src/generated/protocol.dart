@@ -28,6 +28,7 @@ import 'message.dart' as _i13;
 import 'moment.dart' as _i14;
 import 'report.dart' as _i15;
 import 'resident.dart' as _i16;
+import 'package:talktive_server/src/generated/message.dart' as _i17;
 export 'block.dart';
 export 'channel.dart';
 export 'channel_member.dart';
@@ -639,6 +640,10 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == _i1.getType<_i16.Resident?>()) {
       return (data != null ? _i16.Resident.fromJson(data) : null) as T;
+    }
+    if (t == List<_i17.Message>) {
+      return (data as List).map((e) => deserialize<_i17.Message>(e)).toList()
+          as T;
     }
     try {
       return _i3.Protocol().deserialize<T>(data, t);

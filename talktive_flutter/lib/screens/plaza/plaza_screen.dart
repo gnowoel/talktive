@@ -31,16 +31,17 @@ class PlazaScreen extends ConsumerWidget {
       ),
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const NetworkImage(
-              'https://placeholder.com/apartment_bg.png',
-            ), // Placeholder
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.3),
-              BlendMode.darken,
-            ),
-          ),
+          color: Colors.blueGrey.shade900,
+          // image: const DecorationImage(
+          //   image: NetworkImage(
+          //     'https://placeholder.com/apartment_bg.png',
+          //   ), // Placeholder
+          //   fit: BoxFit.cover,
+          //   colorFilter: ColorFilter.mode(
+          //     Colors.black.withOpacity(0.3),
+          //     BlendMode.darken,
+          //   ),
+          // ),
         ),
         child: Column(
           children: [

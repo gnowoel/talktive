@@ -18,49 +18,72 @@ class ChatScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: messagesAsync.when(
-              data: (messages) => ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  final msg = messages[index];
-                  // Simple message bubble
-                  final isMe = msg.senderId == 1; // Mock Check
-                  return Align(
-                    alignment: isMe
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isMe ? Colors.blue : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            msg.content ?? '',
-                            style: TextStyle(
-                              color: isMe ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          Text(
-                            msg.createdAt.toString(), // Simplify for now
-                            style: TextStyle(
-                              color: isMe ? Colors.white70 : Colors.black54,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
+              data: (messages) {
+                return Column(
+                  children: [
+                    Container(
+                      color: Colors.red,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        'DEBUG: Count: ${messages.length}\nChannel: $channelId',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  );
-                },
-              ),
+                    Expanded(
+                      child: ListView.builder(
+                        reverse: true,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final msg = messages[index];
+                          // Force visible logic for debug
+                          final isMe = msg.senderId > 0;
+                          return Align(
+                            alignment: isMe
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isMe ? Colors.blue : Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    msg.content ?? '<EMPTY CONTENT>',
+                                    style: TextStyle(
+                                      color: isMe ? Colors.white : Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    msg.createdAt.toString(),
+                                    style: TextStyle(
+                                      color: isMe
+                                          ? Colors.white70
+                                          : Colors.black54,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
               error: (err, stack) => Center(child: Text('Error: $err')),
               loading: () => const Center(child: CircularProgressIndicator()),
             ),
@@ -119,20 +142,34 @@ class _ChatInputState extends ConsumerState<_ChatInput> {
     );
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _controller.text.trim();
     debugPrint('ChatScreen: _sendMessage triggered with: "$text"');
     if (text.isEmpty) return;
 
     try {
       debugPrint('ChatScreen: calling provider.sendMessage');
-      ref.read(chatProvider(widget.channelId).notifier).sendMessage(text);
-      debugPrint(
-        'ChatScreen: provider.sendMessage returned (future not awaited)',
-      );
+      // Await the send operation to catch errors!
+      await ref.read(chatProvider(widget.channelId).notifier).sendMessage(text);
+      debugPrint('ChatScreen: provider.sendMessage success');
       _controller.clear();
-    } catch (e) {
+    } catch (e, stack) {
       debugPrint('ChatScreen: Error invoking sendMessage: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Send Failed: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Copy',
+              onPressed: () {
+                // TODO: Copy to clipboard if needed
+              },
+            ),
+          ),
+        );
+      }
     }
   }
 }

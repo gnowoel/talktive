@@ -119,6 +119,29 @@ void run(List<String> args) async {
     );
   }
 
+  // Seed Data
+  final session = await pod.createSession(enableLogging: true);
+  try {
+    final plaza = await Channel.db.findById(session, 1);
+    if (plaza == null) {
+      session.log('Seeding: Creating Plaza Channel (ID 1)');
+      // Insert with explicit ID if possible, or just insert and hope it gets ID 1.
+      // Postgres serials usually start at 1. If empty, it will be 1.
+      // To be safe, we can try to force it if the framework allows, or just insert.
+      await Channel.db.insertRow(
+        session,
+        Channel(
+          type: ChannelType.plaza,
+          createdAt: DateTime.now(),
+        ),
+      );
+    }
+  } catch (e) {
+    session.log('Seeding Error: $e', level: LogLevel.error);
+  } finally {
+    await session.close();
+  }
+
   // Start the server.
   await pod.start();
 }

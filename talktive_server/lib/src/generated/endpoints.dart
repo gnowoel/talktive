@@ -279,6 +279,37 @@ class Endpoints extends _i1.EndpointDispatch {
                     imageUrl: params['imageUrl'],
                   ),
         ),
+        'listMessages': _i1.MethodConnector(
+          name: 'listMessages',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['message'] as _i4.MessageEndpoint).listMessages(
+                    session,
+                    params['channelId'],
+                    limit: params['limit'],
+                    offset: params['offset'],
+                  ),
+        ),
       },
     );
     connectors['greeting'] = _i1.EndpointConnector(

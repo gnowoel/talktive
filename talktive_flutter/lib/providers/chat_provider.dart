@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
-import 'client_provider.dart';
+import 'client_provider.dart'; // Ensure this import is correct
 
 part 'chat_provider.g.dart';
 
@@ -11,53 +11,50 @@ class Chat extends _$Chat {
   @override
   FutureOr<List<Message>> build(int channelId) async {
     _channelId = channelId;
-    // initial fetch
     return fetchMessages();
   }
 
   Future<List<Message>> fetchMessages() async {
-    // ref is available in AsyncNotifier
     final client = ref.read(clientProvider);
-    // TODO: Implement actual fetch when endpoint is ready
-    // final messages = await client.message.list(_channelId);
-    // return messages;
-
-    // Mock for now
-    await Future.delayed(const Duration(milliseconds: 500));
-    return [
-      Message(
-        channelId: _channelId,
-        senderId: 1, // Mock sender
-        content: 'Welcome to channel $_channelId!',
-        createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
-      ),
-    ];
+    try {
+      // Backend returns DESC order (newest first).
+      return await client.message.listMessages(
+        _channelId,
+        limit: 20,
+        offset: 0,
+      );
+    } catch (e) {
+      print('ChatProvider: Fetch error: $e');
+      // Return empty list on error to avoid crashing UI, or rethrow?
+      // AsyncValue handles error state if we throw.
+      // Let's rethrow so UI shows error.
+      rethrow;
+    }
   }
 
   Future<void> sendMessage(String content) async {
-    print(
-      'ChatProvider: sendMessage called with: $content for channel $_channelId',
-    );
     if (content.isEmpty) return;
 
-    // final client = ref.read(clientProvider);
-
-    // Mock optimist update
-    final newMessage = Message(
-      channelId: _channelId,
-      senderId: 1, // Me
-      content: content,
-      createdAt: DateTime.now(),
-    );
-
-    final previousState = state.value ?? [];
-    state = AsyncValue.data([...previousState, newMessage]);
+    final client = ref.read(clientProvider);
 
     try {
-      // TODO: await client.message.send(_channelId, content);
-      await Future.delayed(const Duration(milliseconds: 300));
+      final savedMessage = await client.message.sendMessage(
+        _channelId,
+        content,
+      );
+
+      // Optimistic update logic is tricky without ID, so valid strategy is:
+      // 1. Wait for response (savedMessage).
+      // 2. Prepend to state.
+
+      final previousState = state.value ?? [];
+      final newState = [savedMessage, ...previousState];
+      print(
+        'ChatProvider: Updating state with ${newState.length} messages. Newest: ${savedMessage.content}',
+      );
+      state = AsyncValue.data(newState);
     } catch (e) {
-      state = AsyncValue.data(previousState); // Revert
+      print('ChatProvider: Send error: $e');
       throw e;
     }
   }

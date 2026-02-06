@@ -10,5 +10,6 @@ jwtRefresh:
   - refreshAccessToken:
 message:
   - sendMessage:
+  - listMessages:
 greeting:
   - hello:

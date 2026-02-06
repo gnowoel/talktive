@@ -10,7 +10,9 @@ late final Client client;
 /// Initializes the global Serverpod client.
 Future<void> initializeServerpodClient() async {
   // The server URL is fetched from the assets/config.json file.
-  final serverUrl = await getServerUrl();
+  // final serverUrl = await getServerUrl();
+  // Hardcoded for emulator
+  const serverUrl = 'http://10.0.2.2:8080';
 
   client = Client(serverUrl)
     ..connectivityMonitor = FlutterConnectivityMonitor()

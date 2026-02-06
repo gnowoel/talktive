@@ -256,6 +256,21 @@ class EndpointMessage extends _i2.EndpointRef {
       'imageUrl': imageUrl,
     },
   );
+
+  /// Fetches the history of messages for a channel.
+  _i3.Future<List<_i5.Message>> listMessages(
+    int channelId, {
+    required int limit,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_i5.Message>>(
+    'message',
+    'listMessages',
+    {
+      'channelId': channelId,
+      'limit': limit,
+      'offset': offset,
+    },
+  );
 }
 
 /// This is an example endpoint that returns a greeting message through

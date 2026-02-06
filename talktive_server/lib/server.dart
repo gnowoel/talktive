@@ -8,11 +8,17 @@ import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
+import 'src/future_calls/message_cleanup.dart';
+import 'src/future_calls/credit_restoration.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
   final pod = Serverpod(args, Protocol(), Endpoints());
+
+  // Register Future Calls
+  pod.registerFutureCall(MessageCleanupCall(), 'messageCleanup');
+  pod.registerFutureCall(CreditRestorationCall(), 'creditRestoration');
 
   // Initialize authentication services for the server.
   // Token managers will be used to validate and issue authentication keys,

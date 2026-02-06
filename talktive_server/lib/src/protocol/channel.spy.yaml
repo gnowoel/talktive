@@ -1,0 +1,7 @@
+class: Channel
+table: channel
+fields:
+  type: ChannelType
+  name: String?
+  createdAt: DateTime
+  lastMessageAt: DateTime?

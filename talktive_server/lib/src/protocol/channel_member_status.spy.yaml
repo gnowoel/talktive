@@ -1,0 +1,6 @@
+enum: ChannelMemberStatus
+values:
+  - invited
+  - joined
+  - left
+  - declined

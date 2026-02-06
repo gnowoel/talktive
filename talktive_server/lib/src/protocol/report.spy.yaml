@@ -1,0 +1,8 @@
+class: Report
+table: report
+fields:
+  reporterId: int
+  targetId: int
+  reason: String
+  createdAt: DateTime
+  resolved: bool

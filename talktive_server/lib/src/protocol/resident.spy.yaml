@@ -1,0 +1,12 @@
+class: Resident
+table: resident
+fields:
+  userInfoId: int
+  floor: int
+  creditScore: int
+  experienceMessageCount: int
+  lastCreditIncrease: DateTime?
+indexes:
+  resident_user_idx:
+    fields: userInfoId
+    unique: true

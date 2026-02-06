@@ -1,0 +1,9 @@
+class: Moment
+table: moment
+fields:
+  authorId: int
+  imageUrl: String
+  caption: String?
+  createdAt: DateTime
+  likesCount: int
+  commentsCount: int

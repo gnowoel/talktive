@@ -1,0 +1,10 @@
+class: Block
+table: user_block
+fields:
+  blockerId: int
+  blockedId: int
+  createdAt: DateTime
+indexes:
+  block_idx:
+    fields: blockerId, blockedId
+    unique: true

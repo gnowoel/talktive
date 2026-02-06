@@ -1,0 +1,13 @@
+class: ChannelMember
+table: channel_member
+fields:
+  channelId: int
+  channel: Channel?, relation
+  userInfoId: int
+  joinedAt: DateTime
+  role: String?
+  status: ChannelMemberStatus
+indexes:
+  channel_user_idx:
+    fields: channelId, userInfoId
+    unique: true

@@ -3,10 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'config/theme.dart';
-import 'providers/auth_provider.dart';
+
 import 'screens/splash_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
 import 'screens/onboarding/profile_setup_screen.dart';
+import 'screens/plaza/plaza_screen.dart';
+import 'screens/chat/chat_screen.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -43,45 +45,19 @@ class ServerpodApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/',
-          builder: (context, state) => PlazaPage(onExit: onExit),
+          builder: (context, state) => PlazaScreen(onExit: onExit),
+        ),
+        GoRoute(
+          path: '/chat/:channelId',
+          builder: (context, state) {
+            final channelId =
+                int.tryParse(state.pathParameters['channelId'] ?? '') ?? 0;
+            // Get title from extra or query param, or default
+            final title = state.extra as String? ?? 'Chat $channelId';
+            return ChatScreen(channelId: channelId, title: title);
+          },
         ),
       ],
-    );
-  }
-}
-
-class PlazaPage extends ConsumerWidget {
-  final VoidCallback onExit;
-
-  const PlazaPage({super.key, required this.onExit});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('The Plaza'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.exit_to_app),
-            onPressed: () async {
-              // Sign out logic
-              if (!context.mounted) return;
-              await ref.read(authProvider.notifier).signOut();
-              if (context.mounted) {
-                context.go('/welcome');
-              }
-            },
-          ),
-        ],
-      ),
-      body: const Center(child: Text('Welcome to the Apartment Building!')),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          children: [
-            IconButton(icon: const Icon(Icons.arrow_back), onPressed: onExit),
-          ],
-        ),
-      ),
     );
   }
 }

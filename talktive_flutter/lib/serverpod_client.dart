@@ -1,6 +1,7 @@
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:talktive_client/talktive_client.dart';
+import 'providers/client_provider.dart';
 
 /// Sets up a global client object that can be used to talk to the server from
 /// anywhere in our app.
@@ -16,4 +17,5 @@ Future<void> initializeServerpodClient() async {
     ..authSessionManager = FlutterAuthSessionManager();
 
   await client.auth.initialize();
+  initializeClient(client);
 }

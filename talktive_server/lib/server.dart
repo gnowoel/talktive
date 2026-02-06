@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:serverpod/serverpod.dart';
@@ -49,14 +50,11 @@ void run(List<String> args) async {
       // Google Sign In
       // Google Sign In
       GoogleIdpConfig(
-        clientSecret: GoogleClientSecret.fromJson({
-          'web': {
-            'client_id': 'TODO_GOOGLE_CLIENT_ID',
-            'client_secret': 'TODO_GOOGLE_CLIENT_SECRET',
-            'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
-            'token_uri': 'https://oauth2.googleapis.com/token',
-          },
-        }),
+        clientSecret: GoogleClientSecret.fromJson(
+          jsonDecode(
+            File('config/google_client_secret.json').readAsStringSync(),
+          ),
+        ),
       ),
       // Apple Sign In
       AppleIdpConfig(

@@ -21,7 +21,6 @@ abstract class ChannelMember
   ChannelMember._({
     this.id,
     required this.channelId,
-    required this.channelId,
     this.channel,
     required this.userInfoId,
     required this.joinedAt,
@@ -31,7 +30,6 @@ abstract class ChannelMember
 
   factory ChannelMember({
     int? id,
-    required int channelId,
     required int channelId,
     _i2.Channel? channel,
     required int userInfoId,
@@ -69,8 +67,6 @@ abstract class ChannelMember
 
   int channelId;
 
-  int channelId;
-
   _i2.Channel? channel;
 
   int userInfoId;
@@ -90,7 +86,6 @@ abstract class ChannelMember
   ChannelMember copyWith({
     int? id,
     int? channelId,
-    int? channelId,
     _i2.Channel? channel,
     int? userInfoId,
     DateTime? joinedAt,
@@ -102,7 +97,6 @@ abstract class ChannelMember
     return {
       '__className__': 'ChannelMember',
       if (id != null) 'id': id,
-      'channelId': channelId,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
       'userInfoId': userInfoId,
@@ -117,7 +111,6 @@ abstract class ChannelMember
     return {
       '__className__': 'ChannelMember',
       if (id != null) 'id': id,
-      'channelId': channelId,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJsonForProtocol(),
       'userInfoId': userInfoId,
@@ -163,7 +156,6 @@ class _ChannelMemberImpl extends ChannelMember {
   _ChannelMemberImpl({
     int? id,
     required int channelId,
-    required int channelId,
     _i2.Channel? channel,
     required int userInfoId,
     required DateTime joinedAt,
@@ -186,7 +178,6 @@ class _ChannelMemberImpl extends ChannelMember {
   ChannelMember copyWith({
     Object? id = _Undefined,
     int? channelId,
-    int? channelId,
     Object? channel = _Undefined,
     int? userInfoId,
     DateTime? joinedAt,
@@ -207,11 +198,6 @@ class _ChannelMemberImpl extends ChannelMember {
 
 class ChannelMemberUpdateTable extends _i1.UpdateTable<ChannelMemberTable> {
   ChannelMemberUpdateTable(super.table);
-
-  _i1.ColumnValue<int, int> channelId(int value) => _i1.ColumnValue(
-    table.channelId,
-    value,
-  );
 
   _i1.ColumnValue<int, int> channelId(int value) => _i1.ColumnValue(
     table.channelId,
@@ -250,10 +236,6 @@ class ChannelMemberTable extends _i1.Table<int?> {
       'channelId',
       this,
     );
-    channelId = _i1.ColumnInt(
-      'channelId',
-      this,
-    );
     userInfoId = _i1.ColumnInt(
       'userInfoId',
       this,
@@ -274,8 +256,6 @@ class ChannelMemberTable extends _i1.Table<int?> {
   }
 
   late final ChannelMemberUpdateTable updateTable;
-
-  late final _i1.ColumnInt channelId;
 
   late final _i1.ColumnInt channelId;
 
@@ -305,7 +285,6 @@ class ChannelMemberTable extends _i1.Table<int?> {
   @override
   List<_i1.Column> get columns => [
     id,
-    channelId,
     channelId,
     userInfoId,
     joinedAt,

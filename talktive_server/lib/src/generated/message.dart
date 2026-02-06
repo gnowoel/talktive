@@ -20,7 +20,6 @@ abstract class Message
   Message._({
     this.id,
     required this.channelId,
-    required this.channelId,
     this.channel,
     required this.senderId,
     this.content,
@@ -30,7 +29,6 @@ abstract class Message
 
   factory Message({
     int? id,
-    required int channelId,
     required int channelId,
     _i2.Channel? channel,
     required int senderId,
@@ -66,8 +64,6 @@ abstract class Message
 
   int channelId;
 
-  int channelId;
-
   _i2.Channel? channel;
 
   int senderId;
@@ -87,7 +83,6 @@ abstract class Message
   Message copyWith({
     int? id,
     int? channelId,
-    int? channelId,
     _i2.Channel? channel,
     int? senderId,
     String? content,
@@ -99,7 +94,6 @@ abstract class Message
     return {
       '__className__': 'Message',
       if (id != null) 'id': id,
-      'channelId': channelId,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
       'senderId': senderId,
@@ -114,7 +108,6 @@ abstract class Message
     return {
       '__className__': 'Message',
       if (id != null) 'id': id,
-      'channelId': channelId,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJsonForProtocol(),
       'senderId': senderId,
@@ -160,7 +153,6 @@ class _MessageImpl extends Message {
   _MessageImpl({
     int? id,
     required int channelId,
-    required int channelId,
     _i2.Channel? channel,
     required int senderId,
     String? content,
@@ -183,7 +175,6 @@ class _MessageImpl extends Message {
   Message copyWith({
     Object? id = _Undefined,
     int? channelId,
-    int? channelId,
     Object? channel = _Undefined,
     int? senderId,
     Object? content = _Undefined,
@@ -204,11 +195,6 @@ class _MessageImpl extends Message {
 
 class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
   MessageUpdateTable(super.table);
-
-  _i1.ColumnValue<int, int> channelId(int value) => _i1.ColumnValue(
-    table.channelId,
-    value,
-  );
 
   _i1.ColumnValue<int, int> channelId(int value) => _i1.ColumnValue(
     table.channelId,
@@ -244,10 +230,6 @@ class MessageTable extends _i1.Table<int?> {
       'channelId',
       this,
     );
-    channelId = _i1.ColumnInt(
-      'channelId',
-      this,
-    );
     senderId = _i1.ColumnInt(
       'senderId',
       this,
@@ -267,8 +249,6 @@ class MessageTable extends _i1.Table<int?> {
   }
 
   late final MessageUpdateTable updateTable;
-
-  late final _i1.ColumnInt channelId;
 
   late final _i1.ColumnInt channelId;
 
@@ -298,7 +278,6 @@ class MessageTable extends _i1.Table<int?> {
   @override
   List<_i1.Column> get columns => [
     id,
-    channelId,
     channelId,
     senderId,
     content,

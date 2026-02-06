@@ -18,7 +18,6 @@ abstract class Message implements _i1.SerializableModel {
   Message._({
     this.id,
     required this.channelId,
-    required this.channelId,
     this.channel,
     required this.senderId,
     this.content,
@@ -28,7 +27,6 @@ abstract class Message implements _i1.SerializableModel {
 
   factory Message({
     int? id,
-    required int channelId,
     required int channelId,
     _i2.Channel? channel,
     required int senderId,
@@ -62,8 +60,6 @@ abstract class Message implements _i1.SerializableModel {
 
   int channelId;
 
-  int channelId;
-
   _i2.Channel? channel;
 
   int senderId;
@@ -80,7 +76,6 @@ abstract class Message implements _i1.SerializableModel {
   Message copyWith({
     int? id,
     int? channelId,
-    int? channelId,
     _i2.Channel? channel,
     int? senderId,
     String? content,
@@ -92,7 +87,6 @@ abstract class Message implements _i1.SerializableModel {
     return {
       '__className__': 'Message',
       if (id != null) 'id': id,
-      'channelId': channelId,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
       'senderId': senderId,
@@ -113,7 +107,6 @@ class _Undefined {}
 class _MessageImpl extends Message {
   _MessageImpl({
     int? id,
-    required int channelId,
     required int channelId,
     _i2.Channel? channel,
     required int senderId,
@@ -136,7 +129,6 @@ class _MessageImpl extends Message {
   @override
   Message copyWith({
     Object? id = _Undefined,
-    int? channelId,
     int? channelId,
     Object? channel = _Undefined,
     int? senderId,

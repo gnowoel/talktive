@@ -1,7 +1,7 @@
 class: Message
 table: message
 fields:
-  channelId: int
+
   channel: Channel?, relation
   senderId: int
   content: String?

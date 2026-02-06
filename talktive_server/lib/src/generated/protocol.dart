@@ -124,12 +124,6 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'int',
         ),
         _i2.ColumnDefinition(
-          name: 'channelId',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-        ),
-        _i2.ColumnDefinition(
           name: 'userInfoId',
           columnType: _i2.ColumnType.bigint,
           isNullable: false,
@@ -212,12 +206,6 @@ class Protocol extends _i1.SerializationManagerServer {
           isNullable: false,
           dartType: 'int?',
           columnDefault: 'nextval(\'message_id_seq\'::regclass)',
-        ),
-        _i2.ColumnDefinition(
-          name: 'channelId',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
         ),
         _i2.ColumnDefinition(
           name: 'channelId',

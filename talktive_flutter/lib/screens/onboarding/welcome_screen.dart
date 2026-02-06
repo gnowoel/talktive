@@ -1,0 +1,413 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../config/theme.dart';
+
+class WelcomeScreen extends StatefulWidget {
+  const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  late AnimationController _animationController;
+
+  final List<OnboardingPage> _pages = [
+    OnboardingPage(
+      emoji: '🎭',
+      title: 'Stay Anonymous',
+      subtitle:
+          'No email, no phone number required.\nYour privacy is our priority.',
+      backgroundColor: AppTheme.primaryColor,
+      features: [
+        'Choose fun emoji avatars',
+        'Create a unique persona',
+        'No personal data tracking',
+      ],
+    ),
+    OnboardingPage(
+      emoji: '💬',
+      title: 'Connect & Chat',
+      subtitle:
+          'Find interesting people from around the world and start meaningful conversations.',
+      backgroundColor: AppTheme.secondaryColor,
+      features: [
+        'Smart matching algorithm',
+        'Interest-based connections',
+        'Real-time messaging',
+      ],
+    ),
+    OnboardingPage(
+      emoji: '🎮',
+      title: 'Earn & Level Up',
+      subtitle:
+          'Chat, make friends, and earn points to unlock achievements and badges!',
+      backgroundColor: AppTheme.accentColor,
+      features: [
+        'Gamified experience',
+        'Unlock cool badges',
+        'Build your trust score',
+      ],
+    ),
+    OnboardingPage(
+      emoji: '🔒',
+      title: 'Safe & Secure',
+      subtitle:
+          'Auto-delete old chats, rate users for trust, and stay in control of your data.',
+      backgroundColor: const Color(0xFF9C27B0),
+      features: [
+        'Auto-cleanup inactive chats',
+        'User rating system',
+        'Delete account anytime',
+      ],
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _onPageChanged(int page) {
+    setState(() {
+      _currentPage = page;
+    });
+    HapticFeedback.lightImpact();
+  }
+
+  void _nextPage() {
+    if (_currentPage < _pages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      _getStarted();
+    }
+  }
+
+  void _skipToEnd() {
+    _pageController.animateToPage(
+      _pages.length - 1,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _getStarted() async {
+    HapticFeedback.mediumImpact();
+
+    // Mark welcome as seen
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('welcome_seen', true);
+
+    // Navigate to profile setup
+    if (mounted) {
+      context.go('/profile-setup');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Page View
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            itemCount: _pages.length,
+            itemBuilder: (context, index) {
+              return _buildPage(_pages[index], index);
+            },
+          ),
+
+          // Skip Button
+          if (_currentPage < _pages.length - 1)
+            Positioned(
+              top: 50,
+              right: 20,
+              child: SafeArea(
+                child: TextButton(
+                  onPressed: _skipToEnd,
+                  child: Text(
+                    'Skip',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // Bottom Controls
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Page Indicators
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _pages.length,
+                        (index) => _buildPageIndicator(index),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Action Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child:
+                          ElevatedButton(
+                                onPressed: _nextPage,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor:
+                                      _pages[_currentPage].backgroundColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(28),
+                                  ),
+                                  elevation: 8,
+                                  shadowColor: Colors.black.withOpacity(0.3),
+                                ),
+                                child: Text(
+                                  _currentPage < _pages.length - 1
+                                      ? 'Next'
+                                      : 'Get Started',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(delay: 200.ms)
+                              .slideY(
+                                begin: 0.2,
+                                end: 0,
+                                duration: 300.ms,
+                                curve: Curves.easeOut,
+                              ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPage(OnboardingPage page, int index) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            page.backgroundColor,
+            page.backgroundColor.withValues(alpha: 0.7),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+
+              // Emoji Icon with animation
+              Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        page.emoji,
+                        style: const TextStyle(fontSize: 80),
+                      ),
+                    ),
+                  )
+                  .animate(
+                    key: ValueKey('emoji_$index'),
+                    onPlay: (controller) => controller.forward(),
+                  )
+                  .scale(
+                    duration: 600.ms,
+                    begin: const Offset(0.5, 0.5),
+                    end: const Offset(1, 1),
+                    curve: Curves.elasticOut,
+                  )
+                  .fadeIn(),
+
+              const SizedBox(height: 48),
+
+              // Title
+              Text(
+                    page.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                  .animate(key: ValueKey('title_$index'))
+                  .fadeIn(delay: 200.ms)
+                  .slideY(begin: 0.2, end: 0),
+
+              const SizedBox(height: 16),
+
+              // Subtitle
+              Text(
+                    page.subtitle,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                  .animate(key: ValueKey('subtitle_$index'))
+                  .fadeIn(delay: 300.ms)
+                  .slideY(begin: 0.2, end: 0),
+
+              const SizedBox(height: 40),
+
+              // Feature List
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  children: page.features
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => _buildFeatureItem(
+                          entry.value,
+                          delay: 400 + (entry.key * 100),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+
+              const Spacer(flex: 2),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(String feature, {int delay = 0}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check, color: Colors.white, size: 16),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              feature,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.95),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: delay.ms).slideX(begin: -0.2, end: 0);
+  }
+
+  Widget _buildPageIndicator(int index) {
+    bool isActive = index == _currentPage;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 8,
+      width: isActive ? 24 : 8,
+      decoration: BoxDecoration(
+        color: isActive ? Colors.white : Colors.white.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+  }
+}
+
+class OnboardingPage {
+  final String emoji;
+  final String title;
+  final String subtitle;
+  final Color backgroundColor;
+  final List<String> features;
+
+  OnboardingPage({
+    required this.emoji,
+    required this.title,
+    required this.subtitle,
+    required this.backgroundColor,
+    required this.features,
+  });
+}

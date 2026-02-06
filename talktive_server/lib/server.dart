@@ -1,8 +1,13 @@
 import 'dart:io';
 
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart'
+    hide Protocol, Endpoints, GoogleClientSecret;
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
+import 'package:serverpod_auth_idp_server/providers/google.dart';
+import 'package:serverpod_auth_idp_server/providers/apple.dart';
+import 'src/services/auth_hooks.dart';
 
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
@@ -20,6 +25,13 @@ void run(List<String> args) async {
   pod.registerFutureCall(MessageCleanupCall(), 'messageCleanup');
   pod.registerFutureCall(CreditRestorationCall(), 'creditRestoration');
 
+  // Configure Auth Hooks
+  AuthConfig.set(
+    AuthConfig(
+      onUserCreated: AuthHooks.onUserCreated,
+    ),
+  );
+
   // Initialize authentication services for the server.
   // Token managers will be used to validate and issue authentication keys,
   // and the identity providers will be the authentication options available for users.
@@ -33,6 +45,36 @@ void run(List<String> args) async {
       EmailIdpConfigFromPasswords(
         sendRegistrationVerificationCode: _sendRegistrationCode,
         sendPasswordResetVerificationCode: _sendPasswordResetCode,
+      ),
+      // Google Sign In
+      // Google Sign In
+      GoogleIdpConfig(
+        clientSecret: GoogleClientSecret.fromJson({
+          'web': {
+            'client_id': 'TODO_GOOGLE_CLIENT_ID',
+            'client_secret': 'TODO_GOOGLE_CLIENT_SECRET',
+            'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
+            'token_uri': 'https://oauth2.googleapis.com/token',
+          },
+        }),
+      ),
+      // Apple Sign In
+      AppleIdpConfig(
+        serviceIdentifier: 'TODO_APPLE_SERVICE_ID',
+        bundleIdentifier: 'com.talktive.app', // Replace with valid bundle ID
+        redirectUri:
+            'https://example.com/signin-apple', // Replace with valid URI
+        keyId: 'TODO_APPLE_KEY_ID',
+        teamId:
+            'TODO_APPLE_TEAM_ID', // Reused for key? AppleIdp usually takes teamId separately if needed, check params
+        // AppleIdpConfig in 3.2.3 usually takes:
+        // bundleIdentifier, serviceIdentifier, redirectUri, keyId, teamId, privateKeyPath, specific args?
+        // Let's rely on error message: "key is required", "redirectUri required", "serviceIdentifier required", "bundleIdentifier required".
+        // privateKeyPath is likely 'key' param name? Or content?
+        // Let's guess 'key' is the private key string or path?
+        // Error said "key is required".
+        // I will use `key` instead of `privateKeyPath`.
+        key: 'TODO_APPLE_PRIVATE_KEY_CONTENT_OR_PATH',
       ),
     ],
   );

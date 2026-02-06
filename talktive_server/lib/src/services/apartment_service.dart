@@ -1,3 +1,4 @@
+import 'package:serverpod/serverpod.dart';
 import 'dart:math';
 import '../generated/protocol.dart';
 
@@ -63,5 +64,28 @@ class ApartmentService {
     target.creditScore -= penalty;
 
     return target;
+  }
+
+  /// Awards 1 credit score point if more than 1 hour has passed since last increase.
+  static Future<void> awardMessageCredit(
+    Session session,
+    Resident resident,
+  ) async {
+    final now = DateTime.now();
+    final lastIncrease = resident.lastCreditIncrease;
+
+    // Check time constraint (1 hour)
+    if (lastIncrease == null || now.difference(lastIncrease).inHours >= 1) {
+      resident.creditScore += 1;
+      resident.lastCreditIncrease = now;
+
+      // Upgrade floor if applicable
+      resident.floor = calculateFloor(
+        messageCount: resident.experienceMessageCount,
+        creditScore: resident.creditScore,
+      );
+
+      await Resident.db.updateRow(session, resident);
+    }
   }
 }

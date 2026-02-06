@@ -15,20 +15,23 @@ import 'block.dart' as _i2;
 import 'channel.dart' as _i3;
 import 'channel_member.dart' as _i4;
 import 'channel_member_status.dart' as _i5;
-import 'channel_type.dart' as _i6;
-import 'greetings/greeting.dart' as _i7;
-import 'message.dart' as _i8;
-import 'moment.dart' as _i9;
-import 'report.dart' as _i10;
-import 'resident.dart' as _i11;
+import 'channel_subscription.dart' as _i6;
+import 'channel_type.dart' as _i7;
+import 'greetings/greeting.dart' as _i8;
+import 'message.dart' as _i9;
+import 'moment.dart' as _i10;
+import 'report.dart' as _i11;
+import 'resident.dart' as _i12;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i13;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i12;
+    as _i14;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i13;
+    as _i15;
 export 'block.dart';
 export 'channel.dart';
 export 'channel_member.dart';
 export 'channel_member_status.dart';
+export 'channel_subscription.dart';
 export 'channel_type.dart';
 export 'greetings/greeting.dart';
 export 'message.dart';
@@ -83,23 +86,26 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i5.ChannelMemberStatus) {
       return _i5.ChannelMemberStatus.fromJson(data) as T;
     }
-    if (t == _i6.ChannelType) {
-      return _i6.ChannelType.fromJson(data) as T;
+    if (t == _i6.ChannelSubscription) {
+      return _i6.ChannelSubscription.fromJson(data) as T;
     }
-    if (t == _i7.Greeting) {
-      return _i7.Greeting.fromJson(data) as T;
+    if (t == _i7.ChannelType) {
+      return _i7.ChannelType.fromJson(data) as T;
     }
-    if (t == _i8.Message) {
-      return _i8.Message.fromJson(data) as T;
+    if (t == _i8.Greeting) {
+      return _i8.Greeting.fromJson(data) as T;
     }
-    if (t == _i9.Moment) {
-      return _i9.Moment.fromJson(data) as T;
+    if (t == _i9.Message) {
+      return _i9.Message.fromJson(data) as T;
     }
-    if (t == _i10.Report) {
-      return _i10.Report.fromJson(data) as T;
+    if (t == _i10.Moment) {
+      return _i10.Moment.fromJson(data) as T;
     }
-    if (t == _i11.Resident) {
-      return _i11.Resident.fromJson(data) as T;
+    if (t == _i11.Report) {
+      return _i11.Report.fromJson(data) as T;
+    }
+    if (t == _i12.Resident) {
+      return _i12.Resident.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.Block?>()) {
       return (data != null ? _i2.Block.fromJson(data) : null) as T;
@@ -114,29 +120,36 @@ class Protocol extends _i1.SerializationManager {
       return (data != null ? _i5.ChannelMemberStatus.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i6.ChannelType?>()) {
-      return (data != null ? _i6.ChannelType.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i6.ChannelSubscription?>()) {
+      return (data != null ? _i6.ChannelSubscription.fromJson(data) : null)
+          as T;
     }
-    if (t == _i1.getType<_i7.Greeting?>()) {
-      return (data != null ? _i7.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i7.ChannelType?>()) {
+      return (data != null ? _i7.ChannelType.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i8.Message?>()) {
-      return (data != null ? _i8.Message.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i8.Greeting?>()) {
+      return (data != null ? _i8.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i9.Moment?>()) {
-      return (data != null ? _i9.Moment.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.Message?>()) {
+      return (data != null ? _i9.Message.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i10.Report?>()) {
-      return (data != null ? _i10.Report.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i10.Moment?>()) {
+      return (data != null ? _i10.Moment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i11.Resident?>()) {
-      return (data != null ? _i11.Resident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.Report?>()) {
+      return (data != null ? _i11.Report.fromJson(data) : null) as T;
     }
-    try {
-      return _i12.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    if (t == _i1.getType<_i12.Resident?>()) {
+      return (data != null ? _i12.Resident.fromJson(data) : null) as T;
+    }
     try {
       return _i13.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i14.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i15.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -147,12 +160,13 @@ class Protocol extends _i1.SerializationManager {
       _i3.Channel => 'Channel',
       _i4.ChannelMember => 'ChannelMember',
       _i5.ChannelMemberStatus => 'ChannelMemberStatus',
-      _i6.ChannelType => 'ChannelType',
-      _i7.Greeting => 'Greeting',
-      _i8.Message => 'Message',
-      _i9.Moment => 'Moment',
-      _i10.Report => 'Report',
-      _i11.Resident => 'Resident',
+      _i6.ChannelSubscription => 'ChannelSubscription',
+      _i7.ChannelType => 'ChannelType',
+      _i8.Greeting => 'Greeting',
+      _i9.Message => 'Message',
+      _i10.Moment => 'Moment',
+      _i11.Report => 'Report',
+      _i12.Resident => 'Resident',
       _ => null,
     };
   }
@@ -175,24 +189,30 @@ class Protocol extends _i1.SerializationManager {
         return 'ChannelMember';
       case _i5.ChannelMemberStatus():
         return 'ChannelMemberStatus';
-      case _i6.ChannelType():
+      case _i6.ChannelSubscription():
+        return 'ChannelSubscription';
+      case _i7.ChannelType():
         return 'ChannelType';
-      case _i7.Greeting():
+      case _i8.Greeting():
         return 'Greeting';
-      case _i8.Message():
+      case _i9.Message():
         return 'Message';
-      case _i9.Moment():
+      case _i10.Moment():
         return 'Moment';
-      case _i10.Report():
+      case _i11.Report():
         return 'Report';
-      case _i11.Resident():
+      case _i12.Resident():
         return 'Resident';
     }
-    className = _i12.Protocol().getClassNameForObject(data);
+    className = _i13.Protocol().getClassNameForObject(data);
+    if (className != null) {
+      return 'serverpod_auth.$className';
+    }
+    className = _i14.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i13.Protocol().getClassNameForObject(data);
+    className = _i15.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -217,31 +237,38 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'ChannelMemberStatus') {
       return deserialize<_i5.ChannelMemberStatus>(data['data']);
     }
+    if (dataClassName == 'ChannelSubscription') {
+      return deserialize<_i6.ChannelSubscription>(data['data']);
+    }
     if (dataClassName == 'ChannelType') {
-      return deserialize<_i6.ChannelType>(data['data']);
+      return deserialize<_i7.ChannelType>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i7.Greeting>(data['data']);
+      return deserialize<_i8.Greeting>(data['data']);
     }
     if (dataClassName == 'Message') {
-      return deserialize<_i8.Message>(data['data']);
+      return deserialize<_i9.Message>(data['data']);
     }
     if (dataClassName == 'Moment') {
-      return deserialize<_i9.Moment>(data['data']);
+      return deserialize<_i10.Moment>(data['data']);
     }
     if (dataClassName == 'Report') {
-      return deserialize<_i10.Report>(data['data']);
+      return deserialize<_i11.Report>(data['data']);
     }
     if (dataClassName == 'Resident') {
-      return deserialize<_i11.Resident>(data['data']);
+      return deserialize<_i12.Resident>(data['data']);
+    }
+    if (dataClassName.startsWith('serverpod_auth.')) {
+      data['className'] = dataClassName.substring(15);
+      return _i13.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i12.Protocol().deserializeByClassName(data);
+      return _i14.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i13.Protocol().deserializeByClassName(data);
+      return _i15.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -256,10 +283,13 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i12.Protocol().mapRecordToJson(record);
+      return _i13.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i13.Protocol().mapRecordToJson(record);
+      return _i14.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i15.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

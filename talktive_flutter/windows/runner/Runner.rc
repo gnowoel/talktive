@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "talktive_flutter" "\0"
+            VALUE "CompanyName", "app" "\0"
+            VALUE "FileDescription", "talktive" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "talktive_flutter" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "talktive_flutter.exe" "\0"
-            VALUE "ProductName", "talktive_flutter" "\0"
+            VALUE "InternalName", "talktive" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 app. All rights reserved." "\0"
+            VALUE "OriginalFilename", "talktive.exe" "\0"
+            VALUE "ProductName", "talktive" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

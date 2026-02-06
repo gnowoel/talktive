@@ -1,5 +1,0 @@
-package com.example.talktive_flutter
-
-import io.flutter.embedding.android.FlutterActivity
-
-class MainActivity : FlutterActivity()

@@ -1,0 +1,3 @@
+class: ChannelSubscription
+fields:
+  channelId: int

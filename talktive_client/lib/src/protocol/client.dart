@@ -16,8 +16,10 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i5;
-import 'protocol.dart' as _i6;
+import 'package:talktive_client/src/protocol/message.dart' as _i5;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i6;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i7;
+import 'protocol.dart' as _i8;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -233,6 +235,29 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
   );
 }
 
+/// {@category Endpoint}
+class EndpointMessage extends _i2.EndpointRef {
+  EndpointMessage(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'message';
+
+  /// Sends a message to a channel (Plaza, Group, or Private).
+  _i3.Future<_i5.Message> sendMessage(
+    int channelId,
+    String content, {
+    String? imageUrl,
+  }) => caller.callServerEndpoint<_i5.Message>(
+    'message',
+    'sendMessage',
+    {
+      'channelId': channelId,
+      'content': content,
+      'imageUrl': imageUrl,
+    },
+  );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -243,8 +268,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i5.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i5.Greeting>(
+  _i3.Future<_i6.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i6.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -253,9 +278,12 @@ class EndpointGreeting extends _i2.EndpointRef {
 
 class Modules {
   Modules(Client client) {
+    auth = _i7.Caller(client);
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
+
+  late final _i7.Caller auth;
 
   late final _i1.Caller serverpod_auth_idp;
 
@@ -282,7 +310,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i6.Protocol(),
+         _i8.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -293,6 +321,7 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    message = EndpointMessage(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -300,6 +329,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointMessage message;
 
   late final EndpointGreeting greeting;
 
@@ -309,11 +340,13 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'message': message,
     'greeting': greeting,
   };
 
   @override
   Map<String, _i2.ModuleEndpointCaller> get moduleLookup => {
+    'auth': modules.auth,
     'serverpod_auth_idp': modules.serverpod_auth_idp,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };

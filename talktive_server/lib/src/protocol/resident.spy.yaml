@@ -1,7 +1,7 @@
 class: Resident
 table: resident
 fields:
-  userInfoId: int
+  userInfoId: UuidValue
   floor: int
   creditScore: int
   experienceMessageCount: int

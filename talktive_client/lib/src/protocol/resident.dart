@@ -24,7 +24,7 @@ abstract class Resident implements _i1.SerializableModel {
 
   factory Resident({
     int? id,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
@@ -34,7 +34,9 @@ abstract class Resident implements _i1.SerializableModel {
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
     return Resident(
       id: jsonSerialization['id'] as int?,
-      userInfoId: jsonSerialization['userInfoId'] as int,
+      userInfoId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['userInfoId'],
+      ),
       floor: jsonSerialization['floor'] as int,
       creditScore: jsonSerialization['creditScore'] as int,
       experienceMessageCount:
@@ -52,7 +54,7 @@ abstract class Resident implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  int userInfoId;
+  _i1.UuidValue userInfoId;
 
   int floor;
 
@@ -67,7 +69,7 @@ abstract class Resident implements _i1.SerializableModel {
   @_i1.useResult
   Resident copyWith({
     int? id,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
@@ -78,7 +80,7 @@ abstract class Resident implements _i1.SerializableModel {
     return {
       '__className__': 'Resident',
       if (id != null) 'id': id,
-      'userInfoId': userInfoId,
+      'userInfoId': userInfoId.toJson(),
       'floor': floor,
       'creditScore': creditScore,
       'experienceMessageCount': experienceMessageCount,
@@ -98,7 +100,7 @@ class _Undefined {}
 class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
@@ -118,7 +120,7 @@ class _ResidentImpl extends Resident {
   @override
   Resident copyWith({
     Object? id = _Undefined,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     int? floor,
     int? creditScore,
     int? experienceMessageCount,

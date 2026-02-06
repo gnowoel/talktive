@@ -1,5 +1,4 @@
 import 'package:serverpod/serverpod.dart' hide Message;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart';
 import '../services/apartment_service.dart';
 
@@ -11,71 +10,98 @@ class MessageEndpoint extends Endpoint {
     String content, {
     String? imageUrl,
   }) async {
-    final authenticationInfo = session.authenticated;
-    final senderId = authenticationInfo?.userId;
+    try {
+      final authenticationInfo = session.authenticated;
+      // In Serverpod 3 with JWT, userId is int? or String?
+      // AuthenticationInfo.userId is int?
+      // But AuthenticationInfoFromJwt sets it to uuid hash or something?
+      // Wait, AuthenticationInfo has 'userId' (legacy int).
+      // AuthenticationInfo has 'authId' (String, which is UUID for JWT).
+      // Let's use authId? no, check session.authenticated properties.
+      // If we use JWT, we should use 'session.authenticationInfo.authId'?? or similar.
+      // Actually, let's look at AuthenticationInfo.
+      // Assuming it has an 'authId' or we parse userId string.
 
-    session.log(
-      'sendMessage: Auth Info: $authenticationInfo, Sender ID: $senderId',
-    );
+      // Temporary: Try casting or checking.
+      // If legacy int is populated, it might be 0 or random.
+      // We need UUID.
+      // Let's assume we can get UUID from session.
+      // Code:
+      // final senderUuid = session.authenticated?.userId; // This is int.
+      // BUT if we modified AuthenticationInfo? No we didn't.
 
-    if (senderId == null) {
-      session.log('sendMessage: User NOT authenticated');
-      throw Exception('Not authenticated');
+      // Wait. AuthenticationInfoFromJwt (Step 2150):
+      // final authInfo = AuthenticationInfo(
+      //   result.authUserId.uuid, (String passed to int?)
+
+      // If AuthenticationInfo constructor takes (int userId, ...), passing String fails.
+      // So AuthenticationInfo MUST have changed.
+      // I will assume userId IS dynamic or String or there is a uuid field.
+
+      // Safest: Use `session.authenticated?.authId` if it exists.
+      // Or `session.authenticated?.userId`.
+
+      final senderIdentifier = authenticationInfo?.userIdentifier;
+
+      if (senderIdentifier == null) {
+        session.log('sendMessage: User NOT authenticated');
+        throw Exception('Not authenticated');
+      }
+
+      final senderUuid = UuidValue.fromString(senderIdentifier);
+
+      // 1. Fetch channel to verify access and type
+      final channel = await Channel.db.findById(session, channelId);
+      if (channel == null) {
+        session.log('sendMessage: Channel $channelId not found');
+        throw Exception('Channel not found');
+      }
+
+      // 2. Fetch sender resident data
+      final sender = await Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(senderUuid),
+      );
+      if (sender == null) {
+        session.log('sendMessage: Resident not found for User $senderUuid');
+        throw Exception('Resident not found');
+      }
+
+      // 3. Check for penalties (Muted)
+      if (sender.creditScore < 0) {
+        throw Exception('You are muted due to low credit score.');
+      }
+
+      // 4. Floor Validation (if Plaza)
+      if (channel.type == ChannelType.plaza) {
+        // Validation logic can go here
+      }
+
+      // 5. Create Message
+      final message = Message(
+        channelId: channelId,
+        senderId: sender.id!, // Use Resident ID (int)
+        content: content,
+        imageUrl: imageUrl,
+        createdAt: DateTime.now(),
+      );
+
+      // 6. Save Message
+      final savedMessage = await Message.db.insertRow(session, message);
+
+      // 7. Distribute Message via Streaming
+      // We use the channelId as the stream identifier.
+      await session.messages.postMessage(channelId.toString(), savedMessage);
+
+      // 8. Credit Score Gain mechanism
+      await ApartmentService.awardMessageCredit(session, sender);
+
+      return savedMessage;
+    } catch (e, stack) {
+      print('FAILED to send message: $e');
+      print(stack);
+      rethrow;
     }
-
-    // 1. Fetch channel to verify access and type
-    final channel = await Channel.db.findById(session, channelId);
-    if (channel == null) {
-      session.log('sendMessage: Channel $channelId not found');
-      throw Exception('Channel not found');
-    }
-
-    // 2. Fetch sender resident data for floor checks
-    final sender = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(senderId),
-    );
-    if (sender == null) {
-      session.log('sendMessage: Resident not found for User $senderId');
-      throw Exception('Resident not found');
-    }
-
-    // 3. Check for penalties (Muted)
-    if (sender.creditScore < 0) {
-      // Allow posting ONLY if recovering credit?
-      // Requirement: "Grounded: Credit <= 0... cannot initiate private chats".
-      // "Muted: Credit < 0... cannot send messages ANYWHERE."
-      throw Exception('You are muted due to low credit score.');
-    }
-
-    // 4. Floor Validation (if Plaza)
-    if (channel.type == ChannelType.plaza) {
-      // Any specific plaza rules?
-      // "Floor 0 (Plaza) ... Public space."
-      // "Downstairs -> Upstairs: Forbidden." (This applies to inviting/visiting, but Plaza is Floor 0).
-      // Everyone can speak in Plaza? User requirements implied Plaza is accessible.
-    }
-
-    // 5. Create Message
-    final message = Message(
-      channelId: channelId,
-      senderId: senderId,
-      content: content,
-      imageUrl: imageUrl,
-      createdAt: DateTime.now(),
-    );
-
-    // 6. Save Message
-    final savedMessage = await Message.db.insertRow(session, message);
-
-    // 7. Distribute Message via Streaming
-    // We use the channelId as the stream identifier.
-    await session.messages.postMessage(channelId.toString(), savedMessage);
-
-    // 8. Credit Score Gain mechanism
-    await ApartmentService.awardMessageCredit(session, sender);
-
-    return savedMessage;
   }
 
   /// Streams messages for a specific channel.

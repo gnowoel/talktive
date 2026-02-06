@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 
 class ResidentEndpoint extends Endpoint {
@@ -13,73 +13,64 @@ class ResidentEndpoint extends Endpoint {
     required String country,
     required String bio,
   }) async {
-    // Simplified ID generation
-    final randomId = DateTime.now().microsecondsSinceEpoch.toString();
-    final email = 'user_$randomId@anonymous.talktive.com';
-
-    final userInfo = await Users.createUser(
+    // 1. Create Auth User (New UUID-based Auth System)
+    // We use generic 'admin' scope for now similar to legacy, or empty.
+    final authUser = await AuthServices.instance.authUsers.create(
       session,
-      UserInfo(
-        userIdentifier: email,
-        email: email,
+      scopes: {Scope.admin},
+    );
+
+    // 2. Create User Profile
+    // We create a profile so the user has a name/email in the system.
+    await AuthServices.instance.userProfiles.createUserProfile(
+      session,
+      authUser.id,
+      UserProfileData(
         userName: name,
-        created: DateTime.now(),
-        scopeNames: [],
-        blocked: false,
+        fullName: name,
+        email: 'anon-${authUser.id}@anonymous.talktive.com',
       ),
     );
 
-    if (userInfo == null) {
-      throw Exception('Failed to create user');
-    }
-
-    // 2. Create Resident (Our Logic)
+    // 3. Create Resident
     final resident = Resident(
-      userInfoId: userInfo.id!,
-      floor: 1, // Default to Floor 1
-      creditScore: 100, // Default Credit
+      userInfoId: authUser.id, // Now using UuidValue
+      floor: 1,
+      creditScore: 100,
       experienceMessageCount: 0,
     );
-    // Check for orphan resident (zombie data from previous DB wipes)
+
+    // Check for orphan resident (unlikely with new UUIDs but safety check)
     final existing = await Resident.db.findFirstRow(
       session,
-      where: (t) => t.userInfoId.equals(userInfo.id!),
+      where: (t) => t.userInfoId.equals(authUser.id),
     );
     if (existing != null) {
-      print('Found orphan resident for user ${userInfo.id!}. Deleting...');
       await Resident.db.deleteRow(session, existing);
     }
 
     try {
-      print('Attempting to insert resident for user: ${userInfo.id}');
       await Resident.db.insertRow(session, resident);
-      print('Resident inserted successfully');
     } catch (e, stack) {
       print('FAILED to insert resident: $e');
       print(stack);
       rethrow;
     }
 
-    // 3. Create Session / Auth Key
-    final authKey = await UserAuthentication.signInUser(
+    // 4. Issue Token (JWT)
+    final authSuccess = await AuthServices.instance.tokenManager.issueToken(
       session,
-      userInfo.id!,
-      'default', // method
+      authUserId: authUser.id,
+      method: 'default',
       scopes: {Scope.admin},
     );
 
-    if (authKey == null) {
-      throw Exception('Failed to generate auth token');
-    }
-
-    // Serialize to JSON using local userInfo variable as authKey might not contain it
+    // 5. Return JSON (Adapted for Client)
     final map = {
-      'key': authKey.key,
-      'keyId': authKey.id,
-      'userInfoId': userInfo.id,
-      'userInfoName': userInfo.userName,
-      'userInfoEmail': userInfo.email,
-      'created': userInfo.created.toIso8601String(),
+      'key': authSuccess.token, // JWT Token
+      'keyId': 0, // JWT ID (optional or not used in JWT auth)
+      'userInfoId': authUser.id.toString(),
+      'userInfoName': name,
     };
 
     return jsonEncode(map);

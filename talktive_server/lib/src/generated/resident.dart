@@ -25,7 +25,7 @@ abstract class Resident
 
   factory Resident({
     int? id,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
@@ -35,7 +35,9 @@ abstract class Resident
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
     return Resident(
       id: jsonSerialization['id'] as int?,
-      userInfoId: jsonSerialization['userInfoId'] as int,
+      userInfoId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['userInfoId'],
+      ),
       floor: jsonSerialization['floor'] as int,
       creditScore: jsonSerialization['creditScore'] as int,
       experienceMessageCount:
@@ -55,7 +57,7 @@ abstract class Resident
   @override
   int? id;
 
-  int userInfoId;
+  _i1.UuidValue userInfoId;
 
   int floor;
 
@@ -73,7 +75,7 @@ abstract class Resident
   @_i1.useResult
   Resident copyWith({
     int? id,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
@@ -84,7 +86,7 @@ abstract class Resident
     return {
       '__className__': 'Resident',
       if (id != null) 'id': id,
-      'userInfoId': userInfoId,
+      'userInfoId': userInfoId.toJson(),
       'floor': floor,
       'creditScore': creditScore,
       'experienceMessageCount': experienceMessageCount,
@@ -98,7 +100,7 @@ abstract class Resident
     return {
       '__className__': 'Resident',
       if (id != null) 'id': id,
-      'userInfoId': userInfoId,
+      'userInfoId': userInfoId.toJson(),
       'floor': floor,
       'creditScore': creditScore,
       'experienceMessageCount': experienceMessageCount,
@@ -142,7 +144,7 @@ class _Undefined {}
 class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
@@ -162,7 +164,7 @@ class _ResidentImpl extends Resident {
   @override
   Resident copyWith({
     Object? id = _Undefined,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
@@ -185,7 +187,9 @@ class _ResidentImpl extends Resident {
 class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
   ResidentUpdateTable(super.table);
 
-  _i1.ColumnValue<int, int> userInfoId(int value) => _i1.ColumnValue(
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> userInfoId(
+    _i1.UuidValue value,
+  ) => _i1.ColumnValue(
     table.userInfoId,
     value,
   );
@@ -216,7 +220,7 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
 class ResidentTable extends _i1.Table<int?> {
   ResidentTable({super.tableRelation}) : super(tableName: 'resident') {
     updateTable = ResidentUpdateTable(this);
-    userInfoId = _i1.ColumnInt(
+    userInfoId = _i1.ColumnUuid(
       'userInfoId',
       this,
     );
@@ -240,7 +244,7 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final ResidentUpdateTable updateTable;
 
-  late final _i1.ColumnInt userInfoId;
+  late final _i1.ColumnUuid userInfoId;
 
   late final _i1.ColumnInt floor;
 

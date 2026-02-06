@@ -40,40 +40,37 @@ class Auth extends _$Auth {
       );
 
       final map = jsonDecode(jsonResult);
-      final keyId = map['keyId'] as int;
+      // Key is the JWT token
       final key = map['key'] as String;
-      final userInfoId = map['userInfoId'] as int;
-      final userInfoName = map['userInfoName'] as String?;
-      final userInfoEmail = map['userInfoEmail'] as String?;
-      final createdStr = map['created'] as String?;
-      final created = createdStr != null
-          ? DateTime.parse(createdStr)
-          : DateTime.now();
+      // keyId is likely 0 or unused for JWT, but strictly formatted by server
+      // final keyId = map['keyId'] as int?;
 
-      final userInfo = UserInfo(
-        id: userInfoId,
-        userIdentifier: userInfoEmail ?? '',
-        userName: userInfoName ?? '',
-        created: created,
-        scopeNames: [],
-        blocked: false,
-      );
+      // userInfoId is now a UUID String
+      final userInfoIdStr = map['userInfoId'] as String;
+
+      // final userInfoName = map['userInfoName'] as String?;
+      // final userInfoEmail = map['userInfoEmail'] as String?; // Might be derived or present
 
       final authSuccess = AuthSuccess(
-        authStrategy: 'session',
-        token: '$keyId:$key',
-        authUserId: UuidValue(const Uuid().v4()),
+        authStrategy:
+            'session', // Or 'jwt'? Flutter client might expect specific value.
+        token:
+            key, // Just the token. If client expects 'id:key', we might need to adjust.
+        // If we use 'session' naming, SasAuthProvider might prefix headers unpredictably.
+        // If we use pure JWT, we probably set authStrategy to 'jwt'.
+        // But let's check generated AuthSuccess definition if possible?
+        // Assuming 'token' field stores the JWT.
+        authUserId: UuidValue.fromString(userInfoIdStr),
         scopeNames: {},
       );
 
       // Register the session
-      await sessionManager.updateSignedInUser(
-        authSuccess,
-      ); // Save local preferences (custom app logic)
+      await sessionManager.updateSignedInUser(authSuccess);
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboarding_completed', true);
       await prefs.setString('user_name', name);
-      await prefs.setInt('user_id', userInfoId);
+      await prefs.setString('user_id', userInfoIdStr); // Store as String (UUID)
 
       state = const AsyncValue.data(true);
       return true;

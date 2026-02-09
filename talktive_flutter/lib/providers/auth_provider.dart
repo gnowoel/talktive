@@ -11,12 +11,66 @@ part 'auth_provider.g.dart';
 
 enum AuthStatus { authenticated, needsProfile, cancelled, error }
 
+sealed class TalktiveAuthState {
+  const TalktiveAuthState();
+}
+
+class AuthInitial extends TalktiveAuthState {
+  const AuthInitial();
+}
+
+class Authenticated extends TalktiveAuthState {
+  final String userId;
+  final String userName;
+  const Authenticated({required this.userId, required this.userName});
+}
+
+class NeedsProfile extends TalktiveAuthState {
+  const NeedsProfile();
+}
+
+class Unauthenticated extends TalktiveAuthState {
+  const Unauthenticated();
+}
+
+class AuthFailure extends TalktiveAuthState {
+  final String message;
+  const AuthFailure(this.message);
+}
+
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   @override
-  FutureOr<bool> build() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('onboarding_completed') ?? false;
+  FutureOr<TalktiveAuthState> build() async {
+    // We assume sessionManager.initialize() was called in main
+    if (!sessionManager.isSignedIn) {
+      return const Unauthenticated();
+    }
+
+    return _refreshAuthState();
+  }
+
+  Future<TalktiveAuthState> _refreshAuthState() async {
+    try {
+      final resident = await client.resident.getResident();
+
+      if (resident != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final userName = sessionManager.signedInUser?.userName ?? 'Anonymous';
+        await prefs.setBool('onboarding_completed', true);
+        await prefs.setString('user_name', userName);
+        await prefs.setString('user_id', resident.userInfoId.toString());
+
+        return Authenticated(
+          userId: resident.userInfoId.toString(),
+          userName: userName,
+        );
+      } else {
+        return const NeedsProfile();
+      }
+    } catch (e) {
+      return AuthFailure(e.toString());
+    }
   }
 
   /// Initiates Google Sign-In flow via Firebase
@@ -29,7 +83,7 @@ class Auth extends _$Auth {
 
       if (googleUser == null) {
         // User cancelled
-        state = const AsyncValue.data(false);
+        state = const AsyncValue.data(Unauthenticated());
         return AuthStatus.cancelled;
       }
 
@@ -53,10 +107,14 @@ class Auth extends _$Auth {
       // 4. Get Firebase ID Token
       final idToken = await user.getIdToken();
 
+      if (idToken == null) {
+        throw Exception("Firebase ID Token is null");
+      }
+
       // 5. Authenticate with Serverpod
       // This verifies the Firebase token on the server and creates a Serverpod session
       final serverpodAuth = await client.modules.auth.firebase.authenticate(
-        idToken!,
+        idToken,
       );
 
       if (!serverpodAuth.success) {
@@ -65,25 +123,20 @@ class Auth extends _$Auth {
         );
       }
 
-      // 6. Check if Resident Profile exists
-      final resident = await client.resident.getResident();
+      // 6. Refresh Auth State
+      final newState = await _refreshAuthState();
+      state = AsyncValue.data(newState);
 
-      if (resident != null) {
-        // Profile exists, we are good to go!
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('onboarding_completed', true);
-        await prefs.setString('user_name', resident.avatar ?? 'Anonymous');
-        await prefs.setString('user_id', resident.userInfoId.toString());
-
-        state = const AsyncValue.data(true);
+      if (newState is Authenticated) {
         return AuthStatus.authenticated;
-      } else {
-        // Authenticated but no profile -> Go to Setup
+      } else if (newState is NeedsProfile) {
         return AuthStatus.needsProfile;
+      } else {
+        return AuthStatus.error;
       }
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('Google Sign-In error: $e');
-      state = AsyncValue.error(e, st);
+      state = AsyncValue.data(AuthFailure(e.toString()));
       return AuthStatus.error;
     }
   }
@@ -117,11 +170,13 @@ class Auth extends _$Auth {
       await prefs.setString('user_name', name);
       await prefs.setString('user_id', resident.userInfoId.toString());
 
-      state = const AsyncValue.data(true);
+      state = AsyncValue.data(
+        Authenticated(userId: resident.userInfoId.toString(), userName: name),
+      );
       return true;
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('Setup error: $e');
-      state = AsyncValue.error(e, st);
+      state = AsyncValue.data(AuthFailure(e.toString()));
       return false;
     }
   }
@@ -129,7 +184,7 @@ class Auth extends _$Auth {
   Future<void> signOut() async {
     state = const AsyncValue.loading();
     try {
-      // await sessionManager.signOut();
+      await sessionManager.signOutDevice();
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn().signOut();
     } catch (e) {
@@ -137,6 +192,6 @@ class Auth extends _$Auth {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    state = const AsyncValue.data(false);
+    state = const AsyncValue.data(const Unauthenticated());
   }
 }

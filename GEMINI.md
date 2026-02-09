@@ -4,7 +4,8 @@ This project is a migration of the "Talktive" anonymous chat app from Firebase t
 ## Status
 - **Backend**: Serverpod 3.2.3 (Postgres + Redis)
 - **Frontend**: Flutter (Dual-boot Firebase/Serverpod)
-- **Authentication**: Modern Serverpod Auth (UUID/JWT)
+- **Authentication**: **Firebase Auth** (Google) -> Serverpod Session (JWT).
+  - Replaced native Serverpod Google Sign-In with Firebase to leverage existing infrastructure.
   - `AuthServices` (serverpod_auth_core_server) used for user creation.
   - `JwtTokenManager` issues tokens.
   - `Resident` table links to `AuthUser` via `userInfoId` (UUID).

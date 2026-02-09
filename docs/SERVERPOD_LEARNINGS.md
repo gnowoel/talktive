@@ -26,3 +26,13 @@ Always use `UuidValue` for foreign keys linking to `UserInfo` or `AuthUser`.
 ## 4. Environment & Ports
 - **Stuck Ports**: If the server fails to start with "Address already in use", use `lsof -t -i:8080 | xargs kill -9` to clear the ports.
 - **Docker**: Postgres and Redis are critical. Ensure `docker compose up` is running before starting the server.
+
+## 5. Firebase Auth & Client Initialization
+- **SessionManager**: When using `serverpod_auth_firebase_flutter`, the `SessionManager` is not automatically initialized in the same way as standard Serverpod auth.
+- **Initialization Order**:
+  1. Initialize `Client` with `FlutterAuthenticationKeyManager()`.
+  2. Instantiate `SessionManager` using `SessionManager(caller: client.modules.auth)`.
+  3. Await `sessionManager.initialize()`.
+  4. Only *then* call `initializeClient(client)`.
+- **Runtime Errors**: Failing to follow this order leads to `AssertionError` or `SessionManager.instance` being null/uninitialized.
+- **Sign Out**: `sessionManager.signOut()` might not be available or behave as expected if not strictly using the `serverpod_auth_email` flow. We rely on `FirebaseAuth.instance.signOut()` and `GoogleSignIn().signOut()` for the actual provider logic.

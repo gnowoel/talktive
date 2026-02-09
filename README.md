@@ -9,8 +9,8 @@ Talktive is an anonymous group chat application designed for ephemeral, private,
 We are currently migrating the application's backend from **Firebase** to **Serverpod** (Dart backend with Postgres & Redis).
 
 The application currently supports a dual-boot mode via a `VersionSelector` screen on startup:
-*   **Firebase (Old):** The fully functional legacy version.
-*   **Serverpod (New):** The work-in-progress version using the new backend.
+*   **Firebase (Old):** The fully functional legacy version (Firestore/RTDB).
+*   **Serverpod (New):** The new backend using Serverpod + Postgres. **Crucially, it uses Firebase Authentication** to handle Google Sign-In, bridging the two worlds.
 
 ## 📂 Project Structure
 
@@ -46,8 +46,9 @@ To run the application locally with full functionality, you need to start both t
     ```
     *The server listens on port `8080`.*
 
-### 2. Start Firebase Emulators (Legacy)
+### 2. Start Firebase Emulators (Legacy + Auth)
 
+Even for the new Serverpod version, we use **Firebase Authentication**.
 1.  Navigate to the app directory:
     ```bash
     cd talktive_flutter

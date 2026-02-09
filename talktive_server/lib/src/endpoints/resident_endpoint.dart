@@ -7,6 +7,7 @@ class ResidentEndpoint extends Endpoint {
   /// Checks if the authenticated user has a Resident profile.
   Future<Resident?> getResident(Session session) async {
     final authenticationInfo = session.authenticated;
+
     final senderIdentifier = authenticationInfo?.userIdentifier;
 
     if (senderIdentifier == null) {
@@ -88,7 +89,7 @@ class ResidentEndpoint extends Endpoint {
         UserProfileData(
           userName: name,
           fullName: name,
-          email: 'anon-${senderUuid}@anonymous.talktive.com',
+          email: 'anon-$senderUuid@anonymous.talktive.com',
         ),
       );
     }

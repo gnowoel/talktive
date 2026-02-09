@@ -56,7 +56,7 @@ class Auth extends _$Auth {
       // 5. Authenticate with Serverpod
       // This verifies the Firebase token on the server and creates a Serverpod session
       final serverpodAuth = await client.modules.auth.firebase.authenticate(
-        idToken,
+        idToken!,
       );
 
       if (!serverpodAuth.success) {
@@ -129,7 +129,7 @@ class Auth extends _$Auth {
   Future<void> signOut() async {
     state = const AsyncValue.loading();
     try {
-      await client.modules.auth.signOut();
+      // await sessionManager.signOut();
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn().signOut();
     } catch (e) {

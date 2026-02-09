@@ -211,7 +211,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       // Create anonymous account with profile
       final success = await ref
           .read(authProvider.notifier)
-          .signInAnonymously(
+          .completeSetup(
             name: _nameController.text.trim(),
             avatar: _selectedAvatar,
             gender: _selectedGender,

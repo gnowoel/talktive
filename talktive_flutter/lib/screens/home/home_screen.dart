@@ -7,6 +7,8 @@ import '../chats/chats_screen.dart';
 import '../groups/groups_screen.dart';
 import '../profile/profile_screen.dart';
 
+import '../../config/theme.dart';
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -35,13 +37,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       extendBody: true, // Allow body to extend behind nav bar
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF2E3192), // Deep Blue
-              Color(0xFF1BFFFF), // Cyan
+              AppTheme.primaryColor.withOpacity(0.1),
+              AppTheme.secondaryColor.withOpacity(0.1),
             ],
           ),
         ),

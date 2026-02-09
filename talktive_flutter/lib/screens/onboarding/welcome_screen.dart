@@ -5,14 +5,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../config/theme.dart';
 
-class WelcomeScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth_provider.dart';
+
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen>
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -120,9 +123,44 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('welcome_seen', true);
 
-    // Navigate to profile setup
-    if (mounted) {
-      context.go('/profile-setup');
+    if (!mounted) return;
+
+    // Trigger Google Sign-In
+    try {
+      final status = await ref.read(authProvider.notifier).loginWithGoogle();
+
+      if (!mounted) return;
+
+      switch (status) {
+        case AuthStatus.authenticated:
+          context.go('/');
+          break;
+        case AuthStatus.needsProfile:
+          context.go('/profile-setup');
+          break;
+        case AuthStatus.cancelled:
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Sign in cancelled')));
+          break;
+        case AuthStatus.error:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sign in failed. Please try again.'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+          break;
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
     }
   }
 

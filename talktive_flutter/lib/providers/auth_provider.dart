@@ -123,6 +123,29 @@ class Auth extends _$Auth {
         );
       }
 
+      debugPrint(
+        'Auth Success: userInfoId=${serverpodAuth.userInfo?.id}, keyId=${serverpodAuth.keyId}',
+      );
+      debugPrint('AUTH KEY: ${serverpodAuth.key}');
+
+      // Important: Register the signed-in user with the session manager
+      // This persists the authentication key and ensures subsequent calls are authenticated.
+      // If it's a JWT, we put it directly into the manager to avoid 'keyId:' prefix.
+      if (serverpodAuth.key != null && serverpodAuth.key!.contains('.')) {
+        debugPrint('Registering as JWT');
+        await client.authenticationKeyManager?.put(serverpodAuth.key!);
+      } else {
+        debugPrint('Registering as regular token');
+        await sessionManager.registerSignedInUser(
+          serverpodAuth.userInfo!,
+          serverpodAuth.keyId!,
+          serverpodAuth.key!,
+        );
+      }
+
+      // Re-initialize session manager to pick up the new key and fetch user info
+      await sessionManager.initialize();
+
       // 6. Refresh Auth State
       final newState = await _refreshAuthState();
       state = AsyncValue.data(newState);

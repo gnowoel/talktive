@@ -78,17 +78,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!mounted) return;
 
     // Check auth status
-    final isAuthenticated = await ref.read(authProvider.future);
-
-    // Check preferences (redundant if Auth provider handles it, but kept for safety logic from original port)
-    // Actually Auth provider .build() already checks shared_preferences.
-    // So if isAuthenticated is true, it means we are good.
+    final authState = await ref.read(authProvider.future);
 
     if (!mounted) return;
 
     // Navigate based on auth status
-    if (isAuthenticated) {
+    if (authState is Authenticated) {
       context.go('/'); // Main/Plaza
+    } else if (authState is NeedsProfile) {
+      context.go('/profile-setup');
     } else {
       context.go('/welcome');
     }

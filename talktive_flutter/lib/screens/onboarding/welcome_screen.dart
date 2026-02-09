@@ -7,6 +7,7 @@ import '../../config/theme.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/auth/google_sign_in_button.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -103,8 +104,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-    } else {
-      _getStarted();
     }
   }
 
@@ -139,9 +138,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
           context.go('/profile-setup');
           break;
         case AuthStatus.cancelled:
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Sign in cancelled')));
+          // Just stay on the screen
           break;
         case AuthStatus.error:
           ScaffoldMessenger.of(context).showSnackBar(
@@ -166,6 +163,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -229,41 +228,45 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
                     // Action Button
                     SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child:
-                          ElevatedButton(
-                                onPressed: _nextPage,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor:
-                                      _pages[_currentPage].backgroundColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(28),
+                          width: double.infinity,
+                          height: 58,
+                          child: _currentPage < _pages.length - 1
+                              ? ElevatedButton(
+                                  onPressed: _nextPage,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor:
+                                        _pages[_currentPage].backgroundColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(29),
+                                    ),
+                                    elevation: 8,
+                                    shadowColor: Colors.black.withOpacity(0.3),
                                   ),
-                                  elevation: 8,
-                                  shadowColor: Colors.black.withOpacity(0.3),
-                                ),
-                                child: Text(
-                                  _currentPage < _pages.length - 1
-                                      ? 'Next'
-                                      : 'Get Started',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
+                                  child: const Text(
+                                    'Next',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
                                   ),
+                                )
+                              : GoogleSignInButton(
+                                  onPressed: _getStarted,
+                                  isLoading: authState.isLoading,
                                 ),
-                              )
-                              .animate()
-                              .fadeIn(delay: 200.ms)
-                              .slideY(
-                                begin: 0.2,
-                                end: 0,
-                                duration: 300.ms,
-                                curve: Curves.easeOut,
-                              ),
-                    ),
+                        )
+                        .animate(
+                          key: ValueKey(_currentPage == _pages.length - 1),
+                        )
+                        .fadeIn(delay: 200.ms)
+                        .slideY(
+                          begin: 0.2,
+                          end: 0,
+                          duration: 300.ms,
+                          curve: Curves.easeOut,
+                        ),
                   ],
                 ),
               ),

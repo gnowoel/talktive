@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../serverpod_client.dart';
 import '../../providers/chat_provider.dart';
 
 class ChatScreen extends ConsumerWidget {
@@ -41,7 +42,12 @@ class ChatScreen extends ConsumerWidget {
                         itemBuilder: (context, index) {
                           final msg = messages[index];
                           // Force visible logic for debug
-                          final isMe = msg.senderId > 0;
+                          // Check if message is from me
+                          final currentUser = sessionManager.signedInUser;
+                          final isMe =
+                              currentUser != null &&
+                              msg.senderId.toString() ==
+                                  currentUser.userIdentifier;
                           return Align(
                             alignment: isMe
                                 ? Alignment.centerRight

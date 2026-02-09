@@ -30,7 +30,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
     required _i3.ChannelMemberStatus status,
@@ -45,7 +45,9 @@ abstract class ChannelMember implements _i1.SerializableModel {
           : _i4.Protocol().deserialize<_i2.Channel>(
               jsonSerialization['channel'],
             ),
-      userInfoId: jsonSerialization['userInfoId'] as int,
+      userInfoId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['userInfoId'],
+      ),
       joinedAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['joinedAt'],
       ),
@@ -65,7 +67,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
 
   _i2.Channel? channel;
 
-  int userInfoId;
+  _i1.UuidValue userInfoId;
 
   DateTime joinedAt;
 
@@ -80,7 +82,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     int? id,
     int? channelId,
     _i2.Channel? channel,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     String? role,
     _i3.ChannelMemberStatus? status,
@@ -92,7 +94,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
       if (id != null) 'id': id,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
-      'userInfoId': userInfoId,
+      'userInfoId': userInfoId.toJson(),
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
       'status': status.toJson(),
@@ -112,7 +114,7 @@ class _ChannelMemberImpl extends ChannelMember {
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
     required _i3.ChannelMemberStatus status,
@@ -134,7 +136,7 @@ class _ChannelMemberImpl extends ChannelMember {
     Object? id = _Undefined,
     int? channelId,
     Object? channel = _Undefined,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     Object? role = _Undefined,
     _i3.ChannelMemberStatus? status,

@@ -3,7 +3,7 @@ table: message
 fields:
 
   channel: Channel?, relation
-  senderId: int
+  senderId: UuidValue
   content: String?
   imageUrl: String?
   createdAt: DateTime

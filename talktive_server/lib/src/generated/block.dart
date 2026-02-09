@@ -22,16 +22,20 @@ abstract class Block implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   factory Block({
     int? id,
-    required int blockerId,
-    required int blockedId,
+    required _i1.UuidValue blockerId,
+    required _i1.UuidValue blockedId,
     required DateTime createdAt,
   }) = _BlockImpl;
 
   factory Block.fromJson(Map<String, dynamic> jsonSerialization) {
     return Block(
       id: jsonSerialization['id'] as int?,
-      blockerId: jsonSerialization['blockerId'] as int,
-      blockedId: jsonSerialization['blockedId'] as int,
+      blockerId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['blockerId'],
+      ),
+      blockedId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['blockedId'],
+      ),
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -45,9 +49,9 @@ abstract class Block implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @override
   int? id;
 
-  int blockerId;
+  _i1.UuidValue blockerId;
 
-  int blockedId;
+  _i1.UuidValue blockedId;
 
   DateTime createdAt;
 
@@ -59,8 +63,8 @@ abstract class Block implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @_i1.useResult
   Block copyWith({
     int? id,
-    int? blockerId,
-    int? blockedId,
+    _i1.UuidValue? blockerId,
+    _i1.UuidValue? blockedId,
     DateTime? createdAt,
   });
   @override
@@ -68,8 +72,8 @@ abstract class Block implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'Block',
       if (id != null) 'id': id,
-      'blockerId': blockerId,
-      'blockedId': blockedId,
+      'blockerId': blockerId.toJson(),
+      'blockedId': blockedId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -79,8 +83,8 @@ abstract class Block implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'Block',
       if (id != null) 'id': id,
-      'blockerId': blockerId,
-      'blockedId': blockedId,
+      'blockerId': blockerId.toJson(),
+      'blockedId': blockedId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -120,8 +124,8 @@ class _Undefined {}
 class _BlockImpl extends Block {
   _BlockImpl({
     int? id,
-    required int blockerId,
-    required int blockedId,
+    required _i1.UuidValue blockerId,
+    required _i1.UuidValue blockedId,
     required DateTime createdAt,
   }) : super._(
          id: id,
@@ -136,8 +140,8 @@ class _BlockImpl extends Block {
   @override
   Block copyWith({
     Object? id = _Undefined,
-    int? blockerId,
-    int? blockedId,
+    _i1.UuidValue? blockerId,
+    _i1.UuidValue? blockedId,
     DateTime? createdAt,
   }) {
     return Block(
@@ -152,12 +156,16 @@ class _BlockImpl extends Block {
 class BlockUpdateTable extends _i1.UpdateTable<BlockTable> {
   BlockUpdateTable(super.table);
 
-  _i1.ColumnValue<int, int> blockerId(int value) => _i1.ColumnValue(
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> blockerId(
+    _i1.UuidValue value,
+  ) => _i1.ColumnValue(
     table.blockerId,
     value,
   );
 
-  _i1.ColumnValue<int, int> blockedId(int value) => _i1.ColumnValue(
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> blockedId(
+    _i1.UuidValue value,
+  ) => _i1.ColumnValue(
     table.blockedId,
     value,
   );
@@ -172,11 +180,11 @@ class BlockUpdateTable extends _i1.UpdateTable<BlockTable> {
 class BlockTable extends _i1.Table<int?> {
   BlockTable({super.tableRelation}) : super(tableName: 'user_block') {
     updateTable = BlockUpdateTable(this);
-    blockerId = _i1.ColumnInt(
+    blockerId = _i1.ColumnUuid(
       'blockerId',
       this,
     );
-    blockedId = _i1.ColumnInt(
+    blockedId = _i1.ColumnUuid(
       'blockedId',
       this,
     );
@@ -188,9 +196,9 @@ class BlockTable extends _i1.Table<int?> {
 
   late final BlockUpdateTable updateTable;
 
-  late final _i1.ColumnInt blockerId;
+  late final _i1.ColumnUuid blockerId;
 
-  late final _i1.ColumnInt blockedId;
+  late final _i1.ColumnUuid blockedId;
 
   late final _i1.ColumnDateTime createdAt;
 

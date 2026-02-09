@@ -31,7 +31,7 @@ abstract class Message
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int senderId,
+    required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
     required DateTime createdAt,
@@ -46,7 +46,9 @@ abstract class Message
           : _i3.Protocol().deserialize<_i2.Channel>(
               jsonSerialization['channel'],
             ),
-      senderId: jsonSerialization['senderId'] as int,
+      senderId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['senderId'],
+      ),
       content: jsonSerialization['content'] as String?,
       imageUrl: jsonSerialization['imageUrl'] as String?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
@@ -66,7 +68,7 @@ abstract class Message
 
   _i2.Channel? channel;
 
-  int senderId;
+  _i1.UuidValue senderId;
 
   String? content;
 
@@ -84,7 +86,7 @@ abstract class Message
     int? id,
     int? channelId,
     _i2.Channel? channel,
-    int? senderId,
+    _i1.UuidValue? senderId,
     String? content,
     String? imageUrl,
     DateTime? createdAt,
@@ -96,7 +98,7 @@ abstract class Message
       if (id != null) 'id': id,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
-      'senderId': senderId,
+      'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
       'createdAt': createdAt.toJson(),
@@ -110,7 +112,7 @@ abstract class Message
       if (id != null) 'id': id,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJsonForProtocol(),
-      'senderId': senderId,
+      'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
       'createdAt': createdAt.toJson(),
@@ -154,7 +156,7 @@ class _MessageImpl extends Message {
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int senderId,
+    required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
     required DateTime createdAt,
@@ -176,7 +178,7 @@ class _MessageImpl extends Message {
     Object? id = _Undefined,
     int? channelId,
     Object? channel = _Undefined,
-    int? senderId,
+    _i1.UuidValue? senderId,
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
     DateTime? createdAt,
@@ -201,10 +203,11 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> senderId(int value) => _i1.ColumnValue(
-    table.senderId,
-    value,
-  );
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> senderId(_i1.UuidValue value) =>
+      _i1.ColumnValue(
+        table.senderId,
+        value,
+      );
 
   _i1.ColumnValue<String, String> content(String? value) => _i1.ColumnValue(
     table.content,
@@ -230,7 +233,7 @@ class MessageTable extends _i1.Table<int?> {
       'channelId',
       this,
     );
-    senderId = _i1.ColumnInt(
+    senderId = _i1.ColumnUuid(
       'senderId',
       this,
     );
@@ -254,7 +257,7 @@ class MessageTable extends _i1.Table<int?> {
 
   _i2.ChannelTable? _channel;
 
-  late final _i1.ColumnInt senderId;
+  late final _i1.ColumnUuid senderId;
 
   late final _i1.ColumnString content;
 

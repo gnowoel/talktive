@@ -32,7 +32,7 @@ abstract class ChannelMember
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
     required _i3.ChannelMemberStatus status,
@@ -47,7 +47,9 @@ abstract class ChannelMember
           : _i4.Protocol().deserialize<_i2.Channel>(
               jsonSerialization['channel'],
             ),
-      userInfoId: jsonSerialization['userInfoId'] as int,
+      userInfoId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['userInfoId'],
+      ),
       joinedAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['joinedAt'],
       ),
@@ -69,7 +71,7 @@ abstract class ChannelMember
 
   _i2.Channel? channel;
 
-  int userInfoId;
+  _i1.UuidValue userInfoId;
 
   DateTime joinedAt;
 
@@ -87,7 +89,7 @@ abstract class ChannelMember
     int? id,
     int? channelId,
     _i2.Channel? channel,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     String? role,
     _i3.ChannelMemberStatus? status,
@@ -99,7 +101,7 @@ abstract class ChannelMember
       if (id != null) 'id': id,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
-      'userInfoId': userInfoId,
+      'userInfoId': userInfoId.toJson(),
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
       'status': status.toJson(),
@@ -113,7 +115,7 @@ abstract class ChannelMember
       if (id != null) 'id': id,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJsonForProtocol(),
-      'userInfoId': userInfoId,
+      'userInfoId': userInfoId.toJson(),
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
       'status': status.toJson(),
@@ -157,7 +159,7 @@ class _ChannelMemberImpl extends ChannelMember {
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int userInfoId,
+    required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
     required _i3.ChannelMemberStatus status,
@@ -179,7 +181,7 @@ class _ChannelMemberImpl extends ChannelMember {
     Object? id = _Undefined,
     int? channelId,
     Object? channel = _Undefined,
-    int? userInfoId,
+    _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     Object? role = _Undefined,
     _i3.ChannelMemberStatus? status,
@@ -204,7 +206,9 @@ class ChannelMemberUpdateTable extends _i1.UpdateTable<ChannelMemberTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> userInfoId(int value) => _i1.ColumnValue(
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> userInfoId(
+    _i1.UuidValue value,
+  ) => _i1.ColumnValue(
     table.userInfoId,
     value,
   );
@@ -236,7 +240,7 @@ class ChannelMemberTable extends _i1.Table<int?> {
       'channelId',
       this,
     );
-    userInfoId = _i1.ColumnInt(
+    userInfoId = _i1.ColumnUuid(
       'userInfoId',
       this,
     );
@@ -261,7 +265,7 @@ class ChannelMemberTable extends _i1.Table<int?> {
 
   _i2.ChannelTable? _channel;
 
-  late final _i1.ColumnInt userInfoId;
+  late final _i1.ColumnUuid userInfoId;
 
   late final _i1.ColumnDateTime joinedAt;
 

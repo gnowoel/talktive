@@ -6,8 +6,7 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart'
     hide Protocol, Endpoints, GoogleClientSecret;
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
-import 'package:serverpod_auth_idp_server/providers/google.dart';
-import 'package:serverpod_auth_idp_server/providers/apple.dart';
+import 'package:serverpod_auth_idp_server/providers/firebase.dart';
 import 'src/services/auth_hooks.dart';
 
 import 'src/generated/endpoints.dart';
@@ -47,32 +46,13 @@ void run(List<String> args) async {
         sendRegistrationVerificationCode: _sendRegistrationCode,
         sendPasswordResetVerificationCode: _sendPasswordResetCode,
       ),
-      // Google Sign In
-      // Google Sign In
-      GoogleIdpConfig(
-        clientSecret: GoogleClientSecret.fromJson(
+      // Firebase Auth (Replaces Google/Apple Native Native)
+      FirebaseIdpConfig(
+        credentials: FirebaseServiceAccountCredentials.fromJson(
           jsonDecode(
-            File('config/google_client_secret.json').readAsStringSync(),
+            File('config/firebase_service_account_key.json').readAsStringSync(),
           ),
         ),
-      ),
-      // Apple Sign In
-      AppleIdpConfig(
-        serviceIdentifier: 'TODO_APPLE_SERVICE_ID',
-        bundleIdentifier: 'com.talktive.app', // Replace with valid bundle ID
-        redirectUri:
-            'https://example.com/signin-apple', // Replace with valid URI
-        keyId: 'TODO_APPLE_KEY_ID',
-        teamId:
-            'TODO_APPLE_TEAM_ID', // Reused for key? AppleIdp usually takes teamId separately if needed, check params
-        // AppleIdpConfig in 3.2.3 usually takes:
-        // bundleIdentifier, serviceIdentifier, redirectUri, keyId, teamId, privateKeyPath, specific args?
-        // Let's rely on error message: "key is required", "redirectUri required", "serviceIdentifier required", "bundleIdentifier required".
-        // privateKeyPath is likely 'key' param name? Or content?
-        // Let's guess 'key' is the private key string or path?
-        // Error said "key is required".
-        // I will use `key` instead of `privateKeyPath`.
-        key: 'TODO_APPLE_PRIVATE_KEY_CONTENT_OR_PATH',
       ),
     ],
   );

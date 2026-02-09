@@ -3,7 +3,7 @@ table: channel_member
 fields:
 
   channel: Channel?, relation
-  userInfoId: int
+  userInfoId: UuidValue
   joinedAt: DateTime
   role: String?
   status: ChannelMemberStatus

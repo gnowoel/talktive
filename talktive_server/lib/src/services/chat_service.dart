@@ -7,8 +7,8 @@ class ChatService {
   /// Checks floor rules and block status.
   static Future<Channel?> createPrivateChat(
     Session session, {
-    required int senderId,
-    required int receiverId,
+    required UuidValue senderId,
+    required UuidValue receiverId,
   }) async {
     // 1. Fetch Residents details
     final sender = await Resident.db.findFirstRow(
@@ -86,8 +86,8 @@ class ChatService {
 
   static Future<void> blockUser(
     Session session,
-    int blockerId,
-    int blockedId,
+    UuidValue blockerId,
+    UuidValue blockedId,
   ) async {
     await Block.db.insertRow(
       session,

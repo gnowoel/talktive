@@ -80,7 +80,7 @@ class MessageEndpoint extends Endpoint {
       // 5. Create Message
       final message = Message(
         channelId: channelId,
-        senderId: sender.id!, // Use Resident ID (int)
+        senderId: sender.userInfoId, // Use Resident UserInfoId (UUID)
         content: content,
         imageUrl: imageUrl,
         createdAt: DateTime.now(),

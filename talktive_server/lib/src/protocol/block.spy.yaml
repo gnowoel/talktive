@@ -1,8 +1,8 @@
 class: Block
 table: user_block
 fields:
-  blockerId: int
-  blockedId: int
+  blockerId: UuidValue
+  blockedId: UuidValue
   createdAt: DateTime
 indexes:
   block_idx:

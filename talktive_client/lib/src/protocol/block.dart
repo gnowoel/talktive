@@ -22,16 +22,20 @@ abstract class Block implements _i1.SerializableModel {
 
   factory Block({
     int? id,
-    required int blockerId,
-    required int blockedId,
+    required _i1.UuidValue blockerId,
+    required _i1.UuidValue blockedId,
     required DateTime createdAt,
   }) = _BlockImpl;
 
   factory Block.fromJson(Map<String, dynamic> jsonSerialization) {
     return Block(
       id: jsonSerialization['id'] as int?,
-      blockerId: jsonSerialization['blockerId'] as int,
-      blockedId: jsonSerialization['blockedId'] as int,
+      blockerId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['blockerId'],
+      ),
+      blockedId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['blockedId'],
+      ),
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -43,9 +47,9 @@ abstract class Block implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  int blockerId;
+  _i1.UuidValue blockerId;
 
-  int blockedId;
+  _i1.UuidValue blockedId;
 
   DateTime createdAt;
 
@@ -54,8 +58,8 @@ abstract class Block implements _i1.SerializableModel {
   @_i1.useResult
   Block copyWith({
     int? id,
-    int? blockerId,
-    int? blockedId,
+    _i1.UuidValue? blockerId,
+    _i1.UuidValue? blockedId,
     DateTime? createdAt,
   });
   @override
@@ -63,8 +67,8 @@ abstract class Block implements _i1.SerializableModel {
     return {
       '__className__': 'Block',
       if (id != null) 'id': id,
-      'blockerId': blockerId,
-      'blockedId': blockedId,
+      'blockerId': blockerId.toJson(),
+      'blockedId': blockedId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -80,8 +84,8 @@ class _Undefined {}
 class _BlockImpl extends Block {
   _BlockImpl({
     int? id,
-    required int blockerId,
-    required int blockedId,
+    required _i1.UuidValue blockerId,
+    required _i1.UuidValue blockedId,
     required DateTime createdAt,
   }) : super._(
          id: id,
@@ -96,8 +100,8 @@ class _BlockImpl extends Block {
   @override
   Block copyWith({
     Object? id = _Undefined,
-    int? blockerId,
-    int? blockedId,
+    _i1.UuidValue? blockerId,
+    _i1.UuidValue? blockedId,
     DateTime? createdAt,
   }) {
     return Block(

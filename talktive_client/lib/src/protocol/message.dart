@@ -29,7 +29,7 @@ abstract class Message implements _i1.SerializableModel {
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int senderId,
+    required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
     required DateTime createdAt,
@@ -44,7 +44,9 @@ abstract class Message implements _i1.SerializableModel {
           : _i3.Protocol().deserialize<_i2.Channel>(
               jsonSerialization['channel'],
             ),
-      senderId: jsonSerialization['senderId'] as int,
+      senderId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['senderId'],
+      ),
       content: jsonSerialization['content'] as String?,
       imageUrl: jsonSerialization['imageUrl'] as String?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
@@ -62,7 +64,7 @@ abstract class Message implements _i1.SerializableModel {
 
   _i2.Channel? channel;
 
-  int senderId;
+  _i1.UuidValue senderId;
 
   String? content;
 
@@ -77,7 +79,7 @@ abstract class Message implements _i1.SerializableModel {
     int? id,
     int? channelId,
     _i2.Channel? channel,
-    int? senderId,
+    _i1.UuidValue? senderId,
     String? content,
     String? imageUrl,
     DateTime? createdAt,
@@ -89,7 +91,7 @@ abstract class Message implements _i1.SerializableModel {
       if (id != null) 'id': id,
       'channelId': channelId,
       if (channel != null) 'channel': channel?.toJson(),
-      'senderId': senderId,
+      'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
       'createdAt': createdAt.toJson(),
@@ -109,7 +111,7 @@ class _MessageImpl extends Message {
     int? id,
     required int channelId,
     _i2.Channel? channel,
-    required int senderId,
+    required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
     required DateTime createdAt,
@@ -131,7 +133,7 @@ class _MessageImpl extends Message {
     Object? id = _Undefined,
     int? channelId,
     Object? channel = _Undefined,
-    int? senderId,
+    _i1.UuidValue? senderId,
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
     DateTime? createdAt,

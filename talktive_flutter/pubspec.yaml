@@ -10,10 +10,10 @@ dependencies:
   talktive_client:
     path: ../talktive_client
   serverpod_flutter: ^3.2.3
-  serverpod_auth_idp_flutter: ^3.2.3
+  # serverpod_auth_idp_flutter: ^3.2.1
   serverpod_auth_google_flutter: ^3.2.3
-  serverpod_auth_apple_flutter: ^3.2.3
-  serverpod_auth_email_flutter: ^3.2.3
+  # serverpod_auth_apple_flutter: ^3.2.3 # Unused
+  # serverpod_auth_email_flutter: ^3.2.3 # Unused
   async: ^2.11.0
   cached_network_image: ^3.4.1
   cloud_firestore: ^6.1.0
@@ -66,7 +66,7 @@ flutter:
 
 dependency_overrides:
   flutter_secure_storage: ^10.0.0
-  google_sign_in: ^7.2.0
+
 
 flutter_launcher_icons:
   image_path: 'assets/images/icon-1024x1024-big.png'

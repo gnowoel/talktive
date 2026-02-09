@@ -4,8 +4,27 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 
 class ResidentEndpoint extends Endpoint {
-  /// Creates a new anonymous resident/user and returns the authentication key as JSON string
-  Future<String> createResident(
+  /// Checks if the authenticated user has a Resident profile.
+  Future<Resident?> getResident(Session session) async {
+    final authenticationInfo = session.authenticated;
+    final senderIdentifier = authenticationInfo?.userIdentifier;
+
+    if (senderIdentifier == null) {
+      return null;
+    }
+
+    final senderUuid = UuidValue.fromString(senderIdentifier);
+
+    return await Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(senderUuid),
+    );
+  }
+
+  /// Initializes a Resident profile for an authenticated user.
+  /// This overwrites any existing UserProfile data (e.g. from Google) with
+  /// the chosen anonymous persona.
+  Future<Resident> initializeResident(
     Session session, {
     required String name,
     required String avatar,
@@ -13,66 +32,82 @@ class ResidentEndpoint extends Endpoint {
     required String country,
     required String bio,
   }) async {
-    // 1. Create Auth User (New UUID-based Auth System)
-    // We use generic 'admin' scope for now similar to legacy, or empty.
-    final authUser = await AuthServices.instance.authUsers.create(
+    final authenticationInfo = session.authenticated;
+    final senderIdentifier = authenticationInfo?.userIdentifier;
+
+    if (senderIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final senderUuid = UuidValue.fromString(senderIdentifier);
+
+    // 1. Check if resident already exists
+    var resident = await Resident.db.findFirstRow(
       session,
-      scopes: {Scope.admin},
+      where: (t) => t.userInfoId.equals(senderUuid),
     );
 
-    // 2. Create User Profile
-    // We create a profile so the user has a name/email in the system.
-    await AuthServices.instance.userProfiles.createUserProfile(
-      session,
-      authUser.id,
-      UserProfileData(
-        userName: name,
-        fullName: name,
-        email: 'anon-${authUser.id}@anonymous.talktive.com',
-      ),
-    );
+    if (resident != null) {
+      return resident; // Already initialized
+    }
+
+    // 2. Fetch/Update User Profile (Force Anonymous Identity)
+    try {
+      final userProfile = await AuthServices.instance.userProfiles
+          .findUserProfileByUserId(
+            session,
+            senderUuid,
+          );
+
+      // Overwrite Google name with Anonymous name
+      if (userProfile.userName != name) {
+        await AuthServices.instance.userProfiles.changeUserName(
+          session,
+          senderUuid,
+          name,
+        );
+      }
+
+      // We also update full name to keep it consistent
+      if (userProfile.fullName != name) {
+        await AuthServices.instance.userProfiles.changeFullName(
+          session,
+          senderUuid,
+          name,
+        );
+      }
+
+      // Note: We don't wipe the email here to allow account recovery/admin lookup if needed,
+      // but we ensure the public facing 'userName' is the anonymous one.
+    } catch (e) {
+      // User profile might not exist (though getting here means we are authenticated)
+      // If so, we create one.
+      await AuthServices.instance.userProfiles.createUserProfile(
+        session,
+        senderUuid,
+        UserProfileData(
+          userName: name,
+          fullName: name,
+          email: 'anon-${senderUuid}@anonymous.talktive.com',
+        ),
+      );
+    }
 
     // 3. Create Resident
-    final resident = Resident(
-      userInfoId: authUser.id, // Now using UuidValue
+    resident = Resident(
+      userInfoId: senderUuid,
       floor: 1,
       creditScore: 100,
       experienceMessageCount: 0,
+      gender: gender,
+      country: country,
+      bio: bio,
+      avatar: avatar, // Store the emoji/avatar string here
+      role: 'resident',
     );
 
-    // Check for orphan resident (unlikely with new UUIDs but safety check)
-    final existing = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(authUser.id),
-    );
-    if (existing != null) {
-      await Resident.db.deleteRow(session, existing);
-    }
+    await Resident.db.insertRow(session, resident);
 
-    try {
-      await Resident.db.insertRow(session, resident);
-    } catch (e, stack) {
-      print('FAILED to insert resident: $e');
-      print(stack);
-      rethrow;
-    }
-
-    // 4. Issue Token (JWT)
-    final authSuccess = await AuthServices.instance.tokenManager.issueToken(
-      session,
-      authUserId: authUser.id,
-      method: 'default',
-      scopes: {Scope.admin},
-    );
-
-    // 5. Return JSON (Adapted for Client)
-    final map = {
-      'key': authSuccess.token, // JWT Token
-      'keyId': 0, // JWT ID (optional or not used in JWT auth)
-      'userInfoId': authUser.id.toString(),
-      'userInfoName': name,
-    };
-
-    return jsonEncode(map);
+    return resident;
   }
 }

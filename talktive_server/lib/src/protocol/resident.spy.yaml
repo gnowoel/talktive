@@ -5,6 +5,11 @@ fields:
   floor: int
   creditScore: int
   experienceMessageCount: int
+  gender: String?
+  country: String?
+  bio: String?
+  avatar: String?
+  role: String?
   lastCreditIncrease: DateTime?
 indexes:
   resident_user_idx:

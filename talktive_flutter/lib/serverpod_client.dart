@@ -1,4 +1,4 @@
-import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
+import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'providers/client_provider.dart';

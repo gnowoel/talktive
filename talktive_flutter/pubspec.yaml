@@ -11,7 +11,9 @@ dependencies:
     path: ../talktive_client
   serverpod_flutter: ^3.2.3
   # serverpod_auth_idp_flutter: ^3.2.1
-  serverpod_auth_google_flutter: ^3.2.3
+  serverpod_auth_firebase_flutter: ^3.2.3
+  serverpod_auth_google_flutter: ^3.2.3 # Keep for now if needed by firebase_flutter? No, firebase_flutter uses firebase_auth.
+  # serverpod_auth_google_flutter: ^3.2.3 # Removed
   # serverpod_auth_apple_flutter: ^3.2.3 # Unused
   # serverpod_auth_email_flutter: ^3.2.3 # Unused
   async: ^2.11.0
@@ -30,6 +32,7 @@ dependencies:
   flutter_local_notifications: ^19.0.0
   go_router: ^17.1.0
   google_mobile_ads: ^6.0.0
+  google_sign_in: ^6.2.1
   image_picker: ^1.1.2
   path: ^1.9.1
   path_provider: ^2.1.5

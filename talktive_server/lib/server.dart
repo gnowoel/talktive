@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_server/serverpod_auth_server.dart'
-    hide Protocol, Endpoints, GoogleClientSecret;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/firebase.dart';
-import 'src/services/auth_hooks.dart';
 
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
@@ -23,13 +21,6 @@ void run(List<String> args) async {
   // Register Future Calls
   pod.registerFutureCall(MessageCleanupCall(), 'messageCleanup');
   pod.registerFutureCall(CreditRestorationCall(), 'creditRestoration');
-
-  // Configure Auth Hooks
-  AuthConfig.set(
-    AuthConfig(
-      onUserCreated: AuthHooks.onUserCreated,
-    ),
-  );
 
   // Initialize authentication services for the server.
   pod.initializeAuthServices(

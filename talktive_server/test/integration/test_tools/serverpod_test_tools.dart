@@ -129,6 +129,8 @@ void withServerpod(
 class TestEndpoints {
   late final _EmailIdpEndpoint emailIdp;
 
+  late final _FirebaseIdpEndpoint firebaseIdp;
+
   late final _JwtRefreshEndpoint jwtRefresh;
 
   late final _MessageEndpoint message;
@@ -148,6 +150,10 @@ class _InternalTestEndpoints extends TestEndpoints
     _i2.EndpointDispatch endpoints,
   ) {
     emailIdp = _EmailIdpEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    firebaseIdp = _FirebaseIdpEndpoint(
       endpoints,
       serializationManager,
     );
@@ -414,6 +420,48 @@ class _EmailIdpEndpoint {
                   _localCallContext.arguments,
                 )
                 as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _FirebaseIdpEndpoint {
+  _FirebaseIdpEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i4.AuthSuccess> login(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required String idToken,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'firebaseIdp',
+            method: 'login',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'firebaseIdp',
+          methodName: 'login',
+          parameters: _i1.testObjectToJson({'idToken': idToken}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i4.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -12,12 +12,12 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../auth/email_idp_endpoint.dart' as _i2;
-import '../auth/jwt_refresh_endpoint.dart' as _i3;
-import '../endpoints/message_endpoint.dart' as _i4;
-import '../endpoints/moment_endpoint.dart' as _i5;
-import '../endpoints/resident_endpoint.dart' as _i6;
-import '../greetings/greeting_endpoint.dart' as _i7;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i8;
+import '../auth/firebase_idp_endpoint.dart' as _i3;
+import '../auth/jwt_refresh_endpoint.dart' as _i4;
+import '../endpoints/message_endpoint.dart' as _i5;
+import '../endpoints/moment_endpoint.dart' as _i6;
+import '../endpoints/resident_endpoint.dart' as _i7;
+import '../greetings/greeting_endpoint.dart' as _i8;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _i9;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -33,31 +33,37 @@ class Endpoints extends _i1.EndpointDispatch {
           'emailIdp',
           null,
         ),
-      'jwtRefresh': _i3.JwtRefreshEndpoint()
+      'firebaseIdp': _i3.FirebaseIdpEndpoint()
+        ..initialize(
+          server,
+          'firebaseIdp',
+          null,
+        ),
+      'jwtRefresh': _i4.JwtRefreshEndpoint()
         ..initialize(
           server,
           'jwtRefresh',
           null,
         ),
-      'message': _i4.MessageEndpoint()
+      'message': _i5.MessageEndpoint()
         ..initialize(
           server,
           'message',
           null,
         ),
-      'moment': _i5.MomentEndpoint()
+      'moment': _i6.MomentEndpoint()
         ..initialize(
           server,
           'moment',
           null,
         ),
-      'resident': _i6.ResidentEndpoint()
+      'resident': _i7.ResidentEndpoint()
         ..initialize(
           server,
           'resident',
           null,
         ),
-      'greeting': _i7.GreetingEndpoint()
+      'greeting': _i8.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -233,6 +239,31 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['firebaseIdp'] = _i1.EndpointConnector(
+      name: 'firebaseIdp',
+      endpoint: endpoints['firebaseIdp']!,
+      methodConnectors: {
+        'login': _i1.MethodConnector(
+          name: 'login',
+          params: {
+            'idToken': _i1.ParameterDescription(
+              name: 'idToken',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['firebaseIdp'] as _i3.FirebaseIdpEndpoint).login(
+                    session,
+                    idToken: params['idToken'],
+                  ),
+        ),
+      },
+    );
     connectors['jwtRefresh'] = _i1.EndpointConnector(
       name: 'jwtRefresh',
       endpoint: endpoints['jwtRefresh']!,
@@ -250,7 +281,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['jwtRefresh'] as _i3.JwtRefreshEndpoint)
+              ) async => (endpoints['jwtRefresh'] as _i4.JwtRefreshEndpoint)
                   .refreshAccessToken(
                     session,
                     refreshToken: params['refreshToken'],
@@ -286,7 +317,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['message'] as _i4.MessageEndpoint).sendMessage(
+                  (endpoints['message'] as _i5.MessageEndpoint).sendMessage(
                     session,
                     params['channelId'],
                     params['content'],
@@ -317,7 +348,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['message'] as _i4.MessageEndpoint).listMessages(
+                  (endpoints['message'] as _i5.MessageEndpoint).listMessages(
                     session,
                     params['channelId'],
                     limit: params['limit'],
@@ -348,7 +379,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['moment'] as _i5.MomentEndpoint).postMoment(
+              ) async => (endpoints['moment'] as _i6.MomentEndpoint).postMoment(
                 session,
                 imageUrl: params['imageUrl'],
                 caption: params['caption'],
@@ -373,7 +404,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['moment'] as _i5.MomentEndpoint).listMoments(
+                  (endpoints['moment'] as _i6.MomentEndpoint).listMoments(
                     session,
                     limit: params['limit'],
                     lastId: params['lastId'],
@@ -392,7 +423,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i6.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i7.ResidentEndpoint)
                   .getResident(session),
         ),
         'initializeResident': _i1.MethodConnector(
@@ -428,7 +459,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i6.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i7.ResidentEndpoint)
                   .initializeResident(
                     session,
                     name: params['name'],
@@ -457,14 +488,13 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i7.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i8.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth'] = _i8.Endpoints()..initializeEndpoints(server);
     modules['serverpod_auth_idp'] = _i9.Endpoints()
       ..initializeEndpoints(server);
     modules['serverpod_auth_core'] = _i10.Endpoints()

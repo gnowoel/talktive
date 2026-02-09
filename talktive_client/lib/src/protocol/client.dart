@@ -20,8 +20,7 @@ import 'package:talktive_client/src/protocol/message.dart' as _i5;
 import 'package:talktive_client/src/protocol/moment.dart' as _i6;
 import 'package:talktive_client/src/protocol/resident.dart' as _i7;
 import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i8;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i9;
-import 'protocol.dart' as _i10;
+import 'protocol.dart' as _i9;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -199,6 +198,27 @@ class EndpointEmailIdp extends _i1.EndpointEmailIdpBase {
   );
 }
 
+/// Exposes Firebase ID token login for the Serverpod auth core flow.
+/// {@category Endpoint}
+class EndpointFirebaseIdp extends _i1.EndpointFirebaseIdpBase {
+  EndpointFirebaseIdp(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'firebaseIdp';
+
+  /// Validates a Firebase ID token and either logs in the associated user or
+  /// creates a new user account if the Firebase account ID is not yet known.
+  ///
+  /// If a new user is created an associated [UserProfile] is also created.
+  @override
+  _i3.Future<_i4.AuthSuccess> login({required String idToken}) =>
+      caller.callServerEndpoint<_i4.AuthSuccess>(
+        'firebaseIdp',
+        'login',
+        {'idToken': idToken},
+      );
+}
+
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
 /// {@category Endpoint}
@@ -366,12 +386,9 @@ class EndpointGreeting extends _i2.EndpointRef {
 
 class Modules {
   Modules(Client client) {
-    auth = _i9.Caller(client);
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
-
-  late final _i9.Caller auth;
 
   late final _i1.Caller serverpod_auth_idp;
 
@@ -398,7 +415,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i10.Protocol(),
+         _i9.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -408,6 +425,7 @@ class Client extends _i2.ServerpodClientShared {
              disconnectStreamsOnLostInternetConnection,
        ) {
     emailIdp = EndpointEmailIdp(this);
+    firebaseIdp = EndpointFirebaseIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     message = EndpointMessage(this);
     moment = EndpointMoment(this);
@@ -417,6 +435,8 @@ class Client extends _i2.ServerpodClientShared {
   }
 
   late final EndpointEmailIdp emailIdp;
+
+  late final EndpointFirebaseIdp firebaseIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
 
@@ -433,6 +453,7 @@ class Client extends _i2.ServerpodClientShared {
   @override
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
+    'firebaseIdp': firebaseIdp,
     'jwtRefresh': jwtRefresh,
     'message': message,
     'moment': moment,
@@ -442,7 +463,6 @@ class Client extends _i2.ServerpodClientShared {
 
   @override
   Map<String, _i2.ModuleEndpointCaller> get moduleLookup => {
-    'auth': modules.auth,
     'serverpod_auth_idp': modules.serverpod_auth_idp,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };

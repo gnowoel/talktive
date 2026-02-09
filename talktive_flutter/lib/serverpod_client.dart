@@ -1,4 +1,4 @@
-import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
+import 'package:serverpod_auth_core_flutter/serverpod_auth_core_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'providers/client_provider.dart';
@@ -8,7 +8,7 @@ import 'providers/client_provider.dart';
 late final Client client;
 
 /// Global session manager for authentication
-late final SessionManager sessionManager;
+late final FlutterAuthSessionManager sessionManager;
 
 /// Initializes the global Serverpod client.
 Future<void> initializeServerpodClient() async {
@@ -17,12 +17,11 @@ Future<void> initializeServerpodClient() async {
   // Hardcoded for emulator
   const serverUrl = 'http://10.0.2.2:8080';
 
-  client = Client(
-    serverUrl,
-    authenticationKeyManager: FlutterAuthenticationKeyManager(),
-  )..connectivityMonitor = FlutterConnectivityMonitor();
+  client = Client(serverUrl)
+    ..connectivityMonitor = FlutterConnectivityMonitor();
 
-  sessionManager = SessionManager(caller: client.modules.auth);
+  sessionManager = FlutterAuthSessionManager();
+  client.authSessionManager = sessionManager;
   await sessionManager.initialize();
   initializeClient(client);
 }

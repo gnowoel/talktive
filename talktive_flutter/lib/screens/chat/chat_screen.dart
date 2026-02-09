@@ -43,11 +43,13 @@ class ChatScreen extends ConsumerWidget {
                           final msg = messages[index];
                           // Force visible logic for debug
                           // Check if message is from me
-                          final currentUser = sessionManager.signedInUser;
+                          final currentUserId = sessionManager
+                              .authInfo
+                              ?.authUserId
+                              .toString();
                           final isMe =
-                              currentUser != null &&
-                              msg.senderId.toString() ==
-                                  currentUser.userIdentifier;
+                              currentUserId != null &&
+                              msg.senderId.toString() == currentUserId;
                           return Align(
                             alignment: isMe
                                 ? Alignment.centerRight

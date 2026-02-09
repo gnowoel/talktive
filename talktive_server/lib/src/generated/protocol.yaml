@@ -6,6 +6,8 @@ emailIdp:
   - startPasswordReset:
   - verifyPasswordResetCode:
   - finishPasswordReset:
+firebaseIdp:
+  - login:
 jwtRefresh:
   - refreshAccessToken:
 message:

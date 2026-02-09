@@ -8,7 +8,6 @@ environment:
 
 dependencies:
   serverpod: 3.2.3
-  serverpod_auth_server: 3.2.3
   serverpod_auth_idp_server: 3.2.3
   serverpod_auth_core_server: 3.2.3
   uuid: ^4.5.2

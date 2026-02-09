@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:serverpod_auth_firebase_flutter/serverpod_auth_firebase_flutter.dart';
 import '../serverpod_client.dart';
 
 part 'auth_provider.g.dart';
@@ -43,7 +42,7 @@ class Auth extends _$Auth {
   @override
   FutureOr<TalktiveAuthState> build() async {
     // We assume sessionManager.initialize() was called in main
-    if (!sessionManager.isSignedIn) {
+    if (!sessionManager.isAuthenticated) {
       return const Unauthenticated();
     }
 
@@ -56,7 +55,10 @@ class Auth extends _$Auth {
 
       if (resident != null) {
         final prefs = await SharedPreferences.getInstance();
-        final userName = sessionManager.signedInUser?.userName ?? 'Anonymous';
+        final cachedName = prefs.getString('user_name');
+        final userName = (cachedName != null && cachedName.isNotEmpty)
+            ? cachedName
+            : (FirebaseAuth.instance.currentUser?.displayName ?? 'Anonymous');
         await prefs.setBool('onboarding_completed', true);
         await prefs.setString('user_name', userName);
         await prefs.setString('user_id', resident.userInfoId.toString());
@@ -113,38 +115,8 @@ class Auth extends _$Auth {
 
       // 5. Authenticate with Serverpod
       // This verifies the Firebase token on the server and creates a Serverpod session
-      final serverpodAuth = await client.modules.auth.firebase.authenticate(
-        idToken,
-      );
-
-      if (!serverpodAuth.success) {
-        throw Exception(
-          "Serverpod Authentication failed: ${serverpodAuth.failReason}",
-        );
-      }
-
-      debugPrint(
-        'Auth Success: userInfoId=${serverpodAuth.userInfo?.id}, keyId=${serverpodAuth.keyId}',
-      );
-      debugPrint('AUTH KEY: ${serverpodAuth.key}');
-
-      // Important: Register the signed-in user with the session manager
-      // This persists the authentication key and ensures subsequent calls are authenticated.
-      // If it's a JWT, we put it directly into the manager to avoid 'keyId:' prefix.
-      if (serverpodAuth.key != null && serverpodAuth.key!.contains('.')) {
-        debugPrint('Registering as JWT');
-        await client.authenticationKeyManager?.put(serverpodAuth.key!);
-      } else {
-        debugPrint('Registering as regular token');
-        await sessionManager.registerSignedInUser(
-          serverpodAuth.userInfo!,
-          serverpodAuth.keyId!,
-          serverpodAuth.key!,
-        );
-      }
-
-      // Re-initialize session manager to pick up the new key and fetch user info
-      await sessionManager.initialize();
+      final authSuccess = await client.firebaseIdp.login(idToken: idToken);
+      await sessionManager.updateSignedInUser(authSuccess);
 
       // 6. Refresh Auth State
       final newState = await _refreshAuthState();

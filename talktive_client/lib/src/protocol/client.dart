@@ -17,9 +17,11 @@ import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
 import 'package:talktive_client/src/protocol/message.dart' as _i5;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i6;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i7;
-import 'protocol.dart' as _i8;
+import 'package:talktive_client/src/protocol/moment.dart' as _i6;
+import 'package:talktive_client/src/protocol/resident.dart' as _i7;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i8;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i9;
+import 'protocol.dart' as _i10;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -274,22 +276,66 @@ class EndpointMessage extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointMoment extends _i2.EndpointRef {
+  EndpointMoment(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'moment';
+
+  /// Posts a new moment to the feed.
+  _i3.Future<_i6.Moment> postMoment({
+    required String imageUrl,
+    required String caption,
+  }) => caller.callServerEndpoint<_i6.Moment>(
+    'moment',
+    'postMoment',
+    {
+      'imageUrl': imageUrl,
+      'caption': caption,
+    },
+  );
+
+  /// Lists the latest moments.
+  _i3.Future<List<_i6.Moment>> listMoments({
+    required int limit,
+    int? lastId,
+  }) => caller.callServerEndpoint<List<_i6.Moment>>(
+    'moment',
+    'listMoments',
+    {
+      'limit': limit,
+      'lastId': lastId,
+    },
+  );
+}
+
+/// {@category Endpoint}
 class EndpointResident extends _i2.EndpointRef {
   EndpointResident(_i2.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'resident';
 
-  /// Creates a new anonymous resident/user and returns the authentication key as JSON string
-  _i3.Future<String> createResident({
+  /// Checks if the authenticated user has a Resident profile.
+  _i3.Future<_i7.Resident?> getResident() =>
+      caller.callServerEndpoint<_i7.Resident?>(
+        'resident',
+        'getResident',
+        {},
+      );
+
+  /// Initializes a Resident profile for an authenticated user.
+  /// This overwrites any existing UserProfile data (e.g. from Google) with
+  /// the chosen anonymous persona.
+  _i3.Future<_i7.Resident> initializeResident({
     required String name,
     required String avatar,
     required String gender,
     required String country,
     required String bio,
-  }) => caller.callServerEndpoint<String>(
+  }) => caller.callServerEndpoint<_i7.Resident>(
     'resident',
-    'createResident',
+    'initializeResident',
     {
       'name': name,
       'avatar': avatar,
@@ -310,8 +356,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i6.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i6.Greeting>(
+  _i3.Future<_i8.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i8.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -320,12 +366,12 @@ class EndpointGreeting extends _i2.EndpointRef {
 
 class Modules {
   Modules(Client client) {
-    auth = _i7.Caller(client);
+    auth = _i9.Caller(client);
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
-  late final _i7.Caller auth;
+  late final _i9.Caller auth;
 
   late final _i1.Caller serverpod_auth_idp;
 
@@ -352,7 +398,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i8.Protocol(),
+         _i10.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -364,6 +410,7 @@ class Client extends _i2.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     message = EndpointMessage(this);
+    moment = EndpointMoment(this);
     resident = EndpointResident(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -374,6 +421,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointJwtRefresh jwtRefresh;
 
   late final EndpointMessage message;
+
+  late final EndpointMoment moment;
 
   late final EndpointResident resident;
 
@@ -386,6 +435,7 @@ class Client extends _i2.ServerpodClientShared {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'message': message,
+    'moment': moment,
     'resident': resident,
     'greeting': greeting,
   };

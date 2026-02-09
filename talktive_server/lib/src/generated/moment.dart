@@ -21,6 +21,9 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.createdAt,
     required this.likesCount,
     required this.commentsCount,
+    required this.authorName,
+    required this.authorAvatar,
+    required this.authorFloor,
   });
 
   factory Moment({
@@ -31,6 +34,9 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
+    required String authorName,
+    required String authorAvatar,
+    required int authorFloor,
   }) = _MomentImpl;
 
   factory Moment.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,6 +50,9 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       ),
       likesCount: jsonSerialization['likesCount'] as int,
       commentsCount: jsonSerialization['commentsCount'] as int,
+      authorName: jsonSerialization['authorName'] as String,
+      authorAvatar: jsonSerialization['authorAvatar'] as String,
+      authorFloor: jsonSerialization['authorFloor'] as int,
     );
   }
 
@@ -66,6 +75,12 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   int commentsCount;
 
+  String authorName;
+
+  String authorAvatar;
+
+  int authorFloor;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -80,6 +95,9 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
+    String? authorName,
+    String? authorAvatar,
+    int? authorFloor,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -92,6 +110,9 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
+      'authorName': authorName,
+      'authorAvatar': authorAvatar,
+      'authorFloor': authorFloor,
     };
   }
 
@@ -106,6 +127,9 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
+      'authorName': authorName,
+      'authorAvatar': authorAvatar,
+      'authorFloor': authorFloor,
     };
   }
 
@@ -150,6 +174,9 @@ class _MomentImpl extends Moment {
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
+    required String authorName,
+    required String authorAvatar,
+    required int authorFloor,
   }) : super._(
          id: id,
          authorId: authorId,
@@ -158,6 +185,9 @@ class _MomentImpl extends Moment {
          createdAt: createdAt,
          likesCount: likesCount,
          commentsCount: commentsCount,
+         authorName: authorName,
+         authorAvatar: authorAvatar,
+         authorFloor: authorFloor,
        );
 
   /// Returns a shallow copy of this [Moment]
@@ -172,6 +202,9 @@ class _MomentImpl extends Moment {
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
+    String? authorName,
+    String? authorAvatar,
+    int? authorFloor,
   }) {
     return Moment(
       id: id is int? ? id : this.id,
@@ -181,6 +214,9 @@ class _MomentImpl extends Moment {
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
+      authorName: authorName ?? this.authorName,
+      authorAvatar: authorAvatar ?? this.authorAvatar,
+      authorFloor: authorFloor ?? this.authorFloor,
     );
   }
 }
@@ -218,6 +254,21 @@ class MomentUpdateTable extends _i1.UpdateTable<MomentTable> {
     table.commentsCount,
     value,
   );
+
+  _i1.ColumnValue<String, String> authorName(String value) => _i1.ColumnValue(
+    table.authorName,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> authorAvatar(String value) => _i1.ColumnValue(
+    table.authorAvatar,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> authorFloor(int value) => _i1.ColumnValue(
+    table.authorFloor,
+    value,
+  );
 }
 
 class MomentTable extends _i1.Table<int?> {
@@ -247,6 +298,18 @@ class MomentTable extends _i1.Table<int?> {
       'commentsCount',
       this,
     );
+    authorName = _i1.ColumnString(
+      'authorName',
+      this,
+    );
+    authorAvatar = _i1.ColumnString(
+      'authorAvatar',
+      this,
+    );
+    authorFloor = _i1.ColumnInt(
+      'authorFloor',
+      this,
+    );
   }
 
   late final MomentUpdateTable updateTable;
@@ -263,6 +326,12 @@ class MomentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt commentsCount;
 
+  late final _i1.ColumnString authorName;
+
+  late final _i1.ColumnString authorAvatar;
+
+  late final _i1.ColumnInt authorFloor;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -272,6 +341,9 @@ class MomentTable extends _i1.Table<int?> {
     createdAt,
     likesCount,
     commentsCount,
+    authorName,
+    authorAvatar,
+    authorFloor,
   ];
 }
 

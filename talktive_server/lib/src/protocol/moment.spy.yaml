@@ -7,3 +7,8 @@ fields:
   createdAt: DateTime
   likesCount: int
   commentsCount: int
+  
+  # Denormalized Author Info
+  authorName: String
+  authorAvatar: String
+  authorFloor: int

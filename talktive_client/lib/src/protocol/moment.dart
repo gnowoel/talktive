@@ -21,6 +21,9 @@ abstract class Moment implements _i1.SerializableModel {
     required this.createdAt,
     required this.likesCount,
     required this.commentsCount,
+    required this.authorName,
+    required this.authorAvatar,
+    required this.authorFloor,
   });
 
   factory Moment({
@@ -31,6 +34,9 @@ abstract class Moment implements _i1.SerializableModel {
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
+    required String authorName,
+    required String authorAvatar,
+    required int authorFloor,
   }) = _MomentImpl;
 
   factory Moment.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,6 +50,9 @@ abstract class Moment implements _i1.SerializableModel {
       ),
       likesCount: jsonSerialization['likesCount'] as int,
       commentsCount: jsonSerialization['commentsCount'] as int,
+      authorName: jsonSerialization['authorName'] as String,
+      authorAvatar: jsonSerialization['authorAvatar'] as String,
+      authorFloor: jsonSerialization['authorFloor'] as int,
     );
   }
 
@@ -64,6 +73,12 @@ abstract class Moment implements _i1.SerializableModel {
 
   int commentsCount;
 
+  String authorName;
+
+  String authorAvatar;
+
+  int authorFloor;
+
   /// Returns a shallow copy of this [Moment]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -75,6 +90,9 @@ abstract class Moment implements _i1.SerializableModel {
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
+    String? authorName,
+    String? authorAvatar,
+    int? authorFloor,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -87,6 +105,9 @@ abstract class Moment implements _i1.SerializableModel {
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
+      'authorName': authorName,
+      'authorAvatar': authorAvatar,
+      'authorFloor': authorFloor,
     };
   }
 
@@ -107,6 +128,9 @@ class _MomentImpl extends Moment {
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
+    required String authorName,
+    required String authorAvatar,
+    required int authorFloor,
   }) : super._(
          id: id,
          authorId: authorId,
@@ -115,6 +139,9 @@ class _MomentImpl extends Moment {
          createdAt: createdAt,
          likesCount: likesCount,
          commentsCount: commentsCount,
+         authorName: authorName,
+         authorAvatar: authorAvatar,
+         authorFloor: authorFloor,
        );
 
   /// Returns a shallow copy of this [Moment]
@@ -129,6 +156,9 @@ class _MomentImpl extends Moment {
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
+    String? authorName,
+    String? authorAvatar,
+    int? authorFloor,
   }) {
     return Moment(
       id: id is int? ? id : this.id,
@@ -138,6 +168,9 @@ class _MomentImpl extends Moment {
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
+      authorName: authorName ?? this.authorName,
+      authorAvatar: authorAvatar ?? this.authorAvatar,
+      authorFloor: authorFloor ?? this.authorFloor,
     );
   }
 }

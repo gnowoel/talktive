@@ -20,6 +20,11 @@ abstract class Resident
     required this.floor,
     required this.creditScore,
     required this.experienceMessageCount,
+    this.gender,
+    this.country,
+    this.bio,
+    this.avatar,
+    this.role,
     this.lastCreditIncrease,
   });
 
@@ -29,6 +34,11 @@ abstract class Resident
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
+    String? gender,
+    String? country,
+    String? bio,
+    String? avatar,
+    String? role,
     DateTime? lastCreditIncrease,
   }) = _ResidentImpl;
 
@@ -42,6 +52,11 @@ abstract class Resident
       creditScore: jsonSerialization['creditScore'] as int,
       experienceMessageCount:
           jsonSerialization['experienceMessageCount'] as int,
+      gender: jsonSerialization['gender'] as String?,
+      country: jsonSerialization['country'] as String?,
+      bio: jsonSerialization['bio'] as String?,
+      avatar: jsonSerialization['avatar'] as String?,
+      role: jsonSerialization['role'] as String?,
       lastCreditIncrease: jsonSerialization['lastCreditIncrease'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(
@@ -65,6 +80,16 @@ abstract class Resident
 
   int experienceMessageCount;
 
+  String? gender;
+
+  String? country;
+
+  String? bio;
+
+  String? avatar;
+
+  String? role;
+
   DateTime? lastCreditIncrease;
 
   @override
@@ -79,6 +104,11 @@ abstract class Resident
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
+    String? gender,
+    String? country,
+    String? bio,
+    String? avatar,
+    String? role,
     DateTime? lastCreditIncrease,
   });
   @override
@@ -90,6 +120,11 @@ abstract class Resident
       'floor': floor,
       'creditScore': creditScore,
       'experienceMessageCount': experienceMessageCount,
+      if (gender != null) 'gender': gender,
+      if (country != null) 'country': country,
+      if (bio != null) 'bio': bio,
+      if (avatar != null) 'avatar': avatar,
+      if (role != null) 'role': role,
       if (lastCreditIncrease != null)
         'lastCreditIncrease': lastCreditIncrease?.toJson(),
     };
@@ -104,6 +139,11 @@ abstract class Resident
       'floor': floor,
       'creditScore': creditScore,
       'experienceMessageCount': experienceMessageCount,
+      if (gender != null) 'gender': gender,
+      if (country != null) 'country': country,
+      if (bio != null) 'bio': bio,
+      if (avatar != null) 'avatar': avatar,
+      if (role != null) 'role': role,
       if (lastCreditIncrease != null)
         'lastCreditIncrease': lastCreditIncrease?.toJson(),
     };
@@ -148,6 +188,11 @@ class _ResidentImpl extends Resident {
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
+    String? gender,
+    String? country,
+    String? bio,
+    String? avatar,
+    String? role,
     DateTime? lastCreditIncrease,
   }) : super._(
          id: id,
@@ -155,6 +200,11 @@ class _ResidentImpl extends Resident {
          floor: floor,
          creditScore: creditScore,
          experienceMessageCount: experienceMessageCount,
+         gender: gender,
+         country: country,
+         bio: bio,
+         avatar: avatar,
+         role: role,
          lastCreditIncrease: lastCreditIncrease,
        );
 
@@ -168,6 +218,11 @@ class _ResidentImpl extends Resident {
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
+    Object? gender = _Undefined,
+    Object? country = _Undefined,
+    Object? bio = _Undefined,
+    Object? avatar = _Undefined,
+    Object? role = _Undefined,
     Object? lastCreditIncrease = _Undefined,
   }) {
     return Resident(
@@ -177,6 +232,11 @@ class _ResidentImpl extends Resident {
       creditScore: creditScore ?? this.creditScore,
       experienceMessageCount:
           experienceMessageCount ?? this.experienceMessageCount,
+      gender: gender is String? ? gender : this.gender,
+      country: country is String? ? country : this.country,
+      bio: bio is String? ? bio : this.bio,
+      avatar: avatar is String? ? avatar : this.avatar,
+      role: role is String? ? role : this.role,
       lastCreditIncrease: lastCreditIncrease is DateTime?
           ? lastCreditIncrease
           : this.lastCreditIncrease,
@@ -210,6 +270,31 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         value,
       );
 
+  _i1.ColumnValue<String, String> gender(String? value) => _i1.ColumnValue(
+    table.gender,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> country(String? value) => _i1.ColumnValue(
+    table.country,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> bio(String? value) => _i1.ColumnValue(
+    table.bio,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> avatar(String? value) => _i1.ColumnValue(
+    table.avatar,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> role(String? value) => _i1.ColumnValue(
+    table.role,
+    value,
+  );
+
   _i1.ColumnValue<DateTime, DateTime> lastCreditIncrease(DateTime? value) =>
       _i1.ColumnValue(
         table.lastCreditIncrease,
@@ -236,6 +321,26 @@ class ResidentTable extends _i1.Table<int?> {
       'experienceMessageCount',
       this,
     );
+    gender = _i1.ColumnString(
+      'gender',
+      this,
+    );
+    country = _i1.ColumnString(
+      'country',
+      this,
+    );
+    bio = _i1.ColumnString(
+      'bio',
+      this,
+    );
+    avatar = _i1.ColumnString(
+      'avatar',
+      this,
+    );
+    role = _i1.ColumnString(
+      'role',
+      this,
+    );
     lastCreditIncrease = _i1.ColumnDateTime(
       'lastCreditIncrease',
       this,
@@ -252,6 +357,16 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt experienceMessageCount;
 
+  late final _i1.ColumnString gender;
+
+  late final _i1.ColumnString country;
+
+  late final _i1.ColumnString bio;
+
+  late final _i1.ColumnString avatar;
+
+  late final _i1.ColumnString role;
+
   late final _i1.ColumnDateTime lastCreditIncrease;
 
   @override
@@ -261,6 +376,11 @@ class ResidentTable extends _i1.Table<int?> {
     floor,
     creditScore,
     experienceMessageCount,
+    gender,
+    country,
+    bio,
+    avatar,
+    role,
     lastCreditIncrease,
   ];
 }

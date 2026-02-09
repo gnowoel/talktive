@@ -29,6 +29,7 @@ import 'moment.dart' as _i14;
 import 'report.dart' as _i15;
 import 'resident.dart' as _i16;
 import 'package:talktive_server/src/generated/message.dart' as _i17;
+import 'package:talktive_server/src/generated/moment.dart' as _i18;
 export 'block.dart';
 export 'channel.dart';
 export 'channel_member.dart';
@@ -317,6 +318,24 @@ class Protocol extends _i1.SerializationManagerServer {
           isNullable: false,
           dartType: 'int',
         ),
+        _i2.ColumnDefinition(
+          name: 'authorName',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'authorAvatar',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'authorFloor',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
       ],
       foreignKeys: [],
       indexes: [
@@ -434,6 +453,36 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.bigint,
           isNullable: false,
           dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'gender',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'country',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'bio',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'avatar',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'role',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
         ),
         _i2.ColumnDefinition(
           name: 'lastCreditIncrease',
@@ -643,6 +692,10 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == List<_i17.Message>) {
       return (data as List).map((e) => deserialize<_i17.Message>(e)).toList()
+          as T;
+    }
+    if (t == List<_i18.Moment>) {
+      return (data as List).map((e) => deserialize<_i18.Moment>(e)).toList()
           as T;
     }
     try {

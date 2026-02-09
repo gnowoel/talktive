@@ -11,7 +11,11 @@ jwtRefresh:
 message:
   - sendMessage:
   - listMessages:
+moment:
+  - postMoment:
+  - listMoments:
 resident:
-  - createResident:
+  - getResident:
+  - initializeResident:
 greeting:
   - hello:

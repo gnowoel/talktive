@@ -19,6 +19,11 @@ abstract class Resident implements _i1.SerializableModel {
     required this.floor,
     required this.creditScore,
     required this.experienceMessageCount,
+    this.gender,
+    this.country,
+    this.bio,
+    this.avatar,
+    this.role,
     this.lastCreditIncrease,
   });
 
@@ -28,6 +33,11 @@ abstract class Resident implements _i1.SerializableModel {
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
+    String? gender,
+    String? country,
+    String? bio,
+    String? avatar,
+    String? role,
     DateTime? lastCreditIncrease,
   }) = _ResidentImpl;
 
@@ -41,6 +51,11 @@ abstract class Resident implements _i1.SerializableModel {
       creditScore: jsonSerialization['creditScore'] as int,
       experienceMessageCount:
           jsonSerialization['experienceMessageCount'] as int,
+      gender: jsonSerialization['gender'] as String?,
+      country: jsonSerialization['country'] as String?,
+      bio: jsonSerialization['bio'] as String?,
+      avatar: jsonSerialization['avatar'] as String?,
+      role: jsonSerialization['role'] as String?,
       lastCreditIncrease: jsonSerialization['lastCreditIncrease'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(
@@ -62,6 +77,16 @@ abstract class Resident implements _i1.SerializableModel {
 
   int experienceMessageCount;
 
+  String? gender;
+
+  String? country;
+
+  String? bio;
+
+  String? avatar;
+
+  String? role;
+
   DateTime? lastCreditIncrease;
 
   /// Returns a shallow copy of this [Resident]
@@ -73,6 +98,11 @@ abstract class Resident implements _i1.SerializableModel {
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
+    String? gender,
+    String? country,
+    String? bio,
+    String? avatar,
+    String? role,
     DateTime? lastCreditIncrease,
   });
   @override
@@ -84,6 +114,11 @@ abstract class Resident implements _i1.SerializableModel {
       'floor': floor,
       'creditScore': creditScore,
       'experienceMessageCount': experienceMessageCount,
+      if (gender != null) 'gender': gender,
+      if (country != null) 'country': country,
+      if (bio != null) 'bio': bio,
+      if (avatar != null) 'avatar': avatar,
+      if (role != null) 'role': role,
       if (lastCreditIncrease != null)
         'lastCreditIncrease': lastCreditIncrease?.toJson(),
     };
@@ -104,6 +139,11 @@ class _ResidentImpl extends Resident {
     required int floor,
     required int creditScore,
     required int experienceMessageCount,
+    String? gender,
+    String? country,
+    String? bio,
+    String? avatar,
+    String? role,
     DateTime? lastCreditIncrease,
   }) : super._(
          id: id,
@@ -111,6 +151,11 @@ class _ResidentImpl extends Resident {
          floor: floor,
          creditScore: creditScore,
          experienceMessageCount: experienceMessageCount,
+         gender: gender,
+         country: country,
+         bio: bio,
+         avatar: avatar,
+         role: role,
          lastCreditIncrease: lastCreditIncrease,
        );
 
@@ -124,6 +169,11 @@ class _ResidentImpl extends Resident {
     int? floor,
     int? creditScore,
     int? experienceMessageCount,
+    Object? gender = _Undefined,
+    Object? country = _Undefined,
+    Object? bio = _Undefined,
+    Object? avatar = _Undefined,
+    Object? role = _Undefined,
     Object? lastCreditIncrease = _Undefined,
   }) {
     return Resident(
@@ -133,6 +183,11 @@ class _ResidentImpl extends Resident {
       creditScore: creditScore ?? this.creditScore,
       experienceMessageCount:
           experienceMessageCount ?? this.experienceMessageCount,
+      gender: gender is String? ? gender : this.gender,
+      country: country is String? ? country : this.country,
+      bio: bio is String? ? bio : this.bio,
+      avatar: avatar is String? ? avatar : this.avatar,
+      role: role is String? ? role : this.role,
       lastCreditIncrease: lastCreditIncrease is DateTime?
           ? lastCreditIncrease
           : this.lastCreditIncrease,

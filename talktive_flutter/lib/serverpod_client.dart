@@ -8,7 +8,7 @@ import 'providers/client_provider.dart';
 late final Client client;
 
 /// Global session manager for authentication
-late final FlutterAuthSessionManager sessionManager;
+late final SessionManager sessionManager;
 
 /// Initializes the global Serverpod client.
 Future<void> initializeServerpodClient() async {
@@ -17,12 +17,12 @@ Future<void> initializeServerpodClient() async {
   // Hardcoded for emulator
   const serverUrl = 'http://10.0.2.2:8080';
 
-  sessionManager = FlutterAuthSessionManager();
+  client = Client(
+    serverUrl,
+    authenticationKeyManager: FlutterAuthenticationKeyManager(),
+  )..connectivityMonitor = FlutterConnectivityMonitor();
 
-  client = Client(serverUrl)
-    ..connectivityMonitor = FlutterConnectivityMonitor()
-    ..authSessionManager = sessionManager;
-
-  await client.auth.initialize();
+  sessionManager = SessionManager(caller: client.modules.auth);
+  await sessionManager.initialize();
   initializeClient(client);
 }

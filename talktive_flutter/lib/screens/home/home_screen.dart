@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../plaza/plaza_screen.dart';
-import '../moments/moments_screen.dart';
-import '../chats/chats_screen.dart';
-import '../groups/groups_screen.dart';
-import '../profile/profile_screen.dart';
+import '../plaza/plaza_screen_modern.dart';
+import '../moments/moments_screen_modern.dart';
+import '../chats/chats_screen_modern.dart';
+import '../groups/groups_screen_modern.dart';
+import '../profile/profile_screen_modern.dart';
 
 import '../../config/theme.dart';
 
@@ -21,15 +20,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   final List<Widget> _screens = [
     // Tab 1: Plaza (We pass a dummy onExit because the main nav handles exit now)
-    PlazaScreen(),
+    PlazaScreenModern(),
     // Tab 2: Moments
-    const MomentsScreen(),
+    const MomentsScreenModern(),
     // Tab 3: Chats
-    const ChatsScreen(),
+    const ChatsScreenModern(),
     // Tab 4: Groups
-    const GroupsScreen(),
+    const GroupsScreenModern(),
     // Tab 5: Profile
-    const ProfileScreen(),
+    const ProfileScreenModern(),
   ];
 
   @override

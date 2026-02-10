@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
@@ -91,7 +89,6 @@ class _PlazaScreenState extends ConsumerState<PlazaScreen> {
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(1));
-    final authState = ref.watch(authProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,

@@ -161,7 +161,7 @@ class _ChatInputState extends ConsumerState<_ChatInput> {
       await ref.read(chatProvider(widget.channelId).notifier).sendMessage(text);
       debugPrint('ChatScreen: provider.sendMessage success');
       _controller.clear();
-    } catch (e, stack) {
+    } catch (e) {
       debugPrint('ChatScreen: Error invoking sendMessage: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

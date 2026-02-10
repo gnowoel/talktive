@@ -13,6 +13,10 @@ jwtRefresh:
 image:
   - uploadImage:
   - deleteImage:
+message:
+  - sendMessage:
+  - subscribe:
+  - listMessages:
 moment:
   - postMoment:
   - listMoments:

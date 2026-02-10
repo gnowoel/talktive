@@ -23,12 +23,13 @@ import 'moment.dart' as _i10;
 import 'rate_limit.dart' as _i11;
 import 'report.dart' as _i12;
 import 'resident.dart' as _i13;
-import 'package:talktive_client/src/protocol/moment.dart' as _i14;
-import 'package:talktive_client/src/protocol/report.dart' as _i15;
+import 'package:talktive_client/src/protocol/message.dart' as _i14;
+import 'package:talktive_client/src/protocol/moment.dart' as _i15;
+import 'package:talktive_client/src/protocol/report.dart' as _i16;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i16;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i17;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i18;
 export 'block.dart';
 export 'channel.dart';
 export 'channel_member.dart';
@@ -151,19 +152,23 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i13.Resident?>()) {
       return (data != null ? _i13.Resident.fromJson(data) : null) as T;
     }
-    if (t == List<_i14.Moment>) {
-      return (data as List).map((e) => deserialize<_i14.Moment>(e)).toList()
+    if (t == List<_i14.Message>) {
+      return (data as List).map((e) => deserialize<_i14.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i15.Report>) {
-      return (data as List).map((e) => deserialize<_i15.Report>(e)).toList()
+    if (t == List<_i15.Moment>) {
+      return (data as List).map((e) => deserialize<_i15.Moment>(e)).toList()
           as T;
     }
-    try {
-      return _i16.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    if (t == List<_i16.Report>) {
+      return (data as List).map((e) => deserialize<_i16.Report>(e)).toList()
+          as T;
+    }
     try {
       return _i17.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i18.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -221,11 +226,11 @@ class Protocol extends _i1.SerializationManager {
       case _i13.Resident():
         return 'Resident';
     }
-    className = _i16.Protocol().getClassNameForObject(data);
+    className = _i17.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i17.Protocol().getClassNameForObject(data);
+    className = _i18.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -276,11 +281,11 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i16.Protocol().deserializeByClassName(data);
+      return _i17.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i17.Protocol().deserializeByClassName(data);
+      return _i18.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -295,10 +300,10 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i16.Protocol().mapRecordToJson(record);
+      return _i17.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i17.Protocol().mapRecordToJson(record);
+      return _i18.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

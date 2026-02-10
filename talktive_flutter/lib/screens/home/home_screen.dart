@@ -21,7 +21,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   final List<Widget> _screens = [
     // Tab 1: Plaza (We pass a dummy onExit because the main nav handles exit now)
-    PlazaScreen(onExit: () {}),
+    PlazaScreen(),
     // Tab 2: Moments
     const MomentsScreen(),
     // Tab 3: Chats

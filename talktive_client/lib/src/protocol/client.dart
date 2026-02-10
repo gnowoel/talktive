@@ -17,11 +17,12 @@ import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
 import 'dart:typed_data' as _i5;
-import 'package:talktive_client/src/protocol/moment.dart' as _i6;
-import 'package:talktive_client/src/protocol/report.dart' as _i7;
-import 'package:talktive_client/src/protocol/resident.dart' as _i8;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i9;
-import 'protocol.dart' as _i10;
+import 'package:talktive_client/src/protocol/message.dart' as _i6;
+import 'package:talktive_client/src/protocol/moment.dart' as _i7;
+import 'package:talktive_client/src/protocol/report.dart' as _i8;
+import 'package:talktive_client/src/protocol/resident.dart' as _i9;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i10;
+import 'protocol.dart' as _i11;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -297,6 +298,53 @@ class EndpointImage extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointMessage extends _i2.EndpointRef {
+  EndpointMessage(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'message';
+
+  /// Sends a message to a channel (Plaza, Group, or Private).
+  _i3.Future<_i6.Message> sendMessage(
+    int channelId,
+    String content, {
+    String? imageUrl,
+  }) => caller.callServerEndpoint<_i6.Message>(
+    'message',
+    'sendMessage',
+    {
+      'channelId': channelId,
+      'content': content,
+      'imageUrl': imageUrl,
+    },
+  );
+
+  /// Subscribes to a channel to receive real-time messages.
+  _i3.Stream<_i6.Message> subscribe(int channelId) =>
+      caller.callStreamingServerEndpoint<_i3.Stream<_i6.Message>, _i6.Message>(
+        'message',
+        'subscribe',
+        {'channelId': channelId},
+        {},
+      );
+
+  /// Fetches the history of messages for a channel.
+  _i3.Future<List<_i6.Message>> listMessages(
+    int channelId, {
+    required int limit,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_i6.Message>>(
+    'message',
+    'listMessages',
+    {
+      'channelId': channelId,
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+}
+
+/// {@category Endpoint}
 class EndpointMoment extends _i2.EndpointRef {
   EndpointMoment(_i2.EndpointCaller caller) : super(caller);
 
@@ -305,10 +353,10 @@ class EndpointMoment extends _i2.EndpointRef {
 
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
-  _i3.Future<_i6.Moment> postMoment({
+  _i3.Future<_i7.Moment> postMoment({
     required String imageUrl,
     required String caption,
-  }) => caller.callServerEndpoint<_i6.Moment>(
+  }) => caller.callServerEndpoint<_i7.Moment>(
     'moment',
     'postMoment',
     {
@@ -318,10 +366,10 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Lists the latest moments.
-  _i3.Future<List<_i6.Moment>> listMoments({
+  _i3.Future<List<_i7.Moment>> listMoments({
     required int limit,
     int? lastId,
-  }) => caller.callServerEndpoint<List<_i6.Moment>>(
+  }) => caller.callServerEndpoint<List<_i7.Moment>>(
     'moment',
     'listMoments',
     {
@@ -369,10 +417,10 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i7.Report>> listReports({
+  _i3.Future<List<_i8.Report>> listReports({
     required int limit,
     required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i7.Report>>(
+  }) => caller.callServerEndpoint<List<_i8.Report>>(
     'report',
     'listReports',
     {
@@ -398,8 +446,8 @@ class EndpointResident extends _i2.EndpointRef {
   String get name => 'resident';
 
   /// Checks if the authenticated user has a Resident profile.
-  _i3.Future<_i8.Resident?> getResident() =>
-      caller.callServerEndpoint<_i8.Resident?>(
+  _i3.Future<_i9.Resident?> getResident() =>
+      caller.callServerEndpoint<_i9.Resident?>(
         'resident',
         'getResident',
         {},
@@ -408,13 +456,13 @@ class EndpointResident extends _i2.EndpointRef {
   /// Initializes a Resident profile for an authenticated user.
   /// This overwrites any existing UserProfile data (e.g. from Google) with
   /// the chosen anonymous persona.
-  _i3.Future<_i8.Resident> initializeResident({
+  _i3.Future<_i9.Resident> initializeResident({
     required String name,
     required String avatar,
     required String gender,
     required String country,
     required String bio,
-  }) => caller.callServerEndpoint<_i8.Resident>(
+  }) => caller.callServerEndpoint<_i9.Resident>(
     'resident',
     'initializeResident',
     {
@@ -437,8 +485,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i9.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i9.Greeting>(
+  _i3.Future<_i10.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i10.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -476,7 +524,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i10.Protocol(),
+         _i11.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -489,6 +537,7 @@ class Client extends _i2.ServerpodClientShared {
     firebaseIdp = EndpointFirebaseIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     image = EndpointImage(this);
+    message = EndpointMessage(this);
     moment = EndpointMoment(this);
     report = EndpointReport(this);
     resident = EndpointResident(this);
@@ -503,6 +552,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointJwtRefresh jwtRefresh;
 
   late final EndpointImage image;
+
+  late final EndpointMessage message;
 
   late final EndpointMoment moment;
 
@@ -520,6 +571,7 @@ class Client extends _i2.ServerpodClientShared {
     'firebaseIdp': firebaseIdp,
     'jwtRefresh': jwtRefresh,
     'image': image,
+    'message': message,
     'moment': moment,
     'report': report,
     'resident': resident,

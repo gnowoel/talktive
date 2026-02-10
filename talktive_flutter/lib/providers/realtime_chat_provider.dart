@@ -48,26 +48,19 @@ class RealtimeChat extends _$RealtimeChat {
   }
 
   /// Subscribes to real-time message updates via WebSocket.
-  void _subscribe() async {
+  void _subscribe() {
     if (_isSubscribed) return;
 
     final client = ref.read(clientProvider);
 
     try {
-      // Open streaming connection to message endpoint
-      final stream = client.message.stream;
-
-      // Send subscription request for this channel
-      await client.message.sendStreamMessage(
-        ChannelSubscription(channelId: _channelId),
-      );
+      // Connect to the stream using the new Serverpod 3.x streaming method
+      final stream = client.message.subscribe(_channelId);
 
       // Listen for incoming messages
       _messageSubscription = stream.listen(
         (message) {
-          if (message is Message && message.channelId == _channelId) {
-            _handleNewMessage(message);
-          }
+          _handleNewMessage(message);
         },
         onError: (error) {
           print('RealtimeChat: Stream error: $error');

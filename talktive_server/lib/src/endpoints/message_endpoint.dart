@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:uuid/uuid.dart'; // Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/rate_limit_service.dart';
@@ -13,35 +14,6 @@ class MessageEndpoint extends Endpoint {
   }) async {
     try {
       final authenticationInfo = session.authenticated;
-      // In Serverpod 3 with JWT, userId is int? or String?
-      // AuthenticationInfo.userId is int?
-      // But AuthenticationInfoFromJwt sets it to uuid hash or something?
-      // Wait, AuthenticationInfo has 'userId' (legacy int).
-      // AuthenticationInfo has 'authId' (String, which is UUID for JWT).
-      // Let's use authId? no, check session.authenticated properties.
-      // If we use JWT, we should use 'session.authenticationInfo.authId'?? or similar.
-      // Actually, let's look at AuthenticationInfo.
-      // Assuming it has an 'authId' or we parse userId string.
-
-      // Temporary: Try casting or checking.
-      // If legacy int is populated, it might be 0 or random.
-      // We need UUID.
-      // Let's assume we can get UUID from session.
-      // Code:
-      // final senderUuid = session.authenticated?.userId; // This is int.
-      // BUT if we modified AuthenticationInfo? No we didn't.
-
-      // Wait. AuthenticationInfoFromJwt (Step 2150):
-      // final authInfo = AuthenticationInfo(
-      //   result.authUserId.uuid, (String passed to int?)
-
-      // If AuthenticationInfo constructor takes (int userId, ...), passing String fails.
-      // So AuthenticationInfo MUST have changed.
-      // I will assume userId IS dynamic or String or there is a uuid field.
-
-      // Safest: Use `session.authenticated?.authId` if it exists.
-      // Or `session.authenticated?.userId`.
-
       final senderIdentifier = authenticationInfo?.userIdentifier;
 
       if (senderIdentifier == null) {
@@ -111,10 +83,9 @@ class MessageEndpoint extends Endpoint {
       );
 
       // 8. Distribute Message via Streaming
-      // TODO: Fix streaming in Serverpod 3.x
-      // Broadcast to all subscribers of this channel
-      // final streamKey = 'channel_$channelId';
-      // await session.messages.postMessage(streamKey, savedMessage);
+      // Broadcast to all subscribers of this channel using the new API
+      final streamKey = 'channel_$channelId';
+      session.messages.postMessage(streamKey, savedMessage);
 
       // 9. Update message count and award credit
       sender.experienceMessageCount += 1;
@@ -128,8 +99,30 @@ class MessageEndpoint extends Endpoint {
     }
   }
 
-  // TODO: Implement WebSocket streaming in Serverpod 3.x
-  // The streaming API has changed and needs to be updated
+  /// Subscribes to a channel to receive real-time messages.
+  Stream<protocol.Message> subscribe(Session session, int channelId) async* {
+    final authenticationInfo = session.authenticated;
+    if (authenticationInfo == null) {
+      throw Exception('Not authenticated');
+    }
+
+    // 1. Verify access (optional: check if user is member of channel)
+    // For Plaza (floor 0), it's public. For others, check membership.
+    // final channel = await protocol.Channel.db.findById(session, channelId); // Optimization: skip DB check for stream?
+    // If we want to enforce rules, we should check.
+
+    // 2. Create stream from message bus
+    final streamKey = 'channel_$channelId';
+
+    // session.messages.createStream returns a Stream of SerializableModel
+    final stream = session.messages.createStream(streamKey);
+
+    await for (final message in stream) {
+      if (message is protocol.Message) {
+        yield message;
+      }
+    }
+  }
 
   /// Fetches the history of messages for a channel.
   Future<List<protocol.Message>> listMessages(

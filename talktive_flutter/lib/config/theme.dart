@@ -45,6 +45,8 @@ class AppTheme {
   // Background Colors
   static const Color lightBackground = Color(0xFFF7F9FC);
   static const Color darkBackground = Color(0xFF1A1A2E);
+  static const Color backgroundColor =
+      lightBackground; // Added for compatibility
   static const Color cardLight = Colors.white;
   static const Color cardDark = Color(0xFF16213E);
 

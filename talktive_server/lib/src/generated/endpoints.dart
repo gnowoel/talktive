@@ -15,15 +15,16 @@ import '../auth/email_idp_endpoint.dart' as _i2;
 import '../auth/firebase_idp_endpoint.dart' as _i3;
 import '../auth/jwt_refresh_endpoint.dart' as _i4;
 import '../endpoints/image_endpoint.dart' as _i5;
-import '../endpoints/moment_endpoint.dart' as _i6;
-import '../endpoints/report_endpoint.dart' as _i7;
-import '../endpoints/resident_endpoint.dart' as _i8;
-import '../greetings/greeting_endpoint.dart' as _i9;
-import 'dart:typed_data' as _i10;
+import '../endpoints/message_endpoint.dart' as _i6;
+import '../endpoints/moment_endpoint.dart' as _i7;
+import '../endpoints/report_endpoint.dart' as _i8;
+import '../endpoints/resident_endpoint.dart' as _i9;
+import '../greetings/greeting_endpoint.dart' as _i10;
+import 'dart:typed_data' as _i11;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i11;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i12;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i13;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -53,25 +54,31 @@ class Endpoints extends _i1.EndpointDispatch {
           'image',
           null,
         ),
-      'moment': _i6.MomentEndpoint()
+      'message': _i6.MessageEndpoint()
+        ..initialize(
+          server,
+          'message',
+          null,
+        ),
+      'moment': _i7.MomentEndpoint()
         ..initialize(
           server,
           'moment',
           null,
         ),
-      'report': _i7.ReportEndpoint()
+      'report': _i8.ReportEndpoint()
         ..initialize(
           server,
           'report',
           null,
         ),
-      'resident': _i8.ResidentEndpoint()
+      'resident': _i9.ResidentEndpoint()
         ..initialize(
           server,
           'resident',
           null,
         ),
-      'greeting': _i9.GreetingEndpoint()
+      'greeting': _i10.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -306,7 +313,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'imageData': _i1.ParameterDescription(
               name: 'imageData',
-              type: _i1.getType<_i10.ByteData>(),
+              type: _i1.getType<_i11.ByteData>(),
               nullable: false,
             ),
             'fileName': _i1.ParameterDescription(
@@ -345,6 +352,95 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['message'] = _i1.EndpointConnector(
+      name: 'message',
+      endpoint: endpoints['message']!,
+      methodConnectors: {
+        'sendMessage': _i1.MethodConnector(
+          name: 'sendMessage',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'content': _i1.ParameterDescription(
+              name: 'content',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'imageUrl': _i1.ParameterDescription(
+              name: 'imageUrl',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['message'] as _i6.MessageEndpoint).sendMessage(
+                    session,
+                    params['channelId'],
+                    params['content'],
+                    imageUrl: params['imageUrl'],
+                  ),
+        ),
+        'listMessages': _i1.MethodConnector(
+          name: 'listMessages',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['message'] as _i6.MessageEndpoint).listMessages(
+                    session,
+                    params['channelId'],
+                    limit: params['limit'],
+                    offset: params['offset'],
+                  ),
+        ),
+        'subscribe': _i1.MethodStreamConnector(
+          name: 'subscribe',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          streamParams: {},
+          returnType: _i1.MethodStreamReturnType.streamType,
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+                Map<String, Stream> streamParams,
+              ) => (endpoints['message'] as _i6.MessageEndpoint).subscribe(
+                session,
+                params['channelId'],
+              ),
+        ),
+      },
+    );
     connectors['moment'] = _i1.EndpointConnector(
       name: 'moment',
       endpoint: endpoints['moment']!,
@@ -367,7 +463,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['moment'] as _i6.MomentEndpoint).postMoment(
+              ) async => (endpoints['moment'] as _i7.MomentEndpoint).postMoment(
                 session,
                 imageUrl: params['imageUrl'],
                 caption: params['caption'],
@@ -392,7 +488,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['moment'] as _i6.MomentEndpoint).listMoments(
+                  (endpoints['moment'] as _i7.MomentEndpoint).listMoments(
                     session,
                     limit: params['limit'],
                     lastId: params['lastId'],
@@ -432,7 +528,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['report'] as _i7.ReportEndpoint).reportUser(
+              ) async => (endpoints['report'] as _i8.ReportEndpoint).reportUser(
                 session,
                 targetUserId: params['targetUserId'],
                 reason: params['reason'],
@@ -454,7 +550,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i7.ReportEndpoint).getReportCount(
+                  (endpoints['report'] as _i8.ReportEndpoint).getReportCount(
                     session,
                     params['userId'],
                   ),
@@ -478,7 +574,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i7.ReportEndpoint).listReports(
+                  (endpoints['report'] as _i8.ReportEndpoint).listReports(
                     session,
                     limit: params['limit'],
                     onlyUnresolved: params['onlyUnresolved'],
@@ -498,7 +594,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i7.ReportEndpoint).resolveReport(
+                  (endpoints['report'] as _i8.ReportEndpoint).resolveReport(
                     session,
                     params['reportId'],
                   ),
@@ -516,7 +612,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i8.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i9.ResidentEndpoint)
                   .getResident(session),
         ),
         'initializeResident': _i1.MethodConnector(
@@ -552,7 +648,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i8.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i9.ResidentEndpoint)
                   .initializeResident(
                     session,
                     name: params['name'],
@@ -581,16 +677,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i9.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i10.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i11.Endpoints()
+    modules['serverpod_auth_idp'] = _i12.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i12.Endpoints()
+    modules['serverpod_auth_core'] = _i13.Endpoints()
       ..initializeEndpoints(server);
   }
 }

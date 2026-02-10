@@ -23,10 +23,16 @@ class AppTheme {
     Color(0xFF00F5FF),
   ];
 
+  // Duolingo-Inspired Colors
+  static const Color duoGreen = Color(0xFF58CC02); // Duolingo's signature green
+  static const Color duoYellow = Color(0xFFFFD93D); // Bright, cheerful yellow
+  static const Color duoRed = Color(0xFFFF4B4B); // Friendly red
+  static const Color duoOrange = Color(0xFFFF9600); // Vibrant orange
+
   // Fun Color Palette
-  static const Color successColor = Color(0xFF4CAF50);
-  static const Color warningColor = Color(0xFFFFA726);
-  static const Color errorColor = Color(0xFFEF5350);
+  static const Color successColor = duoGreen;
+  static const Color warningColor = duoYellow;
+  static const Color errorColor = duoRed;
   static const Color infoColor = Color(0xFF29B6F6);
 
   // Mood Colors (for user moods)
@@ -387,4 +393,41 @@ class AppTheme {
       offset: const Offset(0, 10),
     ),
   ];
+
+  // Duolingo-Style Shadows
+  static List<BoxShadow> duoCardShadow = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.08),
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  static List<BoxShadow> duoButtonShadow = [
+    BoxShadow(
+      color: primaryColor.withOpacity(0.3),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  // Duolingo-Style Border Radius
+  static const double duoRadiusSmall = 12.0;
+  static const double duoRadiusMedium = 16.0;
+  static const double duoRadiusLarge = 20.0;
+  static const double duoRadiusPill = 100.0;
+
+  // Duolingo-Style Spacing
+  static const double duoSpacingTiny = 4.0;
+  static const double duoSpacingSmall = 8.0;
+  static const double duoSpacingMedium = 16.0;
+  static const double duoSpacingLarge = 24.0;
+  static const double duoSpacingXLarge = 32.0;
+  static const double duoSpacingXXLarge = 48.0;
+
+  // Duolingo-Style Animation Durations
+  static const Duration duoAnimationQuick = Duration(milliseconds: 150);
+  static const Duration duoAnimationNormal = Duration(milliseconds: 300);
+  static const Duration duoAnimationSlow = Duration(milliseconds: 500);
+  static const Duration duoAnimationCelebration = Duration(milliseconds: 3000);
 }

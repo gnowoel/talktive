@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../plaza/plaza_screen_modern.dart';
 import '../moments/moments_screen_modern.dart';
 import '../chats/chats_screen_modern.dart';
@@ -19,94 +21,106 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    // Tab 1: Plaza (We pass a dummy onExit because the main nav handles exit now)
     PlazaScreenModern(),
-    // Tab 2: Moments
     const MomentsScreenModern(),
-    // Tab 3: Chats
     const ChatsScreenModern(),
-    // Tab 4: Groups
     const GroupsScreenModern(),
-    // Tab 5: Profile
     const ProfileScreenModern(),
+  ];
+
+  final List<_NavItem> _navItems = const [
+    _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
+    _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
+    _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.accentColor),
+    _NavItem(emoji: '👥', label: 'Groups', color: AppTheme.duoOrange),
+    _NavItem(emoji: '👤', label: 'Profile', color: AppTheme.duoGreen),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Allow body to extend behind nav bar
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.primaryColor.withOpacity(0.1),
-              AppTheme.secondaryColor.withOpacity(0.1),
-            ],
-          ),
-        ),
-        child: IndexedStack(index: _currentIndex, children: _screens),
+      extendBody: true,
+      backgroundColor: AppTheme.lightBackground,
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: _buildDuoBottomNav(),
+    );
+  }
+
+  Widget _buildDuoBottomNav() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: AppTheme.duoCardShadow,
       ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 30),
-        decoration: BoxDecoration(
-          // Glassmorphism effect
-          color: Colors.black.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(_navItems.length, (index) {
+          final item = _navItems[index];
+          final isSelected = _currentIndex == index;
+
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              child: AnimatedContainer(
+                duration: AppTheme.duoAnimationNormal,
+                curve: Curves.easeInOut,
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? item.color.withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Emoji icon
+                    Text(
+                          item.emoji,
+                          style: TextStyle(fontSize: isSelected ? 28 : 24),
+                        )
+                        .animate(target: isSelected ? 1 : 0)
+                        .scale(duration: 200.ms, curve: Curves.elasticOut),
+                    const SizedBox(height: 2),
+                    // Label
+                    Text(
+                      item.label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                        color: isSelected ? item.color : AppTheme.textSecondary,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: NavigationBar(
-            height: 65,
-            backgroundColor: Colors.transparent,
-            indicatorColor: Colors.white.withOpacity(0.2),
-            selectedIndex: _currentIndex,
-            labelBehavior:
-                NavigationDestinationLabelBehavior.alwaysHide, // Cleaner look
-            onDestinationSelected: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.apartment, color: Colors.white70),
-                selectedIcon: Icon(Icons.apartment, color: Colors.white),
-                label: 'Plaza',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.local_activity, color: Colors.white70),
-                selectedIcon: Icon(Icons.local_activity, color: Colors.white),
-                label: 'Moments',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.chat_bubble_outline, color: Colors.white70),
-                selectedIcon: Icon(Icons.chat_bubble, color: Colors.white),
-                label: 'Chats',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.groups_outlined, color: Colors.white70),
-                selectedIcon: Icon(Icons.groups, color: Colors.white),
-                label: 'Groups',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.person_outline, color: Colors.white70),
-                selectedIcon: Icon(Icons.person, color: Colors.white),
-                label: 'Profile',
-              ),
-            ],
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
+}
+
+class _NavItem {
+  final String emoji;
+  final String label;
+  final Color color;
+
+  const _NavItem({
+    required this.emoji,
+    required this.label,
+    required this.color,
+  });
 }

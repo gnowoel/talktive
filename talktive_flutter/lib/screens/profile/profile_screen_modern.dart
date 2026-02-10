@@ -5,7 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/resident_provider.dart';
 import '../../config/theme.dart';
+import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_stat_card.dart';
+import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_button.dart';
 
+/// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreenModern extends ConsumerWidget {
   const ProfileScreenModern({super.key});
 
@@ -14,66 +19,37 @@ class ProfileScreenModern extends ConsumerWidget {
     final residentAsync = ref.watch(currentResidentProvider);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
-            ),
-          ),
-        ),
-      ),
+      backgroundColor: AppTheme.lightBackground,
       body: residentAsync.when(
         data: (resident) => _buildProfile(context, ref, resident),
-        loading: () => Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
-            ),
-            child: const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ).animate().fadeIn().scale(),
+        loading: () => const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          ),
         ),
         error: (error, stack) => Center(
-          child: Container(
-            margin: const EdgeInsets.all(24),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
-            ),
+          child: DuoCard(
+            margin: const EdgeInsets.all(AppTheme.duoSpacingLarge),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 48),
-                const SizedBox(height: 16),
-                Text(
+                const Icon(
+                  Icons.error_outline,
+                  color: AppTheme.errorColor,
+                  size: 48,
+                ),
+                const SizedBox(height: AppTheme.duoSpacingMedium),
+                const Text(
                   'Error loading profile',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ],
             ),
-          ).animate().fadeIn().scale(),
+          ),
         ),
       ),
     );
@@ -81,257 +57,245 @@ class ProfileScreenModern extends ConsumerWidget {
 
   Widget _buildProfile(BuildContext context, WidgetRef ref, resident) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(
-        top: 120,
-        bottom: 100,
-        left: 24,
-        right: 24,
-      ),
       child: Column(
         children: [
-          // Profile Avatar
-          Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryColor.withOpacity(0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.2),
-                  ),
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.white.withOpacity(0.1),
-                    child: const Icon(
-                      Icons.person,
-                      size: 60,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              )
-              .animate()
-              .fadeIn(delay: 100.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-
-          const SizedBox(height: 24),
-
-          // User Name
-          Text(
-            resident?.name ?? 'Anonymous',
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0),
-
-          const SizedBox(height: 24),
-
-          // Stats Cards
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                _buildStatRow(
-                  icon: Icons.apartment,
-                  label: 'Floor',
-                  value: '${resident?.floor ?? 0}',
-                  gradient: LinearGradient(
-                    colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildStatRow(
-                  icon: Icons.star,
-                  label: 'Experience',
-                  value: '${resident?.experienceLevel ?? 0}',
-                  gradient: LinearGradient(
-                    colors: [Colors.amber, Colors.orange],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildStatRow(
-                  icon: Icons.credit_score,
-                  label: 'Credits',
-                  value: '${resident?.creditScore ?? 0}',
-                  gradient: LinearGradient(colors: [Colors.green, Colors.teal]),
-                ),
-                const SizedBox(height: 16),
-                _buildStatRow(
-                  icon: Icons.message,
-                  label: 'Messages',
-                  value: '${resident?.messageCount ?? 0}',
-                  gradient: LinearGradient(
-                    colors: [Colors.blue, Colors.purple],
-                  ),
-                ),
-              ],
-            ),
-          ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1, end: 0),
-
-          const SizedBox(height: 24),
-
-          // Info Card
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.primaryColor.withOpacity(0.3),
-                            AppTheme.secondaryColor.withOpacity(0.3),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.info_outline,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Text(
-                        'Your floor level determines your privileges in the apartment building',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0),
-
-          const SizedBox(height: 32),
-
-          // Sign Out Button
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.red.shade400, Colors.red.shade600],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () async {
-                  await ref.read(authProvider.notifier).signOut();
-                  if (context.mounted) {
-                    context.go('/welcome');
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.logout, color: Colors.white),
-                      SizedBox(width: 12),
-                      Text(
-                        'Sign Out',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0),
+          // Gradient header
+          _buildHeader(resident),
+          // Stats grid
+          _buildStatsGrid(resident),
+          // Info card
+          _buildInfoCard(),
+          // Sign out button
+          _buildSignOutButton(context, ref),
+          const SizedBox(height: 100), // Space for bottom nav
         ],
       ),
     );
   }
 
-  Widget _buildStatRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Gradient gradient,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: Colors.white, size: 24),
+  Widget _buildHeader(resident) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.duoSpacingXLarge),
+          child: Column(
+            children: [
+              // Avatar
+              DuoAvatar(
+                    initials: resident?.name?.isNotEmpty == true
+                        ? resident!.name[0].toUpperCase()
+                        : '?',
+                    size: 120,
+                    floorLevel: resident?.floor,
+                    ringColor: Colors.white,
+                  )
+                  .animate()
+                  .fadeIn(delay: 100.ms)
+                  .scale(begin: const Offset(0.8, 0.8)),
+              const SizedBox(height: AppTheme.duoSpacingMedium),
+              // Name
+              Text(
+                resident?.name ?? 'Anonymous',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                ),
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0),
+            ],
           ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+      ),
+    );
+  }
+
+  Widget _buildStatsGrid(resident) {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+      child: GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: AppTheme.duoSpacingMedium,
+        crossAxisSpacing: AppTheme.duoSpacingMedium,
+        childAspectRatio: 1.1,
+        children: [
+          DuoStatCard(
+                icon: Icons.apartment,
+                value: '${resident?.floor ?? 0}',
+                label: 'Floor Level',
+                gradientColors: [
+                  AppTheme.primaryColor,
+                  AppTheme.primaryColor.withOpacity(0.7),
+                ],
+              )
+              .animate()
+              .fadeIn(delay: 300.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+          DuoStatCard(
+                icon: Icons.star,
+                value: '${resident?.experienceLevel ?? 0}',
+                label: 'Experience',
+                gradientColors: [AppTheme.duoYellow, Colors.orange],
+              )
+              .animate()
+              .fadeIn(delay: 350.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+          DuoStatCard(
+                icon: Icons.credit_score,
+                value: '${resident?.creditScore ?? 0}',
+                label: 'Credits',
+                gradientColors: [
+                  AppTheme.duoGreen,
+                  AppTheme.duoGreen.withOpacity(0.7),
+                ],
+              )
+              .animate()
+              .fadeIn(delay: 400.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+          DuoStatCard(
+                icon: Icons.message,
+                value: '${resident?.messageCount ?? 0}',
+                label: 'Messages',
+                gradientColors: [
+                  AppTheme.accentColor,
+                  AppTheme.accentColor.withOpacity(0.7),
+                ],
+              )
+              .animate()
+              .fadeIn(delay: 450.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
+      child: DuoCard(
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppTheme.duoSpacingSmall),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.primaryColor.withOpacity(0.2),
+                    AppTheme.secondaryColor.withOpacity(0.2),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
+              ),
+              child: const Icon(
+                Icons.info_outline,
+                color: AppTheme.primaryColor,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingMedium),
+            const Expanded(
+              child: Text(
+                'Your floor level determines your privileges in the apartment building',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textSecondary,
+                  fontFamily: 'Rubik',
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0),
+    );
+  }
+
+  Widget _buildSignOutButton(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+      child: DuoButton(
+        text: 'Sign Out',
+        icon: Icons.logout,
+        color: AppTheme.duoRed,
+        width: double.infinity,
+        onPressed: () async {
+          // Show confirmation dialog
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (context) => Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+                ),
+                padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Sign Out?',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    const Text(
+                      'Are you sure you want to sign out?',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textSecondary,
+                        fontFamily: 'Rubik',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DuoButton(
+                            text: 'Cancel',
+                            isSecondary: true,
+                            onPressed: () => Navigator.of(context).pop(false),
+                          ),
+                        ),
+                        const SizedBox(width: AppTheme.duoSpacingSmall),
+                        Expanded(
+                          child: DuoButton(
+                            text: 'Sign Out',
+                            color: AppTheme.duoRed,
+                            onPressed: () => Navigator.of(context).pop(true),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ).animate().scale(duration: 200.ms, curve: Curves.easeOut),
+            ),
+          );
+
+          if (confirmed == true) {
+            await ref.read(authProvider.notifier).signOut();
+            if (context.mounted) {
+              context.go('/welcome');
+            }
+          }
+        },
+      ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
     );
   }
 }

@@ -9,7 +9,6 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_header.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
-import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 
 /// Duolingo-style Plaza screen - public chat for all residents
@@ -261,7 +260,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           final message = messages[index];
           final isCurrentUser =
               _currentResident != null &&
-              message.authorId == _currentResident!.userInfoId;
+              message.senderId == _currentResident!.userInfoId;
 
           return _buildMessageBubble(message, isCurrentUser, index)
               .animate()
@@ -282,14 +281,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isCurrentUser) ...[
-            DuoAvatar(
-              initials: message.authorName.isNotEmpty
-                  ? message.authorName[0].toUpperCase()
-                  : '?',
-              size: 36,
-              floorLevel: message.authorFloor,
-              showRing: false,
-            ),
+            DuoAvatar(initials: '?', size: 36, showRing: false),
             const SizedBox(width: AppTheme.duoSpacingSmall),
           ],
           Flexible(
@@ -305,7 +297,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
                       bottom: 4,
                     ),
                     child: Text(
-                      message.authorName,
+                      'Resident',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -341,7 +333,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
                     ],
                   ),
                   child: Text(
-                    message.content,
+                    message.content ?? '',
                     style: TextStyle(
                       fontSize: 15,
                       color: isCurrentUser
@@ -373,11 +365,9 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           if (isCurrentUser) ...[
             const SizedBox(width: AppTheme.duoSpacingSmall),
             DuoAvatar(
-              initials: message.authorName.isNotEmpty
-                  ? message.authorName[0].toUpperCase()
-                  : '?',
+              imageUrl: _currentResident?.avatar,
+              initials: 'ME',
               size: 36,
-              floorLevel: message.authorFloor,
               showRing: false,
             ),
           ],

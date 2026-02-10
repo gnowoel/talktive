@@ -1,8 +1,7 @@
 class: Message
 table: message
 fields:
-
-  channel: Channel?, relation
+  channelId: int
   senderId: UuidValue
   content: String?
   imageUrl: String?

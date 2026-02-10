@@ -8,20 +8,16 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import 'channel.dart' as _i2;
-import 'channel_member_status.dart' as _i3;
-import 'package:talktive_server/src/generated/protocol.dart' as _i4;
+import 'channel_member_status.dart' as _i2;
 
 abstract class ChannelMember
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   ChannelMember._({
     this.id,
     required this.channelId,
-    this.channel,
     required this.userInfoId,
     required this.joinedAt,
     this.role,
@@ -31,22 +27,16 @@ abstract class ChannelMember
   factory ChannelMember({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
-    required _i3.ChannelMemberStatus status,
+    required _i2.ChannelMemberStatus status,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
     return ChannelMember(
       id: jsonSerialization['id'] as int?,
       channelId: jsonSerialization['channelId'] as int,
-      channel: jsonSerialization['channel'] == null
-          ? null
-          : _i4.Protocol().deserialize<_i2.Channel>(
-              jsonSerialization['channel'],
-            ),
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
@@ -54,7 +44,7 @@ abstract class ChannelMember
         jsonSerialization['joinedAt'],
       ),
       role: jsonSerialization['role'] as String?,
-      status: _i3.ChannelMemberStatus.fromJson(
+      status: _i2.ChannelMemberStatus.fromJson(
         (jsonSerialization['status'] as String),
       ),
     );
@@ -69,15 +59,13 @@ abstract class ChannelMember
 
   int channelId;
 
-  _i2.Channel? channel;
-
   _i1.UuidValue userInfoId;
 
   DateTime joinedAt;
 
   String? role;
 
-  _i3.ChannelMemberStatus status;
+  _i2.ChannelMemberStatus status;
 
   @override
   _i1.Table<int?> get table => t;
@@ -88,11 +76,10 @@ abstract class ChannelMember
   ChannelMember copyWith({
     int? id,
     int? channelId,
-    _i2.Channel? channel,
     _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     String? role,
-    _i3.ChannelMemberStatus? status,
+    _i2.ChannelMemberStatus? status,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -100,7 +87,6 @@ abstract class ChannelMember
       '__className__': 'ChannelMember',
       if (id != null) 'id': id,
       'channelId': channelId,
-      if (channel != null) 'channel': channel?.toJson(),
       'userInfoId': userInfoId.toJson(),
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
@@ -114,7 +100,6 @@ abstract class ChannelMember
       '__className__': 'ChannelMember',
       if (id != null) 'id': id,
       'channelId': channelId,
-      if (channel != null) 'channel': channel?.toJsonForProtocol(),
       'userInfoId': userInfoId.toJson(),
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
@@ -122,8 +107,8 @@ abstract class ChannelMember
     };
   }
 
-  static ChannelMemberInclude include({_i2.ChannelInclude? channel}) {
-    return ChannelMemberInclude._(channel: channel);
+  static ChannelMemberInclude include() {
+    return ChannelMemberInclude._();
   }
 
   static ChannelMemberIncludeList includeList({
@@ -158,15 +143,13 @@ class _ChannelMemberImpl extends ChannelMember {
   _ChannelMemberImpl({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
-    required _i3.ChannelMemberStatus status,
+    required _i2.ChannelMemberStatus status,
   }) : super._(
          id: id,
          channelId: channelId,
-         channel: channel,
          userInfoId: userInfoId,
          joinedAt: joinedAt,
          role: role,
@@ -180,16 +163,14 @@ class _ChannelMemberImpl extends ChannelMember {
   ChannelMember copyWith({
     Object? id = _Undefined,
     int? channelId,
-    Object? channel = _Undefined,
     _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     Object? role = _Undefined,
-    _i3.ChannelMemberStatus? status,
+    _i2.ChannelMemberStatus? status,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
       channelId: channelId ?? this.channelId,
-      channel: channel is _i2.Channel? ? channel : this.channel?.copyWith(),
       userInfoId: userInfoId ?? this.userInfoId,
       joinedAt: joinedAt ?? this.joinedAt,
       role: role is String? ? role : this.role,
@@ -224,8 +205,8 @@ class ChannelMemberUpdateTable extends _i1.UpdateTable<ChannelMemberTable> {
     value,
   );
 
-  _i1.ColumnValue<_i3.ChannelMemberStatus, _i3.ChannelMemberStatus> status(
-    _i3.ChannelMemberStatus value,
+  _i1.ColumnValue<_i2.ChannelMemberStatus, _i2.ChannelMemberStatus> status(
+    _i2.ChannelMemberStatus value,
   ) => _i1.ColumnValue(
     table.status,
     value,
@@ -263,28 +244,13 @@ class ChannelMemberTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt channelId;
 
-  _i2.ChannelTable? _channel;
-
   late final _i1.ColumnUuid userInfoId;
 
   late final _i1.ColumnDateTime joinedAt;
 
   late final _i1.ColumnString role;
 
-  late final _i1.ColumnEnum<_i3.ChannelMemberStatus> status;
-
-  _i2.ChannelTable get channel {
-    if (_channel != null) return _channel!;
-    _channel = _i1.createRelationTable(
-      relationFieldName: 'channel',
-      field: ChannelMember.t.channelId,
-      foreignField: _i2.Channel.t.id,
-      tableRelation: tableRelation,
-      createTable: (foreignTableRelation) =>
-          _i2.ChannelTable(tableRelation: foreignTableRelation),
-    );
-    return _channel!;
-  }
+  late final _i1.ColumnEnum<_i2.ChannelMemberStatus> status;
 
   @override
   List<_i1.Column> get columns => [
@@ -295,25 +261,13 @@ class ChannelMemberTable extends _i1.Table<int?> {
     role,
     status,
   ];
-
-  @override
-  _i1.Table? getRelationTable(String relationField) {
-    if (relationField == 'channel') {
-      return channel;
-    }
-    return null;
-  }
 }
 
 class ChannelMemberInclude extends _i1.IncludeObject {
-  ChannelMemberInclude._({_i2.ChannelInclude? channel}) {
-    _channel = channel;
-  }
-
-  _i2.ChannelInclude? _channel;
+  ChannelMemberInclude._();
 
   @override
-  Map<String, _i1.Include?> get includes => {'channel': _channel};
+  Map<String, _i1.Include?> get includes => {};
 
   @override
   _i1.Table<int?> get table => ChannelMember.t;
@@ -341,8 +295,6 @@ class ChannelMemberIncludeList extends _i1.IncludeList {
 
 class ChannelMemberRepository {
   const ChannelMemberRepository._();
-
-  final attachRow = const ChannelMemberAttachRowRepository._();
 
   /// Returns a list of [ChannelMember]s matching the given query parameters.
   ///
@@ -375,7 +327,6 @@ class ChannelMemberRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<ChannelMemberTable>? orderByList,
     _i1.Transaction? transaction,
-    ChannelMemberInclude? include,
   }) async {
     return session.db.find<ChannelMember>(
       where: where?.call(ChannelMember.t),
@@ -385,7 +336,6 @@ class ChannelMemberRepository {
       limit: limit,
       offset: offset,
       transaction: transaction,
-      include: include,
     );
   }
 
@@ -414,7 +364,6 @@ class ChannelMemberRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<ChannelMemberTable>? orderByList,
     _i1.Transaction? transaction,
-    ChannelMemberInclude? include,
   }) async {
     return session.db.findFirstRow<ChannelMember>(
       where: where?.call(ChannelMember.t),
@@ -423,7 +372,6 @@ class ChannelMemberRepository {
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
-      include: include,
     );
   }
 
@@ -432,12 +380,10 @@ class ChannelMemberRepository {
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
-    ChannelMemberInclude? include,
   }) async {
     return session.db.findById<ChannelMember>(
       id,
       transaction: transaction,
-      include: include,
     );
   }
 
@@ -595,33 +541,6 @@ class ChannelMemberRepository {
     return session.db.count<ChannelMember>(
       where: where?.call(ChannelMember.t),
       limit: limit,
-      transaction: transaction,
-    );
-  }
-}
-
-class ChannelMemberAttachRowRepository {
-  const ChannelMemberAttachRowRepository._();
-
-  /// Creates a relation between the given [ChannelMember] and [Channel]
-  /// by setting the [ChannelMember]'s foreign key `channelId` to refer to the [Channel].
-  Future<void> channel(
-    _i1.Session session,
-    ChannelMember channelMember,
-    _i2.Channel channel, {
-    _i1.Transaction? transaction,
-  }) async {
-    if (channelMember.id == null) {
-      throw ArgumentError.notNull('channelMember.id');
-    }
-    if (channel.id == null) {
-      throw ArgumentError.notNull('channel.id');
-    }
-
-    var $channelMember = channelMember.copyWith(channelId: channel.id);
-    await session.db.updateRow<ChannelMember>(
-      $channelMember,
-      columns: [ChannelMember.t.channelId],
       transaction: transaction,
     );
   }

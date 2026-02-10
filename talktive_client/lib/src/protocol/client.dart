@@ -16,11 +16,12 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
-import 'package:talktive_client/src/protocol/message.dart' as _i5;
+import 'dart:typed_data' as _i5;
 import 'package:talktive_client/src/protocol/moment.dart' as _i6;
-import 'package:talktive_client/src/protocol/resident.dart' as _i7;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i8;
-import 'protocol.dart' as _i9;
+import 'package:talktive_client/src/protocol/report.dart' as _i7;
+import 'package:talktive_client/src/protocol/resident.dart' as _i8;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i9;
+import 'protocol.dart' as _i10;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -258,41 +259,41 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
 }
 
 /// {@category Endpoint}
-class EndpointMessage extends _i2.EndpointRef {
-  EndpointMessage(_i2.EndpointCaller caller) : super(caller);
+class EndpointImage extends _i2.EndpointRef {
+  EndpointImage(_i2.EndpointCaller caller) : super(caller);
 
   @override
-  String get name => 'message';
+  String get name => 'image';
 
-  /// Sends a message to a channel (Plaza, Group, or Private).
-  _i3.Future<_i5.Message> sendMessage(
-    int channelId,
-    String content, {
-    String? imageUrl,
-  }) => caller.callServerEndpoint<_i5.Message>(
-    'message',
-    'sendMessage',
+  /// Uploads an image file to the server's local storage.
+  /// Returns the URL path to access the uploaded image.
+  ///
+  /// Images are stored in: /var/talktive/uploads/
+  /// Accessible via: /uploads/{filename}
+  ///
+  /// Restrictions:
+  /// - Max file size: 5MB
+  /// - Allowed formats: JPEG, PNG, WebP
+  /// - Only authenticated users can upload
+  _i3.Future<String> uploadImage(
+    _i5.ByteData imageData,
+    String fileName,
+  ) => caller.callServerEndpoint<String>(
+    'image',
+    'uploadImage',
     {
-      'channelId': channelId,
-      'content': content,
-      'imageUrl': imageUrl,
+      'imageData': imageData,
+      'fileName': fileName,
     },
   );
 
-  /// Fetches the history of messages for a channel.
-  _i3.Future<List<_i5.Message>> listMessages(
-    int channelId, {
-    required int limit,
-    required int offset,
-  }) => caller.callServerEndpoint<List<_i5.Message>>(
-    'message',
-    'listMessages',
-    {
-      'channelId': channelId,
-      'limit': limit,
-      'offset': offset,
-    },
-  );
+  /// Deletes an image from the server (user can only delete their own images).
+  _i3.Future<void> deleteImage(String imageUrl) =>
+      caller.callServerEndpoint<void>(
+        'image',
+        'deleteImage',
+        {'imageUrl': imageUrl},
+      );
 }
 
 /// {@category Endpoint}
@@ -303,6 +304,7 @@ class EndpointMoment extends _i2.EndpointRef {
   String get name => 'moment';
 
   /// Posts a new moment to the feed.
+  /// Only residents on Floor 2+ can post moments (to prevent spam).
   _i3.Future<_i6.Moment> postMoment({
     required String imageUrl,
     required String caption,
@@ -330,6 +332,65 @@ class EndpointMoment extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointReport extends _i2.EndpointRef {
+  EndpointReport(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'report';
+
+  /// Reports a user for inappropriate behavior.
+  /// Implements abuse prevention:
+  /// - Floor 0 users cannot report
+  /// - Max 5 reports per day per user
+  /// - 30-minute cooldown between reports
+  /// - Cannot report the same user more than once per day
+  _i3.Future<void> reportUser({
+    required String targetUserId,
+    required String reason,
+    int? channelId,
+    int? messageId,
+  }) => caller.callServerEndpoint<void>(
+    'report',
+    'reportUser',
+    {
+      'targetUserId': targetUserId,
+      'reason': reason,
+      'channelId': channelId,
+      'messageId': messageId,
+    },
+  );
+
+  /// Gets the number of reports a user has received (for moderation).
+  _i3.Future<int> getReportCount(String userId) =>
+      caller.callServerEndpoint<int>(
+        'report',
+        'getReportCount',
+        {'userId': userId},
+      );
+
+  /// Lists recent reports for moderation (admin only).
+  _i3.Future<List<_i7.Report>> listReports({
+    required int limit,
+    required bool onlyUnresolved,
+  }) => caller.callServerEndpoint<List<_i7.Report>>(
+    'report',
+    'listReports',
+    {
+      'limit': limit,
+      'onlyUnresolved': onlyUnresolved,
+    },
+  );
+
+  /// Marks a report as resolved (admin only).
+  _i3.Future<void> resolveReport(int reportId) =>
+      caller.callServerEndpoint<void>(
+        'report',
+        'resolveReport',
+        {'reportId': reportId},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointResident extends _i2.EndpointRef {
   EndpointResident(_i2.EndpointCaller caller) : super(caller);
 
@@ -337,8 +398,8 @@ class EndpointResident extends _i2.EndpointRef {
   String get name => 'resident';
 
   /// Checks if the authenticated user has a Resident profile.
-  _i3.Future<_i7.Resident?> getResident() =>
-      caller.callServerEndpoint<_i7.Resident?>(
+  _i3.Future<_i8.Resident?> getResident() =>
+      caller.callServerEndpoint<_i8.Resident?>(
         'resident',
         'getResident',
         {},
@@ -347,13 +408,13 @@ class EndpointResident extends _i2.EndpointRef {
   /// Initializes a Resident profile for an authenticated user.
   /// This overwrites any existing UserProfile data (e.g. from Google) with
   /// the chosen anonymous persona.
-  _i3.Future<_i7.Resident> initializeResident({
+  _i3.Future<_i8.Resident> initializeResident({
     required String name,
     required String avatar,
     required String gender,
     required String country,
     required String bio,
-  }) => caller.callServerEndpoint<_i7.Resident>(
+  }) => caller.callServerEndpoint<_i8.Resident>(
     'resident',
     'initializeResident',
     {
@@ -376,8 +437,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i8.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i8.Greeting>(
+  _i3.Future<_i9.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i9.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -415,7 +476,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i9.Protocol(),
+         _i10.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -427,8 +488,9 @@ class Client extends _i2.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     firebaseIdp = EndpointFirebaseIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
-    message = EndpointMessage(this);
+    image = EndpointImage(this);
     moment = EndpointMoment(this);
+    report = EndpointReport(this);
     resident = EndpointResident(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -440,9 +502,11 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
-  late final EndpointMessage message;
+  late final EndpointImage image;
 
   late final EndpointMoment moment;
+
+  late final EndpointReport report;
 
   late final EndpointResident resident;
 
@@ -455,8 +519,9 @@ class Client extends _i2.ServerpodClientShared {
     'emailIdp': emailIdp,
     'firebaseIdp': firebaseIdp,
     'jwtRefresh': jwtRefresh,
-    'message': message,
+    'image': image,
     'moment': moment,
+    'report': report,
     'resident': resident,
     'greeting': greeting,
   };

@@ -8,19 +8,15 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import 'channel.dart' as _i2;
-import 'package:talktive_server/src/generated/protocol.dart' as _i3;
 
 abstract class Message
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   Message._({
     this.id,
     required this.channelId,
-    this.channel,
     required this.senderId,
     this.content,
     this.imageUrl,
@@ -30,7 +26,6 @@ abstract class Message
   factory Message({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
@@ -41,11 +36,6 @@ abstract class Message
     return Message(
       id: jsonSerialization['id'] as int?,
       channelId: jsonSerialization['channelId'] as int,
-      channel: jsonSerialization['channel'] == null
-          ? null
-          : _i3.Protocol().deserialize<_i2.Channel>(
-              jsonSerialization['channel'],
-            ),
       senderId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['senderId'],
       ),
@@ -66,8 +56,6 @@ abstract class Message
 
   int channelId;
 
-  _i2.Channel? channel;
-
   _i1.UuidValue senderId;
 
   String? content;
@@ -85,7 +73,6 @@ abstract class Message
   Message copyWith({
     int? id,
     int? channelId,
-    _i2.Channel? channel,
     _i1.UuidValue? senderId,
     String? content,
     String? imageUrl,
@@ -97,7 +84,6 @@ abstract class Message
       '__className__': 'Message',
       if (id != null) 'id': id,
       'channelId': channelId,
-      if (channel != null) 'channel': channel?.toJson(),
       'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
@@ -111,7 +97,6 @@ abstract class Message
       '__className__': 'Message',
       if (id != null) 'id': id,
       'channelId': channelId,
-      if (channel != null) 'channel': channel?.toJsonForProtocol(),
       'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
@@ -119,8 +104,8 @@ abstract class Message
     };
   }
 
-  static MessageInclude include({_i2.ChannelInclude? channel}) {
-    return MessageInclude._(channel: channel);
+  static MessageInclude include() {
+    return MessageInclude._();
   }
 
   static MessageIncludeList includeList({
@@ -155,7 +140,6 @@ class _MessageImpl extends Message {
   _MessageImpl({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
@@ -163,7 +147,6 @@ class _MessageImpl extends Message {
   }) : super._(
          id: id,
          channelId: channelId,
-         channel: channel,
          senderId: senderId,
          content: content,
          imageUrl: imageUrl,
@@ -177,7 +160,6 @@ class _MessageImpl extends Message {
   Message copyWith({
     Object? id = _Undefined,
     int? channelId,
-    Object? channel = _Undefined,
     _i1.UuidValue? senderId,
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
@@ -186,7 +168,6 @@ class _MessageImpl extends Message {
     return Message(
       id: id is int? ? id : this.id,
       channelId: channelId ?? this.channelId,
-      channel: channel is _i2.Channel? ? channel : this.channel?.copyWith(),
       senderId: senderId ?? this.senderId,
       content: content is String? ? content : this.content,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
@@ -255,8 +236,6 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt channelId;
 
-  _i2.ChannelTable? _channel;
-
   late final _i1.ColumnUuid senderId;
 
   late final _i1.ColumnString content;
@@ -264,19 +243,6 @@ class MessageTable extends _i1.Table<int?> {
   late final _i1.ColumnString imageUrl;
 
   late final _i1.ColumnDateTime createdAt;
-
-  _i2.ChannelTable get channel {
-    if (_channel != null) return _channel!;
-    _channel = _i1.createRelationTable(
-      relationFieldName: 'channel',
-      field: Message.t.channelId,
-      foreignField: _i2.Channel.t.id,
-      tableRelation: tableRelation,
-      createTable: (foreignTableRelation) =>
-          _i2.ChannelTable(tableRelation: foreignTableRelation),
-    );
-    return _channel!;
-  }
 
   @override
   List<_i1.Column> get columns => [
@@ -287,25 +253,13 @@ class MessageTable extends _i1.Table<int?> {
     imageUrl,
     createdAt,
   ];
-
-  @override
-  _i1.Table? getRelationTable(String relationField) {
-    if (relationField == 'channel') {
-      return channel;
-    }
-    return null;
-  }
 }
 
 class MessageInclude extends _i1.IncludeObject {
-  MessageInclude._({_i2.ChannelInclude? channel}) {
-    _channel = channel;
-  }
-
-  _i2.ChannelInclude? _channel;
+  MessageInclude._();
 
   @override
-  Map<String, _i1.Include?> get includes => {'channel': _channel};
+  Map<String, _i1.Include?> get includes => {};
 
   @override
   _i1.Table<int?> get table => Message.t;
@@ -333,8 +287,6 @@ class MessageIncludeList extends _i1.IncludeList {
 
 class MessageRepository {
   const MessageRepository._();
-
-  final attachRow = const MessageAttachRowRepository._();
 
   /// Returns a list of [Message]s matching the given query parameters.
   ///
@@ -367,7 +319,6 @@ class MessageRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<MessageTable>? orderByList,
     _i1.Transaction? transaction,
-    MessageInclude? include,
   }) async {
     return session.db.find<Message>(
       where: where?.call(Message.t),
@@ -377,7 +328,6 @@ class MessageRepository {
       limit: limit,
       offset: offset,
       transaction: transaction,
-      include: include,
     );
   }
 
@@ -406,7 +356,6 @@ class MessageRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<MessageTable>? orderByList,
     _i1.Transaction? transaction,
-    MessageInclude? include,
   }) async {
     return session.db.findFirstRow<Message>(
       where: where?.call(Message.t),
@@ -415,7 +364,6 @@ class MessageRepository {
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
-      include: include,
     );
   }
 
@@ -424,12 +372,10 @@ class MessageRepository {
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
-    MessageInclude? include,
   }) async {
     return session.db.findById<Message>(
       id,
       transaction: transaction,
-      include: include,
     );
   }
 
@@ -587,33 +533,6 @@ class MessageRepository {
     return session.db.count<Message>(
       where: where?.call(Message.t),
       limit: limit,
-      transaction: transaction,
-    );
-  }
-}
-
-class MessageAttachRowRepository {
-  const MessageAttachRowRepository._();
-
-  /// Creates a relation between the given [Message] and [Channel]
-  /// by setting the [Message]'s foreign key `channelId` to refer to the [Channel].
-  Future<void> channel(
-    _i1.Session session,
-    Message message,
-    _i2.Channel channel, {
-    _i1.Transaction? transaction,
-  }) async {
-    if (message.id == null) {
-      throw ArgumentError.notNull('message.id');
-    }
-    if (channel.id == null) {
-      throw ArgumentError.notNull('channel.id');
-    }
-
-    var $message = message.copyWith(channelId: channel.id);
-    await session.db.updateRow<Message>(
-      $message,
-      columns: [Message.t.channelId],
       transaction: transaction,
     );
   }

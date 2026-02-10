@@ -1,0 +1,12 @@
+class: RateLimit
+table: rate_limit
+fields:
+  userInfoId: UuidValue
+  channelId: int
+  messageCount: int
+  windowStart: DateTime
+  lastMessageAt: DateTime
+indexes:
+  rate_limit_user_channel_idx:
+    fields: userInfoId, channelId
+    unique: true

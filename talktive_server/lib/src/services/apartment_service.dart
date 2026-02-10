@@ -66,7 +66,9 @@ class ApartmentService {
     return target;
   }
 
-  /// Awards 1 credit score point if more than 1 hour has passed since last increase.
+  /// Awards credit score points if more than 1 hour has passed since last increase.
+  /// Awards 2 points per hour (changed from 1 for faster recovery).
+  /// Maximum credit score is capped at 100.
   static Future<void> awardMessageCredit(
     Session session,
     Resident resident,
@@ -76,7 +78,8 @@ class ApartmentService {
 
     // Check time constraint (1 hour)
     if (lastIncrease == null || now.difference(lastIncrease).inHours >= 1) {
-      resident.creditScore += 1;
+      // Award 2 points per hour (faster recovery)
+      resident.creditScore = (resident.creditScore + 2).clamp(-1000, 100);
       resident.lastCreditIncrease = now;
 
       // Upgrade floor if applicable

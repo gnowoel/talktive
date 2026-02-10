@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    hide Endpoints;
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/firebase.dart';
 
@@ -50,6 +51,17 @@ void run(List<String> args) async {
   // These are used by the default web page.
   final root = Directory(Uri(path: 'web/static').toFilePath());
   pod.webServer.addRoute(StaticRoute.directory(root));
+
+  // Serve uploaded images from uploads directory
+  // When using Docker, mount this as a volume: -v ./uploads:/app/uploads
+  final uploadsDir = Directory('uploads');
+  if (!uploadsDir.existsSync()) {
+    uploadsDir.createSync(recursive: true);
+  }
+  pod.webServer.addRoute(
+    StaticRoute.directory(uploadsDir),
+    '/uploads',
+  );
 
   // Setup the app config route.
   // We build this configuration based on the servers api url and serve it to

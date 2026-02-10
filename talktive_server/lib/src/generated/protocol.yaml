@@ -10,12 +10,17 @@ firebaseIdp:
   - login:
 jwtRefresh:
   - refreshAccessToken:
-message:
-  - sendMessage:
-  - listMessages:
+image:
+  - uploadImage:
+  - deleteImage:
 moment:
   - postMoment:
   - listMoments:
+report:
+  - reportUser:
+  - getReportCount:
+  - listReports:
+  - resolveReport:
 resident:
   - getResident:
   - initializeResident:

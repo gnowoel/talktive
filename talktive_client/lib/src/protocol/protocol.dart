@@ -20,14 +20,15 @@ import 'channel_type.dart' as _i7;
 import 'greetings/greeting.dart' as _i8;
 import 'message.dart' as _i9;
 import 'moment.dart' as _i10;
-import 'report.dart' as _i11;
-import 'resident.dart' as _i12;
-import 'package:talktive_client/src/protocol/message.dart' as _i13;
+import 'rate_limit.dart' as _i11;
+import 'report.dart' as _i12;
+import 'resident.dart' as _i13;
 import 'package:talktive_client/src/protocol/moment.dart' as _i14;
+import 'package:talktive_client/src/protocol/report.dart' as _i15;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i15;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i16;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i17;
 export 'block.dart';
 export 'channel.dart';
 export 'channel_member.dart';
@@ -37,6 +38,7 @@ export 'channel_type.dart';
 export 'greetings/greeting.dart';
 export 'message.dart';
 export 'moment.dart';
+export 'rate_limit.dart';
 export 'report.dart';
 export 'resident.dart';
 export 'client.dart';
@@ -102,11 +104,14 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i10.Moment) {
       return _i10.Moment.fromJson(data) as T;
     }
-    if (t == _i11.Report) {
-      return _i11.Report.fromJson(data) as T;
+    if (t == _i11.RateLimit) {
+      return _i11.RateLimit.fromJson(data) as T;
     }
-    if (t == _i12.Resident) {
-      return _i12.Resident.fromJson(data) as T;
+    if (t == _i12.Report) {
+      return _i12.Report.fromJson(data) as T;
+    }
+    if (t == _i13.Resident) {
+      return _i13.Resident.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.Block?>()) {
       return (data != null ? _i2.Block.fromJson(data) : null) as T;
@@ -137,25 +142,28 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i10.Moment?>()) {
       return (data != null ? _i10.Moment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i11.Report?>()) {
-      return (data != null ? _i11.Report.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.RateLimit?>()) {
+      return (data != null ? _i11.RateLimit.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.Resident?>()) {
-      return (data != null ? _i12.Resident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.Report?>()) {
+      return (data != null ? _i12.Report.fromJson(data) : null) as T;
     }
-    if (t == List<_i13.Message>) {
-      return (data as List).map((e) => deserialize<_i13.Message>(e)).toList()
-          as T;
+    if (t == _i1.getType<_i13.Resident?>()) {
+      return (data != null ? _i13.Resident.fromJson(data) : null) as T;
     }
     if (t == List<_i14.Moment>) {
       return (data as List).map((e) => deserialize<_i14.Moment>(e)).toList()
           as T;
     }
-    try {
-      return _i15.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    if (t == List<_i15.Report>) {
+      return (data as List).map((e) => deserialize<_i15.Report>(e)).toList()
+          as T;
+    }
     try {
       return _i16.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i17.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -171,8 +179,9 @@ class Protocol extends _i1.SerializationManager {
       _i8.Greeting => 'Greeting',
       _i9.Message => 'Message',
       _i10.Moment => 'Moment',
-      _i11.Report => 'Report',
-      _i12.Resident => 'Resident',
+      _i11.RateLimit => 'RateLimit',
+      _i12.Report => 'Report',
+      _i13.Resident => 'Resident',
       _ => null,
     };
   }
@@ -205,16 +214,18 @@ class Protocol extends _i1.SerializationManager {
         return 'Message';
       case _i10.Moment():
         return 'Moment';
-      case _i11.Report():
+      case _i11.RateLimit():
+        return 'RateLimit';
+      case _i12.Report():
         return 'Report';
-      case _i12.Resident():
+      case _i13.Resident():
         return 'Resident';
     }
-    className = _i15.Protocol().getClassNameForObject(data);
+    className = _i16.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i16.Protocol().getClassNameForObject(data);
+    className = _i17.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -254,19 +265,22 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'Moment') {
       return deserialize<_i10.Moment>(data['data']);
     }
+    if (dataClassName == 'RateLimit') {
+      return deserialize<_i11.RateLimit>(data['data']);
+    }
     if (dataClassName == 'Report') {
-      return deserialize<_i11.Report>(data['data']);
+      return deserialize<_i12.Report>(data['data']);
     }
     if (dataClassName == 'Resident') {
-      return deserialize<_i12.Resident>(data['data']);
+      return deserialize<_i13.Resident>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i15.Protocol().deserializeByClassName(data);
+      return _i16.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i16.Protocol().deserializeByClassName(data);
+      return _i17.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -281,10 +295,10 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i15.Protocol().mapRecordToJson(record);
+      return _i16.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i16.Protocol().mapRecordToJson(record);
+      return _i17.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

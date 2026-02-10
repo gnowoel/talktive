@@ -11,15 +11,12 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import 'channel.dart' as _i2;
-import 'channel_member_status.dart' as _i3;
-import 'package:talktive_client/src/protocol/protocol.dart' as _i4;
+import 'channel_member_status.dart' as _i2;
 
 abstract class ChannelMember implements _i1.SerializableModel {
   ChannelMember._({
     this.id,
     required this.channelId,
-    this.channel,
     required this.userInfoId,
     required this.joinedAt,
     this.role,
@@ -29,22 +26,16 @@ abstract class ChannelMember implements _i1.SerializableModel {
   factory ChannelMember({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
-    required _i3.ChannelMemberStatus status,
+    required _i2.ChannelMemberStatus status,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
     return ChannelMember(
       id: jsonSerialization['id'] as int?,
       channelId: jsonSerialization['channelId'] as int,
-      channel: jsonSerialization['channel'] == null
-          ? null
-          : _i4.Protocol().deserialize<_i2.Channel>(
-              jsonSerialization['channel'],
-            ),
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
@@ -52,7 +43,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
         jsonSerialization['joinedAt'],
       ),
       role: jsonSerialization['role'] as String?,
-      status: _i3.ChannelMemberStatus.fromJson(
+      status: _i2.ChannelMemberStatus.fromJson(
         (jsonSerialization['status'] as String),
       ),
     );
@@ -65,15 +56,13 @@ abstract class ChannelMember implements _i1.SerializableModel {
 
   int channelId;
 
-  _i2.Channel? channel;
-
   _i1.UuidValue userInfoId;
 
   DateTime joinedAt;
 
   String? role;
 
-  _i3.ChannelMemberStatus status;
+  _i2.ChannelMemberStatus status;
 
   /// Returns a shallow copy of this [ChannelMember]
   /// with some or all fields replaced by the given arguments.
@@ -81,11 +70,10 @@ abstract class ChannelMember implements _i1.SerializableModel {
   ChannelMember copyWith({
     int? id,
     int? channelId,
-    _i2.Channel? channel,
     _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     String? role,
-    _i3.ChannelMemberStatus? status,
+    _i2.ChannelMemberStatus? status,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -93,7 +81,6 @@ abstract class ChannelMember implements _i1.SerializableModel {
       '__className__': 'ChannelMember',
       if (id != null) 'id': id,
       'channelId': channelId,
-      if (channel != null) 'channel': channel?.toJson(),
       'userInfoId': userInfoId.toJson(),
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
@@ -113,15 +100,13 @@ class _ChannelMemberImpl extends ChannelMember {
   _ChannelMemberImpl({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue userInfoId,
     required DateTime joinedAt,
     String? role,
-    required _i3.ChannelMemberStatus status,
+    required _i2.ChannelMemberStatus status,
   }) : super._(
          id: id,
          channelId: channelId,
-         channel: channel,
          userInfoId: userInfoId,
          joinedAt: joinedAt,
          role: role,
@@ -135,16 +120,14 @@ class _ChannelMemberImpl extends ChannelMember {
   ChannelMember copyWith({
     Object? id = _Undefined,
     int? channelId,
-    Object? channel = _Undefined,
     _i1.UuidValue? userInfoId,
     DateTime? joinedAt,
     Object? role = _Undefined,
-    _i3.ChannelMemberStatus? status,
+    _i2.ChannelMemberStatus? status,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
       channelId: channelId ?? this.channelId,
-      channel: channel is _i2.Channel? ? channel : this.channel?.copyWith(),
       userInfoId: userInfoId ?? this.userInfoId,
       joinedAt: joinedAt ?? this.joinedAt,
       role: role is String? ? role : this.role,

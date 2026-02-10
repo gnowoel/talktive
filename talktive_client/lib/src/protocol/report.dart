@@ -18,15 +18,19 @@ abstract class Report implements _i1.SerializableModel {
     required this.reporterId,
     required this.targetId,
     required this.reason,
+    this.channelId,
+    this.messageId,
     required this.createdAt,
     required this.resolved,
   });
 
   factory Report({
     int? id,
-    required int reporterId,
-    required int targetId,
+    required _i1.UuidValue reporterId,
+    required _i1.UuidValue targetId,
     required String reason,
+    int? channelId,
+    int? messageId,
     required DateTime createdAt,
     required bool resolved,
   }) = _ReportImpl;
@@ -34,9 +38,15 @@ abstract class Report implements _i1.SerializableModel {
   factory Report.fromJson(Map<String, dynamic> jsonSerialization) {
     return Report(
       id: jsonSerialization['id'] as int?,
-      reporterId: jsonSerialization['reporterId'] as int,
-      targetId: jsonSerialization['targetId'] as int,
+      reporterId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['reporterId'],
+      ),
+      targetId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['targetId'],
+      ),
       reason: jsonSerialization['reason'] as String,
+      channelId: jsonSerialization['channelId'] as int?,
+      messageId: jsonSerialization['messageId'] as int?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -49,11 +59,15 @@ abstract class Report implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  int reporterId;
+  _i1.UuidValue reporterId;
 
-  int targetId;
+  _i1.UuidValue targetId;
 
   String reason;
+
+  int? channelId;
+
+  int? messageId;
 
   DateTime createdAt;
 
@@ -64,9 +78,11 @@ abstract class Report implements _i1.SerializableModel {
   @_i1.useResult
   Report copyWith({
     int? id,
-    int? reporterId,
-    int? targetId,
+    _i1.UuidValue? reporterId,
+    _i1.UuidValue? targetId,
     String? reason,
+    int? channelId,
+    int? messageId,
     DateTime? createdAt,
     bool? resolved,
   });
@@ -75,9 +91,11 @@ abstract class Report implements _i1.SerializableModel {
     return {
       '__className__': 'Report',
       if (id != null) 'id': id,
-      'reporterId': reporterId,
-      'targetId': targetId,
+      'reporterId': reporterId.toJson(),
+      'targetId': targetId.toJson(),
       'reason': reason,
+      if (channelId != null) 'channelId': channelId,
+      if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
       'resolved': resolved,
     };
@@ -94,9 +112,11 @@ class _Undefined {}
 class _ReportImpl extends Report {
   _ReportImpl({
     int? id,
-    required int reporterId,
-    required int targetId,
+    required _i1.UuidValue reporterId,
+    required _i1.UuidValue targetId,
     required String reason,
+    int? channelId,
+    int? messageId,
     required DateTime createdAt,
     required bool resolved,
   }) : super._(
@@ -104,6 +124,8 @@ class _ReportImpl extends Report {
          reporterId: reporterId,
          targetId: targetId,
          reason: reason,
+         channelId: channelId,
+         messageId: messageId,
          createdAt: createdAt,
          resolved: resolved,
        );
@@ -114,9 +136,11 @@ class _ReportImpl extends Report {
   @override
   Report copyWith({
     Object? id = _Undefined,
-    int? reporterId,
-    int? targetId,
+    _i1.UuidValue? reporterId,
+    _i1.UuidValue? targetId,
     String? reason,
+    Object? channelId = _Undefined,
+    Object? messageId = _Undefined,
     DateTime? createdAt,
     bool? resolved,
   }) {
@@ -125,6 +149,8 @@ class _ReportImpl extends Report {
       reporterId: reporterId ?? this.reporterId,
       targetId: targetId ?? this.targetId,
       reason: reason ?? this.reason,
+      channelId: channelId is int? ? channelId : this.channelId,
+      messageId: messageId is int? ? messageId : this.messageId,
       createdAt: createdAt ?? this.createdAt,
       resolved: resolved ?? this.resolved,
     );

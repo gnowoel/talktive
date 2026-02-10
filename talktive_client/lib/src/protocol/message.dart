@@ -11,14 +11,11 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import 'channel.dart' as _i2;
-import 'package:talktive_client/src/protocol/protocol.dart' as _i3;
 
 abstract class Message implements _i1.SerializableModel {
   Message._({
     this.id,
     required this.channelId,
-    this.channel,
     required this.senderId,
     this.content,
     this.imageUrl,
@@ -28,7 +25,6 @@ abstract class Message implements _i1.SerializableModel {
   factory Message({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
@@ -39,11 +35,6 @@ abstract class Message implements _i1.SerializableModel {
     return Message(
       id: jsonSerialization['id'] as int?,
       channelId: jsonSerialization['channelId'] as int,
-      channel: jsonSerialization['channel'] == null
-          ? null
-          : _i3.Protocol().deserialize<_i2.Channel>(
-              jsonSerialization['channel'],
-            ),
       senderId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['senderId'],
       ),
@@ -62,8 +53,6 @@ abstract class Message implements _i1.SerializableModel {
 
   int channelId;
 
-  _i2.Channel? channel;
-
   _i1.UuidValue senderId;
 
   String? content;
@@ -78,7 +67,6 @@ abstract class Message implements _i1.SerializableModel {
   Message copyWith({
     int? id,
     int? channelId,
-    _i2.Channel? channel,
     _i1.UuidValue? senderId,
     String? content,
     String? imageUrl,
@@ -90,7 +78,6 @@ abstract class Message implements _i1.SerializableModel {
       '__className__': 'Message',
       if (id != null) 'id': id,
       'channelId': channelId,
-      if (channel != null) 'channel': channel?.toJson(),
       'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
@@ -110,7 +97,6 @@ class _MessageImpl extends Message {
   _MessageImpl({
     int? id,
     required int channelId,
-    _i2.Channel? channel,
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
@@ -118,7 +104,6 @@ class _MessageImpl extends Message {
   }) : super._(
          id: id,
          channelId: channelId,
-         channel: channel,
          senderId: senderId,
          content: content,
          imageUrl: imageUrl,
@@ -132,7 +117,6 @@ class _MessageImpl extends Message {
   Message copyWith({
     Object? id = _Undefined,
     int? channelId,
-    Object? channel = _Undefined,
     _i1.UuidValue? senderId,
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
@@ -141,7 +125,6 @@ class _MessageImpl extends Message {
     return Message(
       id: id is int? ? id : this.id,
       channelId: channelId ?? this.channelId,
-      channel: channel is _i2.Channel? ? channel : this.channel?.copyWith(),
       senderId: senderId ?? this.senderId,
       content: content is String? ? content : this.content,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,

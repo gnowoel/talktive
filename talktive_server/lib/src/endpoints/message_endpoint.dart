@@ -1,10 +1,11 @@
-import 'package:serverpod/serverpod.dart' hide Message;
-import '../generated/protocol.dart';
+import 'package:serverpod/serverpod.dart';
+import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
+import '../services/rate_limit_service.dart';
 
 class MessageEndpoint extends Endpoint {
   /// Sends a message to a channel (Plaza, Group, or Private).
-  Future<Message> sendMessage(
+  Future<protocol.Message> sendMessage(
     Session session,
     int channelId,
     String content, {
@@ -51,14 +52,14 @@ class MessageEndpoint extends Endpoint {
       final senderUuid = UuidValue.fromString(senderIdentifier);
 
       // 1. Fetch channel to verify access and type
-      final channel = await Channel.db.findById(session, channelId);
+      final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel == null) {
         session.log('sendMessage: Channel $channelId not found');
         throw Exception('Channel not found');
       }
 
       // 2. Fetch sender resident data
-      final sender = await Resident.db.findFirstRow(
+      final sender = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(senderUuid),
       );
@@ -68,17 +69,34 @@ class MessageEndpoint extends Endpoint {
       }
 
       // 3. Check for penalties (Muted)
-      if (sender.creditScore < 0) {
-        throw Exception('You are muted due to low credit score.');
+      if (sender.creditScore <= 0) {
+        throw Exception(
+          'You are muted due to low credit score. Your score will restore automatically over time.',
+        );
       }
 
-      // 4. Floor Validation (if Plaza)
-      if (channel.type == ChannelType.plaza) {
-        // Validation logic can go here
+      // 4. Check rate limiting based on floor level
+      final rateLimitError = await RateLimitService.checkRateLimit(
+        session,
+        sender,
+        channelId,
+      );
+      if (rateLimitError != null) {
+        throw Exception(rateLimitError);
       }
 
-      // 5. Create Message
-      final message = Message(
+      // 5. Floor-based content restrictions
+      if (channel.type == protocol.ChannelType.plaza) {
+        // Plaza (floor 0) restrictions: no images allowed
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          throw Exception(
+            'Images are not allowed in Plaza. Only text messages.',
+          );
+        }
+      }
+
+      // 6. Create Message
+      final message = protocol.Message(
         channelId: channelId,
         senderId: sender.userInfoId, // Use Resident UserInfoId (UUID)
         content: content,
@@ -86,14 +104,20 @@ class MessageEndpoint extends Endpoint {
         createdAt: DateTime.now(),
       );
 
-      // 6. Save Message
-      final savedMessage = await Message.db.insertRow(session, message);
+      // 7. Save Message
+      final savedMessage = await protocol.Message.db.insertRow(
+        session,
+        message,
+      );
 
-      // 7. Distribute Message via Streaming
-      // We use the channelId as the stream identifier.
-      await session.messages.postMessage(channelId.toString(), savedMessage);
+      // 8. Distribute Message via Streaming
+      // TODO: Fix streaming in Serverpod 3.x
+      // Broadcast to all subscribers of this channel
+      // final streamKey = 'channel_$channelId';
+      // await session.messages.postMessage(streamKey, savedMessage);
 
-      // 8. Credit Score Gain mechanism
+      // 9. Update message count and award credit
+      sender.experienceMessageCount += 1;
       await ApartmentService.awardMessageCredit(session, sender);
 
       return savedMessage;
@@ -104,35 +128,11 @@ class MessageEndpoint extends Endpoint {
     }
   }
 
-  /// Streams messages for a specific channel.
-  @override
-  Future<void> streamOpened(StreamingSession session) async {
-    // Client sends the channelId they want to listen to.
-    // However, streamOpened doesn't receive arguments easily (except via session info).
-    // Usually, client calls `connectWebSocket` then `sendStreamMessage` to subscribe?
-    // Or we rely on `handleStreamMessage`.
-
-    // Pattern: User connects to Endpoint.
-    // User sends a "Subscribe" event.
-    // We add them to the stream.
-  }
-
-  @override
-  Future<void> handleStreamMessage(
-    StreamingSession session,
-    SerializableModel message,
-  ) async {
-    if (message is ChannelSubscription) {
-      // Verify access to channel
-      // Add listener
-      session.messages.addListener(message.channelId.toString(), (update) {
-        sendStreamMessage(session, update);
-      });
-    }
-  }
+  // TODO: Implement WebSocket streaming in Serverpod 3.x
+  // The streaming API has changed and needs to be updated
 
   /// Fetches the history of messages for a channel.
-  Future<List<Message>> listMessages(
+  Future<List<protocol.Message>> listMessages(
     Session session,
     int channelId, {
     int limit = 50,
@@ -140,7 +140,7 @@ class MessageEndpoint extends Endpoint {
   }) async {
     // 1. Verify access (optional: check if user is member of channel)
     // For Plaza (floor 0), it's public. For others, check membership.
-    final channel = await Channel.db.findById(session, channelId);
+    final channel = await protocol.Channel.db.findById(session, channelId);
     if (channel == null) {
       throw Exception('Channel not found');
     }
@@ -148,17 +148,13 @@ class MessageEndpoint extends Endpoint {
     // TODO: Add membership check for private/group channels
 
     // 2. Fetch messages
-    return await Message.db.find(
+    return await protocol.Message.db.find(
       session,
       where: (t) => t.channelId.equals(channelId),
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: limit,
       offset: offset,
-      include: Message.include(
-        channel:
-            Channel.include(), // Optional: include channel details if needed
-      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import '../generated/protocol.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
+  /// Only residents on Floor 2+ can post moments (to prevent spam).
   Future<Moment> postMoment(
     Session session, {
     required String imageUrl,
@@ -28,15 +29,26 @@ class MomentEndpoint extends Endpoint {
       throw Exception('Resident not found');
     }
 
-    // 2. Fetch User Profile
-    // 2. Fetch User Profile
+    // 2. Floor restriction: Only Floor 2+ can post moments
+    if (resident.floor < 2) {
+      throw Exception(
+        'You must be at least Floor 2 to post moments. Keep chatting to level up! (Current floor: ${resident.floor})',
+      );
+    }
+
+    // 3. Check credit score
+    if (resident.creditScore <= 0) {
+      throw Exception('You are muted due to low credit score.');
+    }
+
+    // 4. Fetch User Profile
     final userProfile = await AuthServices.instance.userProfiles
         .findUserProfileByUserId(
           session,
           senderUuid,
         );
 
-    // 3. Create Moment
+    // 5. Create Moment
     final moment = Moment(
       authorId: resident.id!,
       imageUrl: imageUrl,

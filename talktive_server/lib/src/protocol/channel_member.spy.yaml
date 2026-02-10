@@ -1,8 +1,7 @@
 class: ChannelMember
 table: channel_member
 fields:
-
-  channel: Channel?, relation
+  channelId: int
   userInfoId: UuidValue
   joinedAt: DateTime
   role: String?

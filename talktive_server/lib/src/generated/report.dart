@@ -18,15 +18,19 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.reporterId,
     required this.targetId,
     required this.reason,
+    this.channelId,
+    this.messageId,
     required this.createdAt,
     required this.resolved,
   });
 
   factory Report({
     int? id,
-    required int reporterId,
-    required int targetId,
+    required _i1.UuidValue reporterId,
+    required _i1.UuidValue targetId,
     required String reason,
+    int? channelId,
+    int? messageId,
     required DateTime createdAt,
     required bool resolved,
   }) = _ReportImpl;
@@ -34,9 +38,15 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   factory Report.fromJson(Map<String, dynamic> jsonSerialization) {
     return Report(
       id: jsonSerialization['id'] as int?,
-      reporterId: jsonSerialization['reporterId'] as int,
-      targetId: jsonSerialization['targetId'] as int,
+      reporterId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['reporterId'],
+      ),
+      targetId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['targetId'],
+      ),
       reason: jsonSerialization['reason'] as String,
+      channelId: jsonSerialization['channelId'] as int?,
+      messageId: jsonSerialization['messageId'] as int?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -51,11 +61,15 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @override
   int? id;
 
-  int reporterId;
+  _i1.UuidValue reporterId;
 
-  int targetId;
+  _i1.UuidValue targetId;
 
   String reason;
+
+  int? channelId;
+
+  int? messageId;
 
   DateTime createdAt;
 
@@ -69,9 +83,11 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @_i1.useResult
   Report copyWith({
     int? id,
-    int? reporterId,
-    int? targetId,
+    _i1.UuidValue? reporterId,
+    _i1.UuidValue? targetId,
     String? reason,
+    int? channelId,
+    int? messageId,
     DateTime? createdAt,
     bool? resolved,
   });
@@ -80,9 +96,11 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'Report',
       if (id != null) 'id': id,
-      'reporterId': reporterId,
-      'targetId': targetId,
+      'reporterId': reporterId.toJson(),
+      'targetId': targetId.toJson(),
       'reason': reason,
+      if (channelId != null) 'channelId': channelId,
+      if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
       'resolved': resolved,
     };
@@ -93,9 +111,11 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'Report',
       if (id != null) 'id': id,
-      'reporterId': reporterId,
-      'targetId': targetId,
+      'reporterId': reporterId.toJson(),
+      'targetId': targetId.toJson(),
       'reason': reason,
+      if (channelId != null) 'channelId': channelId,
+      if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
       'resolved': resolved,
     };
@@ -136,9 +156,11 @@ class _Undefined {}
 class _ReportImpl extends Report {
   _ReportImpl({
     int? id,
-    required int reporterId,
-    required int targetId,
+    required _i1.UuidValue reporterId,
+    required _i1.UuidValue targetId,
     required String reason,
+    int? channelId,
+    int? messageId,
     required DateTime createdAt,
     required bool resolved,
   }) : super._(
@@ -146,6 +168,8 @@ class _ReportImpl extends Report {
          reporterId: reporterId,
          targetId: targetId,
          reason: reason,
+         channelId: channelId,
+         messageId: messageId,
          createdAt: createdAt,
          resolved: resolved,
        );
@@ -156,9 +180,11 @@ class _ReportImpl extends Report {
   @override
   Report copyWith({
     Object? id = _Undefined,
-    int? reporterId,
-    int? targetId,
+    _i1.UuidValue? reporterId,
+    _i1.UuidValue? targetId,
     String? reason,
+    Object? channelId = _Undefined,
+    Object? messageId = _Undefined,
     DateTime? createdAt,
     bool? resolved,
   }) {
@@ -167,6 +193,8 @@ class _ReportImpl extends Report {
       reporterId: reporterId ?? this.reporterId,
       targetId: targetId ?? this.targetId,
       reason: reason ?? this.reason,
+      channelId: channelId is int? ? channelId : this.channelId,
+      messageId: messageId is int? ? messageId : this.messageId,
       createdAt: createdAt ?? this.createdAt,
       resolved: resolved ?? this.resolved,
     );
@@ -176,18 +204,31 @@ class _ReportImpl extends Report {
 class ReportUpdateTable extends _i1.UpdateTable<ReportTable> {
   ReportUpdateTable(super.table);
 
-  _i1.ColumnValue<int, int> reporterId(int value) => _i1.ColumnValue(
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> reporterId(
+    _i1.UuidValue value,
+  ) => _i1.ColumnValue(
     table.reporterId,
     value,
   );
 
-  _i1.ColumnValue<int, int> targetId(int value) => _i1.ColumnValue(
-    table.targetId,
-    value,
-  );
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> targetId(_i1.UuidValue value) =>
+      _i1.ColumnValue(
+        table.targetId,
+        value,
+      );
 
   _i1.ColumnValue<String, String> reason(String value) => _i1.ColumnValue(
     table.reason,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> channelId(int? value) => _i1.ColumnValue(
+    table.channelId,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> messageId(int? value) => _i1.ColumnValue(
+    table.messageId,
     value,
   );
 
@@ -206,16 +247,24 @@ class ReportUpdateTable extends _i1.UpdateTable<ReportTable> {
 class ReportTable extends _i1.Table<int?> {
   ReportTable({super.tableRelation}) : super(tableName: 'report') {
     updateTable = ReportUpdateTable(this);
-    reporterId = _i1.ColumnInt(
+    reporterId = _i1.ColumnUuid(
       'reporterId',
       this,
     );
-    targetId = _i1.ColumnInt(
+    targetId = _i1.ColumnUuid(
       'targetId',
       this,
     );
     reason = _i1.ColumnString(
       'reason',
+      this,
+    );
+    channelId = _i1.ColumnInt(
+      'channelId',
+      this,
+    );
+    messageId = _i1.ColumnInt(
+      'messageId',
       this,
     );
     createdAt = _i1.ColumnDateTime(
@@ -230,11 +279,15 @@ class ReportTable extends _i1.Table<int?> {
 
   late final ReportUpdateTable updateTable;
 
-  late final _i1.ColumnInt reporterId;
+  late final _i1.ColumnUuid reporterId;
 
-  late final _i1.ColumnInt targetId;
+  late final _i1.ColumnUuid targetId;
 
   late final _i1.ColumnString reason;
+
+  late final _i1.ColumnInt channelId;
+
+  late final _i1.ColumnInt messageId;
 
   late final _i1.ColumnDateTime createdAt;
 
@@ -246,6 +299,8 @@ class ReportTable extends _i1.Table<int?> {
     reporterId,
     targetId,
     reason,
+    channelId,
+    messageId,
     createdAt,
     resolved,
   ];

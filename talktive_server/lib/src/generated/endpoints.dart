@@ -14,14 +14,16 @@ import 'package:serverpod/serverpod.dart' as _i1;
 import '../auth/email_idp_endpoint.dart' as _i2;
 import '../auth/firebase_idp_endpoint.dart' as _i3;
 import '../auth/jwt_refresh_endpoint.dart' as _i4;
-import '../endpoints/message_endpoint.dart' as _i5;
+import '../endpoints/image_endpoint.dart' as _i5;
 import '../endpoints/moment_endpoint.dart' as _i6;
-import '../endpoints/resident_endpoint.dart' as _i7;
-import '../greetings/greeting_endpoint.dart' as _i8;
+import '../endpoints/report_endpoint.dart' as _i7;
+import '../endpoints/resident_endpoint.dart' as _i8;
+import '../greetings/greeting_endpoint.dart' as _i9;
+import 'dart:typed_data' as _i10;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i9;
+    as _i11;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
-    as _i10;
+    as _i12;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -45,10 +47,10 @@ class Endpoints extends _i1.EndpointDispatch {
           'jwtRefresh',
           null,
         ),
-      'message': _i5.MessageEndpoint()
+      'image': _i5.ImageEndpoint()
         ..initialize(
           server,
-          'message',
+          'image',
           null,
         ),
       'moment': _i6.MomentEndpoint()
@@ -57,13 +59,19 @@ class Endpoints extends _i1.EndpointDispatch {
           'moment',
           null,
         ),
-      'resident': _i7.ResidentEndpoint()
+      'report': _i7.ReportEndpoint()
+        ..initialize(
+          server,
+          'report',
+          null,
+        ),
+      'resident': _i8.ResidentEndpoint()
         ..initialize(
           server,
           'resident',
           null,
         ),
-      'greeting': _i8.GreetingEndpoint()
+      'greeting': _i9.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -289,57 +297,40 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
-    connectors['message'] = _i1.EndpointConnector(
-      name: 'message',
-      endpoint: endpoints['message']!,
+    connectors['image'] = _i1.EndpointConnector(
+      name: 'image',
+      endpoint: endpoints['image']!,
       methodConnectors: {
-        'sendMessage': _i1.MethodConnector(
-          name: 'sendMessage',
+        'uploadImage': _i1.MethodConnector(
+          name: 'uploadImage',
           params: {
-            'channelId': _i1.ParameterDescription(
-              name: 'channelId',
-              type: _i1.getType<int>(),
+            'imageData': _i1.ParameterDescription(
+              name: 'imageData',
+              type: _i1.getType<_i10.ByteData>(),
               nullable: false,
             ),
-            'content': _i1.ParameterDescription(
-              name: 'content',
+            'fileName': _i1.ParameterDescription(
+              name: 'fileName',
               type: _i1.getType<String>(),
               nullable: false,
             ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['image'] as _i5.ImageEndpoint).uploadImage(
+                session,
+                params['imageData'],
+                params['fileName'],
+              ),
+        ),
+        'deleteImage': _i1.MethodConnector(
+          name: 'deleteImage',
+          params: {
             'imageUrl': _i1.ParameterDescription(
               name: 'imageUrl',
-              type: _i1.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['message'] as _i5.MessageEndpoint).sendMessage(
-                    session,
-                    params['channelId'],
-                    params['content'],
-                    imageUrl: params['imageUrl'],
-                  ),
-        ),
-        'listMessages': _i1.MethodConnector(
-          name: 'listMessages',
-          params: {
-            'channelId': _i1.ParameterDescription(
-              name: 'channelId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-            'limit': _i1.ParameterDescription(
-              name: 'limit',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-            'offset': _i1.ParameterDescription(
-              name: 'offset',
-              type: _i1.getType<int>(),
+              type: _i1.getType<String>(),
               nullable: false,
             ),
           },
@@ -347,13 +338,10 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['message'] as _i5.MessageEndpoint).listMessages(
-                    session,
-                    params['channelId'],
-                    limit: params['limit'],
-                    offset: params['offset'],
-                  ),
+              ) async => (endpoints['image'] as _i5.ImageEndpoint).deleteImage(
+                session,
+                params['imageUrl'],
+              ),
         ),
       },
     );
@@ -412,6 +400,111 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['report'] = _i1.EndpointConnector(
+      name: 'report',
+      endpoint: endpoints['report']!,
+      methodConnectors: {
+        'reportUser': _i1.MethodConnector(
+          name: 'reportUser',
+          params: {
+            'targetUserId': _i1.ParameterDescription(
+              name: 'targetUserId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'reason': _i1.ParameterDescription(
+              name: 'reason',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'messageId': _i1.ParameterDescription(
+              name: 'messageId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['report'] as _i7.ReportEndpoint).reportUser(
+                session,
+                targetUserId: params['targetUserId'],
+                reason: params['reason'],
+                channelId: params['channelId'],
+                messageId: params['messageId'],
+              ),
+        ),
+        'getReportCount': _i1.MethodConnector(
+          name: 'getReportCount',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['report'] as _i7.ReportEndpoint).getReportCount(
+                    session,
+                    params['userId'],
+                  ),
+        ),
+        'listReports': _i1.MethodConnector(
+          name: 'listReports',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'onlyUnresolved': _i1.ParameterDescription(
+              name: 'onlyUnresolved',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['report'] as _i7.ReportEndpoint).listReports(
+                    session,
+                    limit: params['limit'],
+                    onlyUnresolved: params['onlyUnresolved'],
+                  ),
+        ),
+        'resolveReport': _i1.MethodConnector(
+          name: 'resolveReport',
+          params: {
+            'reportId': _i1.ParameterDescription(
+              name: 'reportId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['report'] as _i7.ReportEndpoint).resolveReport(
+                    session,
+                    params['reportId'],
+                  ),
+        ),
+      },
+    );
     connectors['resident'] = _i1.EndpointConnector(
       name: 'resident',
       endpoint: endpoints['resident']!,
@@ -423,7 +516,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i7.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i8.ResidentEndpoint)
                   .getResident(session),
         ),
         'initializeResident': _i1.MethodConnector(
@@ -459,7 +552,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i7.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i8.ResidentEndpoint)
                   .initializeResident(
                     session,
                     name: params['name'],
@@ -488,16 +581,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i8.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i9.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i9.Endpoints()
+    modules['serverpod_auth_idp'] = _i11.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i10.Endpoints()
+    modules['serverpod_auth_core'] = _i12.Endpoints()
       ..initializeEndpoints(server);
   }
 }

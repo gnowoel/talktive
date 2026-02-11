@@ -68,11 +68,19 @@ The application currently supports a dual-boot mode via a `VersionSelector` scre
 - ✅ Search users by name or ID
 - ✅ Content moderation (delete messages/moments)
 
+**Phase 7.1 (IN PROGRESS):**
+
+- ✅ Database indexes for common queries (Message, Moment, Report)
+- ✅ Report model schema improvements (status enum)
+- ⏳ Query optimization in endpoints
+- ⏳ Pagination improvements
+- ⏳ Image caching and optimization
+
 **Next Up:**
 
+- Complete Phase 7.1 (Performance Optimization)
 - Enhanced notifications (in-app notification center)
-- Performance optimization
-- Production deployment
+- Production deployment preparation
 
 ## 📂 Project Structure
 

@@ -37,18 +37,21 @@ The application currently supports a dual-boot mode via a `VersionSelector` scre
 - ✅ Moments with likes and comments
 - ✅ Daily streaks and rewards
 
-**Phase 6.1 (COMPLETED):**
+**Phase 6.1-6.2 (COMPLETED):**
 
 - ✅ Push notifications with FCM
 - ✅ Backend notification service
 - ✅ Deep linking to all screens
 - ✅ 6 notification types (message, moment_like, moment_comment, achievement, streak, group_invite)
+- ✅ User profile viewing with stats and moments
+- ✅ Block/unblock users
+- ✅ Report users
 
 **Next Up:**
 
-- User profile viewing
 - Search and discovery
 - Admin dashboard
+- Enhanced notifications
 
 ## 📂 Project Structure
 

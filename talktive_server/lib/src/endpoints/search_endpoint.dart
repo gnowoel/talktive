@@ -1,5 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
+import '../services/cache_service.dart';
+import 'dart:convert';
 
 class SearchEndpoint extends Endpoint {
   /// Search for users by name (optimized with early limit)
@@ -73,12 +75,20 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Get trending moments (most liked in last 7 days)
+  /// Get trending moments (most liked in last 7 days) - CACHED
   Future<List<Moment>> getTrendingMoments(
     Session session, {
     int limit = 10,
   }) async {
     try {
+      // Try cache first
+      final cached = await CacheService.getTrendingMoments(session);
+      if (cached != null) {
+        final List<dynamic> decoded = jsonDecode(cached);
+        return decoded.map((m) => Moment.fromJson(m)).toList();
+      }
+
+      // Cache miss - query database
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
       final moments = await Moment.db.find(
@@ -89,6 +99,10 @@ class SearchEndpoint extends Endpoint {
         limit: limit,
       );
 
+      // Store in cache
+      final encoded = jsonEncode(moments.map((m) => m.toJson()).toList());
+      await CacheService.setTrendingMoments(session, encoded);
+
       return moments;
     } catch (e) {
       session.log('Error getting trending moments: $e', level: LogLevel.error);
@@ -96,12 +110,20 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Get popular groups (most members)
+  /// Get popular groups (most members) - CACHED
   Future<List<Group>> getPopularGroups(
     Session session, {
     int limit = 10,
   }) async {
     try {
+      // Try cache first
+      final cached = await CacheService.getPopularGroups(session);
+      if (cached != null) {
+        final List<dynamic> decoded = jsonDecode(cached);
+        return decoded.map((g) => Group.fromJson(g)).toList();
+      }
+
+      // Cache miss - query database
       final groups = await Group.db.find(
         session,
         where: (t) => t.isPublic.equals(true),
@@ -109,6 +131,10 @@ class SearchEndpoint extends Endpoint {
         orderDescending: true,
         limit: limit,
       );
+
+      // Store in cache
+      final encoded = jsonEncode(groups.map((g) => g.toJson()).toList());
+      await CacheService.setPopularGroups(session, encoded);
 
       return groups;
     } catch (e) {

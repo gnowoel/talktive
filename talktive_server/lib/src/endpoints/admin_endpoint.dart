@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../generated/protocol.dart';
+import '../services/cache_service.dart';
 
 class AdminEndpoint extends Endpoint {
   /// Check if the current user is an admin
@@ -282,10 +283,17 @@ class AdminEndpoint extends Endpoint {
     session.log('Admin deleted moment: $momentId. Reason: $reason');
   }
 
-  /// Get platform statistics - OPTIMIZED
+  /// Get platform statistics - OPTIMIZED with caching
   Future<Map<String, dynamic>> getStatistics(Session session) async {
     await _requireAdmin(session);
 
+    // Try to get from cache first
+    final cached = await CacheService.getStatistics(session);
+    if (cached != null) {
+      return cached;
+    }
+
+    // Cache miss - compute statistics
     final now = DateTime.now();
     final oneDayAgo = now.subtract(const Duration(days: 1));
     final sevenDaysAgo = now.subtract(const Duration(days: 7));
@@ -350,7 +358,7 @@ class AdminEndpoint extends Endpoint {
       activeUserIds.add(message.senderId);
     }
 
-    return {
+    final stats = {
       'totals': {
         'users': totalUsers,
         'messages': totalMessages,
@@ -374,6 +382,11 @@ class AdminEndpoint extends Endpoint {
         'moments': momentsLast30d,
       },
     };
+
+    // Store in cache for 5 minutes
+    await CacheService.setStatistics(session, stats);
+
+    return stats;
   }
 
   /// Search users by name or ID

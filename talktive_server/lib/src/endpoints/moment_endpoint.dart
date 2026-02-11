@@ -4,6 +4,7 @@ import '../generated/protocol.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/notification_service.dart';
+import '../services/cache_service.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
@@ -65,6 +66,9 @@ class MomentEndpoint extends Endpoint {
     );
 
     final savedMoment = await Moment.db.insertRow(session, moment);
+
+    // Invalidate discovery cache (trending moments)
+    await CacheService.invalidateDiscoveryCache(session);
 
     // Track achievements
     await AchievementService.trackProgress(

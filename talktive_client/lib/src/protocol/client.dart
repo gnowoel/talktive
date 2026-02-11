@@ -25,8 +25,10 @@ import 'package:talktive_client/src/protocol/moment_like.dart' as _i10;
 import 'package:talktive_client/src/protocol/moment_comment.dart' as _i11;
 import 'package:talktive_client/src/protocol/private_chat.dart' as _i12;
 import 'package:talktive_client/src/protocol/report.dart' as _i13;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i14;
-import 'protocol.dart' as _i15;
+import 'package:talktive_client/src/protocol/user_streak.dart' as _i14;
+import 'package:talktive_client/src/protocol/daily_reward.dart' as _i15;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i16;
+import 'protocol.dart' as _i17;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -714,6 +716,45 @@ class EndpointResident extends _i2.EndpointRef {
   );
 }
 
+/// {@category Endpoint}
+class EndpointStreak extends _i2.EndpointRef {
+  EndpointStreak(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'streak';
+
+  /// Gets the current user's streak data.
+  _i3.Future<_i14.UserStreak?> getUserStreak() =>
+      caller.callServerEndpoint<_i14.UserStreak?>(
+        'streak',
+        'getUserStreak',
+        {},
+      );
+
+  /// Checks if the user can claim today's daily reward.
+  _i3.Future<bool> canClaimDailyReward() => caller.callServerEndpoint<bool>(
+    'streak',
+    'canClaimDailyReward',
+    {},
+  );
+
+  /// Claims the daily reward.
+  _i3.Future<_i15.DailyReward> claimDailyReward() =>
+      caller.callServerEndpoint<_i15.DailyReward>(
+        'streak',
+        'claimDailyReward',
+        {},
+      );
+
+  /// Gets the user's reward history.
+  _i3.Future<List<_i15.DailyReward>> getRewardHistory({required int limit}) =>
+      caller.callServerEndpoint<List<_i15.DailyReward>>(
+        'streak',
+        'getRewardHistory',
+        {'limit': limit},
+      );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -724,8 +765,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i14.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i14.Greeting>(
+  _i3.Future<_i16.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i16.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -763,7 +804,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i15.Protocol(),
+         _i17.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -783,6 +824,7 @@ class Client extends _i2.ServerpodClientShared {
     privateChat = EndpointPrivateChat(this);
     report = EndpointReport(this);
     resident = EndpointResident(this);
+    streak = EndpointStreak(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -809,6 +851,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointResident resident;
 
+  late final EndpointStreak streak;
+
   late final EndpointGreeting greeting;
 
   late final Modules modules;
@@ -826,6 +870,7 @@ class Client extends _i2.ServerpodClientShared {
     'privateChat': privateChat,
     'report': report,
     'resident': resident,
+    'streak': streak,
     'greeting': greeting,
   };
 

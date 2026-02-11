@@ -4,6 +4,7 @@ import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/rate_limit_service.dart';
 import '../services/achievement_service.dart';
+import '../services/streak_service.dart';
 
 class MessageEndpoint extends Endpoint {
   /// Sends a message to a channel (Plaza, Group, or Private).
@@ -112,6 +113,9 @@ class MessageEndpoint extends Endpoint {
         session,
         sender.userInfoId,
       );
+
+      // 11. Update streak
+      await StreakService.updateStreak(session, sender.userInfoId);
 
       return savedMessage;
     } catch (e, stack) {

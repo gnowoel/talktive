@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/resident_provider.dart';
 import '../../providers/achievement_provider.dart';
+import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_badge.dart';
+import '../../widgets/duo/duo_streak_card.dart';
 import '../achievements/achievements_screen.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
@@ -64,6 +66,8 @@ class ProfileScreenModern extends ConsumerWidget {
         children: [
           // Gradient header
           _buildHeader(resident),
+          // Streak card
+          _buildStreakCard(context, ref),
           // Stats grid
           _buildStatsGrid(resident),
           // Achievements section
@@ -121,6 +125,70 @@ class ProfileScreenModern extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStreakCard(BuildContext context, WidgetRef ref) {
+    final streakAsync = ref.watch(userStreakProvider);
+
+    return streakAsync.when(
+      data: (streakData) {
+        if (streakData == null || streakData.streak == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.duoSpacingLarge,
+            AppTheme.duoSpacingMedium,
+            AppTheme.duoSpacingLarge,
+            0,
+          ),
+          child: DuoStreakCard(
+            currentStreak: streakData.streak!.currentStreak,
+            longestStreak: streakData.streak!.longestStreak,
+            canClaimReward: streakData.canClaimReward,
+            onClaimReward: () async {
+              try {
+                final reward = await ref
+                    .read(userStreakProvider.notifier)
+                    .claimReward();
+
+                if (context.mounted && reward != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '🎉 Claimed ${reward.rewardAmount} credits!',
+                      ),
+                      backgroundColor: AppTheme.duoGreen,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.duoRadiusMedium,
+                        ),
+                      ),
+                    ),
+                  );
+
+                  // Refresh resident data to show updated credits
+                  ref.invalidate(currentResidentProvider);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to claim reward: $e'),
+                      backgroundColor: AppTheme.errorColor,
+                    ),
+                  );
+                }
+              }
+            },
+          ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 

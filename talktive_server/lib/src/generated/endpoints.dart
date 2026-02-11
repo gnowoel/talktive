@@ -22,12 +22,13 @@ import '../endpoints/moment_endpoint.dart' as _i9;
 import '../endpoints/private_chat_endpoint.dart' as _i10;
 import '../endpoints/report_endpoint.dart' as _i11;
 import '../endpoints/resident_endpoint.dart' as _i12;
-import '../greetings/greeting_endpoint.dart' as _i13;
-import 'dart:typed_data' as _i14;
+import '../endpoints/streak_endpoint.dart' as _i13;
+import '../greetings/greeting_endpoint.dart' as _i14;
+import 'dart:typed_data' as _i15;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i15;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i16;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i17;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -99,7 +100,13 @@ class Endpoints extends _i1.EndpointDispatch {
           'resident',
           null,
         ),
-      'greeting': _i13.GreetingEndpoint()
+      'streak': _i13.StreakEndpoint()
+        ..initialize(
+          server,
+          'streak',
+          null,
+        ),
+      'greeting': _i14.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -590,7 +597,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'imageData': _i1.ParameterDescription(
               name: 'imageData',
-              type: _i1.getType<_i14.ByteData>(),
+              type: _i1.getType<_i15.ByteData>(),
               nullable: false,
             ),
             'fileName': _i1.ParameterDescription(
@@ -1154,6 +1161,61 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['streak'] = _i1.EndpointConnector(
+      name: 'streak',
+      endpoint: endpoints['streak']!,
+      methodConnectors: {
+        'getUserStreak': _i1.MethodConnector(
+          name: 'getUserStreak',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['streak'] as _i13.StreakEndpoint)
+                  .getUserStreak(session),
+        ),
+        'canClaimDailyReward': _i1.MethodConnector(
+          name: 'canClaimDailyReward',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['streak'] as _i13.StreakEndpoint)
+                  .canClaimDailyReward(session),
+        ),
+        'claimDailyReward': _i1.MethodConnector(
+          name: 'claimDailyReward',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['streak'] as _i13.StreakEndpoint)
+                  .claimDailyReward(session),
+        ),
+        'getRewardHistory': _i1.MethodConnector(
+          name: 'getRewardHistory',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['streak'] as _i13.StreakEndpoint).getRewardHistory(
+                    session,
+                    limit: params['limit'],
+                  ),
+        ),
+      },
+    );
     connectors['greeting'] = _i1.EndpointConnector(
       name: 'greeting',
       endpoint: endpoints['greeting']!,
@@ -1171,16 +1233,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i13.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i14.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i15.Endpoints()
+    modules['serverpod_auth_idp'] = _i16.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i16.Endpoints()
+    modules['serverpod_auth_core'] = _i17.Endpoints()
       ..initializeEndpoints(server);
   }
 }

@@ -37,7 +37,7 @@ final class UserAchievementsProvider
   UserAchievements create() => UserAchievements();
 }
 
-String _$userAchievementsHash() => r'abc13d3ab8de61ebe6023c166aacfdd2a1dd3615';
+String _$userAchievementsHash() => r'f18929d5b1f9ed60f425ef2f634699c11621cda0';
 
 /// Provider for user achievements.
 

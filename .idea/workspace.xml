@@ -3,9 +3,56 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;
+  <component name="ChangeListManager">
+    <list default="true" id="2f06a069-f813-4053-87e4-97f44f48b1c6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/talktive_client/lib/src/protocol/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/talktive_client/lib/src/protocol/protocol.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/talktive_server/lib/src/generated/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/talktive_server/lib/src/generated/protocol.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/talktive_server/migrations/migration_registry.txt" beforeDir="false" afterPath="$PROJECT_DIR$/talktive_server/migrations/migration_registry.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="39VxpStLPKh7AFjCYrIX0YyJmKt" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "v8",
+    "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2f06a069-f813-4053-87e4-97f44f48b1c6" name="Changes" comment="" />
+      <created>1770795223872</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1770795223872</updated>
+    </task>
+    <servers />
+  </component>
 </project>

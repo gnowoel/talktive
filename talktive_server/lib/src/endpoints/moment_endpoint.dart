@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 import '../services/achievement_service.dart';
+import '../services/streak_service.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
@@ -80,6 +81,9 @@ class MomentEndpoint extends Endpoint {
       senderUuid,
       'influencer',
     );
+
+    // Update streak
+    await StreakService.updateStreak(session, senderUuid);
 
     return savedMoment;
   }

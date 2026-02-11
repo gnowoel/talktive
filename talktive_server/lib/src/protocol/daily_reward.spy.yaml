@@ -1,0 +1,12 @@
+class: DailyReward
+table: daily_rewards
+fields:
+  userId: UuidValue
+  claimedDate: DateTime
+  rewardType: String  # 'credits', 'xp', 'badge'
+  rewardAmount: int
+  streakDay: int
+
+indexes:
+  user_date_idx:
+    fields: userId, claimedDate

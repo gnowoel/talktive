@@ -53,5 +53,10 @@ report:
 resident:
   - getResident:
   - initializeResident:
+streak:
+  - getUserStreak:
+  - canClaimDailyReward:
+  - claimDailyReward:
+  - getRewardHistory:
 greeting:
   - hello:

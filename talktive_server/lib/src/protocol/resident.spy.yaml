@@ -10,6 +10,8 @@ fields:
   bio: String?
   avatar: String?
   role: String?
+  isAdmin: bool, default=false
+  isBanned: bool, default=false
   lastCreditIncrease: DateTime?
 indexes:
   resident_user_idx:

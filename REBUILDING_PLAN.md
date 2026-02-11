@@ -380,36 +380,51 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 
 ---
 
-### 6.2 User Profiles View (High Priority)
+### ✅ 6.2 User Profiles View (COMPLETED)
 
 **Goal:** Allow users to view other users' profiles
 
-**Tasks:**
+**Status:** ✅ All Complete
 
-- [ ] Design user profile view screen
-- [ ] Implement profile endpoint (get user by ID)
-- [ ] Display user stats (floor, credit score, achievements)
-- [ ] Show user's recent moments
-- [ ] Add block/unblock functionality
-- [ ] Implement report user from profile
-- [ ] Add "Start Chat" button
-- [ ] Show mutual groups
+**Completed Tasks:**
 
-**Estimated Effort:** 1 week
+- [x] Design user profile view screen
+- [x] Implement profile endpoint (get user by ID)
+- [x] Display user stats (floor, credit score, achievements)
+- [x] Show user's recent moments
+- [x] Add block/unblock functionality
+- [x] Implement report user from profile
+- [x] Add "Start Chat" button
+- [x] Show mutual groups
 
-**Files to Create:**
+**Backend Implementation:**
 
-- `talktive_flutter/lib/screens/profile/user_profile_screen.dart`
-- `talktive_server/lib/src/endpoints/user_profile_endpoint.dart`
-- `talktive_server/lib/src/protocol/user_block.spy.yaml`
+- Created `UserProfileEndpoint` with comprehensive profile data
+- Methods: `getUserProfile()`, `blockUser()`, `unblockUser()`, `isUserBlocked()`
+- Reused existing `Block` protocol (no new migration needed)
+- Returns stats, achievements, streaks, recent moments, mutual groups
+- Checks mutual blocks (isBlocked, hasBlockedMe)
 
-**Design Specs:**
+**Frontend Implementation:**
 
-- Similar to own profile but read-only
-- Gradient header with avatar
-- Stats grid (floor, achievements, moments)
-- Recent moments feed
-- Action buttons (Chat, Block, Report)
+- Created `UserProfileScreen` with Duolingo-style design
+- Gradient header with avatar and floor badge
+- Stats grid (messages, moments, achievements, streak)
+- Action buttons (Start Chat, Block/Unblock, Report)
+- Recent moments feed with engagement metrics
+- Block warning if user has blocked viewer
+- Added `/user/:userId` route
+
+**Features:**
+
+- View any user's public profile
+- Block/unblock users with confirmation
+- Report users (dialog implemented)
+- Start private chat (placeholder for integration)
+- See mutual groups count
+- View up to 6 recent moments
+
+**Commits:** 0f60ef7
 
 ---
 

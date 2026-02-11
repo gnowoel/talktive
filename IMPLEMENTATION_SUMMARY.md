@@ -1,6 +1,44 @@
 # Talktive Rebuild - Implementation Summary
 
-## 🚀 Latest Update: Phase 6.1 - Push Notifications (COMPLETED)
+## 🚀 Latest Update: Phase 6.2 - User Profiles View (COMPLETED)
+
+**Status:** ✅ Completed (February 11, 2026)
+
+### Phase 6.2: User Profiles View ✅
+
+**Backend:**
+
+- Created `UserProfileEndpoint` with comprehensive profile data retrieval
+- Methods: `getUserProfile()`, `blockUser()`, `unblockUser()`, `isUserBlocked()`
+- Reused existing `Block` protocol (no new migration needed)
+- Returns complete profile: stats, achievements, streaks, recent moments, mutual groups
+- Checks mutual blocks (isBlocked, hasBlockedMe)
+
+**Frontend:**
+
+- Created `UserProfileScreen` with Duolingo-style design
+- Gradient header with avatar and floor badge
+- Stats grid showing messages, moments, achievements, streak
+- Action buttons: Start Chat, Block/Unblock, Report
+- Recent moments feed with likes/comments count
+- Block warning if user has blocked viewer
+- Added `/user/:userId` route to serverpod_app.dart
+
+**Features:**
+
+- View any user's public profile by user ID
+- Block/unblock users with instant feedback
+- Report users (dialog with confirmation)
+- Start private chat (placeholder for future integration)
+- See mutual groups count
+- View up to 6 recent moments with engagement metrics
+- Responsive to block status changes
+
+**Commits:** 0f60ef7
+
+---
+
+## 🎯 Phase 6.1 - Push Notifications (COMPLETED)
 
 **Status:** ✅ Completed (February 11, 2026)
 

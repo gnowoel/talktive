@@ -1,0 +1,17 @@
+### User profile view data
+class: UserProfileView
+fields:
+  userId: String
+  userName: String?
+  userAvatar: String?
+  floor: int
+  creditScore: int
+  totalMessages: int
+  totalMoments: int
+  achievementsUnlocked: int
+  currentStreak: int
+  longestStreak: int
+  isBlocked: bool
+  hasBlockedMe: bool
+  mutualGroups: int
+  recentMoments: List<Moment>?

@@ -25,11 +25,15 @@
 
 **Frontend:**
 
-- Updated `messaging.dart` service with backend integration
+- Created `ServerpodNotificationService` for Serverpod version only
 - Automatic FCM token registration with backend
 - Token refresh handling
 - Unified notification tap handling for all types
 - Deep linking to appropriate screens
+- Initialized in `SplashScreen` for Serverpod app
+- Pending notification handling in `HomeScreen`
+
+**Important:** The old Firebase version (`messaging.dart`) remains **unchanged** to maintain compatibility during migration. The Serverpod version uses a separate `ServerpodNotificationService`.
 
 **Deep Linking:**
 
@@ -47,7 +51,7 @@
 - Support for both new and legacy notification formats
 - Platform detection (Android/iOS)
 
-**Commits:** 318f03b
+**Commits:** 318f03b, 1cc1350 (version separation fix)
 
 ---
 

@@ -7,6 +7,7 @@ import '../moments/moments_screen_modern.dart';
 import '../chats/chats_screen_modern.dart';
 import '../groups/groups_screen_modern.dart';
 import '../profile/profile_screen_modern.dart';
+import '../search/search_screen.dart';
 
 import '../../config/theme.dart';
 import '../../services/serverpod_notification_service.dart';
@@ -47,6 +48,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final List<Widget> _screens = [
     PlazaScreenModern(),
     const MomentsScreenModern(),
+    const SearchScreen(),
     const ChatsScreenModern(),
     const GroupsScreenModern(),
     const ProfileScreenModern(),
@@ -55,8 +57,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final List<_NavItem> _navItems = const [
     _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
     _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
-    _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.accentColor),
-    _NavItem(emoji: '👥', label: 'Groups', color: AppTheme.duoOrange),
+    _NavItem(emoji: '🔍', label: 'Search', color: AppTheme.accentColor),
+    _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
+    _NavItem(emoji: '👥', label: 'Groups', color: AppTheme.duoYellow),
     _NavItem(emoji: '👤', label: 'Profile', color: AppTheme.duoGreen),
   ];
 

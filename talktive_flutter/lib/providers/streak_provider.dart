@@ -6,7 +6,7 @@ part 'streak_provider.g.dart';
 
 /// Provider for user streak data.
 @riverpod
-class UserStreak extends _$UserStreak {
+class UserStreakNotifier extends _$UserStreakNotifier {
   @override
   FutureOr<UserStreakData?> build() async {
     return fetchStreak();

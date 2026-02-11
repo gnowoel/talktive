@@ -10,14 +10,14 @@ part of 'streak_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Provider for user streak data.
 
-@ProviderFor(UserStreak)
-final userStreakProvider = UserStreakProvider._();
+@ProviderFor(UserStreakNotifier)
+final userStreakProvider = UserStreakNotifierProvider._();
 
 /// Provider for user streak data.
-final class UserStreakProvider
-    extends $AsyncNotifierProvider<UserStreak, UserStreakData?> {
+final class UserStreakNotifierProvider
+    extends $AsyncNotifierProvider<UserStreakNotifier, UserStreakData?> {
   /// Provider for user streak data.
-  UserStreakProvider._()
+  UserStreakNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -29,18 +29,19 @@ final class UserStreakProvider
       );
 
   @override
-  String debugGetCreateSourceHash() => _$userStreakHash();
+  String debugGetCreateSourceHash() => _$userStreakNotifierHash();
 
   @$internal
   @override
-  UserStreak create() => UserStreak();
+  UserStreakNotifier create() => UserStreakNotifier();
 }
 
-String _$userStreakHash() => r'3e1b508c1b968afedd27d41bab7f824ddee25f29';
+String _$userStreakNotifierHash() =>
+    r'e080f5866b4d23a631a27199e7615d01bae7a4a0';
 
 /// Provider for user streak data.
 
-abstract class _$UserStreak extends $AsyncNotifier<UserStreakData?> {
+abstract class _$UserStreakNotifier extends $AsyncNotifier<UserStreakData?> {
   FutureOr<UserStreakData?> build();
   @$mustCallSuper
   @override

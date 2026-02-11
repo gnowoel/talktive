@@ -570,7 +570,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
   Future<void> _loadComments() async {
     try {
       setState(() => _isLoading = true);
-      final comments = await client.moment.getMomentComments(widget.momentId);
+      final comments = await client.moment.getMomentComments(
+        widget.momentId,
+        limit: 50,
+      );
       setState(() {
         _comments = comments;
         _isLoading = false;

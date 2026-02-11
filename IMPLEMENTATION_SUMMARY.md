@@ -1,6 +1,57 @@
 # Talktive Rebuild - Implementation Summary
 
-## 🚀 Latest Update: Phase 5 - Polish & Engagement (COMPLETED)
+## 🚀 Latest Update: Phase 6.1 - Push Notifications (COMPLETED)
+
+**Status:** ✅ Completed (February 11, 2026)
+
+### Phase 6.1: Push Notifications with FCM ✅
+
+**Backend:**
+
+- Created `UserNotification` and `DeviceToken` protocols
+- Implemented `NotificationService` for sending all notification types
+- Created `NotificationEndpoint` for API access
+- Integrated notifications into moment endpoint (likes and comments)
+- Database migration: `migrations/20260211100938725/`
+
+**Notification Types:**
+
+- **message:** New messages in Plaza
+- **moment_like:** Someone liked your moment
+- **moment_comment:** Someone commented on your moment
+- **achievement:** Achievement unlocked
+- **streak:** Streak milestone or reminder
+- **group_invite:** Invited to a group
+
+**Frontend:**
+
+- Updated `messaging.dart` service with backend integration
+- Automatic FCM token registration with backend
+- Token refresh handling
+- Unified notification tap handling for all types
+- Deep linking to appropriate screens
+
+**Deep Linking:**
+
+- Routes added for all main screens: `/plaza`, `/moments`, `/chats`, `/groups`, `/profile`, `/achievements`
+- `HomeScreen` accepts `initialIndex` parameter for tab navigation
+- Notifications navigate users to relevant content
+
+**Features:**
+
+- FCM token registration on app start
+- Automatic token refresh and re-registration
+- Foreground and background notification handling
+- Local notification display with custom icons
+- Notification tap navigation to specific screens
+- Support for both new and legacy notification formats
+- Platform detection (Android/iOS)
+
+**Commits:** 318f03b
+
+---
+
+## 🎯 Phase 5 - Polish & Engagement (COMPLETED)
 
 **Status:** ✅ Completed (February 11, 2026)
 

@@ -19,10 +19,11 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'dart:typed_data' as _i5;
 import 'package:talktive_client/src/protocol/message.dart' as _i6;
 import 'package:talktive_client/src/protocol/moment.dart' as _i7;
-import 'package:talktive_client/src/protocol/report.dart' as _i8;
-import 'package:talktive_client/src/protocol/resident.dart' as _i9;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i10;
-import 'protocol.dart' as _i11;
+import 'package:talktive_client/src/protocol/private_chat.dart' as _i8;
+import 'package:talktive_client/src/protocol/report.dart' as _i9;
+import 'package:talktive_client/src/protocol/resident.dart' as _i10;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i11;
+import 'protocol.dart' as _i12;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -380,6 +381,47 @@ class EndpointMoment extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointPrivateChat extends _i2.EndpointRef {
+  EndpointPrivateChat(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'privateChat';
+
+  /// Creates or retrieves a private chat between two users.
+  /// Returns the channel ID for the private chat.
+  _i3.Future<_i8.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
+      caller.callServerEndpoint<_i8.PrivateChat>(
+        'privateChat',
+        'getOrCreatePrivateChat',
+        {'otherUserId': otherUserId},
+      );
+
+  /// Lists all private chats for the current user.
+  _i3.Future<List<_i8.PrivateChat>> listPrivateChats() =>
+      caller.callServerEndpoint<List<_i8.PrivateChat>>(
+        'privateChat',
+        'listPrivateChats',
+        {},
+      );
+
+  /// Gets details about a private chat including the other participant's info.
+  _i3.Future<Map<String, dynamic>> getPrivateChatDetails(int privateChatId) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'privateChat',
+        'getPrivateChatDetails',
+        {'privateChatId': privateChatId},
+      );
+
+  /// Updates the lastMessageAt timestamp for a private chat.
+  _i3.Future<void> updateLastMessageTime(int privateChatId) =>
+      caller.callServerEndpoint<void>(
+        'privateChat',
+        'updateLastMessageTime',
+        {'privateChatId': privateChatId},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointReport extends _i2.EndpointRef {
   EndpointReport(_i2.EndpointCaller caller) : super(caller);
 
@@ -417,10 +459,10 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i8.Report>> listReports({
+  _i3.Future<List<_i9.Report>> listReports({
     required int limit,
     required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i8.Report>>(
+  }) => caller.callServerEndpoint<List<_i9.Report>>(
     'report',
     'listReports',
     {
@@ -446,8 +488,8 @@ class EndpointResident extends _i2.EndpointRef {
   String get name => 'resident';
 
   /// Checks if the authenticated user has a Resident profile.
-  _i3.Future<_i9.Resident?> getResident() =>
-      caller.callServerEndpoint<_i9.Resident?>(
+  _i3.Future<_i10.Resident?> getResident() =>
+      caller.callServerEndpoint<_i10.Resident?>(
         'resident',
         'getResident',
         {},
@@ -456,13 +498,13 @@ class EndpointResident extends _i2.EndpointRef {
   /// Initializes a Resident profile for an authenticated user.
   /// This overwrites any existing UserProfile data (e.g. from Google) with
   /// the chosen anonymous persona.
-  _i3.Future<_i9.Resident> initializeResident({
+  _i3.Future<_i10.Resident> initializeResident({
     required String name,
     required String avatar,
     required String gender,
     required String country,
     required String bio,
-  }) => caller.callServerEndpoint<_i9.Resident>(
+  }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
     'initializeResident',
     {
@@ -485,8 +527,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i10.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i10.Greeting>(
+  _i3.Future<_i11.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i11.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -524,7 +566,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i11.Protocol(),
+         _i12.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -539,6 +581,7 @@ class Client extends _i2.ServerpodClientShared {
     image = EndpointImage(this);
     message = EndpointMessage(this);
     moment = EndpointMoment(this);
+    privateChat = EndpointPrivateChat(this);
     report = EndpointReport(this);
     resident = EndpointResident(this);
     greeting = EndpointGreeting(this);
@@ -557,6 +600,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointMoment moment;
 
+  late final EndpointPrivateChat privateChat;
+
   late final EndpointReport report;
 
   late final EndpointResident resident;
@@ -573,6 +618,7 @@ class Client extends _i2.ServerpodClientShared {
     'image': image,
     'message': message,
     'moment': moment,
+    'privateChat': privateChat,
     'report': report,
     'resident': resident,
     'greeting': greeting,

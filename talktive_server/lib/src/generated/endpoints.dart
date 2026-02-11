@@ -17,14 +17,15 @@ import '../auth/jwt_refresh_endpoint.dart' as _i4;
 import '../endpoints/image_endpoint.dart' as _i5;
 import '../endpoints/message_endpoint.dart' as _i6;
 import '../endpoints/moment_endpoint.dart' as _i7;
-import '../endpoints/report_endpoint.dart' as _i8;
-import '../endpoints/resident_endpoint.dart' as _i9;
-import '../greetings/greeting_endpoint.dart' as _i10;
-import 'dart:typed_data' as _i11;
+import '../endpoints/private_chat_endpoint.dart' as _i8;
+import '../endpoints/report_endpoint.dart' as _i9;
+import '../endpoints/resident_endpoint.dart' as _i10;
+import '../greetings/greeting_endpoint.dart' as _i11;
+import 'dart:typed_data' as _i12;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i12;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i13;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i14;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -66,19 +67,25 @@ class Endpoints extends _i1.EndpointDispatch {
           'moment',
           null,
         ),
-      'report': _i8.ReportEndpoint()
+      'privateChat': _i8.PrivateChatEndpoint()
+        ..initialize(
+          server,
+          'privateChat',
+          null,
+        ),
+      'report': _i9.ReportEndpoint()
         ..initialize(
           server,
           'report',
           null,
         ),
-      'resident': _i9.ResidentEndpoint()
+      'resident': _i10.ResidentEndpoint()
         ..initialize(
           server,
           'resident',
           null,
         ),
-      'greeting': _i10.GreetingEndpoint()
+      'greeting': _i11.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -313,7 +320,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'imageData': _i1.ParameterDescription(
               name: 'imageData',
-              type: _i1.getType<_i11.ByteData>(),
+              type: _i1.getType<_i12.ByteData>(),
               nullable: false,
             ),
             'fileName': _i1.ParameterDescription(
@@ -496,6 +503,79 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['privateChat'] = _i1.EndpointConnector(
+      name: 'privateChat',
+      endpoint: endpoints['privateChat']!,
+      methodConnectors: {
+        'getOrCreatePrivateChat': _i1.MethodConnector(
+          name: 'getOrCreatePrivateChat',
+          params: {
+            'otherUserId': _i1.ParameterDescription(
+              name: 'otherUserId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['privateChat'] as _i8.PrivateChatEndpoint)
+                  .getOrCreatePrivateChat(
+                    session,
+                    params['otherUserId'],
+                  ),
+        ),
+        'listPrivateChats': _i1.MethodConnector(
+          name: 'listPrivateChats',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['privateChat'] as _i8.PrivateChatEndpoint)
+                  .listPrivateChats(session),
+        ),
+        'getPrivateChatDetails': _i1.MethodConnector(
+          name: 'getPrivateChatDetails',
+          params: {
+            'privateChatId': _i1.ParameterDescription(
+              name: 'privateChatId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['privateChat'] as _i8.PrivateChatEndpoint)
+                  .getPrivateChatDetails(
+                    session,
+                    params['privateChatId'],
+                  ),
+        ),
+        'updateLastMessageTime': _i1.MethodConnector(
+          name: 'updateLastMessageTime',
+          params: {
+            'privateChatId': _i1.ParameterDescription(
+              name: 'privateChatId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['privateChat'] as _i8.PrivateChatEndpoint)
+                  .updateLastMessageTime(
+                    session,
+                    params['privateChatId'],
+                  ),
+        ),
+      },
+    );
     connectors['report'] = _i1.EndpointConnector(
       name: 'report',
       endpoint: endpoints['report']!,
@@ -528,7 +608,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['report'] as _i8.ReportEndpoint).reportUser(
+              ) async => (endpoints['report'] as _i9.ReportEndpoint).reportUser(
                 session,
                 targetUserId: params['targetUserId'],
                 reason: params['reason'],
@@ -550,7 +630,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i8.ReportEndpoint).getReportCount(
+                  (endpoints['report'] as _i9.ReportEndpoint).getReportCount(
                     session,
                     params['userId'],
                   ),
@@ -574,7 +654,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i8.ReportEndpoint).listReports(
+                  (endpoints['report'] as _i9.ReportEndpoint).listReports(
                     session,
                     limit: params['limit'],
                     onlyUnresolved: params['onlyUnresolved'],
@@ -594,7 +674,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i8.ReportEndpoint).resolveReport(
+                  (endpoints['report'] as _i9.ReportEndpoint).resolveReport(
                     session,
                     params['reportId'],
                   ),
@@ -612,7 +692,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i9.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i10.ResidentEndpoint)
                   .getResident(session),
         ),
         'initializeResident': _i1.MethodConnector(
@@ -648,7 +728,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i9.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i10.ResidentEndpoint)
                   .initializeResident(
                     session,
                     name: params['name'],
@@ -677,16 +757,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i10.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i11.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i12.Endpoints()
+    modules['serverpod_auth_idp'] = _i13.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i13.Endpoints()
+    modules['serverpod_auth_core'] = _i14.Endpoints()
       ..initializeEndpoints(server);
   }
 }

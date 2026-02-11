@@ -1,0 +1,15 @@
+class: PrivateChat
+table: private_chat
+fields:
+  channelId: int
+  participant1Id: UuidValue
+  participant2Id: UuidValue
+  createdAt: DateTime
+  lastMessageAt: DateTime?
+indexes:
+  private_chat_channel_idx:
+    fields: channelId
+    unique: true
+  private_chat_participants_idx:
+    fields: participant1Id, participant2Id
+    unique: true

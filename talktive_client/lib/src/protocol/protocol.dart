@@ -20,16 +20,18 @@ import 'channel_type.dart' as _i7;
 import 'greetings/greeting.dart' as _i8;
 import 'message.dart' as _i9;
 import 'moment.dart' as _i10;
-import 'rate_limit.dart' as _i11;
-import 'report.dart' as _i12;
-import 'resident.dart' as _i13;
-import 'package:talktive_client/src/protocol/message.dart' as _i14;
-import 'package:talktive_client/src/protocol/moment.dart' as _i15;
-import 'package:talktive_client/src/protocol/report.dart' as _i16;
+import 'private_chat.dart' as _i11;
+import 'rate_limit.dart' as _i12;
+import 'report.dart' as _i13;
+import 'resident.dart' as _i14;
+import 'package:talktive_client/src/protocol/message.dart' as _i15;
+import 'package:talktive_client/src/protocol/moment.dart' as _i16;
+import 'package:talktive_client/src/protocol/private_chat.dart' as _i17;
+import 'package:talktive_client/src/protocol/report.dart' as _i18;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i17;
+    as _i19;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i18;
+    as _i20;
 export 'block.dart';
 export 'channel.dart';
 export 'channel_member.dart';
@@ -39,6 +41,7 @@ export 'channel_type.dart';
 export 'greetings/greeting.dart';
 export 'message.dart';
 export 'moment.dart';
+export 'private_chat.dart';
 export 'rate_limit.dart';
 export 'report.dart';
 export 'resident.dart';
@@ -105,14 +108,17 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i10.Moment) {
       return _i10.Moment.fromJson(data) as T;
     }
-    if (t == _i11.RateLimit) {
-      return _i11.RateLimit.fromJson(data) as T;
+    if (t == _i11.PrivateChat) {
+      return _i11.PrivateChat.fromJson(data) as T;
     }
-    if (t == _i12.Report) {
-      return _i12.Report.fromJson(data) as T;
+    if (t == _i12.RateLimit) {
+      return _i12.RateLimit.fromJson(data) as T;
     }
-    if (t == _i13.Resident) {
-      return _i13.Resident.fromJson(data) as T;
+    if (t == _i13.Report) {
+      return _i13.Report.fromJson(data) as T;
+    }
+    if (t == _i14.Resident) {
+      return _i14.Resident.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.Block?>()) {
       return (data != null ? _i2.Block.fromJson(data) : null) as T;
@@ -143,32 +149,47 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i10.Moment?>()) {
       return (data != null ? _i10.Moment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i11.RateLimit?>()) {
-      return (data != null ? _i11.RateLimit.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.PrivateChat?>()) {
+      return (data != null ? _i11.PrivateChat.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.Report?>()) {
-      return (data != null ? _i12.Report.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.RateLimit?>()) {
+      return (data != null ? _i12.RateLimit.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.Resident?>()) {
-      return (data != null ? _i13.Resident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.Report?>()) {
+      return (data != null ? _i13.Report.fromJson(data) : null) as T;
     }
-    if (t == List<_i14.Message>) {
-      return (data as List).map((e) => deserialize<_i14.Message>(e)).toList()
+    if (t == _i1.getType<_i14.Resident?>()) {
+      return (data != null ? _i14.Resident.fromJson(data) : null) as T;
+    }
+    if (t == List<_i15.Message>) {
+      return (data as List).map((e) => deserialize<_i15.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i15.Moment>) {
-      return (data as List).map((e) => deserialize<_i15.Moment>(e)).toList()
+    if (t == List<_i16.Moment>) {
+      return (data as List).map((e) => deserialize<_i16.Moment>(e)).toList()
           as T;
     }
-    if (t == List<_i16.Report>) {
-      return (data as List).map((e) => deserialize<_i16.Report>(e)).toList()
+    if (t == List<_i17.PrivateChat>) {
+      return (data as List)
+              .map((e) => deserialize<_i17.PrivateChat>(e))
+              .toList()
+          as T;
+    }
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
+          )
+          as T;
+    }
+    if (t == List<_i18.Report>) {
+      return (data as List).map((e) => deserialize<_i18.Report>(e)).toList()
           as T;
     }
     try {
-      return _i17.Protocol().deserialize<T>(data, t);
+      return _i19.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i18.Protocol().deserialize<T>(data, t);
+      return _i20.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -184,9 +205,10 @@ class Protocol extends _i1.SerializationManager {
       _i8.Greeting => 'Greeting',
       _i9.Message => 'Message',
       _i10.Moment => 'Moment',
-      _i11.RateLimit => 'RateLimit',
-      _i12.Report => 'Report',
-      _i13.Resident => 'Resident',
+      _i11.PrivateChat => 'PrivateChat',
+      _i12.RateLimit => 'RateLimit',
+      _i13.Report => 'Report',
+      _i14.Resident => 'Resident',
       _ => null,
     };
   }
@@ -219,18 +241,20 @@ class Protocol extends _i1.SerializationManager {
         return 'Message';
       case _i10.Moment():
         return 'Moment';
-      case _i11.RateLimit():
+      case _i11.PrivateChat():
+        return 'PrivateChat';
+      case _i12.RateLimit():
         return 'RateLimit';
-      case _i12.Report():
+      case _i13.Report():
         return 'Report';
-      case _i13.Resident():
+      case _i14.Resident():
         return 'Resident';
     }
-    className = _i17.Protocol().getClassNameForObject(data);
+    className = _i19.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i18.Protocol().getClassNameForObject(data);
+    className = _i20.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -270,22 +294,25 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'Moment') {
       return deserialize<_i10.Moment>(data['data']);
     }
+    if (dataClassName == 'PrivateChat') {
+      return deserialize<_i11.PrivateChat>(data['data']);
+    }
     if (dataClassName == 'RateLimit') {
-      return deserialize<_i11.RateLimit>(data['data']);
+      return deserialize<_i12.RateLimit>(data['data']);
     }
     if (dataClassName == 'Report') {
-      return deserialize<_i12.Report>(data['data']);
+      return deserialize<_i13.Report>(data['data']);
     }
     if (dataClassName == 'Resident') {
-      return deserialize<_i13.Resident>(data['data']);
+      return deserialize<_i14.Resident>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i17.Protocol().deserializeByClassName(data);
+      return _i19.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i18.Protocol().deserializeByClassName(data);
+      return _i20.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -300,10 +327,10 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i17.Protocol().mapRecordToJson(record);
+      return _i19.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i18.Protocol().mapRecordToJson(record);
+      return _i20.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

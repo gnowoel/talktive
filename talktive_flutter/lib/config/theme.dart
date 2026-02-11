@@ -417,6 +417,9 @@ class AppTheme {
   static const double duoRadiusLarge = 20.0;
   static const double duoRadiusPill = 100.0;
 
+  // Alias for common usage
+  static const double duoBorderRadius = duoRadiusMedium;
+
   // Duolingo-Style Spacing
   static const double duoSpacingTiny = 4.0;
   static const double duoSpacingSmall = 8.0;

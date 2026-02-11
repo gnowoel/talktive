@@ -20,6 +20,11 @@ message:
 moment:
   - postMoment:
   - listMoments:
+privateChat:
+  - getOrCreatePrivateChat:
+  - listPrivateChats:
+  - getPrivateChatDetails:
+  - updateLastMessageTime:
 report:
   - reportUser:
   - getReportCount:

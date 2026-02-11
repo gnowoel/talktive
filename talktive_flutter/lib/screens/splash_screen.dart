@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
+import '../services/serverpod_notification_service.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -24,7 +25,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
+    _initializeNotifications();
     _checkAuthStatus();
+  }
+
+  void _initializeNotifications() {
+    // Initialize notification service for Serverpod version
+    ServerpodNotificationService().initialize().catchError((error) {
+      debugPrint('Error initializing notifications: $error');
+    });
   }
 
   void _initializeAnimations() {

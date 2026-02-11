@@ -9,6 +9,7 @@ import '../groups/groups_screen_modern.dart';
 import '../profile/profile_screen_modern.dart';
 
 import '../../config/theme.dart';
+import '../../services/serverpod_notification_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final int initialIndex;
@@ -26,6 +27,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _checkPendingNotifications();
+  }
+
+  void _checkPendingNotifications() {
+    // Check if there's a pending notification to handle
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notificationData = ServerpodNotificationService()
+          .getPendingNotificationData();
+      if (notificationData != null && mounted) {
+        ServerpodNotificationService().navigateFromNotification(
+          context,
+          notificationData,
+        );
+      }
+    });
   }
 
   final List<Widget> _screens = [

@@ -7,6 +7,7 @@ class NotificationEndpoint extends Endpoint {
   Future<List<protocol.UserNotification>> getUserNotifications(
     Session session, {
     int limit = 50,
+    int offset = 0,
     bool unreadOnly = false,
   }) async {
     final authenticationInfo = session.authenticated;
@@ -22,6 +23,7 @@ class NotificationEndpoint extends Endpoint {
       session,
       currentUserId,
       limit: limit,
+      offset: offset,
       unreadOnly: unreadOnly,
     );
   }

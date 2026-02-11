@@ -169,6 +169,7 @@ class NotificationService {
     Session session,
     UuidValue userId, {
     int limit = 50,
+    int offset = 0,
     bool unreadOnly = false,
   }) async {
     return await protocol.UserNotification.db.find(
@@ -179,6 +180,7 @@ class NotificationService {
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: limit,
+      offset: offset,
     );
   }
 

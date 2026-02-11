@@ -7,8 +7,17 @@ fields:
   createdAt: DateTime
   likesCount: int
   commentsCount: int
-  
+
   # Denormalized Author Info
   authorName: String
   authorAvatar: String
   authorFloor: int
+indexes:
+  moment_author_idx:
+    fields: authorId
+  moment_created_idx:
+    fields: createdAt
+  moment_likes_idx:
+    fields: likesCount
+  moment_created_likes_idx:
+    fields: createdAt, likesCount

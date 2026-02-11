@@ -6,3 +6,12 @@ fields:
   content: String?
   imageUrl: String?
   createdAt: DateTime
+indexes:
+  message_channel_idx:
+    fields: channelId
+  message_sender_idx:
+    fields: senderId
+  message_created_idx:
+    fields: createdAt
+  message_channel_created_idx:
+    fields: channelId, createdAt

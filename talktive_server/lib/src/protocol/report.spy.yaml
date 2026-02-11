@@ -7,9 +7,19 @@ fields:
   channelId: int?
   messageId: int?
   createdAt: DateTime
-  resolved: bool
+  status: ReportStatus, default=pending
+  adminNotes: String?
+  resolvedAt: DateTime?
 indexes:
   report_target_idx:
     fields: targetId, createdAt
   report_reporter_idx:
     fields: reporterId, createdAt
+  report_status_idx:
+    fields: status, createdAt
+
+enum: ReportStatus
+values:
+  - pending
+  - approved
+  - rejected

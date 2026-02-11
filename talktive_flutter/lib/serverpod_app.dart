@@ -9,6 +9,7 @@ import 'screens/onboarding/welcome_screen.dart';
 import 'screens/onboarding/profile_setup_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/chat/chat_screen.dart';
+import 'screens/achievements/achievements_screen.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -44,6 +45,30 @@ class ServerpodApp extends StatelessWidget {
           builder: (context, state) => const ProfileSetupScreen(),
         ),
         GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+        GoRoute(
+          path: '/plaza',
+          builder: (context, state) => const HomeScreen(initialIndex: 0),
+        ),
+        GoRoute(
+          path: '/moments',
+          builder: (context, state) => const HomeScreen(initialIndex: 1),
+        ),
+        GoRoute(
+          path: '/chats',
+          builder: (context, state) => const HomeScreen(initialIndex: 2),
+        ),
+        GoRoute(
+          path: '/groups',
+          builder: (context, state) => const HomeScreen(initialIndex: 3),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const HomeScreen(initialIndex: 4),
+        ),
+        GoRoute(
+          path: '/achievements',
+          builder: (context, state) => const AchievementsScreen(),
+        ),
         GoRoute(
           path: '/chat/:channelId',
           builder: (context, state) {

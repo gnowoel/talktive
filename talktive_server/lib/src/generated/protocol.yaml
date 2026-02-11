@@ -40,6 +40,12 @@ moment:
   - addComment:
   - getMomentComments:
   - deleteComment:
+notification:
+  - getUserNotifications:
+  - markAsRead:
+  - getUnreadCount:
+  - registerDeviceToken:
+  - unregisterDeviceToken:
 privateChat:
   - getOrCreatePrivateChat:
   - listPrivateChats:

@@ -1,0 +1,15 @@
+class: DeviceToken
+table: device_tokens
+fields:
+  userId: UuidValue
+  token: String
+  platform: String  # 'ios', 'android', 'web'
+  lastUsed: DateTime
+  createdAt: DateTime
+
+indexes:
+  user_token_unique:
+    fields: userId, token
+    unique: true
+  token_idx:
+    fields: token

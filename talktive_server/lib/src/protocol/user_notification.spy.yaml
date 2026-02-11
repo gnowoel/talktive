@@ -1,0 +1,16 @@
+class: UserNotification
+table: user_notifications
+fields:
+  userId: UuidValue
+  type: String  # 'message', 'moment_like', 'moment_comment', 'achievement', 'streak', 'group_invite'
+  title: String
+  body: String
+  data: String?  # JSON data for deep linking
+  read: bool, default=false
+  createdAt: DateTime
+
+indexes:
+  user_created_idx:
+    fields: userId, createdAt
+  user_read_idx:
+    fields: userId, read

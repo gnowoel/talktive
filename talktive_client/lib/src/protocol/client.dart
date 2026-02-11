@@ -23,12 +23,13 @@ import 'package:talktive_client/src/protocol/message.dart' as _i8;
 import 'package:talktive_client/src/protocol/moment.dart' as _i9;
 import 'package:talktive_client/src/protocol/moment_like.dart' as _i10;
 import 'package:talktive_client/src/protocol/moment_comment.dart' as _i11;
-import 'package:talktive_client/src/protocol/private_chat.dart' as _i12;
-import 'package:talktive_client/src/protocol/report.dart' as _i13;
-import 'package:talktive_client/src/protocol/user_streak.dart' as _i14;
-import 'package:talktive_client/src/protocol/daily_reward.dart' as _i15;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i16;
-import 'protocol.dart' as _i17;
+import 'package:talktive_client/src/protocol/user_notification.dart' as _i12;
+import 'package:talktive_client/src/protocol/private_chat.dart' as _i13;
+import 'package:talktive_client/src/protocol/report.dart' as _i14;
+import 'package:talktive_client/src/protocol/user_streak.dart' as _i15;
+import 'package:talktive_client/src/protocol/daily_reward.dart' as _i16;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i17;
+import 'protocol.dart' as _i18;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -580,6 +581,63 @@ class EndpointMoment extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointNotification extends _i2.EndpointRef {
+  EndpointNotification(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'notification';
+
+  /// Gets user's notifications.
+  _i3.Future<List<_i12.UserNotification>> getUserNotifications({
+    required int limit,
+    required bool unreadOnly,
+  }) => caller.callServerEndpoint<List<_i12.UserNotification>>(
+    'notification',
+    'getUserNotifications',
+    {
+      'limit': limit,
+      'unreadOnly': unreadOnly,
+    },
+  );
+
+  /// Marks notifications as read.
+  _i3.Future<void> markAsRead(List<int> notificationIds) =>
+      caller.callServerEndpoint<void>(
+        'notification',
+        'markAsRead',
+        {'notificationIds': notificationIds},
+      );
+
+  /// Gets unread notification count.
+  _i3.Future<int> getUnreadCount() => caller.callServerEndpoint<int>(
+    'notification',
+    'getUnreadCount',
+    {},
+  );
+
+  /// Registers a device token for push notifications.
+  _i3.Future<void> registerDeviceToken(
+    String token,
+    String platform,
+  ) => caller.callServerEndpoint<void>(
+    'notification',
+    'registerDeviceToken',
+    {
+      'token': token,
+      'platform': platform,
+    },
+  );
+
+  /// Unregisters a device token.
+  _i3.Future<void> unregisterDeviceToken(String token) =>
+      caller.callServerEndpoint<void>(
+        'notification',
+        'unregisterDeviceToken',
+        {'token': token},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointPrivateChat extends _i2.EndpointRef {
   EndpointPrivateChat(_i2.EndpointCaller caller) : super(caller);
 
@@ -588,16 +646,16 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
-  _i3.Future<_i12.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
-      caller.callServerEndpoint<_i12.PrivateChat>(
+  _i3.Future<_i13.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
+      caller.callServerEndpoint<_i13.PrivateChat>(
         'privateChat',
         'getOrCreatePrivateChat',
         {'otherUserId': otherUserId},
       );
 
   /// Lists all private chats for the current user.
-  _i3.Future<List<_i12.PrivateChat>> listPrivateChats() =>
-      caller.callServerEndpoint<List<_i12.PrivateChat>>(
+  _i3.Future<List<_i13.PrivateChat>> listPrivateChats() =>
+      caller.callServerEndpoint<List<_i13.PrivateChat>>(
         'privateChat',
         'listPrivateChats',
         {},
@@ -658,10 +716,10 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i13.Report>> listReports({
+  _i3.Future<List<_i14.Report>> listReports({
     required int limit,
     required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i13.Report>>(
+  }) => caller.callServerEndpoint<List<_i14.Report>>(
     'report',
     'listReports',
     {
@@ -724,8 +782,8 @@ class EndpointStreak extends _i2.EndpointRef {
   String get name => 'streak';
 
   /// Gets the current user's streak data.
-  _i3.Future<_i14.UserStreak?> getUserStreak() =>
-      caller.callServerEndpoint<_i14.UserStreak?>(
+  _i3.Future<_i15.UserStreak?> getUserStreak() =>
+      caller.callServerEndpoint<_i15.UserStreak?>(
         'streak',
         'getUserStreak',
         {},
@@ -739,16 +797,16 @@ class EndpointStreak extends _i2.EndpointRef {
   );
 
   /// Claims the daily reward.
-  _i3.Future<_i15.DailyReward> claimDailyReward() =>
-      caller.callServerEndpoint<_i15.DailyReward>(
+  _i3.Future<_i16.DailyReward> claimDailyReward() =>
+      caller.callServerEndpoint<_i16.DailyReward>(
         'streak',
         'claimDailyReward',
         {},
       );
 
   /// Gets the user's reward history.
-  _i3.Future<List<_i15.DailyReward>> getRewardHistory({required int limit}) =>
-      caller.callServerEndpoint<List<_i15.DailyReward>>(
+  _i3.Future<List<_i16.DailyReward>> getRewardHistory({required int limit}) =>
+      caller.callServerEndpoint<List<_i16.DailyReward>>(
         'streak',
         'getRewardHistory',
         {'limit': limit},
@@ -765,8 +823,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i16.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i16.Greeting>(
+  _i3.Future<_i17.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i17.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -804,7 +862,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i17.Protocol(),
+         _i18.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -821,6 +879,7 @@ class Client extends _i2.ServerpodClientShared {
     image = EndpointImage(this);
     message = EndpointMessage(this);
     moment = EndpointMoment(this);
+    notification = EndpointNotification(this);
     privateChat = EndpointPrivateChat(this);
     report = EndpointReport(this);
     resident = EndpointResident(this);
@@ -845,6 +904,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointMoment moment;
 
+  late final EndpointNotification notification;
+
   late final EndpointPrivateChat privateChat;
 
   late final EndpointReport report;
@@ -867,6 +928,7 @@ class Client extends _i2.ServerpodClientShared {
     'image': image,
     'message': message,
     'moment': moment,
+    'notification': notification,
     'privateChat': privateChat,
     'report': report,
     'resident': resident,

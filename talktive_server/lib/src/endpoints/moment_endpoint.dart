@@ -3,6 +3,7 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
+import '../services/notification_service.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
@@ -155,6 +156,17 @@ class MomentEndpoint extends Endpoint {
     if (moment != null) {
       moment.likesCount += 1;
       await Moment.db.updateRow(session, moment);
+
+      // Send notification to moment author (if not liking own moment)
+      final momentAuthor = await Resident.db.findById(session, moment.authorId);
+      if (momentAuthor != null && momentAuthor.userInfoId != userId) {
+        await NotificationService.sendMomentLikeNotification(
+          session,
+          momentAuthor.userInfoId,
+          userProfile.userName ?? 'Someone',
+          momentId,
+        );
+      }
     }
   }
 
@@ -268,6 +280,18 @@ class MomentEndpoint extends Endpoint {
     if (moment != null) {
       moment.commentsCount += 1;
       await Moment.db.updateRow(session, moment);
+
+      // Send notification to moment author (if not commenting on own moment)
+      final momentAuthor = await Resident.db.findById(session, moment.authorId);
+      if (momentAuthor != null && momentAuthor.userInfoId != userId) {
+        await NotificationService.sendMomentCommentNotification(
+          session,
+          momentAuthor.userInfoId,
+          userProfile.userName ?? 'Someone',
+          text,
+          momentId,
+        );
+      }
     }
 
     return savedComment;

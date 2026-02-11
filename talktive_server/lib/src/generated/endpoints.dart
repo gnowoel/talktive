@@ -19,16 +19,17 @@ import '../endpoints/group_endpoint.dart' as _i6;
 import '../endpoints/image_endpoint.dart' as _i7;
 import '../endpoints/message_endpoint.dart' as _i8;
 import '../endpoints/moment_endpoint.dart' as _i9;
-import '../endpoints/private_chat_endpoint.dart' as _i10;
-import '../endpoints/report_endpoint.dart' as _i11;
-import '../endpoints/resident_endpoint.dart' as _i12;
-import '../endpoints/streak_endpoint.dart' as _i13;
-import '../greetings/greeting_endpoint.dart' as _i14;
-import 'dart:typed_data' as _i15;
+import '../endpoints/notification_endpoint.dart' as _i10;
+import '../endpoints/private_chat_endpoint.dart' as _i11;
+import '../endpoints/report_endpoint.dart' as _i12;
+import '../endpoints/resident_endpoint.dart' as _i13;
+import '../endpoints/streak_endpoint.dart' as _i14;
+import '../greetings/greeting_endpoint.dart' as _i15;
+import 'dart:typed_data' as _i16;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i16;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i17;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i18;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -82,31 +83,37 @@ class Endpoints extends _i1.EndpointDispatch {
           'moment',
           null,
         ),
-      'privateChat': _i10.PrivateChatEndpoint()
+      'notification': _i10.NotificationEndpoint()
+        ..initialize(
+          server,
+          'notification',
+          null,
+        ),
+      'privateChat': _i11.PrivateChatEndpoint()
         ..initialize(
           server,
           'privateChat',
           null,
         ),
-      'report': _i11.ReportEndpoint()
+      'report': _i12.ReportEndpoint()
         ..initialize(
           server,
           'report',
           null,
         ),
-      'resident': _i12.ResidentEndpoint()
+      'resident': _i13.ResidentEndpoint()
         ..initialize(
           server,
           'resident',
           null,
         ),
-      'streak': _i13.StreakEndpoint()
+      'streak': _i14.StreakEndpoint()
         ..initialize(
           server,
           'streak',
           null,
         ),
-      'greeting': _i14.GreetingEndpoint()
+      'greeting': _i15.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -597,7 +604,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'imageData': _i1.ParameterDescription(
               name: 'imageData',
-              type: _i1.getType<_i15.ByteData>(),
+              type: _i1.getType<_i16.ByteData>(),
               nullable: false,
             ),
             'fileName': _i1.ParameterDescription(
@@ -923,6 +930,115 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['notification'] = _i1.EndpointConnector(
+      name: 'notification',
+      endpoint: endpoints['notification']!,
+      methodConnectors: {
+        'getUserNotifications': _i1.MethodConnector(
+          name: 'getUserNotifications',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'unreadOnly': _i1.ParameterDescription(
+              name: 'unreadOnly',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['notification'] as _i10.NotificationEndpoint)
+                      .getUserNotifications(
+                        session,
+                        limit: params['limit'],
+                        unreadOnly: params['unreadOnly'],
+                      ),
+        ),
+        'markAsRead': _i1.MethodConnector(
+          name: 'markAsRead',
+          params: {
+            'notificationIds': _i1.ParameterDescription(
+              name: 'notificationIds',
+              type: _i1.getType<List<int>>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['notification'] as _i10.NotificationEndpoint)
+                      .markAsRead(
+                        session,
+                        params['notificationIds'],
+                      ),
+        ),
+        'getUnreadCount': _i1.MethodConnector(
+          name: 'getUnreadCount',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['notification'] as _i10.NotificationEndpoint)
+                      .getUnreadCount(session),
+        ),
+        'registerDeviceToken': _i1.MethodConnector(
+          name: 'registerDeviceToken',
+          params: {
+            'token': _i1.ParameterDescription(
+              name: 'token',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'platform': _i1.ParameterDescription(
+              name: 'platform',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['notification'] as _i10.NotificationEndpoint)
+                      .registerDeviceToken(
+                        session,
+                        params['token'],
+                        params['platform'],
+                      ),
+        ),
+        'unregisterDeviceToken': _i1.MethodConnector(
+          name: 'unregisterDeviceToken',
+          params: {
+            'token': _i1.ParameterDescription(
+              name: 'token',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['notification'] as _i10.NotificationEndpoint)
+                      .unregisterDeviceToken(
+                        session,
+                        params['token'],
+                      ),
+        ),
+      },
+    );
     connectors['privateChat'] = _i1.EndpointConnector(
       name: 'privateChat',
       endpoint: endpoints['privateChat']!,
@@ -940,7 +1056,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['privateChat'] as _i10.PrivateChatEndpoint)
+              ) async => (endpoints['privateChat'] as _i11.PrivateChatEndpoint)
                   .getOrCreatePrivateChat(
                     session,
                     params['otherUserId'],
@@ -953,7 +1069,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['privateChat'] as _i10.PrivateChatEndpoint)
+              ) async => (endpoints['privateChat'] as _i11.PrivateChatEndpoint)
                   .listPrivateChats(session),
         ),
         'getPrivateChatDetails': _i1.MethodConnector(
@@ -969,7 +1085,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['privateChat'] as _i10.PrivateChatEndpoint)
+              ) async => (endpoints['privateChat'] as _i11.PrivateChatEndpoint)
                   .getPrivateChatDetails(
                     session,
                     params['privateChatId'],
@@ -988,7 +1104,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['privateChat'] as _i10.PrivateChatEndpoint)
+              ) async => (endpoints['privateChat'] as _i11.PrivateChatEndpoint)
                   .updateLastMessageTime(
                     session,
                     params['privateChatId'],
@@ -1029,7 +1145,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i11.ReportEndpoint).reportUser(
+                  (endpoints['report'] as _i12.ReportEndpoint).reportUser(
                     session,
                     targetUserId: params['targetUserId'],
                     reason: params['reason'],
@@ -1051,7 +1167,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i11.ReportEndpoint).getReportCount(
+                  (endpoints['report'] as _i12.ReportEndpoint).getReportCount(
                     session,
                     params['userId'],
                   ),
@@ -1075,7 +1191,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i11.ReportEndpoint).listReports(
+                  (endpoints['report'] as _i12.ReportEndpoint).listReports(
                     session,
                     limit: params['limit'],
                     onlyUnresolved: params['onlyUnresolved'],
@@ -1095,7 +1211,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['report'] as _i11.ReportEndpoint).resolveReport(
+                  (endpoints['report'] as _i12.ReportEndpoint).resolveReport(
                     session,
                     params['reportId'],
                   ),
@@ -1113,7 +1229,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i12.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
                   .getResident(session),
         ),
         'initializeResident': _i1.MethodConnector(
@@ -1149,7 +1265,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['resident'] as _i12.ResidentEndpoint)
+              ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
                   .initializeResident(
                     session,
                     name: params['name'],
@@ -1172,7 +1288,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['streak'] as _i13.StreakEndpoint)
+              ) async => (endpoints['streak'] as _i14.StreakEndpoint)
                   .getUserStreak(session),
         ),
         'canClaimDailyReward': _i1.MethodConnector(
@@ -1182,7 +1298,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['streak'] as _i13.StreakEndpoint)
+              ) async => (endpoints['streak'] as _i14.StreakEndpoint)
                   .canClaimDailyReward(session),
         ),
         'claimDailyReward': _i1.MethodConnector(
@@ -1192,7 +1308,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['streak'] as _i13.StreakEndpoint)
+              ) async => (endpoints['streak'] as _i14.StreakEndpoint)
                   .claimDailyReward(session),
         ),
         'getRewardHistory': _i1.MethodConnector(
@@ -1209,7 +1325,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['streak'] as _i13.StreakEndpoint).getRewardHistory(
+                  (endpoints['streak'] as _i14.StreakEndpoint).getRewardHistory(
                     session,
                     limit: params['limit'],
                   ),
@@ -1233,16 +1349,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i14.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i15.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i16.Endpoints()
+    modules['serverpod_auth_idp'] = _i17.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i17.Endpoints()
+    modules['serverpod_auth_core'] = _i18.Endpoints()
       ..initializeEndpoints(server);
   }
 }

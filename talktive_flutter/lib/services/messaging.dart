@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../helpers/platform.dart';
 import '../helpers/routes.dart';
 import '../router.dart';
+import '../serverpod_client.dart';
 import 'ad_service/go_router_room_helper.dart';
 
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -23,7 +25,11 @@ class Messaging {
   final FirebaseMessaging instance = FirebaseMessaging.instance;
 
   Future<String?> getToken() async {
-    return await instance.getToken();
+    final token = await instance.getToken();
+    if (token != null) {
+      await _registerTokenWithBackend(token);
+    }
+    return token;
   }
 
   Stream<String> subscribeToFcmToken() {
@@ -32,7 +38,26 @@ class Messaging {
       return const Stream.empty();
     }
 
+    // Register new tokens with backend
+    instance.onTokenRefresh.listen((token) {
+      _registerTokenWithBackend(token);
+    });
+
     return instance.onTokenRefresh;
+  }
+
+  Future<void> _registerTokenWithBackend(String token) async {
+    try {
+      String platform = 'android';
+      if (Platform.isIOS) {
+        platform = 'ios';
+      }
+
+      await client.notification.registerDeviceToken(token, platform);
+      debugPrint('Device token registered with backend');
+    } catch (e) {
+      debugPrint('Error registering device token: $e');
+    }
   }
 
   Future<void> localSetup() async {
@@ -71,7 +96,8 @@ class Messaging {
 
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(androidNotificationChannel);
   }
 
@@ -158,43 +184,68 @@ class Messaging {
   }
 
   void _handleNotificationData(Map<String, dynamic> data) {
-    final context = rootNavigatorKey.currentContext!;
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
 
-    if (data['type'] == 'chat') {
-      final chatId = data['chatId'] as String;
-      final chatCreatedAt = data['chatCreatedAt'] as String;
+    final type = data['type'] as String?;
 
-      GoRouter.of(context).go('/chats');
-      GoRouterRoomHelper.pushWithoutAd(
-          context, encodeChatRoute(chatId, chatCreatedAt));
-    } else {
-      final topicId = data['topicId'] as String;
-      final topicCreatorId = data['topicCreatorId'] as String;
+    switch (type) {
+      case 'message':
+        // Navigate to plaza (public chat)
+        GoRouter.of(context).go('/plaza');
+        break;
 
-      GoRouterRoomHelper.goWithoutAd(
-          context, encodeTopicRoute(topicId, topicCreatorId));
+      case 'moment_like':
+      case 'moment_comment':
+        // Navigate to moments screen
+        GoRouter.of(context).go('/moments');
+        break;
+
+      case 'achievement':
+        // Navigate to achievements screen
+        GoRouter.of(context).go('/achievements');
+        break;
+
+      case 'streak':
+        // Navigate to profile screen
+        GoRouter.of(context).go('/profile');
+        break;
+
+      case 'group_invite':
+        // Navigate to groups screen
+        GoRouter.of(context).go('/groups');
+        break;
+
+      case 'chat':
+        // Legacy chat handling
+        final chatId = data['chatId'] as String?;
+        final chatCreatedAt = data['chatCreatedAt'] as String?;
+        if (chatId != null && chatCreatedAt != null) {
+          GoRouter.of(context).go('/chats');
+          GoRouterRoomHelper.pushWithoutAd(
+            context,
+            encodeChatRoute(chatId, chatCreatedAt),
+          );
+        }
+        break;
+
+      default:
+        // Legacy topic handling
+        final topicId = data['topicId'] as String?;
+        final topicCreatorId = data['topicCreatorId'] as String?;
+        if (topicId != null && topicCreatorId != null) {
+          GoRouterRoomHelper.goWithoutAd(
+            context,
+            encodeTopicRoute(topicId, topicCreatorId),
+          );
+        }
     }
   }
 
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
       final data = jsonDecode(payload) as Map<String, dynamic>;
-      final context = rootNavigatorKey.currentContext!;
-
-      if (data['type'] == 'chat') {
-        final chatId = data['chatId'] as String;
-        final chatCreatedAt = data['chatCreatedAt'] as String;
-
-        GoRouter.of(context).go('/chats');
-        GoRouterRoomHelper.pushWithoutAd(
-            context, encodeChatRoute(chatId, chatCreatedAt));
-      } else {
-        final topicId = data['topicId'] as String;
-        final topicCreatorId = data['topicCreatorId'] as String;
-
-        GoRouterRoomHelper.goWithoutAd(
-            context, encodeTopicRoute(topicId, topicCreatorId));
-      }
+      _handleNotificationData(data);
     }
   }
 
@@ -206,8 +257,9 @@ class Messaging {
     if (details?.didNotificationLaunchApp == true &&
         details?.notificationResponse?.payload != null) {
       try {
-        final data = jsonDecode(details!.notificationResponse!.payload!)
-            as Map<String, dynamic>;
+        final data =
+            jsonDecode(details!.notificationResponse!.payload!)
+                as Map<String, dynamic>;
 
         if (data['type'] == 'chat') {
           final chatId = data['chatId'] as String;

@@ -34,6 +34,25 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - `Resident` table links to `AuthUser` via `userInfoId` (UUID).
   - **Legacy Warning**: Do not use `int` for User IDs. The system is fully migrated to UUIDs.
 
+## Current Phase
+
+**Phase 6: Advanced Features (IN PROGRESS)**
+
+**Completed:**
+
+- Phase 1-5: Design foundation, core screens, backend stability, feature completion, polish & engagement
+- Phase 6.1: Push notifications with FCM (COMPLETED)
+  - Backend notification service with 6 notification types
+  - ServerpodNotificationService for new version
+  - Deep linking to all screens
+  - Firebase version unchanged (separate services for compatibility)
+
+**Next:**
+
+- Phase 6.2: User Profiles View
+- Phase 6.3: Search & Discovery
+- Phase 6.4: Admin Dashboard
+
 ## Key Components
 
 ### Server (`talktive_server`)

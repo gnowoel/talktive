@@ -22,8 +22,33 @@ We are currently migrating the application's backend from **Firebase** to **Serv
 
 The application currently supports a dual-boot mode via a `VersionSelector` screen on startup:
 
-- **Firebase (Old):** The fully functional legacy version (Firestore/RTDB).
+- **Firebase (Old):** The fully functional legacy version (Firestore/RTDB). In maintenance mode.
 - **Serverpod (New):** The new backend using Serverpod + Postgres. **Crucially, it uses Firebase Authentication** to handle Google Sign-In, bridging the two worlds via Serverpod Auth Core (JWT/SAS tokens).
+
+### Serverpod Version Features (Completed)
+
+**Phase 1-5 (COMPLETED):**
+
+- ✅ Duolingo-inspired UI/UX redesign
+- ✅ Core screens: Plaza, Moments, Chats, Groups, Profile
+- ✅ Private 1-on-1 messaging
+- ✅ Group chats with member management
+- ✅ Achievements system (15 achievements across 5 categories)
+- ✅ Moments with likes and comments
+- ✅ Daily streaks and rewards
+
+**Phase 6.1 (COMPLETED):**
+
+- ✅ Push notifications with FCM
+- ✅ Backend notification service
+- ✅ Deep linking to all screens
+- ✅ 6 notification types (message, moment_like, moment_comment, achievement, streak, group_invite)
+
+**Next Up:**
+
+- User profile viewing
+- Search and discovery
+- Admin dashboard
 
 ## 📂 Project Structure
 

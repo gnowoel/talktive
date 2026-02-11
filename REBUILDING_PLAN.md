@@ -348,12 +348,16 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 
 **Frontend Implementation:**
 
-- Updated `messaging.dart` with backend integration
+- Created `ServerpodNotificationService` for Serverpod version only
+- Initialized in `SplashScreen` for Serverpod app
+- Pending notification handling in `HomeScreen`
 - FCM token registration on app start
 - Token refresh handling
 - Unified notification tap handling
 - Deep linking routes for all screens
 - `HomeScreen` accepts `initialIndex` for tab navigation
+
+**Important:** The old Firebase version (`messaging.dart`) remains **unchanged** to maintain compatibility during migration. The Serverpod version uses a separate `ServerpodNotificationService`.
 
 **Notification Types Implemented:**
 
@@ -372,7 +376,7 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 - [ ] Add sound and vibration customization
 - [ ] Test on iOS devices
 
-**Commits:** 318f03b
+**Commits:** 318f03b, 1cc1350 (version separation fix), 3edb170 (Firebase init fix)
 
 ---
 

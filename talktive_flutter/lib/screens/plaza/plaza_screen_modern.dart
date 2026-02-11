@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/chat_provider.dart';
+import '../../providers/realtime_chat_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_header.dart';
@@ -73,7 +73,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
     }
 
     try {
-      await ref.read(chatProvider(1).notifier).sendMessage(content);
+      await ref.read(realtimeChatProvider(1).notifier).sendMessage(content);
       _messageController.clear();
       HapticFeedback.lightImpact();
 
@@ -102,7 +102,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(chatProvider(1));
+    final chatState = ref.watch(realtimeChatProvider(1));
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -243,7 +243,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   Widget _buildMessagesList(List<Message> messages) {
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(chatProvider(1));
+        ref.read(realtimeChatProvider(1).notifier).refresh();
       },
       color: AppTheme.primaryColor,
       child: ListView.builder(

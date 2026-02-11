@@ -1,0 +1,18 @@
+class: Group
+table: groups
+fields:
+  channelId: int
+  name: String
+  description: String?
+  emoji: String?
+  creatorId: UuidValue
+  createdAt: DateTime
+  memberCount: int, default=1
+  isPublic: bool, default=false
+  maxMembers: int, default=50
+indexes:
+  group_channel_idx:
+    fields: channelId
+    unique: true
+  group_creator_idx:
+    fields: creatorId

@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
+import '../services/achievement_service.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
@@ -61,7 +62,26 @@ class MomentEndpoint extends Endpoint {
       authorFloor: resident.floor,
     );
 
-    return await Moment.db.insertRow(session, moment);
+    final savedMoment = await Moment.db.insertRow(session, moment);
+
+    // Track achievements
+    await AchievementService.trackProgress(
+      session,
+      senderUuid,
+      'first_moment',
+    );
+    await AchievementService.trackProgress(
+      session,
+      senderUuid,
+      'photographer',
+    );
+    await AchievementService.trackProgress(
+      session,
+      senderUuid,
+      'influencer',
+    );
+
+    return savedMoment;
   }
 
   /// Lists the latest moments.

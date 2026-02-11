@@ -10,6 +10,10 @@ firebaseIdp:
   - login:
 jwtRefresh:
   - refreshAccessToken:
+achievement:
+  - getUserAchievements:
+  - markAchievementsAsNotified:
+  - seedAchievements:
 group:
   - createGroup:
   - listGroups:

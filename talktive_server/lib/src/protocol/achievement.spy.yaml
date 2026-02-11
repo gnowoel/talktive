@@ -1,0 +1,15 @@
+class: Achievement
+table: achievements
+fields:
+  key: String
+  name: String
+  description: String
+  emoji: String
+  category: String
+  targetValue: int, default=1
+  points: int, default=10
+  isSecret: bool, default=false
+indexes:
+  achievement_key_idx:
+    fields: key
+    unique: true

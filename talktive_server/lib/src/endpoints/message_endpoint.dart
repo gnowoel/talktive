@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart'; // Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/rate_limit_service.dart';
+import '../services/achievement_service.dart';
 
 class MessageEndpoint extends Endpoint {
   /// Sends a message to a channel (Plaza, Group, or Private).
@@ -90,6 +91,27 @@ class MessageEndpoint extends Endpoint {
       // 9. Update message count and award credit
       sender.experienceMessageCount += 1;
       await ApartmentService.awardMessageCredit(session, sender);
+
+      // 10. Track achievements
+      await AchievementService.trackProgress(
+        session,
+        sender.userInfoId,
+        'first_message',
+      );
+      await AchievementService.trackProgress(
+        session,
+        sender.userInfoId,
+        'conversationalist',
+      );
+      await AchievementService.trackProgress(
+        session,
+        sender.userInfoId,
+        'chatterbox',
+      );
+      await AchievementService.checkTimeBasedAchievements(
+        session,
+        sender.userInfoId,
+      );
 
       return savedMessage;
     } catch (e, stack) {

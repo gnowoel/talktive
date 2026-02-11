@@ -262,6 +262,37 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
 }
 
 /// {@category Endpoint}
+class EndpointAchievement extends _i2.EndpointRef {
+  EndpointAchievement(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'achievement';
+
+  /// Gets all achievements with user progress.
+  _i3.Future<List<Map<String, dynamic>>> getUserAchievements() =>
+      caller.callServerEndpoint<List<Map<String, dynamic>>>(
+        'achievement',
+        'getUserAchievements',
+        {},
+      );
+
+  /// Marks achievements as notified (user has seen them).
+  _i3.Future<void> markAchievementsAsNotified(List<int> achievementIds) =>
+      caller.callServerEndpoint<void>(
+        'achievement',
+        'markAchievementsAsNotified',
+        {'achievementIds': achievementIds},
+      );
+
+  /// Seeds the database with predefined achievements (admin only).
+  _i3.Future<void> seedAchievements() => caller.callServerEndpoint<void>(
+    'achievement',
+    'seedAchievements',
+    {},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointGroup extends _i2.EndpointRef {
   EndpointGroup(_i2.EndpointCaller caller) : super(caller);
 
@@ -677,6 +708,7 @@ class Client extends _i2.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     firebaseIdp = EndpointFirebaseIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    achievement = EndpointAchievement(this);
     group = EndpointGroup(this);
     image = EndpointImage(this);
     message = EndpointMessage(this);
@@ -693,6 +725,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointFirebaseIdp firebaseIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointAchievement achievement;
 
   late final EndpointGroup group;
 
@@ -717,6 +751,7 @@ class Client extends _i2.ServerpodClientShared {
     'emailIdp': emailIdp,
     'firebaseIdp': firebaseIdp,
     'jwtRefresh': jwtRefresh,
+    'achievement': achievement,
     'group': group,
     'image': image,
     'message': message,

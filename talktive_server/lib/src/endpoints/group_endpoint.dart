@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/achievement_service.dart';
 
 class GroupEndpoint extends Endpoint {
   /// Creates a new group.
@@ -77,6 +78,13 @@ class GroupEndpoint extends Endpoint {
         joinedAt: DateTime.now(),
         role: 'admin',
       ),
+    );
+
+    // Track achievement
+    await AchievementService.trackProgress(
+      session,
+      currentUserId,
+      'community_builder',
     );
 
     return savedGroup;
@@ -194,6 +202,13 @@ class GroupEndpoint extends Endpoint {
     // Increment member count
     group.memberCount += 1;
     await protocol.Group.db.updateRow(session, group);
+
+    // Track achievement
+    await AchievementService.trackProgress(
+      session,
+      currentUserId,
+      'social_butterfly',
+    );
   }
 
   /// Leaves a group.

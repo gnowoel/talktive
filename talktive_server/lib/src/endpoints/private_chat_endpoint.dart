@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/achievement_service.dart';
 
 class PrivateChatEndpoint extends Endpoint {
   /// Creates or retrieves a private chat between two users.
@@ -100,6 +101,13 @@ class PrivateChatEndpoint extends Endpoint {
         status: protocol.ChannelMemberStatus.joined,
         joinedAt: DateTime.now(),
       ),
+    );
+
+    // Track achievement for starting a private chat
+    await AchievementService.trackProgress(
+      session,
+      currentUserId,
+      'private_chat',
     );
 
     return savedPrivateChat;

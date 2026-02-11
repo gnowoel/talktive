@@ -4,11 +4,14 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/resident_provider.dart';
+import '../../providers/achievement_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_badge.dart';
+import '../achievements/achievements_screen.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreenModern extends ConsumerWidget {
@@ -63,6 +66,8 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildHeader(resident),
           // Stats grid
           _buildStatsGrid(resident),
+          // Achievements section
+          _buildAchievementsSection(context, ref),
           // Info card
           _buildInfoCard(),
           // Sign out button
@@ -180,6 +185,142 @@ class ProfileScreenModern extends ConsumerWidget {
     );
   }
 
+  Widget _buildAchievementsSection(BuildContext context, WidgetRef ref) {
+    final achievementsAsync = ref.watch(userAchievementsProvider);
+
+    return achievementsAsync.when(
+      data: (achievements) {
+        final unlocked = achievements
+            .where((a) => a['unlocked'] == true)
+            .toList();
+        final totalPoints = unlocked.fold<int>(
+          0,
+          (sum, a) => sum + (a['achievement'].points as int),
+        );
+
+        // Show first 6 achievements
+        final preview = achievements.take(6).toList();
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.duoSpacingLarge,
+            vertical: AppTheme.duoSpacingMedium,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Achievements',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  Text(
+                    '${unlocked.length}/${achievements.length} • $totalPoints pts',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textSecondary,
+                      fontFamily: 'Rubik',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppTheme.duoSpacingMedium),
+              // Achievement badges
+              SizedBox(
+                height: 100,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: preview.length + 1, // +1 for "View All" button
+                  itemBuilder: (context, index) {
+                    if (index == preview.length) {
+                      // "View All" button
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const AchievementsScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 80,
+                          margin: const EdgeInsets.only(
+                            left: AppTheme.duoSpacingSmall,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.duoRadiusSmall,
+                            ),
+                            border: Border.all(
+                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              width: 2,
+                            ),
+                          ),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.arrow_forward,
+                                color: AppTheme.primaryColor,
+                                size: 24,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'View All',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryColor,
+                                  fontFamily: 'Rubik',
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    final achievement = preview[index];
+                    final achievementData = achievement['achievement'];
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        left: index == 0 ? 0 : AppTheme.duoSpacingSmall,
+                      ),
+                      child: DuoBadge(
+                        emoji: achievementData.emoji,
+                        name: achievementData.name,
+                        isUnlocked: achievement['unlocked'] == true,
+                        isNew: achievement['isNew'] == true,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const AchievementsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0);
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
   Widget _buildInfoCard() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
@@ -217,7 +358,7 @@ class ProfileScreenModern extends ConsumerWidget {
             ),
           ],
         ),
-      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0),
+      ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
     );
   }
 

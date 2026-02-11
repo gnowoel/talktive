@@ -1,0 +1,14 @@
+class: UserAchievement
+table: user_achievements
+fields:
+  userId: UuidValue
+  achievementId: int
+  progress: int, default=0
+  unlockedAt: DateTime?
+  notified: bool, default=false
+indexes:
+  user_achievement_idx:
+    fields: userId, achievementId
+    unique: true
+  user_unlocked_idx:
+    fields: userId, unlockedAt

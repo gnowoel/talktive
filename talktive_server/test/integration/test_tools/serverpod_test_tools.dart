@@ -21,9 +21,11 @@ import 'package:talktive_server/src/generated/resident.dart' as _i6;
 import 'dart:typed_data' as _i7;
 import 'package:talktive_server/src/generated/message.dart' as _i8;
 import 'package:talktive_server/src/generated/moment.dart' as _i9;
-import 'package:talktive_server/src/generated/private_chat.dart' as _i10;
-import 'package:talktive_server/src/generated/report.dart' as _i11;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i12;
+import 'package:talktive_server/src/generated/moment_like.dart' as _i10;
+import 'package:talktive_server/src/generated/moment_comment.dart' as _i11;
+import 'package:talktive_server/src/generated/private_chat.dart' as _i12;
+import 'package:talktive_server/src/generated/report.dart' as _i13;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i14;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -1206,6 +1208,231 @@ class _MomentEndpoint {
       }
     });
   }
+
+  _i3.Future<void> likeMoment(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'likeMoment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'likeMoment',
+          parameters: _i1.testObjectToJson({'momentId': momentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> unlikeMoment(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'unlikeMoment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'unlikeMoment',
+          parameters: _i1.testObjectToJson({'momentId': momentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i10.MomentLike>> getMomentLikes(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'getMomentLikes',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'getMomentLikes',
+          parameters: _i1.testObjectToJson({'momentId': momentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i10.MomentLike>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<bool> hasLikedMoment(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'hasLikedMoment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'hasLikedMoment',
+          parameters: _i1.testObjectToJson({'momentId': momentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i11.MomentComment> addComment(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId,
+    String text,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'addComment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'addComment',
+          parameters: _i1.testObjectToJson({
+            'momentId': momentId,
+            'text': text,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i11.MomentComment>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i11.MomentComment>> getMomentComments(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId, {
+    required int limit,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'getMomentComments',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'getMomentComments',
+          parameters: _i1.testObjectToJson({
+            'momentId': momentId,
+            'limit': limit,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i11.MomentComment>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> deleteComment(
+    _i1.TestSessionBuilder sessionBuilder,
+    int commentId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'deleteComment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'deleteComment',
+          parameters: _i1.testObjectToJson({'commentId': commentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _PrivateChatEndpoint {
@@ -1218,7 +1445,7 @@ class _PrivateChatEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i10.PrivateChat> getOrCreatePrivateChat(
+  _i3.Future<_i12.PrivateChat> getOrCreatePrivateChat(
     _i1.TestSessionBuilder sessionBuilder,
     String otherUserId,
   ) async {
@@ -1241,7 +1468,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i10.PrivateChat>);
+                as _i3.Future<_i12.PrivateChat>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1249,7 +1476,7 @@ class _PrivateChatEndpoint {
     });
   }
 
-  _i3.Future<List<_i10.PrivateChat>> listPrivateChats(
+  _i3.Future<List<_i12.PrivateChat>> listPrivateChats(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1271,7 +1498,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i10.PrivateChat>>);
+                as _i3.Future<List<_i12.PrivateChat>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1422,7 +1649,7 @@ class _ReportEndpoint {
     });
   }
 
-  _i3.Future<List<_i11.Report>> listReports(
+  _i3.Future<List<_i13.Report>> listReports(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required bool onlyUnresolved,
@@ -1449,7 +1676,7 @@ class _ReportEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i11.Report>>);
+                as _i3.Future<List<_i13.Report>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1581,7 +1808,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i12.Greeting> hello(
+  _i3.Future<_i14.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -1604,7 +1831,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i12.Greeting>);
+                as _i3.Future<_i14.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -1,0 +1,16 @@
+class: MomentComment
+table: moment_comments
+fields:
+  momentId: int
+  userId: UuidValue
+  text: String
+  createdAt: DateTime
+
+  # Denormalized User Info
+  userName: String
+  userAvatar: String
+  userFloor: int
+
+indexes:
+  moment_created_idx:
+    fields: momentId, createdAt

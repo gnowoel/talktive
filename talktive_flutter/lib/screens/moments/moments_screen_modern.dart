@@ -24,6 +24,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
   List<Moment>? _moments;
   bool _isLoading = true;
   String? _error;
+  final Set<int> _likedMoments = {}; // Track liked moments
 
   @override
   void initState() {
@@ -38,6 +39,16 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
         _error = null;
       });
       final moments = await client.moment.listMoments(limit: 20);
+
+      // Check which moments are liked
+      _likedMoments.clear();
+      for (final moment in moments) {
+        final isLiked = await client.moment.hasLikedMoment(moment.id!);
+        if (isLiked) {
+          _likedMoments.add(moment.id!);
+        }
+      }
+
       setState(() {
         _moments = moments;
         _isLoading = false;
@@ -378,12 +389,137 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
                     ),
                   ),
                 ),
+              // Like and Comment buttons
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.duoSpacingMedium,
+                  vertical: AppTheme.duoSpacingSmall,
+                ),
+                child: Row(
+                  children: [
+                    // Like button
+                    _buildActionButton(
+                      icon: Icons.favorite_border,
+                      activeIcon: Icons.favorite,
+                      count: moment.likesCount,
+                      isActive: _likedMoments.contains(moment.id),
+                      onTap: () => _toggleLike(moment),
+                      color: AppTheme.duoRed,
+                    ),
+                    const SizedBox(width: AppTheme.duoSpacingMedium),
+                    // Comment button
+                    _buildActionButton(
+                      icon: Icons.chat_bubble_outline,
+                      activeIcon: Icons.chat_bubble,
+                      count: moment.commentsCount,
+                      isActive: false,
+                      onTap: () => _showComments(moment),
+                      color: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         )
         .animate()
         .fadeIn(delay: Duration(milliseconds: index * 50))
         .slideX(begin: -0.1, end: 0);
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required IconData activeIcon,
+    required int count,
+    required bool isActive,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            Icon(
+              isActive ? activeIcon : icon,
+              size: 20,
+              color: isActive ? color : AppTheme.textSecondary,
+            ),
+            if (count > 0) ...[
+              const SizedBox(width: 4),
+              Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isActive ? color : AppTheme.textSecondary,
+                  fontFamily: 'Rubik',
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleLike(Moment moment) async {
+    if (moment.id == null) return;
+
+    final isLiked = _likedMoments.contains(moment.id);
+
+    try {
+      // Optimistic update
+      setState(() {
+        if (isLiked) {
+          _likedMoments.remove(moment.id);
+          moment.likesCount = (moment.likesCount - 1).clamp(0, 999999);
+        } else {
+          _likedMoments.add(moment.id!);
+          moment.likesCount += 1;
+        }
+      });
+
+      // API call
+      if (isLiked) {
+        await client.moment.unlikeMoment(moment.id!);
+      } else {
+        await client.moment.likeMoment(moment.id!);
+      }
+    } catch (e) {
+      // Revert on error
+      setState(() {
+        if (isLiked) {
+          _likedMoments.add(moment.id!);
+          moment.likesCount += 1;
+        } else {
+          _likedMoments.remove(moment.id);
+          moment.likesCount = (moment.likesCount - 1).clamp(0, 999999);
+        }
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to ${isLiked ? 'unlike' : 'like'}: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showComments(Moment moment) async {
+    if (moment.id == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _CommentsSheet(momentId: moment.id!),
+    );
   }
 
   String _formatTimestamp(DateTime timestamp) {
@@ -400,6 +536,263 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       return '${difference.inDays}d ago';
     } else {
       return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
+    }
+  }
+}
+
+/// Comments bottom sheet
+class _CommentsSheet extends StatefulWidget {
+  final int momentId;
+
+  const _CommentsSheet({required this.momentId});
+
+  @override
+  State<_CommentsSheet> createState() => _CommentsSheetState();
+}
+
+class _CommentsSheetState extends State<_CommentsSheet> {
+  List<MomentComment>? _comments;
+  bool _isLoading = true;
+  final _commentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadComments();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadComments() async {
+    try {
+      setState(() => _isLoading = true);
+      final comments = await client.moment.getMomentComments(widget.momentId);
+      setState(() {
+        _comments = comments;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _addComment() async {
+    final text = _commentController.text.trim();
+    if (text.isEmpty) return;
+
+    try {
+      await client.moment.addComment(widget.momentId, text);
+      _commentController.clear();
+      _loadComments();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add comment: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+            ),
+            child: Row(
+              children: [
+                const Text(
+                  'Comments',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          // Comments list
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryColor,
+                    ),
+                  )
+                : _comments == null || _comments!.isEmpty
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('💬', style: TextStyle(fontSize: 48)),
+                        SizedBox(height: 8),
+                        Text(
+                          'No comments yet',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.textSecondary,
+                            fontFamily: 'Rubik',
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                    itemCount: _comments!.length,
+                    itemBuilder: (context, index) {
+                      final comment = _comments![index];
+                      return _buildCommentItem(comment);
+                    },
+                  ),
+          ),
+          // Input area
+          Container(
+            padding: EdgeInsets.only(
+              left: AppTheme.duoSpacingMedium,
+              right: AppTheme.duoSpacingMedium,
+              top: AppTheme.duoSpacingSmall,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  AppTheme.duoSpacingMedium,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _commentController,
+                    decoration: InputDecoration(
+                      hintText: 'Add a comment...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                    maxLines: null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _addComment,
+                  icon: const Icon(Icons.send),
+                  color: AppTheme.primaryColor,
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor.withValues(
+                      alpha: 0.1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommentItem(MomentComment comment) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DuoAvatar(
+            initials: comment.userName.isNotEmpty
+                ? comment.userName[0].toUpperCase()
+                : '?',
+            size: 32,
+            floorLevel: comment.userFloor,
+            showRing: false,
+          ),
+          const SizedBox(width: AppTheme.duoSpacingSmall),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      comment.userName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _formatTimestamp(comment.createdAt),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                        fontFamily: 'Rubik',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  comment.text,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textPrimary,
+                    fontFamily: 'Rubik',
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes}m';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}h';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d';
+    } else {
+      return '${timestamp.day}/${timestamp.month}';
     }
   }
 }

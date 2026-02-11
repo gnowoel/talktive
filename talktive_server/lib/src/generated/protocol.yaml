@@ -33,6 +33,13 @@ message:
 moment:
   - postMoment:
   - listMoments:
+  - likeMoment:
+  - unlikeMoment:
+  - getMomentLikes:
+  - hasLikedMoment:
+  - addComment:
+  - getMomentComments:
+  - deleteComment:
 privateChat:
   - getOrCreatePrivateChat:
   - listPrivateChats:

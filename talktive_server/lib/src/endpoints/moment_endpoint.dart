@@ -98,4 +98,221 @@ class MomentEndpoint extends Endpoint {
       where: lastId != null ? (t) => t.id < lastId : null,
     );
   }
+
+  /// Likes a moment.
+  Future<void> likeMoment(Session session, int momentId) async {
+    final authenticationInfo = session.authenticated;
+    final userIdentifier = authenticationInfo?.userIdentifier;
+
+    if (userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    // Fetch resident for denormalized data
+    final resident = await Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+
+    if (resident == null) {
+      throw Exception('Resident not found');
+    }
+
+    final userProfile = await AuthServices.instance.userProfiles
+        .findUserProfileByUserId(session, userId);
+
+    // Check if already liked
+    final existingLike = await MomentLike.db.findFirstRow(
+      session,
+      where: (t) => t.momentId.equals(momentId) & t.userId.equals(userId),
+    );
+
+    if (existingLike != null) {
+      // Already liked, do nothing (or could throw exception)
+      return;
+    }
+
+    // Create like
+    final like = MomentLike(
+      momentId: momentId,
+      userId: userId,
+      createdAt: DateTime.now(),
+      userName: userProfile.userName ?? 'Anonymous',
+      userAvatar: userProfile.imageUrl?.toString() ?? '',
+      userFloor: resident.floor,
+    );
+
+    await MomentLike.db.insertRow(session, like);
+
+    // Increment likes count on moment
+    final moment = await Moment.db.findById(session, momentId);
+    if (moment != null) {
+      moment.likesCount += 1;
+      await Moment.db.updateRow(session, moment);
+    }
+  }
+
+  /// Unlikes a moment.
+  Future<void> unlikeMoment(Session session, int momentId) async {
+    final authenticationInfo = session.authenticated;
+    final userIdentifier = authenticationInfo?.userIdentifier;
+
+    if (userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    // Find and delete like
+    final existingLike = await MomentLike.db.findFirstRow(
+      session,
+      where: (t) => t.momentId.equals(momentId) & t.userId.equals(userId),
+    );
+
+    if (existingLike == null) {
+      // Not liked, do nothing
+      return;
+    }
+
+    await MomentLike.db.deleteRow(session, existingLike);
+
+    // Decrement likes count on moment
+    final moment = await Moment.db.findById(session, momentId);
+    if (moment != null && moment.likesCount > 0) {
+      moment.likesCount -= 1;
+      await Moment.db.updateRow(session, moment);
+    }
+  }
+
+  /// Gets likes for a moment.
+  Future<List<MomentLike>> getMomentLikes(
+    Session session,
+    int momentId,
+  ) async {
+    return await MomentLike.db.find(
+      session,
+      where: (t) => t.momentId.equals(momentId),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+    );
+  }
+
+  /// Checks if the current user has liked a moment.
+  Future<bool> hasLikedMoment(Session session, int momentId) async {
+    final authenticationInfo = session.authenticated;
+    final userIdentifier = authenticationInfo?.userIdentifier;
+
+    if (userIdentifier == null) {
+      return false;
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    final like = await MomentLike.db.findFirstRow(
+      session,
+      where: (t) => t.momentId.equals(momentId) & t.userId.equals(userId),
+    );
+
+    return like != null;
+  }
+
+  /// Adds a comment to a moment.
+  Future<MomentComment> addComment(
+    Session session,
+    int momentId,
+    String text,
+  ) async {
+    final authenticationInfo = session.authenticated;
+    final userIdentifier = authenticationInfo?.userIdentifier;
+
+    if (userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    // Fetch resident for denormalized data
+    final resident = await Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+
+    if (resident == null) {
+      throw Exception('Resident not found');
+    }
+
+    final userProfile = await AuthServices.instance.userProfiles
+        .findUserProfileByUserId(session, userId);
+
+    // Create comment
+    final comment = MomentComment(
+      momentId: momentId,
+      userId: userId,
+      text: text,
+      createdAt: DateTime.now(),
+      userName: userProfile.userName ?? 'Anonymous',
+      userAvatar: userProfile.imageUrl?.toString() ?? '',
+      userFloor: resident.floor,
+    );
+
+    final savedComment = await MomentComment.db.insertRow(session, comment);
+
+    // Increment comments count on moment
+    final moment = await Moment.db.findById(session, momentId);
+    if (moment != null) {
+      moment.commentsCount += 1;
+      await Moment.db.updateRow(session, moment);
+    }
+
+    return savedComment;
+  }
+
+  /// Gets comments for a moment.
+  Future<List<MomentComment>> getMomentComments(
+    Session session,
+    int momentId, {
+    int limit = 50,
+  }) async {
+    return await MomentComment.db.find(
+      session,
+      where: (t) => t.momentId.equals(momentId),
+      orderBy: (t) => t.createdAt,
+      orderDescending: false, // Oldest first
+      limit: limit,
+    );
+  }
+
+  /// Deletes a comment (only by author).
+  Future<void> deleteComment(Session session, int commentId) async {
+    final authenticationInfo = session.authenticated;
+    final userIdentifier = authenticationInfo?.userIdentifier;
+
+    if (userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    final comment = await MomentComment.db.findById(session, commentId);
+
+    if (comment == null) {
+      throw Exception('Comment not found');
+    }
+
+    // Check if user is the author
+    if (comment.userId != userId) {
+      throw Exception('You can only delete your own comments');
+    }
+
+    await MomentComment.db.deleteRow(session, comment);
+
+    // Decrement comments count on moment
+    final moment = await Moment.db.findById(session, comment.momentId);
+    if (moment != null && moment.commentsCount > 0) {
+      moment.commentsCount -= 1;
+      await Moment.db.updateRow(session, moment);
+    }
+  }
 }

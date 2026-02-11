@@ -27,17 +27,21 @@ import 'greetings/greeting.dart' as _i12;
 import 'group.dart' as _i13;
 import 'message.dart' as _i14;
 import 'moment.dart' as _i15;
-import 'private_chat.dart' as _i16;
-import 'rate_limit.dart' as _i17;
-import 'report.dart' as _i18;
-import 'resident.dart' as _i19;
-import 'user_achievement.dart' as _i20;
-import 'package:talktive_server/src/generated/group.dart' as _i21;
-import 'package:talktive_server/src/generated/resident.dart' as _i22;
-import 'package:talktive_server/src/generated/message.dart' as _i23;
-import 'package:talktive_server/src/generated/moment.dart' as _i24;
-import 'package:talktive_server/src/generated/private_chat.dart' as _i25;
-import 'package:talktive_server/src/generated/report.dart' as _i26;
+import 'moment_comment.dart' as _i16;
+import 'moment_like.dart' as _i17;
+import 'private_chat.dart' as _i18;
+import 'rate_limit.dart' as _i19;
+import 'report.dart' as _i20;
+import 'resident.dart' as _i21;
+import 'user_achievement.dart' as _i22;
+import 'package:talktive_server/src/generated/group.dart' as _i23;
+import 'package:talktive_server/src/generated/resident.dart' as _i24;
+import 'package:talktive_server/src/generated/message.dart' as _i25;
+import 'package:talktive_server/src/generated/moment.dart' as _i26;
+import 'package:talktive_server/src/generated/moment_like.dart' as _i27;
+import 'package:talktive_server/src/generated/moment_comment.dart' as _i28;
+import 'package:talktive_server/src/generated/private_chat.dart' as _i29;
+import 'package:talktive_server/src/generated/report.dart' as _i30;
 export 'achievement.dart';
 export 'block.dart';
 export 'channel.dart';
@@ -49,6 +53,8 @@ export 'greetings/greeting.dart';
 export 'group.dart';
 export 'message.dart';
 export 'moment.dart';
+export 'moment_comment.dart';
+export 'moment_like.dart';
 export 'private_chat.dart';
 export 'rate_limit.dart';
 export 'report.dart';
@@ -553,6 +559,182 @@ class Protocol extends _i1.SerializationManagerServer {
           type: 'btree',
           isUnique: true,
           isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'moment_comments',
+      dartName: 'MomentComment',
+      schema: 'public',
+      module: 'talktive',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'moment_comments_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'momentId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _i2.ColumnDefinition(
+          name: 'text',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userName',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userAvatar',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userFloor',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'moment_comments_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'moment_created_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'momentId',
+            ),
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'createdAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'moment_likes',
+      dartName: 'MomentLike',
+      schema: 'public',
+      module: 'talktive',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'moment_likes_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'momentId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userName',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userAvatar',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userFloor',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'moment_likes_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'moment_user_unique',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'momentId',
+            ),
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'userId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
         ),
       ],
       managed: true,
@@ -1171,20 +1353,26 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i15.Moment) {
       return _i15.Moment.fromJson(data) as T;
     }
-    if (t == _i16.PrivateChat) {
-      return _i16.PrivateChat.fromJson(data) as T;
+    if (t == _i16.MomentComment) {
+      return _i16.MomentComment.fromJson(data) as T;
     }
-    if (t == _i17.RateLimit) {
-      return _i17.RateLimit.fromJson(data) as T;
+    if (t == _i17.MomentLike) {
+      return _i17.MomentLike.fromJson(data) as T;
     }
-    if (t == _i18.Report) {
-      return _i18.Report.fromJson(data) as T;
+    if (t == _i18.PrivateChat) {
+      return _i18.PrivateChat.fromJson(data) as T;
     }
-    if (t == _i19.Resident) {
-      return _i19.Resident.fromJson(data) as T;
+    if (t == _i19.RateLimit) {
+      return _i19.RateLimit.fromJson(data) as T;
     }
-    if (t == _i20.UserAchievement) {
-      return _i20.UserAchievement.fromJson(data) as T;
+    if (t == _i20.Report) {
+      return _i20.Report.fromJson(data) as T;
+    }
+    if (t == _i21.Resident) {
+      return _i21.Resident.fromJson(data) as T;
+    }
+    if (t == _i22.UserAchievement) {
+      return _i22.UserAchievement.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.Achievement?>()) {
       return (data != null ? _i5.Achievement.fromJson(data) : null) as T;
@@ -1221,20 +1409,26 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i15.Moment?>()) {
       return (data != null ? _i15.Moment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i16.PrivateChat?>()) {
-      return (data != null ? _i16.PrivateChat.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i16.MomentComment?>()) {
+      return (data != null ? _i16.MomentComment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i17.RateLimit?>()) {
-      return (data != null ? _i17.RateLimit.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i17.MomentLike?>()) {
+      return (data != null ? _i17.MomentLike.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i18.Report?>()) {
-      return (data != null ? _i18.Report.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i18.PrivateChat?>()) {
+      return (data != null ? _i18.PrivateChat.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i19.Resident?>()) {
-      return (data != null ? _i19.Resident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.RateLimit?>()) {
+      return (data != null ? _i19.RateLimit.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.UserAchievement?>()) {
-      return (data != null ? _i20.UserAchievement.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.Report?>()) {
+      return (data != null ? _i20.Report.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i21.Resident?>()) {
+      return (data != null ? _i21.Resident.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i22.UserAchievement?>()) {
+      return (data != null ? _i22.UserAchievement.fromJson(data) : null) as T;
     }
     if (t == List<Map<String, dynamic>>) {
       return (data as List)
@@ -1251,30 +1445,40 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
-    if (t == List<_i21.Group>) {
-      return (data as List).map((e) => deserialize<_i21.Group>(e)).toList()
+    if (t == List<_i23.Group>) {
+      return (data as List).map((e) => deserialize<_i23.Group>(e)).toList()
           as T;
     }
-    if (t == List<_i22.Resident>) {
-      return (data as List).map((e) => deserialize<_i22.Resident>(e)).toList()
+    if (t == List<_i24.Resident>) {
+      return (data as List).map((e) => deserialize<_i24.Resident>(e)).toList()
           as T;
     }
-    if (t == List<_i23.Message>) {
-      return (data as List).map((e) => deserialize<_i23.Message>(e)).toList()
+    if (t == List<_i25.Message>) {
+      return (data as List).map((e) => deserialize<_i25.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i24.Moment>) {
-      return (data as List).map((e) => deserialize<_i24.Moment>(e)).toList()
+    if (t == List<_i26.Moment>) {
+      return (data as List).map((e) => deserialize<_i26.Moment>(e)).toList()
           as T;
     }
-    if (t == List<_i25.PrivateChat>) {
+    if (t == List<_i27.MomentLike>) {
+      return (data as List).map((e) => deserialize<_i27.MomentLike>(e)).toList()
+          as T;
+    }
+    if (t == List<_i28.MomentComment>) {
       return (data as List)
-              .map((e) => deserialize<_i25.PrivateChat>(e))
+              .map((e) => deserialize<_i28.MomentComment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i26.Report>) {
-      return (data as List).map((e) => deserialize<_i26.Report>(e)).toList()
+    if (t == List<_i29.PrivateChat>) {
+      return (data as List)
+              .map((e) => deserialize<_i29.PrivateChat>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i30.Report>) {
+      return (data as List).map((e) => deserialize<_i30.Report>(e)).toList()
           as T;
     }
     try {
@@ -1302,11 +1506,13 @@ class Protocol extends _i1.SerializationManagerServer {
       _i13.Group => 'Group',
       _i14.Message => 'Message',
       _i15.Moment => 'Moment',
-      _i16.PrivateChat => 'PrivateChat',
-      _i17.RateLimit => 'RateLimit',
-      _i18.Report => 'Report',
-      _i19.Resident => 'Resident',
-      _i20.UserAchievement => 'UserAchievement',
+      _i16.MomentComment => 'MomentComment',
+      _i17.MomentLike => 'MomentLike',
+      _i18.PrivateChat => 'PrivateChat',
+      _i19.RateLimit => 'RateLimit',
+      _i20.Report => 'Report',
+      _i21.Resident => 'Resident',
+      _i22.UserAchievement => 'UserAchievement',
       _ => null,
     };
   }
@@ -1343,15 +1549,19 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'Message';
       case _i15.Moment():
         return 'Moment';
-      case _i16.PrivateChat():
+      case _i16.MomentComment():
+        return 'MomentComment';
+      case _i17.MomentLike():
+        return 'MomentLike';
+      case _i18.PrivateChat():
         return 'PrivateChat';
-      case _i17.RateLimit():
+      case _i19.RateLimit():
         return 'RateLimit';
-      case _i18.Report():
+      case _i20.Report():
         return 'Report';
-      case _i19.Resident():
+      case _i21.Resident():
         return 'Resident';
-      case _i20.UserAchievement():
+      case _i22.UserAchievement():
         return 'UserAchievement';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -1408,20 +1618,26 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'Moment') {
       return deserialize<_i15.Moment>(data['data']);
     }
+    if (dataClassName == 'MomentComment') {
+      return deserialize<_i16.MomentComment>(data['data']);
+    }
+    if (dataClassName == 'MomentLike') {
+      return deserialize<_i17.MomentLike>(data['data']);
+    }
     if (dataClassName == 'PrivateChat') {
-      return deserialize<_i16.PrivateChat>(data['data']);
+      return deserialize<_i18.PrivateChat>(data['data']);
     }
     if (dataClassName == 'RateLimit') {
-      return deserialize<_i17.RateLimit>(data['data']);
+      return deserialize<_i19.RateLimit>(data['data']);
     }
     if (dataClassName == 'Report') {
-      return deserialize<_i18.Report>(data['data']);
+      return deserialize<_i20.Report>(data['data']);
     }
     if (dataClassName == 'Resident') {
-      return deserialize<_i19.Resident>(data['data']);
+      return deserialize<_i21.Resident>(data['data']);
     }
     if (dataClassName == 'UserAchievement') {
-      return deserialize<_i20.UserAchievement>(data['data']);
+      return deserialize<_i22.UserAchievement>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -1473,16 +1689,20 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i14.Message.t;
       case _i15.Moment:
         return _i15.Moment.t;
-      case _i16.PrivateChat:
-        return _i16.PrivateChat.t;
-      case _i17.RateLimit:
-        return _i17.RateLimit.t;
-      case _i18.Report:
-        return _i18.Report.t;
-      case _i19.Resident:
-        return _i19.Resident.t;
-      case _i20.UserAchievement:
-        return _i20.UserAchievement.t;
+      case _i16.MomentComment:
+        return _i16.MomentComment.t;
+      case _i17.MomentLike:
+        return _i17.MomentLike.t;
+      case _i18.PrivateChat:
+        return _i18.PrivateChat.t;
+      case _i19.RateLimit:
+        return _i19.RateLimit.t;
+      case _i20.Report:
+        return _i20.Report.t;
+      case _i21.Resident:
+        return _i21.Resident.t;
+      case _i22.UserAchievement:
+        return _i22.UserAchievement.t;
     }
     return null;
   }

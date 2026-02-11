@@ -771,6 +771,149 @@ class Endpoints extends _i1.EndpointDispatch {
                     lastId: params['lastId'],
                   ),
         ),
+        'likeMoment': _i1.MethodConnector(
+          name: 'likeMoment',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['moment'] as _i9.MomentEndpoint).likeMoment(
+                session,
+                params['momentId'],
+              ),
+        ),
+        'unlikeMoment': _i1.MethodConnector(
+          name: 'unlikeMoment',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['moment'] as _i9.MomentEndpoint).unlikeMoment(
+                    session,
+                    params['momentId'],
+                  ),
+        ),
+        'getMomentLikes': _i1.MethodConnector(
+          name: 'getMomentLikes',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['moment'] as _i9.MomentEndpoint).getMomentLikes(
+                    session,
+                    params['momentId'],
+                  ),
+        ),
+        'hasLikedMoment': _i1.MethodConnector(
+          name: 'hasLikedMoment',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['moment'] as _i9.MomentEndpoint).hasLikedMoment(
+                    session,
+                    params['momentId'],
+                  ),
+        ),
+        'addComment': _i1.MethodConnector(
+          name: 'addComment',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'text': _i1.ParameterDescription(
+              name: 'text',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['moment'] as _i9.MomentEndpoint).addComment(
+                session,
+                params['momentId'],
+                params['text'],
+              ),
+        ),
+        'getMomentComments': _i1.MethodConnector(
+          name: 'getMomentComments',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['moment'] as _i9.MomentEndpoint).getMomentComments(
+                    session,
+                    params['momentId'],
+                    limit: params['limit'],
+                  ),
+        ),
+        'deleteComment': _i1.MethodConnector(
+          name: 'deleteComment',
+          params: {
+            'commentId': _i1.ParameterDescription(
+              name: 'commentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['moment'] as _i9.MomentEndpoint).deleteComment(
+                    session,
+                    params['commentId'],
+                  ),
+        ),
       },
     );
     connectors['privateChat'] = _i1.EndpointConnector(

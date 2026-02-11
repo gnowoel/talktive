@@ -21,10 +21,12 @@ import 'package:talktive_client/src/protocol/resident.dart' as _i6;
 import 'dart:typed_data' as _i7;
 import 'package:talktive_client/src/protocol/message.dart' as _i8;
 import 'package:talktive_client/src/protocol/moment.dart' as _i9;
-import 'package:talktive_client/src/protocol/private_chat.dart' as _i10;
-import 'package:talktive_client/src/protocol/report.dart' as _i11;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i12;
-import 'protocol.dart' as _i13;
+import 'package:talktive_client/src/protocol/moment_like.dart' as _i10;
+import 'package:talktive_client/src/protocol/moment_comment.dart' as _i11;
+import 'package:talktive_client/src/protocol/private_chat.dart' as _i12;
+import 'package:talktive_client/src/protocol/report.dart' as _i13;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i14;
+import 'protocol.dart' as _i15;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -508,6 +510,71 @@ class EndpointMoment extends _i2.EndpointRef {
       'lastId': lastId,
     },
   );
+
+  /// Likes a moment.
+  _i3.Future<void> likeMoment(int momentId) => caller.callServerEndpoint<void>(
+    'moment',
+    'likeMoment',
+    {'momentId': momentId},
+  );
+
+  /// Unlikes a moment.
+  _i3.Future<void> unlikeMoment(int momentId) =>
+      caller.callServerEndpoint<void>(
+        'moment',
+        'unlikeMoment',
+        {'momentId': momentId},
+      );
+
+  /// Gets likes for a moment.
+  _i3.Future<List<_i10.MomentLike>> getMomentLikes(int momentId) =>
+      caller.callServerEndpoint<List<_i10.MomentLike>>(
+        'moment',
+        'getMomentLikes',
+        {'momentId': momentId},
+      );
+
+  /// Checks if the current user has liked a moment.
+  _i3.Future<bool> hasLikedMoment(int momentId) =>
+      caller.callServerEndpoint<bool>(
+        'moment',
+        'hasLikedMoment',
+        {'momentId': momentId},
+      );
+
+  /// Adds a comment to a moment.
+  _i3.Future<_i11.MomentComment> addComment(
+    int momentId,
+    String text,
+  ) => caller.callServerEndpoint<_i11.MomentComment>(
+    'moment',
+    'addComment',
+    {
+      'momentId': momentId,
+      'text': text,
+    },
+  );
+
+  /// Gets comments for a moment.
+  _i3.Future<List<_i11.MomentComment>> getMomentComments(
+    int momentId, {
+    required int limit,
+  }) => caller.callServerEndpoint<List<_i11.MomentComment>>(
+    'moment',
+    'getMomentComments',
+    {
+      'momentId': momentId,
+      'limit': limit,
+    },
+  );
+
+  /// Deletes a comment (only by author).
+  _i3.Future<void> deleteComment(int commentId) =>
+      caller.callServerEndpoint<void>(
+        'moment',
+        'deleteComment',
+        {'commentId': commentId},
+      );
 }
 
 /// {@category Endpoint}
@@ -519,16 +586,16 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
-  _i3.Future<_i10.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
-      caller.callServerEndpoint<_i10.PrivateChat>(
+  _i3.Future<_i12.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
+      caller.callServerEndpoint<_i12.PrivateChat>(
         'privateChat',
         'getOrCreatePrivateChat',
         {'otherUserId': otherUserId},
       );
 
   /// Lists all private chats for the current user.
-  _i3.Future<List<_i10.PrivateChat>> listPrivateChats() =>
-      caller.callServerEndpoint<List<_i10.PrivateChat>>(
+  _i3.Future<List<_i12.PrivateChat>> listPrivateChats() =>
+      caller.callServerEndpoint<List<_i12.PrivateChat>>(
         'privateChat',
         'listPrivateChats',
         {},
@@ -589,10 +656,10 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i11.Report>> listReports({
+  _i3.Future<List<_i13.Report>> listReports({
     required int limit,
     required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i11.Report>>(
+  }) => caller.callServerEndpoint<List<_i13.Report>>(
     'report',
     'listReports',
     {
@@ -657,8 +724,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i12.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i12.Greeting>(
+  _i3.Future<_i14.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i14.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -696,7 +763,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i13.Protocol(),
+         _i15.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

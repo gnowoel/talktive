@@ -1,0 +1,16 @@
+class: MomentLike
+table: moment_likes
+fields:
+  momentId: int
+  userId: UuidValue
+  createdAt: DateTime
+
+  # Denormalized User Info
+  userName: String
+  userAvatar: String
+  userFloor: int
+
+indexes:
+  moment_user_unique:
+    fields: momentId, userId
+    unique: true

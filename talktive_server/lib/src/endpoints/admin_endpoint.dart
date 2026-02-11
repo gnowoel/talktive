@@ -282,7 +282,7 @@ class AdminEndpoint extends Endpoint {
     session.log('Admin deleted moment: $momentId. Reason: $reason');
   }
 
-  /// Get platform statistics
+  /// Get platform statistics - OPTIMIZED
   Future<Map<String, dynamic>> getStatistics(Session session) async {
     await _requireAdmin(session);
 
@@ -336,10 +336,14 @@ class AdminEndpoint extends Endpoint {
       where: (t) => t.createdAt >= thirtyDaysAgo,
     );
 
-    // Active users (users who sent messages in last 7 days)
+    // Active users (users who sent messages in last 7 days) - OPTIMIZED
+    // Limit to last 1000 messages to prevent memory issues
     final recentMessages = await Message.db.find(
       session,
       where: (t) => t.createdAt >= sevenDaysAgo,
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+      limit: 1000,
     );
     final activeUserIds = <int>{};
     for (final message in recentMessages) {

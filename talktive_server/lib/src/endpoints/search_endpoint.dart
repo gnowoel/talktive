@@ -2,7 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 
 class SearchEndpoint extends Endpoint {
-  /// Search for users by name
+  /// Search for users by name (optimized with early limit)
   Future<List<Map<String, dynamic>>> searchUsers(
     Session session,
     String query, {
@@ -13,34 +13,33 @@ class SearchEndpoint extends Endpoint {
         return [];
       }
 
-      // Search in Resident table by joining with user info
+      // Limit the initial query to reduce memory usage
+      // Get 3x limit to account for filtering
       final residents = await Resident.db.find(
         session,
-        limit: limit,
+        limit: limit * 3,
       );
 
-      // Filter by name (we'll need to get user profiles)
+      // Filter by name with early exit
       final results = <Map<String, dynamic>>[];
       for (final resident in residents) {
-        // Get user info to check name
+        if (results.length >= limit) break; // Early exit when limit reached
+
         final userInfo = await session.auth.getUserInfo(resident.userInfoId);
         if (userInfo != null &&
             userInfo.userName != null &&
             userInfo.userName!.toLowerCase().contains(query.toLowerCase())) {
           results.add({
-            'userId': resident.userInfoId,
+            'userId': resident.userInfoId.uuid,
             'userName': userInfo.userName,
-            'userAvatar': userInfo.userName?.substring(
-              0,
-              1,
-            ), // First letter as avatar
+            'userAvatar': userInfo.userName?.substring(0, 1),
             'floor': resident.floor,
             'creditScore': resident.creditScore,
           });
         }
       }
 
-      return results.take(limit).toList();
+      return results;
     } catch (e) {
       session.log('Error searching users: $e', level: LogLevel.error);
       return [];
@@ -118,7 +117,7 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Get active users (most messages in last 7 days)
+  /// Get active users (most messages in last 7 days) - OPTIMIZED
   Future<List<Map<String, dynamic>>> getActiveUsers(
     Session session, {
     int limit = 10,
@@ -126,10 +125,13 @@ class SearchEndpoint extends Endpoint {
     try {
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
-      // Get all recent messages and count by sender
+      // Limit messages to prevent memory issues (get last 1000 messages)
       final messages = await Message.db.find(
         session,
         where: (t) => t.createdAt >= sevenDaysAgo,
+        orderBy: (t) => t.createdAt,
+        orderDescending: true,
+        limit: 1000, // Limit to prevent loading all messages
       );
 
       // Count messages per sender
@@ -150,7 +152,7 @@ class SearchEndpoint extends Endpoint {
           final userInfo = await session.auth.getUserInfo(resident.userInfoId);
           if (userInfo != null) {
             activeUsers.add({
-              'userId': resident.userInfoId,
+              'userId': resident.userInfoId.uuid,
               'userName': userInfo.userName,
               'userAvatar': userInfo.userName?.substring(0, 1),
               'floor': resident.floor,

@@ -29,7 +29,17 @@ Future<void> main() async {
   await initializeServerpodClient();
 
   // Firebase core initialization is essential and should stay in main()
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    if (e.toString().contains('duplicate-app')) {
+      debugPrint('Firebase already initialized: $e');
+    } else {
+      rethrow;
+    }
+  }
 
   // Background message handler needs to be registered early
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

@@ -2,6 +2,27 @@
 
 This project is a migration of the "Talktive" anonymous chat app from Firebase to Serverpod.
 
+## Design Philosophy
+
+**Duolingo-Inspired UI/UX**: The app has been completely redesigned with a clean, dynamic, and playful aesthetic inspired by Duolingo. The previous glassmorphism design has been replaced with:
+
+- **Playful & Friendly**: Emoji-first design, rounded corners, vibrant colors
+- **Gamified Experience**: Streaks, XP, levels, achievements, and celebrations
+- **Clear Visual Hierarchy**: Bold typography, generous spacing, obvious CTAs
+- **Micro-interactions**: Haptic feedback, smooth animations, satisfying transitions
+- **Progressive Disclosure**: Information revealed step-by-step
+- **Celebration-Driven**: Confetti animations and positive reinforcement
+
+### Design Implementation
+
+- **Color Palette**: Primary purple (#6C63FF), secondary pink (#FF6584), accent cyan (#00D9FF), plus Duolingo signature colors (green #58CC02, yellow #FFD93D, red #FF4B4B, orange #FF9600)
+- **Bottom Navigation**: Floating pill-shaped bar with emoji + text labels, colored background pills for active state
+- **Component Library**: New `lib/widgets/duo/` directory with reusable Duolingo-style components (DuoButton, DuoCard, DuoAvatar, DuoInput, DuoEmptyState, DuoHeader, DuoStatCard)
+- **Screens Redesigned**: All five main screens (Plaza, Moments, Chats, Groups, Profile) follow the Duolingo aesthetic
+- **Animations**: Entrance animations, staggered list items, tap feedback, smooth transitions using flutter_animate
+
+The onboarding wizard established these Duolingo-style patterns, and this design language has been extended across the entire app.
+
 ## Status
 
 - **Backend**: Serverpod 3.2.3 (Postgres + Redis)

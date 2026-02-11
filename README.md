@@ -2,6 +2,18 @@
 
 Talktive is an anonymous group chat application designed for ephemeral, private, and random conversations.
 
+## 🎨 Design Philosophy
+
+**Duolingo-Inspired UI/UX**: The app features a clean, dynamic, and playful design inspired by Duolingo's aesthetic. Moving away from the previous glassmorphism design, Talktive now embraces:
+
+- **Playful & Friendly**: Emoji-first design, rounded corners, vibrant colors
+- **Gamified Experience**: Streaks, XP, levels, achievements, and celebrations
+- **Clear Visual Hierarchy**: Bold typography, generous spacing, obvious CTAs
+- **Micro-interactions**: Haptic feedback, smooth animations, satisfying transitions
+- **Celebration-Driven**: Confetti animations and positive reinforcement
+
+The onboarding wizard established these Duolingo-style patterns (vibrant colors, emoji-centric design, smooth animations, gamification elements), and this design language has been extended across the entire app including the bottom navigation and all five main screens: Plaza, Moments, Chats, Groups, and Profile.
+
 ## 🚀 Migration Status
 
 **Current State:** Hybrid / Migration in Progress

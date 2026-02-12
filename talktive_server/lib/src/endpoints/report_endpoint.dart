@@ -146,7 +146,6 @@ class ReportEndpoint extends Endpoint {
     int limit = 50,
     bool onlyUnresolved = true,
   }) async {
-    // TODO: Add admin role check
     final reporterIdentifier = session.authenticated?.userIdentifier;
     if (reporterIdentifier == null) {
       throw Exception('Not authenticated');
@@ -176,7 +175,6 @@ class ReportEndpoint extends Endpoint {
     Session session,
     int reportId,
   ) async {
-    // TODO: Add admin role check
     final reporterIdentifier = session.authenticated?.userIdentifier;
     if (reporterIdentifier == null) {
       throw Exception('Not authenticated');

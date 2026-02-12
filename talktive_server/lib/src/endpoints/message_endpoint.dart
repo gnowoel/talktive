@@ -190,7 +190,30 @@ class MessageEndpoint extends Endpoint {
       throw Exception('Channel not found');
     }
 
-    // TODO: Add membership check for private/group channels
+    // Check membership for private/group channels
+    if (channel.type != protocol.ChannelType.plaza) {
+      final userIdentifier = session.authenticated?.userIdentifier;
+      if (userIdentifier == null) {
+        throw Exception('Authentication required for private channels');
+      }
+
+      final userUuid = UuidValue.fromString(userIdentifier);
+
+      // Check if user is a member of this channel
+      final membership = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId) & t.userId.equals(userUuid),
+      );
+
+      if (membership == null) {
+        throw Exception('Access denied: Not a member of this channel');
+      }
+
+      // Check if membership is active
+      if (membership.status != protocol.ChannelMemberStatus.active) {
+        throw Exception('Access denied: Membership is not active');
+      }
+    }
 
     // 2. Fetch messages
     return await protocol.Message.db.find(

@@ -6,6 +6,7 @@ import '../../../widgets/duo/duo_card.dart';
 import '../../../widgets/duo/duo_button.dart';
 import '../../../widgets/duo/duo_stat_card.dart';
 import '../../../providers/client_provider.dart';
+import '../../../providers/private_chat_provider.dart';
 
 /// Provider for user profile data
 final userProfileProvider =
@@ -256,7 +257,7 @@ class UserProfileScreen extends ConsumerWidget {
                       child: DuoButton(
                         text: 'Start Chat',
                         icon: Icons.chat_bubble_outline,
-                        onPressed: () => _startChat(context, ref, profile),
+                        onPressed: () => _startChat(context, ref),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -276,7 +277,7 @@ class UserProfileScreen extends ConsumerWidget {
                   text: 'Report User',
                   icon: Icons.flag_outlined,
                   color: AppTheme.duoRed,
-                  onPressed: () => _reportUser(context, profile),
+                  onPressed: () => _reportUser(context, ref, profile),
                 ),
               ],
 
@@ -367,15 +368,16 @@ class UserProfileScreen extends ConsumerWidget {
     }).toList();
   }
 
-  void _startChat(
-    BuildContext context,
-    WidgetRef ref,
-    Map<String, dynamic> profile,
-  ) {
-    // TODO: Implement start chat functionality
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Starting chat...')));
+  void _startChat(BuildContext context, WidgetRef ref) {
+    final chatList = ref.read(privateChatListProvider.notifier);
+    chatList
+        .getOrCreateChat(userId)
+        .then((chat) => context.push('/chat/${chat.channelId}'))
+        .catchError(
+          (error) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to start chat: $error')),
+          ),
+        );
   }
 
   Future<void> _toggleBlock(
@@ -406,13 +408,32 @@ class UserProfileScreen extends ConsumerWidget {
     }
   }
 
-  void _reportUser(BuildContext context, Map<String, dynamic> profile) {
+  void _reportUser(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> profile,
+  ) {
+    final reasonController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Report User'),
-        content: const Text(
-          'Are you sure you want to report this user for inappropriate behavior?',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Please tell us what happened. Reports help keep Talktive safe.',
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Reason for report',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -420,12 +441,29 @@ class UserProfileScreen extends ConsumerWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              final reason = reasonController.text.trim();
+              if (reason.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please add a reason.')),
+                );
+                return;
+              }
               Navigator.pop(context);
-              // TODO: Implement report functionality
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('User reported')));
+              try {
+                final client = ref.read(clientProvider);
+                await client.report.reportUser(
+                  targetUserId: userId,
+                  reason: reason,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Report submitted')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
             },
             child: const Text(
               'Report',

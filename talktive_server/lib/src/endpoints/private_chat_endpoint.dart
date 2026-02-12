@@ -140,7 +140,7 @@ class PrivateChatEndpoint extends Endpoint {
   /// Gets details about a private chat including the other participant's info.
   Future<Map<String, dynamic>> getPrivateChatDetails(
     Session session,
-    int privateChatId,
+    int channelId,
   ) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
@@ -151,10 +151,10 @@ class PrivateChatEndpoint extends Endpoint {
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
 
-    // Get the private chat
-    final privateChat = await protocol.PrivateChat.db.findById(
+    // Get the private chat by channel id (used for deep links)
+    final privateChat = await protocol.PrivateChat.db.findFirstRow(
       session,
-      privateChatId,
+      where: (t) => t.channelId.equals(channelId),
     );
 
     if (privateChat == null) {

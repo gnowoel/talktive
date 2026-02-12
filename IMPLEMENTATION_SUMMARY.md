@@ -1,6 +1,26 @@
 # Talktive Rebuild - Implementation Summary
 
-## 🚀 Latest Update: Phase 7.5 - Deployment (COMPLETED)
+## 🚀 Latest Update: Stability & Migration Fixes (COMPLETED)
+
+**Status:** ✅ Completed (February 12, 2026)
+
+### Stability Fixes ✅
+
+- **Serverpod Private Chat Deep Links**
+  - Updated `getPrivateChatDetails` to resolve chats by `channelId` (deep links now load correctly).
+  - Prevents "chat not found" when navigating from notifications.
+
+- **Serverpod Profile Actions**
+  - Implemented **Start Chat** and **Report User** actions on user profiles.
+  - Reporting now captures a reason and routes to the `ReportEndpoint`.
+
+- **Firebase Init Safety**
+  - Fixed duplicate Firebase initialization crash by handling native pre-init safely.
+
+- **UI & Avatar Reliability**
+  - Unique `heroTag` values for FABs to prevent Hero collisions across tabs.
+  - Avatar rendering now treats emoji/avatar strings as text (only `http/https` is loaded as a network image).
+  - Profile display name no longer reads `Resident.name` (uses a safe derived label).
 
 **Status:** ✅ Completed (February 11, 2026)
 

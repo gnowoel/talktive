@@ -99,6 +99,14 @@ The application currently supports a dual-boot mode via a `VersionSelector` scre
 - ✅ Backup and recovery procedures
 - ✅ Security and performance guidelines
 
+**Stability Fixes (COMPLETED):**
+
+- ✅ Private chat deep links resolve by channelId
+- ✅ Profile actions: Start Chat + Report User
+- ✅ Firebase duplicate-app init crash prevented
+- ✅ Unique FAB hero tags to avoid Hero collisions
+- ✅ Avatar rendering fixed for emoji/text values
+
 **Next Up:**
 
 - Production launch

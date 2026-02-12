@@ -65,6 +65,13 @@ Talktive is an anonymous group chat application with a Duolingo-inspired UI/UX, 
 - **7.4 Testing**: 320+ test cases (150 unit + 170 integration)
 - **7.5 Deployment**: CI/CD, Docker, documentation, health checks
 
+### Phase 7.6: Stability Fixes ✅
+- Private chat deep links resolve by channelId (notification navigation stable)
+- Profile actions (Start Chat, Report User) implemented
+- Firebase duplicate-app init crash prevented
+- FAB hero collisions eliminated
+- Avatar rendering fixed for emoji/text values
+
 ---
 
 ## 🏗️ Architecture

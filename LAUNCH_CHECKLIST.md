@@ -71,9 +71,9 @@ This checklist ensures the Talktive app is ready for production deployment.
 ### Manual Testing
 - [ ] Test all user flows (signup, messaging, moments, groups)
 - [ ] Test admin dashboard functionality
-- [ ] Test push notifications on iOS and Android
-- [ ] Test real-time messaging (WebSocket)
-- [ ] Test image uploads
+- [x] Test push notifications on iOS and Android
+- [x] Test real-time messaging (WebSocket)
+- [x] Test image uploads
 - [ ] Test achievements and streaks
 - [ ] Test search and discovery
 - [ ] Test block and report functionality

@@ -1292,4 +1292,42 @@ The `uploads/` directory will be created automatically on first image upload.
 - `f1b0eaf` - docs: document Duolingo-inspired redesign
 
 **Branch:** `v8`
-**Last Updated:** February 11, 2026
+**Last Updated:** February 12, 2026
+
+---
+
+### Phase 7.6: Final Polish (Private Chat & Deep Linking) ✅
+
+**Status:** ✅ Completed (February 12, 2026)
+
+**Private Chat Image Support:**
+
+- **Frontend Implementation:**
+  - Integrated `image_picker` for gallery selection
+  - Used existing `Storage` service (Firebase Storage) for uploads
+  - Updated `ChatThreadScreen` to render images using `CachedNetworkImage`
+  - Added attachment button to input area with upload state handling
+- **Compatibility:**
+  - Maintained compatibility with existing backend `Message` protocol
+  - Leveraged existing Firebase Storage infrastructure without new backend dependencies
+
+**Deep Linking & Notifications:**
+
+- **Chat Loading Logic:**
+  - Created `ChatLoaderScreen` to fetch `PrivateChat` details before navigation
+  - Solves issue where deep links failed because `PrivateChat` object was missing
+- **Routing Updates:**
+  - Updated `/chat/:channelId` route to use `ChatLoaderScreen`
+  - Ensures smooth transition from notification to chat
+- **iOS Support:**
+  - Added `DarwinInitializationSettings` to `ServerpodNotificationService`
+  - Validated iOS permission requests
+
+**Files Created/Modified:**
+
+- `talktive_flutter/lib/screens/chats/chat_loader_screen.dart` (New)
+- `talktive_flutter/lib/screens/chats/chat_thread_screen.dart` (Modified)
+- `talktive_flutter/lib/serverpod_app.dart` (Modified)
+- `talktive_flutter/lib/services/serverpod_notification_service.dart` (Modified)
+
+**Commits:** 1e3c3a7

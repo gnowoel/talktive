@@ -3,6 +3,8 @@ import 'package:uuid/uuid.dart'; // Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/rate_limit_service.dart';
+import '../services/redis_rate_limit_service.dart';
+import '../services/content_filter_service.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 
@@ -49,11 +51,35 @@ class MessageEndpoint extends Endpoint {
         );
       }
 
-      // 4. Check rate limiting based on floor level
-      final rateLimitError = await RateLimitService.checkRateLimit(
+      // 4. Validate content (profanity and spam filtering)
+      final validation = await ContentFilterService.validateMessage(
         session,
-        sender,
+        content,
+        sender.floor,
+      );
+      if (!validation.isValid) {
+        throw Exception(validation.reason ?? 'Invalid message content');
+      }
+
+      // Check for repeated messages (spam detection)
+      final isRepeated = await ContentFilterService.isRepeatedMessage(
+        session,
+        senderIdentifier,
+        content,
+      );
+      if (isRepeated) {
+        throw Exception('Please don\'t send the same message repeatedly');
+      }
+
+      // Use filtered content
+      final filteredContent = validation.filteredContent ?? content;
+
+      // 5. Check rate limiting with Redis (faster than database)
+      final rateLimitError = await RedisRateLimitService.checkRateLimit(
+        session,
+        senderIdentifier,
         channelId,
+        sender.floor,
       );
       if (rateLimitError != null) {
         throw Exception(rateLimitError);
@@ -69,11 +95,11 @@ class MessageEndpoint extends Endpoint {
         }
       }
 
-      // 6. Create Message
+      // 6. Create Message with filtered content
       final message = protocol.Message(
         channelId: channelId,
         senderId: sender.userInfoId, // Use Resident UserInfoId (UUID)
-        content: content,
+        content: filteredContent, // Use filtered content instead of raw content
         imageUrl: imageUrl,
         createdAt: DateTime.now(),
       );

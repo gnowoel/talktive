@@ -33,12 +33,12 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-  } catch (e) {
-    if (e.toString().contains('duplicate-app')) {
-      debugPrint('Firebase already initialized: $e');
-    } else {
+  } on FirebaseException catch (e) {
+    if (e.code != 'duplicate-app') {
       rethrow;
     }
+    // Default app already exists (native pre-init). Safe to proceed.
+    await Firebase.app();
   }
 
   // Background message handler needs to be registered early

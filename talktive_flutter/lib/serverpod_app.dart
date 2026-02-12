@@ -55,15 +55,20 @@ class ServerpodApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/chats',
-          builder: (context, state) => const HomeScreen(initialIndex: 2),
+          builder: (context, state) {
+            final tab = state.uri.queryParameters['tab'];
+            final tabIndex = tab == 'groups' ? 1 : 0;
+            return HomeScreen(initialIndex: 2, initialTabIndex: tabIndex);
+          },
         ),
         GoRoute(
           path: '/groups',
-          builder: (context, state) => const HomeScreen(initialIndex: 3),
+          builder: (context, state) =>
+              const HomeScreen(initialIndex: 2, initialTabIndex: 1),
         ),
         GoRoute(
           path: '/profile',
-          builder: (context, state) => const HomeScreen(initialIndex: 4),
+          builder: (context, state) => const HomeScreen(initialIndex: 3),
         ),
         GoRoute(
           path: '/achievements',

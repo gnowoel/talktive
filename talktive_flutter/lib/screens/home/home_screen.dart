@@ -5,17 +5,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../plaza/plaza_screen_modern.dart';
 import '../moments/moments_screen_modern.dart';
 import '../chats/chats_screen_modern.dart';
-import '../groups/groups_screen_modern.dart';
 import '../profile/profile_screen_modern.dart';
-import '../search/search_screen.dart';
 
 import '../../config/theme.dart';
 import '../../services/serverpod_notification_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final int initialIndex;
+  // Optional: pass tab index for nested screens like Chats
+  final int? initialTabIndex;
 
-  const HomeScreen({super.key, this.initialIndex = 0});
+  const HomeScreen({super.key, this.initialIndex = 0, this.initialTabIndex});
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -45,21 +45,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  final List<Widget> _screens = [
+  late final List<Widget> _screens = [
     PlazaScreenModern(),
     const MomentsScreenModern(),
-    const SearchScreen(),
-    const ChatsScreenModern(),
-    const GroupsScreenModern(),
+    ChatsScreenModern(initialTabIndex: widget.initialTabIndex ?? 0),
     const ProfileScreenModern(),
   ];
 
   final List<_NavItem> _navItems = const [
     _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
     _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
-    _NavItem(emoji: '🔍', label: 'Search', color: AppTheme.accentColor),
     _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
-    _NavItem(emoji: '👥', label: 'Groups', color: AppTheme.duoYellow),
     _NavItem(emoji: '👤', label: 'Profile', color: AppTheme.duoGreen),
   ];
 

@@ -103,8 +103,7 @@ class ProfileScreenModern extends ConsumerWidget {
               // Avatar
               DuoAvatar(
                     imageUrl: resident?.avatar,
-                    initials:
-                        displayName.isNotEmpty ? displayName[0] : '?',
+                    initials: displayName.isNotEmpty ? displayName[0] : '?',
                     size: 120,
                     floorLevel: resident?.floor,
                     ringColor: Colors.white,
@@ -227,7 +226,7 @@ class ProfileScreenModern extends ConsumerWidget {
               .scale(begin: const Offset(0.8, 0.8)),
           DuoStatCard(
                 icon: Icons.star,
-                value: '${resident?.experienceLevel ?? 0}',
+                value: '${resident?.experienceMessageCount ?? 0}',
                 label: 'Experience',
                 gradientColors: [AppTheme.duoYellow, Colors.orange],
               )
@@ -248,7 +247,7 @@ class ProfileScreenModern extends ConsumerWidget {
               .scale(begin: const Offset(0.8, 0.8)),
           DuoStatCard(
                 icon: Icons.message,
-                value: '${resident?.messageCount ?? 0}',
+                value: '${resident?.experienceMessageCount ?? 0}',
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,

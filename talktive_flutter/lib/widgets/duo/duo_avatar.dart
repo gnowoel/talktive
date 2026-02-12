@@ -24,30 +24,34 @@ class DuoAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final ringWidth = size > 60 ? 3.0 : 2.0;
     final badgeSize = size > 60 ? 24.0 : 18.0;
+    final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
+    final avatarText =
+        hasImageUrl ? initials : (imageUrl?.isNotEmpty == true ? imageUrl : initials);
 
     Widget avatar = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: imageUrl == null
-            ? LinearGradient(
+        gradient: hasImageUrl
+            ? null
+            : LinearGradient(
                 colors: [
                   ringColor ?? AppTheme.primaryColor,
                   _lightenColor(ringColor ?? AppTheme.primaryColor, 0.2),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-              )
-            : null,
-        image: imageUrl != null
+              ),
+        image: hasImageUrl
             ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover)
             : null,
       ),
-      child: imageUrl == null
-          ? Center(
+      child: hasImageUrl
+          ? null
+          : Center(
               child: Text(
-                initials ?? '?',
+                avatarText ?? '?',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: size * 0.4,
@@ -55,8 +59,7 @@ class DuoAvatar extends StatelessWidget {
                   fontFamily: 'Poppins',
                 ),
               ),
-            )
-          : null,
+            ),
     );
 
     if (showRing) {
@@ -140,5 +143,12 @@ class DuoAvatar extends StatelessWidget {
     return hsl
         .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
         .toColor();
+  }
+
+  bool _isNetworkUrl(String value) {
+    final uri = Uri.tryParse(value);
+    return uri != null &&
+        uri.hasScheme &&
+        (uri.scheme == 'http' || uri.scheme == 'https');
   }
 }

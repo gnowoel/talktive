@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talktive_client/talktive_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/resident_provider.dart';
 import '../../providers/achievement_provider.dart';
@@ -83,6 +84,7 @@ class ProfileScreenModern extends ConsumerWidget {
   }
 
   Widget _buildHeader(resident) {
+    final displayName = _displayName(resident);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -100,9 +102,9 @@ class ProfileScreenModern extends ConsumerWidget {
             children: [
               // Avatar
               DuoAvatar(
-                    initials: resident?.name?.isNotEmpty == true
-                        ? resident!.name[0].toUpperCase()
-                        : '?',
+                    imageUrl: resident?.avatar,
+                    initials:
+                        displayName.isNotEmpty ? displayName[0] : '?',
                     size: 120,
                     floorLevel: resident?.floor,
                     ringColor: Colors.white,
@@ -113,7 +115,7 @@ class ProfileScreenModern extends ConsumerWidget {
               const SizedBox(height: AppTheme.duoSpacingMedium),
               // Name
               Text(
-                resident?.name ?? 'Anonymous',
+                displayName,
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -126,6 +128,14 @@ class ProfileScreenModern extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _displayName(Resident? resident) {
+    final id = resident?.userInfoId.uuid;
+    if (id == null || id.isEmpty) {
+      return 'Anonymous';
+    }
+    return 'Resident ${id.substring(0, 6)}';
   }
 
   Widget _buildStreakCard(BuildContext context, WidgetRef ref) {

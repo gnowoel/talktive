@@ -232,6 +232,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
           ],
         ),
         child: FloatingActionButton(
+          heroTag: 'moments_modern_fab',
           onPressed: _showCreateDialog,
           backgroundColor: Colors.transparent,
           elevation: 0,

@@ -126,6 +126,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         ),
         body: const Center(child: Text('No moments yet. Be the first!')),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'moments_empty_fab',
           onPressed: _showCreateDialog,
           child: const Icon(Icons.add),
         ),
@@ -201,6 +202,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'moments_fab',
         onPressed: _showCreateDialog,
         child: const Icon(Icons.add_a_photo),
       ),

@@ -48,6 +48,7 @@ class GroupsScreenModern extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'groups_fab',
         onPressed: () {
           HapticFeedback.lightImpact();
           _showCreateGroupDialog(context, ref);

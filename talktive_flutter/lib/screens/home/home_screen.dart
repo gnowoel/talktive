@@ -99,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: AnimatedContainer(
                 duration: AppTheme.duoAnimationNormal,
                 curve: Curves.easeInOut,
-                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? item.color.withOpacity(0.1)

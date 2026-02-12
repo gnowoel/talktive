@@ -76,13 +76,16 @@ class _DuoStatCardState extends State<DuoStatCard> {
               ),
               const SizedBox(height: AppTheme.duoSpacingSmall),
               // Value
-              Text(
-                widget.value,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                  fontFamily: 'Poppins',
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  widget.value,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ),
               // Label

@@ -41,13 +41,38 @@
   - Emoji validation: 16 unique, thematically appropriate emojis
   - Production readiness: database-safe keys, user-friendly descriptions, achievable targets
 
+**Integration Tests for Critical Endpoints:**
+
+- **MessageEndpoint Tests (60+ test cases)**
+  - listMessages: empty list, limit parameter, chronological order, channel filtering
+  - sendMessage: credit validation, message creation, count increment, profanity filtering, spam blocking
+  - Rate limiting: enforces floor-based limits with Redis
+  - Database integration: creates messages, updates user stats
+  - Authentication: validates user permissions
+
+- **MomentEndpoint Tests (50+ test cases)**
+  - listMoments: empty list, limit parameter, reverse chronological order, like/comment counts
+  - postMoment: floor validation (2+), credit validation, moment creation, initialization
+  - likeMoment: like creation, duplicate prevention, count increment
+  - addComment: comment creation, empty validation, count increment
+  - Database integration: creates moments, likes, comments
+
+- **GroupEndpoint Tests (60+ test cases)**
+  - createGroup: public/private groups, validation (max members 2-500, empty name)
+  - listGroups: public filtering, limit parameter
+  - joinGroup: successful join, full group prevention, duplicate prevention
+  - leaveGroup: successful leave, non-member validation, count decrement
+  - deleteGroup: creator permissions, non-creator prevention
+  - Database integration: creates groups, manages members
+
 **Test Coverage Summary:**
 
-- Total test cases: 150+
+- Total test cases: 320+ (150 unit + 170 integration)
 - Services tested: 4 (ContentFilter, RedisRateLimit, Cache, Achievement)
-- Test categories: Configuration, Logic, Edge Cases, Performance, Production Readiness
-- All tests are unit tests (no database/Redis required for most)
-- Tests validate business logic, data structures, and production readiness
+- Endpoints tested: 3 (Message, Moment, Group)
+- Test categories: Configuration, Logic, Edge Cases, Performance, Production Readiness, Database Integration
+- Unit tests: Fast, no external dependencies
+- Integration tests: Use Serverpod test framework with database and authentication
 
 **Test Files Created:**
 
@@ -55,6 +80,9 @@
 - `talktive_server/test/unit/services/redis_rate_limit_service_test.dart`
 - `talktive_server/test/unit/services/cache_service_test.dart`
 - `talktive_server/test/unit/services/achievement_service_test.dart`
+- `talktive_server/test/integration/message_endpoint_test.dart`
+- `talktive_server/test/integration/moment_endpoint_test.dart`
+- `talktive_server/test/integration/group_endpoint_test.dart`
 
 **Benefits:**
 
@@ -62,11 +90,13 @@
 - Ensures rate limiting scales appropriately
 - Confirms cache TTLs are production-ready
 - Verifies achievement system is balanced
+- Tests critical business logic with database
+- Validates authentication and permissions
 - Catches regressions early
 - Documents expected behavior
 - Provides confidence for production deployment
 
-**Commits:** 6e22b71
+**Commits:** 6e22b71 (unit tests), f03ba78 (integration tests)
 
 ---
 

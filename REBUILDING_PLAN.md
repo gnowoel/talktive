@@ -750,6 +750,9 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 - [x] Create test coverage for rate limiting
 - [x] Create test coverage for caching
 - [x] Create test coverage for achievements
+- [x] Create integration tests for message endpoint
+- [x] Create integration tests for moment endpoint
+- [x] Create integration tests for group endpoint
 - [x] Validate production readiness
 
 **Unit Tests Created:**
@@ -785,12 +788,35 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
   - Emoji validation (16 unique, thematic)
   - Production readiness (database-safe keys, user-friendly)
 
+**Integration Tests Created:**
+
+- **MessageEndpoint (60+ test cases)**
+  - listMessages: empty list, limit, chronological order, channel filtering
+  - sendMessage: credit validation, message creation, profanity filtering, spam blocking
+  - Rate limiting: enforces floor-based limits with Redis
+  - Database integration: creates messages, updates user stats
+
+- **MomentEndpoint (50+ test cases)**
+  - listMoments: empty list, limit, reverse chronological order, like/comment counts
+  - postMoment: floor validation (2+), credit validation, moment creation
+  - likeMoment: like creation, duplicate prevention, count increment
+  - addComment: comment creation, empty validation, count increment
+
+- **GroupEndpoint (60+ test cases)**
+  - createGroup: public/private groups, validation (max members, empty name)
+  - listGroups: public filtering, limit parameter
+  - joinGroup: successful join, full group prevention, duplicate prevention
+  - leaveGroup: successful leave, non-member validation
+  - deleteGroup: creator permissions, non-creator prevention
+
 **Test Coverage Summary:**
 
-- Total test cases: 150+
+- Total test cases: 320+ (150 unit + 170 integration)
 - Services tested: 4 critical services
-- Test categories: Configuration, Logic, Edge Cases, Performance, Production Readiness
-- All tests are unit tests (fast, no external dependencies for most)
+- Endpoints tested: 3 critical endpoints
+- Test categories: Configuration, Logic, Edge Cases, Performance, Production Readiness, Database Integration
+- Unit tests: Fast, no external dependencies for most
+- Integration tests: Use Serverpod test framework with database and authentication
 - Tests validate business logic and production readiness
 
 **Files Created:**
@@ -799,6 +825,9 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 - `talktive_server/test/unit/services/redis_rate_limit_service_test.dart`
 - `talktive_server/test/unit/services/cache_service_test.dart`
 - `talktive_server/test/unit/services/achievement_service_test.dart`
+- `talktive_server/test/integration/message_endpoint_test.dart`
+- `talktive_server/test/integration/moment_endpoint_test.dart`
+- `talktive_server/test/integration/group_endpoint_test.dart`
 
 **Benefits:**
 
@@ -806,11 +835,13 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 - Ensures rate limiting scales appropriately
 - Confirms cache TTLs are production-ready
 - Verifies achievement system is balanced
+- Tests critical business logic with database
+- Validates authentication and permissions
 - Catches regressions early
 - Documents expected behavior
 - Provides confidence for production deployment
 
-**Commits:** 6e22b71
+**Commits:** 6e22b71 (unit tests), f03ba78 (integration tests)
 
 ---
 

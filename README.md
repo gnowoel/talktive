@@ -93,6 +93,7 @@ The application currently supports a dual-boot mode via a `VersionSelector` scre
 
 - ✅ Unit tests for security services (150+ test cases)
 - ✅ Unit tests for core services (cache, achievements)
+- ✅ Integration tests for critical endpoints (170+ test cases)
 - ✅ Test coverage for content filtering and rate limiting
 - ✅ Production readiness validation tests
 

@@ -8,7 +8,7 @@ import 'screens/splash_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
 import 'screens/onboarding/profile_setup_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/chat/chat_screen.dart';
+import 'screens/chats/chat_loader_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 
 class ServerpodApp extends StatelessWidget {
@@ -75,8 +75,9 @@ class ServerpodApp extends StatelessWidget {
             final channelId =
                 int.tryParse(state.pathParameters['channelId'] ?? '') ?? 0;
             // Get title from extra or query param, or default
-            final title = state.extra as String? ?? 'Chat $channelId';
-            return ChatScreen(channelId: channelId, title: title);
+            // Get title from extra or query param, or default
+            // final title = state.extra as String? ?? 'Chat $channelId'; // Title not needed for loader
+            return ChatLoaderScreen(channelId: channelId);
           },
         ),
       ],

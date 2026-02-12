@@ -83,6 +83,7 @@ class ServerpodNotificationService {
     );
     const initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
+      iOS: DarwinInitializationSettings(),
     );
 
     await _flutterLocalNotificationsPlugin.initialize(
@@ -215,6 +216,15 @@ class ServerpodNotificationService {
       case 'message':
         // Navigate to plaza (public chat)
         GoRouter.of(context).go('/plaza');
+        break;
+
+      case 'private_chat_message':
+        final channelId = data['channelId'];
+        if (channelId != null) {
+          GoRouter.of(context).go('/chat/$channelId');
+        } else {
+          GoRouter.of(context).go('/chats');
+        }
         break;
 
       case 'moment_like':

@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../services/storage.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -27,6 +30,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   Resident? _currentResident;
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -56,10 +60,20 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       return;
     }
 
+    await _sendMessageInternal(content: content);
+  }
+
+  Future<void> _sendMessageInternal({String? content, String? imageUrl}) async {
     try {
-      await ref
-          .read(realtimeChatProvider(widget.privateChat.channelId).notifier)
-          .sendMessage(content);
+      if (imageUrl != null) {
+        await ref
+            .read(realtimeChatProvider(widget.privateChat.channelId).notifier)
+            .sendMessage(content ?? '', imageUrl: imageUrl);
+      } else if (content != null) {
+        await ref
+            .read(realtimeChatProvider(widget.privateChat.channelId).notifier)
+            .sendMessage(content);
+      }
       _messageController.clear();
       HapticFeedback.lightImpact();
 
@@ -75,6 +89,51 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to send message: $e'),
+            backgroundColor: AppTheme.duoRed,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickAndSendImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 1440,
+      );
+
+      if (image == null) return;
+
+      setState(() {
+        _isUploading = true;
+      });
+
+      // Upload image
+      // Note: Using legacy Storage service which uses Firebase Storage
+      // This maintains compatibility with existing infrastructure
+      final bytes = await image.readAsBytes();
+      final storage = Storage();
+      final path =
+          'private_chats/${widget.privateChat.channelId}/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+      final downloadUrl = await storage.saveData(path, bytes);
+
+      // Send message with image URL
+      await _sendMessageInternal(imageUrl: downloadUrl);
+
+      setState(() {
+        _isUploading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload image: $e'),
             backgroundColor: AppTheme.duoRed,
           ),
         );
@@ -292,13 +351,47 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message.content ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isCurrentUser ? Colors.white : Colors.black,
+                  if (message.imageUrl != null &&
+                      message.imageUrl!.isNotEmpty) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.duoRadiusSmall,
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: message.imageUrl!,
+                        placeholder: (context, url) => Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.error),
+                        ),
+                        fit: BoxFit.cover,
+                        width: 200,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
+                    const SizedBox(height: 8),
+                  ],
+                  if (message.content != null &&
+                      message.content!.isNotEmpty) ...[
+                    Text(
+                      message.content!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isCurrentUser ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
                   Text(
                     _formatTimestamp(message.createdAt),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -351,19 +444,45 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                   color: AppTheme.lightBackground,
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: TextField(
-                  controller: _messageController,
-                  enabled: canSend,
-                  decoration: InputDecoration(
-                    hintText: canSend
-                        ? 'Type a message...'
-                        : 'Muted (low credit score)',
-                    border: InputBorder.none,
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                  ),
-                  maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
-                  onSubmitted: canSend ? (_) => _sendMessage() : null,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: _isUploading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              Icons.attach_file,
+                              color: canSend
+                                  ? Colors.grey[600]
+                                  : Colors.grey[400],
+                            ),
+                      onPressed: canSend && !_isUploading
+                          ? _pickAndSendImage
+                          : null,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        enabled: canSend,
+                        decoration: InputDecoration(
+                          hintText: canSend
+                              ? 'Type a message...'
+                              : 'Muted (low credit score)',
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(color: Colors.grey[400]),
+                        ),
+                        maxLines: null,
+                        textCapitalization: TextCapitalization.sentences,
+                        onSubmitted: canSend ? (_) => _sendMessage() : null,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

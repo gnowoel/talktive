@@ -14,6 +14,21 @@ achievement:
   - getUserAchievements:
   - markAchievementsAsNotified:
   - seedAchievements:
+admin:
+  - isAdmin:
+  - getPendingReports:
+  - getAllReports:
+  - resolveReport:
+  - banUser:
+  - unbanUser:
+  - muteUser:
+  - deleteMessage:
+  - deleteMoment:
+  - getStatistics:
+  - searchUsers:
+  - promoteToAdmin:
+  - demoteFromAdmin:
+  - getUserDetails:
 group:
   - createGroup:
   - listGroups:
@@ -23,6 +38,12 @@ group:
   - getGroupMembers:
   - updateGroup:
   - deleteGroup:
+health:
+  - check:
+  - detailed:
+  - ready:
+  - live:
+  - metrics:
 image:
   - uploadImage:
   - deleteImage:
@@ -59,10 +80,23 @@ report:
 resident:
   - getResident:
   - initializeResident:
+search:
+  - searchUsers:
+  - searchGroups:
+  - getTrendingMoments:
+  - getPopularGroups:
+  - getActiveUsers:
+  - getRecentMoments:
+  - searchAll:
 streak:
   - getUserStreak:
   - canClaimDailyReward:
   - claimDailyReward:
   - getRewardHistory:
+userProfile:
+  - getUserProfile:
+  - blockUser:
+  - unblockUser:
+  - isUserBlocked:
 greeting:
   - hello:

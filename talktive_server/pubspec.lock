@@ -153,6 +153,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+  crypto_keys:
+    dependency: transitive
+    description:
+      name: crypto_keys
+      sha256: "2ed305a11a3e5d16dd7f489121c956fd19b9816938bb68bc7ed3a379827a304e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+2"
   dart_jsonwebtoken:
     dependency: transitive
     description:
@@ -297,6 +305,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  jose:
+    dependency: transitive
+    description:
+      name: jose
+      sha256: bd8dd0bee653a78be16f5e2c0387117906f8f5171f7dcc29e3246b6c7cb73918
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.5"
   lints:
     dependency: "direct dev"
     description:
@@ -353,6 +369,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  openid_client:
+    dependency: transitive
+    description:
+      name: openid_client
+      sha256: d7c229b849eaf4ff0ac77c22f8f1c4c522f6830b8c58d7b73953514ad6980954
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.9+2"
   package_config:
     dependency: transitive
     description:
@@ -425,6 +449,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
   redis:
     dependency: transitive
     description:
@@ -470,6 +502,14 @@ packages:
     description:
       name: serverpod_auth_idp_server
       sha256: fee6d14ae749d4b8073ebb038cb9f96fa98d891d7debbac17b061e68d7fca158
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.3"
+  serverpod_auth_server:
+    dependency: "direct main"
+    description:
+      name: serverpod_auth_server
+      sha256: "6df9a175c47e49597479bd91450763514998317697de0e9984feb07998cb9f73"
       url: "https://pub.dev"
     source: hosted
     version: "3.2.3"
@@ -713,6 +753,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  x509:
+    dependency: transitive
+    description:
+      name: x509
+      sha256: cbd1a63846884afd273cda247b0365284c8d85a365ca98e110413f93d105b935
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.4+3"
   xml:
     dependency: transitive
     description:

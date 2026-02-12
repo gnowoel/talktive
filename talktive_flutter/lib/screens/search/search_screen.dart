@@ -5,12 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_header.dart';
+
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_input.dart';
-import '../profile/user_profile_screen.dart';
+import '../../serverpod_version/screens/profile/user_profile_screen.dart';
 import '../groups/group_chat_screen.dart';
 
 /// Duolingo-style Search & Discovery screen
@@ -65,9 +65,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     try {
       final client = ref.read(clientProvider);
 
-      final trending = await client.search.getTrendingMoments();
-      final popular = await client.search.getPopularGroups();
-      final active = await client.search.getActiveUsers();
+      final trending = await client.search.getTrendingMoments(limit: 10);
+      final popular = await client.search.getPopularGroups(limit: 10);
+      final active = await client.search.getActiveUsers(limit: 10);
 
       if (mounted) {
         setState(() {
@@ -105,7 +105,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
     try {
       final client = ref.read(clientProvider);
-      final results = await client.search.searchAll(query);
+      final results = await client.search.searchAll(query, limit: 20);
 
       if (mounted) {
         setState(() {
@@ -140,7 +140,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     final hasSearchQuery = _searchQuery.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.lightBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -165,7 +165,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       child: Column(
         children: [
           Row(
@@ -181,13 +181,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textDark,
+                            color: AppTheme.textPrimary,
                           ),
                     ),
                     Text(
                       'Find people, groups, and moments',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textGray,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ],
@@ -223,16 +223,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   Widget _buildSearchTabs() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.duoPaddingMedium),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingMedium),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-        boxShadow: [AppTheme.duoShadowSmall],
+        boxShadow: [AppTheme.duoCardShadow.first],
       ),
       child: TabBar(
         controller: _tabController,
         labelColor: AppTheme.primaryColor,
-        unselectedLabelColor: AppTheme.textGray,
+        unselectedLabelColor: AppTheme.textSecondary,
         indicatorColor: AppTheme.primaryColor,
         indicatorWeight: 3,
         tabs: [
@@ -250,16 +250,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   Widget _buildDiscoveryTabs() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.duoPaddingMedium),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingMedium),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-        boxShadow: [AppTheme.duoShadowSmall],
+        boxShadow: [AppTheme.duoCardShadow.first],
       ),
       child: TabBar(
         controller: _tabController,
         labelColor: AppTheme.primaryColor,
-        unselectedLabelColor: AppTheme.textGray,
+        unselectedLabelColor: AppTheme.textSecondary,
         indicatorColor: AppTheme.primaryColor,
         indicatorWeight: 3,
         tabs: const [
@@ -319,7 +319,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     }
 
     return ListView(
-      padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       children: [
         if (_userResults.isNotEmpty) ...[
           _buildSectionHeader('Users', _userResults.length),
@@ -349,7 +349,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       itemCount: _userResults.length,
       itemBuilder: (context, index) {
         return _buildUserCard(_userResults[index])
@@ -370,7 +370,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       itemCount: _groupResults.length,
       itemBuilder: (context, index) {
         return _buildGroupCard(_groupResults[index])
@@ -391,7 +391,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       itemCount: _momentResults.length,
       itemBuilder: (context, index) {
         return _buildMomentCard(_momentResults[index])
@@ -414,7 +414,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     return RefreshIndicator(
       onRefresh: _loadDiscoveryContent,
       child: ListView.builder(
-        padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         itemCount: _trendingMoments.length,
         itemBuilder: (context, index) {
           return _buildMomentCard(_trendingMoments[index])
@@ -438,7 +438,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     return RefreshIndicator(
       onRefresh: _loadDiscoveryContent,
       child: ListView.builder(
-        padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         itemCount: _popularGroups.length,
         itemBuilder: (context, index) {
           return _buildGroupCard(_popularGroups[index])
@@ -462,7 +462,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     return RefreshIndicator(
       onRefresh: _loadDiscoveryContent,
       child: ListView.builder(
-        padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         itemCount: _activeUsers.length,
         itemBuilder: (context, index) {
           return _buildUserCard(_activeUsers[index])
@@ -476,7 +476,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   Widget _buildRecentMoments() {
     return FutureBuilder<List<Moment>>(
-      future: ref.read(clientProvider).search.getRecentMoments(),
+      future: ref
+          .read(clientProvider)
+          .search
+          .getRecentMoments(limit: 20, offset: 0),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -495,7 +498,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             setState(() {});
           },
           child: ListView.builder(
-            padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+            padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               return _buildMomentCard(snapshot.data![index])
@@ -519,7 +522,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(width: 8),
@@ -556,13 +559,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => UserProfileScreen(userId: userId),
+            builder: (context) => UserProfileScreen(userId: userId.toString()),
           ),
         );
       },
       child: Row(
         children: [
-          DuoAvatar(name: userName, floor: floor, size: 48),
+          DuoAvatar(
+            initials: userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+            floorLevel: floor,
+            size: 48,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -573,7 +580,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -583,7 +590,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       '🏢 Floor $floor',
                       style: const TextStyle(
                         fontSize: 14,
-                        color: AppTheme.textGray,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                     if (creditScore != null) ...[
@@ -592,7 +599,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         '⭐ $creditScore',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: AppTheme.textGray,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                     ],
@@ -602,7 +609,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         '💬 $messageCount',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: AppTheme.textGray,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                     ],
@@ -611,7 +618,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppTheme.textGray),
+          const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
         ],
       ),
     );
@@ -653,7 +660,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -661,13 +668,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   '${group.memberCount} members',
                   style: const TextStyle(
                     fontSize: 14,
-                    color: AppTheme.textGray,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppTheme.textGray),
+          const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
         ],
       ),
     );
@@ -681,25 +688,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           // Author info
           Row(
             children: [
-              DuoAvatar(name: 'User', floor: 1, size: 32),
+              const DuoAvatar(initials: 'U', floorLevel: 1, size: 32),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'User ${moment.residentId}',
+                      'User ${moment.authorId}',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     Text(
                       _formatTimestamp(moment.createdAt),
                       style: const TextStyle(
                         fontSize: 12,
-                        color: AppTheme.textGray,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ],
@@ -710,18 +717,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           const SizedBox(height: 12),
 
           // Image
-          if (moment.imageUrl != null)
+          if (moment.imageUrl.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
               child: Image.network(
-                moment.imageUrl!,
+                moment.imageUrl,
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     height: 200,
-                    color: AppTheme.backgroundLight,
+                    color: AppTheme.lightBackground,
                     child: const Center(
                       child: Icon(Icons.broken_image, size: 48),
                     ),
@@ -731,11 +738,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             ),
 
           // Caption
-          if (moment.caption.isNotEmpty) ...[
+          if (moment.caption != null && moment.caption!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
-              moment.caption,
-              style: const TextStyle(fontSize: 14, color: AppTheme.textDark),
+              moment.caption!,
+              style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary),
             ),
           ],
 
@@ -747,7 +754,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               const SizedBox(width: 4),
               Text(
                 '${moment.likesCount} likes',
-                style: const TextStyle(fontSize: 14, color: AppTheme.textGray),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ],
           ),

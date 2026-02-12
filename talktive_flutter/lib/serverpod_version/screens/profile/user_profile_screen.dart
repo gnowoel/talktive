@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talktive_client/talktive_client.dart';
-import '../../shared/config/theme.dart';
-import '../../shared/widgets/duo/duo_card.dart';
-import '../../shared/widgets/duo/duo_button.dart';
-import '../../shared/widgets/duo/duo_stat_card.dart';
-import '../../shared/widgets/duo/duo_badge.dart';
-import '../../serverpod_version/client.dart';
+import '../../../config/theme.dart';
+import '../../../widgets/duo/duo_card.dart';
+import '../../../widgets/duo/duo_button.dart';
+import '../../../widgets/duo/duo_stat_card.dart';
+import '../../../providers/client_provider.dart';
 
 /// Provider for user profile data
 final userProfileProvider =
     FutureProvider.family<Map<String, dynamic>?, String>((ref, userId) async {
       try {
+        final client = ref.read(clientProvider);
         final profile = await client.userProfile.getUserProfile(userId);
         return profile;
       } catch (e) {
@@ -29,7 +28,9 @@ class UserProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(userProfileProvider(userId));
+    var profileAsync = ref.watch(
+      userProfileProvider(userId),
+    ); // removed invalid const if any? No const here.
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -207,28 +208,40 @@ class UserProfileScreen extends ConsumerWidget {
                 childAspectRatio: 1.3,
                 children: [
                   DuoStatCard(
-                    icon: '💬',
+                    icon: Icons.chat_bubble_outline,
                     label: 'Messages',
                     value: profile['totalMessages'].toString(),
-                    color: AppTheme.primaryColor,
+                    gradientColors: [
+                      AppTheme.primaryColor,
+                      AppTheme.primaryColor.withOpacity(0.7),
+                    ],
                   ),
                   DuoStatCard(
-                    icon: '📸',
+                    icon: Icons.camera_alt_outlined,
                     label: 'Moments',
                     value: profile['totalMoments'].toString(),
-                    color: AppTheme.secondaryColor,
+                    gradientColors: [
+                      AppTheme.secondaryColor,
+                      AppTheme.secondaryColor.withOpacity(0.7),
+                    ],
                   ),
                   DuoStatCard(
-                    icon: '🏆',
+                    icon: Icons.emoji_events_outlined,
                     label: 'Achievements',
                     value: profile['achievementsUnlocked'].toString(),
-                    color: AppTheme.duoYellow,
+                    gradientColors: [
+                      AppTheme.duoYellow,
+                      AppTheme.duoYellow.withOpacity(0.7),
+                    ],
                   ),
                   DuoStatCard(
-                    icon: '🔥',
+                    icon: Icons.local_fire_department_outlined,
                     label: 'Streak',
                     value: profile['currentStreak'].toString(),
-                    color: AppTheme.duoOrange,
+                    gradientColors: [
+                      AppTheme.duoOrange,
+                      AppTheme.duoOrange.withOpacity(0.7),
+                    ],
                   ),
                 ],
               ),
@@ -252,9 +265,7 @@ class UserProfileScreen extends ConsumerWidget {
                       icon: isBlocked
                           ? Icons.check_circle_outline
                           : Icons.block,
-                      backgroundColor: isBlocked
-                          ? AppTheme.duoGreen
-                          : AppTheme.duoRed,
+                      color: isBlocked ? AppTheme.duoGreen : AppTheme.duoRed,
                       onPressed: () =>
                           _toggleBlock(context, ref, profile, isBlocked),
                     ),
@@ -264,7 +275,7 @@ class UserProfileScreen extends ConsumerWidget {
                 DuoButton(
                   text: 'Report User',
                   icon: Icons.flag_outlined,
-                  backgroundColor: AppTheme.duoRed,
+                  color: AppTheme.duoRed,
                   onPressed: () => _reportUser(context, profile),
                 ),
               ],
@@ -374,6 +385,7 @@ class UserProfileScreen extends ConsumerWidget {
     bool isBlocked,
   ) async {
     try {
+      final client = ref.read(clientProvider);
       if (isBlocked) {
         await client.userProfile.unblockUser(userId);
         ScaffoldMessenger.of(

@@ -57,18 +57,18 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.lightBackground,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textDark),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Analytics',
           style: TextStyle(
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -106,7 +106,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -193,7 +193,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -239,7 +239,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -285,7 +285,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -339,13 +339,13 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 14, color: AppTheme.textGray),
+            style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
           ),
         ],
       ),
@@ -375,7 +375,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(fontSize: 16, color: AppTheme.textDark),
+            style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary),
           ),
         ),
         Text(

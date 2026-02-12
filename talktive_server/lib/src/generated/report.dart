@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
+import 'report_status.dart' as _i2;
 
 abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   Report._({
@@ -21,8 +22,10 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     this.channelId,
     this.messageId,
     required this.createdAt,
-    required this.resolved,
-  });
+    _i2.ReportStatus? status,
+    this.adminNotes,
+    this.resolvedAt,
+  }) : status = status ?? _i2.ReportStatus.pending;
 
   factory Report({
     int? id,
@@ -32,7 +35,9 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? channelId,
     int? messageId,
     required DateTime createdAt,
-    required bool resolved,
+    _i2.ReportStatus? status,
+    String? adminNotes,
+    DateTime? resolvedAt,
   }) = _ReportImpl;
 
   factory Report.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -50,7 +55,13 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
-      resolved: jsonSerialization['resolved'] as bool,
+      status: jsonSerialization['status'] == null
+          ? null
+          : _i2.ReportStatus.fromJson((jsonSerialization['status'] as String)),
+      adminNotes: jsonSerialization['adminNotes'] as String?,
+      resolvedAt: jsonSerialization['resolvedAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['resolvedAt']),
     );
   }
 
@@ -73,7 +84,11 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   DateTime createdAt;
 
-  bool resolved;
+  _i2.ReportStatus status;
+
+  String? adminNotes;
+
+  DateTime? resolvedAt;
 
   @override
   _i1.Table<int?> get table => t;
@@ -89,7 +104,9 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? channelId,
     int? messageId,
     DateTime? createdAt,
-    bool? resolved,
+    _i2.ReportStatus? status,
+    String? adminNotes,
+    DateTime? resolvedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -102,7 +119,9 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (channelId != null) 'channelId': channelId,
       if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
-      'resolved': resolved,
+      'status': status.toJson(),
+      if (adminNotes != null) 'adminNotes': adminNotes,
+      if (resolvedAt != null) 'resolvedAt': resolvedAt?.toJson(),
     };
   }
 
@@ -117,7 +136,9 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (channelId != null) 'channelId': channelId,
       if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
-      'resolved': resolved,
+      'status': status.toJson(),
+      if (adminNotes != null) 'adminNotes': adminNotes,
+      if (resolvedAt != null) 'resolvedAt': resolvedAt?.toJson(),
     };
   }
 
@@ -162,7 +183,9 @@ class _ReportImpl extends Report {
     int? channelId,
     int? messageId,
     required DateTime createdAt,
-    required bool resolved,
+    _i2.ReportStatus? status,
+    String? adminNotes,
+    DateTime? resolvedAt,
   }) : super._(
          id: id,
          reporterId: reporterId,
@@ -171,7 +194,9 @@ class _ReportImpl extends Report {
          channelId: channelId,
          messageId: messageId,
          createdAt: createdAt,
-         resolved: resolved,
+         status: status,
+         adminNotes: adminNotes,
+         resolvedAt: resolvedAt,
        );
 
   /// Returns a shallow copy of this [Report]
@@ -186,7 +211,9 @@ class _ReportImpl extends Report {
     Object? channelId = _Undefined,
     Object? messageId = _Undefined,
     DateTime? createdAt,
-    bool? resolved,
+    _i2.ReportStatus? status,
+    Object? adminNotes = _Undefined,
+    Object? resolvedAt = _Undefined,
   }) {
     return Report(
       id: id is int? ? id : this.id,
@@ -196,7 +223,9 @@ class _ReportImpl extends Report {
       channelId: channelId is int? ? channelId : this.channelId,
       messageId: messageId is int? ? messageId : this.messageId,
       createdAt: createdAt ?? this.createdAt,
-      resolved: resolved ?? this.resolved,
+      status: status ?? this.status,
+      adminNotes: adminNotes is String? ? adminNotes : this.adminNotes,
+      resolvedAt: resolvedAt is DateTime? ? resolvedAt : this.resolvedAt,
     );
   }
 }
@@ -238,10 +267,23 @@ class ReportUpdateTable extends _i1.UpdateTable<ReportTable> {
         value,
       );
 
-  _i1.ColumnValue<bool, bool> resolved(bool value) => _i1.ColumnValue(
-    table.resolved,
+  _i1.ColumnValue<_i2.ReportStatus, _i2.ReportStatus> status(
+    _i2.ReportStatus value,
+  ) => _i1.ColumnValue(
+    table.status,
     value,
   );
+
+  _i1.ColumnValue<String, String> adminNotes(String? value) => _i1.ColumnValue(
+    table.adminNotes,
+    value,
+  );
+
+  _i1.ColumnValue<DateTime, DateTime> resolvedAt(DateTime? value) =>
+      _i1.ColumnValue(
+        table.resolvedAt,
+        value,
+      );
 }
 
 class ReportTable extends _i1.Table<int?> {
@@ -271,8 +313,18 @@ class ReportTable extends _i1.Table<int?> {
       'createdAt',
       this,
     );
-    resolved = _i1.ColumnBool(
-      'resolved',
+    status = _i1.ColumnEnum(
+      'status',
+      this,
+      _i1.EnumSerialization.byName,
+      hasDefault: true,
+    );
+    adminNotes = _i1.ColumnString(
+      'adminNotes',
+      this,
+    );
+    resolvedAt = _i1.ColumnDateTime(
+      'resolvedAt',
       this,
     );
   }
@@ -291,7 +343,11 @@ class ReportTable extends _i1.Table<int?> {
 
   late final _i1.ColumnDateTime createdAt;
 
-  late final _i1.ColumnBool resolved;
+  late final _i1.ColumnEnum<_i2.ReportStatus> status;
+
+  late final _i1.ColumnString adminNotes;
+
+  late final _i1.ColumnDateTime resolvedAt;
 
   @override
   List<_i1.Column> get columns => [
@@ -302,7 +358,9 @@ class ReportTable extends _i1.Table<int?> {
     channelId,
     messageId,
     createdAt,
-    resolved,
+    status,
+    adminNotes,
+    resolvedAt,
   ];
 }
 

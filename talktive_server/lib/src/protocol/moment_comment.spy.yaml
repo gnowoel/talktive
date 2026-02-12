@@ -12,5 +12,5 @@ fields:
   userFloor: int
 
 indexes:
-  moment_created_idx:
+  moment_comment_created_idx:
     fields: momentId, createdAt

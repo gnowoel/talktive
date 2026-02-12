@@ -24,8 +24,11 @@ abstract class Resident implements _i1.SerializableModel {
     this.bio,
     this.avatar,
     this.role,
+    bool? isAdmin,
+    bool? isBanned,
     this.lastCreditIncrease,
-  });
+  }) : isAdmin = isAdmin ?? false,
+       isBanned = isBanned ?? false;
 
   factory Resident({
     int? id,
@@ -38,6 +41,8 @@ abstract class Resident implements _i1.SerializableModel {
     String? bio,
     String? avatar,
     String? role,
+    bool? isAdmin,
+    bool? isBanned,
     DateTime? lastCreditIncrease,
   }) = _ResidentImpl;
 
@@ -56,6 +61,8 @@ abstract class Resident implements _i1.SerializableModel {
       bio: jsonSerialization['bio'] as String?,
       avatar: jsonSerialization['avatar'] as String?,
       role: jsonSerialization['role'] as String?,
+      isAdmin: jsonSerialization['isAdmin'] as bool?,
+      isBanned: jsonSerialization['isBanned'] as bool?,
       lastCreditIncrease: jsonSerialization['lastCreditIncrease'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(
@@ -87,6 +94,10 @@ abstract class Resident implements _i1.SerializableModel {
 
   String? role;
 
+  bool isAdmin;
+
+  bool isBanned;
+
   DateTime? lastCreditIncrease;
 
   /// Returns a shallow copy of this [Resident]
@@ -103,6 +114,8 @@ abstract class Resident implements _i1.SerializableModel {
     String? bio,
     String? avatar,
     String? role,
+    bool? isAdmin,
+    bool? isBanned,
     DateTime? lastCreditIncrease,
   });
   @override
@@ -119,6 +132,8 @@ abstract class Resident implements _i1.SerializableModel {
       if (bio != null) 'bio': bio,
       if (avatar != null) 'avatar': avatar,
       if (role != null) 'role': role,
+      'isAdmin': isAdmin,
+      'isBanned': isBanned,
       if (lastCreditIncrease != null)
         'lastCreditIncrease': lastCreditIncrease?.toJson(),
     };
@@ -144,6 +159,8 @@ class _ResidentImpl extends Resident {
     String? bio,
     String? avatar,
     String? role,
+    bool? isAdmin,
+    bool? isBanned,
     DateTime? lastCreditIncrease,
   }) : super._(
          id: id,
@@ -156,6 +173,8 @@ class _ResidentImpl extends Resident {
          bio: bio,
          avatar: avatar,
          role: role,
+         isAdmin: isAdmin,
+         isBanned: isBanned,
          lastCreditIncrease: lastCreditIncrease,
        );
 
@@ -174,6 +193,8 @@ class _ResidentImpl extends Resident {
     Object? bio = _Undefined,
     Object? avatar = _Undefined,
     Object? role = _Undefined,
+    bool? isAdmin,
+    bool? isBanned,
     Object? lastCreditIncrease = _Undefined,
   }) {
     return Resident(
@@ -188,6 +209,8 @@ class _ResidentImpl extends Resident {
       bio: bio is String? ? bio : this.bio,
       avatar: avatar is String? ? avatar : this.avatar,
       role: role is String? ? role : this.role,
+      isAdmin: isAdmin ?? this.isAdmin,
+      isBanned: isBanned ?? this.isBanned,
       lastCreditIncrease: lastCreditIncrease is DateTime?
           ? lastCreditIncrease
           : this.lastCreditIncrease,

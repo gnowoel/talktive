@@ -1,6 +1,6 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:uuid/uuid.dart';
-import '../generated/protocol.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 
 class ReportEndpoint extends Endpoint {
@@ -31,7 +31,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Fetch reporter
-    final reporter = await Resident.db.findFirstRow(
+    final reporter = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(reporterUuid),
     );
@@ -47,7 +47,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Fetch target
-    final target = await Resident.db.findFirstRow(
+    final target = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(targetUuid),
     );
@@ -60,7 +60,7 @@ class ReportEndpoint extends Endpoint {
     final thirtyMinutesAgo = now.subtract(const Duration(minutes: 30));
 
     // Check if already reported this user today
-    final existingReport = await Report.db.findFirstRow(
+    final existingReport = await protocol.Report.db.findFirstRow(
       session,
       where: (t) =>
           t.reporterId.equals(reporterUuid) &
@@ -72,7 +72,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Check cooldown (30 minutes between any reports)
-    final recentReport = await Report.db.findFirstRow(
+    final recentReport = await protocol.Report.db.findFirstRow(
       session,
       where: (t) =>
           t.reporterId.equals(reporterUuid) & (t.createdAt > thirtyMinutesAgo),
@@ -87,7 +87,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Check daily report limit (5 per day)
-    final todayReports = await Report.db.count(
+    final todayReports = await protocol.Report.db.count(
       session,
       where: (t) =>
           t.reporterId.equals(reporterUuid) & (t.createdAt > oneDayAgo),
@@ -97,16 +97,16 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Create report
-    final report = Report(
+    final report = protocol.Report(
       reporterId: reporterUuid,
       targetId: targetUuid,
       reason: reason,
       channelId: channelId,
       messageId: messageId,
       createdAt: now,
-      resolved: false,
+      status: protocol.ReportStatus.pending,
     );
-    await Report.db.insertRow(session, report);
+    await protocol.Report.db.insertRow(session, report);
 
     // Apply penalty to target
     ApartmentService.applyReportPenalty(
@@ -120,7 +120,7 @@ class ReportEndpoint extends Endpoint {
       creditScore: target.creditScore,
     );
 
-    await Resident.db.updateRow(session, target);
+    await protocol.Resident.db.updateRow(session, target);
 
     session.log(
       'User ${reporter.userInfoId} reported ${target.userInfoId}. '
@@ -134,14 +134,16 @@ class ReportEndpoint extends Endpoint {
     String userId,
   ) async {
     final userUuid = UuidValue.fromString(userId);
-    return await Report.db.count(
+    return await protocol.Report.db.count(
       session,
-      where: (t) => t.targetId.equals(userUuid) & t.resolved.equals(false),
+      where: (t) =>
+          t.targetId.equals(userUuid) &
+          t.status.equals(protocol.ReportStatus.pending),
     );
   }
 
   /// Lists recent reports for moderation (admin only).
-  Future<List<Report>> listReports(
+  Future<List<protocol.Report>> listReports(
     Session session, {
     int limit = 50,
     bool onlyUnresolved = true,
@@ -152,7 +154,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     final reporterUuid = UuidValue.fromString(reporterIdentifier);
-    final reporter = await Resident.db.findFirstRow(
+    final reporter = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(reporterUuid),
     );
@@ -161,9 +163,11 @@ class ReportEndpoint extends Endpoint {
       throw Exception('Admin access required');
     }
 
-    return await Report.db.find(
+    return await protocol.Report.db.find(
       session,
-      where: onlyUnresolved ? (t) => t.resolved.equals(false) : null,
+      where: onlyUnresolved
+          ? (t) => t.status.equals(protocol.ReportStatus.pending)
+          : null,
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: limit,
@@ -174,6 +178,7 @@ class ReportEndpoint extends Endpoint {
   Future<void> resolveReport(
     Session session,
     int reportId,
+    bool approved,
   ) async {
     final reporterIdentifier = session.authenticated?.userIdentifier;
     if (reporterIdentifier == null) {
@@ -181,7 +186,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     final reporterUuid = UuidValue.fromString(reporterIdentifier);
-    final reporter = await Resident.db.findFirstRow(
+    final reporter = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(reporterUuid),
     );
@@ -190,12 +195,16 @@ class ReportEndpoint extends Endpoint {
       throw Exception('Admin access required');
     }
 
-    final report = await Report.db.findById(session, reportId);
+    final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
       throw Exception('Report not found');
     }
 
-    report.resolved = true;
-    await Report.db.updateRow(session, report);
+    report.status = approved
+        ? protocol.ReportStatus.approved
+        : protocol.ReportStatus.rejected;
+    report.resolvedAt = DateTime.now();
+
+    await protocol.Report.db.updateRow(session, report);
   }
 }

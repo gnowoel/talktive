@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 /// Enhanced rate limiting service using Redis for better performance
 class RedisRateLimitService {
@@ -38,15 +39,21 @@ class RedisRateLimitService {
     final now = DateTime.now();
 
     try {
-      // Redis keys for rate limiting
-      final minuteKey = 'ratelimit:$userId:$channelId:minute';
-      final hourKey = 'ratelimit:$userId:$channelId:hour';
+      // Redis keys for rate limiting - using simple counters with TTL
+      // Note: Without direct Redis 'incr', we use get+put. This is not atomic but sufficient for rate limiting.
+      // We use current minute/hour window keys to avoid complexity.
+
+      final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
+      final hourKey =
+          'ratelimit:$userId:$channelId:hour:${now.hour}'; // Simple hour window
       final lastMessageKey = 'ratelimit:$userId:$channelId:last';
 
       // Check last message time
-      final lastMessageStr = await session.redis.get(lastMessageKey);
-      if (lastMessageStr != null) {
-        final lastMessage = DateTime.parse(lastMessageStr);
+      final lastMessageEntry = await session.caches.global.get<CacheString>(
+        lastMessageKey,
+      );
+      if (lastMessageEntry != null) {
+        final lastMessage = DateTime.parse(lastMessageEntry.value);
         final secondsSince = now.difference(lastMessage).inSeconds;
 
         if (secondsSince < config.minSecondsBetweenMessages) {
@@ -55,29 +62,42 @@ class RedisRateLimitService {
       }
 
       // Check minute limit
-      final minuteCount = await session.redis.get(minuteKey);
-      if (minuteCount != null &&
-          int.parse(minuteCount) >= config.messagesPerMinute) {
+      final minuteEntry = await session.caches.global.get<CacheInt>(minuteKey);
+      final minuteCount = minuteEntry?.value ?? 0;
+
+      if (minuteCount >= config.messagesPerMinute) {
         return 'Rate limit: ${config.messagesPerMinute} messages per minute. Please slow down.';
       }
 
       // Check hour limit
-      final hourCount = await session.redis.get(hourKey);
-      if (hourCount != null && int.parse(hourCount) >= config.messagesPerHour) {
+      final hourEntry = await session.caches.global.get<CacheInt>(hourKey);
+      final hourCount = hourEntry?.value ?? 0;
+
+      if (hourCount >= config.messagesPerHour) {
         return 'Rate limit: ${config.messagesPerHour} messages per hour. Take a break!';
       }
 
       // Increment counters
-      await session.redis.incr(minuteKey);
-      await session.redis.expire(minuteKey, const Duration(minutes: 1));
 
-      await session.redis.incr(hourKey);
-      await session.redis.expire(hourKey, const Duration(hours: 1));
+      // Update minute count
+      // Set TTL slightly more than a minute/hour to allow window to complete
+      await session.caches.global.put(
+        minuteKey,
+        CacheInt(value: minuteCount + 1),
+        lifetime: const Duration(minutes: 2),
+      );
 
-      await session.redis.setEx(
+      // Update hour count
+      await session.caches.global.put(
+        hourKey,
+        CacheInt(value: hourCount + 1),
+        lifetime: const Duration(hours: 2),
+      );
+
+      await session.caches.global.put(
         lastMessageKey,
-        now.toIso8601String(),
-        const Duration(minutes: 5),
+        CacheString(value: now.toIso8601String()),
+        lifetime: const Duration(minutes: 5),
       );
 
       return null; // No rate limit hit
@@ -100,15 +120,16 @@ class RedisRateLimitService {
     int channelId,
   ) async {
     try {
-      final minuteKey = 'ratelimit:$userId:$channelId:minute';
-      final hourKey = 'ratelimit:$userId:$channelId:hour';
+      final now = DateTime.now();
+      final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
+      final hourKey = 'ratelimit:$userId:$channelId:hour:${now.hour}';
 
-      final minuteCount = await session.redis.get(minuteKey);
-      final hourCount = await session.redis.get(hourKey);
+      final minuteEntry = await session.caches.global.get<CacheInt>(minuteKey);
+      final hourEntry = await session.caches.global.get<CacheInt>(hourKey);
 
       return {
-        'messagesThisMinute': minuteCount != null ? int.parse(minuteCount) : 0,
-        'messagesThisHour': hourCount != null ? int.parse(hourCount) : 0,
+        'messagesThisMinute': minuteEntry?.value ?? 0,
+        'messagesThisHour': hourEntry?.value ?? 0,
       };
     } catch (e) {
       return {
@@ -125,11 +146,14 @@ class RedisRateLimitService {
     int channelId,
   ) async {
     try {
-      final minuteKey = 'ratelimit:$userId:$channelId:minute';
-      final hourKey = 'ratelimit:$userId:$channelId:hour';
+      final now = DateTime.now();
+      final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
+      final hourKey = 'ratelimit:$userId:$channelId:hour:${now.hour}';
       final lastMessageKey = 'ratelimit:$userId:$channelId:last';
 
-      await session.redis.delete([minuteKey, hourKey, lastMessageKey]);
+      await session.caches.global.invalidateKey(minuteKey);
+      await session.caches.global.invalidateKey(hourKey);
+      await session.caches.global.invalidateKey(lastMessageKey);
     } catch (e) {
       session.log('Error clearing rate limits: $e', level: LogLevel.warning);
     }

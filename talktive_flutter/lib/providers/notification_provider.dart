@@ -20,6 +20,7 @@ class UserNotifications extends _$UserNotifications {
     try {
       return await client.notification.getUserNotifications(
         limit: limit,
+        offset: 0,
         unreadOnly: unreadOnly,
       );
     } catch (e) {
@@ -40,13 +41,7 @@ class UserNotifications extends _$UserNotifications {
 
   /// Refreshes the notifications list.
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    try {
-      final notifications = await fetchNotifications();
-      state = AsyncValue.data(notifications);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    ref.invalidateSelf();
   }
 }
 
@@ -69,12 +64,6 @@ class UnreadNotificationCount extends _$UnreadNotificationCount {
 
   /// Refreshes the unread count.
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    try {
-      final count = await fetchUnreadCount();
-      state = AsyncValue.data(count);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    ref.invalidateSelf();
   }
 }

@@ -1,0 +1,5 @@
+enum: ReportStatus
+values:
+  - pending
+  - approved
+  - rejected

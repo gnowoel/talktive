@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import '../generated/protocol.dart' as protocol;
 
 /// Health check endpoint for monitoring and load balancers
 class HealthEndpoint extends Endpoint {
@@ -22,7 +23,7 @@ class HealthEndpoint extends Endpoint {
 
     // Check database connection
     try {
-      await session.db.query('SELECT 1');
+      await session.db.unsafeQuery('SELECT 1');
       checks['checks']['database'] = {
         'status': 'healthy',
         'message': 'Database connection successful',
@@ -35,11 +36,17 @@ class HealthEndpoint extends Endpoint {
       };
     }
 
-    // Check Redis connection
+    // Check Redis connection via Global Cache
     try {
-      await session.redis.set('health_check', 'ok');
-      final value = await session.redis.get('health_check');
-      if (value == 'ok') {
+      await session.caches.global.put(
+        'health_check',
+        protocol.CacheString(value: 'ok'),
+      );
+      final value =
+          await session.caches.global.get('health_check')
+              as protocol.CacheString?;
+
+      if (value?.value == 'ok') {
         checks['checks']['redis'] = {
           'status': 'healthy',
           'message': 'Redis connection successful',
@@ -64,16 +71,16 @@ class HealthEndpoint extends Endpoint {
 
   /// Readiness check - returns 200 when server is ready to accept traffic
   Future<Map<String, dynamic>> ready(Session session) async {
-    // Check if migrations are up to date
-    // Check if critical services are available
-    // This is a simplified version - expand based on your needs
-
     try {
       // Test database
-      await session.db.query('SELECT 1');
+      await session.db.unsafeQuery('SELECT 1');
 
       // Test Redis
-      await session.redis.ping();
+      await session.caches.global.put(
+        'ready_check',
+        protocol.CacheString(value: 'ok'),
+        lifetime: Duration(seconds: 1),
+      );
 
       return {
         'status': 'ready',
@@ -100,20 +107,16 @@ class HealthEndpoint extends Endpoint {
   Future<Map<String, dynamic>> metrics(Session session) async {
     try {
       // Get database stats
-      final dbStats = await session.db.query(
+      final dbStats = await session.db.unsafeQuery(
         'SELECT count(*) as total_connections FROM pg_stat_activity',
       );
-
-      // Get Redis stats
-      final redisInfo = await session.redis.info();
 
       return {
         'timestamp': DateTime.now().toIso8601String(),
         'database': {
-          'connections': dbStats.first.toColumnMap()['total_connections'],
-        },
-        'redis': {
-          'connected': redisInfo.isNotEmpty,
+          'connections': dbStats
+              .first
+              .first, // unsafeQuery returns List<List<dynamic>> and first row first col is counts
         },
         'server': {
           'uptime': DateTime.now().difference(DateTime(2024, 1, 1)).inSeconds,

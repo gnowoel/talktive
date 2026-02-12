@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+import '../generated/protocol.dart' as protocol;
 
 class UserProfileEndpoint extends Endpoint {
   /// Get a user's profile by their user ID
@@ -9,62 +10,70 @@ class UserProfileEndpoint extends Endpoint {
   ) async {
     try {
       // Get the viewing user's ID
-      final viewerId = await session.auth.authenticatedUserId;
-      if (viewerId == null) {
+      final viewerIdentifier = session.authenticated?.userIdentifier;
+      if (viewerIdentifier == null) {
         throw Exception('Not authenticated');
       }
+      final viewerId = UuidValue.fromString(viewerIdentifier);
+      final targetId = UuidValue.fromString(userId);
 
       // Get the target user's resident data
-      final resident = await Resident.db.findFirstRow(
+      final resident = await protocol.Resident.db.findFirstRow(
         session,
-        where: (t) => t.userInfoId.equals(userId),
+        where: (t) => t.userInfoId.equals(targetId),
       );
 
       if (resident == null) {
         return null;
       }
 
-      // Get user profile
-      final userProfile = await UserProfile.db.findById(session, resident.id);
-      if (userProfile == null) {
-        return null;
+      // Get user info (name, avatar) from Auth module
+      final userInfo = await UserInfo.db.findFirstRow(
+        session,
+        where: (t) => t.userIdentifier.equals(targetId.toString()),
+      );
+
+      if (userInfo == null) {
+        return null; // Should not happen if resident exists
       }
 
       // Check if blocked
-      final isBlocked = await Block.db.findFirstRow(
+      final isBlocked = await protocol.Block.db.findFirstRow(
         session,
-        where: (t) => t.blockerId.equals(viewerId) & t.blockedId.equals(userId),
+        where: (t) =>
+            t.blockerId.equals(viewerId) & t.blockedId.equals(targetId),
       );
 
-      final hasBlockedMe = await Block.db.findFirstRow(
+      final hasBlockedMe = await protocol.Block.db.findFirstRow(
         session,
-        where: (t) => t.blockerId.equals(userId) & t.blockedId.equals(viewerId),
+        where: (t) =>
+            t.blockerId.equals(targetId) & t.blockedId.equals(viewerId),
       );
 
       // Get stats
-      final messageCount = await Message.db.count(
+      final messageCount = await protocol.Message.db.count(
         session,
-        where: (t) => t.senderId.equals(resident.id),
+        where: (t) => t.senderId.equals(resident.userInfoId),
       );
 
-      final momentCount = await Moment.db.count(
+      final momentCount = await protocol.Moment.db.count(
         session,
         where: (t) => t.authorId.equals(resident.id),
       );
 
-      final achievements = await UserAchievement.db.find(
+      final achievements = await protocol.UserAchievement.db.find(
         session,
-        where: (t) => t.userId.equals(userId) & t.unlockedAt.notEquals(null),
+        where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null),
       );
 
       // Get streak
-      final streak = await UserStreak.db.findFirstRow(
+      final streak = await protocol.UserStreak.db.findFirstRow(
         session,
-        where: (t) => t.userId.equals(userId),
+        where: (t) => t.userId.equals(targetId),
       );
 
       // Get recent moments
-      final recentMoments = await Moment.db.find(
+      final recentMoments = await protocol.Moment.db.find(
         session,
         where: (t) => t.authorId.equals(resident.id),
         orderBy: (t) => t.createdAt,
@@ -73,24 +82,24 @@ class UserProfileEndpoint extends Endpoint {
       );
 
       // Get mutual groups count
-      final viewerGroups = await GroupMember.db.find(
+      final viewerGroups = await protocol.ChannelMember.db.find(
         session,
-        where: (t) => t.userId.equals(viewerId),
+        where: (t) => t.userInfoId.equals(viewerId),
       );
 
-      final targetGroups = await GroupMember.db.find(
+      final targetGroups = await protocol.ChannelMember.db.find(
         session,
-        where: (t) => t.userId.equals(userId),
+        where: (t) => t.userInfoId.equals(targetId),
       );
 
-      final viewerGroupIds = viewerGroups.map((g) => g.groupId).toSet();
-      final targetGroupIds = targetGroups.map((g) => g.groupId).toSet();
+      final viewerGroupIds = viewerGroups.map((g) => g.channelId).toSet();
+      final targetGroupIds = targetGroups.map((g) => g.channelId).toSet();
       final mutualGroups = viewerGroupIds.intersection(targetGroupIds).length;
 
       return {
         'userId': userId,
-        'userName': userProfile.userName,
-        'userAvatar': userProfile.userAvatar,
+        'userName': userInfo.userName,
+        'userAvatar': userInfo.imageUrl,
         'floor': resident.floor,
         'creditScore': resident.creditScore,
         'totalMessages': messageCount,
@@ -112,16 +121,19 @@ class UserProfileEndpoint extends Endpoint {
   /// Block a user
   Future<bool> blockUser(Session session, String userId) async {
     try {
-      final blockerId = await session.auth.authenticatedUserId;
-      if (blockerId == null) {
+      final blockerIdentifier = session.authenticated?.userIdentifier;
+      if (blockerIdentifier == null) {
         throw Exception('Not authenticated');
       }
 
+      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final targetId = UuidValue.fromString(userId);
+
       // Check if already blocked
-      final existing = await Block.db.findFirstRow(
+      final existing = await protocol.Block.db.findFirstRow(
         session,
         where: (t) =>
-            t.blockerId.equals(blockerId) & t.blockedId.equals(userId),
+            t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
       );
 
       if (existing != null) {
@@ -129,13 +141,13 @@ class UserProfileEndpoint extends Endpoint {
       }
 
       // Create block
-      final block = Block(
+      final block = protocol.Block(
         blockerId: blockerId,
-        blockedId: userId,
+        blockedId: targetId,
         createdAt: DateTime.now(),
       );
 
-      await Block.db.insertRow(session, block);
+      await protocol.Block.db.insertRow(session, block);
       return true;
     } catch (e) {
       session.log('Error blocking user: $e', level: LogLevel.error);
@@ -146,22 +158,25 @@ class UserProfileEndpoint extends Endpoint {
   /// Unblock a user
   Future<bool> unblockUser(Session session, String userId) async {
     try {
-      final blockerId = await session.auth.authenticatedUserId;
-      if (blockerId == null) {
+      final blockerIdentifier = session.authenticated?.userIdentifier;
+      if (blockerIdentifier == null) {
         throw Exception('Not authenticated');
       }
 
-      final block = await Block.db.findFirstRow(
+      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final targetId = UuidValue.fromString(userId);
+
+      final block = await protocol.Block.db.findFirstRow(
         session,
         where: (t) =>
-            t.blockerId.equals(blockerId) & t.blockedId.equals(userId),
+            t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
       );
 
       if (block == null) {
         return true; // Not blocked
       }
 
-      await Block.db.deleteRow(session, block);
+      await protocol.Block.db.deleteRow(session, block);
       return true;
     } catch (e) {
       session.log('Error unblocking user: $e', level: LogLevel.error);
@@ -172,15 +187,18 @@ class UserProfileEndpoint extends Endpoint {
   /// Check if a user is blocked
   Future<bool> isUserBlocked(Session session, String userId) async {
     try {
-      final blockerId = await session.auth.authenticatedUserId;
-      if (blockerId == null) {
+      final blockerIdentifier = session.authenticated?.userIdentifier;
+      if (blockerIdentifier == null) {
         return false;
       }
 
-      final block = await Block.db.findFirstRow(
+      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final targetId = UuidValue.fromString(userId);
+
+      final block = await protocol.Block.db.findFirstRow(
         session,
         where: (t) =>
-            t.blockerId.equals(blockerId) & t.blockedId.equals(userId),
+            t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
       );
 
       return block != null;

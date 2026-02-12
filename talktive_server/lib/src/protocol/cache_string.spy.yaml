@@ -1,0 +1,3 @@
+class: CacheString
+fields:
+  value: String

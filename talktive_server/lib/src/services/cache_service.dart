@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'dart:convert';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 /// Cache service for frequently accessed data using Redis
 class CacheService {
@@ -20,9 +21,9 @@ class CacheService {
     final key = '${_statsPrefix}platform';
 
     try {
-      final cached = await session.redis.get(key);
+      final cached = await session.caches.global.get<CacheString>(key);
       if (cached != null) {
-        return jsonDecode(cached) as Map<String, dynamic>;
+        return jsonDecode(cached.value) as Map<String, dynamic>;
       }
     } catch (e) {
       session.log('Cache get error: $e', level: LogLevel.warning);
@@ -39,10 +40,10 @@ class CacheService {
     final key = '${_statsPrefix}platform';
 
     try {
-      await session.redis.setEx(
+      await session.caches.global.put(
         key,
-        jsonEncode(stats),
-        statisticsTTL,
+        CacheString(value: jsonEncode(stats)),
+        lifetime: statisticsTTL,
       );
     } catch (e) {
       session.log('Cache set error: $e', level: LogLevel.warning);
@@ -57,9 +58,9 @@ class CacheService {
     final key = '$_userPrefix$userId';
 
     try {
-      final cached = await session.redis.get(key);
+      final cached = await session.caches.global.get<CacheString>(key);
       if (cached != null) {
-        return jsonDecode(cached) as Map<String, dynamic>;
+        return jsonDecode(cached.value) as Map<String, dynamic>;
       }
     } catch (e) {
       session.log('Cache get error: $e', level: LogLevel.warning);
@@ -77,10 +78,10 @@ class CacheService {
     final key = '$_userPrefix$userId';
 
     try {
-      await session.redis.setEx(
+      await session.caches.global.put(
         key,
-        jsonEncode(userInfo),
-        userInfoTTL,
+        CacheString(value: jsonEncode(userInfo)),
+        lifetime: userInfoTTL,
       );
     } catch (e) {
       session.log('Cache set error: $e', level: LogLevel.warning);
@@ -95,7 +96,7 @@ class CacheService {
     final key = '$_userPrefix$userId';
 
     try {
-      await session.redis.delete(key);
+      await session.caches.global.invalidateKey(key);
     } catch (e) {
       session.log('Cache delete error: $e', level: LogLevel.warning);
     }
@@ -106,7 +107,8 @@ class CacheService {
     final key = '${_trendingPrefix}moments';
 
     try {
-      return await session.redis.get(key);
+      final cached = await session.caches.global.get<CacheString>(key);
+      return cached?.value;
     } catch (e) {
       session.log('Cache get error: $e', level: LogLevel.warning);
       return null;
@@ -121,10 +123,10 @@ class CacheService {
     final key = '${_trendingPrefix}moments';
 
     try {
-      await session.redis.setEx(
+      await session.caches.global.put(
         key,
-        momentsJson,
-        trendingMomentsTTL,
+        CacheString(value: momentsJson),
+        lifetime: trendingMomentsTTL,
       );
     } catch (e) {
       session.log('Cache set error: $e', level: LogLevel.warning);
@@ -136,7 +138,8 @@ class CacheService {
     final key = '${_popularPrefix}groups';
 
     try {
-      return await session.redis.get(key);
+      final cached = await session.caches.global.get<CacheString>(key);
+      return cached?.value;
     } catch (e) {
       session.log('Cache get error: $e', level: LogLevel.warning);
       return null;
@@ -151,10 +154,10 @@ class CacheService {
     final key = '${_popularPrefix}groups';
 
     try {
-      await session.redis.setEx(
+      await session.caches.global.put(
         key,
-        groupsJson,
-        popularGroupsTTL,
+        CacheString(value: groupsJson),
+        lifetime: popularGroupsTTL,
       );
     } catch (e) {
       session.log('Cache set error: $e', level: LogLevel.warning);
@@ -164,8 +167,8 @@ class CacheService {
   /// Invalidate all trending/popular caches (call when new content is created)
   static Future<void> invalidateDiscoveryCache(Session session) async {
     try {
-      await session.redis.delete('${_trendingPrefix}moments');
-      await session.redis.delete('${_popularPrefix}groups');
+      await session.caches.global.invalidateKey('${_trendingPrefix}moments');
+      await session.caches.global.invalidateKey('${_popularPrefix}groups');
     } catch (e) {
       session.log('Cache invalidation error: $e', level: LogLevel.warning);
     }
@@ -176,7 +179,8 @@ class CacheService {
     final key = '${_statsPrefix}active_users';
 
     try {
-      return await session.redis.get(key);
+      final cached = await session.caches.global.get<CacheString>(key);
+      return cached?.value;
     } catch (e) {
       session.log('Cache get error: $e', level: LogLevel.warning);
       return null;
@@ -191,10 +195,10 @@ class CacheService {
     final key = '${_statsPrefix}active_users';
 
     try {
-      await session.redis.setEx(
+      await session.caches.global.put(
         key,
-        usersJson,
-        Duration(minutes: 10),
+        CacheString(value: usersJson),
+        lifetime: Duration(minutes: 10),
       );
     } catch (e) {
       session.log('Cache set error: $e', level: LogLevel.warning);
@@ -204,21 +208,12 @@ class CacheService {
   /// Clear all caches (use for testing or maintenance)
   static Future<void> clearAll(Session session) async {
     try {
-      // Get all keys with our prefixes
-      final patterns = [
-        _statsPrefix,
-        _userPrefix,
-        _trendingPrefix,
-        _popularPrefix,
-      ];
-
-      for (final pattern in patterns) {
-        // Note: In production, use SCAN instead of KEYS for better performance
-        final keys = await session.redis.keys('$pattern*');
-        if (keys.isNotEmpty) {
-          await session.redis.delete(keys);
-        }
-      }
+      // session.caches doesn't support pattern-based clearing
+      // This is mainly for testing anyway
+      session.log(
+        'Cache clearAll requested but not fully supported by Cache interface',
+        level: LogLevel.info,
+      );
     } catch (e) {
       session.log('Cache clear error: $e', level: LogLevel.warning);
     }

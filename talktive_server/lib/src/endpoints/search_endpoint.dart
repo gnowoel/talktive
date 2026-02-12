@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+import '../generated/protocol.dart' as protocol;
 import '../services/cache_service.dart';
 import 'dart:convert';
 
@@ -17,7 +18,7 @@ class SearchEndpoint extends Endpoint {
 
       // Limit the initial query to reduce memory usage
       // Get 3x limit to account for filtering
-      final residents = await Resident.db.find(
+      final residents = await protocol.Resident.db.find(
         session,
         limit: limit * 3,
       );
@@ -27,14 +28,19 @@ class SearchEndpoint extends Endpoint {
       for (final resident in residents) {
         if (results.length >= limit) break; // Early exit when limit reached
 
-        final userInfo = await session.auth.getUserInfo(resident.userInfoId);
+        // Find user info via Auth module
+        final userInfo = await UserInfo.db.findFirstRow(
+          session,
+          where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
+        );
+
         if (userInfo != null &&
             userInfo.userName != null &&
             userInfo.userName!.toLowerCase().contains(query.toLowerCase())) {
           results.add({
-            'userId': resident.userInfoId.uuid,
+            'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
-            'userAvatar': userInfo.userName?.substring(0, 1),
+            'userAvatar': userInfo.imageUrl,
             'floor': resident.floor,
             'creditScore': resident.creditScore,
           });
@@ -49,7 +55,7 @@ class SearchEndpoint extends Endpoint {
   }
 
   /// Search for groups by name or description
-  Future<List<Group>> searchGroups(
+  Future<List<protocol.Group>> searchGroups(
     Session session,
     String query, {
     int limit = 20,
@@ -59,7 +65,7 @@ class SearchEndpoint extends Endpoint {
         return [];
       }
 
-      final groups = await Group.db.find(
+      final groups = await protocol.Group.db.find(
         session,
         where: (t) =>
             t.name.ilike('%$query%') | t.description.ilike('%$query%'),
@@ -76,7 +82,7 @@ class SearchEndpoint extends Endpoint {
   }
 
   /// Get trending moments (most liked in last 7 days) - CACHED
-  Future<List<Moment>> getTrendingMoments(
+  Future<List<protocol.Moment>> getTrendingMoments(
     Session session, {
     int limit = 10,
   }) async {
@@ -85,13 +91,13 @@ class SearchEndpoint extends Endpoint {
       final cached = await CacheService.getTrendingMoments(session);
       if (cached != null) {
         final List<dynamic> decoded = jsonDecode(cached);
-        return decoded.map((m) => Moment.fromJson(m)).toList();
+        return decoded.map((m) => protocol.Moment.fromJson(m)).toList();
       }
 
       // Cache miss - query database
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
-      final moments = await Moment.db.find(
+      final moments = await protocol.Moment.db.find(
         session,
         where: (t) => t.createdAt >= sevenDaysAgo,
         orderBy: (t) => t.likesCount,
@@ -111,7 +117,7 @@ class SearchEndpoint extends Endpoint {
   }
 
   /// Get popular groups (most members) - CACHED
-  Future<List<Group>> getPopularGroups(
+  Future<List<protocol.Group>> getPopularGroups(
     Session session, {
     int limit = 10,
   }) async {
@@ -120,11 +126,11 @@ class SearchEndpoint extends Endpoint {
       final cached = await CacheService.getPopularGroups(session);
       if (cached != null) {
         final List<dynamic> decoded = jsonDecode(cached);
-        return decoded.map((g) => Group.fromJson(g)).toList();
+        return decoded.map((g) => protocol.Group.fromJson(g)).toList();
       }
 
       // Cache miss - query database
-      final groups = await Group.db.find(
+      final groups = await protocol.Group.db.find(
         session,
         where: (t) => t.isPublic.equals(true),
         orderBy: (t) => t.memberCount,
@@ -152,7 +158,7 @@ class SearchEndpoint extends Endpoint {
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
       // Limit messages to prevent memory issues (get last 1000 messages)
-      final messages = await Message.db.find(
+      final messages = await protocol.Message.db.find(
         session,
         where: (t) => t.createdAt >= sevenDaysAgo,
         orderBy: (t) => t.createdAt,
@@ -160,8 +166,8 @@ class SearchEndpoint extends Endpoint {
         limit: 1000, // Limit to prevent loading all messages
       );
 
-      // Count messages per sender
-      final messageCounts = <int, int>{};
+      // Count messages per sender (senderId is UuidValue)
+      final messageCounts = <UuidValue, int>{};
       for (final message in messages) {
         messageCounts[message.senderId] =
             (messageCounts[message.senderId] ?? 0) + 1;
@@ -173,14 +179,23 @@ class SearchEndpoint extends Endpoint {
 
       final activeUsers = <Map<String, dynamic>>[];
       for (final entry in sortedSenders.take(limit)) {
-        final resident = await Resident.db.findById(session, entry.key);
+        // Find resident by userInfoId (key is UuidValue)
+        final resident = await protocol.Resident.db.findFirstRow(
+          session,
+          where: (t) => t.userInfoId.equals(entry.key),
+        );
+
         if (resident != null) {
-          final userInfo = await session.auth.getUserInfo(resident.userInfoId);
+          final userInfo = await UserInfo.db.findFirstRow(
+            session,
+            where: (t) =>
+                t.userIdentifier.equals(resident.userInfoId.toString()),
+          );
           if (userInfo != null) {
             activeUsers.add({
-              'userId': resident.userInfoId.uuid,
+              'userId': resident.userInfoId.toString(),
               'userName': userInfo.userName,
-              'userAvatar': userInfo.userName?.substring(0, 1),
+              'userAvatar': userInfo.imageUrl,
               'floor': resident.floor,
               'messageCount': entry.value,
             });
@@ -196,13 +211,13 @@ class SearchEndpoint extends Endpoint {
   }
 
   /// Get recent moments (for discovery feed)
-  Future<List<Moment>> getRecentMoments(
+  Future<List<protocol.Moment>> getRecentMoments(
     Session session, {
     int limit = 20,
     int offset = 0,
   }) async {
     try {
-      final moments = await Moment.db.find(
+      final moments = await protocol.Moment.db.find(
         session,
         orderBy: (t) => t.createdAt,
         orderDescending: true,
@@ -228,7 +243,7 @@ class SearchEndpoint extends Endpoint {
       final groups = await searchGroups(session, query, limit: limit);
 
       // Search moments by caption
-      final moments = await Moment.db.find(
+      final moments = await protocol.Moment.db.find(
         session,
         where: (t) => t.caption.ilike('%$query%'),
         orderBy: (t) => t.createdAt,

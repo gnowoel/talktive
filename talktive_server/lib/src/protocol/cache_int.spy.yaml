@@ -1,0 +1,3 @@
+class: CacheInt
+fields:
+  value: int

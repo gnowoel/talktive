@@ -200,9 +200,11 @@ class MessageEndpoint extends Endpoint {
       final userUuid = UuidValue.fromString(userIdentifier);
 
       // Check if user is a member of this channel
+      // Fixed: use userInfoId instead of userId
       final membership = await protocol.ChannelMember.db.findFirstRow(
         session,
-        where: (t) => t.channelId.equals(channelId) & t.userId.equals(userUuid),
+        where: (t) =>
+            t.channelId.equals(channelId) & t.userInfoId.equals(userUuid),
       );
 
       if (membership == null) {
@@ -210,7 +212,7 @@ class MessageEndpoint extends Endpoint {
       }
 
       // Check if membership is active
-      if (membership.status != protocol.ChannelMemberStatus.active) {
+      if (membership.status != protocol.ChannelMemberStatus.joined) {
         throw Exception('Access denied: Membership is not active');
       }
     }

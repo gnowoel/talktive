@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_header.dart';
 import '../../widgets/duo/duo_card.dart';
 import 'reports_screen.dart';
 import 'users_screen.dart';
@@ -74,14 +73,14 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppTheme.backgroundLight,
+        backgroundColor: AppTheme.lightBackground,
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (!_isAdmin) {
       return Scaffold(
-        backgroundColor: AppTheme.backgroundLight,
+        backgroundColor: AppTheme.lightBackground,
         body: SafeArea(
           child: Center(
             child: Column(
@@ -94,13 +93,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
                 const Text(
                   'You do not have permission to access this area',
-                  style: TextStyle(fontSize: 16, color: AppTheme.textGray),
+                  style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
@@ -134,12 +133,12 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.lightBackground,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadStatistics,
           child: ListView(
-            padding: const EdgeInsets.all(AppTheme.duoPaddingMedium),
+            padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
               // Header
               Row(
@@ -160,13 +159,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.textDark,
+                                color: AppTheme.textPrimary,
                               ),
                         ),
                         Text(
                           'Moderation & Management',
                           style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppTheme.textGray),
+                              ?.copyWith(color: AppTheme.textSecondary),
                         ),
                       ],
                     ),
@@ -203,7 +202,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -283,7 +282,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -330,13 +329,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 14, color: AppTheme.textGray),
+            style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
           ),
         ],
       ),
@@ -352,7 +351,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -361,7 +360,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             padding: const EdgeInsets.only(bottom: 4),
             child: Text(
               item,
-              style: const TextStyle(fontSize: 14, color: AppTheme.textGray),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ),
         ),
@@ -378,7 +380,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -462,7 +464,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -470,13 +472,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 14,
-                    color: AppTheme.textGray,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppTheme.textGray),
+          const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
         ],
       ),
     );

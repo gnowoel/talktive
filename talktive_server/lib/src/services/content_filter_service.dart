@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 /// Content filtering service for profanity and spam detection
 class ContentFilterService {
@@ -127,14 +128,20 @@ class ContentFilterService {
   ) async {
     try {
       final key = 'lastmsg:$userId';
-      final lastMessage = await session.redis.get(key);
+      final lastMessageEntry = await session.caches.global.get<CacheString>(
+        key,
+      );
 
-      if (lastMessage == content) {
+      if (lastMessageEntry?.value == content) {
         return true; // Same message as last one
       }
 
       // Store this message for 5 minutes
-      await session.redis.setEx(key, content, const Duration(minutes: 5));
+      await session.caches.global.put(
+        key,
+        CacheString(value: content),
+        lifetime: const Duration(minutes: 5),
+      );
       return false;
     } catch (e) {
       session.log(
@@ -156,7 +163,11 @@ class ContentFilterService {
       final key = 'flagged:$contentType:$contentId';
       final data = '$reason|${DateTime.now().toIso8601String()}';
 
-      await session.redis.setEx(key, data, const Duration(days: 7));
+      await session.caches.global.put(
+        key,
+        CacheString(value: data),
+        lifetime: const Duration(days: 7),
+      );
       session.log('Content flagged: $contentType:$contentId - $reason');
     } catch (e) {
       session.log('Error flagging content: $e', level: LogLevel.warning);

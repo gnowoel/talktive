@@ -44,7 +44,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final users = await client.admin.searchUsers(query: query);
+      final users = await client.admin.searchUsers(query: query, limit: 20);
 
       if (mounted) {
         setState(() {
@@ -92,7 +92,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.textGray.withOpacity(0.3),
+                  color: AppTheme.textSecondary.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -106,7 +106,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -114,7 +114,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                       'Floor ${user['floor']} • ${user['creditScore']} credits',
                       style: const TextStyle(
                         fontSize: 14,
-                        color: AppTheme.textGray,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ],
@@ -379,18 +379,18 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.lightBackground,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textDark),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'User Management',
           style: TextStyle(
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -503,7 +503,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.textDark,
+                              color: AppTheme.textPrimary,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -557,13 +557,13 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                       '🏢 Floor $floor • ⭐ $creditScore credits',
                       style: const TextStyle(
                         fontSize: 14,
-                        color: AppTheme.textGray,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.more_vert, color: AppTheme.textGray),
+              const Icon(Icons.more_vert, color: AppTheme.textSecondary),
             ],
           ),
 
@@ -597,7 +597,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textDark,
+                color: AppTheme.textPrimary,
               ),
             ),
           ],
@@ -605,7 +605,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppTheme.textGray),
+          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
         ),
       ],
     );

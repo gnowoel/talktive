@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:uuid/uuid.dart';
-import '../generated/protocol.dart';
+import '../generated/protocol.dart' as protocol;
 import '../services/cache_service.dart';
 
 class AdminEndpoint extends Endpoint {
@@ -10,7 +11,7 @@ class AdminEndpoint extends Endpoint {
     if (userIdentifier == null) return false;
 
     final userUuid = UuidValue.fromString(userIdentifier);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -19,14 +20,14 @@ class AdminEndpoint extends Endpoint {
   }
 
   /// Require admin authentication
-  Future<Resident> _requireAdmin(Session session) async {
+  Future<protocol.Resident> _requireAdmin(Session session) async {
     final userIdentifier = session.authenticated?.userIdentifier;
     if (userIdentifier == null) {
       throw Exception('Not authenticated');
     }
 
     final userUuid = UuidValue.fromString(userIdentifier);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -42,6 +43,14 @@ class AdminEndpoint extends Endpoint {
     return resident;
   }
 
+  /// Helper to get user info
+  Future<UserInfo?> _getUserInfo(Session session, UuidValue userId) async {
+    return await UserInfo.db.findFirstRow(
+      session,
+      where: (t) => t.userIdentifier.equals(userId.toString()),
+    );
+  }
+
   /// Get all pending reports with pagination
   Future<List<Map<String, dynamic>>> getPendingReports(
     Session session, {
@@ -50,9 +59,9 @@ class AdminEndpoint extends Endpoint {
   }) async {
     await _requireAdmin(session);
 
-    final reports = await Report.db.find(
+    final reports = await protocol.Report.db.find(
       session,
-      where: (t) => t.status.equals(ReportStatus.pending),
+      where: (t) => t.status.equals(protocol.ReportStatus.pending),
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: limit,
@@ -62,18 +71,18 @@ class AdminEndpoint extends Endpoint {
     final result = <Map<String, dynamic>>[];
     for (final report in reports) {
       // Get reporter info
-      final reporter = await Resident.db.findFirstRow(
+      final reporter = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.reporterId),
       );
-      final reporterInfo = await session.auth.getUserInfo(report.reporterId);
+      final reporterInfo = await _getUserInfo(session, report.reporterId);
 
       // Get target info
-      final target = await Resident.db.findFirstRow(
+      final target = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.targetId),
       );
-      final targetInfo = await session.auth.getUserInfo(report.targetId);
+      final targetInfo = await _getUserInfo(session, report.targetId);
 
       result.add({
         'report': report.toJson(),
@@ -97,13 +106,13 @@ class AdminEndpoint extends Endpoint {
   /// Get all reports (with status filter)
   Future<List<Map<String, dynamic>>> getAllReports(
     Session session, {
-    ReportStatus? status,
+    protocol.ReportStatus? status,
     int limit = 50,
     int offset = 0,
   }) async {
     await _requireAdmin(session);
 
-    final reports = await Report.db.find(
+    final reports = await protocol.Report.db.find(
       session,
       where: status != null ? (t) => t.status.equals(status) : null,
       orderBy: (t) => t.createdAt,
@@ -114,17 +123,17 @@ class AdminEndpoint extends Endpoint {
 
     final result = <Map<String, dynamic>>[];
     for (final report in reports) {
-      final reporter = await Resident.db.findFirstRow(
+      final reporter = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.reporterId),
       );
-      final reporterInfo = await session.auth.getUserInfo(report.reporterId);
+      final reporterInfo = await _getUserInfo(session, report.reporterId);
 
-      final target = await Resident.db.findFirstRow(
+      final target = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.targetId),
       );
-      final targetInfo = await session.auth.getUserInfo(report.targetId);
+      final targetInfo = await _getUserInfo(session, report.targetId);
 
       result.add({
         'report': report.toJson(),
@@ -149,12 +158,12 @@ class AdminEndpoint extends Endpoint {
   Future<void> resolveReport(
     Session session, {
     required int reportId,
-    required ReportStatus status,
+    required protocol.ReportStatus status,
     String? adminNotes,
   }) async {
     await _requireAdmin(session);
 
-    final report = await Report.db.findById(session, reportId);
+    final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
       throw Exception('Report not found');
     }
@@ -163,7 +172,7 @@ class AdminEndpoint extends Endpoint {
     report.adminNotes = adminNotes;
     report.resolvedAt = DateTime.now();
 
-    await Report.db.updateRow(session, report);
+    await protocol.Report.db.updateRow(session, report);
   }
 
   /// Ban a user (set credit score to -1000)
@@ -175,7 +184,7 @@ class AdminEndpoint extends Endpoint {
     await _requireAdmin(session);
 
     final userUuid = UuidValue.fromString(userId);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -186,7 +195,7 @@ class AdminEndpoint extends Endpoint {
 
     resident.creditScore = -1000;
     resident.isBanned = true;
-    await Resident.db.updateRow(session, resident);
+    await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin banned user: $userId. Reason: $reason');
   }
@@ -199,7 +208,7 @@ class AdminEndpoint extends Endpoint {
     await _requireAdmin(session);
 
     final userUuid = UuidValue.fromString(userId);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -210,7 +219,7 @@ class AdminEndpoint extends Endpoint {
 
     resident.creditScore = 50;
     resident.isBanned = false;
-    await Resident.db.updateRow(session, resident);
+    await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin unbanned user: $userId');
   }
@@ -224,7 +233,7 @@ class AdminEndpoint extends Endpoint {
     await _requireAdmin(session);
 
     final userUuid = UuidValue.fromString(userId);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -234,7 +243,7 @@ class AdminEndpoint extends Endpoint {
     }
 
     resident.creditScore = 0;
-    await Resident.db.updateRow(session, resident);
+    await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin muted user: $userId. Reason: $reason');
   }
@@ -247,12 +256,12 @@ class AdminEndpoint extends Endpoint {
   }) async {
     await _requireAdmin(session);
 
-    final message = await Message.db.findById(session, messageId);
+    final message = await protocol.Message.db.findById(session, messageId);
     if (message == null) {
       throw Exception('Message not found');
     }
 
-    await Message.db.deleteRow(session, message);
+    await protocol.Message.db.deleteRow(session, message);
     session.log('Admin deleted message: $messageId. Reason: $reason');
   }
 
@@ -264,22 +273,22 @@ class AdminEndpoint extends Endpoint {
   }) async {
     await _requireAdmin(session);
 
-    final moment = await Moment.db.findById(session, momentId);
+    final moment = await protocol.Moment.db.findById(session, momentId);
     if (moment == null) {
       throw Exception('Moment not found');
     }
 
     // Delete associated likes and comments
-    await MomentLike.db.deleteWhere(
+    await protocol.MomentLike.db.deleteWhere(
       session,
       where: (t) => t.momentId.equals(momentId),
     );
-    await MomentComment.db.deleteWhere(
+    await protocol.MomentComment.db.deleteWhere(
       session,
       where: (t) => t.momentId.equals(momentId),
     );
 
-    await Moment.db.deleteRow(session, moment);
+    await protocol.Moment.db.deleteRow(session, moment);
     session.log('Admin deleted moment: $momentId. Reason: $reason');
   }
 
@@ -300,60 +309,60 @@ class AdminEndpoint extends Endpoint {
     final thirtyDaysAgo = now.subtract(const Duration(days: 30));
 
     // Total counts
-    final totalUsers = await Resident.db.count(session);
-    final totalMessages = await Message.db.count(session);
-    final totalMoments = await Moment.db.count(session);
-    final totalGroups = await Group.db.count(session);
-    final totalReports = await Report.db.count(session);
-    final pendingReports = await Report.db.count(
+    final totalUsers = await protocol.Resident.db.count(session);
+    final totalMessages = await protocol.Message.db.count(session);
+    final totalMoments = await protocol.Moment.db.count(session);
+    final totalGroups = await protocol.Group.db.count(session);
+    final totalReports = await protocol.Report.db.count(session);
+    final pendingReports = await protocol.Report.db.count(
       session,
-      where: (t) => t.status.equals(ReportStatus.pending),
+      where: (t) => t.status.equals(protocol.ReportStatus.pending),
     );
 
     // Recent activity (last 24 hours)
-    final messagesLast24h = await Message.db.count(
+    final messagesLast24h = await protocol.Message.db.count(
       session,
       where: (t) => t.createdAt >= oneDayAgo,
     );
-    final momentsLast24h = await Moment.db.count(
+    final momentsLast24h = await protocol.Moment.db.count(
       session,
       where: (t) => t.createdAt >= oneDayAgo,
     );
-    final reportsLast24h = await Report.db.count(
+    final reportsLast24h = await protocol.Report.db.count(
       session,
       where: (t) => t.createdAt >= oneDayAgo,
     );
 
     // Weekly activity
-    final messagesLast7d = await Message.db.count(
+    final messagesLast7d = await protocol.Message.db.count(
       session,
       where: (t) => t.createdAt >= sevenDaysAgo,
     );
-    final momentsLast7d = await Moment.db.count(
+    final momentsLast7d = await protocol.Moment.db.count(
       session,
       where: (t) => t.createdAt >= sevenDaysAgo,
     );
 
     // Monthly activity
-    final messagesLast30d = await Message.db.count(
+    final messagesLast30d = await protocol.Message.db.count(
       session,
       where: (t) => t.createdAt >= thirtyDaysAgo,
     );
-    final momentsLast30d = await Moment.db.count(
+    final momentsLast30d = await protocol.Moment.db.count(
       session,
       where: (t) => t.createdAt >= thirtyDaysAgo,
     );
 
     // Active users (users who sent messages in last 7 days) - OPTIMIZED
     // Limit to last 1000 messages to prevent memory issues
-    final recentMessages = await Message.db.find(
+    final recentMessages = await protocol.Message.db.find(
       session,
       where: (t) => t.createdAt >= sevenDaysAgo,
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: 1000,
     );
-    final activeUserIds = <int>{};
+    final activeUserIds = <UuidValue>{};
     for (final message in recentMessages) {
       activeUserIds.add(message.senderId);
     }
@@ -405,7 +414,7 @@ class AdminEndpoint extends Endpoint {
       // Not a UUID, search by name
     }
 
-    final residents = await Resident.db.find(
+    final residents = await protocol.Resident.db.find(
       session,
       where: searchUuid != null
           ? (t) => t.userInfoId.equals(searchUuid!)
@@ -415,7 +424,7 @@ class AdminEndpoint extends Endpoint {
 
     final result = <Map<String, dynamic>>[];
     for (final resident in residents) {
-      final userInfo = await session.auth.getUserInfo(resident.userInfoId);
+      final userInfo = await _getUserInfo(session, resident.userInfoId);
 
       // Filter by name if searching by name
       if (searchUuid == null && userInfo?.userName != null) {
@@ -425,19 +434,21 @@ class AdminEndpoint extends Endpoint {
       }
 
       // Count messages
-      final messageCount = await Message.db.count(
+      final messageCount = await protocol.Message.db.count(
         session,
-        where: (t) => t.senderId.equals(resident.id!),
+        where: (t) => t.senderId.equals(
+          resident.userInfoId,
+        ), // Use userInfoId (UuidValue)
       );
 
       // Count moments
-      final momentCount = await Moment.db.count(
+      final momentCount = await protocol.Moment.db.count(
         session,
-        where: (t) => t.residentId.equals(resident.id!),
+        where: (t) => t.authorId.equals(resident.id!), // Use authorId (int)
       );
 
       // Count reports against this user
-      final reportCount = await Report.db.count(
+      final reportCount = await protocol.Report.db.count(
         session,
         where: (t) => t.targetId.equals(resident.userInfoId),
       );
@@ -452,7 +463,9 @@ class AdminEndpoint extends Endpoint {
         'messageCount': messageCount,
         'momentCount': momentCount,
         'reportCount': reportCount,
-        'createdAt': resident.createdAt.toIso8601String(),
+        'createdAt':
+            userInfo?.created?.toIso8601String() ??
+            DateTime.now().toIso8601String(),
       });
     }
 
@@ -467,7 +480,7 @@ class AdminEndpoint extends Endpoint {
     await _requireAdmin(session);
 
     final userUuid = UuidValue.fromString(userId);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -477,7 +490,7 @@ class AdminEndpoint extends Endpoint {
     }
 
     resident.isAdmin = true;
-    await Resident.db.updateRow(session, resident);
+    await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin promoted user to admin: $userId');
   }
@@ -490,7 +503,7 @@ class AdminEndpoint extends Endpoint {
     await _requireAdmin(session);
 
     final userUuid = UuidValue.fromString(userId);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -500,7 +513,7 @@ class AdminEndpoint extends Endpoint {
     }
 
     resident.isAdmin = false;
-    await Resident.db.updateRow(session, resident);
+    await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin demoted user from admin: $userId');
   }
@@ -513,7 +526,7 @@ class AdminEndpoint extends Endpoint {
     await _requireAdmin(session);
 
     final userUuid = UuidValue.fromString(userId);
-    final resident = await Resident.db.findFirstRow(
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userUuid),
     );
@@ -522,28 +535,26 @@ class AdminEndpoint extends Endpoint {
       throw Exception('User not found');
     }
 
-    final userInfo = await session.auth.getUserInfo(resident.userInfoId);
+    final userInfo = await _getUserInfo(session, resident.userInfoId);
 
     // Get recent messages
-    final recentMessages = await Message.db.find(
+    final recentMessages = await protocol.Message.db.find(
       session,
-      where: (t) => t.senderId.equals(resident.id!),
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
-      limit: 10,
+      where: (t) =>
+          t.senderId.equals(resident.userInfoId), // Use userInfoId (UuidValue)
     );
 
     // Get recent moments
-    final recentMoments = await Moment.db.find(
+    final recentMoments = await protocol.Moment.db.find(
       session,
-      where: (t) => t.residentId.equals(resident.id!),
+      where: (t) => t.authorId.equals(resident.id!), // Use authorId (int)
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: 10,
     );
 
     // Get reports against this user
-    final reports = await Report.db.find(
+    final reports = await protocol.Report.db.find(
       session,
       where: (t) => t.targetId.equals(resident.userInfoId),
       orderBy: (t) => t.createdAt,
@@ -552,7 +563,7 @@ class AdminEndpoint extends Endpoint {
     );
 
     // Get reports made by this user
-    final reportsMade = await Report.db.find(
+    final reportsMade = await protocol.Report.db.find(
       session,
       where: (t) => t.reporterId.equals(resident.userInfoId),
       orderBy: (t) => t.createdAt,
@@ -568,16 +579,18 @@ class AdminEndpoint extends Endpoint {
         'creditScore': resident.creditScore,
         'isAdmin': resident.isAdmin,
         'isBanned': resident.isBanned,
-        'createdAt': resident.createdAt.toIso8601String(),
+        'createdAt':
+            userInfo?.created?.toIso8601String() ??
+            DateTime.now().toIso8601String(),
       },
       'stats': {
-        'totalMessages': await Message.db.count(
+        'totalMessages': await protocol.Message.db.count(
           session,
-          where: (t) => t.senderId.equals(resident.id!),
+          where: (t) => t.senderId.equals(resident.userInfoId),
         ),
-        'totalMoments': await Moment.db.count(
+        'totalMoments': await protocol.Moment.db.count(
           session,
-          where: (t) => t.residentId.equals(resident.id!),
+          where: (t) => t.authorId.equals(resident.id!),
         ),
         'reportsAgainst': reports.length,
         'reportsMade': reportsMade.length,

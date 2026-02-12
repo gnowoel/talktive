@@ -18,8 +18,4 @@ indexes:
   report_status_idx:
     fields: status, createdAt
 
-enum: ReportStatus
-values:
-  - pending
-  - approved
-  - rejected
+

@@ -35,8 +35,12 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     try {
       final client = ref.read(clientProvider);
       final reports = _filterStatus == ReportStatus.pending
-          ? await client.admin.getPendingReports()
-          : await client.admin.getAllReports(status: _filterStatus);
+          ? await client.admin.getPendingReports(limit: 20, offset: 0)
+          : await client.admin.getAllReports(
+              status: _filterStatus,
+              limit: 20,
+              offset: 0,
+            );
 
       if (mounted) {
         setState(() {
@@ -117,7 +121,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.textGray.withOpacity(0.3),
+                color: AppTheme.textSecondary.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -135,7 +139,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ),
@@ -188,7 +192,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                               _resolveReport(report.id!, ReportStatus.rejected);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.textGray,
+                              backgroundColor: AppTheme.textSecondary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -249,7 +253,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -258,7 +262,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             padding: const EdgeInsets.only(bottom: 4),
             child: Text(
               item,
-              style: const TextStyle(fontSize: 14, color: AppTheme.textGray),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ),
         ),
@@ -284,18 +291,18 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.lightBackground,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textDark),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Reports',
           style: TextStyle(
-            color: AppTheme.textDark,
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -359,7 +366,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           border: Border.all(
             color: isSelected
                 ? AppTheme.primaryColor
-                : AppTheme.textGray.withOpacity(0.3),
+                : AppTheme.textSecondary.withOpacity(0.3),
           ),
         ),
         child: Text(
@@ -367,7 +374,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.white : AppTheme.textGray,
+            color: isSelected ? Colors.white : AppTheme.textSecondary,
           ),
         ),
       ),
@@ -409,7 +416,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               const Spacer(),
               Text(
                 _formatDate(report.createdAt),
-                style: const TextStyle(fontSize: 12, color: AppTheme.textGray),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ],
           ),
@@ -420,7 +430,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -429,14 +439,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             children: [
               const Text(
                 'Reporter: ',
-                style: TextStyle(fontSize: 14, color: AppTheme.textGray),
+                style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
               Text(
                 '${reporter['userName']} (Floor ${reporter['floor']})',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -447,14 +457,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             children: [
               const Text(
                 'Target: ',
-                style: TextStyle(fontSize: 14, color: AppTheme.textGray),
+                style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
               Text(
                 '${target['userName']} (Floor ${target['floor']})',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -469,14 +479,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     onPressed: () =>
                         _resolveReport(report.id!, ReportStatus.rejected),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppTheme.textGray),
+                      side: const BorderSide(color: AppTheme.textSecondary),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: const Text(
                       'Reject',
-                      style: TextStyle(color: AppTheme.textGray),
+                      style: TextStyle(color: AppTheme.textSecondary),
                     ),
                   ),
                 ),
@@ -512,7 +522,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       case ReportStatus.approved:
         return AppTheme.errorColor;
       case ReportStatus.rejected:
-        return AppTheme.textGray;
+        return AppTheme.textSecondary;
     }
   }
 }

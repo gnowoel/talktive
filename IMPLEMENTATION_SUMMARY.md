@@ -4,42 +4,51 @@
 
 **Status:** ✅ Completed (February 12, 2026)
 
-### Phase 8.1: Navigation Consolidation ✅
+### Phase 8.1: Navigation Refinement ✅
 
-**Goal:** Simplify user experience and reduce clutter.
+**Goal:** Align navigation with the "Apartment Building" metaphor.
 
 **Changes:**
 
-- **Merged Tabs:** Consolidated "Chats" (private) and "Groups" (communities) into a single **"Chats"** tab with a toggle.
-- **Removed Search Tab:** Eliminated the standalone "Search" tab to focus on organic discovery (Plaza/Moments).
-- **Streamlined Bar:** Bottom navigation now has 4 clear destinations: **Plaza, Moments, Chats, Profile**.
-- **Deep Linking:** Updated routing to correctly handle deep links (e.g., `/groups` redirects to the Groups tab within Chats).
+- **Separated Tabs:** Split "Chats" (Private) and "Groups" (Community) into distinct tabs.
 
-### Phase 8.2: Interest Tags ✅
+- **5-Tab Structure:** Restored **Plaza, Moments, Chats, Groups, Profile**.
 
-**Goal:** Enable interest-based discovery and personalization.
+- **Reasoning:** Reduces cognitive load by separating private "room" interactions from public "lounge" interactions.
+
+### Phase 8.2: Profile & Matching Data ✅
+
+**Goal:** Enable better matching for residents.
 
 **Backend Implementation:**
 
-- Updated `Resident` model to include `interests` (List<String>).
-- Created database migration: `20260212160544580`.
-- Updated `initializeResident` endpoint to accept and save interests.
+- Added `interests` (List<String>) and `languages` (List<String>) to `Resident` model.
+
+- Created database migrations for both fields.
+
+- Updated `initializeResident` endpoint to save this data.
 
 **Frontend Implementation:**
 
-- Updated `completeSetup` in `AuthProvider` to pass selected interests to the API.
-- Added "Interests" section to `ProfileScreenModern` displaying colorful tags.
-- Replaced hacky "bio-stuffing" solution with proper database storage.
+- **Languages Step:** Added a new step to the Onboarding Wizard for selecting languages (default: English).
+
+- **Interests Step:** Improved interests collection.
+
+- **Profile Display:** Tags are now stored efficiently for future matching queries.
 
 **Files Modified/Created:**
 
 - `talktive_server/lib/src/protocol/resident.spy.yaml`
-- `talktive_server/lib/src/endpoints/resident_endpoint.dart`
-- `talktive_flutter/lib/screens/chats/chats_screen_modern.dart` (Merged UI)
-- `talktive_flutter/lib/screens/profile/profile_screen_modern.dart` (Added tags)
-- `talktive_flutter/lib/serverpod_app.dart` (Updated routes)
 
-**Commits:** e7d4b34
+- `talktive_server/lib/src/endpoints/resident_endpoint.dart`
+
+- `talktive_flutter/lib/screens/onboarding/profile_setup_screen.dart`
+
+- `talktive_flutter/lib/screens/groups/groups_screen_modern.dart` (Restored)
+
+- `talktive_flutter/lib/screens/home/home_screen.dart` (5 tabs)
+
+**Commits:** e7d4b34 (Interests), [Pending Commit] (Languages & Nav Split)
 
 ---
 

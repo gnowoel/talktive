@@ -26,6 +26,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.avatar,
     this.role,
     this.interests,
+    this.languages,
     bool? isAdmin,
     bool? isBanned,
     this.lastCreditIncrease,
@@ -44,6 +45,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? avatar,
     String? role,
     List<String>? interests,
+    List<String>? languages,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -68,6 +70,11 @@ abstract class Resident implements _i1.SerializableModel {
           ? null
           : _i2.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
+            ),
+      languages: jsonSerialization['languages'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<String>>(
+              jsonSerialization['languages'],
             ),
       isAdmin: jsonSerialization['isAdmin'] as bool?,
       isBanned: jsonSerialization['isBanned'] as bool?,
@@ -104,6 +111,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   List<String>? interests;
 
+  List<String>? languages;
+
   bool isAdmin;
 
   bool isBanned;
@@ -125,6 +134,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? avatar,
     String? role,
     List<String>? interests,
+    List<String>? languages,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -144,6 +154,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (avatar != null) 'avatar': avatar,
       if (role != null) 'role': role,
       if (interests != null) 'interests': interests?.toJson(),
+      if (languages != null) 'languages': languages?.toJson(),
       'isAdmin': isAdmin,
       'isBanned': isBanned,
       if (lastCreditIncrease != null)
@@ -172,6 +183,7 @@ class _ResidentImpl extends Resident {
     String? avatar,
     String? role,
     List<String>? interests,
+    List<String>? languages,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -187,6 +199,7 @@ class _ResidentImpl extends Resident {
          avatar: avatar,
          role: role,
          interests: interests,
+         languages: languages,
          isAdmin: isAdmin,
          isBanned: isBanned,
          lastCreditIncrease: lastCreditIncrease,
@@ -208,6 +221,7 @@ class _ResidentImpl extends Resident {
     Object? avatar = _Undefined,
     Object? role = _Undefined,
     Object? interests = _Undefined,
+    Object? languages = _Undefined,
     bool? isAdmin,
     bool? isBanned,
     Object? lastCreditIncrease = _Undefined,
@@ -227,6 +241,9 @@ class _ResidentImpl extends Resident {
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
+      languages: languages is List<String>?
+          ? languages
+          : this.languages?.map((e0) => e0).toList(),
       isAdmin: isAdmin ?? this.isAdmin,
       isBanned: isBanned ?? this.isBanned,
       lastCreditIncrease: lastCreditIncrease is DateTime?

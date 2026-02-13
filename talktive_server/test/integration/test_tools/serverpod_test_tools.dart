@@ -2621,6 +2621,7 @@ class _ResidentEndpoint {
     required String country,
     required String bio,
     List<String>? interests,
+    List<String>? languages,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2640,6 +2641,7 @@ class _ResidentEndpoint {
             'country': country,
             'bio': bio,
             'interests': interests,
+            'languages': languages,
           }),
           serializationManager: _serializationManager,
         );

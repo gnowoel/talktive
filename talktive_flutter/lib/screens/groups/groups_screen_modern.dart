@@ -3,23 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import 'package:go_router/go_router.dart';
-import '../../providers/private_chat_provider.dart';
-import '../../providers/current_resident_provider.dart';
+import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_header.dart';
 import '../../widgets/duo/duo_card.dart';
-import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import 'chat_thread_screen.dart';
+import 'group_chat_screen.dart';
+import 'create_group_dialog.dart';
 
-/// Duolingo-style Chats screen - list of private conversations
-class ChatsScreenModern extends ConsumerWidget {
-  const ChatsScreenModern({super.key});
+/// Duolingo-style Groups screen - Community discussions
+class GroupsScreenModern extends ConsumerWidget {
+  const GroupsScreenModern({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chatsState = ref.watch(privateChatListProvider);
+    final groupsState = ref.watch(groupListProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -27,29 +25,27 @@ class ChatsScreenModern extends ConsumerWidget {
         child: Column(
           children: [
             const DuoHeader(
-              emoji: '💬',
-              title: 'Chats',
-              subtitle: 'Private conversations',
+              emoji: '👥',
+              title: 'Groups',
+              subtitle: 'Join communities',
             ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
             Expanded(
-              child: chatsState.when(
-                data: (chats) => chats.isEmpty
+              child: groupsState.when(
+                data: (groups) => groups.isEmpty
                     ? _buildEmptyState(context)
                     : RefreshIndicator(
                         onRefresh: () async {
-                          await ref
-                              .read(privateChatListProvider.notifier)
-                              .refresh();
+                          await ref.read(groupListProvider.notifier).refresh();
                         },
                         color: AppTheme.primaryColor,
                         child: ListView.builder(
                           padding: const EdgeInsets.all(
                             AppTheme.duoSpacingMedium,
                           ),
-                          itemCount: chats.length,
+                          itemCount: groups.length,
                           itemBuilder: (context, index) {
-                            final chat = chats[index];
-                            return _buildChatCard(context, ref, chat, index)
+                            final group = groups[index];
+                            return _buildGroupCard(context, ref, group, index)
                                 .animate(
                                   delay: Duration(milliseconds: index * 50),
                                 )
@@ -69,19 +65,34 @@ class ChatsScreenModern extends ConsumerWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'groups_fab',
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          showDialog(
+            context: context,
+            builder: (context) => const CreateGroupDialog(),
+          );
+        },
+        backgroundColor:
+            AppTheme.duoYellow, // Using yellow to distinguish from chats
+        child: const Icon(Icons.add, size: 28),
+      ).animate().scale(delay: 300.ms, duration: 300.ms),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: DuoEmptyState(
-        emoji: '🤝',
-        title: 'No chats yet',
-        subtitle: 'Start a conversation with someone from the Plaza',
-        buttonText: 'Go to Plaza',
+        emoji: '🎉',
+        title: 'No groups yet',
+        subtitle: 'Create or join a community',
+        buttonText: 'Create Group',
         onButtonPressed: () {
-          // Navigate to Plaza tab (index 0)
-          context.go('/plaza');
+          showDialog(
+            context: context,
+            builder: (context) => const CreateGroupDialog(),
+          );
         },
       ),
     );
@@ -95,7 +106,7 @@ class ChatsScreenModern extends ConsumerWidget {
           const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
-            'Failed to load chats',
+            'Failed to load groups',
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -111,7 +122,7 @@ class ChatsScreenModern extends ConsumerWidget {
           const SizedBox(height: AppTheme.duoSpacingLarge),
           ElevatedButton(
             onPressed: () {
-              ref.read(privateChatListProvider.notifier).refresh();
+              ref.read(groupListProvider.notifier).refresh();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
@@ -128,23 +139,12 @@ class ChatsScreenModern extends ConsumerWidget {
     );
   }
 
-  Widget _buildChatCard(
+  Widget _buildGroupCard(
     BuildContext context,
     WidgetRef ref,
-    PrivateChat chat,
+    Group group,
     int index,
   ) {
-    final currentResidentAsync = ref.watch(currentResidentProvider);
-    final currentResident = currentResidentAsync.value;
-
-    if (currentResident == null) {
-      return const SizedBox.shrink();
-    }
-
-    final otherUserId = chat.participant1Id == currentResident.userInfoId
-        ? chat.participant2Id
-        : chat.participant1Id;
-
     return DuoCard(
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
       onTap: () {
@@ -152,10 +152,7 @@ class ChatsScreenModern extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatThreadScreen(
-              privateChat: chat,
-              otherUserId: otherUserId.uuid,
-            ),
+            builder: (context) => GroupChatScreen(group: group),
           ),
         );
       },
@@ -163,23 +160,24 @@ class ChatsScreenModern extends ConsumerWidget {
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         child: Row(
           children: [
-            Stack(
-              children: [
-                const DuoAvatar(initials: 'U', size: 56, showRing: true),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: AppTheme.duoGreen,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                  ),
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.duoOrange.withValues(alpha: 0.2),
+                    AppTheme.duoYellow.withValues(alpha: 0.2),
+                  ],
                 ),
-              ],
+                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+              ),
+              child: Center(
+                child: Text(
+                  group.emoji ?? '👥',
+                  style: const TextStyle(fontSize: 28),
+                ),
+              ),
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),
             Expanded(
@@ -190,27 +188,56 @@ class ChatsScreenModern extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Resident',
+                          group.name,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (chat.lastMessageAt != null)
-                        Text(
-                          _formatTimestamp(chat.lastMessageAt!),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600]),
+                      if (group.isPublic)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.duoGreen.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Public',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: AppTheme.duoGreen,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Tap to open chat',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                    overflow: TextOverflow.ellipsis,
+                  if (group.description != null &&
+                      group.description!.isNotEmpty)
+                    Text(
+                      group.description!,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${group.memberCount} members',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -221,22 +248,5 @@ class ChatsScreenModern extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.month}/${timestamp.day}';
-    }
   }
 }

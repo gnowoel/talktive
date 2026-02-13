@@ -983,6 +983,7 @@ class EndpointResident extends _i2.EndpointRef {
     required String country,
     required String bio,
     List<String>? interests,
+    List<String>? languages,
   }) => caller.callServerEndpoint<_i7.Resident>(
     'resident',
     'initializeResident',
@@ -993,6 +994,7 @@ class EndpointResident extends _i2.EndpointRef {
       'country': country,
       'bio': bio,
       'interests': interests,
+      'languages': languages,
     },
   );
 }

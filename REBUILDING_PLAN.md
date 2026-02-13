@@ -16,14 +16,17 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 
 **Completed Tasks:**
 
-- [x] Consolidated navigation into 4 tabs (Plaza, Moments, Chats, Profile)
-- [x] Merged "Chats" and "Groups" screens into a unified interface
-- [x] Removed redundant "Search" tab
-- [x] Added "Interest Tags" to Resident profile
-- [x] Updated onboarding to collect interests
+- [x] Refined navigation to 5 tabs (Plaza, Moments, Chats, Groups, Profile)
+
+- [x] Separated Private Chats and Groups (Apartment Metaphor)
+
+- [x] Added "Interest Tags" and "Languages" to Resident profile
+
+- [x] Updated onboarding to collect interests and languages
+
 - [x] Displayed interests on user profile
 
-**Commits:** 2745ba0, e7d4b34
+**Commits:** 2745ba0, e7d4b34, [Pending]
 
 ---
 

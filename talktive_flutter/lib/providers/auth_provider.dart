@@ -144,6 +144,7 @@ class Auth extends _$Auth {
     required String country,
     required String bio,
     List<String> interests = const [],
+    List<String> languages = const ['en'],
     String mood = '😊',
   }) async {
     state = const AsyncValue.loading();
@@ -158,6 +159,7 @@ class Auth extends _$Auth {
         country: country,
         bio: bioWithMood,
         interests: interests,
+        languages: languages,
       );
 
       final prefs = await SharedPreferences.getInstance();

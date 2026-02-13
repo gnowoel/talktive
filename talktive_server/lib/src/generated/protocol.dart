@@ -1424,6 +1424,12 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'List<String>?',
         ),
         _i2.ColumnDefinition(
+          name: 'languages',
+          columnType: _i2.ColumnType.json,
+          isNullable: true,
+          dartType: 'List<String>?',
+        ),
+        _i2.ColumnDefinition(
           name: 'isAdmin',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,

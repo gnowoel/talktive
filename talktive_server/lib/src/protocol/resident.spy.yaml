@@ -11,6 +11,7 @@ fields:
   avatar: String?
   role: String?
   interests: List<String>?
+  languages: List<String>?
   isAdmin: bool, default=false
   isBanned: bool, default=false
   lastCreditIncrease: DateTime?

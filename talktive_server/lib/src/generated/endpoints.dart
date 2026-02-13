@@ -1675,6 +1675,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<List<String>?>(),
               nullable: true,
             ),
+            'languages': _i1.ParameterDescription(
+              name: 'languages',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1689,6 +1694,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     country: params['country'],
                     bio: params['bio'],
                     interests: params['interests'],
+                    languages: params['languages'],
                   ),
         ),
       },

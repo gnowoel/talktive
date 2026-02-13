@@ -30,6 +30,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   String _selectedCountryFlag = '🌍';
   String _selectedMood = '😊';
   List<String> _selectedInterests = [];
+  List<String> _selectedLanguages = ['en'];
   bool _isLoading = false;
 
   final List<String> _popularAvatars = [
@@ -65,6 +66,24 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     '⚡',
     '🔥',
     '💫',
+  ];
+
+  final List<Map<String, String>> _availableLanguages = [
+    {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},
+    {'code': 'es', 'name': 'Spanish', 'flag': '🇪🇸'},
+    {'code': 'fr', 'name': 'French', 'flag': '🇫🇷'},
+    {'code': 'de', 'name': 'German', 'flag': '🇩🇪'},
+    {'code': 'it', 'name': 'Italian', 'flag': '🇮🇹'},
+    {'code': 'pt', 'name': 'Portuguese', 'flag': '🇵🇹'},
+    {'code': 'ru', 'name': 'Russian', 'flag': '🇷🇺'},
+    {'code': 'ja', 'name': 'Japanese', 'flag': '🇯🇵'},
+    {'code': 'ko', 'name': 'Korean', 'flag': '🇰🇷'},
+    {'code': 'zh', 'name': 'Chinese', 'flag': '🇨🇳'},
+    {'code': 'hi', 'name': 'Hindi', 'flag': '🇮🇳'},
+    {'code': 'ar', 'name': 'Arabic', 'flag': '🇸🇦'},
+    {'code': 'tr', 'name': 'Turkish', 'flag': '🇹🇷'},
+    {'code': 'vi', 'name': 'Vietnamese', 'flag': '🇻🇳'},
+    {'code': 'id', 'name': 'Indonesian', 'flag': '🇮🇩'},
   ];
 
   final List<String> _moods = [
@@ -132,7 +151,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
   void _nextStep() {
     if (_validateCurrentStep()) {
-      if (_currentStep < 5) {
+      if (_currentStep < 6) {
+        // Updated for 7 steps (0-6)
         setState(() {
           _currentStep++;
         });
@@ -175,16 +195,22 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         }
         return true;
       case 2: // Gender & Country
-        return true; // Both have defaults
-      case 3: // Bio
+        return true;
+      case 3: // Languages (New)
+        if (_selectedLanguages.isEmpty) {
+          _showError('Please select at least one language');
+          return false;
+        }
+        return true;
+      case 4: // Bio
         return true; // Optional
-      case 4: // Interests
+      case 5: // Interests
         if (_selectedInterests.isEmpty) {
           _showError('Please select at least one interest');
           return false;
         }
         return true;
-      case 5: // Mood
+      case 6: // Mood
         return true; // Has default
       default:
         return true;
@@ -208,7 +234,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     });
 
     try {
-      // Create anonymous account with profile
       final success = await ref
           .read(authProvider.notifier)
           .completeSetup(
@@ -218,18 +243,15 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             country: _selectedCountry,
             bio: _bioController.text.trim(),
             interests: _selectedInterests,
+            languages: _selectedLanguages,
             mood: _selectedMood,
           );
 
       if (success) {
-        // Show confetti
         _confettiController.play();
-
-        // Wait for confetti to show
         await Future.delayed(const Duration(seconds: 2));
 
         if (mounted) {
-          // Navigate to main app (root)
           context.go('/');
         }
       } else {
@@ -269,10 +291,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           SafeArea(
             child: Column(
               children: [
-                // Progress indicator
                 _buildProgressIndicator(),
 
-                // Page content
                 Expanded(
                   child: PageView(
                     controller: _pageController,
@@ -281,6 +301,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       _buildAvatarStep(),
                       _buildNameStep(),
                       _buildGenderCountryStep(),
+                      _buildLanguagesStep(), // New Step
                       _buildBioStep(),
                       _buildInterestsStep(),
                       _buildMoodStep(),
@@ -288,7 +309,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   ),
                 ),
 
-                // Navigation buttons
                 _buildNavigationButtons(),
               ],
             ),
@@ -323,7 +343,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         children: [
           // Step counter
           Text(
-            'Step ${_currentStep + 1} of 6',
+            'Step ${_currentStep + 1} of 7',
             style: const TextStyle(
               color: AppTheme.textSecondary,
               fontSize: 14,
@@ -335,7 +355,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: (_currentStep + 1) / 6,
+              value: (_currentStep + 1) / 7,
               minHeight: 8,
               backgroundColor: Colors.grey.shade200,
               valueColor: const AlwaysStoppedAnimation<Color>(
@@ -360,19 +380,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               color: AppTheme.primaryColor,
             ),
           ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-
           const SizedBox(height: 8),
-
           Text(
             'Pick an emoji that represents you!',
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-
           const SizedBox(height: 32),
-
-          // Selected avatar display
           Container(
             width: 120,
             height: 120,
@@ -394,10 +409,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               ),
             ),
           ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
-
           const SizedBox(height: 32),
-
-          // Avatar grid
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -409,7 +421,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               itemBuilder: (context, index) {
                 final avatar = _popularAvatars[index];
                 final isSelected = avatar == _selectedAvatar;
-
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -446,8 +457,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               },
             ),
           ),
-
-          // Custom emoji button
           TextButton.icon(
             onPressed: _showEmojiPicker,
             icon: const Icon(Icons.add_reaction_outlined),
@@ -470,19 +479,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               color: AppTheme.primaryColor,
             ),
           ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-
           const SizedBox(height: 8),
-
           Text(
             'Choose any name you like!',
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-
           const SizedBox(height: 48),
-
-          // Avatar preview
           Container(
             width: 80,
             height: 80,
@@ -497,10 +501,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               ),
             ),
           ).animate().scale(),
-
           const SizedBox(height: 32),
-
-          // Name input
           TextField(
             controller: _nameController,
             textAlign: TextAlign.center,
@@ -532,10 +533,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             textCapitalization: TextCapitalization.words,
             maxLength: 20,
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
-
           const Spacer(),
-
-          // Name suggestions
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -570,19 +568,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               color: AppTheme.primaryColor,
             ),
           ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-
           const SizedBox(height: 8),
-
           Text(
             'This helps us find better matches',
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-
           const SizedBox(height: 48),
-
-          // Gender selection
           Text(
             'Gender',
             style: Theme.of(
@@ -590,7 +583,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-
           Row(
             children: [
               Expanded(child: _buildGenderOption('male', '♂️', 'Male')),
@@ -598,9 +590,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               Expanded(child: _buildGenderOption('female', '♀️', 'Female')),
             ],
           ).animate().fadeIn(delay: 200.ms),
-
           const SizedBox(height: 12),
-
           Row(
             children: [
               Expanded(
@@ -612,10 +602,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               ),
             ],
           ).animate().fadeIn(delay: 300.ms),
-
           const SizedBox(height: 48),
-
-          // Country selection
           Text(
             'Country',
             style: Theme.of(
@@ -623,7 +610,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-
           InkWell(
             onTap: _selectCountry,
             borderRadius: BorderRadius.circular(16),
@@ -660,6 +646,124 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     );
   }
 
+  Widget _buildLanguagesStep() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            'Languages You Speak',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primaryColor,
+            ),
+          ).animate().fadeIn().slideY(begin: 0.2, end: 0),
+
+          const SizedBox(height: 8),
+
+          Text(
+            'Select languages to find people who speak them',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+          ).animate().fadeIn(delay: 100.ms),
+
+          const SizedBox(height: 24),
+
+          // Selected count
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.duoGreen.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '${_selectedLanguages.length} selected',
+              style: const TextStyle(
+                color: AppTheme.duoGreen,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ).animate().fadeIn(delay: 200.ms),
+
+          const SizedBox(height: 24),
+
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 3,
+              ),
+              itemCount: _availableLanguages.length,
+              itemBuilder: (context, index) {
+                final language = _availableLanguages[index];
+                final code = language['code']!;
+                final name = language['name']!;
+                final flag = language['flag']!;
+                final isSelected = _selectedLanguages.contains(code);
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        if (_selectedLanguages.length > 1) {
+                          _selectedLanguages.remove(code);
+                        }
+                      } else {
+                        _selectedLanguages.add(code);
+                      }
+                    });
+                    HapticFeedback.selectionClick();
+                  },
+                  child:
+                      Container(
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppTheme.duoGreen.withOpacity(0.2)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppTheme.duoGreen
+                                : Colors.grey.shade300,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(flag, style: const TextStyle(fontSize: 20)),
+                            const SizedBox(width: 8),
+                            Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? AppTheme.duoGreen
+                                    : AppTheme.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ).animate().scale(
+                        delay: Duration(milliseconds: index * 30),
+                        duration: 300.ms,
+                        curve: Curves.easeOut,
+                      ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBioStep() {
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -672,19 +776,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               color: AppTheme.primaryColor,
             ),
           ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-
           const SizedBox(height: 8),
-
           Text(
             'Write a short bio (optional)',
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-
           const SizedBox(height: 32),
-
-          // Bio input
           TextField(
             controller: _bioController,
             maxLines: 5,
@@ -712,16 +811,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               ),
             ),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
-
           const SizedBox(height: 24),
-
-          // Bio templates
           const Text(
             'Need inspiration? Try these:',
             style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 12),
-
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -769,19 +864,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               color: AppTheme.primaryColor,
             ),
           ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-
           const SizedBox(height: 8),
-
           Text(
             'Select at least one interest',
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-
           const SizedBox(height: 24),
-
-          // Selected count
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -796,10 +886,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               ),
             ),
           ).animate().fadeIn(delay: 200.ms),
-
           const SizedBox(height: 24),
-
-          // Interests grid
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -812,7 +899,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               itemBuilder: (context, index) {
                 final interest = _availableInterests[index];
                 final isSelected = _selectedInterests.contains(interest);
-
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -878,19 +964,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               color: AppTheme.primaryColor,
             ),
           ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-
           const SizedBox(height: 8),
-
           Text(
             'Set your current mood',
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-
           const SizedBox(height: 48),
-
-          // Selected mood display
           Container(
             width: 100,
             height: 100,
@@ -907,10 +988,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               child: Text(_selectedMood, style: const TextStyle(fontSize: 50)),
             ),
           ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
-
           const SizedBox(height: 32),
-
-          // Mood grid
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -922,7 +1000,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               itemBuilder: (context, index) {
                 final mood = _moods[index];
                 final isSelected = mood == _selectedMood;
-
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -959,9 +1036,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               },
             ),
           ),
-
           const SizedBox(height: 24),
-
           const Text(
             '💡 You can change your mood anytime',
             style: TextStyle(color: AppTheme.textLight, fontSize: 14),
@@ -973,7 +1048,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
   Widget _buildGenderOption(String value, String emoji, String label) {
     final isSelected = _selectedGender == value;
-
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -1031,7 +1105,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         top: false,
         child: Row(
           children: [
-            // Back button
             if (_currentStep > 0)
               Expanded(
                 child: OutlinedButton(
@@ -1056,10 +1129,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   ),
                 ),
               ),
-
             if (_currentStep > 0) const SizedBox(width: 12),
-
-            // Next/Complete button
             Expanded(
               flex: _currentStep == 0 ? 1 : 2,
               child: ElevatedButton(
@@ -1082,7 +1152,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                         ),
                       )
                     : Text(
-                        _currentStep < 5 ? 'Next' : 'Complete Setup',
+                        _currentStep < 6 ? 'Next' : 'Complete Setup',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

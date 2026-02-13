@@ -43,13 +43,13 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 - Phase 1-5: Design foundation, core screens, backend stability, feature completion, polish & engagement
 - Phase 6: Advanced Features (Notifications, Profiles, Search, Admin)
 - Phase 7: Production Readiness (Performance, Security, Testing, Deployment)
-- Phase 8.1: Navigation Consolidation
-  - Unified "Chats" and "Groups" into a single tab
-  - Removed "Search" tab (focused on organic discovery)
-  - Simplified bottom navigation to 4 tabs: Plaza, Moments, Chats, Profile
-- Phase 8.2: Interest Tags
-  - Added `interests` field to Resident model
-  - Updated onboarding to collect interests
+- Phase 8.1: Navigation Refinement
+  - Separated "Chats" and "Groups" into distinct tabs (Apartment metaphor: Private Rooms vs Lounge)
+  - 5-tab structure: Plaza, Moments, Chats, Groups, Profile
+- Phase 8.2: Profile & Matching Data
+  - Added `interests` field to Resident model (Interest Tags)
+  - Added `languages` field to Resident model (Language Matching)
+  - Updated onboarding wizard with Language selection step
   - Displayed interest tags on user profiles
 
 **Status:** 🏗️ In Progress

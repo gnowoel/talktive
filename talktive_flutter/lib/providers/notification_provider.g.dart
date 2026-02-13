@@ -36,7 +36,7 @@ final class UserNotificationsProvider
   UserNotifications create() => UserNotifications();
 }
 
-String _$userNotificationsHash() => r'8b7f85e4418e768f033020a081464bafbe1fcaf2';
+String _$userNotificationsHash() => r'5c4f60b1ff32171e097b0e88492c6d55c90acef8';
 
 /// Provider for user notifications.
 

@@ -15,7 +15,8 @@ final privateChatListProvider = PrivateChatListProvider._();
 
 /// Provider for listing all private chats for the current user.
 final class PrivateChatListProvider
-    extends $AsyncNotifierProvider<PrivateChatList, List<PrivateChat>> {
+    extends
+        $AsyncNotifierProvider<PrivateChatList, List<PrivateChatWithProfile>> {
   /// Provider for listing all private chats for the current user.
   PrivateChatListProvider._()
     : super(
@@ -36,22 +37,30 @@ final class PrivateChatListProvider
   PrivateChatList create() => PrivateChatList();
 }
 
-String _$privateChatListHash() => r'743dbfb028269faca3c3c591d408bad4df94a368';
+String _$privateChatListHash() => r'ac489ca58820a1929b386fab0890a7ace9bb3d5e';
 
 /// Provider for listing all private chats for the current user.
 
-abstract class _$PrivateChatList extends $AsyncNotifier<List<PrivateChat>> {
-  FutureOr<List<PrivateChat>> build();
+abstract class _$PrivateChatList
+    extends $AsyncNotifier<List<PrivateChatWithProfile>> {
+  FutureOr<List<PrivateChatWithProfile>> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final ref =
-        this.ref as $Ref<AsyncValue<List<PrivateChat>>, List<PrivateChat>>;
+        this.ref
+            as $Ref<
+              AsyncValue<List<PrivateChatWithProfile>>,
+              List<PrivateChatWithProfile>
+            >;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<PrivateChat>>, List<PrivateChat>>,
-              AsyncValue<List<PrivateChat>>,
+              AnyNotifier<
+                AsyncValue<List<PrivateChatWithProfile>>,
+                List<PrivateChatWithProfile>
+              >,
+              AsyncValue<List<PrivateChatWithProfile>>,
               Object?,
               Object?
             >;

@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
@@ -371,3 +375,4 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       ),
     );
   }
+}

@@ -33,7 +33,7 @@ final class AuthProvider
   Auth create() => Auth();
 }
 
-String _$authHash() => r'336007a6018bdad4b7ad4b76d55997b4deb9222c';
+String _$authHash() => r'476778d9c73011ce13f10ccad9dd5659eb5830b1';
 
 abstract class _$Auth extends $AsyncNotifier<TalktiveAuthState> {
   FutureOr<TalktiveAuthState> build();

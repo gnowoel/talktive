@@ -77,7 +77,33 @@ class ChatsScreenModern extends ConsumerWidget {
     );
   }
 
-  // ... (buildEmptyState and buildErrorState unchanged)
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: DuoEmptyState(
+        emoji: '👋',
+        title: 'No chats yet',
+        subtitle: 'Start a conversation with someone in the Plaza!',
+        buttonText: 'Go to Plaza',
+        onButtonPressed: () {
+          context.go('/users');
+        },
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+    return Center(
+      child: DuoEmptyState(
+        emoji: '😕',
+        title: 'Something went wrong',
+        subtitle: 'We couldn\'t load your chats. Please try again.',
+        buttonText: 'Retry',
+        onButtonPressed: () {
+          ref.read(privateChatListProvider.notifier).refresh();
+        },
+      ),
+    );
+  }
 
   Widget _buildChatCard(
     BuildContext context,

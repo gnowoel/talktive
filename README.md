@@ -4,6 +4,14 @@ Talktive is an anonymous group chat application designed for ephemeral, private,
 
 ## 🎨 Design Philosophy
 
+**The Apartment Building Metaphor**: Talktive is modeled after a digital apartment building housing single men and women looking to make connections. The app's structure mirrors this physical space:
+
+- **Plaza (Lobby)**: A public space for casual, open encounters.
+- **Moments (Bulletin Board)**: A place to showcase yourself and see what others are up to.
+- **Chats (Private Units)**: Intimate, 1-on-1 private spaces with old friends.
+- **Groups (Clubhouse)**: Semi-public spaces for community discussions and shared interests.
+- **Profile (My Unit)**: Your personal space to showcase your personality (Interests, Languages, Achievements).
+
 **Duolingo-Inspired UI/UX**: The app features a clean, dynamic, and playful design inspired by Duolingo's aesthetic. Moving away from the previous glassmorphism design, Talktive now embraces:
 
 - **Playful & Friendly**: Emoji-first design, rounded corners, vibrant colors

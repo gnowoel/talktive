@@ -111,6 +111,8 @@ class UserProfileEndpoint extends Endpoint {
         'hasBlockedMe': hasBlockedMe != null,
         'mutualGroups': mutualGroups,
         'recentMoments': recentMoments.map((m) => m.toJson()).toList(),
+        'interests': resident.interests,
+        'languages': resident.languages,
       };
     } catch (e) {
       session.log('Error getting user profile: $e', level: LogLevel.error);

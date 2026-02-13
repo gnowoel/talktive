@@ -4,6 +4,14 @@ This project is a migration of the "Talktive" anonymous chat app from Firebase t
 
 ## Design Philosophy
 
+**The Apartment Building Metaphor**: Talktive is modeled after a digital apartment building.
+
+- **Plaza (Lobby)**: Public encounters.
+- **Moments (Bulletin Board)**: Visual sharing.
+- **Chats (Private Units)**: Private conversations.
+- **Groups (Clubhouse)**: Community discussions.
+- **Profile (My Unit)**: Personal identity.
+
 **Duolingo-Inspired UI/UX**: The app has been completely redesigned with a clean, dynamic, and playful aesthetic inspired by Duolingo. The previous glassmorphism design has been replaced with:
 
 - **Playful & Friendly**: Emoji-first design, rounded corners, vibrant colors

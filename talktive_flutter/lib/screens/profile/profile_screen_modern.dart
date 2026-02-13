@@ -8,6 +8,7 @@ import '../../providers/resident_provider.dart';
 import '../../providers/achievement_provider.dart';
 import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
+import '../../config/languages.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_card.dart';
@@ -71,6 +72,8 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildStreakCard(context, ref),
           // Stats grid
           _buildStatsGrid(resident),
+          // Languages section
+          _buildLanguagesSection(resident),
           // Interests section
           _buildInterestsSection(resident),
           // Achievements section
@@ -262,6 +265,70 @@ class ProfileScreenModern extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildLanguagesSection(Resident? resident) {
+    final languages = resident?.languages;
+
+    if (languages == null || languages.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: AppTheme.duoSpacingMedium,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Languages',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: languages.map((code) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.duoGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.duoGreen.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppLanguages.getFlag(code),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      AppLanguages.getName(code),
+                      style: const TextStyle(
+                        color: AppTheme.duoGreen,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildInterestsSection(Resident? resident) {

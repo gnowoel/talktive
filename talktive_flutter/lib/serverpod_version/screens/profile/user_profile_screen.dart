@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../config/theme.dart';
+import '../../../config/languages.dart';
 import '../../../widgets/duo/duo_card.dart';
 import '../../../widgets/duo/duo_button.dart';
 import '../../../widgets/duo/duo_stat_card.dart';
@@ -283,6 +284,14 @@ class UserProfileScreen extends ConsumerWidget {
 
               const SizedBox(height: 24),
 
+              // Languages
+              if (profile['languages'] != null)
+                _buildLanguagesSection(profile['languages'] as List),
+
+              // Interests
+              if (profile['interests'] != null)
+                _buildInterestsSection(profile['interests'] as List),
+
               // Recent Moments
               if (profile['recentMoments'] != null &&
                   (profile['recentMoments'] as List).isNotEmpty) ...[
@@ -301,6 +310,110 @@ class UserProfileScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLanguagesSection(List languages) {
+    if (languages.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Languages',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: languages.map((code) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.duoGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.duoGreen.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppLanguages.getFlag(code as String),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      AppLanguages.getName(code),
+                      style: const TextStyle(
+                        color: AppTheme.duoGreen,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInterestsSection(List interests) {
+    if (interests.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Interests',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: interests.map((interest) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppTheme.accentColor.withOpacity(0.3),
+                  ),
+                ),
+                child: Text(
+                  interest as String,
+                  style: const TextStyle(
+                    color: AppTheme.accentColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:confetti/confetti.dart';
 import '../../config/theme.dart';
+import '../../config/languages.dart';
 import '../../providers/auth_provider.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
@@ -66,24 +67,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     '⚡',
     '🔥',
     '💫',
-  ];
-
-  final List<Map<String, String>> _availableLanguages = [
-    {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},
-    {'code': 'es', 'name': 'Spanish', 'flag': '🇪🇸'},
-    {'code': 'fr', 'name': 'French', 'flag': '🇫🇷'},
-    {'code': 'de', 'name': 'German', 'flag': '🇩🇪'},
-    {'code': 'it', 'name': 'Italian', 'flag': '🇮🇹'},
-    {'code': 'pt', 'name': 'Portuguese', 'flag': '🇵🇹'},
-    {'code': 'ru', 'name': 'Russian', 'flag': '🇷🇺'},
-    {'code': 'ja', 'name': 'Japanese', 'flag': '🇯🇵'},
-    {'code': 'ko', 'name': 'Korean', 'flag': '🇰🇷'},
-    {'code': 'zh', 'name': 'Chinese', 'flag': '🇨🇳'},
-    {'code': 'hi', 'name': 'Hindi', 'flag': '🇮🇳'},
-    {'code': 'ar', 'name': 'Arabic', 'flag': '🇸🇦'},
-    {'code': 'tr', 'name': 'Turkish', 'flag': '🇹🇷'},
-    {'code': 'vi', 'name': 'Vietnamese', 'flag': '🇻🇳'},
-    {'code': 'id', 'name': 'Indonesian', 'flag': '🇮🇩'},
   ];
 
   final List<String> _moods = [
@@ -696,9 +679,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                 mainAxisSpacing: 12,
                 childAspectRatio: 3,
               ),
-              itemCount: _availableLanguages.length,
+              itemCount: AppLanguages.all.length,
               itemBuilder: (context, index) {
-                final language = _availableLanguages[index];
+                final language = AppLanguages.all[index];
                 final code = language['code']!;
                 final name = language['name']!;
                 final flag = language['flag']!;

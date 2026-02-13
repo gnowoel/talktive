@@ -1,28 +1,85 @@
 # Talktive Rebuild - Implementation Summary
 
-## 🚀 Latest Update: Stability & Migration Fixes (COMPLETED)
+## 🚀 Latest Update: Navigation Polish & Interest Tags (COMPLETED)
 
 **Status:** ✅ Completed (February 12, 2026)
 
-### Stability Fixes ✅
+### Phase 8.1: Navigation Consolidation ✅
 
-- **Serverpod Private Chat Deep Links**
-  - Updated `getPrivateChatDetails` to resolve chats by `channelId` (deep links now load correctly).
-  - Prevents "chat not found" when navigating from notifications.
+**Goal:** Simplify user experience and reduce clutter.
 
-- **Serverpod Profile Actions**
-  - Implemented **Start Chat** and **Report User** actions on user profiles.
-  - Reporting now captures a reason and routes to the `ReportEndpoint`.
+**Changes:**
 
-- **Firebase Init Safety**
-  - Fixed duplicate Firebase initialization crash by handling native pre-init safely.
+- **Merged Tabs:** Consolidated "Chats" (private) and "Groups" (communities) into a single **"Chats"** tab with a toggle.
+- **Removed Search Tab:** Eliminated the standalone "Search" tab to focus on organic discovery (Plaza/Moments).
+- **Streamlined Bar:** Bottom navigation now has 4 clear destinations: **Plaza, Moments, Chats, Profile**.
+- **Deep Linking:** Updated routing to correctly handle deep links (e.g., `/groups` redirects to the Groups tab within Chats).
 
-- **UI & Avatar Reliability**
-  - Unique `heroTag` values for FABs to prevent Hero collisions across tabs.
-  - Avatar rendering now treats emoji/avatar strings as text (only `http/https` is loaded as a network image).
-  - Profile display name no longer reads `Resident.name` (uses a safe derived label).
+### Phase 8.2: Interest Tags ✅
 
-**Status:** ✅ Completed (February 11, 2026)
+**Goal:** Enable interest-based discovery and personalization.
+
+**Backend Implementation:**
+
+- Updated `Resident` model to include `interests` (List<String>).
+- Created database migration: `20260212160544580`.
+- Updated `initializeResident` endpoint to accept and save interests.
+
+**Frontend Implementation:**
+
+- Updated `completeSetup` in `AuthProvider` to pass selected interests to the API.
+- Added "Interests" section to `ProfileScreenModern` displaying colorful tags.
+- Replaced hacky "bio-stuffing" solution with proper database storage.
+
+**Files Modified/Created:**
+
+- `talktive_server/lib/src/protocol/resident.spy.yaml`
+- `talktive_server/lib/src/endpoints/resident_endpoint.dart`
+- `talktive_flutter/lib/screens/chats/chats_screen_modern.dart` (Merged UI)
+- `talktive_flutter/lib/screens/profile/profile_screen_modern.dart` (Added tags)
+- `talktive_flutter/lib/serverpod_app.dart` (Updated routes)
+
+**Commits:** e7d4b34
+
+---
+
+### Phase 7.6: Final Polish (Private Chat & Deep Linking) ✅
+
+**Status:** ✅ Completed (February 12, 2026)
+
+**Private Chat Image Support:**
+
+- **Frontend Implementation:**
+  - Integrated `image_picker` for gallery selection
+  - Used existing `Storage` service (Firebase Storage) for uploads
+  - Updated `ChatThreadScreen` to render images using `CachedNetworkImage`
+  - Added attachment button to input area with upload state handling
+- **Compatibility:**
+  - Maintained compatibility with existing backend `Message` protocol
+  - Leveraged existing Firebase Storage infrastructure without new backend dependencies
+
+**Deep Linking & Notifications:**
+
+- **Chat Loading Logic:**
+  - Created `ChatLoaderScreen` to fetch `PrivateChat` details before navigation
+  - Solves issue where deep links failed because `PrivateChat` object was missing
+- **Routing Updates:**
+  - Updated `/chat/:channelId` route to use `ChatLoaderScreen`
+  - Ensures smooth transition from notification to chat
+- **iOS Support:**
+  - Added `DarwinInitializationSettings` to `ServerpodNotificationService`
+  - Validated iOS permission requests
+
+**Files Created/Modified:**
+
+- `talktive_flutter/lib/screens/chats/chat_loader_screen.dart` (New)
+- `talktive_flutter/lib/screens/chats/chat_thread_screen.dart` (Modified)
+- `talktive_flutter/lib/serverpod_app.dart` (Modified)
+- `talktive_flutter/lib/services/serverpod_notification_service.dart` (Modified)
+
+**Commits:** 1e3c3a7
+
+---
 
 ### Phase 7.5: Deployment ✅
 
@@ -1075,7 +1132,7 @@ lib/src/
 │   ├── group_endpoint.dart          ✅ NEW: Group management
 │   ├── streak_endpoint.dart         ✅ NEW: Streak & rewards
 │   ├── report_endpoint.dart         ✅ NEW: Report system
-│   └── resident_endpoint.dart
+│   └── resident_endpoint.dart       ✅ MODIFIED: Interests support
 ├── services/
 │   ├── achievement_service.dart     ✅ NEW: Achievement logic
 │   ├── streak_service.dart          ✅ NEW: Streak calculation
@@ -1091,9 +1148,8 @@ lib/src/
     ├── private_chat.spy.yaml        ✅ NEW
     ├── group.spy.yaml               ✅ NEW
     ├── rate_limit.spy.yaml          ✅ NEW
-    ├── report.spy.yaml              ✅ MODIFIED: UUIDs, indexes
-    ├── channel_member.spy.yaml      ✅ MODIFIED: Removed relation
-    └── message.spy.yaml             ✅ MODIFIED: Removed relation
+    ├── resident.spy.yaml            ✅ MODIFIED: Added interests
+    └── ...
 ```
 
 ### Client (talktive_flutter)
@@ -1103,251 +1159,19 @@ lib/
 ├── config/
 │   └── theme.dart                   ✅ MODIFIED: Duolingo colors & constants
 ├── screens/
-│   ├── home/home_screen.dart        ✅ REDESIGNED: Floating pill nav bar
+│   ├── home/home_screen.dart        ✅ REDESIGNED: 4 tabs (Plaza, Moments, Chats, Profile)
 │   ├── plaza/plaza_screen_modern.dart    ✅ REDESIGNED: Duolingo style
 │   ├── moments/moments_screen_modern.dart ✅ REDESIGNED: Likes & comments
 │   ├── chats/
-│   │   ├── chats_screen_modern.dart      ✅ NEW: Chat list
+│   │   ├── chats_screen_modern.dart      ✅ REDESIGNED: Merged Private & Group chats
 │   │   └── chat_thread_screen.dart       ✅ NEW: 1-on-1 chat
 │   ├── groups/
-│   │   ├── groups_screen_modern.dart     ✅ NEW: Group list
 │   │   ├── create_group_dialog.dart      ✅ NEW: Group creation
 │   │   ├── group_chat_screen.dart        ✅ NEW: Group chat
 │   │   └── group_members_screen.dart     ✅ NEW: Member list
 │   ├── achievements/
 │   │   └── achievements_screen.dart      ✅ NEW: Achievements view
-│   └── profile/profile_screen_modern.dart ✅ REDESIGNED: Streaks & achievements
-├── widgets/
-│   ├── duo/                         ✅ NEW: Duolingo component library
-│   │   ├── duo_button.dart
-│   │   ├── duo_card.dart
-│   │   ├── duo_avatar.dart
-│   │   ├── duo_input.dart
-│   │   ├── duo_empty_state.dart
-│   │   ├── duo_header.dart
-│   │   ├── duo_stat_card.dart
-│   │   ├── duo_badge.dart           ✅ NEW: Achievement badge
-│   │   └── duo_streak_card.dart     ✅ NEW: Streak display
-│   └── chat/
-│       ├── message_bubble.dart      ✅ MODIFIED: Simplified styling
-│       └── message_input.dart       ✅ MODIFIED: Duolingo style
-└── providers/
-    ├── achievement_provider.dart    ✅ NEW: Achievement state
-    ├── streak_provider.dart         ✅ NEW: Streak state
-    ├── private_chat_provider.dart   ✅ NEW: Private chat state
-    ├── group_provider.dart          ✅ NEW: Group state
-    ├── current_resident_provider.dart ✅ NEW: Current user
-    └── realtime_chat_provider.dart  ✅ MODIFIED: Real-time messaging
+│   └── profile/profile_screen_modern.dart ✅ REDESIGNED: Streaks, achievements, tags
 ```
 
 ---
-
-## 🚀 Next Steps
-
-### Phase 6: Advanced Features (NEXT)
-
-1. **Push Notifications**
-   - Integrate FCM for message notifications
-   - Add notification handlers
-   - Implement deep linking
-   - Badge counts for unread messages
-
-2. **User Profiles View**
-   - View other users' profiles
-   - Show floor, credit score, stats
-   - Display achievements
-   - Add block/unblock functionality
-
-3. **Admin Dashboard**
-   - Report moderation interface
-   - User management
-   - Analytics and metrics
-   - Content moderation tools
-
-4. **Search & Discovery**
-   - Search users by name
-   - Search groups by name/description
-   - Trending moments feed
-   - Popular groups list
-
-5. **Enhanced Notifications**
-   - In-app notification center
-   - Achievement unlock notifications
-   - Streak reminder notifications
-   - Group invite notifications
-
-### Phase 7: Production Readiness
-
-1. **Performance Optimization**
-   - Image caching and optimization
-   - Lazy loading for feeds
-   - Database query optimization
-   - WebSocket connection pooling
-
-2. **Security Enhancements**
-   - Rate limiting improvements
-   - Content filtering
-   - Spam detection
-   - IP-based restrictions
-
-3. **Accessibility**
-   - Screen reader support
-   - High contrast mode
-   - Font size adjustments
-   - Keyboard navigation
-
-4. **Testing**
-   - Unit tests for services
-   - Integration tests for endpoints
-   - Widget tests for UI components
-   - E2E tests for critical flows
-
-5. **Deployment**
-   - Production server setup
-   - CI/CD pipeline
-   - Monitoring and logging
-   - Backup and recovery
-
----
-
-## 🐳 Docker Setup for Image Uploads
-
-Since you're using Docker for PostgreSQL and Redis, add this to your docker-compose.yml:
-
-```yaml
-services:
-  serverpod:
-    image: your-serverpod-image
-    volumes:
-      - ./uploads:/app/uploads # Mount uploads directory
-    ports:
-      - '8080:8080'
-```
-
-Or when running manually:
-
-```bash
-docker run -v $(pwd)/uploads:/app/uploads your-serverpod-image
-```
-
-The `uploads/` directory will be created automatically on first image upload.
-
----
-
-## 🔧 How to Resume Development
-
-1. **Start the backend:**
-
-   ```bash
-   cd talktive_server
-   docker compose up --build --detach
-   dart run bin/main.dart --apply-migrations
-   ```
-
-2. **Start Firebase emulators (for auth):**
-
-   ```bash
-   cd talktive_flutter
-   firebase emulators:start
-   ```
-
-3. **Run the Flutter app:**
-
-   ```bash
-   cd talktive_flutter
-   flutter run -d macos  # or your preferred device
-   ```
-
-4. **Test the features:**
-   - Navigate through all 5 tabs
-   - Test Plaza messaging with real-time updates
-   - Create a moment and add likes/comments
-   - Check profile for streaks and achievements
-   - Create private chats and groups
-   - Verify animations and haptic feedback
-
----
-
-## 📝 Notes
-
-- **Design System:** Duolingo-inspired aesthetic with emoji-first approach
-- **Image Storage:** Currently using local VPS storage. For production with 1000+ users, consider migrating to Backblaze B2 (~10x cheaper than AWS S3)
-- **Rate Limiting:** Adjust limits in `rate_limit_service.dart` based on real usage patterns
-- **Credit Restoration:** 2 points/hour means 50 hours to fully recover from 0 to 100
-- **Serverpod Version:** 3.2.3 - some APIs have changed from 2.x
-- **Provider vs Riverpod:** Both are kept for now to support legacy Firebase code during migration
-- **Animations:** Using flutter_animate package for smooth transitions and micro-interactions
-- **Gamification:** Achievements, streaks, and rewards drive user engagement
-
----
-
-## 🎯 Architecture Decisions Made
-
-1. **Duolingo-Inspired Design:** Complete UI/UX overhaul for better engagement and gamification
-2. **Component Library:** Reusable Duo widgets for consistency across the app
-3. **No Relations in Protocol:** Removed to fix Serverpod 3.x generation issues
-4. **Local Image Storage:** Simpler for development, easy to migrate later
-5. **Floor-Based Permissions:** Prevents spam while allowing active users freedom
-6. **Smart Rate Limiting:** Scales with user trust level
-7. **Report Cooldowns:** Prevents report bombing while allowing legitimate reports
-8. **Haptic Feedback:** Integrated throughout for better tactile experience
-9. **Achievement System:** 15 predefined achievements with progress tracking
-10. **Streak Rewards:** Daily rewards scale with streak length (10-24 credits)
-11. **Denormalized Data:** User info stored in likes/comments for faster queries
-12. **Optimistic Updates:** UI updates immediately for better perceived performance
-
----
-
-**Latest Commits:**
-
-- `e93d9c6` - fix: resolve compilation errors in streak and moments features
-- `a331a54` - feat(streaks): implement daily streaks and rewards system
-- `8a65836` - feat(moments): add likes and comments functionality
-- `3089e6e` - feat(achievements): implement gamification system with badges and unlocks
-- `757ec3d` - feat(groups): implement group chat system
-- `d3a4aa1` - feat(chats): implement private 1-on-1 messaging
-- `935b118` - fix(plaza): enable real-time WebSocket streaming
-- `534b102` - feat: complete Duolingo-inspired redesign
-- `45bd71e` - fix(plaza): correct Message and Resident field usage
-- `f1b0eaf` - docs: document Duolingo-inspired redesign
-
-**Branch:** `v8`
-**Last Updated:** February 12, 2026
-
----
-
-### Phase 7.6: Final Polish (Private Chat & Deep Linking) ✅
-
-**Status:** ✅ Completed (February 12, 2026)
-
-**Private Chat Image Support:**
-
-- **Frontend Implementation:**
-  - Integrated `image_picker` for gallery selection
-  - Used existing `Storage` service (Firebase Storage) for uploads
-  - Updated `ChatThreadScreen` to render images using `CachedNetworkImage`
-  - Added attachment button to input area with upload state handling
-- **Compatibility:**
-  - Maintained compatibility with existing backend `Message` protocol
-  - Leveraged existing Firebase Storage infrastructure without new backend dependencies
-
-**Deep Linking & Notifications:**
-
-- **Chat Loading Logic:**
-  - Created `ChatLoaderScreen` to fetch `PrivateChat` details before navigation
-  - Solves issue where deep links failed because `PrivateChat` object was missing
-- **Routing Updates:**
-  - Updated `/chat/:channelId` route to use `ChatLoaderScreen`
-  - Ensures smooth transition from notification to chat
-- **iOS Support:**
-  - Added `DarwinInitializationSettings` to `ServerpodNotificationService`
-  - Validated iOS permission requests
-
-**Files Created/Modified:**
-
-- `talktive_flutter/lib/screens/chats/chat_loader_screen.dart` (New)
-- `talktive_flutter/lib/screens/chats/chat_thread_screen.dart` (Modified)
-- `talktive_flutter/lib/serverpod_app.dart` (Modified)
-- `talktive_flutter/lib/services/serverpod_notification_service.dart` (Modified)
-
-**Commits:** 1e3c3a7

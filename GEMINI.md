@@ -36,27 +36,28 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ## Current Phase
 
-**Phase 7: Production Readiness (COMPLETED)**
+**Phase 8: Polish & Refinement (IN PROGRESS)**
 
 **Completed:**
 
 - Phase 1-5: Design foundation, core screens, backend stability, feature completion, polish & engagement
-- Phase 6.1: Push notifications with FCM
-- Phase 6.2: User Profiles View
-- Phase 6.3: Search & Discovery
-- Phase 6.4: Admin Dashboard
-- Phase 7.1: Performance Optimization (database indexes, Redis caching, query optimization)
-- Phase 7.2: Security Enhancements (Redis rate limiting, content filtering)
-- Phase 7.4: Testing (320+ test cases - unit and integration)
-- Phase 7.5: Deployment (CI/CD, Docker, documentation, health checks)
+- Phase 6: Advanced Features (Notifications, Profiles, Search, Admin)
+- Phase 7: Production Readiness (Performance, Security, Testing, Deployment)
+- Phase 8.1: Navigation Consolidation
+  - Unified "Chats" and "Groups" into a single tab
+  - Removed "Search" tab (focused on organic discovery)
+  - Simplified bottom navigation to 4 tabs: Plaza, Moments, Chats, Profile
+- Phase 8.2: Interest Tags
+  - Added `interests` field to Resident model
+  - Updated onboarding to collect interests
+  - Displayed interest tags on user profiles
 
-**Status:** ✅ Production Ready
+**Status:** 🏗️ In Progress
 
 **Next:**
 
+- Enhanced Discovery based on interests
 - Production launch
-- Phase 7.3: Accessibility (optional, post-launch)
-- Enhanced features based on user feedback
 
 ## Key Components
 

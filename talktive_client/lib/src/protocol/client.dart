@@ -1161,6 +1161,14 @@ class EndpointUserProfile extends _i2.EndpointRef {
         'isUserBlocked',
         {'userId': userId},
       );
+
+  /// Get list of user IDs blocked by the current user
+  _i3.Future<List<String>> getBlockedUserIds() =>
+      caller.callServerEndpoint<List<String>>(
+        'userProfile',
+        'getBlockedUserIds',
+        {},
+      );
 }
 
 /// This is an example endpoint that returns a greeting message through

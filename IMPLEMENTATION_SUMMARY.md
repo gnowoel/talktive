@@ -1,8 +1,38 @@
 # Talktive Rebuild - Implementation Summary
 
-## 🚀 Latest Update: Identity & Workflow Polish (COMPLETED)
+## 🚀 Latest Update: Optimization & Safety (COMPLETED)
 
 **Status:** ✅ Completed (February 13, 2026)
+
+### Phase 8.4: Optimization & Safety ✅
+
+**Goal:** Ensure scalability for "thousands of users" and robust safety tools.
+
+**Changes:**
+
+- **Protocol Denormalization (Breaking Change):**
+  - Updated `Message` protocol to include `senderName`, `senderAvatar`, and `senderFloor` directly.
+  - Removes the need for hundreds of profile lookups when loading a chat.
+  - Ensures instant rendering of identities in Plaza and Groups.
+- **Safety Filtering:**
+  - Implemented `BlockedUsersProvider` to cache blocked IDs.
+  - Added client-side filtering in `Plaza` and `Group` screens to hide messages from blocked users (crucial for public spaces).
+- **Simplified UI Components:**
+  - Refactored `MessageBubbleModern` to use denormalized data instead of async lookups.
+  - Significantly improved scroll performance.
+
+**Files Modified/Created:**
+
+- `talktive_server/lib/src/protocol/message.spy.yaml` (Updated)
+- `talktive_server/lib/src/endpoints/message_endpoint.dart` (Updated)
+- `talktive_flutter/lib/widgets/chat/message_bubble_modern.dart` (Updated)
+- `talktive_flutter/lib/providers/blocked_users_provider.dart` (New)
+- `talktive_flutter/lib/screens/plaza/plaza_screen_modern.dart` (Updated)
+- `talktive_flutter/lib/screens/groups/group_chat_screen.dart` (Updated)
+
+**Commits:** c49cf19 (Polish), [Pending] (Optimization)
+
+---
 
 ### Phase 8.3: Consistent Identity & Workflow ✅
 
@@ -11,7 +41,6 @@
 **Changes:**
 
 - **Chat Bubbles:** Created `MessageBubbleModern` widget used across Plaza, Groups, and Private Chats.
-  - Fetches sender profile automatically.
   - Displays correct name, avatar, and floor.
   - Tapping avatar navigates to `UserProfileScreen`.
 - **Private Chat List:** Implemented `PrivateChatWithProfile` to show chat partner's details in the list (no more "Resident" placeholders).
@@ -29,7 +58,7 @@
 - `talktive_flutter/lib/screens/chats/chat_thread_screen.dart` (Updated)
 - `talktive_flutter/lib/serverpod_app.dart` (Added user route)
 
-**Commits:** bdb5fc6 (Nav/Lang), [Pending] (Identity)
+**Commits:** bdb5fc6 (Nav/Lang), c49cf19 (Identity)
 
 ---
 

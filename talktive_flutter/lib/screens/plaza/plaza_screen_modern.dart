@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/client_provider.dart';
+import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_header.dart';
 import '../../widgets/duo/duo_card.dart';
@@ -241,6 +242,13 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   }
 
   Widget _buildMessagesList(List<Message> messages) {
+    final blockedUsersAsync = ref.watch(blockedUsersProvider);
+    final blockedUsers = blockedUsersAsync.value ?? [];
+
+    final filteredMessages = messages.where((msg) {
+      return !blockedUsers.contains(msg.senderId.toString());
+    }).toList();
+
     return RefreshIndicator(
       onRefresh: () async {
         ref.read(realtimeChatProvider(1).notifier).refresh();
@@ -255,9 +263,9 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           bottom: 100,
           top: AppTheme.duoSpacingSmall,
         ),
-        itemCount: messages.length,
+        itemCount: filteredMessages.length,
         itemBuilder: (context, index) {
-          final message = messages[index];
+          final message = filteredMessages[index];
           final isCurrentUser =
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;

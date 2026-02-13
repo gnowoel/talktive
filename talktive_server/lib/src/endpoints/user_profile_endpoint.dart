@@ -212,4 +212,26 @@ class UserProfileEndpoint extends Endpoint {
       return false;
     }
   }
+
+  /// Get list of user IDs blocked by the current user
+  Future<List<String>> getBlockedUserIds(Session session) async {
+    try {
+      final blockerIdentifier = session.authenticated?.userIdentifier;
+      if (blockerIdentifier == null) {
+        return [];
+      }
+
+      final blockerId = UuidValue.fromString(blockerIdentifier);
+
+      final blocks = await protocol.Block.db.find(
+        session,
+        where: (t) => t.blockerId.equals(blockerId),
+      );
+
+      return blocks.map((b) => b.blockedId.toString()).toList();
+    } catch (e) {
+      session.log('Error getting blocked users: $e', level: LogLevel.error);
+      return [];
+    }
+  }
 }

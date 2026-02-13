@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:uuid/uuid.dart'; // Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
@@ -43,6 +44,15 @@ class MessageEndpoint extends Endpoint {
         session.log('sendMessage: Resident not found for User $senderUuid');
         throw Exception('Resident not found');
       }
+
+      // Fetch UserInfo for denormalization
+      final userInfo = await UserInfo.db.findFirstRow(
+        session,
+        where: (t) => t.userIdentifier.equals(senderIdentifier),
+      );
+
+      final senderName = userInfo?.userName ?? 'Resident';
+      final senderAvatar = userInfo?.imageUrl;
 
       // 3. Check for penalties (Muted)
       if (sender.creditScore <= 0) {
@@ -102,6 +112,9 @@ class MessageEndpoint extends Endpoint {
         content: filteredContent, // Use filtered content instead of raw content
         imageUrl: imageUrl,
         createdAt: DateTime.now(),
+        senderName: senderName,
+        senderAvatar: senderAvatar,
+        senderFloor: sender.floor,
       );
 
       // 7. Save Message

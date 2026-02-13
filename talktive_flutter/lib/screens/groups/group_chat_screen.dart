@@ -2,6 +2,7 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/group_provider.dart';
+import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import 'group_members_screen.dart';
@@ -253,6 +254,14 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   }
 
   Widget _buildMessagesList(List<Message> messages) {
+    final blockedUsersAsync = ref.watch(blockedUsersProvider);
+    final blockedUsers = blockedUsersAsync.value ?? [];
+
+    final filteredMessages =
+        messages.where((msg) {
+          return !blockedUsers.contains(msg.senderId.toString());
+        }).toList();
+
     return RefreshIndicator(
       onRefresh: () async {
         ref
@@ -264,9 +273,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         controller: _scrollController,
         reverse: true,
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-        itemCount: messages.length,
+        itemCount: filteredMessages.length,
         itemBuilder: (context, index) {
-          final message = messages[index];
+          final message = filteredMessages[index];
           final isCurrentUser =
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;

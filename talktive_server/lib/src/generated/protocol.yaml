@@ -98,5 +98,6 @@ userProfile:
   - blockUser:
   - unblockUser:
   - isUserBlocked:
+  - getBlockedUserIds:
 greeting:
   - hello:

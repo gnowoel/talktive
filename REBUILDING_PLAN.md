@@ -26,7 +26,11 @@ Transform Talktive into a highly engaging, gamified anonymous chat platform with
 
 - [x] Displayed interests on user profile
 
-**Commits:** 2745ba0, e7d4b34, [Pending]
+- [x] **Optimization:** Denormalized Message protocol for performance
+
+- [x] **Safety:** Implemented blocked user filtering in public chats
+
+**Commits:** 2745ba0, e7d4b34, bdb5fc6, c49cf19, [Pending]
 
 ---
 

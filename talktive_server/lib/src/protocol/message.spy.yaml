@@ -6,6 +6,11 @@ fields:
   content: String?
   imageUrl: String?
   createdAt: DateTime
+
+  # Denormalized Sender Info
+  senderName: String
+  senderAvatar: String?
+  senderFloor: int
 indexes:
   message_channel_idx:
     fields: channelId

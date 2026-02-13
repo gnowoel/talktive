@@ -21,6 +21,9 @@ abstract class Message
     this.content,
     this.imageUrl,
     required this.createdAt,
+    required this.senderName,
+    this.senderAvatar,
+    required this.senderFloor,
   });
 
   factory Message({
@@ -30,6 +33,9 @@ abstract class Message
     String? content,
     String? imageUrl,
     required DateTime createdAt,
+    required String senderName,
+    String? senderAvatar,
+    required int senderFloor,
   }) = _MessageImpl;
 
   factory Message.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,6 +50,9 @@ abstract class Message
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
+      senderName: jsonSerialization['senderName'] as String,
+      senderAvatar: jsonSerialization['senderAvatar'] as String?,
+      senderFloor: jsonSerialization['senderFloor'] as int,
     );
   }
 
@@ -64,6 +73,12 @@ abstract class Message
 
   DateTime createdAt;
 
+  String senderName;
+
+  String? senderAvatar;
+
+  int senderFloor;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -77,6 +92,9 @@ abstract class Message
     String? content,
     String? imageUrl,
     DateTime? createdAt,
+    String? senderName,
+    String? senderAvatar,
+    int? senderFloor,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -88,6 +106,9 @@ abstract class Message
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
       'createdAt': createdAt.toJson(),
+      'senderName': senderName,
+      if (senderAvatar != null) 'senderAvatar': senderAvatar,
+      'senderFloor': senderFloor,
     };
   }
 
@@ -101,6 +122,9 @@ abstract class Message
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
       'createdAt': createdAt.toJson(),
+      'senderName': senderName,
+      if (senderAvatar != null) 'senderAvatar': senderAvatar,
+      'senderFloor': senderFloor,
     };
   }
 
@@ -144,6 +168,9 @@ class _MessageImpl extends Message {
     String? content,
     String? imageUrl,
     required DateTime createdAt,
+    required String senderName,
+    String? senderAvatar,
+    required int senderFloor,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -151,6 +178,9 @@ class _MessageImpl extends Message {
          content: content,
          imageUrl: imageUrl,
          createdAt: createdAt,
+         senderName: senderName,
+         senderAvatar: senderAvatar,
+         senderFloor: senderFloor,
        );
 
   /// Returns a shallow copy of this [Message]
@@ -164,6 +194,9 @@ class _MessageImpl extends Message {
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
     DateTime? createdAt,
+    String? senderName,
+    Object? senderAvatar = _Undefined,
+    int? senderFloor,
   }) {
     return Message(
       id: id is int? ? id : this.id,
@@ -172,6 +205,9 @@ class _MessageImpl extends Message {
       content: content is String? ? content : this.content,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
+      senderName: senderName ?? this.senderName,
+      senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
+      senderFloor: senderFloor ?? this.senderFloor,
     );
   }
 }
@@ -205,6 +241,22 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
         table.createdAt,
         value,
       );
+
+  _i1.ColumnValue<String, String> senderName(String value) => _i1.ColumnValue(
+    table.senderName,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> senderAvatar(String? value) =>
+      _i1.ColumnValue(
+        table.senderAvatar,
+        value,
+      );
+
+  _i1.ColumnValue<int, int> senderFloor(int value) => _i1.ColumnValue(
+    table.senderFloor,
+    value,
+  );
 }
 
 class MessageTable extends _i1.Table<int?> {
@@ -230,6 +282,18 @@ class MessageTable extends _i1.Table<int?> {
       'createdAt',
       this,
     );
+    senderName = _i1.ColumnString(
+      'senderName',
+      this,
+    );
+    senderAvatar = _i1.ColumnString(
+      'senderAvatar',
+      this,
+    );
+    senderFloor = _i1.ColumnInt(
+      'senderFloor',
+      this,
+    );
   }
 
   late final MessageUpdateTable updateTable;
@@ -244,6 +308,12 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnDateTime createdAt;
 
+  late final _i1.ColumnString senderName;
+
+  late final _i1.ColumnString senderAvatar;
+
+  late final _i1.ColumnInt senderFloor;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -252,6 +322,9 @@ class MessageTable extends _i1.Table<int?> {
     content,
     imageUrl,
     createdAt,
+    senderName,
+    senderAvatar,
+    senderFloor,
   ];
 }
 

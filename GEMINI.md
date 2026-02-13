@@ -31,6 +31,10 @@ This project is a migration of the "Talktive" anonymous chat app from Firebase t
 
 The onboarding wizard established these Duolingo-style patterns, and this design language has been extended across the entire app.
 
+## Development Philosophy
+
+**Optimization Over Backward Compatibility**: Since the Serverpod version is not yet deployed, we prioritize the **best possible architectural approach** over backward compatibility. We actively refactor and introduce breaking changes (e.g., protocol denormalization) to ensure the final product is efficient, robust, and scalable.
+
 ## Status
 
 - **Backend**: Serverpod 3.2.3 (Postgres + Redis)
@@ -59,6 +63,12 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - Added `languages` field to Resident model (Language Matching)
   - Updated onboarding wizard with Language selection step
   - Displayed interest tags on user profiles
+- Phase 8.3: Identity Consistency
+  - Implemented `PrivateChatWithProfile` for rich chat lists
+  - Refactored all chat screens to show real user avatars/names
+- Phase 8.4: Optimization & Safety
+  - Denormalized `Message` protocol (senderName/Avatar/Floor) for high performance
+  - Implemented client-side filtering for blocked users in public chats (Plaza/Groups)
 
 **Status:** 🏗️ In Progress
 

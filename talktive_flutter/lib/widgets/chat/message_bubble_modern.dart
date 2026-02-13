@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 
@@ -21,14 +20,11 @@ class MessageBubbleModern extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = !isCurrentUser
-        ? ref.watch(userProfileProvider(message.senderId.toString()))
-        : null;
-
-    final profile = profileAsync?.value;
-    final senderName = profile?['userName'] as String? ?? 'Resident';
-    final senderAvatar = profile?['userAvatar'] as String?;
-    final senderFloor = profile?['floor'] as int? ?? 1;
+    final senderName = message.senderName.isNotEmpty
+        ? message.senderName
+        : 'Resident';
+    final senderAvatar = message.senderAvatar;
+    final senderFloor = message.senderFloor;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),

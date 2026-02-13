@@ -20,6 +20,9 @@ abstract class Message implements _i1.SerializableModel {
     this.content,
     this.imageUrl,
     required this.createdAt,
+    required this.senderName,
+    this.senderAvatar,
+    required this.senderFloor,
   });
 
   factory Message({
@@ -29,6 +32,9 @@ abstract class Message implements _i1.SerializableModel {
     String? content,
     String? imageUrl,
     required DateTime createdAt,
+    required String senderName,
+    String? senderAvatar,
+    required int senderFloor,
   }) = _MessageImpl;
 
   factory Message.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -43,6 +49,9 @@ abstract class Message implements _i1.SerializableModel {
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
+      senderName: jsonSerialization['senderName'] as String,
+      senderAvatar: jsonSerialization['senderAvatar'] as String?,
+      senderFloor: jsonSerialization['senderFloor'] as int,
     );
   }
 
@@ -61,6 +70,12 @@ abstract class Message implements _i1.SerializableModel {
 
   DateTime createdAt;
 
+  String senderName;
+
+  String? senderAvatar;
+
+  int senderFloor;
+
   /// Returns a shallow copy of this [Message]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -71,6 +86,9 @@ abstract class Message implements _i1.SerializableModel {
     String? content,
     String? imageUrl,
     DateTime? createdAt,
+    String? senderName,
+    String? senderAvatar,
+    int? senderFloor,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -82,6 +100,9 @@ abstract class Message implements _i1.SerializableModel {
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
       'createdAt': createdAt.toJson(),
+      'senderName': senderName,
+      if (senderAvatar != null) 'senderAvatar': senderAvatar,
+      'senderFloor': senderFloor,
     };
   }
 
@@ -101,6 +122,9 @@ class _MessageImpl extends Message {
     String? content,
     String? imageUrl,
     required DateTime createdAt,
+    required String senderName,
+    String? senderAvatar,
+    required int senderFloor,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -108,6 +132,9 @@ class _MessageImpl extends Message {
          content: content,
          imageUrl: imageUrl,
          createdAt: createdAt,
+         senderName: senderName,
+         senderAvatar: senderAvatar,
+         senderFloor: senderFloor,
        );
 
   /// Returns a shallow copy of this [Message]
@@ -121,6 +148,9 @@ class _MessageImpl extends Message {
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
     DateTime? createdAt,
+    String? senderName,
+    Object? senderAvatar = _Undefined,
+    int? senderFloor,
   }) {
     return Message(
       id: id is int? ? id : this.id,
@@ -129,6 +159,9 @@ class _MessageImpl extends Message {
       content: content is String? ? content : this.content,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
+      senderName: senderName ?? this.senderName,
+      senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
+      senderFloor: senderFloor ?? this.senderFloor,
     );
   }
 }

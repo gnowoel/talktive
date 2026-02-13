@@ -557,11 +557,7 @@ class ProfileScreenModern extends ConsumerWidget {
             context: context,
             builder: (context) => Dialog(
               backgroundColor: Colors.transparent,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
-                ),
+              child: DuoCard(
                 padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

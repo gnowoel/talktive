@@ -101,7 +101,7 @@ class ChatsScreenModern extends ConsumerWidget {
     // But we might need it for navigation (ChatThreadScreen might need my ID? No, it needs privateChat object)
 
     return DuoCard(
-      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
+      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       onTap: () {
         HapticFeedback.lightImpact();
         Navigator.push(

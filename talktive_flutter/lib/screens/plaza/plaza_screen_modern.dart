@@ -290,9 +290,9 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -305,6 +305,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
                 decoration: BoxDecoration(
                   color: AppTheme.lightBackground,
                   borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
                 child: TextField(
                   controller: _messageController,

@@ -134,7 +134,7 @@ class GroupsScreenModern extends ConsumerWidget {
     int index,
   ) {
     return DuoCard(
-      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
+      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       onTap: () {
         HapticFeedback.lightImpact();
         Navigator.push(

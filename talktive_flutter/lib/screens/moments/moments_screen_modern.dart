@@ -80,16 +80,65 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to post: $e'),
-            backgroundColor: AppTheme.errorColor,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+        // Parse error message to remove "Exception: " prefix
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+
+        if (errorMessage.contains('Floor 2')) {
+          // Show a nice dialog for the floor restriction
+          showDialog(
+            context: context,
+            builder: (context) => Dialog(
+              backgroundColor: Colors.transparent,
+              child: DuoCard(
+                padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🔒', style: TextStyle(fontSize: 48)),
+                    const SizedBox(height: AppTheme.duoSpacingMedium),
+                    const Text(
+                      'Level Up Required!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    Text(
+                      errorMessage,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textSecondary,
+                        fontFamily: 'Rubik',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+                    DuoButton(
+                      text: 'Got it',
+                      onPressed: () => Navigator.pop(context),
+                      width: double.infinity,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          // Standard error snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: AppTheme.errorColor,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+              ),
+            ),
+          );
+        }
       }
     }
   }

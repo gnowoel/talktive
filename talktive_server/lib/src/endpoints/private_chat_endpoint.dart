@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
+import '../services/apartment_service.dart';
 
 class PrivateChatEndpoint extends Endpoint {
   /// Creates or retrieves a private chat between two users.
@@ -38,6 +39,30 @@ class PrivateChatEndpoint extends Endpoint {
 
     if (currentResident == null || otherResident == null) {
       throw Exception('User not found');
+    }
+
+    // Safety: Check floor restrictions
+    if (!ApartmentService.canInvite(
+      sender: currentResident,
+      receiver: otherResident,
+    )) {
+      throw Exception(
+        'Residents can only invite people living on the same floor or below.',
+      );
+    }
+
+    // Safety: Check blocking
+    final blocked = await protocol.Block.db.findFirstRow(
+      session,
+      where: (t) =>
+          (t.blockerId.equals(currentUserId) &
+              t.blockedId.equals(otherUserUuid)) |
+          (t.blockerId.equals(otherUserUuid) &
+              t.blockedId.equals(currentUserId)),
+    );
+
+    if (blocked != null) {
+      throw Exception('Cannot create chat with this user.');
     }
 
     // Order participants consistently (smaller UUID first) to avoid duplicates

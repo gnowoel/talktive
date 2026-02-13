@@ -54,6 +54,9 @@ class MessageEndpoint extends Endpoint {
       final senderName = userInfo?.userName ?? 'Resident';
       final senderAvatar = userInfo?.imageUrl;
 
+      // Try to restore credits first (passive restoration)
+      await ApartmentService.restoreCredits(session, sender);
+
       // 3. Check for penalties (Muted)
       if (sender.creditScore <= 0) {
         throw Exception(
@@ -128,9 +131,9 @@ class MessageEndpoint extends Endpoint {
       final streamKey = 'channel_$channelId';
       session.messages.postMessage(streamKey, savedMessage);
 
-      // 9. Update message count and award credit
+      // 9. Update message count
       sender.experienceMessageCount += 1;
-      await ApartmentService.awardMessageCredit(session, sender);
+      await protocol.Resident.db.updateRow(session, sender);
 
       // 10. Track achievements
       await AchievementService.trackProgress(

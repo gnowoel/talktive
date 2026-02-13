@@ -35,21 +35,12 @@ class ApartmentService {
   }
 
   /// Checks if [sender] is allowed to invite [receiver] to a chat.
-  /// Downstairs (Floor 0) -> Upstairs (Floor >= 1) : FORBIDDEN
+  /// Rule: Residents can only invite people living on the same floor or below.
   static bool canInvite({
     required Resident sender,
     required Resident receiver,
   }) {
-    // If sender is on Floor 0 (Plaza level)
-    if (sender.floor == 0) {
-      // And receiver is Upstairs (Floor >= 1)
-      if (receiver.floor >= 1) {
-        return false; // Forbidden
-      }
-    }
-
-    // All other cases are Allowed (Upstairs -> Downstairs, Same Floor)
-    return true;
+    return receiver.floor <= sender.floor;
   }
 
   /// Applies penalty to [target] when reported by [reporter].
@@ -66,21 +57,35 @@ class ApartmentService {
     return target;
   }
 
-  /// Awards credit score points if more than 1 hour has passed since last increase.
-  /// Awards 2 points per hour (changed from 1 for faster recovery).
+  /// Restores credit score points based on time passed.
+  /// Awards 2 points per hour.
   /// Maximum credit score is capped at 100.
-  static Future<void> awardMessageCredit(
+  static Future<void> restoreCredits(
     Session session,
     Resident resident,
   ) async {
     final now = DateTime.now();
-    final lastIncrease = resident.lastCreditIncrease;
+    final lastIncrease = resident.lastCreditIncrease ?? now;
 
-    // Check time constraint (1 hour)
-    if (lastIncrease == null || now.difference(lastIncrease).inHours >= 1) {
-      // Award 2 points per hour (faster recovery)
-      resident.creditScore = (resident.creditScore + 2).clamp(-1000, 100);
-      resident.lastCreditIncrease = now;
+    final diff = now.difference(lastIncrease);
+    final hoursPassed = diff.inHours;
+
+    if (hoursPassed >= 1) {
+      // Award 2 points per hour
+      final points = hoursPassed * 2;
+
+      // Only increase if below cap
+      if (resident.creditScore < 100) {
+        resident.creditScore = (resident.creditScore + points).clamp(
+          -1000,
+          100,
+        );
+      }
+
+      // Update timestamp, preserving the minute/second offset for next hour
+      resident.lastCreditIncrease = lastIncrease.add(
+        Duration(hours: hoursPassed),
+      );
 
       // Upgrade floor if applicable
       resident.floor = calculateFloor(
@@ -88,6 +93,10 @@ class ApartmentService {
         creditScore: resident.creditScore,
       );
 
+      await Resident.db.updateRow(session, resident);
+    } else if (resident.lastCreditIncrease == null) {
+      // Initialize timestamp for new users
+      resident.lastCreditIncrease = now;
       await Resident.db.updateRow(session, resident);
     }
   }

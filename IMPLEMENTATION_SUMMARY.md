@@ -1,8 +1,35 @@
 # Talktive Rebuild - Implementation Summary
 
-## 🚀 Latest Update: Optimization & Safety (COMPLETED)
+## 🚀 Latest Update: Safety System Overhaul (COMPLETED)
 
 **Status:** ✅ Completed (February 13, 2026)
+
+### Phase 8.5: Safety & Logic Fixes ✅
+
+**Goal:** Ensure the "Apartment Building" safety rules are strictly enforced and fix logic gaps.
+
+**Changes:**
+
+- **Passive Credit Restoration:**
+  - **Issue:** Users with 0 credits (muted) couldn't restore them because the restoration logic only ran _after_ sending a message (which was blocked).
+  - **Fix:** Implemented `restoreCredits` in `ApartmentService` that runs passively on app launch (`getResident`) and before message validation.
+  - **Result:** Muted users now automatically recover 2 points/hour as intended.
+- **Floor Restrictions (Enforced):**
+  - **Rule:** Residents can only invite people living on the same floor or below.
+  - **Fix:** Updated `canInvite` logic and enforced it in `PrivateChatEndpoint.getOrCreatePrivateChat`.
+- **Blocking Enforcement:**
+  - **Fix:** Added checks in `PrivateChatEndpoint` to prevent creating chats if _either_ party has blocked the other.
+
+**Files Modified:**
+
+- `talktive_server/lib/src/services/apartment_service.dart` (Logic update)
+- `talktive_server/lib/src/endpoints/resident_endpoint.dart` (Passive restore)
+- `talktive_server/lib/src/endpoints/message_endpoint.dart` (Passive restore integration)
+- `talktive_server/lib/src/endpoints/private_chat_endpoint.dart` (Safety checks)
+
+**Commits:** a3bb1ae (Optimization), [Pending] (Safety)
+
+---
 
 ### Phase 8.4: Optimization & Safety ✅
 
@@ -30,7 +57,7 @@
 - `talktive_flutter/lib/screens/plaza/plaza_screen_modern.dart` (Updated)
 - `talktive_flutter/lib/screens/groups/group_chat_screen.dart` (Updated)
 
-**Commits:** c49cf19 (Polish), [Pending] (Optimization)
+**Commits:** c49cf19 (Polish), a3bb1ae (Optimization)
 
 ---
 
@@ -59,41 +86,3 @@
 - `talktive_flutter/lib/serverpod_app.dart` (Added user route)
 
 **Commits:** bdb5fc6 (Nav/Lang), c49cf19 (Identity)
-
----
-
-### Phase 8.1: Navigation Refinement ✅
-
-**Goal:** Align navigation with the "Apartment Building" metaphor.
-
-**Changes:**
-
-- **Separated Tabs:** Split "Chats" (Private) and "Groups" (Community) into distinct tabs.
-- **5-Tab Structure:** Restored **Plaza, Moments, Chats, Groups, Profile**.
-- **Reasoning:** Reduces cognitive load by separating private "room" interactions from public "lounge" interactions.
-
-### Phase 8.2: Profile & Matching Data ✅
-
-**Goal:** Enable better matching for residents.
-
-**Backend Implementation:**
-
-- Added `interests` (List<String>) and `languages` (List<String>) to `Resident` model.
-- Created database migrations for both fields.
-- Updated `initializeResident` endpoint to save this data.
-
-**Frontend Implementation:**
-
-- **Languages Step:** Added a new step to the Onboarding Wizard for selecting languages (default: English).
-- **Interests Step:** Improved interests collection.
-- **Profile Display:** Tags are now stored efficiently for future matching queries.
-
-**Files Modified/Created:**
-
-- `talktive_server/lib/src/protocol/resident.spy.yaml`
-- `talktive_server/lib/src/endpoints/resident_endpoint.dart`
-- `talktive_flutter/lib/screens/onboarding/profile_setup_screen.dart`
-- `talktive_flutter/lib/screens/groups/groups_screen_modern.dart` (Restored)
-- `talktive_flutter/lib/screens/home/home_screen.dart` (5 tabs)
-
-**Commits:** e7d4b34

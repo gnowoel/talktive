@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
+import '../services/apartment_service.dart';
 
 class ResidentEndpoint extends Endpoint {
   /// Checks if the authenticated user has a Resident profile.
@@ -16,10 +17,17 @@ class ResidentEndpoint extends Endpoint {
 
     final senderUuid = UuidValue.fromString(senderIdentifier);
 
-    return await Resident.db.findFirstRow(
+    final resident = await Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(senderUuid),
     );
+
+    if (resident != null) {
+      // Passively restore credits on load
+      await ApartmentService.restoreCredits(session, resident);
+    }
+
+    return resident;
   }
 
   /// Initializes a Resident profile for an authenticated user.

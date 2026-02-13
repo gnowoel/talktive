@@ -69,6 +69,16 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 - Phase 8.4: Optimization & Safety
   - Denormalized `Message` protocol (senderName/Avatar/Floor) for high performance
   - Implemented client-side filtering for blocked users in public chats (Plaza/Groups)
+- Phase 8.5: Immersive UI Polish
+  - Implemented "**Immersive Curve**" design across all main screens using `DuoPageScaffold`.
+  - Added vibrant, screen-specific gradients:
+    - **Plaza**: Primary Purple (Mystery & Magic)
+    - **Moments**: Pink (Warmth & Social)
+    - **Chats**: Orange (Communication)
+    - **Groups**: Yellow (Community)
+    - **Profile**: Green (Growth & Progress)
+  - Polished input areas and card styling for maximum visual consistency.
+  - Fixed `500 Error` logic in `MomentEndpoint` with graceful client-side handling.
 
 **Status:** 🏗️ In Progress
 
@@ -96,6 +106,9 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   1. Migrating `Resident.userInfoId` to `UuidValue`.
   2. Updating `ResidentEndpoint` to use `AuthServices.instance.authUsers.create`.
   3. Configuring `MessageEndpoint` to use `authenticationInfo.userIdentifier` (String/UUID).
+- **Message Send Error (Feb 2026)**: `DatabaseQueryException` due to missing `senderName` columns. Fixed by:
+  1. Creating migration `20260213141911093` to add denormalized columns (`senderName`, `senderAvatar`, `senderFloor`) to `message` table.
+  2. Applied migration to ensure schema matches protocol.
 
 ## Useful Commands
 

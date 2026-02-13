@@ -1479,8 +1479,8 @@ class Endpoints extends _i1.EndpointDispatch {
         'getPrivateChatDetails': _i1.MethodConnector(
           name: 'getPrivateChatDetails',
           params: {
-            'privateChatId': _i1.ParameterDescription(
-              name: 'privateChatId',
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1492,7 +1492,7 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['privateChat'] as _i13.PrivateChatEndpoint)
                   .getPrivateChatDetails(
                     session,
-                    params['privateChatId'],
+                    params['channelId'],
                   ),
         ),
         'updateLastMessageTime': _i1.MethodConnector(
@@ -1670,6 +1670,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String>(),
               nullable: false,
             ),
+            'interests': _i1.ParameterDescription(
+              name: 'interests',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1683,6 +1688,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     gender: params['gender'],
                     country: params['country'],
                     bio: params['bio'],
+                    interests: params['interests'],
                   ),
         ),
       },

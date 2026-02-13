@@ -71,6 +71,8 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildStreakCard(context, ref),
           // Stats grid
           _buildStatsGrid(resident),
+          // Interests section
+          _buildInterestsSection(resident),
           // Achievements section
           _buildAchievementsSection(context, ref),
           // Info card
@@ -260,6 +262,62 @@ class ProfileScreenModern extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildInterestsSection(Resident? resident) {
+    final interests = resident?.interests;
+
+    if (interests == null || interests.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: AppTheme.duoSpacingMedium,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Interests',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: interests.map((interest) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppTheme.accentColor.withOpacity(0.3),
+                  ),
+                ),
+                child: Text(
+                  interest,
+                  style: const TextStyle(
+                    color: AppTheme.accentColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildAchievementsSection(BuildContext context, WidgetRef ref) {

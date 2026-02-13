@@ -1418,6 +1418,12 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'String?',
         ),
         _i2.ColumnDefinition(
+          name: 'interests',
+          columnType: _i2.ColumnType.json,
+          isNullable: true,
+          dartType: 'List<String>?',
+        ),
+        _i2.ColumnDefinition(
           name: 'isAdmin',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
@@ -2012,6 +2018,15 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i31.UserStreak?>()) {
       return (data != null ? _i31.UserStreak.fromJson(data) : null) as T;
     }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_i20.Moment>) {
       return (data as List).map((e) => deserialize<_i20.Moment>(e)).toList()
           as T;
@@ -2077,6 +2092,15 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == List<_i40.Report>) {
       return (data as List).map((e) => deserialize<_i40.Report>(e)).toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
           as T;
     }
     if (t == List<_i41.DailyReward>) {

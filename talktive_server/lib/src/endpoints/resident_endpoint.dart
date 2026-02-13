@@ -32,6 +32,7 @@ class ResidentEndpoint extends Endpoint {
     required String gender,
     required String country,
     required String bio,
+    List<String>? interests,
   }) async {
     final authenticationInfo = session.authenticated;
     final senderIdentifier = authenticationInfo?.userIdentifier;
@@ -105,6 +106,7 @@ class ResidentEndpoint extends Endpoint {
       bio: bio,
       avatar: avatar, // Store the emoji/avatar string here
       role: 'resident',
+      interests: interests,
     );
 
     await Resident.db.insertRow(session, resident);

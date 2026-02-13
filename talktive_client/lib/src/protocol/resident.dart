@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i2;
 
 abstract class Resident implements _i1.SerializableModel {
   Resident._({
@@ -24,6 +25,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.bio,
     this.avatar,
     this.role,
+    this.interests,
     bool? isAdmin,
     bool? isBanned,
     this.lastCreditIncrease,
@@ -41,6 +43,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? bio,
     String? avatar,
     String? role,
+    List<String>? interests,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -61,6 +64,11 @@ abstract class Resident implements _i1.SerializableModel {
       bio: jsonSerialization['bio'] as String?,
       avatar: jsonSerialization['avatar'] as String?,
       role: jsonSerialization['role'] as String?,
+      interests: jsonSerialization['interests'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<String>>(
+              jsonSerialization['interests'],
+            ),
       isAdmin: jsonSerialization['isAdmin'] as bool?,
       isBanned: jsonSerialization['isBanned'] as bool?,
       lastCreditIncrease: jsonSerialization['lastCreditIncrease'] == null
@@ -94,6 +102,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   String? role;
 
+  List<String>? interests;
+
   bool isAdmin;
 
   bool isBanned;
@@ -114,6 +124,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? bio,
     String? avatar,
     String? role,
+    List<String>? interests,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -132,6 +143,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (bio != null) 'bio': bio,
       if (avatar != null) 'avatar': avatar,
       if (role != null) 'role': role,
+      if (interests != null) 'interests': interests?.toJson(),
       'isAdmin': isAdmin,
       'isBanned': isBanned,
       if (lastCreditIncrease != null)
@@ -159,6 +171,7 @@ class _ResidentImpl extends Resident {
     String? bio,
     String? avatar,
     String? role,
+    List<String>? interests,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -173,6 +186,7 @@ class _ResidentImpl extends Resident {
          bio: bio,
          avatar: avatar,
          role: role,
+         interests: interests,
          isAdmin: isAdmin,
          isBanned: isBanned,
          lastCreditIncrease: lastCreditIncrease,
@@ -193,6 +207,7 @@ class _ResidentImpl extends Resident {
     Object? bio = _Undefined,
     Object? avatar = _Undefined,
     Object? role = _Undefined,
+    Object? interests = _Undefined,
     bool? isAdmin,
     bool? isBanned,
     Object? lastCreditIncrease = _Undefined,
@@ -209,6 +224,9 @@ class _ResidentImpl extends Resident {
       bio: bio is String? ? bio : this.bio,
       avatar: avatar is String? ? avatar : this.avatar,
       role: role is String? ? role : this.role,
+      interests: interests is List<String>?
+          ? interests
+          : this.interests?.map((e0) => e0).toList(),
       isAdmin: isAdmin ?? this.isAdmin,
       isBanned: isBanned ?? this.isBanned,
       lastCreditIncrease: lastCreditIncrease is DateTime?

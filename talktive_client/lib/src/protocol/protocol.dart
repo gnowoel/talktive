@@ -272,6 +272,15 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i27.UserStreak?>()) {
       return (data != null ? _i27.UserStreak.fromJson(data) : null) as T;
     }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_i16.Moment>) {
       return (data as List).map((e) => deserialize<_i16.Moment>(e)).toList()
           as T;
@@ -337,6 +346,15 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == List<_i36.Report>) {
       return (data as List).map((e) => deserialize<_i36.Report>(e)).toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
           as T;
     }
     if (t == List<_i37.DailyReward>) {

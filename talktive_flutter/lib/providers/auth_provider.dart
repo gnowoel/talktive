@@ -149,15 +149,15 @@ class Auth extends _$Auth {
     state = const AsyncValue.loading();
 
     try {
-      final bioWithExtras =
-          '$bio\nMood: $mood\nInterests: ${interests.join(", ")}';
+      final bioWithMood = '$bio\nMood: $mood';
 
       final resident = await client.resident.initializeResident(
         name: name,
         avatar: avatar,
         gender: gender,
         country: country,
-        bio: bioWithExtras,
+        bio: bioWithMood,
+        interests: interests,
       );
 
       final prefs = await SharedPreferences.getInstance();

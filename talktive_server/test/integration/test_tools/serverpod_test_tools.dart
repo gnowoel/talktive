@@ -2361,7 +2361,7 @@ class _PrivateChatEndpoint {
 
   _i3.Future<Map<String, dynamic>> getPrivateChatDetails(
     _i1.TestSessionBuilder sessionBuilder,
-    int privateChatId,
+    int channelId,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2374,7 +2374,7 @@ class _PrivateChatEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'privateChat',
           methodName: 'getPrivateChatDetails',
-          parameters: _i1.testObjectToJson({'privateChatId': privateChatId}),
+          parameters: _i1.testObjectToJson({'channelId': channelId}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -2620,6 +2620,7 @@ class _ResidentEndpoint {
     required String gender,
     required String country,
     required String bio,
+    List<String>? interests,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2638,6 +2639,7 @@ class _ResidentEndpoint {
             'gender': gender,
             'country': country,
             'bio': bio,
+            'interests': interests,
           }),
           serializationManager: _serializationManager,
         );

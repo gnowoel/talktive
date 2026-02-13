@@ -10,6 +10,7 @@ fields:
   bio: String?
   avatar: String?
   role: String?
+  interests: List<String>?
   isAdmin: bool, default=false
   isBanned: bool, default=false
   lastCreditIncrease: DateTime?

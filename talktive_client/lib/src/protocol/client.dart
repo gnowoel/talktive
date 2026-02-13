@@ -878,11 +878,11 @@ class EndpointPrivateChat extends _i2.EndpointRef {
       );
 
   /// Gets details about a private chat including the other participant's info.
-  _i3.Future<Map<String, dynamic>> getPrivateChatDetails(int privateChatId) =>
+  _i3.Future<Map<String, dynamic>> getPrivateChatDetails(int channelId) =>
       caller.callServerEndpoint<Map<String, dynamic>>(
         'privateChat',
         'getPrivateChatDetails',
-        {'privateChatId': privateChatId},
+        {'channelId': channelId},
       );
 
   /// Updates the lastMessageAt timestamp for a private chat.
@@ -982,6 +982,7 @@ class EndpointResident extends _i2.EndpointRef {
     required String gender,
     required String country,
     required String bio,
+    List<String>? interests,
   }) => caller.callServerEndpoint<_i7.Resident>(
     'resident',
     'initializeResident',
@@ -991,6 +992,7 @@ class EndpointResident extends _i2.EndpointRef {
       'gender': gender,
       'country': country,
       'bio': bio,
+      'interests': interests,
     },
   );
 }

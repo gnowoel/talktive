@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
+import 'package:talktive_server/src/generated/protocol.dart' as _i2;
 
 abstract class Resident
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
@@ -25,6 +26,7 @@ abstract class Resident
     this.bio,
     this.avatar,
     this.role,
+    this.interests,
     bool? isAdmin,
     bool? isBanned,
     this.lastCreditIncrease,
@@ -42,6 +44,7 @@ abstract class Resident
     String? bio,
     String? avatar,
     String? role,
+    List<String>? interests,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -62,6 +65,11 @@ abstract class Resident
       bio: jsonSerialization['bio'] as String?,
       avatar: jsonSerialization['avatar'] as String?,
       role: jsonSerialization['role'] as String?,
+      interests: jsonSerialization['interests'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<String>>(
+              jsonSerialization['interests'],
+            ),
       isAdmin: jsonSerialization['isAdmin'] as bool?,
       isBanned: jsonSerialization['isBanned'] as bool?,
       lastCreditIncrease: jsonSerialization['lastCreditIncrease'] == null
@@ -97,6 +105,8 @@ abstract class Resident
 
   String? role;
 
+  List<String>? interests;
+
   bool isAdmin;
 
   bool isBanned;
@@ -120,6 +130,7 @@ abstract class Resident
     String? bio,
     String? avatar,
     String? role,
+    List<String>? interests,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -138,6 +149,7 @@ abstract class Resident
       if (bio != null) 'bio': bio,
       if (avatar != null) 'avatar': avatar,
       if (role != null) 'role': role,
+      if (interests != null) 'interests': interests?.toJson(),
       'isAdmin': isAdmin,
       'isBanned': isBanned,
       if (lastCreditIncrease != null)
@@ -159,6 +171,7 @@ abstract class Resident
       if (bio != null) 'bio': bio,
       if (avatar != null) 'avatar': avatar,
       if (role != null) 'role': role,
+      if (interests != null) 'interests': interests?.toJson(),
       'isAdmin': isAdmin,
       'isBanned': isBanned,
       if (lastCreditIncrease != null)
@@ -210,6 +223,7 @@ class _ResidentImpl extends Resident {
     String? bio,
     String? avatar,
     String? role,
+    List<String>? interests,
     bool? isAdmin,
     bool? isBanned,
     DateTime? lastCreditIncrease,
@@ -224,6 +238,7 @@ class _ResidentImpl extends Resident {
          bio: bio,
          avatar: avatar,
          role: role,
+         interests: interests,
          isAdmin: isAdmin,
          isBanned: isBanned,
          lastCreditIncrease: lastCreditIncrease,
@@ -244,6 +259,7 @@ class _ResidentImpl extends Resident {
     Object? bio = _Undefined,
     Object? avatar = _Undefined,
     Object? role = _Undefined,
+    Object? interests = _Undefined,
     bool? isAdmin,
     bool? isBanned,
     Object? lastCreditIncrease = _Undefined,
@@ -260,6 +276,9 @@ class _ResidentImpl extends Resident {
       bio: bio is String? ? bio : this.bio,
       avatar: avatar is String? ? avatar : this.avatar,
       role: role is String? ? role : this.role,
+      interests: interests is List<String>?
+          ? interests
+          : this.interests?.map((e0) => e0).toList(),
       isAdmin: isAdmin ?? this.isAdmin,
       isBanned: isBanned ?? this.isBanned,
       lastCreditIncrease: lastCreditIncrease is DateTime?
@@ -320,6 +339,12 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
+  _i1.ColumnValue<List<String>, List<String>> interests(List<String>? value) =>
+      _i1.ColumnValue(
+        table.interests,
+        value,
+      );
+
   _i1.ColumnValue<bool, bool> isAdmin(bool value) => _i1.ColumnValue(
     table.isAdmin,
     value,
@@ -376,6 +401,10 @@ class ResidentTable extends _i1.Table<int?> {
       'role',
       this,
     );
+    interests = _i1.ColumnSerializable<List<String>>(
+      'interests',
+      this,
+    );
     isAdmin = _i1.ColumnBool(
       'isAdmin',
       this,
@@ -412,6 +441,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString role;
 
+  late final _i1.ColumnSerializable<List<String>> interests;
+
   late final _i1.ColumnBool isAdmin;
 
   late final _i1.ColumnBool isBanned;
@@ -430,6 +461,7 @@ class ResidentTable extends _i1.Table<int?> {
     bio,
     avatar,
     role,
+    interests,
     isAdmin,
     isBanned,
     lastCreditIncrease,

@@ -23,6 +23,21 @@ class AppTheme {
     Color(0xFF00F5FF),
   ];
 
+  static const List<Color> duoGreenGradient = [
+    Color(0xFF58CC02),
+    Color(0xFF78E028),
+  ];
+
+  static const List<Color> duoYellowGradient = [
+    Color(0xFFFFD93D),
+    Color(0xFFFFEA85),
+  ];
+
+  static const List<Color> duoOrangeGradient = [
+    Color(0xFFFF9600),
+    Color(0xFFFFB038),
+  ];
+
   // Duolingo-Inspired Colors
   static const Color duoGreen = Color(0xFF58CC02); // Duolingo's signature green
   static const Color duoYellow = Color(0xFFFFD93D); // Bright, cheerful yellow

@@ -15,7 +15,10 @@ class DuoHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.trailing,
+    this.textColor = AppTheme.textPrimary,
   });
+
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +39,10 @@ class DuoHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                    color: textColor,
                     fontFamily: 'Poppins',
                   ),
                 ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.1, end: 0),
@@ -47,9 +50,9 @@ class DuoHeader extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textSecondary,
+                      color: textColor.withOpacity(0.8),
                       fontFamily: 'Rubik',
                     ),
                   ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1, end: 0),

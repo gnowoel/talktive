@@ -26,12 +26,14 @@ import 'package:talktive_client/src/protocol/moment_like.dart' as _i11;
 import 'package:talktive_client/src/protocol/moment_comment.dart' as _i12;
 import 'package:talktive_client/src/protocol/user_notification.dart' as _i13;
 import 'package:talktive_client/src/protocol/private_chat.dart' as _i14;
-import 'package:talktive_client/src/protocol/report.dart' as _i15;
-import 'package:talktive_client/src/protocol/user_streak.dart' as _i16;
-import 'package:talktive_client/src/protocol/daily_reward.dart' as _i17;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i18;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i19;
-import 'protocol.dart' as _i20;
+import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
+    as _i15;
+import 'package:talktive_client/src/protocol/report.dart' as _i16;
+import 'package:talktive_client/src/protocol/user_streak.dart' as _i17;
+import 'package:talktive_client/src/protocol/daily_reward.dart' as _i18;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i19;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i20;
+import 'protocol.dart' as _i21;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -870,8 +872,8 @@ class EndpointPrivateChat extends _i2.EndpointRef {
       );
 
   /// Lists all private chats for the current user.
-  _i3.Future<List<_i14.PrivateChat>> listPrivateChats() =>
-      caller.callServerEndpoint<List<_i14.PrivateChat>>(
+  _i3.Future<List<_i15.PrivateChatWithProfile>> listPrivateChats() =>
+      caller.callServerEndpoint<List<_i15.PrivateChatWithProfile>>(
         'privateChat',
         'listPrivateChats',
         {},
@@ -932,10 +934,10 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i15.Report>> listReports({
+  _i3.Future<List<_i16.Report>> listReports({
     required int limit,
     required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i15.Report>>(
+  }) => caller.callServerEndpoint<List<_i16.Report>>(
     'report',
     'listReports',
     {
@@ -1091,8 +1093,8 @@ class EndpointStreak extends _i2.EndpointRef {
   String get name => 'streak';
 
   /// Gets the current user's streak data.
-  _i3.Future<_i16.UserStreak?> getUserStreak() =>
-      caller.callServerEndpoint<_i16.UserStreak?>(
+  _i3.Future<_i17.UserStreak?> getUserStreak() =>
+      caller.callServerEndpoint<_i17.UserStreak?>(
         'streak',
         'getUserStreak',
         {},
@@ -1106,16 +1108,16 @@ class EndpointStreak extends _i2.EndpointRef {
   );
 
   /// Claims the daily reward.
-  _i3.Future<_i17.DailyReward> claimDailyReward() =>
-      caller.callServerEndpoint<_i17.DailyReward>(
+  _i3.Future<_i18.DailyReward> claimDailyReward() =>
+      caller.callServerEndpoint<_i18.DailyReward>(
         'streak',
         'claimDailyReward',
         {},
       );
 
   /// Gets the user's reward history.
-  _i3.Future<List<_i17.DailyReward>> getRewardHistory({required int limit}) =>
-      caller.callServerEndpoint<List<_i17.DailyReward>>(
+  _i3.Future<List<_i18.DailyReward>> getRewardHistory({required int limit}) =>
+      caller.callServerEndpoint<List<_i18.DailyReward>>(
         'streak',
         'getRewardHistory',
         {'limit': limit},
@@ -1171,8 +1173,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i18.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i18.Greeting>(
+  _i3.Future<_i19.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i19.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1183,14 +1185,14 @@ class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
-    auth = _i19.Caller(client);
+    auth = _i20.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
   late final _i4.Caller serverpod_auth_core;
 
-  late final _i19.Caller auth;
+  late final _i20.Caller auth;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -1213,7 +1215,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i20.Protocol(),
+         _i21.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

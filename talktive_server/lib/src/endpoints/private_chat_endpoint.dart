@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 
@@ -74,7 +75,7 @@ class PrivateChatEndpoint extends Endpoint {
       participant1Id: participant1,
       participant2Id: participant2,
       createdAt: DateTime.now(),
-      lastMessageAt: null,
+      lastMessageAt: DateTime.now(),
     );
 
     final savedPrivateChat = await protocol.PrivateChat.db.insertRow(
@@ -114,7 +115,9 @@ class PrivateChatEndpoint extends Endpoint {
   }
 
   /// Lists all private chats for the current user.
-  Future<List<protocol.PrivateChat>> listPrivateChats(Session session) async {
+  Future<List<protocol.PrivateChatWithProfile>> listPrivateChats(
+    Session session,
+  ) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -134,7 +137,36 @@ class PrivateChatEndpoint extends Endpoint {
       orderDescending: true,
     );
 
-    return chats;
+    final result = <protocol.PrivateChatWithProfile>[];
+
+    for (final chat in chats) {
+      final otherUserId = chat.participant1Id == currentUserId
+          ? chat.participant2Id
+          : chat.participant1Id;
+
+      final otherResident = await protocol.Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(otherUserId),
+      );
+
+      if (otherResident != null) {
+        final userInfo = await UserInfo.db.findFirstRow(
+          session,
+          where: (t) => t.userIdentifier.equals(otherUserId.toString()),
+        );
+
+        result.add(
+          protocol.PrivateChatWithProfile(
+            chat: chat,
+            otherResident: otherResident,
+            otherUserName: userInfo?.userName,
+            otherUserAvatar: userInfo?.imageUrl,
+          ),
+        );
+      }
+    }
+
+    return result;
   }
 
   /// Gets details about a private chat including the other participant's info.

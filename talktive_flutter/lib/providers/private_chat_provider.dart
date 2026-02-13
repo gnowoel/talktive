@@ -8,11 +8,11 @@ part 'private_chat_provider.g.dart';
 @riverpod
 class PrivateChatList extends _$PrivateChatList {
   @override
-  FutureOr<List<PrivateChat>> build() async {
+  FutureOr<List<PrivateChatWithProfile>> build() async {
     return fetchPrivateChats();
   }
 
-  Future<List<PrivateChat>> fetchPrivateChats() async {
+  Future<List<PrivateChatWithProfile>> fetchPrivateChats() async {
     final client = ref.read(clientProvider);
     try {
       return await client.privateChat.listPrivateChats();

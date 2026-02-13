@@ -35,24 +35,26 @@ import 'moment.dart' as _i20;
 import 'moment_comment.dart' as _i21;
 import 'moment_like.dart' as _i22;
 import 'private_chat.dart' as _i23;
-import 'rate_limit.dart' as _i24;
-import 'report.dart' as _i25;
-import 'report_status.dart' as _i26;
-import 'resident.dart' as _i27;
-import 'user_achievement.dart' as _i28;
-import 'user_notification.dart' as _i29;
-import 'user_profile_view.dart' as _i30;
-import 'user_streak.dart' as _i31;
-import 'package:talktive_server/src/generated/group.dart' as _i32;
-import 'package:talktive_server/src/generated/resident.dart' as _i33;
-import 'package:talktive_server/src/generated/message.dart' as _i34;
-import 'package:talktive_server/src/generated/moment.dart' as _i35;
-import 'package:talktive_server/src/generated/moment_like.dart' as _i36;
-import 'package:talktive_server/src/generated/moment_comment.dart' as _i37;
-import 'package:talktive_server/src/generated/user_notification.dart' as _i38;
-import 'package:talktive_server/src/generated/private_chat.dart' as _i39;
-import 'package:talktive_server/src/generated/report.dart' as _i40;
-import 'package:talktive_server/src/generated/daily_reward.dart' as _i41;
+import 'private_chat_with_profile.dart' as _i24;
+import 'rate_limit.dart' as _i25;
+import 'report.dart' as _i26;
+import 'report_status.dart' as _i27;
+import 'resident.dart' as _i28;
+import 'user_achievement.dart' as _i29;
+import 'user_notification.dart' as _i30;
+import 'user_profile_view.dart' as _i31;
+import 'user_streak.dart' as _i32;
+import 'package:talktive_server/src/generated/group.dart' as _i33;
+import 'package:talktive_server/src/generated/resident.dart' as _i34;
+import 'package:talktive_server/src/generated/message.dart' as _i35;
+import 'package:talktive_server/src/generated/moment.dart' as _i36;
+import 'package:talktive_server/src/generated/moment_like.dart' as _i37;
+import 'package:talktive_server/src/generated/moment_comment.dart' as _i38;
+import 'package:talktive_server/src/generated/user_notification.dart' as _i39;
+import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
+    as _i40;
+import 'package:talktive_server/src/generated/report.dart' as _i41;
+import 'package:talktive_server/src/generated/daily_reward.dart' as _i42;
 export 'achievement.dart';
 export 'block.dart';
 export 'cache_int.dart';
@@ -71,6 +73,7 @@ export 'moment.dart';
 export 'moment_comment.dart';
 export 'moment_like.dart';
 export 'private_chat.dart';
+export 'private_chat_with_profile.dart';
 export 'rate_limit.dart';
 export 'report.dart';
 export 'report_status.dart';
@@ -1920,29 +1923,32 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i23.PrivateChat) {
       return _i23.PrivateChat.fromJson(data) as T;
     }
-    if (t == _i24.RateLimit) {
-      return _i24.RateLimit.fromJson(data) as T;
+    if (t == _i24.PrivateChatWithProfile) {
+      return _i24.PrivateChatWithProfile.fromJson(data) as T;
     }
-    if (t == _i25.Report) {
-      return _i25.Report.fromJson(data) as T;
+    if (t == _i25.RateLimit) {
+      return _i25.RateLimit.fromJson(data) as T;
     }
-    if (t == _i26.ReportStatus) {
-      return _i26.ReportStatus.fromJson(data) as T;
+    if (t == _i26.Report) {
+      return _i26.Report.fromJson(data) as T;
     }
-    if (t == _i27.Resident) {
-      return _i27.Resident.fromJson(data) as T;
+    if (t == _i27.ReportStatus) {
+      return _i27.ReportStatus.fromJson(data) as T;
     }
-    if (t == _i28.UserAchievement) {
-      return _i28.UserAchievement.fromJson(data) as T;
+    if (t == _i28.Resident) {
+      return _i28.Resident.fromJson(data) as T;
     }
-    if (t == _i29.UserNotification) {
-      return _i29.UserNotification.fromJson(data) as T;
+    if (t == _i29.UserAchievement) {
+      return _i29.UserAchievement.fromJson(data) as T;
     }
-    if (t == _i30.UserProfileView) {
-      return _i30.UserProfileView.fromJson(data) as T;
+    if (t == _i30.UserNotification) {
+      return _i30.UserNotification.fromJson(data) as T;
     }
-    if (t == _i31.UserStreak) {
-      return _i31.UserStreak.fromJson(data) as T;
+    if (t == _i31.UserProfileView) {
+      return _i31.UserProfileView.fromJson(data) as T;
+    }
+    if (t == _i32.UserStreak) {
+      return _i32.UserStreak.fromJson(data) as T;
     }
     if (t == _i1.getType<_i6.Achievement?>()) {
       return (data != null ? _i6.Achievement.fromJson(data) : null) as T;
@@ -2000,29 +2006,33 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i23.PrivateChat?>()) {
       return (data != null ? _i23.PrivateChat.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i24.RateLimit?>()) {
-      return (data != null ? _i24.RateLimit.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.PrivateChatWithProfile?>()) {
+      return (data != null ? _i24.PrivateChatWithProfile.fromJson(data) : null)
+          as T;
     }
-    if (t == _i1.getType<_i25.Report?>()) {
-      return (data != null ? _i25.Report.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i25.RateLimit?>()) {
+      return (data != null ? _i25.RateLimit.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i26.ReportStatus?>()) {
-      return (data != null ? _i26.ReportStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i26.Report?>()) {
+      return (data != null ? _i26.Report.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i27.Resident?>()) {
-      return (data != null ? _i27.Resident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i27.ReportStatus?>()) {
+      return (data != null ? _i27.ReportStatus.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i28.UserAchievement?>()) {
-      return (data != null ? _i28.UserAchievement.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i28.Resident?>()) {
+      return (data != null ? _i28.Resident.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i29.UserNotification?>()) {
-      return (data != null ? _i29.UserNotification.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i29.UserAchievement?>()) {
+      return (data != null ? _i29.UserAchievement.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i30.UserProfileView?>()) {
-      return (data != null ? _i30.UserProfileView.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i30.UserNotification?>()) {
+      return (data != null ? _i30.UserNotification.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i31.UserStreak?>()) {
-      return (data != null ? _i31.UserStreak.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i31.UserProfileView?>()) {
+      return (data != null ? _i31.UserProfileView.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i32.UserStreak?>()) {
+      return (data != null ? _i32.UserStreak.fromJson(data) : null) as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
@@ -2058,46 +2068,46 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
-    if (t == List<_i32.Group>) {
-      return (data as List).map((e) => deserialize<_i32.Group>(e)).toList()
+    if (t == List<_i33.Group>) {
+      return (data as List).map((e) => deserialize<_i33.Group>(e)).toList()
           as T;
     }
-    if (t == List<_i33.Resident>) {
-      return (data as List).map((e) => deserialize<_i33.Resident>(e)).toList()
+    if (t == List<_i34.Resident>) {
+      return (data as List).map((e) => deserialize<_i34.Resident>(e)).toList()
           as T;
     }
-    if (t == List<_i34.Message>) {
-      return (data as List).map((e) => deserialize<_i34.Message>(e)).toList()
+    if (t == List<_i35.Message>) {
+      return (data as List).map((e) => deserialize<_i35.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i35.Moment>) {
-      return (data as List).map((e) => deserialize<_i35.Moment>(e)).toList()
+    if (t == List<_i36.Moment>) {
+      return (data as List).map((e) => deserialize<_i36.Moment>(e)).toList()
           as T;
     }
-    if (t == List<_i36.MomentLike>) {
-      return (data as List).map((e) => deserialize<_i36.MomentLike>(e)).toList()
+    if (t == List<_i37.MomentLike>) {
+      return (data as List).map((e) => deserialize<_i37.MomentLike>(e)).toList()
           as T;
     }
-    if (t == List<_i37.MomentComment>) {
+    if (t == List<_i38.MomentComment>) {
       return (data as List)
-              .map((e) => deserialize<_i37.MomentComment>(e))
+              .map((e) => deserialize<_i38.MomentComment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i38.UserNotification>) {
+    if (t == List<_i39.UserNotification>) {
       return (data as List)
-              .map((e) => deserialize<_i38.UserNotification>(e))
+              .map((e) => deserialize<_i39.UserNotification>(e))
               .toList()
           as T;
     }
-    if (t == List<_i39.PrivateChat>) {
+    if (t == List<_i40.PrivateChatWithProfile>) {
       return (data as List)
-              .map((e) => deserialize<_i39.PrivateChat>(e))
+              .map((e) => deserialize<_i40.PrivateChatWithProfile>(e))
               .toList()
           as T;
     }
-    if (t == List<_i40.Report>) {
-      return (data as List).map((e) => deserialize<_i40.Report>(e)).toList()
+    if (t == List<_i41.Report>) {
+      return (data as List).map((e) => deserialize<_i41.Report>(e)).toList()
           as T;
     }
     if (t == List<String>) {
@@ -2109,9 +2119,9 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i41.DailyReward>) {
+    if (t == List<_i42.DailyReward>) {
       return (data as List)
-              .map((e) => deserialize<_i41.DailyReward>(e))
+              .map((e) => deserialize<_i42.DailyReward>(e))
               .toList()
           as T;
     }
@@ -2159,14 +2169,15 @@ class Protocol extends _i1.SerializationManagerServer {
       _i21.MomentComment => 'MomentComment',
       _i22.MomentLike => 'MomentLike',
       _i23.PrivateChat => 'PrivateChat',
-      _i24.RateLimit => 'RateLimit',
-      _i25.Report => 'Report',
-      _i26.ReportStatus => 'ReportStatus',
-      _i27.Resident => 'Resident',
-      _i28.UserAchievement => 'UserAchievement',
-      _i29.UserNotification => 'UserNotification',
-      _i30.UserProfileView => 'UserProfileView',
-      _i31.UserStreak => 'UserStreak',
+      _i24.PrivateChatWithProfile => 'PrivateChatWithProfile',
+      _i25.RateLimit => 'RateLimit',
+      _i26.Report => 'Report',
+      _i27.ReportStatus => 'ReportStatus',
+      _i28.Resident => 'Resident',
+      _i29.UserAchievement => 'UserAchievement',
+      _i30.UserNotification => 'UserNotification',
+      _i31.UserProfileView => 'UserProfileView',
+      _i32.UserStreak => 'UserStreak',
       _ => null,
     };
   }
@@ -2217,21 +2228,23 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'MomentLike';
       case _i23.PrivateChat():
         return 'PrivateChat';
-      case _i24.RateLimit():
+      case _i24.PrivateChatWithProfile():
+        return 'PrivateChatWithProfile';
+      case _i25.RateLimit():
         return 'RateLimit';
-      case _i25.Report():
+      case _i26.Report():
         return 'Report';
-      case _i26.ReportStatus():
+      case _i27.ReportStatus():
         return 'ReportStatus';
-      case _i27.Resident():
+      case _i28.Resident():
         return 'Resident';
-      case _i28.UserAchievement():
+      case _i29.UserAchievement():
         return 'UserAchievement';
-      case _i29.UserNotification():
+      case _i30.UserNotification():
         return 'UserNotification';
-      case _i30.UserProfileView():
+      case _i31.UserProfileView():
         return 'UserProfileView';
-      case _i31.UserStreak():
+      case _i32.UserStreak():
         return 'UserStreak';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -2313,29 +2326,32 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'PrivateChat') {
       return deserialize<_i23.PrivateChat>(data['data']);
     }
+    if (dataClassName == 'PrivateChatWithProfile') {
+      return deserialize<_i24.PrivateChatWithProfile>(data['data']);
+    }
     if (dataClassName == 'RateLimit') {
-      return deserialize<_i24.RateLimit>(data['data']);
+      return deserialize<_i25.RateLimit>(data['data']);
     }
     if (dataClassName == 'Report') {
-      return deserialize<_i25.Report>(data['data']);
+      return deserialize<_i26.Report>(data['data']);
     }
     if (dataClassName == 'ReportStatus') {
-      return deserialize<_i26.ReportStatus>(data['data']);
+      return deserialize<_i27.ReportStatus>(data['data']);
     }
     if (dataClassName == 'Resident') {
-      return deserialize<_i27.Resident>(data['data']);
+      return deserialize<_i28.Resident>(data['data']);
     }
     if (dataClassName == 'UserAchievement') {
-      return deserialize<_i28.UserAchievement>(data['data']);
+      return deserialize<_i29.UserAchievement>(data['data']);
     }
     if (dataClassName == 'UserNotification') {
-      return deserialize<_i29.UserNotification>(data['data']);
+      return deserialize<_i30.UserNotification>(data['data']);
     }
     if (dataClassName == 'UserProfileView') {
-      return deserialize<_i30.UserProfileView>(data['data']);
+      return deserialize<_i31.UserProfileView>(data['data']);
     }
     if (dataClassName == 'UserStreak') {
-      return deserialize<_i31.UserStreak>(data['data']);
+      return deserialize<_i32.UserStreak>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -2407,18 +2423,18 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i22.MomentLike.t;
       case _i23.PrivateChat:
         return _i23.PrivateChat.t;
-      case _i24.RateLimit:
-        return _i24.RateLimit.t;
-      case _i25.Report:
-        return _i25.Report.t;
-      case _i27.Resident:
-        return _i27.Resident.t;
-      case _i28.UserAchievement:
-        return _i28.UserAchievement.t;
-      case _i29.UserNotification:
-        return _i29.UserNotification.t;
-      case _i31.UserStreak:
-        return _i31.UserStreak.t;
+      case _i25.RateLimit:
+        return _i25.RateLimit.t;
+      case _i26.Report:
+        return _i26.Report.t;
+      case _i28.Resident:
+        return _i28.Resident.t;
+      case _i29.UserAchievement:
+        return _i29.UserAchievement.t;
+      case _i30.UserNotification:
+        return _i30.UserNotification.t;
+      case _i32.UserStreak:
+        return _i32.UserStreak.t;
     }
     return null;
   }

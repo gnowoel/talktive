@@ -4,11 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/chat/message_bubble_modern.dart';
 import '../../services/storage.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
@@ -146,6 +147,13 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final chatState = ref.watch(
       realtimeChatProvider(widget.privateChat.channelId),
     );
+    final otherProfileAsync = ref.watch(
+      userProfileProvider(widget.otherUserId),
+    );
+    final otherProfile = otherProfileAsync.value;
+    final otherName = otherProfile?['userName'] as String? ?? 'Resident';
+    final otherAvatar = otherProfile?['userAvatar'] as String?;
+    final otherFloor = otherProfile?['floor'] as int? ?? 1;
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -161,21 +169,27 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         ),
         title: Row(
           children: [
-            DuoAvatar(initials: 'U', size: 36, showRing: false),
+            DuoAvatar(
+              initials: otherName.isNotEmpty ? otherName[0] : '?',
+              imageUrl: otherAvatar,
+              size: 36,
+              showRing: true,
+              floorLevel: otherFloor,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Resident',
+                    otherName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
                   Text(
-                    'Online',
+                    'Online', // TODO: Implement real presence status
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: AppTheme.duoGreen),
@@ -304,7 +318,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;
 
-          return _buildMessageBubble(message, isCurrentUser)
+          return MessageBubbleModern(
+                message: message,
+                isCurrentUser: isCurrentUser,
+                currentResident: _currentResident,
+              )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);
@@ -313,107 +331,110 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     );
   }
 
-  Widget _buildMessageBubble(Message message, bool isCurrentUser) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
-      child: Row(
-        mainAxisAlignment: isCurrentUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isCurrentUser) ...[
-            DuoAvatar(initials: 'U', size: 36, showRing: false),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-          ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: isCurrentUser
-                    ? LinearGradient(
-                        colors: [
-                          AppTheme.primaryColor,
-                          AppTheme.secondaryColor,
-                        ],
-                      )
-                    : null,
-                color: isCurrentUser ? null : Colors.white,
-                borderRadius: BorderRadius.circular(AppTheme.duoBorderRadius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (message.imageUrl != null &&
-                      message.imageUrl!.isNotEmpty) ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        AppTheme.duoRadiusSmall,
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: message.imageUrl!,
-                        placeholder: (context, url) => Container(
-                          width: 200,
-                          height: 200,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppTheme.primaryColor,
-                            ),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          width: 200,
-                          height: 200,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.error),
-                        ),
-                        fit: BoxFit.cover,
-                        width: 200,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  if (message.content != null &&
-                      message.content!.isNotEmpty) ...[
-                    Text(
-                      message.content!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isCurrentUser ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                  ],
-                  Text(
-                    _formatTimestamp(message.createdAt),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: isCurrentUser
-                          ? Colors.white.withValues(alpha: 0.7)
-                          : Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildInputArea() {
+    final canSend =
+        _currentResident != null && _currentResident!.creditScore > 0;
+
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
           ),
-          if (isCurrentUser) ...[
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightBackground,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: _isUploading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              Icons.attach_file,
+                              color: canSend
+                                  ? Colors.grey[600]
+                                  : Colors.grey[400],
+                            ),
+                      onPressed: canSend && !_isUploading
+                          ? _pickAndSendImage
+                          : null,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        enabled: canSend,
+                        decoration: InputDecoration(
+                          hintText: canSend
+                              ? 'Type a message...'
+                              : 'Muted (low credit score)',
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(color: Colors.grey[400]),
+                        ),
+                        maxLines: null,
+                        textCapitalization: TextCapitalization.sentences,
+                        onSubmitted: canSend ? (_) => _sendMessage() : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(width: AppTheme.duoSpacingSmall),
-            DuoAvatar(
-              imageUrl: _currentResident?.avatar,
-              initials: 'ME',
-              size: 36,
-              showRing: false,
+            GestureDetector(
+              onTap: canSend ? _sendMessage : null,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: canSend
+                      ? LinearGradient(
+                          colors: [
+                            AppTheme.primaryColor,
+                            AppTheme.secondaryColor,
+                          ],
+                        )
+                      : null,
+                  color: canSend ? null : Colors.grey[300],
+                  shape: BoxShape.circle,
+                  boxShadow: canSend
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Icon(
+                  Icons.send_rounded,
+                  color: canSend ? Colors.white : Colors.grey[500],
+                  size: 20,
+                ),
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

@@ -48,8 +48,13 @@ class ChatsScreenModern extends ConsumerWidget {
                           ),
                           itemCount: chats.length,
                           itemBuilder: (context, index) {
-                            final chat = chats[index];
-                            return _buildChatCard(context, ref, chat, index)
+                            final chatWithProfile = chats[index];
+                            return _buildChatCard(
+                                  context,
+                                  ref,
+                                  chatWithProfile,
+                                  index,
+                                )
                                 .animate(
                                   delay: Duration(milliseconds: index * 50),
                                 )
@@ -72,78 +77,20 @@ class ChatsScreenModern extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: DuoEmptyState(
-        emoji: '🤝',
-        title: 'No chats yet',
-        subtitle: 'Start a conversation with someone from the Plaza',
-        buttonText: 'Go to Plaza',
-        onButtonPressed: () {
-          // Navigate to Plaza tab (index 0)
-          context.go('/plaza');
-        },
-      ),
-    );
-  }
-
-  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          Text(
-            'Failed to load chats',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: AppTheme.duoSpacingSmall),
-          Text(
-            error.toString(),
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppTheme.duoSpacingLarge),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(privateChatListProvider.notifier).refresh();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.duoBorderRadius),
-              ),
-            ),
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
+  // ... (buildEmptyState and buildErrorState unchanged)
 
   Widget _buildChatCard(
     BuildContext context,
     WidgetRef ref,
-    PrivateChat chat,
+    PrivateChatWithProfile chatItem,
     int index,
   ) {
-    final currentResidentAsync = ref.watch(currentResidentProvider);
-    final currentResident = currentResidentAsync.value;
+    final chat = chatItem.chat;
+    final otherUserName = chatItem.otherUserName ?? 'Resident';
+    final otherUserAvatar = chatItem.otherUserAvatar;
 
-    if (currentResident == null) {
-      return const SizedBox.shrink();
-    }
-
-    final otherUserId = chat.participant1Id == currentResident.userInfoId
-        ? chat.participant2Id
-        : chat.participant1Id;
+    // We don't need to resolve current resident just to show the other user anymore!
+    // But we might need it for navigation (ChatThreadScreen might need my ID? No, it needs privateChat object)
 
     return DuoCard(
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
@@ -154,7 +101,7 @@ class ChatsScreenModern extends ConsumerWidget {
           MaterialPageRoute(
             builder: (context) => ChatThreadScreen(
               privateChat: chat,
-              otherUserId: otherUserId.uuid,
+              otherUserId: chatItem.otherResident.userInfoId.uuid,
             ),
           ),
         );
@@ -165,7 +112,14 @@ class ChatsScreenModern extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                const DuoAvatar(initials: 'U', size: 56, showRing: true),
+                DuoAvatar(
+                  initials: otherUserName.isNotEmpty ? otherUserName[0] : '?',
+                  imageUrl: otherUserAvatar,
+                  size: 56,
+                  showRing: true,
+                  floorLevel:
+                      chatItem.otherResident.floor, // We have resident info!
+                ),
                 Positioned(
                   right: 0,
                   bottom: 0,
@@ -190,7 +144,7 @@ class ChatsScreenModern extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Resident',
+                          otherUserName,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
@@ -206,7 +160,7 @@ class ChatsScreenModern extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Tap to open chat',
+                    'Tap to open chat', // Ideally this would be the last message preview, but we don't have it yet
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),

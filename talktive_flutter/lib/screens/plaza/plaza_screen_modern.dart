@@ -8,7 +8,7 @@ import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_header.dart';
 import '../../widgets/duo/duo_card.dart';
-import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/chat/message_bubble_modern.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 
 /// Duolingo-style Plaza screen - public chat for all residents
@@ -262,116 +262,15 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;
 
-          return _buildMessageBubble(message, isCurrentUser, index)
+          return MessageBubbleModern(
+                message: message,
+                isCurrentUser: isCurrentUser,
+                currentResident: _currentResident,
+              )
               .animate()
               .fadeIn(delay: Duration(milliseconds: index * 30))
               .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);
         },
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(Message message, bool isCurrentUser, int index) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
-      child: Row(
-        mainAxisAlignment: isCurrentUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isCurrentUser) ...[
-            DuoAvatar(initials: '?', size: 36, showRing: false),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-          ],
-          Flexible(
-            child: Column(
-              crossAxisAlignment: isCurrentUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                if (!isCurrentUser)
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: AppTheme.duoSpacingSmall,
-                      bottom: 4,
-                    ),
-                    child: Text(
-                      'Resident',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textSecondary,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.duoSpacingMedium,
-                    vertical: AppTheme.duoSpacingSmall,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: isCurrentUser
-                        ? LinearGradient(
-                            colors: [
-                              AppTheme.primaryColor,
-                              AppTheme.primaryColor.withOpacity(0.8),
-                            ],
-                          )
-                        : null,
-                    color: isCurrentUser ? null : Colors.white,
-                    borderRadius: BorderRadius.circular(
-                      AppTheme.duoRadiusMedium,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    message.content ?? '',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: isCurrentUser
-                          ? Colors.white
-                          : AppTheme.textPrimary,
-                      fontFamily: 'Rubik',
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: AppTheme.duoSpacingSmall,
-                    right: AppTheme.duoSpacingSmall,
-                    top: 4,
-                  ),
-                  child: Text(
-                    _formatTimestamp(message.createdAt),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.textLight,
-                      fontFamily: 'Rubik',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (isCurrentUser) ...[
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-            DuoAvatar(
-              imageUrl: _currentResident?.avatar,
-              initials: 'ME',
-              size: 36,
-              showRing: false,
-            ),
-          ],
-        ],
       ),
     );
   }
@@ -467,22 +366,5 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         ),
       ),
     );
-  }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
-    }
   }
 }

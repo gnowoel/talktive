@@ -1,13 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/chat/message_bubble_modern.dart';
 import 'group_members_screen.dart';
 
 /// Group chat screen for multi-user conversations
@@ -275,88 +271,15 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;
 
-          return _buildMessageBubble(message, isCurrentUser)
+          return MessageBubbleModern(
+            message: message,
+            isCurrentUser: isCurrentUser,
+            currentResident: _currentResident,
+          )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);
         },
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(Message message, bool isCurrentUser) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
-      child: Row(
-        mainAxisAlignment: isCurrentUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isCurrentUser) ...[
-            DuoAvatar(initials: 'U', size: 36, showRing: false),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-          ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: isCurrentUser
-                    ? LinearGradient(
-                        colors: [AppTheme.duoOrange, AppTheme.duoYellow],
-                      )
-                    : null,
-                color: isCurrentUser ? null : Colors.white,
-                borderRadius: BorderRadius.circular(AppTheme.duoBorderRadius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isCurrentUser)
-                    Text(
-                      'Resident',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
-                      ),
-                    ),
-                  if (!isCurrentUser) const SizedBox(height: 4),
-                  Text(
-                    message.content ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isCurrentUser ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatTimestamp(message.createdAt),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: isCurrentUser
-                          ? Colors.white.withValues(alpha: 0.7)
-                          : Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (isCurrentUser) ...[
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-            DuoAvatar(
-              imageUrl: _currentResident?.avatar,
-              initials: 'ME',
-              size: 36,
-              showRing: false,
-            ),
-          ],
-        ],
       ),
     );
   }
@@ -439,19 +362,3 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       ),
     );
   }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else {
-      return '${timestamp.month}/${timestamp.day} ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
-    }
-  }
-}

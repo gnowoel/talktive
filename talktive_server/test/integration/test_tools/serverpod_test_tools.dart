@@ -26,10 +26,12 @@ import 'package:talktive_server/src/generated/moment_like.dart' as _i11;
 import 'package:talktive_server/src/generated/moment_comment.dart' as _i12;
 import 'package:talktive_server/src/generated/user_notification.dart' as _i13;
 import 'package:talktive_server/src/generated/private_chat.dart' as _i14;
-import 'package:talktive_server/src/generated/report.dart' as _i15;
-import 'package:talktive_server/src/generated/user_streak.dart' as _i16;
-import 'package:talktive_server/src/generated/daily_reward.dart' as _i17;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i18;
+import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
+    as _i15;
+import 'package:talktive_server/src/generated/report.dart' as _i16;
+import 'package:talktive_server/src/generated/user_streak.dart' as _i17;
+import 'package:talktive_server/src/generated/daily_reward.dart' as _i18;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i19;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -2329,7 +2331,7 @@ class _PrivateChatEndpoint {
     });
   }
 
-  _i3.Future<List<_i14.PrivateChat>> listPrivateChats(
+  _i3.Future<List<_i15.PrivateChatWithProfile>> listPrivateChats(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -2351,7 +2353,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i14.PrivateChat>>);
+                as _i3.Future<List<_i15.PrivateChatWithProfile>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2502,7 +2504,7 @@ class _ReportEndpoint {
     });
   }
 
-  _i3.Future<List<_i15.Report>> listReports(
+  _i3.Future<List<_i16.Report>> listReports(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required bool onlyUnresolved,
@@ -2529,7 +2531,7 @@ class _ReportEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i15.Report>>);
+                as _i3.Future<List<_i16.Report>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2913,7 +2915,7 @@ class _StreakEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i16.UserStreak?> getUserStreak(
+  _i3.Future<_i17.UserStreak?> getUserStreak(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -2935,7 +2937,7 @@ class _StreakEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i16.UserStreak?>);
+                as _i3.Future<_i17.UserStreak?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2973,7 +2975,7 @@ class _StreakEndpoint {
     });
   }
 
-  _i3.Future<_i17.DailyReward> claimDailyReward(
+  _i3.Future<_i18.DailyReward> claimDailyReward(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -2995,7 +2997,7 @@ class _StreakEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i17.DailyReward>);
+                as _i3.Future<_i18.DailyReward>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3003,7 +3005,7 @@ class _StreakEndpoint {
     });
   }
 
-  _i3.Future<List<_i17.DailyReward>> getRewardHistory(
+  _i3.Future<List<_i18.DailyReward>> getRewardHistory(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -3026,7 +3028,7 @@ class _StreakEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i17.DailyReward>>);
+                as _i3.Future<List<_i18.DailyReward>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3180,7 +3182,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i18.Greeting> hello(
+  _i3.Future<_i19.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -3203,7 +3205,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i18.Greeting>);
+                as _i3.Future<_i19.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

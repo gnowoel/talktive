@@ -8,19 +8,7 @@ import '../../../widgets/duo/duo_button.dart';
 import '../../../widgets/duo/duo_stat_card.dart';
 import '../../../providers/client_provider.dart';
 import '../../../providers/private_chat_provider.dart';
-
-/// Provider for user profile data
-final userProfileProvider =
-    FutureProvider.family<Map<String, dynamic>?, String>((ref, userId) async {
-      try {
-        final client = ref.read(clientProvider);
-        final profile = await client.userProfile.getUserProfile(userId);
-        return profile;
-      } catch (e) {
-        debugPrint('Error loading user profile: $e');
-        return null;
-      }
-    });
+import '../../../providers/user_profile_provider.dart';
 
 class UserProfileScreen extends ConsumerWidget {
   final String userId;

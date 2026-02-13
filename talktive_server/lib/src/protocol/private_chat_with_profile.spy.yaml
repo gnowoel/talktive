@@ -1,0 +1,6 @@
+class: PrivateChatWithProfile
+fields:
+  chat: PrivateChat
+  otherResident: Resident
+  otherUserName: String?
+  otherUserAvatar: String?

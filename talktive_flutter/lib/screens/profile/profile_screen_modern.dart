@@ -10,6 +10,7 @@ import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
@@ -24,11 +25,15 @@ class ProfileScreenModern extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final residentAsync = ref.watch(currentResidentProvider);
+    final resident = residentAsync.value;
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
+    return DuoPageScaffold(
+      emoji: '👤',
+      title: 'Profile',
+      subtitle: _displayName(resident),
+      gradient: AppTheme.duoGreenGradient,
       body: residentAsync.when(
-        data: (resident) => _buildProfile(context, ref, resident),
+        data: (resident) => _buildProfileContent(context, ref, resident),
         loading: () => const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
@@ -54,6 +59,10 @@ class ProfileScreenModern extends ConsumerWidget {
                     fontFamily: 'Poppins',
                   ),
                 ),
+                Text(
+                  error.toString(),
+                  style: const TextStyle(color: Colors.red),
+                ),
               ],
             ),
           ),
@@ -62,12 +71,28 @@ class ProfileScreenModern extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfile(BuildContext context, WidgetRef ref, resident) {
+  Widget _buildProfileContent(BuildContext context, WidgetRef ref, resident) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Gradient header
-          _buildHeader(resident),
+          const SizedBox(height: AppTheme.duoSpacingLarge),
+          // Avatar (Moved from header to body)
+          Center(
+            child:
+                DuoAvatar(
+                      imageUrl: resident?.avatar,
+                      initials: _displayName(resident).isNotEmpty
+                          ? _displayName(resident)[0]
+                          : '?',
+                      size: 100,
+                      floorLevel: resident?.floor,
+                      showRing: true,
+                    )
+                    .animate()
+                    .fadeIn(delay: 100.ms)
+                    .scale(begin: const Offset(0.8, 0.8)),
+          ),
+
           // Streak card
           _buildStreakCard(context, ref),
           // Stats grid
@@ -84,52 +109,6 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildSignOutButton(context, ref),
           const SizedBox(height: 100), // Space for bottom nav
         ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(resident) {
-    final displayName = _displayName(resident);
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.duoSpacingXLarge),
-          child: Column(
-            children: [
-              // Avatar
-              DuoAvatar(
-                    imageUrl: resident?.avatar,
-                    initials: displayName.isNotEmpty ? displayName[0] : '?',
-                    size: 120,
-                    floorLevel: resident?.floor,
-                    ringColor: Colors.white,
-                  )
-                  .animate()
-                  .fadeIn(delay: 100.ms)
-                  .scale(begin: const Offset(0.8, 0.8)),
-              const SizedBox(height: AppTheme.duoSpacingMedium),
-              // Name
-              Text(
-                displayName,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: 'Poppins',
-                ),
-              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_header.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import 'group_chat_screen.dart';
@@ -19,52 +19,11 @@ class GroupsScreenModern extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsState = ref.watch(groupListProvider);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const DuoHeader(
-              emoji: '👥',
-              title: 'Groups',
-              subtitle: 'Join communities',
-            ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
-            Expanded(
-              child: groupsState.when(
-                data: (groups) => groups.isEmpty
-                    ? _buildEmptyState(context)
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          await ref.read(groupListProvider.notifier).refresh();
-                        },
-                        color: AppTheme.primaryColor,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(
-                            AppTheme.duoSpacingMedium,
-                          ),
-                          itemCount: groups.length,
-                          itemBuilder: (context, index) {
-                            final group = groups[index];
-                            return _buildGroupCard(context, ref, group, index)
-                                .animate(
-                                  delay: Duration(milliseconds: index * 50),
-                                )
-                                .fadeIn(duration: 300.ms)
-                                .slideX(begin: -0.1, end: 0);
-                          },
-                        ),
-                      ),
-                loading: () => const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primaryColor,
-                  ),
-                ),
-                error: (error, stack) => _buildErrorState(context, ref, error),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return DuoPageScaffold(
+      emoji: '👥',
+      title: 'Groups',
+      subtitle: 'Join communities',
+      gradient: AppTheme.duoYellowGradient,
       floatingActionButton: FloatingActionButton(
         heroTag: 'groups_fab',
         onPressed: () {
@@ -74,10 +33,39 @@ class GroupsScreenModern extends ConsumerWidget {
             builder: (context) => const CreateGroupDialog(),
           );
         },
-        backgroundColor:
-            AppTheme.duoYellow, // Using yellow to distinguish from chats
+        backgroundColor: AppTheme.duoYellow,
         child: const Icon(Icons.add, size: 28),
       ).animate().scale(delay: 300.ms, duration: 300.ms),
+      body: groupsState.when(
+        data: (groups) => groups.isEmpty
+            ? _buildEmptyState(context)
+            : RefreshIndicator(
+                onRefresh: () async {
+                  await ref.read(groupListProvider.notifier).refresh();
+                },
+                color: AppTheme.primaryColor,
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.duoSpacingMedium,
+                    100, // Space for bottom nav
+                  ),
+                  itemCount: groups.length,
+                  itemBuilder: (context, index) {
+                    final group = groups[index];
+                    return _buildGroupCard(context, ref, group, index)
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: -0.1, end: 0);
+                  },
+                ),
+              ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
+        error: (error, stack) => _buildErrorState(context, ref, error),
+      ),
     );
   }
 

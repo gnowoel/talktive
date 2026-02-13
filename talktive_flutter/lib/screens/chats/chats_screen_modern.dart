@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_header.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -21,58 +21,40 @@ class ChatsScreenModern extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final chatsState = ref.watch(privateChatListProvider);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const DuoHeader(
-              emoji: '💬',
-              title: 'Chats',
-              subtitle: 'Private conversations',
-            ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
-            Expanded(
-              child: chatsState.when(
-                data: (chats) => chats.isEmpty
-                    ? _buildEmptyState(context)
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          await ref
-                              .read(privateChatListProvider.notifier)
-                              .refresh();
-                        },
-                        color: AppTheme.primaryColor,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(
-                            AppTheme.duoSpacingMedium,
-                          ),
-                          itemCount: chats.length,
-                          itemBuilder: (context, index) {
-                            final chatWithProfile = chats[index];
-                            return _buildChatCard(
-                                  context,
-                                  ref,
-                                  chatWithProfile,
-                                  index,
-                                )
-                                .animate(
-                                  delay: Duration(milliseconds: index * 50),
-                                )
-                                .fadeIn(duration: 300.ms)
-                                .slideX(begin: -0.1, end: 0);
-                          },
-                        ),
-                      ),
-                loading: () => const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primaryColor,
+    return DuoPageScaffold(
+      emoji: '💬',
+      title: 'Chats',
+      subtitle: 'Private conversations',
+      gradient: AppTheme.duoOrangeGradient,
+      body: chatsState.when(
+        data: (chats) => chats.isEmpty
+            ? _buildEmptyState(context)
+            : RefreshIndicator(
+                onRefresh: () async {
+                  await ref.read(privateChatListProvider.notifier).refresh();
+                },
+                color: AppTheme.primaryColor,
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.duoSpacingMedium,
+                    100, // Space for bottom nav
                   ),
+                  itemCount: chats.length,
+                  itemBuilder: (context, index) {
+                    final chatWithProfile = chats[index];
+                    return _buildChatCard(context, ref, chatWithProfile, index)
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: -0.1, end: 0);
+                  },
                 ),
-                error: (error, stack) => _buildErrorState(context, ref, error),
               ),
-            ),
-          ],
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
         ),
+        error: (error, stack) => _buildErrorState(context, ref, error),
       ),
     );
   }

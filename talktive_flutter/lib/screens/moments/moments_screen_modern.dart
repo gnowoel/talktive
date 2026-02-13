@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:talktive/serverpod_client.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_header.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_input.dart';
@@ -200,20 +200,11 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            DuoHeader(
-              emoji: '📸',
-              title: 'Moments',
-              subtitle: 'Share your day',
-            ),
-            Expanded(child: _buildBody()),
-          ],
-        ),
-      ),
+    return DuoPageScaffold(
+      emoji: '📸',
+      title: 'Moments',
+      subtitle: 'Share your day',
+      gradient: AppTheme.secondaryGradient,
       floatingActionButton: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -239,6 +230,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
           child: const Icon(Icons.add_a_photo, color: Colors.white),
         ),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
+      body: _buildBody(),
     );
   }
 

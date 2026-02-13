@@ -7,10 +7,11 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_header.dart';
+
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 
 /// Duolingo-style Plaza screen - public chat for all residents
 class PlazaScreenModern extends ConsumerStatefulWidget {
@@ -105,67 +106,63 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(1));
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with stats
-            DuoHeader(
-              emoji: '🏛️',
-              title: 'The Plaza',
-              subtitle: 'Chat with everyone',
-              trailing: _currentResident != null ? _buildStatsChip() : null,
-            ),
-            // Info banner
-            _buildInfoBanner(),
-            // Messages list
-            Expanded(
-              child: chatState.when(
-                data: (messages) {
-                  if (messages.isEmpty) {
-                    return DuoEmptyState(
-                      emoji: '👋',
-                      title: 'Say hello!',
-                      subtitle: 'Be the first to start a conversation',
-                    );
-                  }
-                  return _buildMessagesList(messages);
-                },
-                loading: () => const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryColor,
-                    ),
+    return DuoPageScaffold(
+      emoji: '🏛️',
+      title: 'The Plaza',
+      subtitle: 'Chat with everyone',
+      gradient: AppTheme.primaryGradient,
+      trailingHeader: _currentResident != null ? _buildStatsChip() : null,
+      body: Column(
+        children: [
+          // Info banner
+          _buildInfoBanner(),
+          // Messages list
+          Expanded(
+            child: chatState.when(
+              data: (messages) {
+                if (messages.isEmpty) {
+                  return DuoEmptyState(
+                    emoji: '👋',
+                    title: 'Say hello!',
+                    subtitle: 'Be the first to start a conversation',
+                  );
+                }
+                return _buildMessagesList(messages);
+              },
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryColor,
                   ),
                 ),
-                error: (error, stack) => Center(
-                  child: DuoCard(
-                    margin: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: AppTheme.errorColor,
-                          size: 48,
-                        ),
-                        const SizedBox(height: AppTheme.duoSpacingMedium),
-                        Text(
-                          'Error: $error',
-                          style: const TextStyle(color: AppTheme.textSecondary),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+              ),
+              error: (error, stack) => Center(
+                child: DuoCard(
+                  margin: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: AppTheme.errorColor,
+                        size: 48,
+                      ),
+                      const SizedBox(height: AppTheme.duoSpacingMedium),
+                      Text(
+                        'Error: $error',
+                        style: const TextStyle(color: AppTheme.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-            // Input area
-            _buildInputArea(),
-          ],
-        ),
+          ),
+          // Input area
+          _buildInputArea(),
+          const SizedBox(height: 100), // Space for bottom nav
+        ],
       ),
     );
   }

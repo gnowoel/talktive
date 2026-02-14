@@ -394,32 +394,46 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   Widget _buildFeatureItem(String feature, {int delay = 0}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.check, color: Colors.white, size: 16),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              feature,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.95),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check,
+                  color: AppTheme.primaryColor,
+                  size: 16,
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  feature,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                        color: Colors.black26,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ).animate().fadeIn(delay: delay.ms).slideX(begin: -0.2, end: 0);
+        )
+        .animate()
+        .fadeIn(delay: delay.ms)
+        .slideX(begin: -0.2, end: 0, curve: Curves.easeOutQuad);
   }
 
   Widget _buildPageIndicator(int index) {
@@ -430,8 +444,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
       height: 8,
       width: isActive ? 24 : 8,
       decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.white.withOpacity(0.4),
+        color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(4),
+        boxShadow: [
+          if (isActive)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+        ],
       ),
     );
   }

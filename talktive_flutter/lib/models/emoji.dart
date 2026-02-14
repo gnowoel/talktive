@@ -6,35 +6,38 @@ class Emoji {
   final String code;
   final String name;
 
-  const Emoji({
-    required this.code,
-    required this.name,
-  });
+  const Emoji({required this.code, required this.name});
 
   Map<String, dynamic> toJson() {
-    return {
-      'code': code,
-      'name': name,
-    };
+    return {'code': code, 'name': name};
   }
 
   factory Emoji.fromJson(Map<String, dynamic> json) {
-    return Emoji(
-      code: json['code'] as String,
-      name: json['name'] as String,
-    );
+    return Emoji(code: json['code'] as String, name: json['name'] as String);
   }
 
   static Emoji random() {
     final randomEmoji = _collection[Random().nextInt(_collection.length)];
 
-    return Emoji(
-      code: randomEmoji.emoji,
-      name: randomEmoji.name,
-    );
+    return Emoji(code: randomEmoji.emoji, name: randomEmoji.name);
   }
 
   static final List<emojis.Emoji> _collection = _emojis.where((emoji) {
+    // Filter out aggressive or inappropriate emojis
+    if ([
+      '🔪',
+      '🔫',
+      '💣',
+      '🩸',
+      '💊',
+      '💉',
+      '🚬',
+      '⚰️',
+      '🪦',
+    ].contains(emoji.emoji)) {
+      return false;
+    }
+
     return _categories.contains(emoji.category) &&
         emoji.hasImgApple &&
         emoji.hasImgGoogle;

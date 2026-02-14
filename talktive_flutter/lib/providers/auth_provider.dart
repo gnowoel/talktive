@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../config/auth_config.dart';
 import '../serverpod_client.dart';
 
 part 'auth_provider.g.dart';
@@ -81,7 +83,10 @@ class Auth extends _$Auth {
 
     try {
       // 1. Sign in with Google (Client Side)
-      final googleUser = await GoogleSignIn().signIn();
+      final googleSignIn = GoogleSignIn(
+        clientId: kIsWeb ? AuthConfig.webClientId : null,
+      );
+      final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
         // User cancelled
@@ -183,7 +188,10 @@ class Auth extends _$Auth {
     try {
       await sessionManager.signOutDevice();
       await FirebaseAuth.instance.signOut();
-      await GoogleSignIn().signOut();
+      final googleSignIn = GoogleSignIn(
+        clientId: kIsWeb ? AuthConfig.webClientId : null,
+      );
+      await googleSignIn.signOut();
     } catch (e) {
       debugPrint("SignOut error: $e");
     }

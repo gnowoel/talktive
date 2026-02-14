@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:serverpod_auth_core_flutter/serverpod_auth_core_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -14,8 +15,8 @@ late final FlutterAuthSessionManager sessionManager;
 Future<void> initializeServerpodClient() async {
   // The server URL is fetched from the assets/config.json file.
   // final serverUrl = await getServerUrl();
-  // Hardcoded for emulator
-  const serverUrl = 'http://10.0.2.2:8080';
+  // Hardcoded for emulator/web loopback
+  final serverUrl = kIsWeb ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
 
   client = Client(serverUrl)
     ..connectivityMonitor = FlutterConnectivityMonitor();

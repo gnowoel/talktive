@@ -53,8 +53,9 @@ ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 firepit-log.txt
 
-# AdMob configuration (keep private)
+# Authentication & AdMob (keep private)
 lib/config/ad_config.dart
+lib/config/auth_config.dart
 android/app/src/main/res/values/strings.xml
 
 # Emacs related

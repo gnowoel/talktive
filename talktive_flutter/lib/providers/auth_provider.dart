@@ -85,6 +85,7 @@ class Auth extends _$Auth {
       // 1. Sign in with Google (Client Side)
       final googleSignIn = GoogleSignIn(
         clientId: kIsWeb ? AuthConfig.webClientId : null,
+        scopes: ['openid'],
       );
       final googleUser = await googleSignIn.signIn();
 

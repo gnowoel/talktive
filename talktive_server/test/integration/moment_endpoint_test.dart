@@ -509,6 +509,219 @@ void main() {
           throwsA(isA<Exception>()),
         );
       });
+    group('hasLikedMoments (batch)', () {
+      test('returns correct like status for multiple moments', () async {
+        final session = await sessionBuilder.build();
+
+        // Create author
+        final author = Resident(
+          userInfoId: UuidValue.fromString(
+            '00000000-0000-0000-0000-000000000201',
+          ),
+          floor: 2,
+          creditScore: 100,
+          experienceMessageCount: 0,
+        );
+        await Resident.db.insertRow(session, author);
+
+        // Create liker
+        final liker = Resident(
+          userInfoId: UuidValue.fromString(
+            '00000000-0000-0000-0000-000000000202',
+          ),
+          floor: 1,
+          creditScore: 100,
+          experienceMessageCount: 0,
+        );
+        await Resident.db.insertRow(session, liker);
+
+        // Create 5 moments
+        final momentIds = <int>[];
+        for (var i = 0; i < 5; i++) {
+          final moment = Moment(
+            authorId: author.id!,
+            imageUrl: 'https://example.com/image$i.jpg',
+            caption: 'Test moment $i',
+            likesCount: 0,
+            commentsCount: 0,
+            createdAt: DateTime.now(),
+            authorName: 'Author',
+            authorAvatar: '',
+            authorFloor: 2,
+          );
+          final saved = await Moment.db.insertRow(session, moment);
+          momentIds.add(saved.id!);
+        }
+
+        final sessionWithAuth = sessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            liker.userInfoId.uuid,
+            {},
+          ),
+        );
+
+        // Like moments 0, 2, and 4
+        await endpoints.moment.likeMoment(sessionWithAuth, momentIds[0]);
+        await endpoints.moment.likeMoment(sessionWithAuth, momentIds[2]);
+        await endpoints.moment.likeMoment(sessionWithAuth, momentIds[4]);
+
+        // Check batch like status
+        final likeMap = await endpoints.moment.hasLikedMoments(
+          sessionWithAuth,
+          momentIds,
+        );
+
+        expect(likeMap[momentIds[0]], true);
+        expect(likeMap[momentIds[1]], false);
+        expect(likeMap[momentIds[2]], true);
+        expect(likeMap[momentIds[3]], false);
+        expect(likeMap[momentIds[4]], true);
+      });
+
+      test('returns empty map for empty input', () async {
+        final session = await sessionBuilder.build();
+
+        // Create user
+        final user = Resident(
+          userInfoId: UuidValue.fromString(
+            '00000000-0000-0000-0000-000000000203',
+          ),
+          floor: 1,
+          creditScore: 100,
+          experienceMessageCount: 0,
+        );
+        await Resident.db.insertRow(session, user);
+
+        final sessionWithAuth = sessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            user.userInfoId.uuid,
+            {},
+          ),
+        );
+
+        final likeMap = await endpoints.moment.hasLikedMoments(
+          sessionWithAuth,
+          [],
+        );
+
+        expect(likeMap, isEmpty);
+      });
+
+      test('returns all false for unauthenticated user', () async {
+        final session = await sessionBuilder.build();
+
+        // Create author and moments
+        final author = Resident(
+          userInfoId: UuidValue.fromString(
+            '00000000-0000-0000-0000-000000000204',
+          ),
+          floor: 2,
+          creditScore: 100,
+          experienceMessageCount: 0,
+        );
+        await Resident.db.insertRow(session, author);
+
+        final momentIds = <int>[];
+        for (var i = 0; i < 3; i++) {
+          final moment = Moment(
+            authorId: author.id!,
+            imageUrl: 'https://example.com/image$i.jpg',
+            caption: 'Test',
+            likesCount: 0,
+            commentsCount: 0,
+            createdAt: DateTime.now(),
+            authorName: 'Author',
+            authorAvatar: '',
+            authorFloor: 2,
+          );
+          final saved = await Moment.db.insertRow(session, moment);
+          momentIds.add(saved.id!);
+        }
+
+        // Check without authentication
+        final likeMap = await endpoints.moment.hasLikedMoments(
+          sessionBuilder, // No auth
+          momentIds,
+        );
+
+        expect(likeMap[momentIds[0]], false);
+        expect(likeMap[momentIds[1]], false);
+        expect(likeMap[momentIds[2]], false);
+      });
+
+      test('handles large batch efficiently', () async {
+        final session = await sessionBuilder.build();
+
+        // Create author
+        final author = Resident(
+          userInfoId: UuidValue.fromString(
+            '00000000-0000-0000-0000-000000000205',
+          ),
+          floor: 2,
+          creditScore: 100,
+          experienceMessageCount: 0,
+        );
+        await Resident.db.insertRow(session, author);
+
+        // Create liker
+        final liker = Resident(
+          userInfoId: UuidValue.fromString(
+            '00000000-0000-0000-0000-000000000206',
+          ),
+          floor: 1,
+          creditScore: 100,
+          experienceMessageCount: 0,
+        );
+        await Resident.db.insertRow(session, liker);
+
+        // Create 50 moments
+        final momentIds = <int>[];
+        for (var i = 0; i < 50; i++) {
+          final moment = Moment(
+            authorId: author.id!,
+            imageUrl: 'https://example.com/image$i.jpg',
+            caption: 'Test moment $i',
+            likesCount: 0,
+            commentsCount: 0,
+            createdAt: DateTime.now(),
+            authorName: 'Author',
+            authorAvatar: '',
+            authorFloor: 2,
+          );
+          final saved = await Moment.db.insertRow(session, moment);
+          momentIds.add(saved.id!);
+        }
+
+        final sessionWithAuth = sessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            liker.userInfoId.uuid,
+            {},
+          ),
+        );
+
+        // Like every 5th moment
+        for (var i = 0; i < momentIds.length; i += 5) {
+          await endpoints.moment.likeMoment(sessionWithAuth, momentIds[i]);
+        }
+
+        // Check batch like status - should complete quickly
+        final stopwatch = Stopwatch()..start();
+        final likeMap = await endpoints.moment.hasLikedMoments(
+          sessionWithAuth,
+          momentIds,
+        );
+        stopwatch.stop();
+
+        // Verify correctness
+        expect(likeMap.length, 50);
+        for (var i = 0; i < momentIds.length; i++) {
+          expect(likeMap[momentIds[i]], i % 5 == 0);
+        }
+
+        // Performance check: should be much faster than 50 individual queries
+        // With batch: ~1 query, without: 50 queries
+        expect(stopwatch.elapsedMilliseconds, lessThan(1000));
+      });
     });
   });
 }

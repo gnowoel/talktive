@@ -79,6 +79,18 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - **Profile**: Green (Growth & Progress)
   - Polished input areas and card styling for maximum visual consistency.
   - Fixed `500 Error` logic in `MomentEndpoint` with graceful client-side handling.
+- Phase 8.6: Code Quality & Architecture Improvements (Feb 2026)
+  - **Shared Utilities**: Created reusable helpers to eliminate code duplication:
+    - `date_formatter.dart`: Centralized timestamp formatting (~60 lines saved)
+    - `snackbar_helper.dart`: Consistent SnackBar styling across all screens
+    - `DuoLoadingIndicator`: Standardized loading states
+  - **Provider Migration**: Migrated PlazaScreenModern from manual state to `currentResidentProvider`
+  - **Responsive Design**: Replaced hardcoded bottom padding (100px) with responsive constants:
+    - Added `AppTheme.bottomNavHeight`, `bottomNavMargin`, `contentBottomPadding`
+    - Updated all 5 main screens for proper responsiveness
+  - **Error Handling**: Standardized error states using `DuoEmptyState` with retry buttons
+  - **Code Reduction**: Removed ~150+ lines of duplicate code across screens
+  - **Future-Ready**: Created `MomentsProvider` for future state management migration
 
 **Status:** 🏗️ In Progress
 

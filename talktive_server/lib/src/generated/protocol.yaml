@@ -29,6 +29,8 @@ admin:
   - promoteToAdmin:
   - demoteFromAdmin:
   - getUserDetails:
+  - runArchival:
+  - getArchivalStats:
 group:
   - createGroup:
   - listGroups:

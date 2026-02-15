@@ -3,6 +3,7 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:uuid/uuid.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/cache_service.dart';
+import '../services/data_archival_service.dart';
 
 class AdminEndpoint extends Endpoint {
   /// Check if the current user is an admin
@@ -600,5 +601,17 @@ class AdminEndpoint extends Endpoint {
       'reportsAgainst': reports.map((r) => r.toJson()).toList(),
       'reportsMade': reportsMade.map((r) => r.toJson()).toList(),
     };
+  }
+
+  /// Run data archival tasks (admin only).
+  Future<Map<String, int>> runArchival(Session session) async {
+    await _requireAdmin(session);
+    return await DataArchivalService.runArchivalTasks(session);
+  }
+
+  /// Get archival statistics (admin only).
+  Future<Map<String, int>> getArchivalStats(Session session) async {
+    await _requireAdmin(session);
+    return await DataArchivalService.getArchivalStats(session);
   }
 }

@@ -316,6 +316,12 @@ class Protocol extends _i1.SerializationManager {
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
+    if (t == Map<String, int>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<int>(v)),
+          )
+          as T;
+    }
     if (t == List<_i29.Group>) {
       return (data as List).map((e) => deserialize<_i29.Group>(e)).toList()
           as T;

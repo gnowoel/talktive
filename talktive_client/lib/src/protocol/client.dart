@@ -462,6 +462,22 @@ class EndpointAdmin extends _i2.EndpointRef {
         'getUserDetails',
         {'userId': userId},
       );
+
+  /// Run data archival tasks (admin only).
+  _i3.Future<Map<String, int>> runArchival() =>
+      caller.callServerEndpoint<Map<String, int>>(
+        'admin',
+        'runArchival',
+        {},
+      );
+
+  /// Get archival statistics (admin only).
+  _i3.Future<Map<String, int>> getArchivalStats() =>
+      caller.callServerEndpoint<Map<String, int>>(
+        'admin',
+        'getArchivalStats',
+        {},
+      );
 }
 
 /// {@category Endpoint}

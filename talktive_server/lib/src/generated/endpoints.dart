@@ -722,6 +722,27 @@ class Endpoints extends _i1.EndpointDispatch {
                     userId: params['userId'],
                   ),
         ),
+        'runArchival': _i1.MethodConnector(
+          name: 'runArchival',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i6.AdminEndpoint).runArchival(
+                session,
+              ),
+        ),
+        'getArchivalStats': _i1.MethodConnector(
+          name: 'getArchivalStats',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i6.AdminEndpoint)
+                  .getArchivalStats(session),
+        ),
       },
     );
     connectors['group'] = _i1.EndpointConnector(

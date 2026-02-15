@@ -6,6 +6,7 @@ import 'package:talktive/serverpod_client.dart';
 import '../../config/theme.dart';
 import '../../helpers/date_formatter.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../../utils/error_handler.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
@@ -71,12 +72,11 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       if (mounted) {
         Navigator.pop(context);
         _loadMoments();
-        SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
+        ErrorHandler.showSuccess(context, 'Moment posted! 🎉');
       }
     } catch (e) {
       if (mounted) {
-        // Parse error message to remove "Exception: " prefix
-        String errorMessage = e.toString().replaceAll('Exception: ', '');
+        final errorMessage = ErrorHandler.getErrorMessage(e);
 
         if (errorMessage.contains('Floor 2')) {
           // Show a nice dialog for the floor restriction
@@ -122,17 +122,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
             ),
           );
         } else {
-          // Standard error snackbar
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: AppTheme.errorColor,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-              ),
-            ),
-          );
+          ErrorHandler.showError(context, e);
         }
       }
     }

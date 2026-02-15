@@ -52,3 +52,86 @@ abstract class _$CurrentResident extends $AsyncNotifier<Resident?> {
     element.handleCreate(ref, build);
   }
 }
+
+/// Provider to fetch a resident by their user ID
+
+@ProviderFor(residentById)
+final residentByIdProvider = ResidentByIdFamily._();
+
+/// Provider to fetch a resident by their user ID
+
+final class ResidentByIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Resident?>,
+          Resident?,
+          FutureOr<Resident?>
+        >
+    with $FutureModifier<Resident?>, $FutureProvider<Resident?> {
+  /// Provider to fetch a resident by their user ID
+  ResidentByIdProvider._({
+    required ResidentByIdFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'residentByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$residentByIdHash();
+
+  @override
+  String toString() {
+    return r'residentByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Resident?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Resident?> create(Ref ref) {
+    final argument = this.argument as String;
+    return residentById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ResidentByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$residentByIdHash() => r'f6822834ba639e01bc43a0c338559022079e6809';
+
+/// Provider to fetch a resident by their user ID
+
+final class ResidentByIdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Resident?>, String> {
+  ResidentByIdFamily._()
+    : super(
+        retry: null,
+        name: r'residentByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider to fetch a resident by their user ID
+
+  ResidentByIdProvider call(String userId) =>
+      ResidentByIdProvider._(argument: userId, from: this);
+
+  @override
+  String toString() => r'residentByIdProvider';
+}

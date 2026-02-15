@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
-import '../../providers/client_provider.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
+import '../../helpers/snackbar_helper.dart';
 
 import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
@@ -24,13 +26,6 @@ class PlazaScreenModern extends ConsumerStatefulWidget {
 class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
-  Resident? _currentResident;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCurrentResident();
-  }
 
   @override
   void dispose() {
@@ -39,37 +34,16 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
     super.dispose();
   }
 
-  Future<void> _loadCurrentResident() async {
-    try {
-      final client = ref.read(clientProvider);
-      final resident = await client.resident.getResident();
-      if (mounted) {
-        setState(() {
-          _currentResident = resident;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading resident: $e');
-    }
-  }
-
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
     if (content.isEmpty) return;
 
+    final currentResident = ref.read(currentResidentProvider).value;
+
     // Check credit score
-    if (_currentResident != null && _currentResident!.creditScore <= 0) {
+    if (currentResident != null && currentResident.creditScore <= 0) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('You need credits to send messages'),
-            backgroundColor: AppTheme.errorColor,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-            ),
-          ),
-        );
+        SnackBarHelper.showError(context, 'You need credits to send messages');
       }
       return;
     }
@@ -88,16 +62,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: AppTheme.errorColor,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-            ),
-          ),
-        );
+        SnackBarHelper.showError(context, e.toString());
       }
     }
   }
@@ -105,13 +70,17 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(1));
+    final currentResidentAsync = ref.watch(currentResidentProvider);
+    final currentResident = currentResidentAsync.value;
 
     return DuoPageScaffold(
       emoji: '🏛️',
       title: 'The Plaza',
       subtitle: 'Chat with everyone',
       gradient: AppTheme.primaryGradient,
-      trailingHeader: _currentResident != null ? _buildStatsChip() : null,
+      trailingHeader: currentResident != null
+          ? _buildStatsChip(currentResident)
+          : null,
       body: Column(
         children: [
           // Info banner
@@ -121,53 +90,35 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
             child: chatState.when(
               data: (messages) {
                 if (messages.isEmpty) {
-                  return DuoEmptyState(
+                  return const DuoEmptyState(
                     emoji: '👋',
                     title: 'Say hello!',
                     subtitle: 'Be the first to start a conversation',
                   );
                 }
-                return _buildMessagesList(messages);
+                return _buildMessagesList(messages, currentResident);
               },
-              loading: () => const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryColor,
-                  ),
-                ),
-              ),
-              error: (error, stack) => Center(
-                child: DuoCard(
-                  margin: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: AppTheme.errorColor,
-                        size: 48,
-                      ),
-                      const SizedBox(height: AppTheme.duoSpacingMedium),
-                      Text(
-                        'Error: $error',
-                        style: const TextStyle(color: AppTheme.textSecondary),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
+              loading: () => const DuoLoadingIndicator(),
+              error: (error, stack) => DuoEmptyState(
+                emoji: '😕',
+                title: 'Connection Error',
+                subtitle: error.toString(),
+                actionLabel: 'Retry',
+                onAction: () {
+                  ref.read(realtimeChatProvider(1).notifier).refresh();
+                },
               ),
             ),
           ),
           // Input area
-          _buildInputArea(),
+          _buildInputArea(currentResident),
           const SizedBox(height: 100), // Space for bottom nav
         ],
       ),
     );
   }
 
-  Widget _buildStatsChip() {
+  Widget _buildStatsChip(Resident currentResident) {
     return DuoCard(
       padding: const EdgeInsets.symmetric(
         horizontal: AppTheme.duoSpacingMedium,
@@ -178,7 +129,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '🏢 ${_currentResident!.floor}',
+            '🏢 ${currentResident.floor}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -189,11 +140,11 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           Container(width: 1, height: 16, color: AppTheme.textLight),
           const SizedBox(width: AppTheme.duoSpacingSmall),
           Text(
-            '💰 ${_currentResident!.creditScore}',
+            '💰 ${currentResident.creditScore}',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: _currentResident!.creditScore > 0
+              color: currentResident.creditScore > 0
                   ? AppTheme.duoGreen
                   : AppTheme.errorColor,
               fontFamily: 'Poppins',
@@ -238,7 +189,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
     ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0);
   }
 
-  Widget _buildMessagesList(List<Message> messages) {
+  Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
@@ -264,13 +215,13 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         itemBuilder: (context, index) {
           final message = filteredMessages[index];
           final isCurrentUser =
-              _currentResident != null &&
-              message.senderId == _currentResident!.userInfoId;
+              currentResident != null &&
+              message.senderId == currentResident.userInfoId;
 
           return MessageBubbleModern(
                 message: message,
                 isCurrentUser: isCurrentUser,
-                currentResident: _currentResident,
+                currentResident: currentResident,
               )
               .animate()
               .fadeIn(delay: Duration(milliseconds: index * 30))
@@ -280,9 +231,8 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
     );
   }
 
-  Widget _buildInputArea() {
-    final canSend =
-        _currentResident == null || _currentResident!.creditScore > 0;
+  Widget _buildInputArea(Resident? currentResident) {
+    final canSend = currentResident == null || currentResident.creditScore > 0;
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),

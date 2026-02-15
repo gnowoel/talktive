@@ -333,7 +333,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   Widget _buildInputArea() {
     final canSend =
-        _currentResident != null && _currentResident!.creditScore > 0;
+        _currentResident != null && _currentResident!.reputation > 0;
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -386,7 +386,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         decoration: InputDecoration(
                           hintText: canSend
                               ? 'Type a message...'
-                              : 'Muted (low credit score)',
+                              : 'Muted (low reputation)',
                           border: InputBorder.none,
                           hintStyle: TextStyle(color: Colors.grey[400]),
                         ),
@@ -438,7 +438,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       ),
     );
   }
-
 
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();

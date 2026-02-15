@@ -19,9 +19,9 @@ admin:
   - getPendingReports:
   - getAllReports:
   - resolveReport:
-  - banUser:
-  - unbanUser:
-  - muteUser:
+  - suspendUser:
+  - unsuspendUser:
+  - resetReputation:
   - deleteMessage:
   - deleteMoment:
   - getStatistics:

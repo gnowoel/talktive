@@ -196,39 +196,40 @@ class ProfileScreenModern extends ConsumerWidget {
         crossAxisSpacing: AppTheme.duoSpacingMedium,
         childAspectRatio: 1.1,
         children: [
+          // Reputation (Safety Score)
+          DuoStatCard(
+                icon: Icons.star,
+                value: '${resident?.reputation ?? 100}',
+                label: 'Reputation',
+                gradientColors: [
+                  _getReputationColor(resident?.reputation ?? 100),
+                  _getReputationColor(
+                    resident?.reputation ?? 100,
+                  ).withOpacity(0.7),
+                ],
+              )
+              .animate()
+              .fadeIn(delay: 300.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+          // XP (Experience Points)
+          _buildXPCard(resident)
+              .animate()
+              .fadeIn(delay: 350.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+          // Level/Floor
           DuoStatCard(
                 icon: Icons.apartment,
-                value: '${resident?.floor ?? 0}',
-                label: 'Floor Level',
+                value: '${resident?.level ?? 0}',
+                label: 'Level',
                 gradientColors: [
                   AppTheme.primaryColor,
                   AppTheme.primaryColor.withOpacity(0.7),
                 ],
               )
               .animate()
-              .fadeIn(delay: 300.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-          DuoStatCard(
-                icon: Icons.star,
-                value: '${resident?.experienceMessageCount ?? 0}',
-                label: 'Experience',
-                gradientColors: [AppTheme.duoYellow, Colors.orange],
-              )
-              .animate()
-              .fadeIn(delay: 350.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-          DuoStatCard(
-                icon: Icons.credit_score,
-                value: '${resident?.creditScore ?? 0}',
-                label: 'Credits',
-                gradientColors: [
-                  AppTheme.duoGreen,
-                  AppTheme.duoGreen.withOpacity(0.7),
-                ],
-              )
-              .animate()
               .fadeIn(delay: 400.ms)
               .scale(begin: const Offset(0.8, 0.8)),
+          // Messages
           DuoStatCard(
                 icon: Icons.message,
                 value: '${resident?.experienceMessageCount ?? 0}',
@@ -243,6 +244,30 @@ class ProfileScreenModern extends ConsumerWidget {
               .scale(begin: const Offset(0.8, 0.8)),
         ],
       ),
+    );
+  }
+
+  /// Get color based on reputation value
+  Color _getReputationColor(int reputation) {
+    if (reputation > 50) {
+      return AppTheme.duoGreen; // Good standing
+    } else if (reputation >= 20) {
+      return AppTheme.duoYellow; // Warning
+    } else {
+      return AppTheme.duoRed; // Danger
+    }
+  }
+
+  /// Build XP card with progress indicator
+  Widget _buildXPCard(resident) {
+    final xp = resident?.xp ?? 0;
+    final xpInCurrentLevel = xp % 100; // XP within current level
+
+    return DuoStatCard(
+      icon: Icons.stars,
+      value: '$xp',
+      label: 'XP • ${xpInCurrentLevel}/100',
+      gradientColors: [AppTheme.duoYellow, Colors.orange],
     );
   }
 
@@ -528,7 +553,7 @@ class ProfileScreenModern extends ConsumerWidget {
             const SizedBox(width: AppTheme.duoSpacingMedium),
             const Expanded(
               child: Text(
-                'Your floor level determines your privileges in the apartment building',
+                'Earn XP by sending messages and posting moments. Level up to unlock new features!',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppTheme.textSecondary,

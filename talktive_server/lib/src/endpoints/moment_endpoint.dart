@@ -4,8 +4,9 @@ import '../generated/protocol.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/notification_service.dart';
-import '../services/cache_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/apartment_service.dart';
+import '../services/gamification_service.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
@@ -38,16 +39,16 @@ class MomentEndpoint extends Endpoint {
       throw Exception('Resident not found');
     }
 
-    // 2. Floor restriction: Only Floor 2+ can post moments
-    if (resident.floor < 2) {
+    // 2. Level restriction: Only Level 10+ can post moments (prevent spam)
+    if (resident.level < 10) {
       throw Exception(
-        'You must be at least Floor 2 to post moments. Keep chatting to level up! (Current floor: ${resident.floor})',
+        'You must be at least Level 10 to post moments. Keep chatting to level up! (Current level: ${resident.level})',
       );
     }
 
-    // 3. Check credit score
-    if (resident.creditScore <= 0) {
-      throw Exception('You are muted due to low credit score.');
+    // 3. Check if user is muted
+    if (ApartmentService.isMuted(resident)) {
+      throw Exception(ApartmentService.getMuteReason(resident));
     }
 
     // 4. Fetch User Profile
@@ -72,8 +73,13 @@ class MomentEndpoint extends Endpoint {
 
     final savedMoment = await Moment.db.insertRow(session, moment);
 
-    // Invalidate discovery cache (trending moments)
-    await CacheService.invalidateDiscoveryCache(session);
+    // Award XP for posting moment
+    await GamificationService.awardXP(
+      session,
+      resident,
+      GamificationService.XP_PER_MOMENT,
+      'Posted moment',
+    );
 
     // Track achievements
     await AchievementService.trackProgress(

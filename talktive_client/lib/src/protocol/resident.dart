@@ -17,38 +17,59 @@ abstract class Resident implements _i1.SerializableModel {
   Resident._({
     this.id,
     required this.userInfoId,
-    required this.floor,
-    required this.creditScore,
-    required this.experienceMessageCount,
+    int? reputation,
+    this.lastReputationIncrease,
+    this.mutedUntil,
+    bool? suspended,
+    int? xp,
+    int? level,
+    int? floor,
+    int? currentStreak,
+    int? longestStreak,
+    this.lastLoginDate,
+    this.lastMessageDate,
+    int? experienceMessageCount,
     this.gender,
     this.country,
     this.bio,
     this.avatar,
-    this.role,
     this.interests,
     this.languages,
+    this.role,
     bool? isAdmin,
-    bool? isBanned,
-    this.lastCreditIncrease,
-  }) : isAdmin = isAdmin ?? false,
-       isBanned = isBanned ?? false;
+  }) : reputation = reputation ?? 100,
+       suspended = suspended ?? false,
+       xp = xp ?? 0,
+       level = level ?? 0,
+       floor = floor ?? 0,
+       currentStreak = currentStreak ?? 0,
+       longestStreak = longestStreak ?? 0,
+       experienceMessageCount = experienceMessageCount ?? 0,
+       isAdmin = isAdmin ?? false;
 
   factory Resident({
     int? id,
     required _i1.UuidValue userInfoId,
-    required int floor,
-    required int creditScore,
-    required int experienceMessageCount,
+    int? reputation,
+    DateTime? lastReputationIncrease,
+    DateTime? mutedUntil,
+    bool? suspended,
+    int? xp,
+    int? level,
+    int? floor,
+    int? currentStreak,
+    int? longestStreak,
+    DateTime? lastLoginDate,
+    DateTime? lastMessageDate,
+    int? experienceMessageCount,
     String? gender,
     String? country,
     String? bio,
     String? avatar,
-    String? role,
     List<String>? interests,
     List<String>? languages,
+    String? role,
     bool? isAdmin,
-    bool? isBanned,
-    DateTime? lastCreditIncrease,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -57,15 +78,38 @@ abstract class Resident implements _i1.SerializableModel {
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
-      floor: jsonSerialization['floor'] as int,
-      creditScore: jsonSerialization['creditScore'] as int,
+      reputation: jsonSerialization['reputation'] as int?,
+      lastReputationIncrease:
+          jsonSerialization['lastReputationIncrease'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['lastReputationIncrease'],
+            ),
+      mutedUntil: jsonSerialization['mutedUntil'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
+      suspended: jsonSerialization['suspended'] as bool?,
+      xp: jsonSerialization['xp'] as int?,
+      level: jsonSerialization['level'] as int?,
+      floor: jsonSerialization['floor'] as int?,
+      currentStreak: jsonSerialization['currentStreak'] as int?,
+      longestStreak: jsonSerialization['longestStreak'] as int?,
+      lastLoginDate: jsonSerialization['lastLoginDate'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['lastLoginDate'],
+            ),
+      lastMessageDate: jsonSerialization['lastMessageDate'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['lastMessageDate'],
+            ),
       experienceMessageCount:
-          jsonSerialization['experienceMessageCount'] as int,
+          jsonSerialization['experienceMessageCount'] as int?,
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
       bio: jsonSerialization['bio'] as String?,
       avatar: jsonSerialization['avatar'] as String?,
-      role: jsonSerialization['role'] as String?,
       interests: jsonSerialization['interests'] == null
           ? null
           : _i2.Protocol().deserialize<List<String>>(
@@ -76,13 +120,8 @@ abstract class Resident implements _i1.SerializableModel {
           : _i2.Protocol().deserialize<List<String>>(
               jsonSerialization['languages'],
             ),
+      role: jsonSerialization['role'] as String?,
       isAdmin: jsonSerialization['isAdmin'] as bool?,
-      isBanned: jsonSerialization['isBanned'] as bool?,
-      lastCreditIncrease: jsonSerialization['lastCreditIncrease'] == null
-          ? null
-          : _i1.DateTimeJsonExtension.fromJson(
-              jsonSerialization['lastCreditIncrease'],
-            ),
     );
   }
 
@@ -93,9 +132,27 @@ abstract class Resident implements _i1.SerializableModel {
 
   _i1.UuidValue userInfoId;
 
+  int reputation;
+
+  DateTime? lastReputationIncrease;
+
+  DateTime? mutedUntil;
+
+  bool suspended;
+
+  int xp;
+
+  int level;
+
   int floor;
 
-  int creditScore;
+  int currentStreak;
+
+  int longestStreak;
+
+  DateTime? lastLoginDate;
+
+  DateTime? lastMessageDate;
 
   int experienceMessageCount;
 
@@ -107,17 +164,13 @@ abstract class Resident implements _i1.SerializableModel {
 
   String? avatar;
 
-  String? role;
-
   List<String>? interests;
 
   List<String>? languages;
 
+  String? role;
+
   bool isAdmin;
-
-  bool isBanned;
-
-  DateTime? lastCreditIncrease;
 
   /// Returns a shallow copy of this [Resident]
   /// with some or all fields replaced by the given arguments.
@@ -125,19 +178,26 @@ abstract class Resident implements _i1.SerializableModel {
   Resident copyWith({
     int? id,
     _i1.UuidValue? userInfoId,
+    int? reputation,
+    DateTime? lastReputationIncrease,
+    DateTime? mutedUntil,
+    bool? suspended,
+    int? xp,
+    int? level,
     int? floor,
-    int? creditScore,
+    int? currentStreak,
+    int? longestStreak,
+    DateTime? lastLoginDate,
+    DateTime? lastMessageDate,
     int? experienceMessageCount,
     String? gender,
     String? country,
     String? bio,
     String? avatar,
-    String? role,
     List<String>? interests,
     List<String>? languages,
+    String? role,
     bool? isAdmin,
-    bool? isBanned,
-    DateTime? lastCreditIncrease,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -145,20 +205,27 @@ abstract class Resident implements _i1.SerializableModel {
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
+      'reputation': reputation,
+      if (lastReputationIncrease != null)
+        'lastReputationIncrease': lastReputationIncrease?.toJson(),
+      if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
+      'suspended': suspended,
+      'xp': xp,
+      'level': level,
       'floor': floor,
-      'creditScore': creditScore,
+      'currentStreak': currentStreak,
+      'longestStreak': longestStreak,
+      if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
+      if (lastMessageDate != null) 'lastMessageDate': lastMessageDate?.toJson(),
       'experienceMessageCount': experienceMessageCount,
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
       if (avatar != null) 'avatar': avatar,
-      if (role != null) 'role': role,
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
+      if (role != null) 'role': role,
       'isAdmin': isAdmin,
-      'isBanned': isBanned,
-      if (lastCreditIncrease != null)
-        'lastCreditIncrease': lastCreditIncrease?.toJson(),
     };
   }
 
@@ -174,35 +241,49 @@ class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
     required _i1.UuidValue userInfoId,
-    required int floor,
-    required int creditScore,
-    required int experienceMessageCount,
+    int? reputation,
+    DateTime? lastReputationIncrease,
+    DateTime? mutedUntil,
+    bool? suspended,
+    int? xp,
+    int? level,
+    int? floor,
+    int? currentStreak,
+    int? longestStreak,
+    DateTime? lastLoginDate,
+    DateTime? lastMessageDate,
+    int? experienceMessageCount,
     String? gender,
     String? country,
     String? bio,
     String? avatar,
-    String? role,
     List<String>? interests,
     List<String>? languages,
+    String? role,
     bool? isAdmin,
-    bool? isBanned,
-    DateTime? lastCreditIncrease,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
+         reputation: reputation,
+         lastReputationIncrease: lastReputationIncrease,
+         mutedUntil: mutedUntil,
+         suspended: suspended,
+         xp: xp,
+         level: level,
          floor: floor,
-         creditScore: creditScore,
+         currentStreak: currentStreak,
+         longestStreak: longestStreak,
+         lastLoginDate: lastLoginDate,
+         lastMessageDate: lastMessageDate,
          experienceMessageCount: experienceMessageCount,
          gender: gender,
          country: country,
          bio: bio,
          avatar: avatar,
-         role: role,
          interests: interests,
          languages: languages,
+         role: role,
          isAdmin: isAdmin,
-         isBanned: isBanned,
-         lastCreditIncrease: lastCreditIncrease,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -212,43 +293,61 @@ class _ResidentImpl extends Resident {
   Resident copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? userInfoId,
+    int? reputation,
+    Object? lastReputationIncrease = _Undefined,
+    Object? mutedUntil = _Undefined,
+    bool? suspended,
+    int? xp,
+    int? level,
     int? floor,
-    int? creditScore,
+    int? currentStreak,
+    int? longestStreak,
+    Object? lastLoginDate = _Undefined,
+    Object? lastMessageDate = _Undefined,
     int? experienceMessageCount,
     Object? gender = _Undefined,
     Object? country = _Undefined,
     Object? bio = _Undefined,
     Object? avatar = _Undefined,
-    Object? role = _Undefined,
     Object? interests = _Undefined,
     Object? languages = _Undefined,
+    Object? role = _Undefined,
     bool? isAdmin,
-    bool? isBanned,
-    Object? lastCreditIncrease = _Undefined,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
       userInfoId: userInfoId ?? this.userInfoId,
+      reputation: reputation ?? this.reputation,
+      lastReputationIncrease: lastReputationIncrease is DateTime?
+          ? lastReputationIncrease
+          : this.lastReputationIncrease,
+      mutedUntil: mutedUntil is DateTime? ? mutedUntil : this.mutedUntil,
+      suspended: suspended ?? this.suspended,
+      xp: xp ?? this.xp,
+      level: level ?? this.level,
       floor: floor ?? this.floor,
-      creditScore: creditScore ?? this.creditScore,
+      currentStreak: currentStreak ?? this.currentStreak,
+      longestStreak: longestStreak ?? this.longestStreak,
+      lastLoginDate: lastLoginDate is DateTime?
+          ? lastLoginDate
+          : this.lastLoginDate,
+      lastMessageDate: lastMessageDate is DateTime?
+          ? lastMessageDate
+          : this.lastMessageDate,
       experienceMessageCount:
           experienceMessageCount ?? this.experienceMessageCount,
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
       bio: bio is String? ? bio : this.bio,
       avatar: avatar is String? ? avatar : this.avatar,
-      role: role is String? ? role : this.role,
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
       languages: languages is List<String>?
           ? languages
           : this.languages?.map((e0) => e0).toList(),
+      role: role is String? ? role : this.role,
       isAdmin: isAdmin ?? this.isAdmin,
-      isBanned: isBanned ?? this.isBanned,
-      lastCreditIncrease: lastCreditIncrease is DateTime?
-          ? lastCreditIncrease
-          : this.lastCreditIncrease,
     );
   }
 }

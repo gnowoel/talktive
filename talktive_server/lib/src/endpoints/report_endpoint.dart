@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
@@ -131,17 +132,50 @@ class ReportEndpoint extends Endpoint {
       target: target,
     );
 
-    // Update target's floor
-    target.floor = ApartmentService.calculateFloor(
-      messageCount: target.experienceMessageCount,
-      creditScore: target.creditScore,
+    // Check for auto-escalation based on recent reports
+    final sevenDaysAgo = now.subtract(const Duration(days: 7));
+    final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+
+    final recentReports7Days = await protocol.Report.db.count(
+      session,
+      where: (t) =>
+          t.targetId.equals(targetUuid) & (t.createdAt > sevenDaysAgo),
     );
+
+    final recentReports30Days = await protocol.Report.db.count(
+      session,
+      where: (t) =>
+          t.targetId.equals(targetUuid) & (t.createdAt > thirtyDaysAgo),
+    );
+
+    // Auto-escalation thresholds
+    if (recentReports30Days >= 10) {
+      // 10 reports in 30 days: Severe penalty
+      target.reputation = 0; // Muted until reputation restores
+      session.log(
+        'User ${target.userInfoId} received 10+ reports in 30 days. Reputation set to 0.',
+      );
+      // TODO: Send notification
+    } else if (recentReports7Days >= 5) {
+      // 5 reports in 7 days: 24-hour mute
+      target.mutedUntil = now.add(const Duration(hours: 24));
+      session.log(
+        'User ${target.userInfoId} received 5+ reports in 7 days. Muted for 24 hours.',
+      );
+      // TODO: Send notification
+    } else if (recentReports7Days >= 3) {
+      // 3 reports in 7 days: Warning
+      session.log(
+        'User ${target.userInfoId} received 3+ reports in 7 days. Warning issued.',
+      );
+      // TODO: Send warning notification
+    }
 
     await protocol.Resident.db.updateRow(session, target);
 
     session.log(
       'User ${reporter.userInfoId} reported ${target.userInfoId}. '
-      'Penalty: ${reporter.floor} points. New credit: ${target.creditScore}',
+      'Penalty: ${max(1, reporter.level)} reputation points. New reputation: ${target.reputation}',
     );
   }
 
@@ -276,12 +310,12 @@ class ReportEndpoint extends Endpoint {
       'reporter': {
         'userId': reporter?.userInfoId.toString(),
         'floor': reporter?.floor,
-        'creditScore': reporter?.creditScore,
+        'reputation': reporter?.reputation,
       },
       'target': {
         'userId': target?.userInfoId.toString(),
         'floor': target?.floor,
-        'creditScore': target?.creditScore,
+        'reputation': target?.reputation,
       },
       'message': message?.toJson(),
     };

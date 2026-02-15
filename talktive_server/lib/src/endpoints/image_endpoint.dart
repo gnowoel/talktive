@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:path/path.dart' as path;
 import '../generated/protocol.dart';
 import '../services/image_validation_service.dart';
+import '../services/apartment_service.dart';
 
 class ImageEndpoint extends Endpoint {
   /// Uploads an image file to the server's local storage.
@@ -40,9 +41,9 @@ class ImageEndpoint extends Endpoint {
       throw Exception('Resident not found');
     }
 
-    // Check credit score
-    if (resident.creditScore <= 0) {
-      throw Exception('You are muted due to low credit score.');
+    // Check if user is muted
+    if (ApartmentService.isMuted(resident)) {
+      throw Exception(ApartmentService.getMuteReason(resident));
     }
 
     // Convert ByteData to Uint8List

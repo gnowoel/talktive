@@ -2,19 +2,37 @@ class: Resident
 table: resident
 fields:
   userInfoId: UuidValue
-  floor: int
-  creditScore: int
-  experienceMessageCount: int
+  
+  # Safety System
+  reputation: int, default=100
+  lastReputationIncrease: DateTime?
+  mutedUntil: DateTime?
+  suspended: bool, default=false
+  
+  # Gamification System
+  xp: int, default=0
+  level: int, default=0
+  floor: int, default=0  # Alias for level (apartment metaphor)
+  currentStreak: int, default=0
+  longestStreak: int, default=0
+  lastLoginDate: DateTime?
+  lastMessageDate: DateTime?
+  
+  # Legacy (keep for achievements tracking)
+  experienceMessageCount: int, default=0
+  
+  # Profile
   gender: String?
   country: String?
   bio: String?
   avatar: String?
-  role: String?
   interests: List<String>?
   languages: List<String>?
+  
+  # Admin
+  role: String?
   isAdmin: bool, default=false
-  isBanned: bool, default=false
-  lastCreditIncrease: DateTime?
+  
 indexes:
   resident_user_idx:
     fields: userInfoId

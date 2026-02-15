@@ -43,7 +43,7 @@ class SearchEndpoint extends Endpoint {
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
             'floor': resident.floor,
-            'creditScore': resident.creditScore,
+            'reputation': resident.reputation,
           });
         }
       }

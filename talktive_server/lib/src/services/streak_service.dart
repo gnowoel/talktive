@@ -127,14 +127,17 @@ class StreakService {
       reward,
     );
 
-    // Award credits to resident
+    // Award reputation to resident (daily reward)
     final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
 
     if (resident != null) {
-      resident.creditScore += rewardAmount;
+      resident.reputation = (resident.reputation + rewardAmount).clamp(
+        0,
+        100, // Max reputation is 100
+      );
       await protocol.Resident.db.updateRow(session, resident);
     }
 

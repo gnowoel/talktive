@@ -358,34 +358,34 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Ban a user (set credit score to -1000)
-  _i3.Future<void> banUser({
+  /// Suspend a user (disable account)
+  _i3.Future<void> suspendUser({
     required String userId,
     String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
-    'banUser',
+    'suspendUser',
     {
       'userId': userId,
       'reason': reason,
     },
   );
 
-  /// Unban a user (restore credit score to 50)
-  _i3.Future<void> unbanUser({required String userId}) =>
+  /// Unsuspend a user (re-enable account)
+  _i3.Future<void> unsuspendUser({required String userId}) =>
       caller.callServerEndpoint<void>(
         'admin',
-        'unbanUser',
+        'unsuspendUser',
         {'userId': userId},
       );
 
-  /// Mute a user (set credit score to 0)
-  _i3.Future<void> muteUser({
+  /// Reset user reputation to 100 (for appeals)
+  _i3.Future<void> resetReputation({
     required String userId,
     String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
-    'muteUser',
+    'resetReputation',
     {
       'userId': userId,
       'reason': reason,

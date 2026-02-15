@@ -40,10 +40,13 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
 
     final currentResident = ref.read(currentResidentProvider).value;
 
-    // Check credit score
-    if (currentResident != null && currentResident.creditScore <= 0) {
+    // Check reputation (mute check)
+    if (currentResident != null && currentResident.reputation <= 0) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'You need credits to send messages');
+        SnackBarHelper.showError(
+          context,
+          'Your reputation is too low to send messages',
+        );
       }
       return;
     }
@@ -140,12 +143,14 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           Container(width: 1, height: 16, color: AppTheme.textLight),
           const SizedBox(width: AppTheme.duoSpacingSmall),
           Text(
-            '💰 ${currentResident.creditScore}',
+            '⭐ ${currentResident.reputation}',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: currentResident.creditScore > 0
+              color: currentResident.reputation > 50
                   ? AppTheme.duoGreen
+                  : currentResident.reputation >= 20
+                  ? AppTheme.duoYellow
                   : AppTheme.errorColor,
               fontFamily: 'Poppins',
             ),
@@ -232,7 +237,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   }
 
   Widget _buildInputArea(Resident? currentResident) {
-    final canSend = currentResident == null || currentResident.creditScore > 0;
+    final canSend = currentResident == null || currentResident.reputation > 0;
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),

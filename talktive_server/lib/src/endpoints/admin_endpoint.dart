@@ -96,7 +96,8 @@ class AdminEndpoint extends Endpoint {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
           'floor': target?.floor ?? 0,
-          'creditScore': target?.creditScore ?? 0,
+          'reputation': target?.reputation ?? 0,
+          'level': target?.level ?? 0,
         },
       });
     }
@@ -147,7 +148,8 @@ class AdminEndpoint extends Endpoint {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
           'floor': target?.floor ?? 0,
-          'creditScore': target?.creditScore ?? 0,
+          'reputation': target?.reputation ?? 0,
+          'level': target?.level ?? 0,
         },
       });
     }
@@ -176,8 +178,8 @@ class AdminEndpoint extends Endpoint {
     await protocol.Report.db.updateRow(session, report);
   }
 
-  /// Ban a user (set credit score to -1000)
-  Future<void> banUser(
+  /// Suspend a user (disable account)
+  Future<void> suspendUser(
     Session session, {
     required String userId,
     String? reason,
@@ -194,15 +196,15 @@ class AdminEndpoint extends Endpoint {
       throw Exception('User not found');
     }
 
-    resident.creditScore = -1000;
-    resident.isBanned = true;
+    resident.suspended = true;
+    resident.reputation = 0;
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin banned user: $userId. Reason: $reason');
+    session.log('Admin suspended user: $userId. Reason: $reason');
   }
 
-  /// Unban a user (restore credit score to 50)
-  Future<void> unbanUser(
+  /// Unsuspend a user (re-enable account)
+  Future<void> unsuspendUser(
     Session session, {
     required String userId,
   }) async {
@@ -218,15 +220,15 @@ class AdminEndpoint extends Endpoint {
       throw Exception('User not found');
     }
 
-    resident.creditScore = 50;
-    resident.isBanned = false;
+    resident.suspended = false;
+    resident.reputation = 50; // Restore some reputation
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin unbanned user: $userId');
+    session.log('Admin unsuspended user: $userId');
   }
 
-  /// Mute a user (set credit score to 0)
-  Future<void> muteUser(
+  /// Reset user reputation to 100 (for appeals)
+  Future<void> resetReputation(
     Session session, {
     required String userId,
     String? reason,
@@ -243,10 +245,11 @@ class AdminEndpoint extends Endpoint {
       throw Exception('User not found');
     }
 
-    resident.creditScore = 0;
+    resident.reputation = 100;
+    resident.mutedUntil = null; // Clear any temporary mutes
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin muted user: $userId. Reason: $reason');
+    session.log('Admin reset reputation for user: $userId. Reason: $reason');
   }
 
   /// Delete a message
@@ -458,9 +461,11 @@ class AdminEndpoint extends Endpoint {
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
         'floor': resident.floor,
-        'creditScore': resident.creditScore,
+        'reputation': resident.reputation,
+        'level': resident.level,
+        'xp': resident.xp,
         'isAdmin': resident.isAdmin,
-        'isBanned': resident.isBanned,
+        'suspended': resident.suspended,
         'messageCount': messageCount,
         'momentCount': momentCount,
         'reportCount': reportCount,
@@ -577,9 +582,11 @@ class AdminEndpoint extends Endpoint {
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
         'floor': resident.floor,
-        'creditScore': resident.creditScore,
+        'reputation': resident.reputation,
+        'level': resident.level,
+        'xp': resident.xp,
         'isAdmin': resident.isAdmin,
-        'isBanned': resident.isBanned,
+        'suspended': resident.suspended,
         'createdAt':
             userInfo?.created?.toIso8601String() ??
             DateTime.now().toIso8601String(),

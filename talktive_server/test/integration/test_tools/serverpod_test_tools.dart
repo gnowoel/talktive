@@ -840,7 +840,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<void> banUser(
+  _i3.Future<void> suspendUser(
     _i1.TestSessionBuilder sessionBuilder, {
     required String userId,
     String? reason,
@@ -849,13 +849,13 @@ class _AdminEndpoint {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'admin',
-            method: 'banUser',
+            method: 'suspendUser',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'admin',
-          methodName: 'banUser',
+          methodName: 'suspendUser',
           parameters: _i1.testObjectToJson({
             'userId': userId,
             'reason': reason,
@@ -875,7 +875,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<void> unbanUser(
+  _i3.Future<void> unsuspendUser(
     _i1.TestSessionBuilder sessionBuilder, {
     required String userId,
   }) async {
@@ -883,13 +883,13 @@ class _AdminEndpoint {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'admin',
-            method: 'unbanUser',
+            method: 'unsuspendUser',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'admin',
-          methodName: 'unbanUser',
+          methodName: 'unsuspendUser',
           parameters: _i1.testObjectToJson({'userId': userId}),
           serializationManager: _serializationManager,
         );
@@ -906,7 +906,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<void> muteUser(
+  _i3.Future<void> resetReputation(
     _i1.TestSessionBuilder sessionBuilder, {
     required String userId,
     String? reason,
@@ -915,13 +915,13 @@ class _AdminEndpoint {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'admin',
-            method: 'muteUser',
+            method: 'resetReputation',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'admin',
-          methodName: 'muteUser',
+          methodName: 'resetReputation',
           parameters: _i1.testObjectToJson({
             'userId': userId,
             'reason': reason,

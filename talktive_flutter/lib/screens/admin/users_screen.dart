@@ -111,7 +111,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Floor ${user['floor']} • ${user['creditScore']} credits',
+                      'Level ${user['level'] ?? user['floor']} • ⭐ ${user['reputation'] ?? user['creditScore']} reputation',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,
@@ -129,8 +129,8 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     Icons.volume_off,
                     color: AppTheme.duoOrange,
                   ),
-                  title: const Text('Mute User'),
-                  subtitle: const Text('Set credit score to 0'),
+                  title: const Text('Reset Reputation'),
+                  subtitle: const Text('Set reputation to 0 (mute)'),
                   onTap: () {
                     Navigator.pop(context);
                     _muteUser(userId, userName);
@@ -554,7 +554,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '🏢 Floor $floor • ⭐ $creditScore credits',
+                      'Level $floor • ⭐ ${user['reputation'] ?? creditScore} reputation',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,

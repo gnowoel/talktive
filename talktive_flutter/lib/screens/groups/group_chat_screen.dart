@@ -261,10 +261,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
-    final filteredMessages =
-        messages.where((msg) {
-          return !blockedUsers.contains(msg.senderId.toString());
-        }).toList();
+    final filteredMessages = messages.where((msg) {
+      return !blockedUsers.contains(msg.senderId.toString());
+    }).toList();
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -285,10 +284,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               message.senderId == _currentResident!.userInfoId;
 
           return MessageBubbleModern(
-            message: message,
-            isCurrentUser: isCurrentUser,
-            currentResident: _currentResident,
-          )
+                message: message,
+                isCurrentUser: isCurrentUser,
+                currentResident: _currentResident,
+              )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);
@@ -299,7 +298,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
 
   Widget _buildInputArea() {
     final canSend =
-        _currentResident != null && _currentResident!.creditScore > 0;
+        _currentResident != null && _currentResident!.reputation > 0;
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -329,7 +328,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   decoration: InputDecoration(
                     hintText: canSend
                         ? 'Type a message...'
-                        : 'Muted (low credit score)',
+                        : 'Muted (low reputation)',
                     border: InputBorder.none,
                     hintStyle: TextStyle(color: Colors.grey[400]),
                   ),

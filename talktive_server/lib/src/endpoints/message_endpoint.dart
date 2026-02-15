@@ -3,6 +3,7 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:uuid/uuid.dart'; // Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
+import '../services/gamification_service.dart';
 import '../services/rate_limit_service.dart';
 import '../services/redis_rate_limit_service.dart';
 import '../services/content_filter_service.dart';
@@ -65,14 +66,12 @@ class MessageEndpoint extends Endpoint {
       final senderName = userInfo?.userName ?? 'Resident';
       final senderAvatar = userInfo?.imageUrl;
 
-      // Try to restore credits first (passive restoration)
-      await ApartmentService.restoreCredits(session, sender);
+      // Try to restore reputation first (passive restoration)
+      await ApartmentService.restoreReputation(session, sender);
 
       // 3. Check for penalties (Muted)
-      if (sender.creditScore <= 0) {
-        throw Exception(
-          'You are muted due to low credit score. Your score will restore automatically over time.',
-        );
+      if (ApartmentService.isMuted(sender)) {
+        throw Exception(ApartmentService.getMuteReason(sender));
       }
 
       // 4. Validate content (profanity and spam filtering)
@@ -142,9 +141,15 @@ class MessageEndpoint extends Endpoint {
       final streamKey = 'channel_$channelId';
       session.messages.postMessage(streamKey, savedMessage);
 
-      // 9. Update message count
+      // 9. Award XP and update message count
+      await GamificationService.awardXP(
+        session,
+        sender,
+        GamificationService.XP_PER_MESSAGE,
+        'Sent message',
+      );
       sender.experienceMessageCount += 1;
-      await protocol.Resident.db.updateRow(session, sender);
+      await GamificationService.updateMessageStreak(session, sender);
 
       // 10. Track achievements
       await AchievementService.trackProgress(

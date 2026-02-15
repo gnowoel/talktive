@@ -516,8 +516,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     adminNotes: params['adminNotes'],
                   ),
         ),
-        'banUser': _i1.MethodConnector(
-          name: 'banUser',
+        'suspendUser': _i1.MethodConnector(
+          name: 'suspendUser',
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
@@ -534,14 +534,14 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i6.AdminEndpoint).banUser(
+              ) async => (endpoints['admin'] as _i6.AdminEndpoint).suspendUser(
                 session,
                 userId: params['userId'],
                 reason: params['reason'],
               ),
         ),
-        'unbanUser': _i1.MethodConnector(
-          name: 'unbanUser',
+        'unsuspendUser': _i1.MethodConnector(
+          name: 'unsuspendUser',
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
@@ -553,13 +553,14 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i6.AdminEndpoint).unbanUser(
-                session,
-                userId: params['userId'],
-              ),
+              ) async =>
+                  (endpoints['admin'] as _i6.AdminEndpoint).unsuspendUser(
+                    session,
+                    userId: params['userId'],
+                  ),
         ),
-        'muteUser': _i1.MethodConnector(
-          name: 'muteUser',
+        'resetReputation': _i1.MethodConnector(
+          name: 'resetReputation',
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
@@ -576,11 +577,12 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i6.AdminEndpoint).muteUser(
-                session,
-                userId: params['userId'],
-                reason: params['reason'],
-              ),
+              ) async =>
+                  (endpoints['admin'] as _i6.AdminEndpoint).resetReputation(
+                    session,
+                    userId: params['userId'],
+                    reason: params['reason'],
+                  ),
         ),
         'deleteMessage': _i1.MethodConnector(
           name: 'deleteMessage',

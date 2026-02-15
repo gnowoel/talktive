@@ -2,40 +2,93 @@ import 'package:serverpod/serverpod.dart';
 import 'dart:math';
 import '../generated/protocol.dart';
 
+/// Apartment Service
+/// Handles reputation (safety/moderation) system
 class ApartmentService {
-  /// Calculates the Experience Level based on message count.
-  /// Formula: Level = Log(max(1, count)) / Log(3)
-  static double calculateExperienceLevel(int messageCount) {
-    if (messageCount <= 0) return 0.0;
-    // Log base 3 of messageCount
-    return log(max(1, messageCount)) / log(3);
+  // Reputation Constants
+  static const int REPUTATION_MAX = 100;
+  static const int REPUTATION_START = 100;
+  static const int REPUTATION_RESTORE_RATE = 2; // points per hour
+
+  /// Restore reputation passively (2pts/hour, max 100)
+  static Future<void> restoreReputation(
+    Session session,
+    Resident resident,
+  ) async {
+    final now = DateTime.now();
+    final lastIncrease = resident.lastReputationIncrease ?? now;
+    final hoursPassed = now.difference(lastIncrease).inHours;
+
+    if (hoursPassed >= 1 && resident.reputation < REPUTATION_MAX) {
+      final points = hoursPassed * REPUTATION_RESTORE_RATE;
+      resident.reputation = (resident.reputation + points).clamp(
+        0,
+        REPUTATION_MAX,
+      );
+      resident.lastReputationIncrease = lastIncrease.add(
+        Duration(hours: hoursPassed),
+      );
+      await Resident.db.updateRow(session, resident);
+
+      session.log(
+        'Restored $points reputation to ${resident.userInfoId}. New reputation: ${resident.reputation}',
+      );
+    } else if (resident.lastReputationIncrease == null) {
+      // Initialize timestamp for new users
+      resident.lastReputationIncrease = now;
+      await Resident.db.updateRow(session, resident);
+    }
   }
 
-  /// Calculates the Floor based on message count and credit score.
-  /// Formula: Floor = (Experience Level * Credit Score) / 100
-  static int calculateFloor({
-    required int messageCount,
-    required int creditScore,
+  /// Apply report penalty to target
+  /// Penalty = max(1, reporter's level)
+  static void applyReportPenalty({
+    required Resident reporter,
+    required Resident target,
   }) {
-    final double level = calculateExperienceLevel(messageCount);
-    final double floorVal = (level * creditScore) / 100;
-    return floorVal.floor();
+    final penalty = max(1, reporter.level);
+    target.reputation = max(0, target.reputation - penalty);
   }
 
-  /// Updates the Resident's floor based on their current stats.
-  /// Returns the updated Resident object (does not save to DB).
-  static Resident updateResidentFloor(Resident resident) {
-    final int newFloor = calculateFloor(
-      messageCount: resident.experienceMessageCount,
-      creditScore: resident.creditScore,
-    );
-    // You might want to use copyWith if available, or just mutate if it's a mutable object
-    resident.floor = newFloor;
-    return resident;
+  /// Check if user is muted
+  /// Muted if: reputation <= 0 OR mutedUntil is in the future OR suspended
+  static bool isMuted(Resident resident) {
+    // Suspended users are always muted
+    if (resident.suspended) return true;
+
+    // Reputation-based mute
+    if (resident.reputation <= 0) return true;
+
+    // Temporary mute
+    if (resident.mutedUntil != null &&
+        resident.mutedUntil!.isAfter(DateTime.now())) {
+      return true;
+    }
+
+    return false;
   }
 
-  /// Checks if [sender] is allowed to invite [receiver] to a chat.
-  /// Rule: Residents can only invite people living on the same floor or below.
+  /// Get mute reason for user-facing message
+  static String getMuteReason(Resident resident) {
+    if (resident.suspended) {
+      return 'Your account has been suspended.';
+    }
+
+    if (resident.reputation <= 0) {
+      return 'You are muted due to low reputation. Your reputation will restore at 2 points per hour.';
+    }
+
+    if (resident.mutedUntil != null &&
+        resident.mutedUntil!.isAfter(DateTime.now())) {
+      final hoursLeft = resident.mutedUntil!.difference(DateTime.now()).inHours;
+      return 'You are temporarily muted for $hoursLeft more hours due to multiple reports.';
+    }
+
+    return 'You are muted.';
+  }
+
+  /// Check if user can invite another user to private chat
+  /// Rule: Can only invite users on same floor or below
   static bool canInvite({
     required Resident sender,
     required Resident receiver,
@@ -43,61 +96,8 @@ class ApartmentService {
     return receiver.floor <= sender.floor;
   }
 
-  /// Applies penalty to [target] when reported by [reporter].
-  /// Penalty: CreditScore -= Reporter.Floor
-  /// Returns the modified target Resident.
-  static Resident applyReportPenalty({
-    required Resident reporter,
-    required Resident target,
-  }) {
-    // Implementing strict logic: CreditScore -= max(1, Reporter.Floor)
-    int penalty = max(1, reporter.floor);
-    target.creditScore -= penalty;
-
-    return target;
-  }
-
-  /// Restores credit score points based on time passed.
-  /// Awards 2 points per hour.
-  /// Maximum credit score is capped at 100.
-  static Future<void> restoreCredits(
-    Session session,
-    Resident resident,
-  ) async {
-    final now = DateTime.now();
-    final lastIncrease = resident.lastCreditIncrease ?? now;
-
-    final diff = now.difference(lastIncrease);
-    final hoursPassed = diff.inHours;
-
-    if (hoursPassed >= 1) {
-      // Award 2 points per hour
-      final points = hoursPassed * 2;
-
-      // Only increase if below cap
-      if (resident.creditScore < 100) {
-        resident.creditScore = (resident.creditScore + points).clamp(
-          -1000,
-          100,
-        );
-      }
-
-      // Update timestamp, preserving the minute/second offset for next hour
-      resident.lastCreditIncrease = lastIncrease.add(
-        Duration(hours: hoursPassed),
-      );
-
-      // Upgrade floor if applicable
-      resident.floor = calculateFloor(
-        messageCount: resident.experienceMessageCount,
-        creditScore: resident.creditScore,
-      );
-
-      await Resident.db.updateRow(session, resident);
-    } else if (resident.lastCreditIncrease == null) {
-      // Initialize timestamp for new users
-      resident.lastCreditIncrease = now;
-      await Resident.db.updateRow(session, resident);
-    }
+  /// Clamp reputation to valid range
+  static int clampReputation(int reputation) {
+    return reputation.clamp(0, REPUTATION_MAX);
   }
 }

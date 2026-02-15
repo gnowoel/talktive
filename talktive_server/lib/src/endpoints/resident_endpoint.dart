@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 import '../services/apartment_service.dart';
+import '../services/gamification_service.dart';
 
 class ResidentEndpoint extends Endpoint {
   /// Checks if the authenticated user has a Resident profile.
@@ -23,8 +24,11 @@ class ResidentEndpoint extends Endpoint {
     );
 
     if (resident != null) {
-      // Passively restore credits on load
-      await ApartmentService.restoreCredits(session, resident);
+      // Passively restore reputation on load
+      await ApartmentService.restoreReputation(session, resident);
+
+      // Check daily login and award XP
+      await GamificationService.checkDailyLogin(session, resident);
     }
 
     return resident;
@@ -104,19 +108,29 @@ class ResidentEndpoint extends Endpoint {
       );
     }
 
-    // 3. Create Resident
+    // 3. Create Resident with new gamification fields
     resident = Resident(
       userInfoId: senderUuid,
-      floor: 1,
-      creditScore: 100,
+      // Gamification
+      floor: 0,
+      xp: 0,
+      level: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      // Safety
+      reputation: ApartmentService.REPUTATION_START,
+      suspended: false,
+      // Legacy
       experienceMessageCount: 0,
+      // Profile
       gender: gender,
       country: country,
       bio: bio,
       avatar: avatar, // Store the emoji/avatar string here
-      role: 'resident',
       interests: interests ?? [],
       languages: languages ?? ['en'],
+      // Admin
+      role: 'resident',
     );
 
     await Resident.db.insertRow(session, resident);

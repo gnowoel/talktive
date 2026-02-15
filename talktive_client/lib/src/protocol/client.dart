@@ -761,6 +761,16 @@ class EndpointMoment extends _i2.EndpointRef {
         {'momentId': momentId},
       );
 
+  /// Batch checks if the current user has liked multiple moments.
+  /// This solves the N+1 query problem when loading a feed of moments.
+  /// Returns a Map of momentId -> isLiked.
+  _i3.Future<Map<int, bool>> hasLikedMoments(List<int> momentIds) =>
+      caller.callServerEndpoint<Map<int, bool>>(
+        'moment',
+        'hasLikedMoments',
+        {'momentIds': momentIds},
+      );
+
   /// Adds a comment to a moment.
   _i3.Future<_i12.MomentComment> addComment(
     int momentId,

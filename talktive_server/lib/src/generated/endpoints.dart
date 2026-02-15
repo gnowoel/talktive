@@ -31,11 +31,12 @@ import '../endpoints/user_profile_endpoint.dart' as _i18;
 import '../greetings/greeting_endpoint.dart' as _i19;
 import 'package:talktive_server/src/generated/report_status.dart' as _i20;
 import 'dart:typed_data' as _i21;
+import 'package:talktive_server/src/generated/protocol.dart' as _i22;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i22;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i23;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i24;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i24;
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i25;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -1257,6 +1258,29 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['momentId'],
                   ),
         ),
+        'hasLikedMoments': _i1.MethodConnector(
+          name: 'hasLikedMoments',
+          params: {
+            'momentIds': _i1.ParameterDescription(
+              name: 'momentIds',
+              type: _i1.getType<List<int>>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['moment'] as _i11.MomentEndpoint)
+                  .hasLikedMoments(
+                    session,
+                    params['momentIds'],
+                  )
+                  .then(
+                    (container) =>
+                        _i22.Protocol().mapContainerToJson(container),
+                  ),
+        ),
         'addComment': _i1.MethodConnector(
           name: 'addComment',
           params: {
@@ -2032,10 +2056,10 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i22.Endpoints()
+    modules['serverpod_auth_idp'] = _i23.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i23.Endpoints()
+    modules['serverpod_auth_core'] = _i24.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth'] = _i24.Endpoints()..initializeEndpoints(server);
+    modules['serverpod_auth'] = _i25.Endpoints()..initializeEndpoints(server);
   }
 }

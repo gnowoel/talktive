@@ -58,6 +58,7 @@ moment:
   - unlikeMoment:
   - getMomentLikes:
   - hasLikedMoment:
+  - hasLikedMoments:
   - addComment:
   - getMomentComments:
   - deleteComment:

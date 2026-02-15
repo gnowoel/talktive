@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
+import '../services/input_validation_service.dart';
 
 class GroupEndpoint extends Endpoint {
   /// Creates a new group.
@@ -12,6 +13,15 @@ class GroupEndpoint extends Endpoint {
     bool isPublic = false,
     int maxMembers = 50,
   }) async {
+    // Validate inputs
+    InputValidationService.validateGroupName(name).throwIfInvalid();
+    InputValidationService.validateGroupDescription(
+      description,
+    ).throwIfInvalid();
+    InputValidationService.validateGroupMemberLimit(
+      maxMembers,
+    ).throwIfInvalid();
+
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -29,19 +39,6 @@ class GroupEndpoint extends Endpoint {
 
     if (currentResident == null) {
       throw Exception('User not found');
-    }
-
-    // Validate input
-    if (name.trim().isEmpty) {
-      throw Exception('Group name cannot be empty');
-    }
-
-    if (name.length > 50) {
-      throw Exception('Group name must be 50 characters or less');
-    }
-
-    if (maxMembers < 2 || maxMembers > 500) {
-      throw Exception('Max members must be between 2 and 500');
     }
 
     // Create a new channel for this group
@@ -96,6 +93,12 @@ class GroupEndpoint extends Endpoint {
     int limit = 50,
     int offset = 0,
   }) async {
+    // Validate inputs
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
+
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 

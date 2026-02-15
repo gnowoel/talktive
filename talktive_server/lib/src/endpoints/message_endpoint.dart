@@ -8,6 +8,7 @@ import '../services/redis_rate_limit_service.dart';
 import '../services/content_filter_service.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
+import '../services/input_validation_service.dart';
 
 class MessageEndpoint extends Endpoint {
   /// Sends a message to a channel (Plaza, Group, or Private).
@@ -18,6 +19,16 @@ class MessageEndpoint extends Endpoint {
     String? imageUrl,
   }) async {
     try {
+      // Validate inputs
+      InputValidationService.validateId(
+        channelId,
+        'Channel ID',
+      ).throwIfInvalid();
+      InputValidationService.validateMessageContent(content).throwIfInvalid();
+      if (imageUrl != null) {
+        InputValidationService.validateUrl(imageUrl).throwIfInvalid();
+      }
+
       final authenticationInfo = session.authenticated;
       final senderIdentifier = authenticationInfo?.userIdentifier;
 
@@ -199,6 +210,13 @@ class MessageEndpoint extends Endpoint {
     int limit = 50,
     int offset = 0,
   }) async {
+    // Validate inputs
+    InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
+
     // 1. Verify access (optional: check if user is member of channel)
     // For Plaza (floor 0), it's public. For others, check membership.
     final channel = await protocol.Channel.db.findById(session, channelId);

@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
+import '../services/input_validation_service.dart';
 
 class ReportEndpoint extends Endpoint {
   /// Reports a user for inappropriate behavior.
@@ -17,6 +18,22 @@ class ReportEndpoint extends Endpoint {
     int? channelId,
     int? messageId,
   }) async {
+    // Validate inputs
+    InputValidationService.validateUuid(targetUserId).throwIfInvalid();
+    InputValidationService.validateReportReason(reason).throwIfInvalid();
+    if (channelId != null) {
+      InputValidationService.validateId(
+        channelId,
+        'Channel ID',
+      ).throwIfInvalid();
+    }
+    if (messageId != null) {
+      InputValidationService.validateId(
+        messageId,
+        'Message ID',
+      ).throwIfInvalid();
+    }
+
     final reporterIdentifier = session.authenticated?.userIdentifier;
     if (reporterIdentifier == null) {
       throw Exception('Not authenticated');

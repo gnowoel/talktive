@@ -5,6 +5,7 @@ import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/notification_service.dart';
 import '../services/cache_service.dart';
+import '../services/input_validation_service.dart';
 
 class MomentEndpoint extends Endpoint {
   /// Posts a new moment to the feed.
@@ -14,6 +15,10 @@ class MomentEndpoint extends Endpoint {
     required String imageUrl,
     String caption = '',
   }) async {
+    // Validate inputs
+    InputValidationService.validateImageUrl(imageUrl).throwIfInvalid();
+    InputValidationService.validateCaption(caption).throwIfInvalid();
+
     final authenticationInfo = session.authenticated;
     final senderIdentifier = authenticationInfo?.userIdentifier;
 
@@ -99,6 +104,15 @@ class MomentEndpoint extends Endpoint {
     int limit = 20,
     int? lastId,
   }) async {
+    // Validate inputs
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: 0,
+    ).throwIfInvalid();
+    if (lastId != null) {
+      InputValidationService.validateId(lastId, 'Last ID').throwIfInvalid();
+    }
+
     return await Moment.db.find(
       session,
       limit: limit,
@@ -110,6 +124,9 @@ class MomentEndpoint extends Endpoint {
 
   /// Likes a moment.
   Future<void> likeMoment(Session session, int momentId) async {
+    // Validate inputs
+    InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
+
     final authenticationInfo = session.authenticated;
     final userIdentifier = authenticationInfo?.userIdentifier;
 
@@ -176,6 +193,9 @@ class MomentEndpoint extends Endpoint {
 
   /// Unlikes a moment.
   Future<void> unlikeMoment(Session session, int momentId) async {
+    // Validate inputs
+    InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
+
     final authenticationInfo = session.authenticated;
     final userIdentifier = authenticationInfo?.userIdentifier;
 
@@ -275,6 +295,10 @@ class MomentEndpoint extends Endpoint {
     int momentId,
     String text,
   ) async {
+    // Validate inputs
+    InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
+    InputValidationService.validateComment(text).throwIfInvalid();
+
     final authenticationInfo = session.authenticated;
     final userIdentifier = authenticationInfo?.userIdentifier;
 

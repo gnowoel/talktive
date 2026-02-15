@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/input_validation_service.dart';
 
 class UserProfileEndpoint extends Endpoint {
   /// Get a user's profile by their user ID
@@ -8,6 +9,9 @@ class UserProfileEndpoint extends Endpoint {
     Session session,
     String userId,
   ) async {
+    // Validate inputs
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+
     try {
       // Get the viewing user's ID
       final viewerIdentifier = session.authenticated?.userIdentifier;
@@ -122,6 +126,9 @@ class UserProfileEndpoint extends Endpoint {
 
   /// Block a user
   Future<bool> blockUser(Session session, String userId) async {
+    // Validate inputs
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+
     try {
       final blockerIdentifier = session.authenticated?.userIdentifier;
       if (blockerIdentifier == null) {
@@ -159,6 +166,9 @@ class UserProfileEndpoint extends Endpoint {
 
   /// Unblock a user
   Future<bool> unblockUser(Session session, String userId) async {
+    // Validate inputs
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+
     try {
       final blockerIdentifier = session.authenticated?.userIdentifier;
       if (blockerIdentifier == null) {
@@ -188,6 +198,9 @@ class UserProfileEndpoint extends Endpoint {
 
   /// Check if a user is blocked
   Future<bool> isUserBlocked(Session session, String userId) async {
+    // Validate inputs
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+
     try {
       final blockerIdentifier = session.authenticated?.userIdentifier;
       if (blockerIdentifier == null) {

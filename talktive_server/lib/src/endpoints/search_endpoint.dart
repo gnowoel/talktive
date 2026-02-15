@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/cache_service.dart';
+import '../services/input_validation_service.dart';
 import 'dart:convert';
 
 class SearchEndpoint extends Endpoint {
@@ -262,6 +263,203 @@ class SearchEndpoint extends Endpoint {
         'users': [],
         'groups': [],
         'moments': [],
+      };
+    }
+  }
+
+  /// Discover users by shared interests
+  Future<List<Map<String, dynamic>>> discoverUsersByInterests(
+    Session session, {
+    int limit = 20,
+  }) async {
+    // Validate inputs
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: 0,
+    ).throwIfInvalid();
+
+    final userIdentifier = session.authenticated?.userIdentifier;
+    if (userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    // Get current user's interests
+    final currentUser = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+
+    if (currentUser == null || currentUser.interests?.isEmpty != false) {
+      return [];
+    }
+
+    // Find users with matching interests
+    final allResidents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.notEquals(userId), // Exclude self
+      limit: limit * 3, // Get more to filter
+    );
+
+    final matches = <Map<String, dynamic>>[];
+    for (final resident in allResidents) {
+      if (matches.length >= limit) break;
+
+      // Skip if resident has no interests
+      if (resident.interests == null || resident.interests!.isEmpty) {
+        continue;
+      }
+
+      // Calculate interest overlap
+      final sharedInterests = currentUser.interests!
+          .where((interest) => resident.interests!.contains(interest))
+          .toList();
+
+      if (sharedInterests.isNotEmpty) {
+        // Get user info
+        final userInfo = await UserInfo.db.findFirstRow(
+          session,
+          where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
+        );
+
+        if (userInfo != null) {
+          matches.add({
+            'userId': resident.userInfoId.toString(),
+            'userName': userInfo.userName,
+            'userAvatar': userInfo.imageUrl,
+            'floor': resident.floor,
+            'sharedInterests': sharedInterests,
+            'matchScore': sharedInterests.length,
+          });
+        }
+      }
+    }
+
+    // Sort by match score (most shared interests first)
+    matches.sort(
+      (a, b) => (b['matchScore'] as int).compareTo(a['matchScore'] as int),
+    );
+
+    return matches;
+  }
+
+  /// Discover users by shared languages
+  Future<List<Map<String, dynamic>>> discoverUsersByLanguages(
+    Session session, {
+    int limit = 20,
+  }) async {
+    // Validate inputs
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: 0,
+    ).throwIfInvalid();
+
+    final userIdentifier = session.authenticated?.userIdentifier;
+    if (userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    // Get current user's languages
+    final currentUser = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+
+    if (currentUser == null || currentUser.languages?.isEmpty != false) {
+      return [];
+    }
+
+    // Find users with matching languages
+    final allResidents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.notEquals(userId), // Exclude self
+      limit: limit * 3, // Get more to filter
+    );
+
+    final matches = <Map<String, dynamic>>[];
+    for (final resident in allResidents) {
+      if (matches.length >= limit) break;
+
+      // Skip if resident has no languages
+      if (resident.languages == null || resident.languages!.isEmpty) {
+        continue;
+      }
+
+      // Calculate language overlap
+      final sharedLanguages = currentUser.languages!
+          .where((language) => resident.languages!.contains(language))
+          .toList();
+
+      if (sharedLanguages.isNotEmpty) {
+        // Get user info
+        final userInfo = await UserInfo.db.findFirstRow(
+          session,
+          where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
+        );
+
+        if (userInfo != null) {
+          matches.add({
+            'userId': resident.userInfoId.toString(),
+            'userName': userInfo.userName,
+            'userAvatar': userInfo.imageUrl,
+            'floor': resident.floor,
+            'sharedLanguages': sharedLanguages,
+            'matchScore': sharedLanguages.length,
+          });
+        }
+      }
+    }
+
+    // Sort by match score (most shared languages first)
+    matches.sort(
+      (a, b) => (b['matchScore'] as int).compareTo(a['matchScore'] as int),
+    );
+
+    return matches;
+  }
+
+  /// Get personalized discovery feed (combines interests, languages, and activity)
+  Future<Map<String, dynamic>> getDiscoveryFeed(
+    Session session, {
+    int limit = 10,
+  }) async {
+    try {
+      final usersByInterests = await discoverUsersByInterests(
+        session,
+        limit: limit,
+      );
+
+      final usersByLanguages = await discoverUsersByLanguages(
+        session,
+        limit: limit,
+      );
+
+      final trendingMoments = await getTrendingMoments(
+        session,
+        limit: limit,
+      );
+
+      final popularGroups = await getPopularGroups(
+        session,
+        limit: limit,
+      );
+
+      return {
+        'usersByInterests': usersByInterests,
+        'usersByLanguages': usersByLanguages,
+        'trendingMoments': trendingMoments.map((m) => m.toJson()).toList(),
+        'popularGroups': popularGroups.map((g) => g.toJson()).toList(),
+      };
+    } catch (e) {
+      session.log('Error getting discovery feed: $e', level: LogLevel.error);
+      return {
+        'usersByInterests': [],
+        'usersByLanguages': [],
+        'trendingMoments': [],
+        'popularGroups': [],
       };
     }
   }

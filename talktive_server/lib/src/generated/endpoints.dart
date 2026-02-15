@@ -1650,6 +1650,25 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['approved'],
                   ),
         ),
+        'getReportDetails': _i1.MethodConnector(
+          name: 'getReportDetails',
+          params: {
+            'reportId': _i1.ParameterDescription(
+              name: 'reportId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['report'] as _i14.ReportEndpoint).getReportDetails(
+                    session,
+                    params['reportId'],
+                  ),
+        ),
       },
     );
     connectors['resident'] = _i1.EndpointConnector(
@@ -1882,6 +1901,63 @@ class Endpoints extends _i1.EndpointDispatch {
                 params['query'],
                 limit: params['limit'],
               ),
+        ),
+        'discoverUsersByInterests': _i1.MethodConnector(
+          name: 'discoverUsersByInterests',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['search'] as _i16.SearchEndpoint)
+                  .discoverUsersByInterests(
+                    session,
+                    limit: params['limit'],
+                  ),
+        ),
+        'discoverUsersByLanguages': _i1.MethodConnector(
+          name: 'discoverUsersByLanguages',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['search'] as _i16.SearchEndpoint)
+                  .discoverUsersByLanguages(
+                    session,
+                    limit: params['limit'],
+                  ),
+        ),
+        'getDiscoveryFeed': _i1.MethodConnector(
+          name: 'getDiscoveryFeed',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['search'] as _i16.SearchEndpoint).getDiscoveryFeed(
+                    session,
+                    limit: params['limit'],
+                  ),
         ),
       },
     );

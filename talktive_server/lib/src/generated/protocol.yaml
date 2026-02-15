@@ -78,6 +78,7 @@ report:
   - getReportCount:
   - listReports:
   - resolveReport:
+  - getReportDetails:
 resident:
   - getResident:
   - initializeResident:
@@ -89,6 +90,9 @@ search:
   - getActiveUsers:
   - getRecentMoments:
   - searchAll:
+  - discoverUsersByInterests:
+  - discoverUsersByLanguages:
+  - getDiscoveryFeed:
 streak:
   - getUserStreak:
   - canClaimDailyReward:

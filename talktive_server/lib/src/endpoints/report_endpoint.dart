@@ -224,4 +224,66 @@ class ReportEndpoint extends Endpoint {
 
     await protocol.Report.db.updateRow(session, report);
   }
+
+  /// Gets detailed report information with user context (admin only).
+  Future<Map<String, dynamic>> getReportDetails(
+    Session session,
+    int reportId,
+  ) async {
+    // Validate inputs
+    InputValidationService.validateId(reportId, 'Report ID').throwIfInvalid();
+
+    final adminIdentifier = session.authenticated?.userIdentifier;
+    if (adminIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final adminUuid = UuidValue.fromString(adminIdentifier);
+    final admin = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(adminUuid),
+    );
+
+    if (admin?.role != 'admin') {
+      throw Exception('Admin access required');
+    }
+
+    final report = await protocol.Report.db.findById(session, reportId);
+    if (report == null) {
+      throw Exception('Report not found');
+    }
+
+    // Get reporter info
+    final reporter = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(report.reporterId),
+    );
+
+    // Get target info
+    final target = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(report.targetId),
+    );
+
+    // Get message if available
+    protocol.Message? message;
+    if (report.messageId != null) {
+      message = await protocol.Message.db.findById(session, report.messageId!);
+    }
+
+    return {
+      'report': report.toJson(),
+      'reporter': {
+        'userId': reporter?.userInfoId.toString(),
+        'floor': reporter?.floor,
+        'creditScore': reporter?.creditScore,
+      },
+      'target': {
+        'userId': target?.userInfoId.toString(),
+        'floor': target?.floor,
+        'creditScore': target?.creditScore,
+      },
+      'message': message?.toJson(),
+    };
+  }
 }

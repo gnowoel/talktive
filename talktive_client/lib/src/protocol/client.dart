@@ -968,6 +968,14 @@ class EndpointReport extends _i2.EndpointRef {
       'approved': approved,
     },
   );
+
+  /// Gets detailed report information with user context (admin only).
+  _i3.Future<Map<String, dynamic>> getReportDetails(int reportId) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'report',
+        'getReportDetails',
+        {'reportId': reportId},
+      );
 }
 
 /// {@category Endpoint}
@@ -1093,6 +1101,32 @@ class EndpointSearch extends _i2.EndpointRef {
       'limit': limit,
     },
   );
+
+  /// Discover users by shared interests
+  _i3.Future<List<Map<String, dynamic>>> discoverUsersByInterests({
+    required int limit,
+  }) => caller.callServerEndpoint<List<Map<String, dynamic>>>(
+    'search',
+    'discoverUsersByInterests',
+    {'limit': limit},
+  );
+
+  /// Discover users by shared languages
+  _i3.Future<List<Map<String, dynamic>>> discoverUsersByLanguages({
+    required int limit,
+  }) => caller.callServerEndpoint<List<Map<String, dynamic>>>(
+    'search',
+    'discoverUsersByLanguages',
+    {'limit': limit},
+  );
+
+  /// Get personalized discovery feed (combines interests, languages, and activity)
+  _i3.Future<Map<String, dynamic>> getDiscoveryFeed({required int limit}) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'search',
+        'getDiscoveryFeed',
+        {'limit': limit},
+      );
 }
 
 /// {@category Endpoint}

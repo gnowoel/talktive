@@ -238,6 +238,37 @@ class MomentEndpoint extends Endpoint {
     return like != null;
   }
 
+  /// Batch checks if the current user has liked multiple moments.
+  /// This solves the N+1 query problem when loading a feed of moments.
+  /// Returns a Map of momentId -> isLiked.
+  Future<Map<int, bool>> hasLikedMoments(
+    Session session,
+    List<int> momentIds,
+  ) async {
+    final authenticationInfo = session.authenticated;
+    final userIdentifier = authenticationInfo?.userIdentifier;
+
+    if (userIdentifier == null) {
+      // Return all false if not authenticated
+      return {for (var id in momentIds) id: false};
+    }
+
+    final userId = UuidValue.fromString(userIdentifier);
+
+    // Fetch all likes for these moments by this user in one query
+    final likes = await MomentLike.db.find(
+      session,
+      where: (t) =>
+          t.momentId.inSet(momentIds.toSet()) & t.userId.equals(userId),
+    );
+
+    // Create a set of liked moment IDs for O(1) lookup
+    final likedMomentIds = likes.map((like) => like.momentId).toSet();
+
+    // Return map of momentId -> isLiked
+    return {for (var id in momentIds) id: likedMomentIds.contains(id)};
+  }
+
   /// Adds a comment to a moment.
   Future<MomentComment> addComment(
     Session session,

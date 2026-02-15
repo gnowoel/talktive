@@ -65,25 +65,30 @@ class MomentLikes extends _$MomentLikes {
     final client = ref.read(clientProvider);
     final moments = await ref.read(momentsProvider.future);
 
-    final likedMoments = <int>{};
+    // Extract moment IDs
+    final momentIds = moments
+        .where((m) => m.id != null)
+        .map((m) => m.id!)
+        .toList();
 
-    // Batch check all moments - this is still sequential but isolated
-    // TODO: Create a batch endpoint on the server for better performance
-    for (final moment in moments) {
-      if (moment.id != null) {
-        try {
-          final isLiked = await client.moment.hasLikedMoment(moment.id!);
-          if (isLiked) {
-            likedMoments.add(moment.id!);
-          }
-        } catch (e) {
-          // Skip this moment if there's an error
-          continue;
-        }
-      }
+    if (momentIds.isEmpty) {
+      return {};
     }
 
-    return likedMoments;
+    try {
+      // Use batch endpoint to check all likes in one query (solves N+1 problem)
+      final likeMap = await client.moment.hasLikedMoments(momentIds);
+
+      // Return set of liked moment IDs
+      return likeMap.entries
+          .where((entry) => entry.value)
+          .map((entry) => entry.key)
+          .toSet();
+    } catch (e) {
+      // If batch endpoint fails, fall back to empty set
+      print('Error fetching liked moments: $e');
+      return {};
+    }
   }
 
   /// Optimistically updates the like state

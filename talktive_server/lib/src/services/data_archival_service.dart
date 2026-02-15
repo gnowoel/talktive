@@ -119,7 +119,7 @@ class DataArchivalService {
         where: (t) =>
             (t.status.equals(protocol.ReportStatus.approved) |
                 t.status.equals(protocol.ReportStatus.rejected)) &
-            (t.resolvedAt != null) &
+            t.resolvedAt.notEquals(null) &
             (t.resolvedAt! < cutoffDate),
         limit: 1000,
       );
@@ -156,9 +156,9 @@ class DataArchivalService {
 
     try {
       // Find old read notifications
-      final oldNotifications = await protocol.Notification.db.find(
+      final oldNotifications = await protocol.UserNotification.db.find(
         session,
-        where: (t) => t.isRead.equals(true) & (t.createdAt < cutoffDate),
+        where: (t) => t.read.equals(true) & (t.createdAt < cutoffDate),
         limit: 1000,
       );
 
@@ -169,7 +169,7 @@ class DataArchivalService {
 
       int deletedCount = 0;
       for (final notification in oldNotifications) {
-        await protocol.Notification.db.deleteRow(session, notification);
+        await protocol.UserNotification.db.deleteRow(session, notification);
         deletedCount++;
       }
 
@@ -232,16 +232,16 @@ class DataArchivalService {
       where: (t) =>
           (t.status.equals(protocol.ReportStatus.approved) |
               t.status.equals(protocol.ReportStatus.rejected)) &
-          (t.resolvedAt != null) &
+          t.resolvedAt.notEquals(null) &
           (t.resolvedAt! < DateTime.now().subtract(const Duration(days: 30))),
     );
     stats['archivableReports'] = reportsCount;
 
     // Read notifications older than 30 days
-    final notificationsCount = await protocol.Notification.db.count(
+    final notificationsCount = await protocol.UserNotification.db.count(
       session,
       where: (t) =>
-          t.isRead.equals(true) &
+          t.read.equals(true) &
           (t.createdAt < DateTime.now().subtract(const Duration(days: 30))),
     );
     stats['archivableNotifications'] = notificationsCount;

@@ -1,62 +1,73 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:firebase_admin/firebase_admin.dart';
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:googleapis_auth/auth_io.dart' as auth;
 
 /// Service for sending Firebase Cloud Messaging push notifications.
 ///
+/// Uses Firebase HTTP v1 API with service account credentials.
 /// Setup:
 /// 1. Download service account JSON from Firebase Console
-/// 2. Set GOOGLE_APPLICATION_CREDENTIALS environment variable
-/// 3. Or place firebase-adminsdk.json in config/
+/// 2. Place it at config/firebase_service_account_key.json
 class FCMService {
-  static FirebaseAdminApp? _app;
+  static auth.ServiceAccountCredentials? _credentials;
+  static String? _projectId;
   static bool _initialized = false;
 
-  /// Initialize Firebase Admin SDK.
-  /// Call this once at server startup.
+  /// Initialize FCM Service with service account credentials.
   static Future<void> initialize() async {
     if (_initialized) return;
 
     try {
-      // Try to get credentials from environment variable
-      final credentialsPath =
-          Platform.environment['GOOGLE_APPLICATION_CREDENTIALS'];
+      final credentialsFile = File('config/firebase_service_account_key.json');
 
-      if (credentialsPath != null && File(credentialsPath).existsSync()) {
-        _app = FirebaseAdminApp.initializeApp(
-          'talktive',
-          Credential.fromServiceAccountParams(
-            clientId: '', // Will be read from JSON
-            privateKey: '', // Will be read from JSON
-            email: '', // Will be read from JSON
-          ),
+      if (!credentialsFile.existsSync()) {
+        print(
+          '⚠️  FCM Service not initialized: firebase_service_account_key.json not found',
         );
-        _initialized = true;
-        print('✅ FCM Service initialized successfully');
-      } else {
-        // Try default location
-        final defaultPath = 'config/firebase-adminsdk.json';
-        if (File(defaultPath).existsSync()) {
-          _app = FirebaseAdminApp.initializeApp(
-            'talktive',
-            Credential.fromServiceAccountParams(
-              clientId: '',
-              privateKey: '',
-              email: '',
-            ),
-          );
-          _initialized = true;
-          print('✅ FCM Service initialized from default location');
-        } else {
-          print('⚠️  FCM Service not initialized: No credentials found');
-          print(
-            '   Set GOOGLE_APPLICATION_CREDENTIALS or place firebase-adminsdk.json in config/',
-          );
-        }
+        print(
+          '   Place service account JSON at config/firebase_service_account_key.json',
+        );
+        return;
       }
-    } catch (e) {
+
+      final jsonContent = jsonDecode(await credentialsFile.readAsString());
+
+      _credentials = auth.ServiceAccountCredentials.fromJson(jsonContent);
+      _projectId = jsonContent['project_id'] as String?;
+
+      if (_projectId == null) {
+        print(
+          '❌ FCM Service initialization failed: project_id not found in credentials',
+        );
+        return;
+      }
+
+      _initialized = true;
+      print('✅ FCM Service initialized successfully for project: $_projectId');
+    } catch (e, stack) {
       print('❌ FCM Service initialization failed: $e');
+      print(stack);
       _initialized = false;
+    }
+  }
+
+  /// Get an OAuth2 access token for FCM API.
+  static Future<String?> _getAccessToken() async {
+    if (_credentials == null) return null;
+
+    try {
+      final scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
+      final client = await auth.clientViaServiceAccount(_credentials!, scopes);
+
+      final accessToken = client.credentials.accessToken.data;
+      client.close();
+
+      return accessToken;
+    } catch (e) {
+      print('Failed to get FCM access token: $e');
+      return null;
     }
   }
 
@@ -71,48 +82,73 @@ class FCMService {
     String? sound,
     int? badge,
   }) async {
-    if (!_initialized || _app == null) {
+    if (!_initialized || _projectId == null) {
       session.log('FCM not initialized, skipping push notification');
       return false;
     }
 
     try {
-      final messaging = Messaging(_app!);
+      final accessToken = await _getAccessToken();
+      if (accessToken == null) {
+        session.log('Failed to get FCM access token');
+        return false;
+      }
 
-      final message = Message(
-        token: token,
-        notification: Notification(
-          title: title,
-          body: body,
-          imageUrl: imageUrl,
-        ),
-        data: data,
-        android: AndroidConfig(
-          priority: AndroidMessagePriority.high,
-          notification: AndroidNotification(
-            sound: sound ?? 'default',
-            channelId: 'talktive_messages',
-            priority: AndroidNotificationPriority.high,
-          ),
-        ),
-        apns: ApnsConfig(
-          payload: ApnsPayload(
-            aps: Aps(
-              alert: ApsAlert(
-                title: title,
-                body: body,
-              ),
-              sound: sound ?? 'default',
-              badge: badge,
-            ),
-          ),
-        ),
+      final url =
+          'https://fcm.googleapis.com/v1/projects/$_projectId/messages:send';
+
+      final message = {
+        'message': {
+          'token': token,
+          'notification': {
+            'title': title,
+            'body': body,
+            if (imageUrl != null) 'image': imageUrl,
+          },
+          if (data != null) 'data': data,
+          'android': {
+            'priority': 'high',
+            'notification': {
+              'sound': sound ?? 'default',
+              'channel_id': 'talktive_messages',
+              'priority': 'high',
+            },
+          },
+          'apns': {
+            'payload': {
+              'aps': {
+                'alert': {
+                  'title': title,
+                  'body': body,
+                },
+                'sound': sound ?? 'default',
+                if (badge != null) 'badge': badge,
+              },
+            },
+          },
+        },
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(message),
       );
 
-      await messaging.send(message);
-      return true;
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        session.log(
+          'FCM send failed: ${response.statusCode} - ${response.body}',
+          level: LogLevel.warning,
+        );
+        return false;
+      }
     } catch (e) {
-      session.log('Failed to send FCM notification: $e');
+      session.log('Failed to send FCM notification: $e', level: LogLevel.error);
       return false;
     }
   }
@@ -153,36 +189,53 @@ class FCMService {
     String token,
     Map<String, String> data,
   ) async {
-    if (!_initialized || _app == null) {
+    if (!_initialized || _projectId == null) {
       session.log('FCM not initialized, skipping data message');
       return false;
     }
 
     try {
-      final messaging = Messaging(_app!);
+      final accessToken = await _getAccessToken();
+      if (accessToken == null) {
+        session.log('Failed to get FCM access token');
+        return false;
+      }
 
-      final message = Message(
-        token: token,
-        data: data,
-        android: AndroidConfig(
-          priority: AndroidMessagePriority.high,
-        ),
-        apns: ApnsConfig(
-          headers: {
-            'apns-priority': '10',
+      final url =
+          'https://fcm.googleapis.com/v1/projects/$_projectId/messages:send';
+
+      final message = {
+        'message': {
+          'token': token,
+          'data': data,
+          'android': {
+            'priority': 'high',
           },
-          payload: ApnsPayload(
-            aps: Aps(
-              contentAvailable: true,
-            ),
-          ),
-        ),
+          'apns': {
+            'headers': {
+              'apns-priority': '10',
+            },
+            'payload': {
+              'aps': {
+                'content-available': 1,
+              },
+            },
+          },
+        },
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(message),
       );
 
-      await messaging.send(message);
-      return true;
+      return response.statusCode == 200;
     } catch (e) {
-      session.log('Failed to send FCM data message: $e');
+      session.log('Failed to send FCM data message: $e', level: LogLevel.error);
       return false;
     }
   }
@@ -195,47 +248,81 @@ class FCMService {
     String body, {
     Map<String, String>? data,
   }) async {
-    if (!_initialized || _app == null) {
+    if (!_initialized || _projectId == null) {
       session.log('FCM not initialized, skipping topic message');
       return false;
     }
 
     try {
-      final messaging = Messaging(_app!);
+      final accessToken = await _getAccessToken();
+      if (accessToken == null) {
+        session.log('Failed to get FCM access token');
+        return false;
+      }
 
-      final message = Message(
-        topic: topic,
-        notification: Notification(
-          title: title,
-          body: body,
-        ),
-        data: data,
+      final url =
+          'https://fcm.googleapis.com/v1/projects/$_projectId/messages:send';
+
+      final message = {
+        'message': {
+          'topic': topic,
+          'notification': {
+            'title': title,
+            'body': body,
+          },
+          if (data != null) 'data': data,
+        },
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(message),
       );
 
-      await messaging.send(message);
-      return true;
+      return response.statusCode == 200;
     } catch (e) {
-      session.log('Failed to send FCM topic message: $e');
+      session.log(
+        'Failed to send FCM topic message: $e',
+        level: LogLevel.error,
+      );
       return false;
     }
   }
 
   /// Subscribe a token to a topic.
+  /// Note: This uses the IID API which may require additional setup.
   static Future<bool> subscribeToTopic(
     Session session,
     String token,
     String topic,
   ) async {
-    if (!_initialized || _app == null) {
+    if (!_initialized) {
       return false;
     }
 
     try {
-      final messaging = Messaging(_app!);
-      await messaging.subscribeToTopic([token], topic);
-      return true;
+      final accessToken = await _getAccessToken();
+      if (accessToken == null) {
+        return false;
+      }
+
+      final url = 'https://iid.googleapis.com/iid/v1/$token/rel/topics/$topic';
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      return response.statusCode == 200;
     } catch (e) {
-      session.log('Failed to subscribe to topic: $e');
+      session.log('Failed to subscribe to topic: $e', level: LogLevel.error);
       return false;
     }
   }
@@ -246,16 +333,32 @@ class FCMService {
     String token,
     String topic,
   ) async {
-    if (!_initialized || _app == null) {
+    if (!_initialized) {
       return false;
     }
 
     try {
-      final messaging = Messaging(_app!);
-      await messaging.unsubscribeFromTopic([token], topic);
-      return true;
+      final accessToken = await _getAccessToken();
+      if (accessToken == null) {
+        return false;
+      }
+
+      final url = 'https://iid.googleapis.com/iid/v1/$token/rel/topics/$topic';
+
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      return response.statusCode == 200;
     } catch (e) {
-      session.log('Failed to unsubscribe from topic: $e');
+      session.log(
+        'Failed to unsubscribe from topic: $e',
+        level: LogLevel.error,
+      );
       return false;
     }
   }

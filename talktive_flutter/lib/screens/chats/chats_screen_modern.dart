@@ -39,7 +39,7 @@ class ChatsScreenModern extends ConsumerWidget {
                     AppTheme.duoSpacingMedium,
                     AppTheme.duoSpacingMedium,
                     AppTheme.duoSpacingMedium,
-                    100, // Space for bottom nav
+                    AppTheme.contentBottomPadding,
                   ),
                   itemCount: chats.length,
                   itemBuilder: (context, index) {

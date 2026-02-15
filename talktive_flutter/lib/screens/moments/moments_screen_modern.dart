@@ -335,7 +335,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
         padding: const EdgeInsets.only(
           left: AppTheme.duoSpacingMedium,
           right: AppTheme.duoSpacingMedium,
-          bottom: 100,
+          bottom: AppTheme.contentBottomPadding,
         ),
         itemCount: _moments!.length,
         itemBuilder: (context, index) {

@@ -112,7 +112,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           ),
           // Input area
           _buildInputArea(currentResident),
-          const SizedBox(height: 100), // Space for bottom nav
+          SizedBox(height: AppTheme.contentBottomPadding),
         ],
       ),
     );
@@ -208,7 +208,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         padding: const EdgeInsets.only(
           left: AppTheme.duoSpacingMedium,
           right: AppTheme.duoSpacingMedium,
-          bottom: 100,
+          bottom: AppTheme.contentBottomPadding,
           top: AppTheme.duoSpacingSmall,
         ),
         itemCount: filteredMessages.length,

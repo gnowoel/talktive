@@ -1,0 +1,152 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:talktive_client/talktive_client.dart';
+import 'client_provider.dart';
+
+part 'moments_provider.g.dart';
+
+/// Provider for the moments feed
+@riverpod
+class Moments extends _$Moments {
+  @override
+  FutureOr<List<Moment>> build() async {
+    return fetchMoments();
+  }
+
+  Future<List<Moment>> fetchMoments({int limit = 20}) async {
+    final client = ref.read(clientProvider);
+    return await client.moment.listMoments(limit: limit);
+  }
+
+  /// Refreshes the moments list
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    try {
+      final moments = await fetchMoments();
+      state = AsyncValue.data(moments);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  /// Posts a new moment
+  Future<void> postMoment({
+    required String imageUrl,
+    required String caption,
+  }) async {
+    final client = ref.read(clientProvider);
+    await client.moment.postMoment(imageUrl: imageUrl, caption: caption);
+    await refresh();
+  }
+
+  /// Toggles like on a moment
+  Future<void> toggleLike(int momentId, bool currentlyLiked) async {
+    final client = ref.read(clientProvider);
+
+    if (currentlyLiked) {
+      await client.moment.unlikeMoment(momentId);
+    } else {
+      await client.moment.likeMoment(momentId);
+    }
+
+    // Optimistically update the UI
+    await refresh();
+  }
+}
+
+/// Provider for tracking which moments are liked by the current user
+@riverpod
+class MomentLikes extends _$MomentLikes {
+  @override
+  FutureOr<Set<int>> build() async {
+    return fetchLikedMoments();
+  }
+
+  Future<Set<int>> fetchLikedMoments() async {
+    final client = ref.read(clientProvider);
+    final moments = await ref.read(momentsProvider.future);
+
+    final likedMoments = <int>{};
+
+    // Batch check all moments - this is still sequential but isolated
+    // TODO: Create a batch endpoint on the server for better performance
+    for (final moment in moments) {
+      if (moment.id != null) {
+        try {
+          final isLiked = await client.moment.hasLikedMoment(moment.id!);
+          if (isLiked) {
+            likedMoments.add(moment.id!);
+          }
+        } catch (e) {
+          // Skip this moment if there's an error
+          continue;
+        }
+      }
+    }
+
+    return likedMoments;
+  }
+
+  /// Optimistically updates the like state
+  void toggleLike(int momentId) {
+    state.whenData((likedMoments) {
+      final newSet = Set<int>.from(likedMoments);
+      if (newSet.contains(momentId)) {
+        newSet.remove(momentId);
+      } else {
+        newSet.add(momentId);
+      }
+      state = AsyncValue.data(newSet);
+    });
+  }
+
+  /// Refreshes the liked moments
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    try {
+      final likedMoments = await fetchLikedMoments();
+      state = AsyncValue.data(likedMoments);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}
+
+/// Provider for comments on a specific moment
+@riverpod
+class MomentComments extends _$MomentComments {
+  @override
+  FutureOr<List<MomentComment>> build(int momentId) async {
+    return fetchComments(momentId);
+  }
+
+  Future<List<MomentComment>> fetchComments(int momentId) async {
+    final client = ref.read(clientProvider);
+    return await client.moment.getMomentComments(momentId);
+  }
+
+  /// Adds a comment to the moment
+  Future<void> addComment(int momentId, String text) async {
+    final client = ref.read(clientProvider);
+    await client.moment.addComment(momentId, text);
+
+    // Refresh comments
+    state = const AsyncValue.loading();
+    try {
+      final comments = await fetchComments(momentId);
+      state = AsyncValue.data(comments);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  /// Refreshes the comments
+  Future<void> refresh(int momentId) async {
+    state = const AsyncValue.loading();
+    try {
+      final comments = await fetchComments(momentId);
+      state = AsyncValue.data(comments);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}

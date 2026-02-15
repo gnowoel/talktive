@@ -49,7 +49,7 @@ class GroupsScreenModern extends ConsumerWidget {
                     AppTheme.duoSpacingMedium,
                     AppTheme.duoSpacingMedium,
                     AppTheme.duoSpacingMedium,
-                    100, // Space for bottom nav
+                    AppTheme.contentBottomPadding,
                   ),
                   itemCount: groups.length,
                   itemBuilder: (context, index) {

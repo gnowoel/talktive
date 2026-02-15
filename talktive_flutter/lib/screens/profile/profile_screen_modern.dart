@@ -107,7 +107,7 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildInfoCard(),
           // Sign out button
           _buildSignOutButton(context, ref),
-          const SizedBox(height: 100), // Space for bottom nav
+          const SizedBox(height: AppTheme.contentBottomPadding),
         ],
       ),
     );

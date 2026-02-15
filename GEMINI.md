@@ -91,6 +91,30 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Error Handling**: Standardized error states using `DuoEmptyState` with retry buttons
   - **Code Reduction**: Removed ~150+ lines of duplicate code across screens
   - **Future-Ready**: Created `MomentsProvider` for future state management migration
+- Phase 8.7: Safety & Gamification System Redesign (Feb 2026)
+  - **Separated Systems**: Split safety (reputation) from gamification (XP/levels/streaks)
+  - **Safety System**:
+    - Replaced `creditScore` with `reputation` (0-100, starts at 100)
+    - Passive restoration: 2pts/hour
+    - Muting: Users with reputation ≤ 0 cannot send messages
+    - Auto-escalation: 3/5/10 reports trigger warnings/mutes
+    - Added `mutedUntil` and `suspended` fields
+  - **Gamification System**:
+    - Added `xp`, `level`, `currentStreak`, `longestStreak` fields
+    - XP awards: 10pts/message, 50pts/moment
+    - Level progression: 100 XP per level
+    - Daily login bonuses and streak tracking
+    - `floor` field now aliases `level` (apartment metaphor)
+  - **Backend Changes**:
+    - Created `GamificationService` for XP/level/streak management
+    - Refactored `ApartmentService` to handle only reputation/safety
+    - Updated all endpoints (Message, Moment, Report, Resident, Admin)
+    - Database migration applied with new fields
+  - **Frontend Changes**:
+    - Updated profile screen with reputation (⭐), XP, level, streak stats
+    - Changed reputation icon from 💰 to ⭐ with color coding
+    - Updated all mute checks from `creditScore > 0` to `reputation > 0`
+    - Updated Plaza, chat, group, and admin screens
 
 **Status:** 🏗️ In Progress
 

@@ -103,8 +103,8 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
                 emoji: '😕',
                 title: 'Connection Error',
                 subtitle: error.toString(),
-                actionLabel: 'Retry',
-                onAction: () {
+                buttonText: 'Retry',
+                onButtonPressed: () {
                   ref.read(realtimeChatProvider(1).notifier).refresh();
                 },
               ),

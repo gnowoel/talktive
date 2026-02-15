@@ -78,17 +78,22 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 children: [
                   const Icon(Icons.error_outline, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text(
+                  const Text(
                     'Could not load profile',
-                    style: AppTheme.textStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _error!,
-                    style: AppTheme.textStyle(fontSize: 14, color: Colors.grey),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      fontFamily: 'Rubik',
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -132,16 +137,21 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           const SizedBox(height: 16),
           Text(
             name,
-            style: AppTheme.textStyle(
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
             ),
           ),
           if (bio != null) ...[
             const SizedBox(height: 8),
             Text(
               bio,
-              style: AppTheme.textStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Rubik',
+                color: Colors.grey[600],
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -180,9 +190,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                       (i) => Chip(
                         label: Text(i.toString()),
                         backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                        labelStyle: AppTheme.textStyle(
+                        labelStyle: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.primaryColor,
+                          fontFamily: 'Poppins',
                         ),
                       ),
                     )
@@ -202,9 +213,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                       (l) => Chip(
                         label: Text(l.toString()),
                         backgroundColor: AppTheme.accentColor.withOpacity(0.1),
-                        labelStyle: AppTheme.textStyle(
+                        labelStyle: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.accentColor,
+                          fontFamily: 'Poppins',
                         ),
                       ),
                     )
@@ -218,7 +230,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             _buildInfoCard('Achievements', [
               Text(
                 '$achievementCount achievements unlocked',
-                style: AppTheme.textStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16, fontFamily: 'Rubik'),
               ),
             ]),
           ],
@@ -232,16 +244,21 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       children: [
         Text(
           value,
-          style: AppTheme.textStyle(
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryColor,
+            fontFamily: 'Poppins',
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTheme.textStyle(fontSize: 12, color: Colors.grey[600]),
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: 'Rubik',
+            color: Colors.grey[600],
+          ),
         ),
       ],
     );
@@ -267,9 +284,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         children: [
           Text(
             title,
-            style: AppTheme.textStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
             ),
           ),
           const SizedBox(height: 12),
@@ -286,7 +304,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         children: [
           Icon(icon, size: 20, color: Colors.grey[600]),
           const SizedBox(width: 12),
-          Text(text, style: AppTheme.textStyle(fontSize: 16)),
+          Text(text, style: const TextStyle(fontSize: 16, fontFamily: 'Rubik')),
         ],
       ),
     );

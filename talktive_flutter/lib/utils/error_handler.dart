@@ -5,7 +5,7 @@ import 'package:serverpod_flutter/serverpod_flutter.dart';
 class ErrorHandler {
   /// Shows a user-friendly error message in a SnackBar.
   static void showError(BuildContext context, Object error) {
-    final message = _getErrorMessage(error);
+    final message = getErrorMessage(error);
 
     if (!context.mounted) return;
 
@@ -57,7 +57,7 @@ class ErrorHandler {
     Object error, {
     String? title,
   }) async {
-    final message = _getErrorMessage(error);
+    final message = getErrorMessage(error);
 
     if (!context.mounted) return;
 
@@ -95,7 +95,7 @@ class ErrorHandler {
       if (!context.mounted) return null;
 
       if (showErrorDialog) {
-        await showErrorDialog(context, e);
+        await ErrorHandler.showErrorDialog(context, e);
       } else {
         showError(context, e);
       }
@@ -106,15 +106,6 @@ class ErrorHandler {
 
   /// Extracts a user-friendly error message from various error types.
   static String getErrorMessage(Object error) {
-    if (error is ServerpodClientException) {
-      // Extract message from Serverpod exception
-      final message = error.message;
-      if (message.contains('Exception: ')) {
-        return message.replaceFirst('Exception: ', '');
-      }
-      return message;
-    }
-
     if (error is Exception) {
       final message = error.toString();
       if (message.startsWith('Exception: ')) {

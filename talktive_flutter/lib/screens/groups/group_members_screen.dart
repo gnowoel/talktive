@@ -101,9 +101,10 @@ class GroupMembersScreen extends ConsumerWidget {
                       Icon(Icons.star, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        '${member.creditScore} credits',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                        'Level ${member.level} • ⭐ ${member.reputation}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                     ],

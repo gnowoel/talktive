@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:serverpod/serverpod.dart';
 import 'package:path/path.dart' as path;
 import '../generated/protocol.dart';
+import '../services/image_validation_service.dart';
 
 class ImageEndpoint extends Endpoint {
   /// Uploads an image file to the server's local storage.
@@ -44,23 +45,26 @@ class ImageEndpoint extends Endpoint {
       throw Exception('You are muted due to low credit score.');
     }
 
-    // Validate file size (5MB max)
-    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
-    if (imageData.lengthInBytes > maxSizeBytes) {
-      throw Exception('Image too large. Maximum size is 5MB.');
-    }
+    // Convert ByteData to Uint8List
+    final imageBytes = imageData.buffer.asUint8List(
+      imageData.offsetInBytes,
+      imageData.lengthInBytes,
+    );
 
-    // Validate file extension
-    final ext = path.extension(fileName).toLowerCase();
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
-    if (!allowedExtensions.contains(ext)) {
-      throw Exception(
-        'Invalid file format. Allowed formats: JPEG, PNG, WebP',
-      );
+    // Validate image
+    final validationError = await ImageValidationService.validateImage(
+      session,
+      imageBytes,
+      fileName,
+    );
+
+    if (validationError != null) {
+      throw Exception(validationError);
     }
 
     // Generate unique filename
     final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final ext = path.extension(fileName).toLowerCase();
     final uniqueFileName = '${userUuid}_${timestamp}$ext';
 
     // Define upload directory (relative path for Docker volume mounting)
@@ -72,12 +76,7 @@ class ImageEndpoint extends Endpoint {
     // Save file
     final filePath = path.join(uploadDir.path, uniqueFileName);
     final file = File(filePath);
-    await file.writeAsBytes(
-      imageData.buffer.asUint8List(
-        imageData.offsetInBytes,
-        imageData.lengthInBytes,
-      ),
-    );
+    await file.writeAsBytes(imageBytes);
 
     // Return URL path
     final imageUrl = '/uploads/$uniqueFileName';

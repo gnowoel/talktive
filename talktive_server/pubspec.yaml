@@ -14,6 +14,8 @@ dependencies:
   uuid: ^4.5.2
   firebase_admin: ^0.3.0
   http: ^1.2.0
+  image: ^4.3.0
+  path: ^1.9.0
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'

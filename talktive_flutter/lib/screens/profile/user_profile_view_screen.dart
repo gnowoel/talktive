@@ -1,0 +1,309 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/theme.dart';
+import '../../widgets/duo/duo_avatar.dart';
+import '../../providers/client_provider.dart';
+
+/// Simple user profile view screen
+/// Shows basic user info when tapping on an avatar
+class UserProfileViewScreen extends ConsumerStatefulWidget {
+  final String userId;
+  final String? userName;
+  final String? userAvatar;
+  final int? userFloor;
+
+  const UserProfileViewScreen({
+    super.key,
+    required this.userId,
+    this.userName,
+    this.userAvatar,
+    this.userFloor,
+  });
+
+  @override
+  ConsumerState<UserProfileViewScreen> createState() =>
+      _UserProfileViewScreenState();
+}
+
+class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
+  Map<String, dynamic>? _profile;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final client = ref.read(clientProvider);
+      final profile = await client.userProfile.getUserProfile(widget.userId);
+
+      if (mounted) {
+        setState(() {
+          _profile = profile;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Could not load profile',
+                    style: AppTheme.textStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    style: AppTheme.textStyle(fontSize: 14, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
+          : _buildProfile(),
+    );
+  }
+
+  Widget _buildProfile() {
+    if (_profile == null) {
+      return const Center(child: Text('Profile not found'));
+    }
+
+    final name = _profile!['name'] as String? ?? widget.userName ?? 'Unknown';
+    final avatar = _profile!['avatar'] as String? ?? widget.userAvatar;
+    final floor = _profile!['floor'] as int? ?? widget.userFloor ?? 0;
+    final bio = _profile!['bio'] as String?;
+    final gender = _profile!['gender'] as String?;
+    final country = _profile!['country'] as String?;
+    final interests = _profile!['interests'] as List<dynamic>?;
+    final languages = _profile!['languages'] as List<dynamic>?;
+    final messageCount = _profile!['messageCount'] as int? ?? 0;
+    final momentCount = _profile!['momentCount'] as int? ?? 0;
+    final achievementCount = _profile!['achievementCount'] as int? ?? 0;
+    final streakDays = _profile!['streakDays'] as int? ?? 0;
+    final mutualGroups = _profile!['mutualGroups'] as int? ?? 0;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          // Avatar and basic info
+          DuoAvatar(
+            imageUrl: avatar,
+            initials: name[0],
+            size: 120,
+            floorLevel: floor,
+            showRing: true,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            name,
+            style: AppTheme.textStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (bio != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              bio,
+              style: AppTheme.textStyle(fontSize: 16, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ],
+          const SizedBox(height: 24),
+
+          // Stats
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStat('Floor', '$floor'),
+              _buildStat('Messages', '$messageCount'),
+              _buildStat('Moments', '$momentCount'),
+              _buildStat('Streak', '$streakDays🔥'),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Info cards
+          if (gender != null || country != null)
+            _buildInfoCard('About', [
+              if (gender != null)
+                _buildInfoRow(Icons.person, _formatGender(gender)),
+              if (country != null) _buildInfoRow(Icons.flag, country),
+              if (mutualGroups > 0)
+                _buildInfoRow(Icons.group, '$mutualGroups mutual groups'),
+            ]),
+
+          if (interests != null && interests.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildInfoCard('Interests', [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: interests
+                    .map(
+                      (i) => Chip(
+                        label: Text(i.toString()),
+                        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                        labelStyle: AppTheme.textStyle(
+                          fontSize: 14,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ]),
+          ],
+
+          if (languages != null && languages.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildInfoCard('Languages', [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: languages
+                    .map(
+                      (l) => Chip(
+                        label: Text(l.toString()),
+                        backgroundColor: AppTheme.accentColor.withOpacity(0.1),
+                        labelStyle: AppTheme.textStyle(
+                          fontSize: 14,
+                          color: AppTheme.accentColor,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ]),
+          ],
+
+          if (achievementCount > 0) ...[
+            const SizedBox(height: 16),
+            _buildInfoCard('Achievements', [
+              Text(
+                '$achievementCount achievements unlocked',
+                style: AppTheme.textStyle(fontSize: 16),
+              ),
+            ]),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStat(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTheme.textStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: AppTheme.textStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoCard(String title, List<Widget> children) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTheme.textStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.grey[600]),
+          const SizedBox(width: 12),
+          Text(text, style: AppTheme.textStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  String _formatGender(String gender) {
+    switch (gender.toLowerCase()) {
+      case 'male':
+        return 'Male';
+      case 'female':
+        return 'Female';
+      case 'non-binary':
+        return 'Non-binary';
+      case 'prefer-not-to-say':
+        return 'Prefer not to say';
+      default:
+        return gender;
+    }
+  }
+}

@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../profile/user_profile_view_screen.dart';
 
 /// Duolingo-style Moments screen - Photo feed
 class MomentsScreenModern extends ConsumerStatefulWidget {
@@ -355,6 +356,18 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
                       size: 40,
                       floorLevel: moment.authorFloor,
                       showRing: false,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserProfileViewScreen(
+                              userId: moment.authorId.toString(),
+                              userName: moment.authorName,
+                              userFloor: moment.authorFloor,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: AppTheme.duoSpacingSmall),
                     Expanded(

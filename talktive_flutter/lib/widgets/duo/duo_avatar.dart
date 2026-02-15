@@ -9,6 +9,7 @@ class DuoAvatar extends StatelessWidget {
   final int? floorLevel;
   final Color? ringColor;
   final bool showRing;
+  final VoidCallback? onTap;
 
   const DuoAvatar({
     super.key,
@@ -18,15 +19,31 @@ class DuoAvatar extends StatelessWidget {
     this.floorLevel,
     this.ringColor,
     this.showRing = true,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final widget = _buildAvatar(context);
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(size / 2),
+        child: widget,
+      );
+    }
+
+    return widget;
+  }
+
+  Widget _buildAvatar(BuildContext context) {
     final ringWidth = size > 60 ? 3.0 : 2.0;
     final badgeSize = size > 60 ? 24.0 : 18.0;
     final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
-    final avatarText =
-        hasImageUrl ? initials : (imageUrl?.isNotEmpty == true ? imageUrl : initials);
+    final avatarText = hasImageUrl
+        ? initials
+        : (imageUrl?.isNotEmpty == true ? imageUrl : initials);
 
     Widget avatar = Container(
       width: size,

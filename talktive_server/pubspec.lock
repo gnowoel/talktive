@@ -169,6 +169,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  dotenv:
+    dependency: transitive
+    description:
+      name: dotenv
+      sha256: "379e64b6fc82d3df29461d349a1796ecd2c436c480d4653f3af6872eccbc90e1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.0"
   ed25519_edwards:
     dependency: transitive
     description:
@@ -185,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  expressions:
+    dependency: transitive
+    description:
+      name: expressions
+      sha256: f3b0e99563a9a1bde1138e728eb722f292cc7d2aec55d28136c49b1a370306c5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.5+3"
   ffi:
     dependency: transitive
     description:
@@ -201,6 +217,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  firebase_admin:
+    dependency: "direct main"
+    description:
+      name: firebase_admin
+      sha256: "506bcf47bda5418fc7b3ba2af2be6c43d7260356ab6f3ad3c99a08347d11c59d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1+1"
+  firebase_dart:
+    dependency: transitive
+    description:
+      name: firebase_dart
+      sha256: "670d445a66f91485e5b2e66eb87a92ad8be860a38511a4b9aa5b7fe7382d87cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.0"
+  firebaseapis:
+    dependency: transitive
+    description:
+      name: firebaseapis
+      sha256: "7e9663f298a209dc7d4e8a10944d6c39d43e02e9cade08c915720768d02d712d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   fixnum:
     dependency: transitive
     description:
@@ -225,6 +265,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  gcloud:
+    dependency: transitive
+    description:
+      name: gcloud
+      sha256: caa415a0145ec8afac457322872c3e8b38379a88800d2944c53798ea8fbce386
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.19"
   glob:
     dependency: transitive
     description:
@@ -245,10 +293,10 @@ packages:
     dependency: transitive
     description:
       name: googleapis
-      sha256: "692fb9e90c321b61a7a2123de0353ec8a20691cd979db2553d8d732f710f6535"
+      sha256: "5c9e0f25be1dec13d8d2158263141104c51b5ba83487537c17a2330581e505ee"
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.0"
+    version: "14.0.0"
   googleapis_auth:
     dependency: transitive
     description:
@@ -265,8 +313,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
-  http:
+  hive:
     dependency: transitive
+    description:
+      name: hive
+      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
+  http:
+    dependency: "direct main"
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -297,6 +353,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.7.2"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.2"
   io:
     dependency: transitive
     description:
@@ -313,6 +377,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.5"
+  js:
+    dependency: transitive
+    description:
+      name: js
+      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.2"
   lints:
     dependency: "direct dev"
     description:
@@ -481,6 +553,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   serverpod:
     dependency: "direct main"
     description:
@@ -585,6 +665,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  snapshot:
+    dependency: transitive
+    description:
+      name: snapshot
+      sha256: "36efb8e1680e65dde2a54e582f5f9c8211d0cadf254fcc3753fa11e49d26afd5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.6+3"
+  sortedmap:
+    dependency: transitive
+    description:
+      name: sortedmap
+      sha256: f000f40804e15fad5e3ad429164291c06cf7fcf8cc982006cf482852b912c3cf
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.4"
   source_map_stack_trace:
     dependency: transitive
     description:

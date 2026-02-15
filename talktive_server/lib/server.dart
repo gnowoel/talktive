@@ -13,6 +13,7 @@ import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
 import 'src/future_calls/message_cleanup.dart';
 import 'src/future_calls/credit_restoration.dart';
+import 'src/services/fcm_service.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -117,6 +118,9 @@ void run(List<String> args) async {
   } finally {
     await session.close();
   }
+
+  // Initialize FCM for push notifications
+  await FCMService.initialize();
 
   // Start the server.
   await pod.start();

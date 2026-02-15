@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import 'dart:convert';
+import 'fcm_service.dart';
 
 class NotificationService {
   /// Sends a notification to a user.
@@ -35,9 +36,16 @@ class NotificationService {
       return; // User has no registered devices
     }
 
-    // TODO: Send FCM push notification to each token
-    // This will be implemented when FCM admin SDK is added
-    // For now, we just store the notification in the database
+    // Send FCM push notification to each token
+    for (final deviceToken in tokens) {
+      await FCMService.sendToToken(
+        session,
+        deviceToken.token,
+        title,
+        body,
+        data: data?.map((key, value) => MapEntry(key, value.toString())),
+      );
+    }
   }
 
   /// Sends a message notification.

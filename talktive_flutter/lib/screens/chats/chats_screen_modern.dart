@@ -11,6 +11,7 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
 import 'chat_thread_screen.dart';
 
 /// Duolingo-style Chats screen - list of private conversations
@@ -51,9 +52,7 @@ class ChatsScreenModern extends ConsumerWidget {
                   },
                 ),
               ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
-        ),
+        loading: () => const DuoLoadingIndicator(),
         error: (error, stack) => _buildErrorState(context, ref, error),
       ),
     );

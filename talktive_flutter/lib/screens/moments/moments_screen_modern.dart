@@ -4,12 +4,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:talktive/serverpod_client.dart';
 import '../../config/theme.dart';
+import '../../helpers/date_formatter.dart';
+import '../../helpers/snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
 
 /// Duolingo-style Moments screen - Photo feed
 class MomentsScreenModern extends ConsumerStatefulWidget {
@@ -67,16 +70,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       if (mounted) {
         Navigator.pop(context);
         _loadMoments();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Moment posted! 🎉'),
-            backgroundColor: AppTheme.duoGreen,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-            ),
-          ),
-        );
+        SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
       }
     } catch (e) {
       if (mounted) {
@@ -285,11 +279,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-        ),
-      );
+      return const DuoLoadingIndicator();
     }
 
     if (_error != null) {
@@ -380,7 +370,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
                             ),
                           ),
                           Text(
-                            _formatTimestamp(moment.createdAt),
+                            formatTimestamp(moment.createdAt),
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppTheme.textSecondary,
@@ -562,23 +552,6 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       backgroundColor: Colors.transparent,
       builder: (context) => _CommentsSheet(momentId: moment.id!),
     );
-  }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
-    }
   }
 }
 
@@ -797,7 +770,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _formatTimestamp(comment.createdAt),
+                      formatTimestamp(comment.createdAt),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppTheme.textSecondary,
@@ -822,22 +795,5 @@ class _CommentsSheetState extends State<_CommentsSheet> {
         ],
       ),
     );
-  }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d';
-    } else {
-      return '${timestamp.day}/${timestamp.month}';
-    }
   }
 }

@@ -8,6 +8,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
 import 'group_chat_screen.dart';
 import 'create_group_dialog.dart';
 
@@ -61,9 +62,7 @@ class GroupsScreenModern extends ConsumerWidget {
                   },
                 ),
               ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
-        ),
+        loading: () => const DuoLoadingIndicator(),
         error: (error, stack) => _buildErrorState(context, ref, error),
       ),
     );
@@ -88,41 +87,14 @@ class GroupsScreenModern extends ConsumerWidget {
 
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          Text(
-            'Failed to load groups',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: AppTheme.duoSpacingSmall),
-          Text(
-            error.toString(),
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppTheme.duoSpacingLarge),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(groupListProvider.notifier).refresh();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.duoBorderRadius),
-              ),
-            ),
-            child: const Text('Retry'),
-          ),
-        ],
+      child: DuoEmptyState(
+        emoji: '😕',
+        title: 'Something went wrong',
+        subtitle: 'We couldn\'t load groups. Please try again.',
+        buttonText: 'Retry',
+        onButtonPressed: () {
+          ref.read(groupListProvider.notifier).refresh();
+        },
       ),
     );
   }

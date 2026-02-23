@@ -18,6 +18,7 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import '../achievements/achievements_screen.dart';
+import 'blocked_users_screen.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreenModern extends ConsumerWidget {
@@ -108,6 +109,8 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildAchievementsSection(context, ref),
           // Info card
           _buildInfoCard(),
+          // Blocked users menu
+          _buildBlockedUsersButton(context),
           // Sign out button
           _buildSignOutButton(context, ref),
           const SizedBox(height: AppTheme.contentBottomPadding),
@@ -567,6 +570,27 @@ class ProfileScreenModern extends ConsumerWidget {
             ),
           ],
         ),
+      ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
+    );
+  }
+
+  Widget _buildBlockedUsersButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: AppTheme.duoSpacingSmall,
+      ),
+      child: DuoButton(
+        text: 'Blocked Users',
+        icon: Icons.block,
+        color: AppTheme.textSecondary,
+        isSecondary: true,
+        width: double.infinity,
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const BlockedUsersScreen()),
+          );
+        },
       ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
     );
   }

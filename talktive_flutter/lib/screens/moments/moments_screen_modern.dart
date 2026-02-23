@@ -4,8 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:talktive/serverpod_client.dart';
 import '../../config/theme.dart';
+import '../../providers/blocked_users_provider.dart';
 import '../../helpers/date_formatter.dart';
-import '../../helpers/snackbar_helper.dart';
 import '../../utils/error_handler.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
@@ -264,11 +264,11 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
           child: const Icon(Icons.add_a_photo, color: Colors.white),
         ),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
-      body: _buildBody(),
+      body: _buildBody(ref.watch(blockedUsersProvider).value ?? []),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(List<String> blockedUsers) {
     if (_isLoading) {
       return const DuoLoadingIndicator();
     }
@@ -309,6 +309,18 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       );
     }
 
+    final filteredMoments = _moments!
+        .where((m) => !blockedUsers.contains(m.authorId.toString()))
+        .toList();
+
+    if (filteredMoments.isEmpty && _moments!.isNotEmpty) {
+      return DuoEmptyState(
+        emoji: '🙈',
+        title: 'No moments to show',
+        subtitle: 'The only moments available are from users you have blocked.',
+      );
+    }
+
     return RefreshIndicator(
       onRefresh: _loadMoments,
       color: AppTheme.primaryColor,
@@ -318,9 +330,9 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
           right: AppTheme.duoSpacingMedium,
           bottom: AppTheme.contentBottomPadding,
         ),
-        itemCount: _moments!.length,
+        itemCount: filteredMoments.length,
         itemBuilder: (context, index) {
-          final moment = _moments![index];
+          final moment = filteredMoments[index];
           return _buildMomentCard(moment, index);
         },
       ),

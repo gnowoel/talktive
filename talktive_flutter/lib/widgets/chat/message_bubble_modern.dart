@@ -4,6 +4,7 @@ import 'package:talktive_client/talktive_client.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
+import '../../providers/blocked_users_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
 
 class MessageBubbleModern extends ConsumerWidget {
@@ -51,100 +52,113 @@ class MessageBubbleModern extends ConsumerWidget {
           ],
 
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: isCurrentUser
-                    ? LinearGradient(
-                        colors: [
-                          AppTheme.primaryColor,
-                          AppTheme.primaryColor.withOpacity(0.8),
-                        ],
-                      )
-                    : null,
-                color: isCurrentUser ? null : Colors.white,
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isCurrentUser)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        senderName,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textSecondary,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
+            child: GestureDetector(
+              onLongPress: !isCurrentUser
+                  ? () => _showMessageOptions(
+                      context,
+                      ref,
+                      senderName,
+                      message.senderId.toString(),
+                    )
+                  : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  gradient: isCurrentUser
+                      ? LinearGradient(
+                          colors: [
+                            AppTheme.primaryColor,
+                            AppTheme.primaryColor.withOpacity(0.8),
+                          ],
+                        )
+                      : null,
+                  color: isCurrentUser ? null : Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  if (message.imageUrl != null &&
-                      message.imageUrl!.isNotEmpty) ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        AppTheme.duoRadiusSmall,
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: message.imageUrl!,
-                        placeholder: (context, url) => Container(
-                          width: 200,
-                          height: 200,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppTheme.primaryColor,
-                            ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isCurrentUser)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          senderName,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textSecondary,
+                            fontFamily: 'Poppins',
                           ),
                         ),
-                        errorWidget: (context, url, error) => Container(
-                          width: 200,
-                          height: 200,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.error),
+                      ),
+                    if (message.imageUrl != null &&
+                        message.imageUrl!.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.duoRadiusSmall,
                         ),
-                        fit: BoxFit.cover,
-                        width: 200,
+                        child: CachedNetworkImage(
+                          imageUrl: message.imageUrl!,
+                          placeholder: (context, url) => Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.error),
+                          ),
+                          fit: BoxFit.cover,
+                          width: 200,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  if (message.content != null &&
-                      message.content!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                    ],
+                    if (message.content != null &&
+                        message.content!.isNotEmpty) ...[
+                      Text(
+                        message.content!,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: isCurrentUser
+                              ? Colors.white
+                              : AppTheme.textPrimary,
+                          fontFamily: 'Rubik',
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
                     Text(
-                      message.content!,
+                      _formatTimestamp(message.createdAt),
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 11,
                         color: isCurrentUser
-                            ? Colors.white
-                            : AppTheme.textPrimary,
+                            ? Colors.white.withOpacity(0.7)
+                            : AppTheme.textLight,
                         fontFamily: 'Rubik',
-                        height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 4),
                   ],
-                  Text(
-                    _formatTimestamp(message.createdAt),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isCurrentUser
-                          ? Colors.white.withOpacity(0.7)
-                          : AppTheme.textLight,
-                      fontFamily: 'Rubik',
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -175,5 +189,92 @@ class MessageBubbleModern extends ConsumerWidget {
     } else {
       return '${timestamp.month}/${timestamp.day} ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
     }
+  }
+
+  void _showMessageOptions(
+    BuildContext context,
+    WidgetRef ref,
+    String senderName,
+    String senderId,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.block, color: AppTheme.errorColor),
+              title: Text(
+                'Block $senderName',
+                style: const TextStyle(
+                  color: AppTheme.errorColor,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: const Text('Block user?'),
+                    content: const Text(
+                      'You will no longer see their messages, and they cannot start a chat with you.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.errorColor,
+                        ),
+                        child: const Text('Block'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true && context.mounted) {
+                  ref.read(blockedUsersProvider.notifier).block(senderId);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$senderName blocked.'),
+                      backgroundColor: AppTheme.errorColor,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+          ],
+        ),
+      ),
+    );
   }
 }

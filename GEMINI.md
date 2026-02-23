@@ -116,6 +116,23 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - Updated all mute checks from `creditScore > 0` to `reputation > 0`
     - Updated Plaza, chat, group, and admin screens
 
+- Phase 8.8: Hybrid Floor System & Safety Hardening (Feb 2026)
+  - **Hybrid Floor Formula**: `EffectiveFloor = min(XPLevel, ReputationTier)`
+    - Prevents spammers from farming XP to reach high floors and target users
+    - ReputationTier: rep 90-100→10, 75-89→7, 50-74→5, 25-49→3, 10-24→1, 0-9→0
+    - `floor` field **removed** from `Resident` schema — it is now purely computed
+    - Migration `20260219152503943` drops the `floor` column from the DB
+  - **Backend Hardening**:
+    - `ApartmentService.canInvite()`: now rejects muted/suspended senders
+    - `GroupEndpoint`: mute/suspend checks added to `createGroup` + `joinGroup`
+    - `ReportEndpoint`: floor guard uses `effectiveFloor` (not raw XP level)
+    - All endpoints (`message`, `moment`, `search`, `admin`, `user_profile`) use `effectiveFloor`
+  - **Client Updates**:
+    - New `lib/utils/floor_utils.dart`: client-side `effectiveFloor()`, `isMuted()`, `getMuteInputHint()`, `floorCapMessage()`
+    - All avatar badges, floor displays, and mute checks updated across the app
+    - `UserProfileViewScreen`: Block/Unblock menu with confirmation dialog
+    - Private chat + group chat: contextual mute hint shows time remaining
+
 **Status:** 🏗️ In Progress
 
 **Next:**
@@ -128,13 +145,17 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 ### Server (`talktive_server`)
 
 - `ResidentEndpoint`: Creates anonymous users, generates UserProfile, inserts Resident, returns JWT.
-- `MessageEndpoint`: Handles sending messages to channels (Plaza, etc.). Enforces credit score & floor rules.
+- `MessageEndpoint`: Handles sending messages to channels (Plaza, etc.). Enforces reputation & floor rules.
+- `ApartmentService`: Reputation system + **Hybrid Floor** (`effectiveFloor = min(level, reputationTier)`).
+- `GamificationService`: XP awards, level-up, streak tracking.
 - `Channel`: `ChannelType.plaza` (ID 1) is the default public channel.
 
 ### Client (`talktive_flutter`)
 
 - `AuthProvider`: Handles Firebase Google sign-in, exchanges Firebase ID token for Auth Core session via `firebaseIdp`.
 - `ChatScreen`: Displays messages. Uses `MessageEndpoint` for sending.
+- `FloorUtils` (`lib/utils/floor_utils.dart`): Client-side hybrid floor formula + mute helpers.
+- `BlockedUsersProvider`: Block/unblock users; used in Plaza, Moments, and UserProfileViewScreen.
 
 ## Recent Fixes
 

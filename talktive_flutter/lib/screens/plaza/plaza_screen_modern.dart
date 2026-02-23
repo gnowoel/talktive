@@ -8,6 +8,7 @@ import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../../utils/floor_utils.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
@@ -132,7 +133,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '🏢 ${currentResident.floor}',
+            '🏢 ${FloorUtils.effectiveFloor(currentResident)}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

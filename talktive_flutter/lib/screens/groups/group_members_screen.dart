@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_card.dart';
 
@@ -73,7 +74,7 @@ class GroupMembersScreen extends ConsumerWidget {
               initials: 'R',
               size: 48,
               showRing: true,
-              floorLevel: member.floor,
+              floorLevel: FloorUtils.effectiveFloor(member),
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),
             Expanded(
@@ -92,7 +93,7 @@ class GroupMembersScreen extends ConsumerWidget {
                       Icon(Icons.apartment, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        'Floor ${member.floor}',
+                        'Floor ${FloorUtils.effectiveFloor(member)}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),

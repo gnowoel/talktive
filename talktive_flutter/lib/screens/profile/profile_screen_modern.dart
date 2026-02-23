@@ -9,6 +9,7 @@ import '../../providers/achievement_provider.dart';
 import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
@@ -85,7 +86,9 @@ class ProfileScreenModern extends ConsumerWidget {
                           ? _displayName(resident)[0]
                           : '?',
                       size: 100,
-                      floorLevel: resident?.floor,
+                      floorLevel: resident != null
+                          ? FloorUtils.effectiveFloor(resident!)
+                          : null,
                       showRing: true,
                     )
                     .animate()

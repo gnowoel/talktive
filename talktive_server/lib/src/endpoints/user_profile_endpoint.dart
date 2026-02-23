@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 
 class UserProfileEndpoint extends Endpoint {
@@ -104,7 +105,7 @@ class UserProfileEndpoint extends Endpoint {
         'userId': userId,
         'userName': userInfo.userName,
         'userAvatar': userInfo.imageUrl,
-        'floor': resident.floor,
+        'floor': ApartmentService.effectiveFloor(resident),
         'reputation': resident.reputation,
         'level': resident.level,
         'xp': resident.xp,

@@ -29,12 +29,11 @@ class GamificationService {
     // Add XP
     resident.xp += xp;
 
-    // Calculate new level
+    // Calculate new level (floor(xp / 100))
     resident.level = (resident.xp / XP_PER_LEVEL).floor();
 
-    // Floor = Level (apartment metaphor)
-    resident.floor = resident.level;
-
+    // NOTE: effective floor is computed dynamically via
+    // ApartmentService.effectiveFloor() and is NOT stored.
     // Save
     await Resident.db.updateRow(session, resident);
 

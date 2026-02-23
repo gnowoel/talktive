@@ -111,8 +111,7 @@ class ResidentEndpoint extends Endpoint {
     // 3. Create Resident with new gamification fields
     resident = Resident(
       userInfoId: senderUuid,
-      // Gamification
-      floor: 0,
+      // Gamification (floor is computed dynamically, not stored)
       xp: 0,
       level: 0,
       currentStreak: 0,

@@ -3,14 +3,64 @@ import 'dart:math';
 import '../generated/protocol.dart';
 
 /// Apartment Service
-/// Handles reputation (safety/moderation) system
+/// Handles reputation (safety/moderation) system and the
+/// Hybrid Floor formula.
 class ApartmentService {
   // Reputation Constants
   static const int REPUTATION_MAX = 100;
   static const int REPUTATION_START = 100;
   static const int REPUTATION_RESTORE_RATE = 2; // points per hour
 
-  /// Restore reputation passively (2pts/hour, max 100)
+  // ---------------------------------------------------------------------------
+  // HYBRID FLOOR FORMULA
+  // ---------------------------------------------------------------------------
+
+  /// Compute the user's effective floor.
+  ///
+  /// Effective Floor = min(XP Level, Reputation Tier)
+  ///
+  /// This means a user must be BOTH active (XP) and trusted (reputation) to
+  /// achieve a high floor. Spammers can earn XP but lose reputation, which
+  /// caps their floor and limits who they can invite.
+  static int effectiveFloor(Resident resident) {
+    final xpLevel = resident.level; // already = floor(xp / 100)
+    final repTier = _reputationTier(resident.reputation);
+    return min(xpLevel, repTier);
+  }
+
+  /// Maps a reputation score (0–100) to a floor ceiling (tier).
+  ///
+  /// Reputation ranges  →  Max floor allowed
+  ///   90–100  →  10  (fully trusted, no practical cap)
+  ///   75–89   →  7
+  ///   50–74   →  5
+  ///   25–49   →  3
+  ///   10–24   →  1
+  ///    0–9    →  0   (cannot send invites)
+  static int _reputationTier(int reputation) {
+    if (reputation >= 90) return 10;
+    if (reputation >= 75) return 7;
+    if (reputation >= 50) return 5;
+    if (reputation >= 25) return 3;
+    if (reputation >= 10) return 1;
+    return 0;
+  }
+
+  /// Returns a human-readable label for the reputation tier.
+  static String reputationTierLabel(int reputation) {
+    if (reputation >= 90) return 'Trusted';
+    if (reputation >= 75) return 'Good Standing';
+    if (reputation >= 50) return 'Neutral';
+    if (reputation >= 25) return 'Low Trust';
+    if (reputation >= 10) return 'At Risk';
+    return 'Restricted';
+  }
+
+  // ---------------------------------------------------------------------------
+  // REPUTATION RESTORATION
+  // ---------------------------------------------------------------------------
+
+  /// Restore reputation passively (2 pts/hour, max 100).
   static Future<void> restoreReputation(
     Session session,
     Resident resident,
@@ -29,74 +79,99 @@ class ApartmentService {
         Duration(hours: hoursPassed),
       );
       await Resident.db.updateRow(session, resident);
-
       session.log(
-        'Restored $points reputation to ${resident.userInfoId}. New reputation: ${resident.reputation}',
+        'Restored $points reputation to ${resident.userInfoId}. '
+        'New reputation: ${resident.reputation}',
       );
     } else if (resident.lastReputationIncrease == null) {
-      // Initialize timestamp for new users
       resident.lastReputationIncrease = now;
       await Resident.db.updateRow(session, resident);
     }
   }
 
-  /// Apply report penalty to target
-  /// Penalty = max(1, reporter's level)
-  static void applyReportPenalty({
-    required Resident reporter,
-    required Resident target,
-  }) {
-    final penalty = max(1, reporter.level);
-    target.reputation = max(0, target.reputation - penalty);
-  }
+  // ---------------------------------------------------------------------------
+  // MUTE / SUSPENSION
+  // ---------------------------------------------------------------------------
 
-  /// Check if user is muted
-  /// Muted if: reputation <= 0 OR mutedUntil is in the future OR suspended
+  /// Returns true if the user is currently muted for any reason.
   static bool isMuted(Resident resident) {
-    // Suspended users are always muted
     if (resident.suspended) return true;
-
-    // Reputation-based mute
     if (resident.reputation <= 0) return true;
-
-    // Temporary mute
     if (resident.mutedUntil != null &&
-        resident.mutedUntil!.isAfter(DateTime.now())) {
+        resident.mutedUntil!.isAfter(DateTime.now()))
       return true;
-    }
-
     return false;
   }
 
-  /// Get mute reason for user-facing message
+  /// Returns a user-facing mute reason string.
   static String getMuteReason(Resident resident) {
     if (resident.suspended) {
       return 'Your account has been suspended.';
     }
-
-    if (resident.reputation <= 0) {
-      return 'You are muted due to low reputation. Your reputation will restore at 2 points per hour.';
-    }
-
     if (resident.mutedUntil != null &&
         resident.mutedUntil!.isAfter(DateTime.now())) {
-      final hoursLeft = resident.mutedUntil!.difference(DateTime.now()).inHours;
-      return 'You are temporarily muted for $hoursLeft more hours due to multiple reports.';
+      final minutesLeft = resident.mutedUntil!
+          .difference(DateTime.now())
+          .inMinutes;
+      final hoursLeft = (minutesLeft / 60).ceil();
+      return 'You are temporarily muted for $hoursLeft more hour${hoursLeft == 1 ? '' : 's'} due to multiple reports.';
     }
-
+    if (resident.reputation <= 0) {
+      return 'Your reputation is too low to send messages. It restores automatically at 2 points per hour.';
+    }
     return 'You are muted.';
   }
 
-  /// Check if user can invite another user to private chat
-  /// Rule: Can only invite users on same floor or below
+  // ---------------------------------------------------------------------------
+  // INVITE / SOCIAL RULES
+  // ---------------------------------------------------------------------------
+
+  /// Returns true if [sender] is allowed to invite [receiver] to a chat.
+  ///
+  /// Rules:
+  ///   1. Sender must not be muted or suspended.
+  ///   2. Receiver's effective floor must be ≤ sender's effective floor.
+  ///      (You can only invite those on your floor or below — apartment rule.)
   static bool canInvite({
     required Resident sender,
     required Resident receiver,
   }) {
-    return receiver.floor <= sender.floor;
+    if (isMuted(sender)) return false;
+    return effectiveFloor(receiver) <= effectiveFloor(sender);
   }
 
-  /// Clamp reputation to valid range
+  /// Returns the reason canInvite returned false, for user-facing messages.
+  static String cannotInviteReason({
+    required Resident sender,
+    required Resident receiver,
+  }) {
+    if (isMuted(sender)) return getMuteReason(sender);
+    final senderFloor = effectiveFloor(sender);
+    final receiverFloor = effectiveFloor(receiver);
+    return 'You are on Floor $senderFloor and cannot invite someone on Floor $receiverFloor. '
+        'Increase your reputation or XP to reach a higher floor.';
+  }
+
+  // ---------------------------------------------------------------------------
+  // REPORTING
+  // ---------------------------------------------------------------------------
+
+  /// Apply a reputation penalty to [target] when reported by [reporter].
+  /// Penalty scales with the reporter's effective floor (credibility).
+  static void applyReportPenalty({
+    required Resident reporter,
+    required Resident target,
+  }) {
+    // Use effective floor so that low-reputation reporters do less damage
+    final penalty = max(1, effectiveFloor(reporter));
+    target.reputation = max(0, target.reputation - penalty);
+  }
+
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
+
+  /// Clamp reputation to valid range [0, REPUTATION_MAX].
   static int clampReputation(int reputation) {
     return reputation.clamp(0, REPUTATION_MAX);
   }

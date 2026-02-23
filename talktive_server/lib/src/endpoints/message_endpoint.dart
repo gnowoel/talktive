@@ -66,6 +66,9 @@ class MessageEndpoint extends Endpoint {
       final senderName = userInfo?.userName ?? 'Resident';
       final senderAvatar = userInfo?.imageUrl;
 
+      // Compute effective floor (hybrid: min of XP level and reputation tier)
+      final senderEffectiveFloor = ApartmentService.effectiveFloor(sender);
+
       // Try to restore reputation first (passive restoration)
       await ApartmentService.restoreReputation(session, sender);
 
@@ -78,7 +81,7 @@ class MessageEndpoint extends Endpoint {
       final validation = await ContentFilterService.validateMessage(
         session,
         content,
-        sender.floor,
+        senderEffectiveFloor,
       );
       if (!validation.isValid) {
         throw Exception(validation.reason ?? 'Invalid message content');
@@ -102,7 +105,7 @@ class MessageEndpoint extends Endpoint {
         session,
         senderIdentifier,
         channelId,
-        sender.floor,
+        senderEffectiveFloor,
       );
       if (rateLimitError != null) {
         throw Exception(rateLimitError);
@@ -127,7 +130,7 @@ class MessageEndpoint extends Endpoint {
         createdAt: DateTime.now(),
         senderName: senderName,
         senderAvatar: senderAvatar,
-        senderFloor: sender.floor,
+        senderFloor: senderEffectiveFloor, // Use computed effective floor
       );
 
       // 7. Save Message

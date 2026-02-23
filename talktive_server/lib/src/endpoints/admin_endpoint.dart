@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:uuid/uuid.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
 import '../services/data_archival_service.dart';
 
@@ -90,12 +91,14 @@ class AdminEndpoint extends Endpoint {
         'reporter': {
           'userId': report.reporterId.uuid,
           'userName': reporterInfo?.userName ?? 'Unknown',
-          'floor': reporter?.floor ?? 0,
+          'floor': reporter != null
+              ? ApartmentService.effectiveFloor(reporter)
+              : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
-          'floor': target?.floor ?? 0,
+          'floor': target != null ? ApartmentService.effectiveFloor(target) : 0,
           'reputation': target?.reputation ?? 0,
           'level': target?.level ?? 0,
         },
@@ -142,12 +145,14 @@ class AdminEndpoint extends Endpoint {
         'reporter': {
           'userId': report.reporterId.uuid,
           'userName': reporterInfo?.userName ?? 'Unknown',
-          'floor': reporter?.floor ?? 0,
+          'floor': reporter != null
+              ? ApartmentService.effectiveFloor(reporter)
+              : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
-          'floor': target?.floor ?? 0,
+          'floor': target != null ? ApartmentService.effectiveFloor(target) : 0,
           'reputation': target?.reputation ?? 0,
           'level': target?.level ?? 0,
         },
@@ -460,7 +465,7 @@ class AdminEndpoint extends Endpoint {
       result.add({
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
-        'floor': resident.floor,
+        'floor': ApartmentService.effectiveFloor(resident),
         'reputation': resident.reputation,
         'level': resident.level,
         'xp': resident.xp,
@@ -581,7 +586,7 @@ class AdminEndpoint extends Endpoint {
       'user': {
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
-        'floor': resident.floor,
+        'floor': ApartmentService.effectiveFloor(resident),
         'reputation': resident.reputation,
         'level': resident.level,
         'xp': resident.xp,

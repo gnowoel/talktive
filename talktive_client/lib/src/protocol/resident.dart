@@ -23,7 +23,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? suspended,
     int? xp,
     int? level,
-    int? floor,
     int? currentStreak,
     int? longestStreak,
     this.lastLoginDate,
@@ -41,7 +40,6 @@ abstract class Resident implements _i1.SerializableModel {
        suspended = suspended ?? false,
        xp = xp ?? 0,
        level = level ?? 0,
-       floor = floor ?? 0,
        currentStreak = currentStreak ?? 0,
        longestStreak = longestStreak ?? 0,
        experienceMessageCount = experienceMessageCount ?? 0,
@@ -56,7 +54,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? suspended,
     int? xp,
     int? level,
-    int? floor,
     int? currentStreak,
     int? longestStreak,
     DateTime? lastLoginDate,
@@ -91,7 +88,6 @@ abstract class Resident implements _i1.SerializableModel {
       suspended: jsonSerialization['suspended'] as bool?,
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
-      floor: jsonSerialization['floor'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
       longestStreak: jsonSerialization['longestStreak'] as int?,
       lastLoginDate: jsonSerialization['lastLoginDate'] == null
@@ -144,8 +140,6 @@ abstract class Resident implements _i1.SerializableModel {
 
   int level;
 
-  int floor;
-
   int currentStreak;
 
   int longestStreak;
@@ -184,7 +178,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? suspended,
     int? xp,
     int? level,
-    int? floor,
     int? currentStreak,
     int? longestStreak,
     DateTime? lastLoginDate,
@@ -212,7 +205,6 @@ abstract class Resident implements _i1.SerializableModel {
       'suspended': suspended,
       'xp': xp,
       'level': level,
-      'floor': floor,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
@@ -247,7 +239,6 @@ class _ResidentImpl extends Resident {
     bool? suspended,
     int? xp,
     int? level,
-    int? floor,
     int? currentStreak,
     int? longestStreak,
     DateTime? lastLoginDate,
@@ -270,7 +261,6 @@ class _ResidentImpl extends Resident {
          suspended: suspended,
          xp: xp,
          level: level,
-         floor: floor,
          currentStreak: currentStreak,
          longestStreak: longestStreak,
          lastLoginDate: lastLoginDate,
@@ -299,7 +289,6 @@ class _ResidentImpl extends Resident {
     bool? suspended,
     int? xp,
     int? level,
-    int? floor,
     int? currentStreak,
     int? longestStreak,
     Object? lastLoginDate = _Undefined,
@@ -325,7 +314,6 @@ class _ResidentImpl extends Resident {
       suspended: suspended ?? this.suspended,
       xp: xp ?? this.xp,
       level: level ?? this.level,
-      floor: floor ?? this.floor,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
       lastLoginDate: lastLoginDate is DateTime?

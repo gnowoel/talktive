@@ -1,0 +1,48 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "resident",
+        "schema": "public",
+        "addColumns": [],
+        "deleteColumns": [
+          "floor"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"floor\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "floor"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"floor\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "floor"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

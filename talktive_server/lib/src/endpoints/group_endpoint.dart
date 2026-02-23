@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
+import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 
 class GroupEndpoint extends Endpoint {
@@ -39,6 +40,18 @@ class GroupEndpoint extends Endpoint {
 
     if (currentResident == null) {
       throw Exception('User not found');
+    }
+
+    // Safety: muted or suspended users cannot create groups
+    if (ApartmentService.isMuted(currentResident)) {
+      throw Exception(ApartmentService.getMuteReason(currentResident));
+    }
+
+    // Safety: must be at least Floor 1 to create a group
+    if (ApartmentService.effectiveFloor(currentResident) < 1) {
+      throw Exception(
+        'You must reach Floor 1 to create a group. Keep chatting!',
+      );
     }
 
     // Create a new channel for this group
@@ -171,6 +184,20 @@ class GroupEndpoint extends Endpoint {
     // Check if group is full
     if (group.memberCount >= group.maxMembers) {
       throw Exception('Group is full');
+    }
+
+    // Fetch current resident profile for safety checks
+    final currentResident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(currentUserId),
+    );
+    if (currentResident == null) {
+      throw Exception('User profile not found');
+    }
+
+    // Safety: muted or suspended users cannot join groups
+    if (ApartmentService.isMuted(currentResident)) {
+      throw Exception(ApartmentService.getMuteReason(currentResident));
     }
 
     // Check if user is already a member

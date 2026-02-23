@@ -57,10 +57,11 @@ class ReportEndpoint extends Endpoint {
       throw Exception('Reporter profile not found');
     }
 
-    // Floor 0 users cannot report (prevent abuse from new accounts)
-    if (reporter.floor < 1) {
+    // Effective floor ≥ 1 required to report (prevents abuse from new
+    // accounts and from reputation-restricted users)
+    if (ApartmentService.effectiveFloor(reporter) < 1) {
       throw Exception(
-        'You must be at least Floor 1 to report users. Keep chatting to level up!',
+        'You must reach Floor 1 to report users. Keep chatting and maintain good reputation!',
       );
     }
 
@@ -309,12 +310,16 @@ class ReportEndpoint extends Endpoint {
       'report': report.toJson(),
       'reporter': {
         'userId': reporter?.userInfoId.toString(),
-        'floor': reporter?.floor,
+        'floor': reporter != null
+            ? ApartmentService.effectiveFloor(reporter)
+            : null,
         'reputation': reporter?.reputation,
       },
       'target': {
         'userId': target?.userInfoId.toString(),
-        'floor': target?.floor,
+        'floor': target != null
+            ? ApartmentService.effectiveFloor(target)
+            : null,
         'reputation': target?.reputation,
       },
       'message': message?.toJson(),

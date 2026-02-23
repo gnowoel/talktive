@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
 import '../services/input_validation_service.dart';
 import 'dart:convert';
@@ -42,7 +43,7 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
-            'floor': resident.floor,
+            'floor': ApartmentService.effectiveFloor(resident),
             'reputation': resident.reputation,
           });
         }
@@ -197,7 +198,7 @@ class SearchEndpoint extends Endpoint {
               'userId': resident.userInfoId.toString(),
               'userName': userInfo.userName,
               'userAvatar': userInfo.imageUrl,
-              'floor': resident.floor,
+              'floor': ApartmentService.effectiveFloor(resident),
               'messageCount': entry.value,
             });
           }
@@ -328,7 +329,7 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
-            'floor': resident.floor,
+            'floor': ApartmentService.effectiveFloor(resident),
             'sharedInterests': sharedInterests,
             'matchScore': sharedInterests.length,
           });
@@ -405,7 +406,7 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
-            'floor': resident.floor,
+            'floor': ApartmentService.effectiveFloor(resident),
             'sharedLanguages': sharedLanguages,
             'matchScore': sharedLanguages.length,
           });

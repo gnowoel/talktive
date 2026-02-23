@@ -1431,13 +1431,6 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: '0',
         ),
         _i2.ColumnDefinition(
-          name: 'floor',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '0',
-        ),
-        _i2.ColumnDefinition(
           name: 'currentStreak',
           columnType: _i2.ColumnType.bigint,
           isNullable: false,

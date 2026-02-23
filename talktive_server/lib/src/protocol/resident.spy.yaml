@@ -12,7 +12,9 @@ fields:
   # Gamification System
   xp: int, default=0
   level: int, default=0
-  floor: int, default=0  # Alias for level (apartment metaphor)
+  # NOTE: 'floor' is no longer stored. It is computed as:
+  #   effectiveFloor = min(level, reputationTier(reputation))
+  # See: ApartmentService.effectiveFloor()
   currentStreak: int, default=0
   longestStreak: int, default=0
   lastLoginDate: DateTime?

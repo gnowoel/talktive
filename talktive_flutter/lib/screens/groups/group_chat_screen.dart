@@ -8,6 +8,7 @@ import '../../providers/current_resident_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import 'group_members_screen.dart';
 
@@ -298,7 +299,11 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
 
   Widget _buildInputArea() {
     final canSend =
-        _currentResident != null && _currentResident!.reputation > 0;
+        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+    final hintText =
+        (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+        ? FloorUtils.getMuteInputHint(_currentResident!)
+        : 'Type a message...';
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -326,9 +331,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   controller: _messageController,
                   enabled: canSend,
                   decoration: InputDecoration(
-                    hintText: canSend
-                        ? 'Type a message...'
-                        : 'Muted (low reputation)',
+                    hintText: hintText,
                     border: InputBorder.none,
                     hintStyle: TextStyle(color: Colors.grey[400]),
                   ),

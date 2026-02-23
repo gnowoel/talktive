@@ -8,6 +8,7 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import '../../services/storage.dart';
@@ -333,7 +334,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   Widget _buildInputArea() {
     final canSend =
-        _currentResident != null && _currentResident!.reputation > 0;
+        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+    final hintText =
+        (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+        ? FloorUtils.getMuteInputHint(_currentResident!)
+        : 'Type a message...';
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -384,9 +389,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         controller: _messageController,
                         enabled: canSend,
                         decoration: InputDecoration(
-                          hintText: canSend
-                              ? 'Type a message...'
-                              : 'Muted (low reputation)',
+                          hintText: hintText,
                           border: InputBorder.none,
                           hintStyle: TextStyle(color: Colors.grey[400]),
                         ),

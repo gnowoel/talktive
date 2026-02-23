@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../providers/client_provider.dart';
+import '../../providers/blocked_users_provider.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -59,6 +61,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final blockedIds = ref.watch(blockedUsersProvider).value ?? [];
+    final isBlocked = blockedIds.contains(widget.userId);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -68,6 +73,43 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          // Block / Unblock menu
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: AppTheme.textPrimary),
+            onSelected: (value) async {
+              if (value == 'block') {
+                await _confirmBlock(context, isBlocked);
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'block',
+                child: Row(
+                  children: [
+                    Icon(
+                      isBlocked ? Icons.person_add : Icons.block,
+                      color: isBlocked
+                          ? AppTheme.duoGreen
+                          : AppTheme.errorColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      isBlocked ? 'Unblock user' : 'Block user',
+                      style: TextStyle(
+                        color: isBlocked
+                            ? AppTheme.duoGreen
+                            : AppTheme.errorColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -101,6 +143,75 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             )
           : _buildProfile(),
     );
+  }
+
+  Future<void> _confirmBlock(BuildContext context, bool isBlocked) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          isBlocked ? 'Unblock user?' : 'Block user?',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          isBlocked
+              ? 'You will be able to see their messages again.'
+              : 'You will no longer see their messages, and they cannot start a chat with you.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(
+              foregroundColor: isBlocked
+                  ? AppTheme.duoGreen
+                  : AppTheme.errorColor,
+            ),
+            child: Text(isBlocked ? 'Unblock' : 'Block'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        if (isBlocked) {
+          await ref.read(blockedUsersProvider.notifier).unblock(widget.userId);
+        } else {
+          await ref.read(blockedUsersProvider.notifier).block(widget.userId);
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                isBlocked ? 'User unblocked.' : 'User blocked.',
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: isBlocked
+                  ? AppTheme.duoGreen
+                  : AppTheme.errorColor,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildProfile() {

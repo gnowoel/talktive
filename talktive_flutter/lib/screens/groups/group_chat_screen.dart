@@ -5,10 +5,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../providers/group_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
+import '../../utils/reputation_utils.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import 'group_members_screen.dart';
 
@@ -299,10 +298,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
 
   Widget _buildInputArea() {
     final canSend =
-        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+        _currentResident != null && !ReputationUtils.isMuted(_currentResident!);
     final hintText =
-        (_currentResident != null && FloorUtils.isMuted(_currentResident!))
-        ? FloorUtils.getMuteInputHint(_currentResident!)
+        (_currentResident != null && ReputationUtils.isMuted(_currentResident!))
+        ? ReputationUtils.getMuteInputHint(_currentResident!)
         : 'Type a message...';
 
     return Container(

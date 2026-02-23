@@ -17,10 +17,11 @@ abstract class Resident implements _i1.SerializableModel {
   Resident._({
     this.id,
     required this.userInfoId,
-    int? reputation,
+    int? trustScore,
     this.lastReputationIncrease,
     this.mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -36,8 +37,9 @@ abstract class Resident implements _i1.SerializableModel {
     this.languages,
     this.role,
     bool? isAdmin,
-  }) : reputation = reputation ?? 100,
+  }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
+       likeCount = likeCount ?? 0,
        xp = xp ?? 0,
        level = level ?? 0,
        currentStreak = currentStreak ?? 0,
@@ -48,10 +50,11 @@ abstract class Resident implements _i1.SerializableModel {
   factory Resident({
     int? id,
     required _i1.UuidValue userInfoId,
-    int? reputation,
+    int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -75,7 +78,7 @@ abstract class Resident implements _i1.SerializableModel {
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
-      reputation: jsonSerialization['reputation'] as int?,
+      trustScore: jsonSerialization['trustScore'] as int?,
       lastReputationIncrease:
           jsonSerialization['lastReputationIncrease'] == null
           ? null
@@ -86,6 +89,7 @@ abstract class Resident implements _i1.SerializableModel {
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
       suspended: jsonSerialization['suspended'] as bool?,
+      likeCount: jsonSerialization['likeCount'] as int?,
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
@@ -128,13 +132,15 @@ abstract class Resident implements _i1.SerializableModel {
 
   _i1.UuidValue userInfoId;
 
-  int reputation;
+  int trustScore;
 
   DateTime? lastReputationIncrease;
 
   DateTime? mutedUntil;
 
   bool suspended;
+
+  int likeCount;
 
   int xp;
 
@@ -172,10 +178,11 @@ abstract class Resident implements _i1.SerializableModel {
   Resident copyWith({
     int? id,
     _i1.UuidValue? userInfoId,
-    int? reputation,
+    int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -198,11 +205,12 @@ abstract class Resident implements _i1.SerializableModel {
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
-      'reputation': reputation,
+      'trustScore': trustScore,
       if (lastReputationIncrease != null)
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
       if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
       'suspended': suspended,
+      'likeCount': likeCount,
       'xp': xp,
       'level': level,
       'currentStreak': currentStreak,
@@ -233,10 +241,11 @@ class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
     required _i1.UuidValue userInfoId,
-    int? reputation,
+    int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -255,10 +264,11 @@ class _ResidentImpl extends Resident {
   }) : super._(
          id: id,
          userInfoId: userInfoId,
-         reputation: reputation,
+         trustScore: trustScore,
          lastReputationIncrease: lastReputationIncrease,
          mutedUntil: mutedUntil,
          suspended: suspended,
+         likeCount: likeCount,
          xp: xp,
          level: level,
          currentStreak: currentStreak,
@@ -283,10 +293,11 @@ class _ResidentImpl extends Resident {
   Resident copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? userInfoId,
-    int? reputation,
+    int? trustScore,
     Object? lastReputationIncrease = _Undefined,
     Object? mutedUntil = _Undefined,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -306,12 +317,13 @@ class _ResidentImpl extends Resident {
     return Resident(
       id: id is int? ? id : this.id,
       userInfoId: userInfoId ?? this.userInfoId,
-      reputation: reputation ?? this.reputation,
+      trustScore: trustScore ?? this.trustScore,
       lastReputationIncrease: lastReputationIncrease is DateTime?
           ? lastReputationIncrease
           : this.lastReputationIncrease,
       mutedUntil: mutedUntil is DateTime? ? mutedUntil : this.mutedUntil,
       suspended: suspended ?? this.suspended,
+      likeCount: likeCount ?? this.likeCount,
       xp: xp ?? this.xp,
       level: level ?? this.level,
       currentStreak: currentStreak ?? this.currentStreak,

@@ -160,14 +160,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 children: [
                   _buildDetailSection('Reporter', [
                     'Name: ${reporter['userName']}',
-                    'Floor: ${reporter['floor']}',
+                    'Floor: ${reporter['reputation']}',
                   ]),
                   const SizedBox(height: 20),
 
                   _buildDetailSection('Target User', [
                     'Name: ${target['userName']}',
-                    'Floor: ${target['floor']}',
-                    'Reputation: ${target['reputation'] ?? target['creditScore'] ?? 0}',
+                    'Floor: ${target['reputation']}',
+                    'Reputation: ${target['reputation'] ?? target['trustScore'] ?? 0}',
                   ]),
                   const SizedBox(height: 20),
 
@@ -442,7 +442,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
               Text(
-                '${reporter['userName']} (Floor ${reporter['floor']})',
+                '${reporter['userName']} (Floor ${reporter['reputation']})',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -460,7 +460,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
               Text(
-                '${target['userName']} (Floor ${target['floor']})',
+                '${target['userName']} (Floor ${target['reputation']})',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

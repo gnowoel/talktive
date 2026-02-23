@@ -23,7 +23,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.commentsCount,
     required this.authorName,
     required this.authorAvatar,
-    required this.authorFloor,
+    required this.authorReputation,
   });
 
   factory Moment({
@@ -36,7 +36,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required int commentsCount,
     required String authorName,
     required String authorAvatar,
-    required int authorFloor,
+    required int authorReputation,
   }) = _MomentImpl;
 
   factory Moment.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -52,7 +52,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       commentsCount: jsonSerialization['commentsCount'] as int,
       authorName: jsonSerialization['authorName'] as String,
       authorAvatar: jsonSerialization['authorAvatar'] as String,
-      authorFloor: jsonSerialization['authorFloor'] as int,
+      authorReputation: jsonSerialization['authorReputation'] as int,
     );
   }
 
@@ -79,7 +79,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   String authorAvatar;
 
-  int authorFloor;
+  int authorReputation;
 
   @override
   _i1.Table<int?> get table => t;
@@ -97,7 +97,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? commentsCount,
     String? authorName,
     String? authorAvatar,
-    int? authorFloor,
+    int? authorReputation,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -112,7 +112,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'commentsCount': commentsCount,
       'authorName': authorName,
       'authorAvatar': authorAvatar,
-      'authorFloor': authorFloor,
+      'authorReputation': authorReputation,
     };
   }
 
@@ -129,7 +129,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'commentsCount': commentsCount,
       'authorName': authorName,
       'authorAvatar': authorAvatar,
-      'authorFloor': authorFloor,
+      'authorReputation': authorReputation,
     };
   }
 
@@ -176,7 +176,7 @@ class _MomentImpl extends Moment {
     required int commentsCount,
     required String authorName,
     required String authorAvatar,
-    required int authorFloor,
+    required int authorReputation,
   }) : super._(
          id: id,
          authorId: authorId,
@@ -187,7 +187,7 @@ class _MomentImpl extends Moment {
          commentsCount: commentsCount,
          authorName: authorName,
          authorAvatar: authorAvatar,
-         authorFloor: authorFloor,
+         authorReputation: authorReputation,
        );
 
   /// Returns a shallow copy of this [Moment]
@@ -204,7 +204,7 @@ class _MomentImpl extends Moment {
     int? commentsCount,
     String? authorName,
     String? authorAvatar,
-    int? authorFloor,
+    int? authorReputation,
   }) {
     return Moment(
       id: id is int? ? id : this.id,
@@ -216,7 +216,7 @@ class _MomentImpl extends Moment {
       commentsCount: commentsCount ?? this.commentsCount,
       authorName: authorName ?? this.authorName,
       authorAvatar: authorAvatar ?? this.authorAvatar,
-      authorFloor: authorFloor ?? this.authorFloor,
+      authorReputation: authorReputation ?? this.authorReputation,
     );
   }
 }
@@ -265,8 +265,8 @@ class MomentUpdateTable extends _i1.UpdateTable<MomentTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> authorFloor(int value) => _i1.ColumnValue(
-    table.authorFloor,
+  _i1.ColumnValue<int, int> authorReputation(int value) => _i1.ColumnValue(
+    table.authorReputation,
     value,
   );
 }
@@ -306,8 +306,8 @@ class MomentTable extends _i1.Table<int?> {
       'authorAvatar',
       this,
     );
-    authorFloor = _i1.ColumnInt(
-      'authorFloor',
+    authorReputation = _i1.ColumnInt(
+      'authorReputation',
       this,
     );
   }
@@ -330,7 +330,7 @@ class MomentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString authorAvatar;
 
-  late final _i1.ColumnInt authorFloor;
+  late final _i1.ColumnInt authorReputation;
 
   @override
   List<_i1.Column> get columns => [
@@ -343,7 +343,7 @@ class MomentTable extends _i1.Table<int?> {
     commentsCount,
     authorName,
     authorAvatar,
-    authorFloor,
+    authorReputation,
   ];
 }
 

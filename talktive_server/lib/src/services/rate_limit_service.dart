@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
+import 'apartment_service.dart';
 
 /// Smart rate limiting service that adjusts limits based on user floor level.
 class RateLimitService {
@@ -39,7 +40,9 @@ class RateLimitService {
     int channelId,
   ) async {
     final now = DateTime.now();
-    final config = _getConfigForFloor(resident.floor);
+    final config = _getConfigForFloor(
+      ApartmentService.computeReputation(resident),
+    );
 
     // Get or create rate limit record
     var rateLimit = await RateLimit.db.findFirstRow(

@@ -33,8 +33,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
           gender: 'male',
           country: 'US',
@@ -58,8 +58,8 @@ void main() {
 
         expect(resident, isNotNull);
         expect(resident!.userInfoId, testResident.userInfoId);
-        expect(resident.floor, 1);
-        expect(resident.creditScore, 100);
+        expect(resident.level, 1);
+        expect(resident.trustScore, 100);
         expect(resident.gender, 'male');
         expect(resident.country, 'US');
         expect(resident.bio, 'Test bio');
@@ -76,8 +76,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'c3d4e5f6-a7b8-4c5d-8e1f-2a3b4c5d6e7f',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
         );
         await Resident.db.insertRow(session, testResident);
@@ -108,8 +108,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'd4e5f6a7-b8c9-4d5e-9f2a-3b4c5d6e7f8a',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
           gender: 'other',
           country: 'US',
@@ -119,11 +119,11 @@ void main() {
         );
         await Resident.db.insertRow(session, resident);
 
-        expect(resident.floor, 1);
-        expect(resident.creditScore, 100);
+        expect(resident.level, 1);
+        expect(resident.trustScore, 100);
         expect(resident.experienceMessageCount, 0);
         expect(resident.isAdmin, false);
-        expect(resident.isBanned, false);
+        expect(resident.suspended, false);
       });
 
       test('residents can have different floor levels', () async {
@@ -141,8 +141,8 @@ void main() {
         for (var floor = 0; floor <= 5; floor++) {
           final resident = Resident(
             userInfoId: UuidValue.fromString(floorUuids[floor]),
-            floor: floor,
-            creditScore: 100,
+            level: floor,
+            trustScore: 100,
             experienceMessageCount: floor * 10,
           );
           await Resident.db.insertRow(session, resident);
@@ -152,7 +152,7 @@ void main() {
             where: (t) => t.userInfoId.equals(resident.userInfoId!),
           );
 
-          expect(retrieved!.floor, floor);
+          expect(retrieved!.level, floor);
           expect(retrieved.experienceMessageCount, floor * 10);
         }
       });
@@ -173,8 +173,8 @@ void main() {
         for (var i = 0; i < testCases.length; i++) {
           final resident = Resident(
             userInfoId: UuidValue.fromString(creditUuids[i]),
-            floor: 1,
-            creditScore: testCases[i],
+            level: 1,
+            trustScore: testCases[i],
             experienceMessageCount: 0,
           );
           await Resident.db.insertRow(session, resident);
@@ -184,7 +184,7 @@ void main() {
             where: (t) => t.userInfoId.equals(resident.userInfoId!),
           );
 
-          expect(retrieved!.creditScore, testCases[i]);
+          expect(retrieved!.trustScore, testCases[i]);
         }
       });
     });
@@ -211,8 +211,8 @@ void main() {
         for (var i = 0; i < genders.length; i++) {
           final resident = Resident(
             userInfoId: UuidValue.fromString(genderUuids[i]),
-            floor: 1,
-            creditScore: 100,
+            level: 1,
+            trustScore: 100,
             experienceMessageCount: 0,
             gender: genders[i],
           );
@@ -234,8 +234,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'b8c9d0e1-f2a3-4b5c-9d6e-7f8a9b0c1d2e',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
           interests: [
             'travel',
@@ -269,8 +269,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'c9d0e1f2-a3b4-4c5d-8e7f-8a9b0c1d2e3f',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
           bio: longBio,
         );
@@ -292,8 +292,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'd0e1f2a3-b4c5-4d5e-9f8a-9b0c1d2e3f4a',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
           bio: 'Hello! 你好! مرحبا! Привет! 🎉',
           avatar: '🌟',
@@ -319,8 +319,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'e1f2a3b4-c5d6-4e5f-8a9b-0c1d2e3f4a5b',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
         );
         await Resident.db.insertRow(session, resident);
@@ -328,20 +328,20 @@ void main() {
         expect(resident.isAdmin, false);
       });
 
-      test('isBanned defaults to false', () async {
+      test('suspended defaults to false', () async {
         final session = await sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
             'f2a3b4c5-d6e7-4f5a-9b0c-1d2e3f4a5b6c',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
         );
         await Resident.db.insertRow(session, resident);
 
-        expect(resident.isBanned, false);
+        expect(resident.suspended, false);
       });
 
       test('can set admin flag', () async {
@@ -351,8 +351,8 @@ void main() {
           userInfoId: UuidValue.fromString(
             'a3b4c5d6-e7f8-4a5b-8c1d-2e3f4a5b6c7d',
           ),
-          floor: 1,
-          creditScore: 100,
+          level: 1,
+          trustScore: 100,
           experienceMessageCount: 0,
           isAdmin: true,
         );
@@ -368,14 +368,14 @@ void main() {
           userInfoId: UuidValue.fromString(
             'b4c5d6e7-f8a9-4b5c-9d2e-3f4a5b6c7d8e',
           ),
-          floor: 1,
-          creditScore: -100,
+          level: 1,
+          trustScore: -100,
           experienceMessageCount: 0,
-          isBanned: true,
+          suspended: true,
         );
         await Resident.db.insertRow(session, resident);
 
-        expect(resident.isBanned, true);
+        expect(resident.suspended, true);
       });
     });
   });

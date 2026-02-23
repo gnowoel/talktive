@@ -73,21 +73,21 @@ void main() {
 
     test('achievement points scale with difficulty', () {
       // Easy achievements (1-20 points)
-      final easyAchievements = [
+      final easyAchievements = <Map<String, dynamic>>[
         {'key': 'first_message', 'points': 10},
         {'key': 'private_chat', 'points': 15},
         {'key': 'first_moment', 'points': 15},
       ];
 
       // Medium achievements (21-100 points)
-      final mediumAchievements = [
+      final mediumAchievements = <Map<String, dynamic>>[
         {'key': 'social_butterfly', 'points': 30},
         {'key': 'conversationalist', 'points': 50},
         {'key': 'trusted', 'points': 75},
       ];
 
       // Hard achievements (100+ points)
-      final hardAchievements = [
+      final hardAchievements = <Map<String, dynamic>>[
         {'key': 'penthouse', 'points': 100},
         {'key': 'influencer', 'points': 150},
         {'key': 'chatterbox', 'points': 200},
@@ -124,7 +124,7 @@ void main() {
     });
 
     test('message achievements scale appropriately', () {
-      final messageAchievements = [
+      final messageAchievements = <Map<String, dynamic>>[
         {'key': 'first_message', 'target': 1},
         {'key': 'conversationalist', 'target': 100},
         {'key': 'chatterbox', 'target': 1000},
@@ -155,7 +155,7 @@ void main() {
 
   group('AchievementService - Moments Achievements', () {
     test('moments achievements encourage content creation', () {
-      final momentsAchievements = [
+      final momentsAchievements = <Map<String, dynamic>>[
         {'key': 'first_moment', 'target': 1, 'points': 15},
         {'key': 'photographer', 'target': 10, 'points': 50},
         {'key': 'influencer', 'target': 50, 'points': 150},
@@ -179,7 +179,7 @@ void main() {
 
   group('AchievementService - Progression Achievements', () {
     test('floor achievements match floor system', () {
-      final floorAchievements = [
+      final floorAchievements = <Map<String, dynamic>>[
         {'key': 'rising_star', 'floor': 1, 'points': 20},
         {'key': 'high_rise', 'floor': 2, 'points': 50},
         {'key': 'penthouse', 'floor': 3, 'points': 100},
@@ -406,7 +406,7 @@ void main() {
     });
 
     test('target values are achievable', () {
-      final targets = [
+      final targets = <Map<String, dynamic>>[
         {'key': 'first_message', 'target': 1},
         {'key': 'conversationalist', 'target': 100},
         {'key': 'chatterbox', 'target': 1000},

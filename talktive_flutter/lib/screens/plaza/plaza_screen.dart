@@ -5,7 +5,7 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
+import '../../utils/reputation_utils.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/chat/message_input.dart';
 
@@ -177,11 +177,11 @@ class _PlazaScreenState extends ConsumerState<PlazaScreen> {
             onSend: _sendMessage,
             enabled:
                 _currentResident != null &&
-                !FloorUtils.isMuted(_currentResident!),
+                !ReputationUtils.isMuted(_currentResident!),
             hintText:
                 _currentResident != null &&
-                    FloorUtils.isMuted(_currentResident!)
-                ? FloorUtils.getMuteInputHint(_currentResident!)
+                    ReputationUtils.isMuted(_currentResident!)
+                ? ReputationUtils.getMuteInputHint(_currentResident!)
                 : 'Type a message...',
           ),
         ],
@@ -240,7 +240,7 @@ class _PlazaScreenState extends ConsumerState<PlazaScreen> {
           const Icon(Icons.apartment, size: 16, color: Colors.white),
           const SizedBox(width: 4),
           Text(
-            'Floor ${FloorUtils.effectiveFloor(_currentResident!)}',
+            'Floor ${ReputationUtils.computeReputation(_currentResident!)}',
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -251,7 +251,7 @@ class _PlazaScreenState extends ConsumerState<PlazaScreen> {
           const Icon(Icons.star, size: 16, color: Colors.amber),
           const SizedBox(width: 4),
           Text(
-            '${_currentResident!.reputation}',
+            '${_currentResident!.trustScore}',
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,

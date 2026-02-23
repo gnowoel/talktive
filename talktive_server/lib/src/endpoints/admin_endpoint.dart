@@ -92,14 +92,14 @@ class AdminEndpoint extends Endpoint {
           'userId': report.reporterId.uuid,
           'userName': reporterInfo?.userName ?? 'Unknown',
           'floor': reporter != null
-              ? ApartmentService.effectiveFloor(reporter)
+              ? ApartmentService.computeReputation(reporter)
               : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
-          'floor': target != null ? ApartmentService.effectiveFloor(target) : 0,
-          'reputation': target?.reputation ?? 0,
+          'floor': target != null ? ApartmentService.computeReputation(target) : 0,
+          'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
         },
       });
@@ -146,14 +146,14 @@ class AdminEndpoint extends Endpoint {
           'userId': report.reporterId.uuid,
           'userName': reporterInfo?.userName ?? 'Unknown',
           'floor': reporter != null
-              ? ApartmentService.effectiveFloor(reporter)
+              ? ApartmentService.computeReputation(reporter)
               : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
-          'floor': target != null ? ApartmentService.effectiveFloor(target) : 0,
-          'reputation': target?.reputation ?? 0,
+          'floor': target != null ? ApartmentService.computeReputation(target) : 0,
+          'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
         },
       });
@@ -202,7 +202,7 @@ class AdminEndpoint extends Endpoint {
     }
 
     resident.suspended = true;
-    resident.reputation = 0;
+    resident.trustScore = 0;
     await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin suspended user: $userId. Reason: $reason');
@@ -226,13 +226,13 @@ class AdminEndpoint extends Endpoint {
     }
 
     resident.suspended = false;
-    resident.reputation = 50; // Restore some reputation
+    resident.trustScore = 50; // Restore some trustScore
     await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin unsuspended user: $userId');
   }
 
-  /// Reset user reputation to 100 (for appeals)
+  /// Reset user trustScore to 100 (for appeals)
   Future<void> resetReputation(
     Session session, {
     required String userId,
@@ -250,11 +250,11 @@ class AdminEndpoint extends Endpoint {
       throw Exception('User not found');
     }
 
-    resident.reputation = 100;
+    resident.trustScore = 100;
     resident.mutedUntil = null; // Clear any temporary mutes
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin reset reputation for user: $userId. Reason: $reason');
+    session.log('Admin reset trustScore for user: $userId. Reason: $reason');
   }
 
   /// Delete a message
@@ -465,8 +465,8 @@ class AdminEndpoint extends Endpoint {
       result.add({
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
-        'floor': ApartmentService.effectiveFloor(resident),
-        'reputation': resident.reputation,
+        'floor': ApartmentService.computeReputation(resident),
+        'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,
         'isAdmin': resident.isAdmin,
@@ -586,8 +586,8 @@ class AdminEndpoint extends Endpoint {
       'user': {
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
-        'floor': ApartmentService.effectiveFloor(resident),
-        'reputation': resident.reputation,
+        'floor': ApartmentService.computeReputation(resident),
+        'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,
         'isAdmin': resident.isAdmin,

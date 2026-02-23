@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
+import 'apartment_service.dart';
 
 /// Service for managing achievements and tracking user progress.
 class AchievementService {
@@ -240,13 +241,14 @@ class AchievementService {
     Session session,
     protocol.Resident resident,
   ) async {
-    if (resident.floor >= 1) {
+    final rep = ApartmentService.computeReputation(resident);
+    if (rep >= 1) {
       await trackProgress(session, resident.userInfoId, 'rising_star');
     }
-    if (resident.floor >= 2) {
+    if (rep >= 2) {
       await trackProgress(session, resident.userInfoId, 'high_rise');
     }
-    if (resident.floor >= 3) {
+    if (rep >= 3) {
       await trackProgress(session, resident.userInfoId, 'penthouse');
     }
   }

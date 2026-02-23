@@ -153,7 +153,7 @@ final class MomentCommentsProvider
   }
 }
 
-String _$momentCommentsHash() => r'29d9e6f655ff6020bc3da83d0d4b3ff34aaa15c5';
+String _$momentCommentsHash() => r'8db05d52d7faf0df24aeeaf04062d54f686290db';
 
 /// Provider for comments on a specific moment
 

@@ -1708,6 +1708,25 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i15.ResidentEndpoint)
                   .getResident(session),
         ),
+        'getResidentById': _i1.MethodConnector(
+          name: 'getResidentById',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i15.ResidentEndpoint)
+                  .getResidentById(
+                    session,
+                    params['userId'],
+                  ),
+        ),
         'initializeResident': _i1.MethodConnector(
           name: 'initializeResident',
           params: {

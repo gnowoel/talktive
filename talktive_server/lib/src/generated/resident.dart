@@ -18,10 +18,11 @@ abstract class Resident
   Resident._({
     this.id,
     required this.userInfoId,
-    int? reputation,
+    int? trustScore,
     this.lastReputationIncrease,
     this.mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -37,8 +38,9 @@ abstract class Resident
     this.languages,
     this.role,
     bool? isAdmin,
-  }) : reputation = reputation ?? 100,
+  }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
+       likeCount = likeCount ?? 0,
        xp = xp ?? 0,
        level = level ?? 0,
        currentStreak = currentStreak ?? 0,
@@ -49,10 +51,11 @@ abstract class Resident
   factory Resident({
     int? id,
     required _i1.UuidValue userInfoId,
-    int? reputation,
+    int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -76,7 +79,7 @@ abstract class Resident
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
-      reputation: jsonSerialization['reputation'] as int?,
+      trustScore: jsonSerialization['trustScore'] as int?,
       lastReputationIncrease:
           jsonSerialization['lastReputationIncrease'] == null
           ? null
@@ -87,6 +90,7 @@ abstract class Resident
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
       suspended: jsonSerialization['suspended'] as bool?,
+      likeCount: jsonSerialization['likeCount'] as int?,
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
@@ -131,13 +135,15 @@ abstract class Resident
 
   _i1.UuidValue userInfoId;
 
-  int reputation;
+  int trustScore;
 
   DateTime? lastReputationIncrease;
 
   DateTime? mutedUntil;
 
   bool suspended;
+
+  int likeCount;
 
   int xp;
 
@@ -178,10 +184,11 @@ abstract class Resident
   Resident copyWith({
     int? id,
     _i1.UuidValue? userInfoId,
-    int? reputation,
+    int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -204,11 +211,12 @@ abstract class Resident
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
-      'reputation': reputation,
+      'trustScore': trustScore,
       if (lastReputationIncrease != null)
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
       if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
       'suspended': suspended,
+      'likeCount': likeCount,
       'xp': xp,
       'level': level,
       'currentStreak': currentStreak,
@@ -233,11 +241,12 @@ abstract class Resident
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
-      'reputation': reputation,
+      'trustScore': trustScore,
       if (lastReputationIncrease != null)
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
       if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
       'suspended': suspended,
+      'likeCount': likeCount,
       'xp': xp,
       'level': level,
       'currentStreak': currentStreak,
@@ -292,10 +301,11 @@ class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
     required _i1.UuidValue userInfoId,
-    int? reputation,
+    int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -314,10 +324,11 @@ class _ResidentImpl extends Resident {
   }) : super._(
          id: id,
          userInfoId: userInfoId,
-         reputation: reputation,
+         trustScore: trustScore,
          lastReputationIncrease: lastReputationIncrease,
          mutedUntil: mutedUntil,
          suspended: suspended,
+         likeCount: likeCount,
          xp: xp,
          level: level,
          currentStreak: currentStreak,
@@ -342,10 +353,11 @@ class _ResidentImpl extends Resident {
   Resident copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? userInfoId,
-    int? reputation,
+    int? trustScore,
     Object? lastReputationIncrease = _Undefined,
     Object? mutedUntil = _Undefined,
     bool? suspended,
+    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -365,12 +377,13 @@ class _ResidentImpl extends Resident {
     return Resident(
       id: id is int? ? id : this.id,
       userInfoId: userInfoId ?? this.userInfoId,
-      reputation: reputation ?? this.reputation,
+      trustScore: trustScore ?? this.trustScore,
       lastReputationIncrease: lastReputationIncrease is DateTime?
           ? lastReputationIncrease
           : this.lastReputationIncrease,
       mutedUntil: mutedUntil is DateTime? ? mutedUntil : this.mutedUntil,
       suspended: suspended ?? this.suspended,
+      likeCount: likeCount ?? this.likeCount,
       xp: xp ?? this.xp,
       level: level ?? this.level,
       currentStreak: currentStreak ?? this.currentStreak,
@@ -409,8 +422,8 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> reputation(int value) => _i1.ColumnValue(
-    table.reputation,
+  _i1.ColumnValue<int, int> trustScore(int value) => _i1.ColumnValue(
+    table.trustScore,
     value,
   );
 
@@ -428,6 +441,11 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
 
   _i1.ColumnValue<bool, bool> suspended(bool value) => _i1.ColumnValue(
     table.suspended,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> likeCount(int value) => _i1.ColumnValue(
+    table.likeCount,
     value,
   );
 
@@ -519,8 +537,8 @@ class ResidentTable extends _i1.Table<int?> {
       'userInfoId',
       this,
     );
-    reputation = _i1.ColumnInt(
-      'reputation',
+    trustScore = _i1.ColumnInt(
+      'trustScore',
       this,
       hasDefault: true,
     );
@@ -534,6 +552,11 @@ class ResidentTable extends _i1.Table<int?> {
     );
     suspended = _i1.ColumnBool(
       'suspended',
+      this,
+      hasDefault: true,
+    );
+    likeCount = _i1.ColumnInt(
+      'likeCount',
       this,
       hasDefault: true,
     );
@@ -609,13 +632,15 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnUuid userInfoId;
 
-  late final _i1.ColumnInt reputation;
+  late final _i1.ColumnInt trustScore;
 
   late final _i1.ColumnDateTime lastReputationIncrease;
 
   late final _i1.ColumnDateTime mutedUntil;
 
   late final _i1.ColumnBool suspended;
+
+  late final _i1.ColumnInt likeCount;
 
   late final _i1.ColumnInt xp;
 
@@ -651,10 +676,11 @@ class ResidentTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     userInfoId,
-    reputation,
+    trustScore,
     lastReputationIncrease,
     mutedUntil,
     suspended,
+    likeCount,
     xp,
     level,
     currentStreak,

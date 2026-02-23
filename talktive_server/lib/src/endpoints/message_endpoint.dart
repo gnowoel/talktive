@@ -66,10 +66,10 @@ class MessageEndpoint extends Endpoint {
       final senderName = userInfo?.userName ?? 'Resident';
       final senderAvatar = userInfo?.imageUrl;
 
-      // Compute effective floor (hybrid: min of XP level and reputation tier)
-      final senderEffectiveFloor = ApartmentService.effectiveFloor(sender);
+      // Compute effective floor (hybrid: min of XP level and trustScore tier)
+      final senderEffectiveFloor = ApartmentService.computeReputation(sender);
 
-      // Try to restore reputation first (passive restoration)
+      // Try to restore trustScore first (passive restoration)
       await ApartmentService.restoreReputation(session, sender);
 
       // 3. Check for penalties (Muted)
@@ -130,7 +130,7 @@ class MessageEndpoint extends Endpoint {
         createdAt: DateTime.now(),
         senderName: senderName,
         senderAvatar: senderAvatar,
-        senderFloor: senderEffectiveFloor, // Use computed effective floor
+        senderReputation: senderEffectiveFloor, // Use computed effective floor
       );
 
       // 7. Save Message

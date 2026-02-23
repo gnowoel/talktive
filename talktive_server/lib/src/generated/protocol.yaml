@@ -83,6 +83,7 @@ report:
   - getReportDetails:
 resident:
   - getResident:
+  - getResidentById:
   - initializeResident:
 search:
   - searchUsers:

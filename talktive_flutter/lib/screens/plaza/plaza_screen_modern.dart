@@ -8,7 +8,7 @@ import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import '../../helpers/snackbar_helper.dart';
-import '../../utils/floor_utils.dart';
+import '../../utils/reputation_utils.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
@@ -42,7 +42,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
     final currentResident = ref.read(currentResidentProvider).value;
 
     // Check reputation (mute check)
-    if (currentResident != null && currentResident.reputation <= 0) {
+    if (currentResident != null && currentResident.trustScore <= 0) {
       if (mounted) {
         SnackBarHelper.showError(
           context,
@@ -133,7 +133,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '🏢 ${FloorUtils.effectiveFloor(currentResident)}',
+            '🏢 ${ReputationUtils.computeReputation(currentResident)}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -144,13 +144,13 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           Container(width: 1, height: 16, color: AppTheme.textLight),
           const SizedBox(width: AppTheme.duoSpacingSmall),
           Text(
-            '⭐ ${currentResident.reputation}',
+            '⭐ ${currentResident.trustScore}',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: currentResident.reputation > 50
+              color: currentResident.trustScore > 50
                   ? AppTheme.duoGreen
-                  : currentResident.reputation >= 20
+                  : currentResident.trustScore >= 20
                   ? AppTheme.duoYellow
                   : AppTheme.errorColor,
               fontFamily: 'Poppins',
@@ -238,7 +238,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
   }
 
   Widget _buildInputArea(Resident? currentResident) {
-    final canSend = currentResident == null || currentResident.reputation > 0;
+    final canSend = currentResident == null || currentResident.trustScore > 0;
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),

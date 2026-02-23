@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
@@ -12,14 +11,14 @@ class UserProfileViewScreen extends ConsumerStatefulWidget {
   final String userId;
   final String? userName;
   final String? userAvatar;
-  final int? userFloor;
+  final int? userReputation;
 
   const UserProfileViewScreen({
     super.key,
     required this.userId,
     this.userName,
     this.userAvatar,
-    this.userFloor,
+    this.userReputation,
   });
 
   @override
@@ -221,7 +220,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
     final name = _profile!['name'] as String? ?? widget.userName ?? 'Unknown';
     final avatar = _profile!['avatar'] as String? ?? widget.userAvatar;
-    final floor = _profile!['floor'] as int? ?? widget.userFloor ?? 0;
+    final floor = _profile!['reputation'] as int? ?? widget.userReputation ?? 0;
     final bio = _profile!['bio'] as String?;
     final gender = _profile!['gender'] as String?;
     final country = _profile!['country'] as String?;
@@ -242,7 +241,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             imageUrl: avatar,
             initials: name[0],
             size: 120,
-            floorLevel: floor,
+            reputationLevel: floor,
             showRing: true,
           ),
           const SizedBox(height: 16),

@@ -68,7 +68,7 @@ class MomentEndpoint extends Endpoint {
       commentsCount: 0,
       authorName: userProfile.userName ?? 'Anonymous',
       authorAvatar: userProfile.imageUrl?.toString() ?? '',
-      authorFloor: ApartmentService.effectiveFloor(resident),
+      authorReputation: ApartmentService.computeReputation(resident),
     );
 
     final savedMoment = await Moment.db.insertRow(session, moment);
@@ -173,7 +173,7 @@ class MomentEndpoint extends Endpoint {
       createdAt: DateTime.now(),
       userName: userProfile.userName ?? 'Anonymous',
       userAvatar: userProfile.imageUrl?.toString() ?? '',
-      userFloor: ApartmentService.effectiveFloor(resident),
+      userFloor: ApartmentService.computeReputation(resident),
     );
 
     await MomentLike.db.insertRow(session, like);
@@ -335,7 +335,7 @@ class MomentEndpoint extends Endpoint {
       createdAt: DateTime.now(),
       userName: userProfile.userName ?? 'Anonymous',
       userAvatar: userProfile.imageUrl?.toString() ?? '',
-      userFloor: ApartmentService.effectiveFloor(resident),
+      userFloor: ApartmentService.computeReputation(resident),
     );
 
     final savedComment = await MomentComment.db.insertRow(session, comment);

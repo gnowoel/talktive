@@ -1,0 +1,10 @@
+class: UserLike
+table: user_like
+fields:
+  senderId: UuidValue
+  receiverId: UuidValue
+  createdAt: DateTime
+indexes:
+  user_like_idx:
+    fields: senderId, receiverId
+    unique: true

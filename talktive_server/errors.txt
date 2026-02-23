@@ -1,0 +1,95 @@
+Analyzing talktive_server...
+
+  error - test/unit/services/achievement_service_test.dart:98:39 - The operator '<=' isn't defined for the type 'Object'. Try defining the operator '<='. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:103:34 - The operator '>' isn't defined for the type 'Object'. Try defining the operator '>'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:103:65 - The operator '<=' isn't defined for the type 'Object'. Try defining the operator '<='. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:109:39 - The operator '>=' isn't defined for the type 'Object'. Try defining the operator '>='. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:135:43 - The operator '/' isn't defined for the type 'Object'. Try defining the operator '/'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:139:43 - The operator '/' isn't defined for the type 'Object'. Try defining the operator '/'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:166:43 - The operator '>' isn't defined for the type 'Object'. Try defining the operator '>'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:170:43 - The operator '>' isn't defined for the type 'Object'. Try defining the operator '>'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:175:48 - The operator '>=' isn't defined for the type 'Object'. Try defining the operator '>='. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:176:48 - The operator '>=' isn't defined for the type 'Object'. Try defining the operator '>='. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:190:41 - The operator '>' isn't defined for the type 'Object'. Try defining the operator '>'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:190:75 - The operator '*' isn't defined for the type 'Object'. Try defining the operator '*'. - undefined_operator
+  error - test/unit/services/achievement_service_test.dart:194:76 - The operator '*' isn't defined for the type 'Object'. Try defining the operator '*'. - undefined_operator
+  error - test/unit/services/redis_rate_limit_service_test.dart:217:22 - Const variables must be initialized with a constant value. Try changing the initializer to be a constant expression. - const_initialized_with_non_constant_value
+warning - lib/src/endpoints/achievement_endpoint.dart:2:8 - Unused import: '../generated/protocol.dart'. Try removing the import directive. - unused_import
+warning - lib/src/endpoints/admin_endpoint.dart:478:30 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?.' is causing the short circuiting at lib/src/endpoints/admin_endpoint.dart:478:21.
+warning - lib/src/endpoints/admin_endpoint.dart:596:30 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?.' is causing the short circuiting at lib/src/endpoints/admin_endpoint.dart:596:21.
+warning - lib/src/endpoints/message_endpoint.dart:7:8 - Unused import: '../services/rate_limit_service.dart'. Try removing the import directive. - unused_import
+warning - lib/src/endpoints/report_endpoint.dart:3:8 - Unused import: 'package:serverpod_auth_server/serverpod_auth_server.dart'. Try removing the import directive. - unused_import
+warning - lib/src/endpoints/resident_endpoint.dart:1:8 - Unused import: 'dart:convert'. Try removing the import directive. - unused_import
+warning - lib/src/future_calls/credit_restoration.dart:3:8 - Unused import: '../services/apartment_service.dart'. Try removing the import directive. - unused_import
+warning - lib/src/services/data_archival_service.dart:123:26 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/src/services/data_archival_service.dart:236:24 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/src/services/image_validation_service.dart:1:8 - Unused import: 'dart:io'. Try removing the import directive. - unused_import
+warning - test/integration/resident_endpoint_test.dart:53:38 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:89:38 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:152:66 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:184:66 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:223:66 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:254:64 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:281:64 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/integration/resident_endpoint_test.dart:305:64 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - test/unit/services/redis_rate_limit_service_test.dart:216:13 - The value of the local variable 'floor' isn't used. Try removing the variable or using it. - unused_local_variable
+warning - tools/reproduce_send_message.dart:1:8 - Unused import: 'dart:convert'. Try removing the import directive. - unused_import
+   info - lib/src/endpoints/admin_endpoint.dart:3:8 - The import of 'package:uuid/uuid.dart' is unnecessary because all of the used elements are also provided by the import of 'package:serverpod/serverpod.dart'. Try removing the import directive. - unnecessary_import
+   info - lib/src/endpoints/image_endpoint.dart:69:41 - Unnecessary braces in a string interpolation. Try removing the braces. - unnecessary_brace_in_string_interps
+   info - lib/src/endpoints/message_endpoint.dart:3:8 - The import of 'package:uuid/uuid.dart' is unnecessary because all of the used elements are also provided by the import of 'package:serverpod/serverpod.dart'. Try removing the import directive. - unnecessary_import
+   info - lib/src/endpoints/message_endpoint.dart:145:24 - Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited'. - unawaited_futures
+   info - lib/src/endpoints/message_endpoint.dart:183:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/endpoints/message_endpoint.dart:184:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/apartment_service.dart:10:20 - The constant name 'TRUST_SCORE_MAX' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/apartment_service.dart:11:20 - The constant name 'TRUST_SCORE_START' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/apartment_service.dart:12:20 - The constant name 'REPUTATION_RESTORE_RATE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/apartment_service.dart:104:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/src/services/fcm_service.dart:26:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:29:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:41:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:48:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:50:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:51:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:69:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/src/services/fcm_service.dart:106:13 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
+   info - lib/src/services/fcm_service.dart:108:11 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
+   info - lib/src/services/fcm_service.dart:125:17 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
+   info - lib/src/services/fcm_service.dart:273:11 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
+   info - lib/src/services/gamification_service.dart:8:20 - The constant name 'XP_PER_MESSAGE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:9:20 - The constant name 'XP_PER_MOMENT' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:10:20 - The constant name 'XP_PER_COMMENT' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:11:20 - The constant name 'XP_PER_LIKE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:12:20 - The constant name 'XP_PER_LOGIN' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:13:20 - The constant name 'XP_PER_LEVEL' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:16:20 - The constant name 'XP_STREAK_3_DAYS' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:17:20 - The constant name 'XP_STREAK_7_DAYS' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:18:20 - The constant name 'XP_STREAK_30_DAYS' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - test/integration/resident_endpoint_test.dart:29:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:72:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:105:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:130:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:161:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:194:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:231:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:264:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:289:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:316:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:332:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:348:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - test/integration/resident_endpoint_test.dart:365:25 - Uses 'await' on an instance of 'Session', which is not a subtype of 'Future'. Try removing the 'await' or changing the expression. - await_only_futures
+   info - tools/check_channels.dart:13:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/check_channels.dart:15:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/check_channels.dart:17:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/check_channels.dart:21:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/check_channels.dart:28:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/check_channels.dart:31:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/check_channels.dart:33:13 - Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited'. - unawaited_futures
+   info - tools/reproduce_send_message.dart:15:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/reproduce_send_message.dart:27:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/reproduce_send_message.dart:30:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/reproduce_send_message.dart:32:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - tools/reproduce_send_message.dart:34:13 - Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited'. - unawaited_futures
+
+89 issues found.

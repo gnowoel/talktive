@@ -111,7 +111,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Level ${user['level'] ?? user['floor']} • ⭐ ${user['reputation'] ?? user['creditScore']} reputation',
+                      'Level ${user['level'] ?? user['reputation']} • ⭐ ${user['reputation'] ?? user['trustScore']} reputation',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,
@@ -123,35 +123,31 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
               const Divider(height: 1),
 
-              if (!isBanned)
-                ListTile(
-                  leading: const Icon(
-                    Icons.volume_off,
-                    color: AppTheme.duoOrange,
-                  ),
-                  title: const Text('Reset Reputation'),
-                  subtitle: const Text('Set reputation to 0 (mute)'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _muteUser(userId, userName);
-                  },
-                ),
+              ListTile(
+                leading: const Icon(Icons.restore, color: AppTheme.duoOrange),
+                title: const Text('Reset Trust Score'),
+                subtitle: const Text('Reset trust score to 100'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _resetReputation(userId, userName);
+                },
+              ),
 
               ListTile(
                 leading: Icon(
                   isBanned ? Icons.check_circle : Icons.block,
                   color: isBanned ? AppTheme.duoGreen : AppTheme.errorColor,
                 ),
-                title: Text(isBanned ? 'Unban User' : 'Ban User'),
+                title: Text(isBanned ? 'Unsuspend User' : 'Suspend User'),
                 subtitle: Text(
-                  isBanned ? 'Restore access' : 'Permanently ban user',
+                  isBanned ? 'Restore access' : 'Suspend user account',
                 ),
                 onTap: () {
                   Navigator.pop(context);
                   if (isBanned) {
-                    _unbanUser(userId, userName);
+                    _unsuspendUser(userId, userName);
                   } else {
-                    _banUser(userId, userName);
+                    _suspendUser(userId, userName);
                   }
                 },
               ),
@@ -182,23 +178,26 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     );
   }
 
-  Future<void> _muteUser(String userId, String userName) async {
+  Future<void> _resetReputation(String userId, String userName) async {
     final confirmed = await _showConfirmDialog(
-      'Mute User',
-      'Set $userName\'s reputation to 0? They won\'t be able to send messages.',
+      'Reset Trust Score',
+      'Reset $userName\'s trust score to 100?',
     );
 
     if (!confirmed) return;
 
     try {
       final client = ref.read(clientProvider);
-      await client.admin.muteUser(userId: userId, reason: 'Admin action');
+      await client.admin.resetReputation(
+        userId: userId,
+        reason: 'Admin action',
+      );
 
       if (mounted) {
         HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$userName has been muted'),
+            content: Text('$userName\'s trust score was reset'),
             backgroundColor: AppTheme.duoGreen,
           ),
         );
@@ -216,23 +215,23 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _banUser(String userId, String userName) async {
+  Future<void> _suspendUser(String userId, String userName) async {
     final confirmed = await _showConfirmDialog(
-      'Ban User',
-      'Permanently ban $userName? This will suspend their account.',
+      'Suspend User',
+      'Suspend $userName? This will disable their account.',
     );
 
     if (!confirmed) return;
 
     try {
       final client = ref.read(clientProvider);
-      await client.admin.banUser(userId: userId, reason: 'Admin action');
+      await client.admin.suspendUser(userId: userId, reason: 'Admin action');
 
       if (mounted) {
         HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$userName has been banned'),
+            content: Text('$userName has been suspended'),
             backgroundColor: AppTheme.duoGreen,
           ),
         );
@@ -250,23 +249,23 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _unbanUser(String userId, String userName) async {
+  Future<void> _unsuspendUser(String userId, String userName) async {
     final confirmed = await _showConfirmDialog(
-      'Unban User',
-      'Restore access for $userName? Their reputation will be reset to 50.',
+      'Unsuspend User',
+      'Restore access for $userName? Their trust score will be reset to 50.',
     );
 
     if (!confirmed) return;
 
     try {
       final client = ref.read(clientProvider);
-      await client.admin.unbanUser(userId: userId);
+      await client.admin.unsuspendUser(userId: userId);
 
       if (mounted) {
         HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$userName has been unbanned'),
+            content: Text('$userName has been unsuspended'),
             backgroundColor: AppTheme.duoGreen,
           ),
         );
@@ -452,9 +451,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
   Widget _buildUserCard(Map<String, dynamic> user) {
     final userName = user['userName'] as String;
-    final floor = user['floor'] as int? ?? 0;
+    final floor = user['reputation'] as int? ?? 0;
     final reputation =
-        user['reputation'] as int? ?? user['creditScore'] as int? ?? 0;
+        user['reputation'] as int? ?? user['trustScore'] as int? ?? 0;
     final isAdmin = user['isAdmin'] as bool;
     final isBanned = user['isBanned'] as bool;
     final messageCount = user['messageCount'] as int;

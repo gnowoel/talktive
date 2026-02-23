@@ -24,7 +24,7 @@ class ResidentEndpoint extends Endpoint {
     );
 
     if (resident != null) {
-      // Passively restore reputation on load
+      // Passively restore trustScore on load
       await ApartmentService.restoreReputation(session, resident);
 
       // Check daily login and award XP
@@ -32,6 +32,16 @@ class ResidentEndpoint extends Endpoint {
     }
 
     return resident;
+  }
+
+  /// Fetches a Resident profile by their user ID.
+  Future<Resident?> getResidentById(Session session, String userId) async {
+    final userUuid = UuidValue.fromString(userId);
+
+    return await Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userUuid),
+    );
   }
 
   /// Initializes a Resident profile for an authenticated user.
@@ -117,7 +127,7 @@ class ResidentEndpoint extends Endpoint {
       currentStreak: 0,
       longestStreak: 0,
       // Safety
-      reputation: ApartmentService.REPUTATION_START,
+      trustScore: ApartmentService.TRUST_SCORE_START,
       suspended: false,
       // Legacy
       experienceMessageCount: 0,

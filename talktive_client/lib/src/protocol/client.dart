@@ -379,7 +379,7 @@ class EndpointAdmin extends _i2.EndpointRef {
         {'userId': userId},
       );
 
-  /// Reset user reputation to 100 (for appeals)
+  /// Reset user trustScore to 100 (for appeals)
   _i3.Future<void> resetReputation({
     required String userId,
     String? reason,
@@ -1007,6 +1007,14 @@ class EndpointResident extends _i2.EndpointRef {
         'resident',
         'getResident',
         {},
+      );
+
+  /// Fetches a Resident profile by their user ID.
+  _i3.Future<_i7.Resident?> getResidentById(String userId) =>
+      caller.callServerEndpoint<_i7.Resident?>(
+        'resident',
+        'getResidentById',
+        {'userId': userId},
       );
 
   /// Initializes a Resident profile for an authenticated user.

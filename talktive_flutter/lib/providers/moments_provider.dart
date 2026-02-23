@@ -126,7 +126,7 @@ class MomentComments extends _$MomentComments {
 
   Future<List<MomentComment>> fetchComments(int momentId) async {
     final client = ref.read(clientProvider);
-    return await client.moment.getMomentComments(momentId);
+    return await client.moment.getMomentComments(momentId, limit: 50);
   }
 
   /// Adds a comment to the moment

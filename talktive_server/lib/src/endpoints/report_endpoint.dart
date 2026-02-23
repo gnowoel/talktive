@@ -58,10 +58,10 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Effective floor ≥ 1 required to report (prevents abuse from new
-    // accounts and from reputation-restricted users)
-    if (ApartmentService.effectiveFloor(reporter) < 1) {
+    // accounts and from trustScore-restricted users)
+    if (ApartmentService.computeReputation(reporter) < 1) {
       throw Exception(
-        'You must reach Floor 1 to report users. Keep chatting and maintain good reputation!',
+        'You must reach Floor 1 to report users. Keep chatting and maintain good trustScore!',
       );
     }
 
@@ -152,7 +152,7 @@ class ReportEndpoint extends Endpoint {
     // Auto-escalation thresholds
     if (recentReports30Days >= 10) {
       // 10 reports in 30 days: Severe penalty
-      target.reputation = 0; // Muted until reputation restores
+      target.trustScore = 0; // Muted until trustScore restores
       session.log(
         'User ${target.userInfoId} received 10+ reports in 30 days. Reputation set to 0.',
       );
@@ -176,7 +176,7 @@ class ReportEndpoint extends Endpoint {
 
     session.log(
       'User ${reporter.userInfoId} reported ${target.userInfoId}. '
-      'Penalty: ${max(1, reporter.level)} reputation points. New reputation: ${target.reputation}',
+      'Penalty: ${max(1, reporter.level)} trustScore points. New trustScore: ${target.trustScore}',
     );
   }
 
@@ -311,16 +311,16 @@ class ReportEndpoint extends Endpoint {
       'reporter': {
         'userId': reporter?.userInfoId.toString(),
         'floor': reporter != null
-            ? ApartmentService.effectiveFloor(reporter)
+            ? ApartmentService.computeReputation(reporter)
             : null,
-        'reputation': reporter?.reputation,
+        'trustScore': reporter?.trustScore,
       },
       'target': {
         'userId': target?.userInfoId.toString(),
         'floor': target != null
-            ? ApartmentService.effectiveFloor(target)
+            ? ApartmentService.computeReputation(target)
             : null,
-        'reputation': target?.reputation,
+        'trustScore': target?.trustScore,
       },
       'message': message?.toJson(),
     };

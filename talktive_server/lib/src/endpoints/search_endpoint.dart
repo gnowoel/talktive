@@ -43,8 +43,8 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
-            'floor': ApartmentService.effectiveFloor(resident),
-            'reputation': resident.reputation,
+            'floor': ApartmentService.computeReputation(resident),
+            'trustScore': resident.trustScore,
           });
         }
       }
@@ -198,7 +198,7 @@ class SearchEndpoint extends Endpoint {
               'userId': resident.userInfoId.toString(),
               'userName': userInfo.userName,
               'userAvatar': userInfo.imageUrl,
-              'floor': ApartmentService.effectiveFloor(resident),
+              'floor': ApartmentService.computeReputation(resident),
               'messageCount': entry.value,
             });
           }
@@ -329,7 +329,7 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
-            'floor': ApartmentService.effectiveFloor(resident),
+            'floor': ApartmentService.computeReputation(resident),
             'sharedInterests': sharedInterests,
             'matchScore': sharedInterests.length,
           });
@@ -406,7 +406,7 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
             'userAvatar': userInfo.imageUrl,
-            'floor': ApartmentService.effectiveFloor(resident),
+            'floor': ApartmentService.computeReputation(resident),
             'sharedLanguages': sharedLanguages,
             'matchScore': sharedLanguages.length,
           });

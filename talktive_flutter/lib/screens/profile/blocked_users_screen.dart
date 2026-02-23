@@ -103,9 +103,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                       ),
                       child: Center(
                         child: Text(
-                          resident.userName.isNotEmpty
-                              ? resident.userName[0].toUpperCase()
-                              : '?',
+                          'R',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -121,7 +119,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            resident.userName,
+                            'Resident',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -130,7 +128,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Level ${resident.level} • ⭐ ${resident.reputation}',
+                            'Level ${resident.level} • ⭐ ${resident.trustScore}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.textSecondary,
@@ -142,7 +140,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                     // Unblock button
                     ElevatedButton(
                       onPressed: () =>
-                          _unblockUser(context, ref, userId, resident.userName),
+                          _unblockUser(context, ref, userId, 'Resident'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.duoGreen,
                         foregroundColor: Colors.white,

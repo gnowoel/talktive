@@ -4,8 +4,9 @@ fields:
   userId: String
   userName: String?
   userAvatar: String?
-  floor: int
-  creditScore: int
+  reputation: int
+  trustScore: int
+  likes: int
   totalMessages: int
   totalMoments: int
   achievementsUnlocked: int

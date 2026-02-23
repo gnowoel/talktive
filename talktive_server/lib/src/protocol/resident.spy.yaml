@@ -4,17 +4,18 @@ fields:
   userInfoId: UuidValue
   
   # Safety System
-  reputation: int, default=100
+  trustScore: int, default=100
   lastReputationIncrease: DateTime?
   mutedUntil: DateTime?
   suspended: bool, default=false
+  likeCount: int, default=0
   
   # Gamification System
   xp: int, default=0
   level: int, default=0
-  # NOTE: 'floor' is no longer stored. It is computed as:
-  #   effectiveFloor = min(level, reputationTier(reputation))
-  # See: ApartmentService.effectiveFloor()
+  # NOTE: 'reputation' is now the computed aggregate (formerly known as floor).
+  #   reputation = min(level, trustCap(trustScore), socialCap(likeCount))
+  # See: ReputationService.computeReputation()
   currentStreak: int, default=0
   longestStreak: int, default=0
   lastLoginDate: DateTime?

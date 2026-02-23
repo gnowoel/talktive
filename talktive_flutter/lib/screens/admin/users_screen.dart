@@ -185,7 +185,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   Future<void> _muteUser(String userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Mute User',
-      'Set $userName\'s credit score to 0? They won\'t be able to send messages.',
+      'Set $userName\'s reputation to 0? They won\'t be able to send messages.',
     );
 
     if (!confirmed) return;
@@ -219,7 +219,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   Future<void> _banUser(String userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Ban User',
-      'Permanently ban $userName? This will set their credit score to -1000.',
+      'Permanently ban $userName? This will suspend their account.',
     );
 
     if (!confirmed) return;
@@ -253,7 +253,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   Future<void> _unbanUser(String userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Unban User',
-      'Restore access for $userName? Their credit score will be set to 50.',
+      'Restore access for $userName? Their reputation will be reset to 50.',
     );
 
     if (!confirmed) return;
@@ -452,8 +452,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
   Widget _buildUserCard(Map<String, dynamic> user) {
     final userName = user['userName'] as String;
-    final floor = user['floor'] as int;
-    final creditScore = user['creditScore'] as int;
+    final floor = user['floor'] as int? ?? 0;
+    final reputation =
+        user['reputation'] as int? ?? user['creditScore'] as int? ?? 0;
     final isAdmin = user['isAdmin'] as bool;
     final isBanned = user['isBanned'] as bool;
     final messageCount = user['messageCount'] as int;
@@ -554,7 +555,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Level $floor • ⭐ ${user['reputation'] ?? creditScore} reputation',
+                      'Level $floor • ⭐ $reputation reputation',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,

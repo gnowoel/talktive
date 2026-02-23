@@ -167,7 +167,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   _buildDetailSection('Target User', [
                     'Name: ${target['userName']}',
                     'Floor: ${target['floor']}',
-                    'Credit Score: ${target['creditScore']}',
+                    'Reputation: ${target['reputation'] ?? target['creditScore'] ?? 0}',
                   ]),
                   const SizedBox(height: 20),
 

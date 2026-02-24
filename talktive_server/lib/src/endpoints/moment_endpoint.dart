@@ -68,7 +68,7 @@ class MomentEndpoint extends Endpoint {
       commentsCount: 0,
       authorName: userProfile.userName ?? 'Anonymous',
       authorAvatar: userProfile.imageUrl?.toString() ?? '',
-      authorReputation: ApartmentService.computeEffectiveFloor(resident),
+      authorFloor: ApartmentService.computeEffectiveFloor(resident),
     );
 
     final savedMoment = await Moment.db.insertRow(session, moment);

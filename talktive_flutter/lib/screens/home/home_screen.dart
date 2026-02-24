@@ -120,12 +120,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Emoji icon
-                        Text(
-                              item.emoji,
-                              style: TextStyle(fontSize: isSelected ? 24 : 22),
+                        AnimatedOpacity(
+                              duration: 150.ms,
+                              opacity: isSelected ? 1.0 : 0.5,
+                              child: ColorFiltered(
+                                colorFilter: isSelected
+                                    ? const ColorFilter.mode(
+                                        Colors.transparent,
+                                        BlendMode.dst,
+                                      )
+                                    : const ColorFilter.matrix(<double>[
+                                        0.2126,
+                                        0.7152,
+                                        0.0722,
+                                        0,
+                                        0,
+                                        0.2126,
+                                        0.7152,
+                                        0.0722,
+                                        0,
+                                        0,
+                                        0.2126,
+                                        0.7152,
+                                        0.0722,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        1,
+                                        0,
+                                      ]),
+                                child: Text(
+                                  item.emoji,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                              ),
                             )
                             .animate(target: isSelected ? 1 : 0)
-                            .scale(duration: 150.ms, curve: Curves.easeOutBack),
+                            .scale(
+                              begin: const Offset(0.85, 0.85),
+                              end: const Offset(1.0, 1.0),
+                              duration: 150.ms,
+                              curve: Curves.easeOutBack,
+                            ),
                         const SizedBox(height: 2),
                         // Label
                         Text(

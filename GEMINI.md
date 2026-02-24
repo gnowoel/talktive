@@ -33,7 +33,9 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ## Development Philosophy
 
-**Optimization Over Backward Compatibility**: Since the Serverpod version is not yet deployed, we prioritize the **best possible architectural approach** over backward compatibility. We actively refactor and introduce breaking changes (e.g., protocol denormalization) to ensure the final product is efficient, robust, and scalable.
+**Optimization Over Backward Compatibility**: Since the Serverpod version is not yet deployed, we prioritize the **best secured architecture** over backward compatibility. We actively refactor and introduce breaking changes (e.g., protocol denormalization) to ensure the final product is efficient, robust, and scalable.
+
+**Git Protocol**: When committing changes, please DO NOT run `git push`. Leave the pushing to the repository owner to do manually.
 
 ## Status
 

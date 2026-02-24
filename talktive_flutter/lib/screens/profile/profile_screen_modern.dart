@@ -33,7 +33,7 @@ class ProfileScreenModern extends ConsumerWidget {
       emoji: '👤',
       title: 'Profile',
       subtitle: _displayName(resident),
-      gradient: AppTheme.primaryGradient,
+      gradient: AppTheme.duoGreenGradient,
       body: residentAsync.when(
         data: (resident) => _buildProfileContent(context, ref, resident),
         loading: () => const Center(

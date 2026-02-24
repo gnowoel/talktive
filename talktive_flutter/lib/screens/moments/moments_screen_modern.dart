@@ -238,7 +238,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
       emoji: '📸',
       title: 'Moments',
       subtitle: 'Share your day',
-      gradient: AppTheme.primaryGradient,
+      gradient: AppTheme.secondaryGradient,
       floatingActionButton: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

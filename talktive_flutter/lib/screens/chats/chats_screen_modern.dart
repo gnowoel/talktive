@@ -26,7 +26,7 @@ class ChatsScreenModern extends ConsumerWidget {
       emoji: '💬',
       title: 'Chats',
       subtitle: 'Private conversations',
-      gradient: AppTheme.primaryGradient,
+      gradient: AppTheme.duoOrangeGradient,
       body: chatsState.when(
         data: (chats) => chats.isEmpty
             ? _buildEmptyState(context)

@@ -116,16 +116,6 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           ),
           // Input area
           _buildInputArea(currentResident),
-          if (MediaQuery.of(context).viewInsets.bottom == 0)
-            SafeArea(
-              top: false,
-              child: const SizedBox(
-                height:
-                    AppTheme.bottomNavTotalHeight + AppTheme.duoSpacingSmall,
-              ),
-            ),
-          if (MediaQuery.of(context).viewInsets.bottom > 0)
-            const SizedBox(height: AppTheme.duoSpacingSmall),
         ],
       ),
     );

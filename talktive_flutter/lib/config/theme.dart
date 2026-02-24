@@ -444,13 +444,13 @@ class AppTheme {
   static const double duoSpacingXXLarge = 48.0;
 
   // Bottom Navigation Bar
-  static const double bottomNavHeight = 60.0;
-  static const double bottomNavMargin = 16.0;
-  static const double bottomNavTotalHeight = bottomNavHeight + bottomNavMargin;
+  static const double bottomNavHeight = 70.0;
+  static const double bottomNavMargin = 0.0;
+  static const double bottomNavTotalHeight = bottomNavHeight;
 
   // Content bottom padding (for screens with bottom nav)
   static const double contentBottomPadding =
-      bottomNavTotalHeight + duoSpacingMedium;
+      duoSpacingMedium + duoSpacingMedium;
 
   // Duolingo-Style Animation Durations
   static const Duration duoAnimationQuick = Duration(milliseconds: 150);

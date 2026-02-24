@@ -24,7 +24,7 @@ class GroupsScreenModern extends ConsumerWidget {
       emoji: '👥',
       title: 'Groups',
       subtitle: 'Join communities',
-      gradient: AppTheme.primaryGradient,
+      gradient: AppTheme.duoYellowGradient,
       floatingActionButton: FloatingActionButton(
         heroTag: 'groups_fab',
         onPressed: () {

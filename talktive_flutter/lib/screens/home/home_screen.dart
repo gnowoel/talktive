@@ -63,9 +63,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
-      resizeToAvoidBottomInset:
-          false, // Prevents bottom nav from floating above keyboard
+      extendBody: false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppTheme.lightBackground,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildDuoBottomNav(),
@@ -74,66 +73,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildDuoBottomNav() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, AppTheme.bottomNavMargin),
-      height: AppTheme.bottomNavHeight,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.bottomNavHeight / 2),
-        boxShadow: AppTheme.duoCardShadow,
+        border: Border(top: BorderSide(color: Colors.grey.shade300, width: 2)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(_navItems.length, (index) {
-          final item = _navItems[index];
-          final isSelected = _currentIndex == index;
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: AppTheme.bottomNavHeight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_navItems.length, (index) {
+              final item = _navItems[index];
+              final isSelected = _currentIndex == index;
 
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              child: AnimatedContainer(
-                duration: AppTheme.duoAnimationNormal,
-                curve: Curves.easeInOut,
-                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? item.color.withOpacity(0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Emoji icon
-                    Text(
-                          item.emoji,
-                          style: TextStyle(fontSize: isSelected ? 28 : 24),
-                        )
-                        .animate(target: isSelected ? 1 : 0)
-                        .scale(duration: 200.ms, curve: Curves.elasticOut),
-                    const SizedBox(height: 2),
-                    // Label
-                    Text(
-                      item.label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                        color: isSelected ? item.color : AppTheme.textSecondary,
-                        fontFamily: 'Poppins',
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: AppTheme.duoAnimationQuick,
+                    curve: Curves.easeOut,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? item.color.withOpacity(0.12)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? item.color.withOpacity(0.2)
+                            : Colors.transparent,
+                        width: 2,
                       ),
                     ),
-                  ],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Emoji icon
+                        Text(
+                              item.emoji,
+                              style: TextStyle(fontSize: isSelected ? 24 : 22),
+                            )
+                            .animate(target: isSelected ? 1 : 0)
+                            .scale(duration: 150.ms, curve: Curves.easeOutBack),
+                        const SizedBox(height: 2),
+                        // Label
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            color: isSelected
+                                ? item.color
+                                : AppTheme.textSecondary.withOpacity(0.7),
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        }),
+              );
+            }),
+          ),
+        ),
       ),
     );
   }

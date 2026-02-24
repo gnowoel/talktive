@@ -104,8 +104,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.duoOrange.withValues(alpha: 0.2),
-                    AppTheme.duoYellow.withValues(alpha: 0.2),
+                    AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                    AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
@@ -186,8 +186,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.duoOrange.withValues(alpha: 0.2),
-                      AppTheme.duoYellow.withValues(alpha: 0.2),
+                      AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                      AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
                     ],
                   ),
                 ),
@@ -348,16 +348,14 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   gradient: canSend
-                      ? LinearGradient(
-                          colors: [AppTheme.duoOrange, AppTheme.duoYellow],
-                        )
+                      ? LinearGradient(colors: AppTheme.duoBlueGradient)
                       : null,
                   color: canSend ? null : Colors.grey[300],
                   shape: BoxShape.circle,
                   boxShadow: canSend
                       ? [
                           BoxShadow(
-                            color: AppTheme.duoOrange.withValues(alpha: 0.3),
+                            color: AppTheme.duoBlue.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),

@@ -121,8 +121,8 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.duoOrange.withValues(alpha: 0.2),
-                          AppTheme.duoYellow.withValues(alpha: 0.2),
+                          AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                          AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
                         ],
                       ),
                       shape: BoxShape.circle,

@@ -24,7 +24,7 @@ class GroupsScreenModern extends ConsumerWidget {
       emoji: '👥',
       title: 'Groups',
       subtitle: 'Join communities',
-      gradient: AppTheme.duoYellowGradient,
+      gradient: AppTheme.duoBlueGradient,
       floatingActionButton: FloatingActionButton(
         heroTag: 'groups_fab',
         onPressed: () {
@@ -34,7 +34,7 @@ class GroupsScreenModern extends ConsumerWidget {
             builder: (context) => const CreateGroupDialog(),
           );
         },
-        backgroundColor: AppTheme.duoYellow,
+        backgroundColor: AppTheme.duoBlue,
         child: const Icon(Icons.add, size: 28),
       ).animate().scale(delay: 300.ms, duration: 300.ms),
       body: groupsState.when(
@@ -126,8 +126,8 @@ class GroupsScreenModern extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.duoOrange.withValues(alpha: 0.2),
-                    AppTheme.duoYellow.withValues(alpha: 0.2),
+                    AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                    AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),

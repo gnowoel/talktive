@@ -444,8 +444,8 @@ class AppTheme {
   static const double duoSpacingXXLarge = 48.0;
 
   // Bottom Navigation Bar
-  static const double bottomNavHeight = 70.0;
-  static const double bottomNavMargin = 24.0;
+  static const double bottomNavHeight = 60.0;
+  static const double bottomNavMargin = 16.0;
   static const double bottomNavTotalHeight = bottomNavHeight + bottomNavMargin;
 
   // Content bottom padding (for screens with bottom nav)

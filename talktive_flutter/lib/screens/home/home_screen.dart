@@ -64,6 +64,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
+      resizeToAvoidBottomInset:
+          false, // Prevents bottom nav from floating above keyboard
       backgroundColor: AppTheme.lightBackground,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildDuoBottomNav(),
@@ -72,11 +74,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildDuoBottomNav() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      height: 70,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, AppTheme.bottomNavMargin),
+      height: AppTheme.bottomNavHeight,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(35),
+        borderRadius: BorderRadius.circular(AppTheme.bottomNavHeight / 2),
         boxShadow: AppTheme.duoCardShadow,
       ),
       child: Row(

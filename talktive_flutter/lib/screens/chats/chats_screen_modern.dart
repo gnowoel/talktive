@@ -26,7 +26,7 @@ class ChatsScreenModern extends ConsumerWidget {
       emoji: '💬',
       title: 'Chats',
       subtitle: 'Private conversations',
-      gradient: AppTheme.duoOrangeGradient,
+      gradient: AppTheme.primaryGradient,
       body: chatsState.when(
         data: (chats) => chats.isEmpty
             ? _buildEmptyState(context)
@@ -124,9 +124,7 @@ class ChatsScreenModern extends ConsumerWidget {
                   imageUrl: otherUserAvatar,
                   size: 56,
                   showRing: true,
-                  floorLevel: FloorUtils.computeFloor(
-                    chatItem.otherResident,
-                  ),
+                  floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
                 ),
                 Positioned(
                   right: 0,

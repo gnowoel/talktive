@@ -116,7 +116,16 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           ),
           // Input area
           _buildInputArea(currentResident),
-          SizedBox(height: AppTheme.contentBottomPadding),
+          if (MediaQuery.of(context).viewInsets.bottom == 0)
+            SafeArea(
+              top: false,
+              child: const SizedBox(
+                height:
+                    AppTheme.bottomNavTotalHeight + AppTheme.duoSpacingSmall,
+              ),
+            ),
+          if (MediaQuery.of(context).viewInsets.bottom > 0)
+            const SizedBox(height: AppTheme.duoSpacingSmall),
         ],
       ),
     );
@@ -252,80 +261,77 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppTheme.lightBackground,
-                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: TextField(
-                  controller: _messageController,
-                  enabled: canSend,
-                  maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(fontSize: 15, fontFamily: 'Rubik'),
-                  decoration: InputDecoration(
-                    hintText: canSend
-                        ? 'Type a message...'
-                        : 'Need credits to chat',
-                    hintStyle: TextStyle(
-                      color: AppTheme.textLight,
-                      fontFamily: 'Rubik',
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.duoSpacingMedium,
-                      vertical: AppTheme.duoSpacingSmall,
-                    ),
-                    prefixIcon: canSend
-                        ? null
-                        : const Icon(
-                            Icons.lock,
-                            color: AppTheme.textLight,
-                            size: 20,
-                          ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.lightBackground,
+                borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: TextField(
+                controller: _messageController,
+                enabled: canSend,
+                maxLines: null,
+                textCapitalization: TextCapitalization.sentences,
+                style: const TextStyle(fontSize: 15, fontFamily: 'Rubik'),
+                decoration: InputDecoration(
+                  hintText: canSend
+                      ? 'Type a message...'
+                      : 'Need credits to chat',
+                  hintStyle: TextStyle(
+                    color: AppTheme.textLight,
+                    fontFamily: 'Rubik',
                   ),
-                  onSubmitted: canSend ? (_) => _sendMessage() : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.duoSpacingMedium,
+                    vertical: AppTheme.duoSpacingSmall,
+                  ),
+                  prefixIcon: canSend
+                      ? null
+                      : const Icon(
+                          Icons.lock,
+                          color: AppTheme.textLight,
+                          size: 20,
+                        ),
                 ),
+                onSubmitted: canSend ? (_) => _sendMessage() : null,
               ),
             ),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-            GestureDetector(
-              onTap: canSend ? _sendMessage : null,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: canSend
-                      ? LinearGradient(
-                          colors: [
-                            AppTheme.primaryColor,
-                            AppTheme.primaryColor.withOpacity(0.8),
-                          ],
-                        )
-                      : null,
-                  color: canSend ? null : Colors.grey.shade300,
-                  shape: BoxShape.circle,
-                  boxShadow: canSend
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.primaryColor.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: const Icon(Icons.send, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: AppTheme.duoSpacingSmall),
+          GestureDetector(
+            onTap: canSend ? _sendMessage : null,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: canSend
+                    ? LinearGradient(
+                        colors: [
+                          AppTheme.primaryColor,
+                          AppTheme.primaryColor.withOpacity(0.8),
+                        ],
+                      )
+                    : null,
+                color: canSend ? null : Colors.grey.shade300,
+                shape: BoxShape.circle,
+                boxShadow: canSend
+                    ? [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
               ),
+              child: const Icon(Icons.send, color: Colors.white, size: 20),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

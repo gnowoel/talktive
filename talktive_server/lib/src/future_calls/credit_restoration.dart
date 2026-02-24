@@ -5,7 +5,7 @@ import '../services/apartment_service.dart';
 class CreditRestorationCall extends FutureCall {
   @override
   Future<void> invoke(Session session, dynamic object) async {
-    // Reputation restoration is now handled passively in ApartmentService.restoreReputation()
+    // Reputation restoration is now handled passively in ApartmentService.restoreTrustScore()
     // This future call is kept for backward compatibility but does nothing.
 
     // Optional: Clear expired temporary mutes

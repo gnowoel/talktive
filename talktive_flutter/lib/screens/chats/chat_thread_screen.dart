@@ -8,7 +8,7 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/reputation_utils.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import '../../services/storage.dart';
@@ -154,7 +154,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final otherProfile = otherProfileAsync.value;
     final otherName = otherProfile?['userName'] as String? ?? 'Resident';
     final otherAvatar = otherProfile?['userAvatar'] as String?;
-    final otherFloor = otherProfile?['reputation'] as int? ?? 1;
+    final otherFloor = otherProfile?['floor'] as int? ?? 1;
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -175,7 +175,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               imageUrl: otherAvatar,
               size: 36,
               showRing: true,
-              reputationLevel: otherFloor,
+              floorLevel: otherFloor,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -334,10 +334,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   Widget _buildInputArea() {
     final canSend =
-        _currentResident != null && !ReputationUtils.isMuted(_currentResident!);
+        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
     final hintText =
-        (_currentResident != null && ReputationUtils.isMuted(_currentResident!))
-        ? ReputationUtils.getMuteInputHint(_currentResident!)
+        (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+        ? FloorUtils.getMuteInputHint(_currentResident!)
         : 'Type a message...';
 
     return Container(

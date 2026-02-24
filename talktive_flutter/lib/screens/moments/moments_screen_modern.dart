@@ -356,7 +356,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
                           ? moment.authorName[0].toUpperCase()
                           : '?',
                       size: 40,
-                      reputationLevel: moment.authorReputation,
+                      floorLevel: moment.authorFloor,
                       showRing: false,
                       onTap: () {
                         Navigator.push(
@@ -365,7 +365,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
                             builder: (context) => UserProfileViewScreen(
                               userId: moment.authorId.toString(),
                               userName: moment.authorName,
-                              userReputation: moment.authorReputation,
+                              userFloor: moment.authorFloor,
                             ),
                           ),
                         );
@@ -765,7 +765,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 ? comment.userName[0].toUpperCase()
                 : '?',
             size: 32,
-            reputationLevel: comment.userFloor,
+            floorLevel: comment.userFloor,
             showRing: false,
           ),
           const SizedBox(width: AppTheme.duoSpacingSmall),

@@ -191,7 +191,7 @@ class User {
   bool get hasPoorReputation => reputationScore < 0.40;
 
   /// Get reputation level as a string for display purposes
-  String get reputationLevel {
+  String get floorLevel {
     final score = reputationScore;
     if (score >= 0.80) return level >= 6 ? 'excellent' : 'fair';
     if (score >= 0.60) return level >= 6 ? 'good' : 'fair';

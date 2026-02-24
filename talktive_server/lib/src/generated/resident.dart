@@ -22,7 +22,6 @@ abstract class Resident
     this.lastReputationIncrease,
     this.mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -40,7 +39,6 @@ abstract class Resident
     bool? isAdmin,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
-       likeCount = likeCount ?? 0,
        xp = xp ?? 0,
        level = level ?? 0,
        currentStreak = currentStreak ?? 0,
@@ -55,7 +53,6 @@ abstract class Resident
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -90,7 +87,6 @@ abstract class Resident
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
       suspended: jsonSerialization['suspended'] as bool?,
-      likeCount: jsonSerialization['likeCount'] as int?,
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
@@ -143,8 +139,6 @@ abstract class Resident
 
   bool suspended;
 
-  int likeCount;
-
   int xp;
 
   int level;
@@ -188,7 +182,6 @@ abstract class Resident
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -216,7 +209,6 @@ abstract class Resident
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
       if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
       'suspended': suspended,
-      'likeCount': likeCount,
       'xp': xp,
       'level': level,
       'currentStreak': currentStreak,
@@ -246,7 +238,6 @@ abstract class Resident
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
       if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
       'suspended': suspended,
-      'likeCount': likeCount,
       'xp': xp,
       'level': level,
       'currentStreak': currentStreak,
@@ -305,7 +296,6 @@ class _ResidentImpl extends Resident {
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -328,7 +318,6 @@ class _ResidentImpl extends Resident {
          lastReputationIncrease: lastReputationIncrease,
          mutedUntil: mutedUntil,
          suspended: suspended,
-         likeCount: likeCount,
          xp: xp,
          level: level,
          currentStreak: currentStreak,
@@ -357,7 +346,6 @@ class _ResidentImpl extends Resident {
     Object? lastReputationIncrease = _Undefined,
     Object? mutedUntil = _Undefined,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -383,7 +371,6 @@ class _ResidentImpl extends Resident {
           : this.lastReputationIncrease,
       mutedUntil: mutedUntil is DateTime? ? mutedUntil : this.mutedUntil,
       suspended: suspended ?? this.suspended,
-      likeCount: likeCount ?? this.likeCount,
       xp: xp ?? this.xp,
       level: level ?? this.level,
       currentStreak: currentStreak ?? this.currentStreak,
@@ -441,11 +428,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
 
   _i1.ColumnValue<bool, bool> suspended(bool value) => _i1.ColumnValue(
     table.suspended,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> likeCount(int value) => _i1.ColumnValue(
-    table.likeCount,
     value,
   );
 
@@ -555,11 +537,6 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
-    likeCount = _i1.ColumnInt(
-      'likeCount',
-      this,
-      hasDefault: true,
-    );
     xp = _i1.ColumnInt(
       'xp',
       this,
@@ -640,8 +617,6 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool suspended;
 
-  late final _i1.ColumnInt likeCount;
-
   late final _i1.ColumnInt xp;
 
   late final _i1.ColumnInt level;
@@ -680,7 +655,6 @@ class ResidentTable extends _i1.Table<int?> {
     lastReputationIncrease,
     mutedUntil,
     suspended,
-    likeCount,
     xp,
     level,
     currentStreak,

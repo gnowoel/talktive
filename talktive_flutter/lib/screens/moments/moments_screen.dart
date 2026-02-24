@@ -163,7 +163,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                           : null,
                     ),
                     title: Text(moment.authorName),
-                    subtitle: Text('Floor ${moment.authorReputation}'),
+                    subtitle: Text('Floor ${moment.authorFloor}'),
                   ),
                   if (moment.imageUrl.isNotEmpty)
                     Image.network(

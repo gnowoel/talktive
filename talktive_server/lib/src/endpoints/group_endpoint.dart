@@ -48,7 +48,7 @@ class GroupEndpoint extends Endpoint {
     }
 
     // Safety: must be at least Floor 1 to create a group
-    if (ApartmentService.computeReputation(currentResident) < 1) {
+    if (ApartmentService.computeEffectiveFloor(currentResident) < 1) {
       throw Exception(
         'You must reach Floor 1 to create a group. Keep chatting!',
       );

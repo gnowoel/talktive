@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
+import '../../providers/user_likes_provider.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -11,14 +12,14 @@ class UserProfileViewScreen extends ConsumerStatefulWidget {
   final String userId;
   final String? userName;
   final String? userAvatar;
-  final int? userReputation;
+  final int? userFloor;
 
   const UserProfileViewScreen({
     super.key,
     required this.userId,
     this.userName,
     this.userAvatar,
-    this.userReputation,
+    this.userFloor,
   });
 
   @override
@@ -63,6 +64,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final blockedIds = ref.watch(blockedUsersProvider).value ?? [];
     final isBlocked = blockedIds.contains(widget.userId);
 
+    final likedIds = ref.watch(userLikesProvider).value ?? [];
+    final isLiked = likedIds.contains(widget.userId);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -73,6 +77,38 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          // Vouch / Like button
+          IconButton(
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border,
+              color: isLiked ? AppTheme.errorColor : AppTheme.textPrimary,
+            ),
+            onPressed: () async {
+              try {
+                if (isLiked) {
+                  await ref
+                      .read(userLikesProvider.notifier)
+                      .unlikeUser(widget.userId);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vouch removed.')),
+                  );
+                } else {
+                  await ref
+                      .read(userLikesProvider.notifier)
+                      .likeUser(widget.userId);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User vouched! Trust Score increased.'),
+                    ),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
+            },
+          ),
           // Block / Unblock menu
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: AppTheme.textPrimary),
@@ -220,7 +256,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
     final name = _profile!['name'] as String? ?? widget.userName ?? 'Unknown';
     final avatar = _profile!['avatar'] as String? ?? widget.userAvatar;
-    final floor = _profile!['reputation'] as int? ?? widget.userReputation ?? 0;
+    final floor = _profile!['floor'] as int? ?? widget.userFloor ?? 0;
     final bio = _profile!['bio'] as String?;
     final gender = _profile!['gender'] as String?;
     final country = _profile!['country'] as String?;
@@ -241,7 +277,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             imageUrl: avatar,
             initials: name[0],
             size: 120,
-            reputationLevel: floor,
+            floorLevel: floor,
             showRing: true,
           ),
           const SizedBox(height: 16),

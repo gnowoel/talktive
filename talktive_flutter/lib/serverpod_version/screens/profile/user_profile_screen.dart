@@ -144,7 +144,7 @@ class UserProfileScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Floor ${profile['reputation']}',
+                        'Floor ${profile['floor']}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

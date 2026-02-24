@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 
@@ -10,7 +11,6 @@ class GamificationService {
   static const int XP_PER_COMMENT = 5;
   static const int XP_PER_LIKE = 2;
   static const int XP_PER_LOGIN = 5;
-  static const int XP_PER_LEVEL = 100;
 
   // Streak Rewards
   static const int XP_STREAK_3_DAYS = 50;
@@ -29,11 +29,11 @@ class GamificationService {
     // Add XP
     resident.xp += xp;
 
-    // Calculate new level (floor(xp / 100))
-    resident.level = (resident.xp / XP_PER_LEVEL).floor();
+    // Calculate new Base Floor (exponential curve up to 50)
+    resident.level = computeBaseFloor(resident.xp);
 
     // NOTE: effective floor is computed dynamically via
-    // ApartmentService.computeReputation() and is NOT stored.
+    // ApartmentService.computeEffectiveFloor() and is NOT stored.
     // Save
     await Resident.db.updateRow(session, resident);
 
@@ -43,6 +43,29 @@ class GamificationService {
         'User ${resident.userInfoId} leveled up to ${resident.level}! Reason: $reason',
       );
     }
+  }
+
+  /// Fetch all residents starting with top XP
+  static Future<List<Resident>> getLeaderboard(
+    Session session, {
+    int limit = 100,
+  }) async {
+    return await Resident.db.find(
+      session,
+      limit: limit,
+      orderByList: (t) => [
+        Order(column: t.xp, orderDescending: true),
+      ],
+    );
+  }
+
+  /// Calculates the raw BaseFloor from an XP amount using an exponential curve.
+  /// Formula: floor(sqrt(xp / 50)) + 1
+  /// Max is 50.
+  static int computeBaseFloor(int xp) {
+    if (xp <= 0) return 1;
+    final floor = (sqrt(xp / 50.0)).floor() + 1;
+    return min(floor, 50);
   }
 
   /// Check and award daily login bonus
@@ -128,16 +151,28 @@ class GamificationService {
     return level % 5 == 0; // Every 5 levels
   }
 
-  /// Get XP needed for next level
-  static int xpForNextLevel(Resident resident) {
-    final nextLevel = resident.level + 1;
-    return (nextLevel * XP_PER_LEVEL) - resident.xp;
+  /// Get XP required to reach a specific Base Floor.
+  /// Formula: 50 * (floor - 1)^2
+  static int xpForBaseFloor(int floor) {
+    if (floor <= 1) return 0;
+    return 50 * pow((floor - 1), 2).toInt();
   }
 
-  /// Get progress to next level (0.0 to 1.0)
+  /// Get XP needed for next floor
+  static int xpForNextLevel(Resident resident) {
+    if (resident.level >= 50) return 0;
+    final nextFloor = resident.level + 1;
+    return xpForBaseFloor(nextFloor) - resident.xp;
+  }
+
+  /// Get progress to next floor (0.0 to 1.0)
   static double levelProgress(Resident resident) {
-    final currentLevelXP = resident.level * XP_PER_LEVEL;
-    final xpInCurrentLevel = resident.xp - currentLevelXP;
-    return xpInCurrentLevel / XP_PER_LEVEL;
+    if (resident.level >= 50) return 1.0;
+    final currentFloorXP = xpForBaseFloor(resident.level);
+    final nextFloorXP = xpForBaseFloor(resident.level + 1);
+    final xpInCurrentFloor = resident.xp - currentFloorXP;
+    final totalFloorXP = nextFloorXP - currentFloorXP;
+    if (totalFloorXP <= 0) return 0.0;
+    return xpInCurrentFloor / totalFloorXP;
   }
 }

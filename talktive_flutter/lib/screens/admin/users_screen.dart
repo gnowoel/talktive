@@ -111,7 +111,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Level ${user['level'] ?? user['reputation']} • ⭐ ${user['reputation'] ?? user['trustScore']} reputation',
+                      'Level ${user['level'] ?? user['floor']} • ⭐ ${user['floor'] ?? user['trustScore']} reputation',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,
@@ -451,9 +451,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
   Widget _buildUserCard(Map<String, dynamic> user) {
     final userName = user['userName'] as String;
-    final floor = user['reputation'] as int? ?? 0;
+    final floor = user['floor'] as int? ?? 0;
     final reputation =
-        user['reputation'] as int? ?? user['trustScore'] as int? ?? 0;
+        user['floor'] as int? ?? user['trustScore'] as int? ?? 0;
     final isAdmin = user['isAdmin'] as bool;
     final isBanned = user['isBanned'] as bool;
     final messageCount = user['messageCount'] as int;

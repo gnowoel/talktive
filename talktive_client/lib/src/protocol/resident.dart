@@ -21,7 +21,6 @@ abstract class Resident implements _i1.SerializableModel {
     this.lastReputationIncrease,
     this.mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -39,7 +38,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? isAdmin,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
-       likeCount = likeCount ?? 0,
        xp = xp ?? 0,
        level = level ?? 0,
        currentStreak = currentStreak ?? 0,
@@ -54,7 +52,6 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -89,7 +86,6 @@ abstract class Resident implements _i1.SerializableModel {
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
       suspended: jsonSerialization['suspended'] as bool?,
-      likeCount: jsonSerialization['likeCount'] as int?,
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
@@ -140,8 +136,6 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool suspended;
 
-  int likeCount;
-
   int xp;
 
   int level;
@@ -182,7 +176,6 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -210,7 +203,6 @@ abstract class Resident implements _i1.SerializableModel {
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
       if (mutedUntil != null) 'mutedUntil': mutedUntil?.toJson(),
       'suspended': suspended,
-      'likeCount': likeCount,
       'xp': xp,
       'level': level,
       'currentStreak': currentStreak,
@@ -245,7 +237,6 @@ class _ResidentImpl extends Resident {
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -268,7 +259,6 @@ class _ResidentImpl extends Resident {
          lastReputationIncrease: lastReputationIncrease,
          mutedUntil: mutedUntil,
          suspended: suspended,
-         likeCount: likeCount,
          xp: xp,
          level: level,
          currentStreak: currentStreak,
@@ -297,7 +287,6 @@ class _ResidentImpl extends Resident {
     Object? lastReputationIncrease = _Undefined,
     Object? mutedUntil = _Undefined,
     bool? suspended,
-    int? likeCount,
     int? xp,
     int? level,
     int? currentStreak,
@@ -323,7 +312,6 @@ class _ResidentImpl extends Resident {
           : this.lastReputationIncrease,
       mutedUntil: mutedUntil is DateTime? ? mutedUntil : this.mutedUntil,
       suspended: suspended ?? this.suspended,
-      likeCount: likeCount ?? this.likeCount,
       xp: xp ?? this.xp,
       level: level ?? this.level,
       currentStreak: currentStreak ?? this.currentStreak,

@@ -101,6 +101,10 @@ streak:
   - canClaimDailyReward:
   - claimDailyReward:
   - getRewardHistory:
+userLike:
+  - likeUser:
+  - unlikeUser:
+  - getMyLikedUserIds:
 userProfile:
   - getUserProfile:
   - blockUser:

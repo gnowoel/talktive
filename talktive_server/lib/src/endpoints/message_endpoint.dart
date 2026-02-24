@@ -67,10 +67,10 @@ class MessageEndpoint extends Endpoint {
       final senderAvatar = userInfo?.imageUrl;
 
       // Compute effective floor (hybrid: min of XP level and trustScore tier)
-      final senderEffectiveFloor = ApartmentService.computeReputation(sender);
+      final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(sender);
 
       // Try to restore trustScore first (passive restoration)
-      await ApartmentService.restoreReputation(session, sender);
+      await ApartmentService.restoreTrustScore(session, sender);
 
       // 3. Check for penalties (Muted)
       if (ApartmentService.isMuted(sender)) {

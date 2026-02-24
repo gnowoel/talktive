@@ -6,7 +6,7 @@ class DuoAvatar extends StatelessWidget {
   final String? imageUrl;
   final String? initials;
   final double size;
-  final int? reputationLevel;
+  final int? floorLevel;
   final Color? ringColor;
   final bool showRing;
   final VoidCallback? onTap;
@@ -16,7 +16,7 @@ class DuoAvatar extends StatelessWidget {
     this.imageUrl,
     this.initials,
     this.size = 48,
-    this.reputationLevel,
+    this.floorLevel,
     this.ringColor,
     this.showRing = true,
     this.onTap,
@@ -104,7 +104,7 @@ class DuoAvatar extends StatelessWidget {
       );
     }
 
-    if (reputationLevel != null) {
+    if (floorLevel != null) {
       return Stack(
         clipBehavior: Clip.none,
         children: [
@@ -116,7 +116,7 @@ class DuoAvatar extends StatelessWidget {
               width: badgeSize,
               height: badgeSize,
               decoration: BoxDecoration(
-                color: _getFloorColor(reputationLevel!),
+                color: _getFloorColor(floorLevel!),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
@@ -129,7 +129,7 @@ class DuoAvatar extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  '$reputationLevel',
+                  '$floorLevel',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: badgeSize * 0.5,

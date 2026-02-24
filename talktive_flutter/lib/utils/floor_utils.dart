@@ -1,50 +1,41 @@
 import 'dart:math';
 import 'package:talktive_client/talktive_client.dart';
 
-/// Utility functions for computing and displaying the 3-pillar reputation.
+/// Utility functions for computing and displaying the Luxury High-Rise Floor.
 ///
-/// Reputation = min(Level, min(TrustCap, SocialCap))
-class ReputationUtils {
-  ReputationUtils._(); // Prevent instantiation
+/// Floor = min(BaseFloor, TrustCap)
+class FloorUtils {
+  FloorUtils._(); // Prevent instantiation
 
   // ---------------------------------------------------------------------------
   // Core Formula
   // ---------------------------------------------------------------------------
 
-  /// Compute the effective reputation for a [resident].
-  static int computeReputation(Resident resident) {
-    final xpLevel = resident.level;
+  /// Compute the effective floor for a [resident].
+  static int computeFloor(Resident resident) {
+    final baseFloor = resident.level;
     final trustCap = _trustCap(resident.trustScore);
-    final socialCap = _socialCap(resident.likeCount);
-    return min(xpLevel, min(trustCap, socialCap));
+    return min(baseFloor, trustCap);
   }
 
   /// Helper used in some places where we only have the profile map
-  static int computeReputationFromProfile(Map<String, dynamic> profile) {
-    final xpLevel = profile['level'] as int? ?? 0;
+  static int computeFloorFromProfile(Map<String, dynamic> profile) {
+    final baseFloor = profile['level'] as int? ?? 0;
     final trustScore = profile['trustScore'] as int? ?? 100;
-    final likeCount = profile['likes'] as int? ?? 0;
-    return min(xpLevel, min(_trustCap(trustScore), _socialCap(likeCount)));
+    return min(baseFloor, _trustCap(trustScore));
   }
 
-  /// Safety pillar: Maps a trustScore (0-100) to a maximum allowable reputation.
+  /// Safety/Social pillar: Maps a trustScore to a maximum allowable floor.
   static int _trustCap(int trustScore) {
-    if (trustScore >= 90) return 1000;
-    if (trustScore >= 75) return 10;
-    if (trustScore >= 50) return 5;
-    if (trustScore >= 25) return 2;
-    if (trustScore >= 10) return 1;
+    if (trustScore >= 1000) return 50;
+    if (trustScore >= 500) return 48;
+    if (trustScore >= 200) return 45;
+    if (trustScore >= 100) return 40;
+    if (trustScore >= 75) return 30;
+    if (trustScore >= 50) return 15;
+    if (trustScore >= 25) return 5;
+    if (trustScore >= 10) return 2;
     return 0; // Muted
-  }
-
-  /// Social pillar: Maps a like count to a maximum allowable reputation.
-  static int _socialCap(int likeCount) {
-    if (likeCount >= 10) return 1000;
-    if (likeCount >= 5) return 25;
-    if (likeCount >= 3) return 15;
-    if (likeCount >= 2) return 10;
-    if (likeCount >= 1) return 5;
-    return 3;
   }
 
   // ---------------------------------------------------------------------------
@@ -70,8 +61,9 @@ class ReputationUtils {
     if (resident.suspended) return true;
     if (resident.trustScore <= 0) return true;
     if (resident.mutedUntil != null &&
-        resident.mutedUntil!.isAfter(DateTime.now()))
+        resident.mutedUntil!.isAfter(DateTime.now())) {
       return true;
+    }
     return false;
   }
 
@@ -91,7 +83,7 @@ class ReputationUtils {
     }
     if (resident.trustScore <= 0) {
       return '⭐ Your trust score is too low to send messages. '
-          'It restores at 2 points/hour.';
+          'It restores at 5 points/hour.';
     }
     return '🔇 You are muted.';
   }

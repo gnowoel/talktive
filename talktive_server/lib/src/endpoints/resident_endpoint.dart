@@ -25,7 +25,7 @@ class ResidentEndpoint extends Endpoint {
 
     if (resident != null) {
       // Passively restore trustScore on load
-      await ApartmentService.restoreReputation(session, resident);
+      await ApartmentService.restoreTrustScore(session, resident);
 
       // Check daily login and award XP
       await GamificationService.checkDailyLogin(session, resident);

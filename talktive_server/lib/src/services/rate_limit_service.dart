@@ -41,7 +41,7 @@ class RateLimitService {
   ) async {
     final now = DateTime.now();
     final config = _getConfigForFloor(
-      ApartmentService.computeReputation(resident),
+      ApartmentService.computeEffectiveFloor(resident),
     );
 
     // Get or create rate limit record

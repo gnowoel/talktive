@@ -6,64 +6,48 @@ import '../generated/protocol.dart';
 /// Handles trustScore (safety/moderation) system and the
 /// Hybrid Floor formula.
 class ApartmentService {
-  // Reputation Constants
-  static const int TRUST_SCORE_MAX = 100;
+  // Trust Score Constants
   static const int TRUST_SCORE_START = 100;
-  static const int REPUTATION_RESTORE_RATE = 2; // points per hour
+  static const int REPUTATION_RESTORE_RATE = 5; // points per hour
 
   // ---------------------------------------------------------------------------
-  // 3-PILLAR REPUTATION FORMULA
+  // THE LUXURY HIGH-RISE FORMULA
   // ---------------------------------------------------------------------------
 
-  /// Compute the user's overall Reputation.
+  /// Compute the user's Effective Floor.
   ///
-  /// Reputation = min(Level, min(TrustCap, SocialCap))
+  /// Effective Floor = min(BaseFloor, TrustCap)
   ///
-  /// This means a user must be BOTH active (Level), trusted (Trust Score), and
-  /// appreciated by the community (Likes) to achieve a high reputation.
-  static int computeReputation(Resident resident) {
-    final xpLevel = resident.level; // already = floor(xp / 100)
+  /// This means a user must be BOTH active (BaseFloor) and trusted by the
+  /// community (Trust Score) to achieve a high floor in the 50-story building.
+  static int computeEffectiveFloor(Resident resident) {
+    final baseFloor = resident.level;
     final trustCap = _trustCap(resident.trustScore);
-    final socialCap = _socialCap(resident.likeCount);
-    return min(xpLevel, min(trustCap, socialCap));
+    return min(baseFloor, trustCap);
   }
 
-  /// Safety pillar: Maps a trustScore (0-100) to a maximum allowable reputation.
+  /// Safety/Social pillar: Maps a trustScore to a maximum allowable floor.
+  /// Base Trust is 100.
+  /// Reports are -30. Likes are +10.
   static int _trustCap(int trustScore) {
-    if (trustScore >= 90) return 1000; // No practical cap
-    if (trustScore >= 75) return 10;
-    if (trustScore >= 50) return 5;
-    if (trustScore >= 25) return 2;
-    if (trustScore >= 10) return 1;
+    if (trustScore >= 1000) return 50; // The Penthouse (~90 net likes)
+    if (trustScore >= 500) return 48; // (~40 net likes)
+    if (trustScore >= 200) return 45; // (~10 net likes)
+    if (trustScore >= 100) return 40; // Default max with no reports
+    if (trustScore >= 75) return 30; // 1 report
+    if (trustScore >= 50) return 15; // 2 reports
+    if (trustScore >= 25) return 5; // 3 reports
+    if (trustScore >= 10) return 2; // 4 reports
     return 0; // Muted
   }
 
-  /// Social pillar: Maps a like count to a maximum allowable reputation.
-  static int _socialCap(int likeCount) {
-    if (likeCount >= 10) return 1000; // No practical cap
-    if (likeCount >= 5) return 25;
-    if (likeCount >= 3) return 15;
-    if (likeCount >= 2) return 10;
-    if (likeCount >= 1) return 5;
-    return 3;
-  }
-
-  /// Returns a human-readable label for the trustScore standing.
-  static String trustStandingLabel(int trustScore) {
-    if (trustScore >= 90) return 'Trusted';
-    if (trustScore >= 75) return 'Good Standing';
-    if (trustScore >= 50) return 'Neutral';
-    if (trustScore >= 25) return 'Low Trust';
-    if (trustScore >= 10) return 'At Risk';
-    return 'Restricted';
-  }
-
   // ---------------------------------------------------------------------------
-  // REPUTATION RESTORATION
+  // TRUST SCORE RESTORATION
   // ---------------------------------------------------------------------------
 
-  /// Restore trustScore passively (2 pts/hour, max 100).
-  static Future<void> restoreReputation(
+  /// Restore trustScore passively (5 pts/hour) ONLY up to 100.
+  /// Once above 100, Trust Score never decays or recovers passively.
+  static Future<void> restoreTrustScore(
     Session session,
     Resident resident,
   ) async {
@@ -71,12 +55,10 @@ class ApartmentService {
     final lastIncrease = resident.lastReputationIncrease ?? now;
     final hoursPassed = now.difference(lastIncrease).inHours;
 
-    if (hoursPassed >= 1 && resident.trustScore < TRUST_SCORE_MAX) {
+    if (hoursPassed >= 1 && resident.trustScore < 100) {
       final points = hoursPassed * REPUTATION_RESTORE_RATE;
-      resident.trustScore = (resident.trustScore + points).clamp(
-        0,
-        TRUST_SCORE_MAX,
-      );
+      resident.trustScore = min(resident.trustScore + points, 100);
+
       resident.lastReputationIncrease = lastIncrease.add(
         Duration(hours: hoursPassed),
       );
@@ -139,7 +121,7 @@ class ApartmentService {
     required Resident receiver,
   }) {
     if (isMuted(sender)) return false;
-    return computeReputation(receiver) <= computeReputation(sender);
+    return computeEffectiveFloor(receiver) <= computeEffectiveFloor(sender);
   }
 
   /// Returns the reason canInvite returned false, for user-facing messages.
@@ -148,10 +130,10 @@ class ApartmentService {
     required Resident receiver,
   }) {
     if (isMuted(sender)) return getMuteReason(sender);
-    final senderReputation = computeReputation(sender);
-    final receiverReputation = computeReputation(receiver);
-    return 'You have a Reputation of $senderReputation and cannot invite someone with Reputation $receiverReputation. '
-        'Increase your Level, Trust Score, or Likes to reach a higher Reputation.';
+    final senderReputation = computeEffectiveFloor(sender);
+    final receiverReputation = computeEffectiveFloor(receiver);
+    return 'You are on Floor $senderReputation and cannot invite someone from Floor $receiverReputation. '
+        'Increase your XP or Trust Score to reach a higher Floor.';
   }
 
   // ---------------------------------------------------------------------------
@@ -159,22 +141,11 @@ class ApartmentService {
   // ---------------------------------------------------------------------------
 
   /// Apply a trustScore penalty to [target] when reported by [reporter].
-  /// Penalty scales with the reporter's effective floor (credibility).
+  /// Penalty is a flat -30 to Trust Score.
   static void applyReportPenalty({
     required Resident reporter,
     required Resident target,
   }) {
-    // Use effective floor so that low-trustScore reporters do less damage
-    final penalty = max(1, computeReputation(reporter));
-    target.trustScore = max(0, target.trustScore - penalty);
-  }
-
-  // ---------------------------------------------------------------------------
-  // HELPERS
-  // ---------------------------------------------------------------------------
-
-  /// Clamp trustScore to valid range [0, TRUST_SCORE_MAX].
-  static int clampReputation(int trustScore) {
-    return trustScore.clamp(0, TRUST_SCORE_MAX);
+    target.trustScore = max(0, target.trustScore - 30);
   }
 }

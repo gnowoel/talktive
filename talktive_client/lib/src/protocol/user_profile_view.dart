@@ -20,9 +20,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required this.userId,
     this.userName,
     this.userAvatar,
-    required this.reputation,
+    required this.floor,
     required this.trustScore,
-    required this.likes,
     required this.totalMessages,
     required this.totalMoments,
     required this.achievementsUnlocked,
@@ -38,9 +37,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required String userId,
     String? userName,
     String? userAvatar,
-    required int reputation,
+    required int floor,
     required int trustScore,
-    required int likes,
     required int totalMessages,
     required int totalMoments,
     required int achievementsUnlocked,
@@ -57,9 +55,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
       userId: jsonSerialization['userId'] as String,
       userName: jsonSerialization['userName'] as String?,
       userAvatar: jsonSerialization['userAvatar'] as String?,
-      reputation: jsonSerialization['reputation'] as int,
+      floor: jsonSerialization['floor'] as int,
       trustScore: jsonSerialization['trustScore'] as int,
-      likes: jsonSerialization['likes'] as int,
       totalMessages: jsonSerialization['totalMessages'] as int,
       totalMoments: jsonSerialization['totalMoments'] as int,
       achievementsUnlocked: jsonSerialization['achievementsUnlocked'] as int,
@@ -82,11 +79,9 @@ abstract class UserProfileView implements _i1.SerializableModel {
 
   String? userAvatar;
 
-  int reputation;
+  int floor;
 
   int trustScore;
-
-  int likes;
 
   int totalMessages;
 
@@ -113,9 +108,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
     String? userId,
     String? userName,
     String? userAvatar,
-    int? reputation,
+    int? floor,
     int? trustScore,
-    int? likes,
     int? totalMessages,
     int? totalMoments,
     int? achievementsUnlocked,
@@ -133,9 +127,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
       'userId': userId,
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
-      'reputation': reputation,
+      'floor': floor,
       'trustScore': trustScore,
-      'likes': likes,
       'totalMessages': totalMessages,
       'totalMoments': totalMoments,
       'achievementsUnlocked': achievementsUnlocked,
@@ -162,9 +155,8 @@ class _UserProfileViewImpl extends UserProfileView {
     required String userId,
     String? userName,
     String? userAvatar,
-    required int reputation,
+    required int floor,
     required int trustScore,
-    required int likes,
     required int totalMessages,
     required int totalMoments,
     required int achievementsUnlocked,
@@ -178,9 +170,8 @@ class _UserProfileViewImpl extends UserProfileView {
          userId: userId,
          userName: userName,
          userAvatar: userAvatar,
-         reputation: reputation,
+         floor: floor,
          trustScore: trustScore,
-         likes: likes,
          totalMessages: totalMessages,
          totalMoments: totalMoments,
          achievementsUnlocked: achievementsUnlocked,
@@ -200,9 +191,8 @@ class _UserProfileViewImpl extends UserProfileView {
     String? userId,
     Object? userName = _Undefined,
     Object? userAvatar = _Undefined,
-    int? reputation,
+    int? floor,
     int? trustScore,
-    int? likes,
     int? totalMessages,
     int? totalMoments,
     int? achievementsUnlocked,
@@ -217,9 +207,8 @@ class _UserProfileViewImpl extends UserProfileView {
       userId: userId ?? this.userId,
       userName: userName is String? ? userName : this.userName,
       userAvatar: userAvatar is String? ? userAvatar : this.userAvatar,
-      reputation: reputation ?? this.reputation,
+      floor: floor ?? this.floor,
       trustScore: trustScore ?? this.trustScore,
-      likes: likes ?? this.likes,
       totalMessages: totalMessages ?? this.totalMessages,
       totalMoments: totalMoments ?? this.totalMoments,
       achievementsUnlocked: achievementsUnlocked ?? this.achievementsUnlocked,

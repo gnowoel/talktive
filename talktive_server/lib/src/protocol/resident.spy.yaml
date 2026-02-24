@@ -8,14 +8,13 @@ fields:
   lastReputationIncrease: DateTime?
   mutedUntil: DateTime?
   suspended: bool, default=false
-  likeCount: int, default=0
   
   # Gamification System
   xp: int, default=0
   level: int, default=0
   # NOTE: 'reputation' is now the computed aggregate (formerly known as floor).
   #   reputation = min(level, trustCap(trustScore), socialCap(likeCount))
-  # See: ReputationService.computeReputation()
+  # See: ReputationService.computeEffectiveFloor()
   currentStreak: int, default=0
   longestStreak: int, default=0
   lastLoginDate: DateTime?

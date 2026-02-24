@@ -25,7 +25,7 @@ class MessageBubbleModern extends ConsumerWidget {
         ? message.senderName
         : 'Resident';
     final senderAvatar = message.senderAvatar;
-    final senderReputation = message.senderReputation;
+    final senderFloor = message.senderFloor;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
@@ -45,7 +45,7 @@ class MessageBubbleModern extends ConsumerWidget {
                 initials: senderName.isNotEmpty ? senderName[0] : '?',
                 size: 36,
                 showRing: true,
-                reputationLevel: senderReputation,
+                floorLevel: senderFloor,
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingSmall),

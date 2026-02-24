@@ -92,13 +92,13 @@ class AdminEndpoint extends Endpoint {
           'userId': report.reporterId.uuid,
           'userName': reporterInfo?.userName ?? 'Unknown',
           'floor': reporter != null
-              ? ApartmentService.computeReputation(reporter)
+              ? ApartmentService.computeEffectiveFloor(reporter)
               : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
-          'floor': target != null ? ApartmentService.computeReputation(target) : 0,
+          'floor': target != null ? ApartmentService.computeEffectiveFloor(target) : 0,
           'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
         },
@@ -146,13 +146,13 @@ class AdminEndpoint extends Endpoint {
           'userId': report.reporterId.uuid,
           'userName': reporterInfo?.userName ?? 'Unknown',
           'floor': reporter != null
-              ? ApartmentService.computeReputation(reporter)
+              ? ApartmentService.computeEffectiveFloor(reporter)
               : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
           'userName': targetInfo?.userName ?? 'Unknown',
-          'floor': target != null ? ApartmentService.computeReputation(target) : 0,
+          'floor': target != null ? ApartmentService.computeEffectiveFloor(target) : 0,
           'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
         },
@@ -465,7 +465,7 @@ class AdminEndpoint extends Endpoint {
       result.add({
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
-        'floor': ApartmentService.computeReputation(resident),
+        'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,
@@ -586,7 +586,7 @@ class AdminEndpoint extends Endpoint {
       'user': {
         'userId': resident.userInfoId.uuid,
         'userName': userInfo?.userName ?? 'Unknown',
-        'floor': ApartmentService.computeReputation(resident),
+        'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,

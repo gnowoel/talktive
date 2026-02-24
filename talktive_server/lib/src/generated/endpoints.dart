@@ -27,16 +27,17 @@ import '../endpoints/report_endpoint.dart' as _i14;
 import '../endpoints/resident_endpoint.dart' as _i15;
 import '../endpoints/search_endpoint.dart' as _i16;
 import '../endpoints/streak_endpoint.dart' as _i17;
-import '../endpoints/user_profile_endpoint.dart' as _i18;
-import '../greetings/greeting_endpoint.dart' as _i19;
-import 'package:talktive_server/src/generated/report_status.dart' as _i20;
-import 'dart:typed_data' as _i21;
-import 'package:talktive_server/src/generated/protocol.dart' as _i22;
+import '../endpoints/user_like_endpoint.dart' as _i18;
+import '../endpoints/user_profile_endpoint.dart' as _i19;
+import '../greetings/greeting_endpoint.dart' as _i20;
+import 'package:talktive_server/src/generated/report_status.dart' as _i21;
+import 'dart:typed_data' as _i22;
+import 'package:talktive_server/src/generated/protocol.dart' as _i23;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i23;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i24;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i25;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i25;
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i26;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -138,13 +139,19 @@ class Endpoints extends _i1.EndpointDispatch {
           'streak',
           null,
         ),
-      'userProfile': _i18.UserProfileEndpoint()
+      'userLike': _i18.UserLikeEndpoint()
+        ..initialize(
+          server,
+          'userLike',
+          null,
+        ),
+      'userProfile': _i19.UserProfileEndpoint()
         ..initialize(
           server,
           'userProfile',
           null,
         ),
-      'greeting': _i19.GreetingEndpoint()
+      'greeting': _i20.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -459,7 +466,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'status': _i1.ParameterDescription(
               name: 'status',
-              type: _i1.getType<_i20.ReportStatus?>(),
+              type: _i1.getType<_i21.ReportStatus?>(),
               nullable: true,
             ),
             'limit': _i1.ParameterDescription(
@@ -495,7 +502,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'status': _i1.ParameterDescription(
               name: 'status',
-              type: _i1.getType<_i20.ReportStatus>(),
+              type: _i1.getType<_i21.ReportStatus>(),
               nullable: false,
             ),
             'adminNotes': _i1.ParameterDescription(
@@ -1023,7 +1030,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'imageData': _i1.ParameterDescription(
               name: 'imageData',
-              type: _i1.getType<_i21.ByteData>(),
+              type: _i1.getType<_i22.ByteData>(),
               nullable: false,
             ),
             'fileName': _i1.ParameterDescription(
@@ -1301,7 +1308,7 @@ class Endpoints extends _i1.EndpointDispatch {
                   )
                   .then(
                     (container) =>
-                        _i22.Protocol().mapContainerToJson(container),
+                        _i23.Protocol().mapContainerToJson(container),
                   ),
         ),
         'addComment': _i1.MethodConnector(
@@ -2058,6 +2065,60 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['userLike'] = _i1.EndpointConnector(
+      name: 'userLike',
+      endpoint: endpoints['userLike']!,
+      methodConnectors: {
+        'likeUser': _i1.MethodConnector(
+          name: 'likeUser',
+          params: {
+            'targetUserId': _i1.ParameterDescription(
+              name: 'targetUserId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['userLike'] as _i18.UserLikeEndpoint).likeUser(
+                    session,
+                    params['targetUserId'],
+                  ),
+        ),
+        'unlikeUser': _i1.MethodConnector(
+          name: 'unlikeUser',
+          params: {
+            'targetUserId': _i1.ParameterDescription(
+              name: 'targetUserId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['userLike'] as _i18.UserLikeEndpoint).unlikeUser(
+                    session,
+                    params['targetUserId'],
+                  ),
+        ),
+        'getMyLikedUserIds': _i1.MethodConnector(
+          name: 'getMyLikedUserIds',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['userLike'] as _i18.UserLikeEndpoint)
+                  .getMyLikedUserIds(session),
+        ),
+      },
+    );
     connectors['userProfile'] = _i1.EndpointConnector(
       name: 'userProfile',
       endpoint: endpoints['userProfile']!,
@@ -2075,7 +2136,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['userProfile'] as _i18.UserProfileEndpoint)
+              ) async => (endpoints['userProfile'] as _i19.UserProfileEndpoint)
                   .getUserProfile(
                     session,
                     params['userId'],
@@ -2094,7 +2155,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['userProfile'] as _i18.UserProfileEndpoint)
+              ) async => (endpoints['userProfile'] as _i19.UserProfileEndpoint)
                   .blockUser(
                     session,
                     params['userId'],
@@ -2113,7 +2174,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['userProfile'] as _i18.UserProfileEndpoint)
+              ) async => (endpoints['userProfile'] as _i19.UserProfileEndpoint)
                   .unblockUser(
                     session,
                     params['userId'],
@@ -2132,7 +2193,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['userProfile'] as _i18.UserProfileEndpoint)
+              ) async => (endpoints['userProfile'] as _i19.UserProfileEndpoint)
                   .isUserBlocked(
                     session,
                     params['userId'],
@@ -2145,7 +2206,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['userProfile'] as _i18.UserProfileEndpoint)
+              ) async => (endpoints['userProfile'] as _i19.UserProfileEndpoint)
                   .getBlockedUserIds(session),
         ),
       },
@@ -2167,17 +2228,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i19.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i20.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i23.Endpoints()
+    modules['serverpod_auth_idp'] = _i24.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i24.Endpoints()
+    modules['serverpod_auth_core'] = _i25.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth'] = _i25.Endpoints()..initializeEndpoints(server);
+    modules['serverpod_auth'] = _i26.Endpoints()..initializeEndpoints(server);
   }
 }

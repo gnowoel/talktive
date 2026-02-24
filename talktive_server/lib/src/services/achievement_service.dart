@@ -241,7 +241,7 @@ class AchievementService {
     Session session,
     protocol.Resident resident,
   ) async {
-    final rep = ApartmentService.computeReputation(resident);
+    final rep = ApartmentService.computeEffectiveFloor(resident);
     if (rep >= 1) {
       await trackProgress(session, resident.userInfoId, 'rising_star');
     }

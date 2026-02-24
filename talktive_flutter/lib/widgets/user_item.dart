@@ -401,21 +401,21 @@ class _UserItemState extends State<UserItem> {
                     } else if (widget.user.isModerator &&
                         !widget.user.isAdmin) {
                       return [const SizedBox(width: 4), Tag(status: 'mod')];
-                      // } else if (widget.user.reputationLevel == 'very_poor') {
+                      // } else if (widget.user.floorLevel == 'very_poor') {
                       //   return [
                       //     const SizedBox(width: 4),
                       //     Tag(status: 'very_poor')
                       //   ];
-                      // } else if (widget.user.reputationLevel == 'poor') {
+                      // } else if (widget.user.floorLevel == 'poor') {
                       //   return [const SizedBox(width: 4), Tag(status: 'poor')];
                     } else if (userStatus == 'newcomer') {
                       return [
                         const SizedBox(width: 4),
                         Tag(status: 'newcomer'),
                       ];
-                      // } else if (widget.user.reputationLevel == 'excellent') {
+                      // } else if (widget.user.floorLevel == 'excellent') {
                       //   return [const SizedBox(width: 4), Tag(status: 'excellent')];
-                      // } else if (widget.user.reputationLevel == 'good') {
+                      // } else if (widget.user.floorLevel == 'good') {
                       //   return [const SizedBox(width: 4), Tag(status: 'good')];
                     }
                     return <Widget>[];

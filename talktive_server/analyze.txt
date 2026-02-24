@@ -28,10 +28,9 @@ warning - tools/reproduce_send_message.dart:1:8 - Unused import: 'dart:convert'.
    info - lib/src/endpoints/message_endpoint.dart:145:24 - Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited'. - unawaited_futures
    info - lib/src/endpoints/message_endpoint.dart:183:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
    info - lib/src/endpoints/message_endpoint.dart:184:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
-   info - lib/src/services/apartment_service.dart:10:20 - The constant name 'TRUST_SCORE_MAX' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/apartment_service.dart:11:20 - The constant name 'TRUST_SCORE_START' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/apartment_service.dart:12:20 - The constant name 'REPUTATION_RESTORE_RATE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/apartment_service.dart:104:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/src/services/apartment_service.dart:10:20 - The constant name 'TRUST_SCORE_START' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/apartment_service.dart:11:20 - The constant name 'REPUTATION_RESTORE_RATE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/apartment_service.dart:86:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
    info - lib/src/services/fcm_service.dart:26:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
    info - lib/src/services/fcm_service.dart:29:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
    info - lib/src/services/fcm_service.dart:41:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
@@ -43,12 +42,11 @@ warning - tools/reproduce_send_message.dart:1:8 - Unused import: 'dart:convert'.
    info - lib/src/services/fcm_service.dart:108:11 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
    info - lib/src/services/fcm_service.dart:125:17 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
    info - lib/src/services/fcm_service.dart:273:11 - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?'. - use_null_aware_elements
-   info - lib/src/services/gamification_service.dart:8:20 - The constant name 'XP_PER_MESSAGE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/gamification_service.dart:9:20 - The constant name 'XP_PER_MOMENT' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/gamification_service.dart:10:20 - The constant name 'XP_PER_COMMENT' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/gamification_service.dart:11:20 - The constant name 'XP_PER_LIKE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/gamification_service.dart:12:20 - The constant name 'XP_PER_LOGIN' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
-   info - lib/src/services/gamification_service.dart:13:20 - The constant name 'XP_PER_LEVEL' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:9:20 - The constant name 'XP_PER_MESSAGE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:10:20 - The constant name 'XP_PER_MOMENT' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:11:20 - The constant name 'XP_PER_COMMENT' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:12:20 - The constant name 'XP_PER_LIKE' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
+   info - lib/src/services/gamification_service.dart:13:20 - The constant name 'XP_PER_LOGIN' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
    info - lib/src/services/gamification_service.dart:16:20 - The constant name 'XP_STREAK_3_DAYS' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
    info - lib/src/services/gamification_service.dart:17:20 - The constant name 'XP_STREAK_7_DAYS' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
    info - lib/src/services/gamification_service.dart:18:20 - The constant name 'XP_STREAK_30_DAYS' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style. - constant_identifier_names
@@ -78,4 +76,4 @@ warning - tools/reproduce_send_message.dart:1:8 - Unused import: 'dart:convert'.
    info - tools/reproduce_send_message.dart:32:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
    info - tools/reproduce_send_message.dart:34:13 - Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited'. - unawaited_futures
 
-75 issues found.
+73 issues found.

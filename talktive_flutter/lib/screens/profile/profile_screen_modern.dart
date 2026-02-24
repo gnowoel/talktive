@@ -9,7 +9,7 @@ import '../../providers/achievement_provider.dart';
 import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
-import '../../utils/reputation_utils.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
@@ -87,8 +87,8 @@ class ProfileScreenModern extends ConsumerWidget {
                           ? _displayName(resident)[0]
                           : '?',
                       size: 100,
-                      reputationLevel: resident != null
-                          ? ReputationUtils.computeReputation(resident!)
+                      floorLevel: resident != null
+                          ? FloorUtils.computeFloor(resident!)
                           : null,
                       showRing: true,
                     )
@@ -202,16 +202,14 @@ class ProfileScreenModern extends ConsumerWidget {
         crossAxisSpacing: AppTheme.duoSpacingMedium,
         childAspectRatio: 1.1,
         children: [
-          // Reputation (Safety Score)
+          // Trust Score
           DuoStatCard(
-                icon: Icons.star,
+                icon: Icons.shield,
                 value: '${resident?.trustScore ?? 100}',
-                label: 'Reputation',
+                label: 'Trust Score',
                 gradientColors: [
-                  _getReputationColor(resident?.trustScore ?? 100),
-                  _getReputationColor(
-                    resident?.trustScore ?? 100,
-                  ).withOpacity(0.7),
+                  _getTrustColor(resident?.trustScore ?? 100),
+                  _getTrustColor(resident?.trustScore ?? 100).withOpacity(0.7),
                 ],
               )
               .animate()
@@ -222,19 +220,17 @@ class ProfileScreenModern extends ConsumerWidget {
               .animate()
               .fadeIn(delay: 350.ms)
               .scale(begin: const Offset(0.8, 0.8)),
-          // Level/Floor
+          // Floor (Computed from XP and Trust)
           DuoStatCard(
-                icon: Icons.apartment,
-                value: '${resident?.level ?? 0}',
-                label: 'Level',
-                gradientColors: [
-                  AppTheme.primaryColor,
-                  AppTheme.primaryColor.withOpacity(0.7),
-                ],
-              )
-              .animate()
-              .fadeIn(delay: 400.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
+            icon: Icons.apartment,
+            value:
+                '${resident != null ? FloorUtils.computeFloor(resident) : 0}',
+            label: 'Floor',
+            gradientColors: [
+              AppTheme.primaryColor,
+              AppTheme.primaryColor.withOpacity(0.7),
+            ],
+          ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
           // Messages
           DuoStatCard(
                 icon: Icons.message,
@@ -254,7 +250,7 @@ class ProfileScreenModern extends ConsumerWidget {
   }
 
   /// Get color based on reputation value
-  Color _getReputationColor(int reputation) {
+  Color _getTrustColor(int reputation) {
     if (reputation > 50) {
       return AppTheme.duoGreen; // Good standing
     } else if (reputation >= 20) {

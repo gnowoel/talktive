@@ -105,7 +105,7 @@ class UserProfileEndpoint extends Endpoint {
         'userId': userId,
         'userName': userInfo.userName,
         'userAvatar': userInfo.imageUrl,
-        'floor': ApartmentService.computeReputation(resident),
+        'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,

@@ -177,7 +177,7 @@ class ProfilePage extends StatelessWidget {
                                               .onPrimaryContainer,
                                         ),
                                       );
-                                      // } else if (user.reputationLevel ==
+                                      // } else if (user.floorLevel ==
                                       //     'very_poor') {
                                       //   widgets.add(
                                       //     _Badge(
@@ -188,7 +188,7 @@ class ProfilePage extends StatelessWidget {
                                       //           .colorScheme.onErrorContainer,
                                       //     ),
                                       //   );
-                                      // } else if (user.reputationLevel == 'poor') {
+                                      // } else if (user.floorLevel == 'poor') {
                                       //   widgets.add(
                                       //     _Badge(
                                       //       label: 'Caution',
@@ -211,7 +211,7 @@ class ProfilePage extends StatelessWidget {
                                               .onPrimaryContainer,
                                         ),
                                       );
-                                      // } else if (user.reputationLevel ==
+                                      // } else if (user.floorLevel ==
                                       //     'excellent') {
                                       //   widgets.add(_Badge(
                                       //     label: 'Trusted User',
@@ -220,7 +220,7 @@ class ProfilePage extends StatelessWidget {
                                       //     textColor: theme
                                       //         .colorScheme.onSecondaryContainer,
                                       //   ));
-                                      // } else if (user.reputationLevel == 'good') {
+                                      // } else if (user.floorLevel == 'good') {
                                       //   widgets.add(_Badge(
                                       //     label: 'Good Reputation',
                                       //     backgroundColor: theme

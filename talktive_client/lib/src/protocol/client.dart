@@ -1193,6 +1193,40 @@ class EndpointStreak extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointUserLike extends _i2.EndpointRef {
+  EndpointUserLike(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'userLike';
+
+  /// Vouch/Like a user.
+  /// Implements One-Vote Rule and adds +10 to target's Trust Score.
+  _i3.Future<void> likeUser(String targetUserId) =>
+      caller.callServerEndpoint<void>(
+        'userLike',
+        'likeUser',
+        {'targetUserId': targetUserId},
+      );
+
+  /// Remove a Vouch/Like from a user.
+  /// Removes -10 from target's Trust Score.
+  _i3.Future<void> unlikeUser(String targetUserId) =>
+      caller.callServerEndpoint<void>(
+        'userLike',
+        'unlikeUser',
+        {'targetUserId': targetUserId},
+      );
+
+  /// Get the list of UUIDs that the current user has liked.
+  _i3.Future<List<String>> getMyLikedUserIds() =>
+      caller.callServerEndpoint<List<String>>(
+        'userLike',
+        'getMyLikedUserIds',
+        {},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointUserProfile extends _i2.EndpointRef {
   EndpointUserProfile(_i2.EndpointCaller caller) : super(caller);
 
@@ -1316,6 +1350,7 @@ class Client extends _i2.ServerpodClientShared {
     resident = EndpointResident(this);
     search = EndpointSearch(this);
     streak = EndpointStreak(this);
+    userLike = EndpointUserLike(this);
     userProfile = EndpointUserProfile(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -1353,6 +1388,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointStreak streak;
 
+  late final EndpointUserLike userLike;
+
   late final EndpointUserProfile userProfile;
 
   late final EndpointGreeting greeting;
@@ -1377,6 +1414,7 @@ class Client extends _i2.ServerpodClientShared {
     'resident': resident,
     'search': search,
     'streak': streak,
+    'userLike': userLike,
     'userProfile': userProfile,
     'greeting': greeting,
   };

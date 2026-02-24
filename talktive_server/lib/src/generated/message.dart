@@ -23,7 +23,7 @@ abstract class Message
     required this.createdAt,
     required this.senderName,
     this.senderAvatar,
-    required this.senderReputation,
+    required this.senderFloor,
   });
 
   factory Message({
@@ -35,7 +35,7 @@ abstract class Message
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
-    required int senderReputation,
+    required int senderFloor,
   }) = _MessageImpl;
 
   factory Message.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -52,7 +52,7 @@ abstract class Message
       ),
       senderName: jsonSerialization['senderName'] as String,
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
-      senderReputation: jsonSerialization['senderReputation'] as int,
+      senderFloor: jsonSerialization['senderFloor'] as int,
     );
   }
 
@@ -77,7 +77,7 @@ abstract class Message
 
   String? senderAvatar;
 
-  int senderReputation;
+  int senderFloor;
 
   @override
   _i1.Table<int?> get table => t;
@@ -94,7 +94,7 @@ abstract class Message
     DateTime? createdAt,
     String? senderName,
     String? senderAvatar,
-    int? senderReputation,
+    int? senderFloor,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -108,7 +108,7 @@ abstract class Message
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
-      'senderReputation': senderReputation,
+      'senderFloor': senderFloor,
     };
   }
 
@@ -124,7 +124,7 @@ abstract class Message
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
-      'senderReputation': senderReputation,
+      'senderFloor': senderFloor,
     };
   }
 
@@ -170,7 +170,7 @@ class _MessageImpl extends Message {
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
-    required int senderReputation,
+    required int senderFloor,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -180,7 +180,7 @@ class _MessageImpl extends Message {
          createdAt: createdAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
-         senderReputation: senderReputation,
+         senderFloor: senderFloor,
        );
 
   /// Returns a shallow copy of this [Message]
@@ -196,7 +196,7 @@ class _MessageImpl extends Message {
     DateTime? createdAt,
     String? senderName,
     Object? senderAvatar = _Undefined,
-    int? senderReputation,
+    int? senderFloor,
   }) {
     return Message(
       id: id is int? ? id : this.id,
@@ -207,7 +207,7 @@ class _MessageImpl extends Message {
       createdAt: createdAt ?? this.createdAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
-      senderReputation: senderReputation ?? this.senderReputation,
+      senderFloor: senderFloor ?? this.senderFloor,
     );
   }
 }
@@ -253,8 +253,8 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
         value,
       );
 
-  _i1.ColumnValue<int, int> senderReputation(int value) => _i1.ColumnValue(
-    table.senderReputation,
+  _i1.ColumnValue<int, int> senderFloor(int value) => _i1.ColumnValue(
+    table.senderFloor,
     value,
   );
 }
@@ -290,8 +290,8 @@ class MessageTable extends _i1.Table<int?> {
       'senderAvatar',
       this,
     );
-    senderReputation = _i1.ColumnInt(
-      'senderReputation',
+    senderFloor = _i1.ColumnInt(
+      'senderFloor',
       this,
     );
   }
@@ -312,7 +312,7 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString senderAvatar;
 
-  late final _i1.ColumnInt senderReputation;
+  late final _i1.ColumnInt senderFloor;
 
   @override
   List<_i1.Column> get columns => [
@@ -324,7 +324,7 @@ class MessageTable extends _i1.Table<int?> {
     createdAt,
     senderName,
     senderAvatar,
-    senderReputation,
+    senderFloor,
   ];
 }
 

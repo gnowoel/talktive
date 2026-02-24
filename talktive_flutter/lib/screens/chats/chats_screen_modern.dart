@@ -6,7 +6,7 @@ import 'package:talktive_client/talktive_client.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/reputation_utils.dart';
+import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
@@ -124,7 +124,7 @@ class ChatsScreenModern extends ConsumerWidget {
                   imageUrl: otherUserAvatar,
                   size: 56,
                   showRing: true,
-                  reputationLevel: ReputationUtils.computeReputation(
+                  floorLevel: FloorUtils.computeFloor(
                     chatItem.otherResident,
                   ),
                 ),

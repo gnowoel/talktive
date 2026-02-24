@@ -133,6 +133,27 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - `UserProfileViewScreen`: Block/Unblock menu with confirmation dialog
     - Private chat + group chat: contextual mute hint shows time remaining
 
+- Phase 8.9: Luxury High-Rise Gamification, Trust Score Caps, and One-Vote Rule (Feb 2026)
+  - **Unified Trust Score System**: Conceptually merged Likes and Reports into a single, uncapped `-30` to `+max` **Trust Score**.
+    - Replaced the previous dynamic 0-100 `reputation` system.
+    - Base passive restoration set to `+5` points per hour up to 100.
+    - Each Report penalizes `-30`. Each Vouch/Like adds `+10`.
+  - **Abuse Prevention**:
+    - **One-Vote Rule**: Created `UserLike` schema to restrict users to a single lifetime Like or Report per unique user.
+    - **Daily Report Cap**: Restricted reports to a maximum of 3 per day.
+    - **Minimum Floor Gate**: Users must be at least Floor 1 to report others.
+  - **Exponential Base Floor Generation**: Replaced linear `XP/100` formula with an exponential curve (`floor = 1 + floor(sqrt(xp) / 7.07)`), capping at **Floor 50**.
+  - **Keycard Effective Floor**: `EffectiveFloor = min(BaseFloor, TrustTier)`.
+    - Trust >= 100 -> Max Floor 50
+    - Trust >= 75 -> Max Floor 10
+    - Trust >= 50 -> Max Floor 5
+    - Trust >= 25 -> Max Floor 2
+    - Trust >= 10 -> Max Floor 1
+    - Trust < 10 -> Floor 0 (Muted)
+  - **UI/Terminology Updates**:
+    - Renamed internal `Reputation` terminology back to **Floor** globally.
+    - Added ❤️ **Vouch/Like** icon to `UserProfileViewScreen` via a new Riverpod Provider.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

@@ -50,7 +50,10 @@ The application has been successfully migrated from **Firebase** to **Serverpod*
 - ✅ Input validation across all endpoints
 - ✅ Centralized error handling
 - ✅ Content filtering (profanity, spam)
-- ✅ Credit system for spam prevention
+- ✅ Trust Score system for abuse resilience (-30 reports, +10 vouches)
+- ✅ Luxury High-Rise gamification (Exponential Base Floors up to Floor 50)
+- ✅ Keycard Effective Floor Caps (Mutes/Limits based on Trust Score Tier)
+- ✅ One-Vote Rule & Daily Report Caps (Anti-targeting abuse prevention)
 - ✅ Rate limiting with Redis
 - ✅ Community-driven moderation
 - ✅ Data archival for cost optimization

@@ -214,7 +214,7 @@ void main() {
   group('RedisRateLimitService - Error Messages', () {
     test('generates helpful error messages', () {
       const floor = 0;
-      final config = RedisRateLimitService.floorLimits[0];
+      final config = RedisRateLimitService.floorLimits[floor];
 
       // Minute limit message
       final minuteMsg =

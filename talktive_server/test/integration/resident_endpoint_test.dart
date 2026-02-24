@@ -26,7 +26,7 @@ void main() {
       });
 
       test('returns resident when exists', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         // Create resident with proper UUID
         final testResident = Resident(
@@ -50,7 +50,7 @@ void main() {
         final resident = await endpoints.resident.getResident(
           sessionBuilder.copyWith(
             authentication: AuthenticationOverride.authenticationInfo(
-              testResident.userInfoId!.uuid,
+              testResident.userInfoId.uuid,
               {},
             ),
           ),
@@ -69,7 +69,7 @@ void main() {
       });
 
       test('handles residents with minimal data', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         // Create resident with minimal fields
         final testResident = Resident(
@@ -86,7 +86,7 @@ void main() {
         final resident = await endpoints.resident.getResident(
           sessionBuilder.copyWith(
             authentication: AuthenticationOverride.authenticationInfo(
-              testResident.userInfoId!.uuid,
+              testResident.userInfoId.uuid,
               {},
             ),
           ),
@@ -102,7 +102,7 @@ void main() {
 
     group('Credit System', () {
       test('new residents have correct initial values', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
@@ -127,7 +127,7 @@ void main() {
       });
 
       test('residents can have different floor levels', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final floorUuids = [
           'e5f6a7b8-c9d0-4e5f-8a3b-4c5d6e7f8a90',
@@ -149,7 +149,7 @@ void main() {
 
           final retrieved = await Resident.db.findFirstRow(
             session,
-            where: (t) => t.userInfoId.equals(resident.userInfoId!),
+            where: (t) => t.userInfoId.equals(resident.userInfoId),
           );
 
           expect(retrieved!.level, floor);
@@ -158,7 +158,7 @@ void main() {
       });
 
       test('credit scores can be positive or negative', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final testCases = [-50, -10, 0, 50, 100, 200];
         final creditUuids = [
@@ -181,7 +181,7 @@ void main() {
 
           final retrieved = await Resident.db.findFirstRow(
             session,
-            where: (t) => t.userInfoId.equals(resident.userInfoId!),
+            where: (t) => t.userInfoId.equals(resident.userInfoId),
           );
 
           expect(retrieved!.trustScore, testCases[i]);
@@ -191,7 +191,7 @@ void main() {
 
     group('Profile Data', () {
       test('supports various gender values', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final genders = [
           'male',
@@ -220,7 +220,7 @@ void main() {
 
           final retrieved = await Resident.db.findFirstRow(
             session,
-            where: (t) => t.userInfoId.equals(resident.userInfoId!),
+            where: (t) => t.userInfoId.equals(resident.userInfoId),
           );
 
           expect(retrieved!.gender, genders[i]);
@@ -228,7 +228,7 @@ void main() {
       });
 
       test('supports multiple interests and languages', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
@@ -251,7 +251,7 @@ void main() {
 
         final retrieved = await Resident.db.findFirstRow(
           session,
-          where: (t) => t.userInfoId.equals(resident.userInfoId!),
+          where: (t) => t.userInfoId.equals(resident.userInfoId),
         );
 
         expect(retrieved!.interests!.length, 6);
@@ -261,7 +261,7 @@ void main() {
       });
 
       test('handles long bio text', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final longBio = 'A' * 500;
 
@@ -278,7 +278,7 @@ void main() {
 
         final retrieved = await Resident.db.findFirstRow(
           session,
-          where: (t) => t.userInfoId.equals(resident.userInfoId!),
+          where: (t) => t.userInfoId.equals(resident.userInfoId),
         );
 
         expect(retrieved!.bio, longBio);
@@ -286,7 +286,7 @@ void main() {
       });
 
       test('handles special characters and emojis', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
@@ -302,7 +302,7 @@ void main() {
 
         final retrieved = await Resident.db.findFirstRow(
           session,
-          where: (t) => t.userInfoId.equals(resident.userInfoId!),
+          where: (t) => t.userInfoId.equals(resident.userInfoId),
         );
 
         expect(retrieved!.bio, contains('你好'));
@@ -313,7 +313,7 @@ void main() {
 
     group('Admin and Ban Flags', () {
       test('isAdmin defaults to false', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
@@ -329,7 +329,7 @@ void main() {
       });
 
       test('suspended defaults to false', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
@@ -345,7 +345,7 @@ void main() {
       });
 
       test('can set admin flag', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(
@@ -362,7 +362,7 @@ void main() {
       });
 
       test('can set banned flag', () async {
-        final session = await sessionBuilder.build();
+        final session = sessionBuilder.build();
 
         final resident = Resident(
           userInfoId: UuidValue.fromString(

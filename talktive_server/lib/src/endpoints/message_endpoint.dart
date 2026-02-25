@@ -64,7 +64,7 @@ class MessageEndpoint extends Endpoint {
       );
 
       final senderName = userInfo?.userName ?? 'Resident';
-      final senderAvatar = userInfo?.imageUrl;
+      final senderAvatar = sender.avatar ?? userInfo?.imageUrl;
 
       // Compute effective floor (hybrid: min of XP level and trustScore tier)
       final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(

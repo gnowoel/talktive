@@ -104,7 +104,7 @@ class UserProfileEndpoint extends Endpoint {
       return {
         'userId': userId,
         'userName': userInfo.userName,
-        'userAvatar': userInfo.imageUrl,
+        'userAvatar': resident.avatar ?? userInfo.imageUrl,
         'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,

@@ -42,7 +42,7 @@ class SearchEndpoint extends Endpoint {
           results.add({
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
-            'userAvatar': userInfo.imageUrl,
+            'userAvatar': resident.avatar ?? userInfo.imageUrl,
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'trustScore': resident.trustScore,
           });
@@ -197,7 +197,7 @@ class SearchEndpoint extends Endpoint {
             activeUsers.add({
               'userId': resident.userInfoId.toString(),
               'userName': userInfo.userName,
-              'userAvatar': userInfo.imageUrl,
+              'userAvatar': resident.avatar ?? userInfo.imageUrl,
               'floor': ApartmentService.computeEffectiveFloor(resident),
               'messageCount': entry.value,
             });
@@ -328,7 +328,7 @@ class SearchEndpoint extends Endpoint {
           matches.add({
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
-            'userAvatar': userInfo.imageUrl,
+            'userAvatar': resident.avatar ?? userInfo.imageUrl,
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'sharedInterests': sharedInterests,
             'matchScore': sharedInterests.length,
@@ -405,7 +405,7 @@ class SearchEndpoint extends Endpoint {
           matches.add({
             'userId': resident.userInfoId.toString(),
             'userName': userInfo.userName,
-            'userAvatar': userInfo.imageUrl,
+            'userAvatar': resident.avatar ?? userInfo.imageUrl,
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'sharedLanguages': sharedLanguages,
             'matchScore': sharedLanguages.length,

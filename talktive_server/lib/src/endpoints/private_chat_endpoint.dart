@@ -185,7 +185,7 @@ class PrivateChatEndpoint extends Endpoint {
             chat: chat,
             otherResident: otherResident,
             otherUserName: userInfo?.userName,
-            otherUserAvatar: userInfo?.imageUrl,
+            otherUserAvatar: otherResident.avatar ?? userInfo?.imageUrl,
           ),
         );
       }

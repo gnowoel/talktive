@@ -10,8 +10,12 @@ import '../../config/theme.dart';
 import '../../config/languages.dart';
 import '../../providers/auth_provider.dart';
 
+import 'package:talktive_client/talktive_client.dart';
+
 class ProfileSetupScreen extends ConsumerStatefulWidget {
-  const ProfileSetupScreen({super.key});
+  final Resident? initialResident;
+
+  const ProfileSetupScreen({super.key, this.initialResident});
 
   @override
   ConsumerState<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -121,6 +125,48 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
     );
+
+    if (widget.initialResident != null) {
+      final resident = widget.initialResident!;
+      // Need to fetch user name from auth state if possible, but let's prefill from provider later,
+      // actually, just keep it blank or read from provider in post frame callback
+      _selectedAvatar = resident.avatar ?? '😊';
+      _selectedGender = resident.gender ?? 'prefer-not-to-say';
+      _selectedCountry = resident.country ?? 'Unknown';
+
+      if (_selectedCountry != 'Unknown') {
+        try {
+          final countries = CountryService().getAll();
+          for (var c in countries) {
+            if (c.name.toLowerCase() == _selectedCountry.toLowerCase()) {
+              _selectedCountryFlag = c.flagEmoji;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      _selectedInterests = List<String>.from(resident.interests ?? []);
+      _selectedLanguages = List<String>.from(resident.languages ?? ['en']);
+
+      final bioText = resident.bio ?? '';
+      final bioLines = bioText.split('\n');
+      if (bioLines.isNotEmpty && bioLines.last.startsWith('Mood: ')) {
+        _selectedMood = bioLines.last.replaceFirst('Mood: ', '').trim();
+        _bioController.text = bioLines
+            .sublist(0, bioLines.length - 1)
+            .join('\n');
+      } else {
+        _bioController.text = bioText;
+      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final authState = ref.read(authProvider).value;
+        if (authState is Authenticated) {
+          _nameController.text = authState.userName;
+        }
+      });
+    }
   }
 
   @override
@@ -217,28 +263,54 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     });
 
     try {
-      final success = await ref
-          .read(authProvider.notifier)
-          .completeSetup(
-            name: _nameController.text.trim(),
-            avatar: _selectedAvatar,
-            gender: _selectedGender,
-            country: _selectedCountry,
-            bio: _bioController.text.trim(),
-            interests: _selectedInterests,
-            languages: _selectedLanguages,
-            mood: _selectedMood,
-          );
+      final isEditing = widget.initialResident != null;
+      final bool success;
+
+      if (isEditing) {
+        success = await ref
+            .read(authProvider.notifier)
+            .updateProfile(
+              name: _nameController.text.trim(),
+              avatar: _selectedAvatar,
+              gender: _selectedGender,
+              country: _selectedCountry,
+              bio: _bioController.text.trim(),
+              interests: _selectedInterests,
+              languages: _selectedLanguages,
+              mood: _selectedMood,
+            );
+      } else {
+        success = await ref
+            .read(authProvider.notifier)
+            .completeSetup(
+              name: _nameController.text.trim(),
+              avatar: _selectedAvatar,
+              gender: _selectedGender,
+              country: _selectedCountry,
+              bio: _bioController.text.trim(),
+              interests: _selectedInterests,
+              languages: _selectedLanguages,
+              mood: _selectedMood,
+            );
+      }
 
       if (success) {
-        _confettiController.play();
-        await Future.delayed(const Duration(seconds: 2));
+        if (!isEditing) {
+          _confettiController.play();
+          await Future.delayed(const Duration(seconds: 2));
+        }
 
         if (mounted) {
-          context.go('/');
+          if (isEditing) {
+            context.pop();
+          } else {
+            context.go('/');
+          }
         }
       } else {
-        _showError('Failed to create profile. Please try again.');
+        _showError(
+          'Failed to ${isEditing ? 'update' : 'create'} profile. Please try again.',
+        );
         setState(() {
           _isLoading = false;
         });

@@ -184,6 +184,44 @@ class Auth extends _$Auth {
     }
   }
 
+  /// Updates the user's existing profile
+  Future<bool> updateProfile({
+    required String name,
+    required String avatar,
+    required String gender,
+    required String country,
+    required String bio,
+    List<String> interests = const [],
+    List<String> languages = const ['en'],
+    String mood = '😊',
+  }) async {
+    try {
+      final bioWithMood = '$bio\nMood: $mood';
+
+      final resident = await client.resident.updateResident(
+        name: name,
+        avatar: avatar,
+        gender: gender,
+        country: country,
+        bio: bioWithMood,
+        interests: interests,
+        languages: languages,
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_name', name);
+      await prefs.setString('user_id', resident.userInfoId.toString());
+
+      state = AsyncValue.data(
+        Authenticated(userId: resident.userInfoId.toString(), userName: name),
+      );
+      return true;
+    } catch (e) {
+      debugPrint('Update profile error: $e');
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
     state = const AsyncValue.loading();
     try {

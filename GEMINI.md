@@ -1,6 +1,6 @@
 # Project Context for Assistants
 
-This project is a migration of the "Talktive" anonymous chat app from Firebase to Serverpod.
+This project is a migration of the "Talktive" chat app from Firebase to Serverpod. The application now uses secure Google Sign-In, but ensures user privacy by requiring users to create anonymous "personas" (Residents) to chat.
 
 ## Design Philosophy
 
@@ -167,7 +167,7 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ### Server (`talktive_server`)
 
-- `ResidentEndpoint`: Creates anonymous users, generates UserProfile, inserts Resident, returns JWT.
+- `ResidentEndpoint`: Initializes the Resident's custom persona (overwrites Google profile data for privacy), stores settings, and tracks stats.
 - `MessageEndpoint`: Handles sending messages to channels (Plaza, etc.). Enforces reputation & floor rules.
 - `ApartmentService`: Reputation system + **Hybrid Floor** (`effectiveFloor = min(level, reputationTier)`).
 - `GamificationService`: XP awards, level-up, streak tracking.

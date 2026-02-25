@@ -25,9 +25,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
   final List<OnboardingPage> _pages = [
     OnboardingPage(
       emoji: '🎭',
-      title: 'Stay Anonymous',
+      title: 'Create Your Persona',
       subtitle:
-          'No email, no phone number required.\nYour privacy is our priority.',
+          'Sign in safely with Google, then choose an anonymous persona to protect your identity.',
       backgroundColor: AppTheme.primaryColor,
       features: [
         'Choose fun emoji avatars',

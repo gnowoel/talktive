@@ -203,7 +203,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Connect Anonymously',
+                            'Connect Safely',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 16,

@@ -1,6 +1,6 @@
 # Talktive
 
-Talktive is an anonymous group chat application designed for ephemeral, private, and random conversations.
+Talktive is a group chat application where users log in securely via Google but interact using custom, anonymous personas designed for privacy and authentic conversations.
 
 ## 🎨 Design Philosophy
 

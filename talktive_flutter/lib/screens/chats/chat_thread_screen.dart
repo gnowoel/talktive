@@ -355,6 +355,16 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       child: SafeArea(
         child: Row(
           children: [
+            if (_currentResident != null) ...[
+              DuoAvatar(
+                imageUrl: _currentResident!.avatar,
+                initials: 'R',
+                size: 40,
+                showRing: true,
+                floorLevel: FloorUtils.computeFloor(_currentResident!),
+              ),
+              const SizedBox(width: AppTheme.duoSpacingSmall),
+            ],
             Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

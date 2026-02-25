@@ -41,6 +41,7 @@ class DuoAvatar extends StatelessWidget {
     final ringWidth = size > 60 ? 3.0 : 2.0;
     final badgeSize = size > 60 ? 24.0 : 18.0;
     final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
+    final isEmoji = !hasImageUrl && imageUrl != null && imageUrl!.isNotEmpty;
     final avatarText = hasImageUrl
         ? initials
         : (imageUrl?.isNotEmpty == true ? imageUrl : initials);
@@ -50,7 +51,7 @@ class DuoAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: hasImageUrl
+        gradient: hasImageUrl || isEmoji
             ? null
             : LinearGradient(
                 colors: [
@@ -60,6 +61,7 @@ class DuoAvatar extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
+        color: isEmoji ? Colors.white : null,
         image: hasImageUrl
             ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover)
             : null,
@@ -70,8 +72,8 @@ class DuoAvatar extends StatelessWidget {
               child: Text(
                 avatarText ?? '?',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: size * 0.4,
+                  color: isEmoji ? null : Colors.white,
+                  fontSize: isEmoji ? size * 0.55 : size * 0.4,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
                 ),

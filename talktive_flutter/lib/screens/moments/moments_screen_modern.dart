@@ -352,9 +352,7 @@ class _MomentsScreenModernState extends ConsumerState<MomentsScreenModern> {
                 child: Row(
                   children: [
                     DuoAvatar(
-                      initials: moment.authorName.isNotEmpty
-                          ? moment.authorName[0].toUpperCase()
-                          : '?',
+                      imageUrl: moment.authorAvatar,
                       size: 40,
                       floorLevel: moment.authorFloor,
                       showRing: false,
@@ -761,9 +759,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DuoAvatar(
-            initials: comment.userName.isNotEmpty
-                ? comment.userName[0].toUpperCase()
-                : '?',
+            imageUrl: comment.userAvatar,
             size: 32,
             floorLevel: comment.userFloor,
             showRing: false,

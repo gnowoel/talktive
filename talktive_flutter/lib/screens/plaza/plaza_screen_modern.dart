@@ -257,7 +257,6 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
           if (currentResident != null) ...[
             DuoAvatar(
               imageUrl: currentResident.avatar,
-              initials: 'R',
               size: 44,
               showRing: true,
               floorLevel: FloorUtils.computeFloor(currentResident),

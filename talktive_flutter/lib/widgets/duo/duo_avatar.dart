@@ -4,7 +4,7 @@ import '../../config/theme.dart';
 /// Duolingo-style avatar with gradient ring and optional floor badge
 class DuoAvatar extends StatelessWidget {
   final String? imageUrl;
-  final String? initials;
+
   final double size;
   final int? floorLevel;
   final Color? ringColor;
@@ -14,7 +14,7 @@ class DuoAvatar extends StatelessWidget {
   const DuoAvatar({
     super.key,
     this.imageUrl,
-    this.initials,
+
     this.size = 48,
     this.floorLevel,
     this.ringColor,
@@ -43,8 +43,8 @@ class DuoAvatar extends StatelessWidget {
     final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
     final isEmoji = !hasImageUrl && imageUrl != null && imageUrl!.isNotEmpty;
     final avatarText = hasImageUrl
-        ? initials
-        : (imageUrl?.isNotEmpty == true ? imageUrl : initials);
+        ? '👤'
+        : (imageUrl?.isNotEmpty == true ? imageUrl : '👤');
 
     Widget avatar = Container(
       width: size,
@@ -70,7 +70,7 @@ class DuoAvatar extends StatelessWidget {
           ? null
           : Center(
               child: Text(
-                avatarText ?? '?',
+                avatarText ?? '👤',
                 style: TextStyle(
                   color: isEmoji ? null : Colors.white,
                   fontSize: isEmoji ? size * 0.55 : size * 0.4,

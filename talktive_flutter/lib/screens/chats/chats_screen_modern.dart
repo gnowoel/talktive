@@ -120,7 +120,6 @@ class ChatsScreenModern extends ConsumerWidget {
             Stack(
               children: [
                 DuoAvatar(
-                  initials: otherUserName.isNotEmpty ? otherUserName[0] : '?',
                   imageUrl: otherUserAvatar,
                   size: 56,
                   showRing: true,

@@ -275,7 +275,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           // Avatar and basic info
           DuoAvatar(
             imageUrl: avatar,
-            initials: name[0],
             size: 120,
             floorLevel: floor,
             showRing: true,

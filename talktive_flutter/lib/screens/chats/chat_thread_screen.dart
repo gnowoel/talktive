@@ -171,7 +171,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         title: Row(
           children: [
             DuoAvatar(
-              initials: otherName.isNotEmpty ? otherName[0] : '?',
               imageUrl: otherAvatar,
               size: 36,
               showRing: true,
@@ -358,7 +357,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             if (_currentResident != null) ...[
               DuoAvatar(
                 imageUrl: _currentResident!.avatar,
-                initials: 'R',
                 size: 40,
                 showRing: true,
                 floorLevel: FloorUtils.computeFloor(_currentResident!),

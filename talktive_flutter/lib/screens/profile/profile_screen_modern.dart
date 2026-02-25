@@ -83,9 +83,6 @@ class ProfileScreenModern extends ConsumerWidget {
             child:
                 DuoAvatar(
                       imageUrl: resident?.avatar,
-                      initials: _displayName(resident).isNotEmpty
-                          ? _displayName(resident)[0]
-                          : '?',
                       size: 100,
                       floorLevel: resident != null
                           ? FloorUtils.computeFloor(resident!)

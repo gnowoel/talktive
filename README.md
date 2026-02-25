@@ -43,6 +43,7 @@ The application has been successfully migrated from **Firebase** to **Serverpod*
 - ✅ Interest-based user discovery
 - ✅ Search & Discovery functionality
 - ✅ Admin Dashboard with moderation tools
+- ✅ **Privacy-First Data Collection:** Google Sign-In is strictly limited to authentication (OpenID scope). The backend automatically anonymizes the user by dropping real names, assigning placeholder emails (`anon-uuid@anonymous.talktive.com`), and refusing to fetch Google avatars. All avatars natively support image URLs for future expansion but exclusively enforce selected Emojis currently.
 
 **Safety & Performance:**
 

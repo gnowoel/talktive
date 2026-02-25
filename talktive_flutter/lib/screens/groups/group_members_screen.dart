@@ -71,7 +71,6 @@ class GroupMembersScreen extends ConsumerWidget {
           children: [
             DuoAvatar(
               imageUrl: member.avatar,
-              initials: 'R',
               size: 48,
               showRing: true,
               floorLevel: FloorUtils.computeFloor(member),

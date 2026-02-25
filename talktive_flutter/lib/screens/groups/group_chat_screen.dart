@@ -323,7 +323,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             if (_currentResident != null) ...[
               DuoAvatar(
                 imageUrl: _currentResident!.avatar,
-                initials: 'R',
                 size: 40,
                 showRing: true,
                 floorLevel: FloorUtils.computeFloor(_currentResident!),

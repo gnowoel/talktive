@@ -42,7 +42,6 @@ class MessageBubbleModern extends ConsumerWidget {
               },
               child: DuoAvatar(
                 imageUrl: senderAvatar,
-                initials: senderName.isNotEmpty ? senderName[0] : '?',
                 size: 36,
                 showRing: true,
                 floorLevel: senderFloor,
@@ -166,7 +165,6 @@ class MessageBubbleModern extends ConsumerWidget {
             const SizedBox(width: AppTheme.duoSpacingSmall),
             DuoAvatar(
               imageUrl: currentResident?.avatar,
-              initials: 'ME',
               size: 36,
               showRing: false,
             ),

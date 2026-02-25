@@ -14,8 +14,9 @@ import 'package:talktive_client/talktive_client.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   final Resident? initialResident;
+  final String? initialName;
 
-  const ProfileSetupScreen({super.key, this.initialResident});
+  const ProfileSetupScreen({super.key, this.initialResident, this.initialName});
 
   @override
   ConsumerState<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -160,12 +161,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         _bioController.text = bioText;
       }
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final authState = ref.read(authProvider).value;
-        if (authState is Authenticated) {
-          _nameController.text = authState.userName;
-        }
-      });
+      if (widget.initialName != null) {
+        _nameController.text = widget.initialName!;
+      }
     }
   }
 

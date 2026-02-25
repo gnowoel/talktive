@@ -44,8 +44,13 @@ class ServerpodApp extends StatelessWidget {
         GoRoute(
           path: '/profile-setup',
           builder: (context, state) {
-            final resident = state.extra as Resident?;
-            return ProfileSetupScreen(initialResident: resident);
+            final extra = state.extra as Map<String, dynamic>?;
+            final resident = extra?['resident'] as Resident?;
+            final userName = extra?['userName'] as String?;
+            return ProfileSetupScreen(
+              initialResident: resident,
+              initialName: userName,
+            );
           },
         ),
         GoRoute(path: '/', builder: (context, state) => const HomeScreen()),

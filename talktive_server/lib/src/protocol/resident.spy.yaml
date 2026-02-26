@@ -27,6 +27,7 @@ fields:
   gender: String?
   country: String?
   bio: String?
+  mood: String?
   avatar: String?
   interests: List<String>?
   languages: List<String>?

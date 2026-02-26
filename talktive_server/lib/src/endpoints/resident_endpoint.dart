@@ -56,6 +56,7 @@ class ResidentEndpoint extends Endpoint {
     required String bio,
     List<String>? interests,
     List<String>? languages,
+    String mood = '😊',
   }) async {
     final authenticationInfo = session.authenticated;
     final senderIdentifier = authenticationInfo?.userIdentifier;
@@ -135,6 +136,7 @@ class ResidentEndpoint extends Endpoint {
       gender: gender,
       country: country,
       bio: bio,
+      mood: mood,
       avatar: avatar, // Store the emoji/avatar string here
       interests: interests ?? [],
       languages: languages ?? ['en'],
@@ -145,5 +147,70 @@ class ResidentEndpoint extends Endpoint {
     await Resident.db.insertRow(session, resident);
 
     return resident;
+  }
+
+  /// Updates an existing Resident's profile details.
+  Future<Resident> updateResident(
+    Session session, {
+    required String name,
+    required String avatar,
+    required String gender,
+    required String country,
+    required String bio,
+    List<String>? interests,
+    List<String>? languages,
+    String? mood,
+  }) async {
+    final authenticationInfo = session.authenticated;
+    final senderIdentifier = authenticationInfo?.userIdentifier;
+
+    if (senderIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final senderUuid = UuidValue.fromString(senderIdentifier);
+
+    var resident = await Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(senderUuid),
+    );
+
+    if (resident == null) {
+      throw Exception('Resident profile not found.');
+    }
+
+    // Update User Profile name if changed
+    try {
+      final userProfile = await AuthServices.instance.userProfiles
+          .findUserProfileByUserId(session, senderUuid);
+
+      if (userProfile.userName != name) {
+        await AuthServices.instance.userProfiles.changeUserName(
+          session,
+          senderUuid,
+          name,
+        );
+      }
+      if (userProfile.fullName != name) {
+        await AuthServices.instance.userProfiles.changeFullName(
+          session,
+          senderUuid,
+          name,
+        );
+      }
+    } catch (_) {
+      // Ignore if userProfile doesn't exist
+    }
+
+    // Update Resident fields
+    resident.avatar = avatar;
+    resident.gender = gender;
+    resident.country = country;
+    resident.bio = bio;
+    resident.mood = mood ?? resident.mood;
+    resident.interests = interests ?? resident.interests;
+    resident.languages = languages ?? resident.languages;
+
+    return await Resident.db.updateRow(session, resident);
   }
 }

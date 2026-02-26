@@ -1028,6 +1028,7 @@ class EndpointResident extends _i2.EndpointRef {
     required String bio,
     List<String>? interests,
     List<String>? languages,
+    required String mood,
   }) => caller.callServerEndpoint<_i7.Resident>(
     'resident',
     'initializeResident',
@@ -1039,6 +1040,32 @@ class EndpointResident extends _i2.EndpointRef {
       'bio': bio,
       'interests': interests,
       'languages': languages,
+      'mood': mood,
+    },
+  );
+
+  /// Updates an existing Resident's profile details.
+  _i3.Future<_i7.Resident> updateResident({
+    required String name,
+    required String avatar,
+    required String gender,
+    required String country,
+    required String bio,
+    List<String>? interests,
+    List<String>? languages,
+    String? mood,
+  }) => caller.callServerEndpoint<_i7.Resident>(
+    'resident',
+    'updateResident',
+    {
+      'name': name,
+      'avatar': avatar,
+      'gender': gender,
+      'country': country,
+      'bio': bio,
+      'interests': interests,
+      'languages': languages,
+      'mood': mood,
     },
   );
 }

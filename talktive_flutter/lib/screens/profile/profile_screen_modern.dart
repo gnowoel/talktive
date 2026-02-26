@@ -106,6 +106,8 @@ class ProfileScreenModern extends ConsumerWidget {
           _buildAchievementsSection(context, ref),
           // Info card
           _buildInfoCard(),
+          // Edit Profile button
+          _buildEditProfileButton(context, ref, resident),
           // Blocked users menu
           _buildBlockedUsersButton(context),
           // Sign out button
@@ -583,6 +585,38 @@ class ProfileScreenModern extends ConsumerWidget {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const BlockedUsersScreen()),
           );
+        },
+      ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
+    );
+  }
+
+  Widget _buildEditProfileButton(
+    BuildContext context,
+    WidgetRef ref,
+    resident,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: AppTheme.duoSpacingSmall,
+      ),
+      child: DuoButton(
+        text: 'Edit Profile',
+        icon: Icons.edit,
+        color: AppTheme.primaryColor,
+        isSecondary: true,
+        width: double.infinity,
+        onPressed: () {
+          if (resident != null) {
+            final authState = ref.read(authProvider).value;
+            final String? userName = (authState is Authenticated)
+                ? authState.userName
+                : null;
+            context.push(
+              '/profile-setup',
+              extra: {'resident': resident, 'userName': userName},
+            );
+          }
         },
       ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
     );

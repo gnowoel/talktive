@@ -1772,6 +1772,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<List<String>?>(),
               nullable: true,
             ),
+            'mood': _i1.ParameterDescription(
+              name: 'mood',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -1787,6 +1792,68 @@ class Endpoints extends _i1.EndpointDispatch {
                     bio: params['bio'],
                     interests: params['interests'],
                     languages: params['languages'],
+                    mood: params['mood'],
+                  ),
+        ),
+        'updateResident': _i1.MethodConnector(
+          name: 'updateResident',
+          params: {
+            'name': _i1.ParameterDescription(
+              name: 'name',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'avatar': _i1.ParameterDescription(
+              name: 'avatar',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'gender': _i1.ParameterDescription(
+              name: 'gender',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'bio': _i1.ParameterDescription(
+              name: 'bio',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'interests': _i1.ParameterDescription(
+              name: 'interests',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
+            'languages': _i1.ParameterDescription(
+              name: 'languages',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
+            'mood': _i1.ParameterDescription(
+              name: 'mood',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i15.ResidentEndpoint)
+                  .updateResident(
+                    session,
+                    name: params['name'],
+                    avatar: params['avatar'],
+                    gender: params['gender'],
+                    country: params['country'],
+                    bio: params['bio'],
+                    interests: params['interests'],
+                    languages: params['languages'],
+                    mood: params['mood'],
                   ),
         ),
       },

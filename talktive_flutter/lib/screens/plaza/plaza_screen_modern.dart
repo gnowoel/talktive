@@ -14,7 +14,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import '../../widgets/duo/duo_avatar.dart';
+
 import '../../widgets/duo/duo_page_scaffold.dart';
 
 /// Duolingo-style Plaza screen - public chat for all residents
@@ -254,15 +254,6 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
       ),
       child: Row(
         children: [
-          if (currentResident != null) ...[
-            DuoAvatar(
-              imageUrl: currentResident.avatar,
-              size: 44,
-              showRing: true,
-              floorLevel: FloorUtils.computeFloor(currentResident),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-          ],
           Expanded(
             child: Container(
               decoration: BoxDecoration(

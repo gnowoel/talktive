@@ -2784,6 +2784,7 @@ class _ResidentEndpoint {
     required String bio,
     List<String>? interests,
     List<String>? languages,
+    required String mood,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2804,6 +2805,54 @@ class _ResidentEndpoint {
             'bio': bio,
             'interests': interests,
             'languages': languages,
+            'mood': mood,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i7.Resident>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i7.Resident> updateResident(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required String name,
+    required String avatar,
+    required String gender,
+    required String country,
+    required String bio,
+    List<String>? interests,
+    List<String>? languages,
+    String? mood,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'resident',
+            method: 'updateResident',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'resident',
+          methodName: 'updateResident',
+          parameters: _i1.testObjectToJson({
+            'name': name,
+            'avatar': avatar,
+            'gender': gender,
+            'country': country,
+            'bio': bio,
+            'interests': interests,
+            'languages': languages,
+            'mood': mood,
           }),
           serializationManager: _serializationManager,
         );

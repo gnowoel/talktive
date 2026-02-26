@@ -31,6 +31,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.gender,
     this.country,
     this.bio,
+    this.mood,
     this.avatar,
     this.interests,
     this.languages,
@@ -62,6 +63,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? gender,
     String? country,
     String? bio,
+    String? mood,
     String? avatar,
     List<String>? interests,
     List<String>? languages,
@@ -105,6 +107,7 @@ abstract class Resident implements _i1.SerializableModel {
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
       bio: jsonSerialization['bio'] as String?,
+      mood: jsonSerialization['mood'] as String?,
       avatar: jsonSerialization['avatar'] as String?,
       interests: jsonSerialization['interests'] == null
           ? null
@@ -156,6 +159,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   String? bio;
 
+  String? mood;
+
   String? avatar;
 
   List<String>? interests;
@@ -186,6 +191,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? gender,
     String? country,
     String? bio,
+    String? mood,
     String? avatar,
     List<String>? interests,
     List<String>? languages,
@@ -213,6 +219,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
+      if (mood != null) 'mood': mood,
       if (avatar != null) 'avatar': avatar,
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
@@ -247,6 +254,7 @@ class _ResidentImpl extends Resident {
     String? gender,
     String? country,
     String? bio,
+    String? mood,
     String? avatar,
     List<String>? interests,
     List<String>? languages,
@@ -269,6 +277,7 @@ class _ResidentImpl extends Resident {
          gender: gender,
          country: country,
          bio: bio,
+         mood: mood,
          avatar: avatar,
          interests: interests,
          languages: languages,
@@ -297,6 +306,7 @@ class _ResidentImpl extends Resident {
     Object? gender = _Undefined,
     Object? country = _Undefined,
     Object? bio = _Undefined,
+    Object? mood = _Undefined,
     Object? avatar = _Undefined,
     Object? interests = _Undefined,
     Object? languages = _Undefined,
@@ -327,6 +337,7 @@ class _ResidentImpl extends Resident {
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
       bio: bio is String? ? bio : this.bio,
+      mood: mood is String? ? mood : this.mood,
       avatar: avatar is String? ? avatar : this.avatar,
       interests: interests is List<String>?
           ? interests

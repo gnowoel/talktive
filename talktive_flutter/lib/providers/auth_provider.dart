@@ -156,14 +156,13 @@ class Auth extends _$Auth {
     state = const AsyncValue.loading();
 
     try {
-      final bioWithMood = '$bio\nMood: $mood';
-
       final resident = await client.resident.initializeResident(
         name: name,
         avatar: avatar,
         gender: gender,
         country: country,
-        bio: bioWithMood,
+        bio: bio,
+        mood: mood,
         interests: interests,
         languages: languages,
       );
@@ -196,14 +195,13 @@ class Auth extends _$Auth {
     String mood = '😊',
   }) async {
     try {
-      final bioWithMood = '$bio\nMood: $mood';
-
       final resident = await client.resident.updateResident(
         name: name,
         avatar: avatar,
         gender: gender,
         country: country,
-        bio: bioWithMood,
+        bio: bio,
+        mood: mood,
         interests: interests,
         languages: languages,
       );

@@ -151,15 +151,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       _selectedLanguages = List<String>.from(resident.languages ?? ['en']);
 
       final bioText = resident.bio ?? '';
-      final bioLines = bioText.split('\n');
-      if (bioLines.isNotEmpty && bioLines.last.startsWith('Mood: ')) {
-        _selectedMood = bioLines.last.replaceFirst('Mood: ', '').trim();
-        _bioController.text = bioLines
-            .sublist(0, bioLines.length - 1)
-            .join('\n');
-      } else {
-        _bioController.text = bioText;
-      }
+      _bioController.text = bioText;
+      _selectedMood = resident.mood ?? '😊';
 
       if (widget.initialName != null) {
         _nameController.text = widget.initialName!;

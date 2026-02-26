@@ -9,7 +9,7 @@ import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import '../../utils/floor_utils.dart';
 import '../../widgets/chat/message_bubble_modern.dart';
-import '../../widgets/duo/duo_avatar.dart';
+
 import 'group_members_screen.dart';
 
 /// Group chat screen for multi-user conversations
@@ -320,15 +320,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            if (_currentResident != null) ...[
-              DuoAvatar(
-                imageUrl: _currentResident!.avatar,
-                size: 40,
-                showRing: true,
-                floorLevel: FloorUtils.computeFloor(_currentResident!),
-              ),
-              const SizedBox(width: AppTheme.duoSpacingSmall),
-            ],
             Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

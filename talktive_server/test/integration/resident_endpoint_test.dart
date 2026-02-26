@@ -39,6 +39,7 @@ void main() {
           gender: 'male',
           country: 'US',
           bio: 'Test bio',
+          mood: '😊',
           avatar: '👨',
           role: 'resident',
           interests: ['coding', 'music'],
@@ -64,6 +65,7 @@ void main() {
         expect(resident.country, 'US');
         expect(resident.bio, 'Test bio');
         expect(resident.avatar, '👨');
+        expect(resident.mood, '😊');
         expect(resident.interests, ['coding', 'music']);
         expect(resident.languages, ['en']);
       });

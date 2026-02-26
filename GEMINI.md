@@ -156,6 +156,17 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - Renamed internal `Reputation` terminology back to **Floor** globally.
     - Added ❤️ **Vouch/Like** icon to `UserProfileViewScreen` via a new Riverpod Provider.
 
+- Phase 8.10: Profile Data Integrity & High-Rise Gamification UI (Feb 2026)
+  - **Native Mood Field**:
+    - Replaced the brittle string-splicing `Mood` hack (`\nMood: 😊` inside `bio`) with a pristine native `mood: String?` property across the `Resident` backend schema.
+    - Setup screen and edit profile natively decode the incoming emoji mood state cleanly without hacking string arrays.
+  - **Edit Profile Reseeding Fixed**:
+    - Fixed an issue where the user's previously configured name was missing. The `AuthServices.userProfiles` name is seamlessly bundled into the route state param now.
+    - Fixed Country Picker emoji missing on reload by invoking `CountryService().getAll()` to reverse-search the country strings into their target flags.
+  - **True XP Progress UI**: 
+    - Resolved the mismatch between Gamification levels and the Frontend Dashboard UI. Replaced simple mod 100 placeholder displays.
+    - Built out `getXPProgress` and `getXPNeeded` logic inside `FloorUtils` reflecting the precise `floor(sqrt(xp / 50)) + 1` mathematical constraints to show reliable true progress required to hit the next Base Floor in the Luxury High-Rise.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

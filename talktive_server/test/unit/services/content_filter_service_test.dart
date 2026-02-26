@@ -87,7 +87,7 @@ void main() {
         strictMode: true,
       );
 
-      expect(lenient, isNull);
+      expect(lenient, 'check http://****.com');
       expect(strict, isNull);
     });
 

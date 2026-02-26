@@ -262,12 +262,19 @@ class ProfileScreenModern extends ConsumerWidget {
   /// Build XP card with progress indicator
   Widget _buildXPCard(resident) {
     final xp = resident?.xp ?? 0;
-    final xpInCurrentLevel = xp % 100; // XP within current level
+
+    // Default placeholder
+    var xpDisplay = '0/50';
+    if (resident != null) {
+      final progress = FloorUtils.getXPProgress(resident);
+      final needed = FloorUtils.getXPNeeded(resident);
+      xpDisplay = '$progress/$needed';
+    }
 
     return DuoStatCard(
       icon: Icons.stars,
       value: '$xp',
-      label: 'XP • ${xpInCurrentLevel}/100',
+      label: 'XP • $xpDisplay',
       gradientColors: [AppTheme.duoYellow, Colors.orange],
     );
   }

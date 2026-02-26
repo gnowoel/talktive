@@ -39,6 +39,31 @@ class FloorUtils {
   }
 
   // ---------------------------------------------------------------------------
+  // XP Helpers (matches GamificationService logic)
+  // ---------------------------------------------------------------------------
+
+  /// Calculate the XP needed for the current base floor
+  static int xpForBaseFloor(int floor) {
+    if (floor <= 1) return 0;
+    return (50 * pow(floor - 1, 2)).toInt();
+  }
+
+  /// Get the current progress within the actual base level
+  static int getXPProgress(Resident resident) {
+    final floor = resident.level;
+    final xpForCurrent = xpForBaseFloor(floor);
+    return max(0, resident.xp - xpForCurrent);
+  }
+
+  /// Get the total XP required to level up to the next base floor from the current base floor
+  static int getXPNeeded(Resident resident) {
+    final floor = resident.level;
+    final xpForCurrent = xpForBaseFloor(floor);
+    final xpForNext = xpForBaseFloor(floor + 1);
+    return xpForNext - xpForCurrent;
+  }
+
+  // ---------------------------------------------------------------------------
   // Display Helpers
   // ---------------------------------------------------------------------------
 

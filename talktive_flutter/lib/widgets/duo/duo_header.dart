@@ -15,9 +15,11 @@ class DuoHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.trailing,
+    this.hasBackButton = false,
     this.textColor = AppTheme.textPrimary,
   });
 
+  final bool hasBackButton;
   final Color textColor;
 
   @override
@@ -26,6 +28,25 @@ class DuoHeader extends StatelessWidget {
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       child: Row(
         children: [
+          // Optional Back button
+          if (hasBackButton) ...[
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: textColor,
+                  size: 20,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingMedium),
+          ],
           // Emoji icon
           Text(
             emoji,

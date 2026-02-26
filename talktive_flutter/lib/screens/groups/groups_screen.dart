@@ -1,10 +1,212 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:talktive_client/talktive_client.dart';
+import '../../providers/group_provider.dart';
+import '../../config/theme.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
+import 'group_chat_screen.dart';
+import 'create_group_dialog.dart';
 
-class GroupsScreen extends StatelessWidget {
+/// Duolingo-style Groups screen - Community discussions
+class GroupsScreen extends ConsumerWidget {
   const GroupsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Groups (Coming Soon)')));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupsState = ref.watch(groupListProvider);
+
+    return DuoPageScaffold(
+      emoji: '👥',
+      title: 'Groups',
+      subtitle: 'Join communities',
+      gradient: AppTheme.duoBlueGradient,
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'groups_fab',
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          showDialog(
+            context: context,
+            builder: (context) => const CreateGroupDialog(),
+          );
+        },
+        backgroundColor: AppTheme.duoBlue,
+        child: const Icon(Icons.add, size: 28),
+      ).animate().scale(delay: 300.ms, duration: 300.ms),
+      body: groupsState.when(
+        data: (groups) => groups.isEmpty
+            ? _buildEmptyState(context)
+            : RefreshIndicator(
+                onRefresh: () async {
+                  await ref.read(groupListProvider.notifier).refresh();
+                },
+                color: AppTheme.primaryColor,
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.duoSpacingMedium,
+                    AppTheme.contentBottomPadding,
+                  ),
+                  itemCount: groups.length,
+                  itemBuilder: (context, index) {
+                    final group = groups[index];
+                    return _buildGroupCard(context, ref, group, index)
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: -0.1, end: 0);
+                  },
+                ),
+              ),
+        loading: () => const DuoLoadingIndicator(),
+        error: (error, stack) => _buildErrorState(context, ref, error),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: DuoEmptyState(
+        emoji: '🎉',
+        title: 'No groups yet',
+        subtitle: 'Create or join a community',
+        buttonText: 'Create Group',
+        onButtonPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => const CreateGroupDialog(),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+    return Center(
+      child: DuoEmptyState(
+        emoji: '😕',
+        title: 'Something went wrong',
+        subtitle: 'We couldn\'t load groups. Please try again.',
+        buttonText: 'Retry',
+        onButtonPressed: () {
+          ref.read(groupListProvider.notifier).refresh();
+        },
+      ),
+    );
+  }
+
+  Widget _buildGroupCard(
+    BuildContext context,
+    WidgetRef ref,
+    Group group,
+    int index,
+  ) {
+    return DuoCard(
+      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GroupChatScreen(group: group),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                    AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+              ),
+              child: Center(
+                child: Text(
+                  group.emoji ?? '👥',
+                  style: const TextStyle(fontSize: 28),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingMedium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          group.name,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (group.isPublic)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.duoGreen.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Public',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: AppTheme.duoGreen,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (group.description != null &&
+                      group.description!.isNotEmpty)
+                    Text(
+                      group.description!,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${group.memberCount} members',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
   }
 }

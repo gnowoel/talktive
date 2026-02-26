@@ -12,20 +12,21 @@ import '../../utils/floor_utils.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
-import '../../widgets/chat/message_bubble_modern.dart';
+import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 
 import '../../widgets/duo/duo_page_scaffold.dart';
 
-/// Duolingo-style Plaza screen - public chat for all residents
-class PlazaScreenModern extends ConsumerStatefulWidget {
-  const PlazaScreenModern({super.key});
+/// Duolingo-style Global Lounge screen - public chat
+class PlazaChatScreen extends ConsumerStatefulWidget {
+  const PlazaChatScreen({super.key});
 
   @override
-  ConsumerState<PlazaScreenModern> createState() => _PlazaScreenModernState();
+  ConsumerState<PlazaChatScreen> createState() =>
+      _PlazaChatScreenState();
 }
 
-class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
+class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
 
@@ -79,10 +80,11 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
     final currentResident = currentResidentAsync.value;
 
     return DuoPageScaffold(
-      emoji: '🏛️',
-      title: 'The Plaza',
+      emoji: '🌍',
+      title: 'Global Lounge',
       subtitle: 'Chat with everyone',
       gradient: AppTheme.primaryGradient,
+      hasBackButton: true,
       trailingHeader: currentResident != null
           ? _buildStatsChip(currentResident)
           : null,
@@ -214,7 +216,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
         padding: const EdgeInsets.only(
           left: AppTheme.duoSpacingMedium,
           right: AppTheme.duoSpacingMedium,
-          bottom: AppTheme.contentBottomPadding,
+          bottom: AppTheme.duoSpacingMedium,
           top: AppTheme.duoSpacingSmall,
         ),
         itemCount: filteredMessages.length,
@@ -224,7 +226,7 @@ class _PlazaScreenModernState extends ConsumerState<PlazaScreenModern> {
               currentResident != null &&
               message.senderId == currentResident.userInfoId;
 
-          return MessageBubbleModern(
+          return MessageBubble(
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: currentResident,

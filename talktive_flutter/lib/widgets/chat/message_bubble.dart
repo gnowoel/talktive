@@ -1,177 +1,277 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
-import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
+import '../../providers/blocked_users_provider.dart';
+import '../../widgets/duo/duo_avatar.dart';
 
-/// A chat message bubble with modern glassmorphism design.
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends ConsumerWidget {
   final Message message;
   final bool isCurrentUser;
+  final Resident? currentResident;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isCurrentUser,
+    required this.currentResident,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final senderName = message.senderName.isNotEmpty
+        ? message.senderName
+        : 'Resident';
+    final senderAvatar = message.senderAvatar;
+    final senderFloor = message.senderFloor;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       child: Row(
         mainAxisAlignment: isCurrentUser
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isCurrentUser) ...[_buildAvatar(), const SizedBox(width: 8)],
+          if (!isCurrentUser) ...[
+            GestureDetector(
+              onTap: () {
+                context.push('/user/${message.senderId}');
+              },
+              child: DuoAvatar(
+                imageUrl: senderAvatar,
+                size: 36,
+                showRing: true,
+                floorLevel: senderFloor,
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+          ],
+
           Flexible(
-            child: Column(
-              crossAxisAlignment: isCurrentUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                if (!isCurrentUser) _buildSenderName(),
-                const SizedBox(height: 4),
-                _buildMessageContent(context),
-                const SizedBox(height: 4),
-                _buildTimestamp(),
-              ],
-            ),
-          ),
-          if (isCurrentUser) ...[const SizedBox(width: 8), _buildAvatar()],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvatar() {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryColor.withOpacity(0.8),
-            AppTheme.secondaryColor.withOpacity(0.8),
-          ],
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          _getInitial(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _getInitial() {
-    // Extract first letter from sender ID (placeholder)
-    return message.senderId.toString().substring(0, 1).toUpperCase();
-  }
-
-  Widget _buildSenderName() {
-    return Text(
-      'User ${message.senderId.toString().substring(0, 8)}',
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: AppTheme.textSecondary,
-      ),
-    );
-  }
-
-  Widget _buildMessageContent(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isCurrentUser
-              ? [
-                  AppTheme.primaryColor.withOpacity(0.8),
-                  AppTheme.secondaryColor.withOpacity(0.8),
-                ]
-              : [Colors.white.withOpacity(0.9), Colors.white.withOpacity(0.7)],
-        ),
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(20),
-          topRight: const Radius.circular(20),
-          bottomLeft: Radius.circular(isCurrentUser ? 20 : 4),
-          bottomRight: Radius.circular(isCurrentUser ? 4 : 20),
-        ),
-        border: Border.all(
-          color: isCurrentUser
-              ? Colors.white.withOpacity(0.3)
-              : AppTheme.primaryColor.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color:
-                (isCurrentUser
-                        ? AppTheme.primaryColor
-                        : Colors.black.withOpacity(0.1))
-                    .withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (message.content != null && message.content!.isNotEmpty)
-            Text(
-              message.content!,
-              style: TextStyle(
-                color: isCurrentUser ? Colors.white : AppTheme.textPrimary,
-                fontSize: 15,
-                height: 1.4,
+            child: GestureDetector(
+              onLongPress: !isCurrentUser
+                  ? () => _showMessageOptions(
+                      context,
+                      ref,
+                      senderName,
+                      message.senderId.toString(),
+                    )
+                  : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  gradient: isCurrentUser
+                      ? LinearGradient(
+                          colors: [
+                            AppTheme.primaryColor,
+                            AppTheme.primaryColor.withOpacity(0.8),
+                          ],
+                        )
+                      : null,
+                  color: isCurrentUser ? null : Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isCurrentUser)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          senderName,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textSecondary,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                    if (message.imageUrl != null &&
+                        message.imageUrl!.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.duoRadiusSmall,
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: message.imageUrl!,
+                          placeholder: (context, url) => Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.error),
+                          ),
+                          fit: BoxFit.cover,
+                          width: 200,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (message.content != null &&
+                        message.content!.isNotEmpty) ...[
+                      Text(
+                        message.content!,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: isCurrentUser
+                              ? Colors.white
+                              : AppTheme.textPrimary,
+                          fontFamily: 'Rubik',
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      _formatTimestamp(message.createdAt),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isCurrentUser
+                            ? Colors.white.withOpacity(0.7)
+                            : AppTheme.textLight,
+                        fontFamily: 'Rubik',
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          if (message.imageUrl != null && message.imageUrl!.isNotEmpty) ...[
-            if (message.content != null && message.content!.isNotEmpty)
-              const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                message.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image),
+          ),
+          if (isCurrentUser) ...[
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+            DuoAvatar(
+              imageUrl: currentResident?.avatar,
+              size: 36,
+              showRing: false,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${timestamp.month}/${timestamp.day} ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
+    }
+  }
+
+  void _showMessageOptions(
+    BuildContext context,
+    WidgetRef ref,
+    String senderName,
+    String senderId,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.block, color: AppTheme.errorColor),
+              title: Text(
+                'Block $senderName',
+                style: const TextStyle(
+                  color: AppTheme.errorColor,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: const Text('Block user?'),
+                    content: const Text(
+                      'You will no longer see their messages, and they cannot start a chat with you.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.errorColor,
+                        ),
+                        child: const Text('Block'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true && context.mounted) {
+                  ref.read(blockedUsersProvider.notifier).block(senderId);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$senderName blocked.'),
+                      backgroundColor: AppTheme.errorColor,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   );
-                },
-              ),
+                }
+              },
             ),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimestamp() {
-    final time = DateFormat('HH:mm').format(message.createdAt);
-    return Text(
-      time,
-      style: TextStyle(
-        fontSize: 11,
-        color: AppTheme.textSecondary.withOpacity(0.7),
+        ),
       ),
     );
   }

@@ -8,7 +8,7 @@ import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import '../../utils/floor_utils.dart';
-import '../../widgets/chat/message_bubble_modern.dart';
+import '../../widgets/chat/message_bubble.dart';
 
 import 'group_members_screen.dart';
 
@@ -284,7 +284,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;
 
-          return MessageBubbleModern(
+          return MessageBubble(
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: _currentResident,

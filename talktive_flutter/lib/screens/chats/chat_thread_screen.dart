@@ -10,7 +10,7 @@ import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
 import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
-import '../../widgets/chat/message_bubble_modern.dart';
+import '../../widgets/chat/message_bubble.dart';
 import '../../services/storage.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
@@ -318,7 +318,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               _currentResident != null &&
               message.senderId == _currentResident!.userInfoId;
 
-          return MessageBubbleModern(
+          return MessageBubble(
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: _currentResident,

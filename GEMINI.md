@@ -86,7 +86,7 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - `date_formatter.dart`: Centralized timestamp formatting (~60 lines saved)
     - `snackbar_helper.dart`: Consistent SnackBar styling across all screens
     - `DuoLoadingIndicator`: Standardized loading states
-  - **Provider Migration**: Migrated PlazaScreenModern from manual state to `currentResidentProvider`
+  - **Provider Migration**: Migrated PlazaScreen from manual state to `currentResidentProvider`
   - **Responsive Design**: Replaced hardcoded bottom padding (100px) with responsive constants:
     - Added `AppTheme.bottomNavHeight`, `bottomNavMargin`, `contentBottomPadding`
     - Updated all 5 main screens for proper responsiveness
@@ -166,6 +166,10 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **True XP Progress UI**: 
     - Resolved the mismatch between Gamification levels and the Frontend Dashboard UI. Replaced simple mod 100 placeholder displays.
     - Built out `getXPProgress` and `getXPNeeded` logic inside `FloorUtils` reflecting the precise `floor(sqrt(xp / 50)) + 1` mathematical constraints to show reliable true progress required to hit the next Base Floor in the Luxury High-Rise.
+
+- Phase 8.11: UI Refactoring & Cleanup (Feb 2026)
+  - **Plaza Dashboard Redesign**: Relocated the public chat stream (`PlazaChatScreen`) out of the root Plaza tab to convert the Plaza landing page into a dedicated lobby Dashboard featuring navigation cards and info.
+  - **Codebase Simplification**: Deleted redundant legacy screens (`_screen.dart`), stripped `_modern` suffixes from all active Duolingo-styled UI files, and renamed widget classes to remove the `Modern` branding.
 
 **Status:** 🏗️ In Progress
 

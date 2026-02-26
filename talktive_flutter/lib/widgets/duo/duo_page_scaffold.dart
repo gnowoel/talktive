@@ -18,6 +18,7 @@ class DuoPageScaffold extends StatelessWidget {
   final Widget? floatingActionButton;
   final List<Color> gradient;
   final bool resizeToAvoidBottomInset;
+  final bool hasBackButton;
 
   const DuoPageScaffold({
     super.key,
@@ -29,6 +30,7 @@ class DuoPageScaffold extends StatelessWidget {
     this.trailingHeader,
     this.floatingActionButton,
     this.resizeToAvoidBottomInset = true,
+    this.hasBackButton = false,
   });
 
   @override
@@ -67,6 +69,7 @@ class DuoPageScaffold extends StatelessWidget {
                     title: title,
                     subtitle: subtitle,
                     trailing: trailingHeader,
+                    hasBackButton: hasBackButton,
                     textColor: Colors.white, // Invert text color for gradient
                   ),
                 ),

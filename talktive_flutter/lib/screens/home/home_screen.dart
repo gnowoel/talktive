@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../plaza/plaza_screen_modern.dart';
-import '../moments/moments_screen_modern.dart';
-import '../chats/chats_screen_modern.dart';
-import '../groups/groups_screen_modern.dart';
-import '../profile/profile_screen_modern.dart';
+import '../plaza/plaza_screen.dart';
+import '../moments/moments_screen.dart';
+import '../chats/chats_screen.dart';
+import '../groups/groups_screen.dart';
+import '../profile/profile_screen.dart';
 
 import '../../config/theme.dart';
 import '../../services/serverpod_notification_service.dart';
@@ -45,11 +45,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   final List<Widget> _screens = [
-    PlazaScreenModern(),
-    const MomentsScreenModern(),
-    const ChatsScreenModern(),
-    const GroupsScreenModern(),
-    const ProfileScreenModern(),
+    PlazaScreen(),
+    const MomentsScreen(),
+    const ChatsScreen(),
+    const GroupsScreen(),
+    const ProfileScreen(),
   ];
 
   final List<_NavItem> _navItems = const [

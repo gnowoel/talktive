@@ -151,7 +151,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 20,
                                   spreadRadius: 5,
                                 ),
@@ -164,7 +164,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                   fontSize: 60,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color: Colors.black.withValues(alpha: 0.1),
                                       offset: const Offset(2, 2),
                                       blurRadius: 4,
                                     ),
@@ -194,7 +194,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               letterSpacing: 1.5,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   offset: const Offset(2, 2),
                                   blurRadius: 4,
                                 ),
@@ -208,7 +208,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               fontFamily: 'Poppins',
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -242,7 +242,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     children: [
                       Icon(
                         Icons.lock,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         size: 16,
                       ),
                       const SizedBox(width: 8),
@@ -251,7 +251,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         style: TextStyle(
                           fontFamily: 'Rubik',
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     ],

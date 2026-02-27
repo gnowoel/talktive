@@ -189,7 +189,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                   child: Text(
                     'Skip',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -209,7 +209,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
+                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.3)],
                 ),
               ),
               child: SafeArea(
@@ -241,7 +241,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                       borderRadius: BorderRadius.circular(29),
                                     ),
                                     elevation: 8,
-                                    shadowColor: Colors.black.withOpacity(0.3),
+                                    shadowColor: Colors.black.withValues(alpha: 0.3),
                                   ),
                                   child: const Text(
                                     'Next',
@@ -302,7 +302,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                     width: 140,
                     height: 140,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -347,7 +347,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               Text(
                     page.subtitle,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 16,
                       height: 1.5,
                     ),
@@ -363,10 +363,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -444,12 +444,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
       height: 8,
       width: isActive ? 24 : 8,
       decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
+        color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(4),
         boxShadow: [
           if (isActive)
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

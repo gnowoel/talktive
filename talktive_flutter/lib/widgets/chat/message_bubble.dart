@@ -70,7 +70,7 @@ class MessageBubble extends ConsumerWidget {
                       ? LinearGradient(
                           colors: [
                             AppTheme.primaryColor,
-                            AppTheme.primaryColor.withOpacity(0.8),
+                            AppTheme.primaryColor.withValues(alpha: 0.8),
                           ],
                         )
                       : null,
@@ -78,7 +78,7 @@ class MessageBubble extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -151,7 +151,7 @@ class MessageBubble extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 11,
                         color: isCurrentUser
-                            ? Colors.white.withOpacity(0.7)
+                            ? Colors.white.withValues(alpha: 0.7)
                             : AppTheme.textLight,
                         fontFamily: 'Rubik',
                       ),

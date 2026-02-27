@@ -35,7 +35,7 @@ class DuoHeader extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -73,7 +73,7 @@ class DuoHeader extends StatelessWidget {
                     subtitle!,
                     style: TextStyle(
                       fontSize: 14,
-                      color: textColor.withOpacity(0.8),
+                      color: textColor.withValues(alpha: 0.8),
                       fontFamily: 'Rubik',
                     ),
                   ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1, end: 0),

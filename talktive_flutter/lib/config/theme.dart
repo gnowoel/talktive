@@ -103,12 +103,10 @@ class AppTheme {
       secondary: secondaryColor,
       tertiary: accentColor,
       surface: cardLight,
-      background: lightBackground,
       error: errorColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: textPrimary,
-      onBackground: textPrimary,
       onError: Colors.white,
     ),
 
@@ -354,12 +352,10 @@ class AppTheme {
       secondary: secondaryColor,
       tertiary: accentColor,
       surface: cardDark,
-      background: darkBackground,
       error: errorColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: Colors.white,
-      onBackground: Colors.white,
       onError: Colors.white,
     ),
 
@@ -401,7 +397,7 @@ class AppTheme {
   // Box Shadows
   static List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       blurRadius: 10,
       offset: const Offset(0, 4),
     ),
@@ -418,7 +414,7 @@ class AppTheme {
   // Duolingo-Style Shadows
   static List<BoxShadow> duoCardShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       blurRadius: 24,
       offset: const Offset(0, 8),
     ),
@@ -426,7 +422,7 @@ class AppTheme {
 
   static List<BoxShadow> duoButtonShadow = [
     BoxShadow(
-      color: primaryColor.withOpacity(0.3),
+      color: primaryColor.withValues(alpha: 0.3),
       blurRadius: 12,
       offset: const Offset(0, 4),
     ),

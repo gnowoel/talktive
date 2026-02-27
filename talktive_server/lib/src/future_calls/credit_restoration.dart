@@ -1,6 +1,5 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
-import '../services/apartment_service.dart';
 
 class CreditRestorationCall extends FutureCall {
   @override

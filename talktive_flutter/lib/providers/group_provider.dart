@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
@@ -17,7 +18,7 @@ class GroupList extends _$GroupList {
     try {
       return await client.group.listGroups(limit: 50, offset: 0);
     } catch (e) {
-      print('GroupList: Fetch error: $e');
+      debugPrint('GroupList: Fetch error: $e');
       rethrow;
     }
   }
@@ -45,7 +46,7 @@ class GroupList extends _$GroupList {
 
       return group;
     } catch (e) {
-      print('GroupList: Create group error: $e');
+      debugPrint('GroupList: Create group error: $e');
       rethrow;
     }
   }
@@ -59,7 +60,7 @@ class GroupList extends _$GroupList {
       // Refresh the list
       ref.invalidateSelf();
     } catch (e) {
-      print('GroupList: Join group error: $e');
+      debugPrint('GroupList: Join group error: $e');
       rethrow;
     }
   }
@@ -73,7 +74,7 @@ class GroupList extends _$GroupList {
       // Refresh the list
       ref.invalidateSelf();
     } catch (e) {
-      print('GroupList: Leave group error: $e');
+      debugPrint('GroupList: Leave group error: $e');
       rethrow;
     }
   }
@@ -97,7 +98,7 @@ Future<Group> groupDetails(Ref ref, int groupId) async {
   try {
     return await client.group.getGroup(groupId);
   } catch (e) {
-    print('GroupDetails: Fetch error: $e');
+    debugPrint('GroupDetails: Fetch error: $e');
     rethrow;
   }
 }
@@ -109,7 +110,7 @@ Future<List<Resident>> groupMembers(Ref ref, int groupId) async {
   try {
     return await client.group.getGroupMembers(groupId);
   } catch (e) {
-    print('GroupMembers: Fetch error: $e');
+    debugPrint('GroupMembers: Fetch error: $e');
     rethrow;
   }
 }

@@ -66,7 +66,7 @@ class ImageEndpoint extends Endpoint {
     // Generate unique filename
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final ext = path.extension(fileName).toLowerCase();
-    final uniqueFileName = '${userUuid}_${timestamp}$ext';
+    final uniqueFileName = '${userUuid}_$timestamp$ext';
 
     // Define upload directory (relative path for Docker volume mounting)
     final uploadDir = Directory('uploads');

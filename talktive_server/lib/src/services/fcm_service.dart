@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+// ignore_for_file: avoid_print
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -103,9 +104,9 @@ class FCMService {
           'notification': {
             'title': title,
             'body': body,
-            if (imageUrl != null) 'image': imageUrl,
+            'image': ?imageUrl,
           },
-          if (data != null) 'data': data,
+          'data': ?data,
           'android': {
             'priority': 'high',
             'notification': {
@@ -122,7 +123,7 @@ class FCMService {
                   'body': body,
                 },
                 'sound': sound ?? 'default',
-                if (badge != null) 'badge': badge,
+                'badge': ?badge,
               },
             },
           },
@@ -270,7 +271,7 @@ class FCMService {
             'title': title,
             'body': body,
           },
-          if (data != null) 'data': data,
+          'data': ?data,
         },
       };
 

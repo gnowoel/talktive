@@ -316,7 +316,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [color, color.withOpacity(0.7)]),
+              gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -447,7 +447,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [color, color.withOpacity(0.7)]),
+              gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
@@ -86,7 +87,7 @@ class MomentLikes extends _$MomentLikes {
           .toSet();
     } catch (e) {
       // If batch endpoint fails, fall back to empty set
-      print('Error fetching liked moments: $e');
+      debugPrint('Error fetching liked moments: $e');
       return {};
     }
   }

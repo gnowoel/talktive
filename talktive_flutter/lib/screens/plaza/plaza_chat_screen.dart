@@ -171,10 +171,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       decoration: BoxDecoration(
-        color: AppTheme.accentColor.withOpacity(0.1),
+        color: AppTheme.accentColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
         border: Border.all(
-          color: AppTheme.accentColor.withOpacity(0.3),
+          color: AppTheme.accentColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -248,7 +248,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -305,7 +305,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
                     ? LinearGradient(
                         colors: [
                           AppTheme.primaryColor,
-                          AppTheme.primaryColor.withOpacity(0.8),
+                          AppTheme.primaryColor.withValues(alpha: 0.8),
                         ],
                       )
                     : null,
@@ -314,7 +314,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
                 boxShadow: canSend
                     ? [
                         BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.3),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),

@@ -1,10 +1,9 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
-import 'package:uuid/uuid.dart'; // Added UUID import
+// Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
-import '../services/rate_limit_service.dart';
 import '../services/redis_rate_limit_service.dart';
 import '../services/content_filter_service.dart';
 import '../services/achievement_service.dart';
@@ -144,7 +143,7 @@ class MessageEndpoint extends Endpoint {
       // 8. Distribute Message via Streaming
       // Broadcast to all subscribers of this channel using the new API
       final streamKey = 'channel_$channelId';
-      session.messages.postMessage(streamKey, savedMessage);
+      await session.messages.postMessage(streamKey, savedMessage);
 
       // 9. Award XP and update message count
       await GamificationService.awardXP(
@@ -182,8 +181,8 @@ class MessageEndpoint extends Endpoint {
 
       return savedMessage;
     } catch (e, stack) {
-      print('FAILED to send message: $e');
-      print(stack);
+      session.log('FAILED to send message: $e', level: LogLevel.error);
+      session.log(stack.toString(), level: LogLevel.error);
       rethrow;
     }
   }

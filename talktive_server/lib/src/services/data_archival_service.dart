@@ -120,7 +120,7 @@ class DataArchivalService {
             (t.status.equals(protocol.ReportStatus.approved) |
                 t.status.equals(protocol.ReportStatus.rejected)) &
             t.resolvedAt.notEquals(null) &
-            (t.resolvedAt! < cutoffDate),
+            (t.resolvedAt < cutoffDate),
         limit: 1000,
       );
 
@@ -233,7 +233,7 @@ class DataArchivalService {
           (t.status.equals(protocol.ReportStatus.approved) |
               t.status.equals(protocol.ReportStatus.rejected)) &
           t.resolvedAt.notEquals(null) &
-          (t.resolvedAt! < DateTime.now().subtract(const Duration(days: 30))),
+          (t.resolvedAt < DateTime.now().subtract(const Duration(days: 30))),
     );
     stats['archivableReports'] = reportsCount;
 

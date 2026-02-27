@@ -186,11 +186,11 @@ class ProfileScreen extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
-  Widget _buildStatsGrid(resident) {
+  Widget _buildStatsGrid(Resident? resident) {
     return Padding(
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       child: GridView.count(
@@ -208,7 +208,9 @@ class ProfileScreen extends ConsumerWidget {
                 label: 'Trust Score',
                 gradientColors: [
                   _getTrustColor(resident?.trustScore ?? 100),
-                  _getTrustColor(resident?.trustScore ?? 100).withOpacity(0.7),
+                  _getTrustColor(
+                    resident?.trustScore ?? 100,
+                  ).withValues(alpha: 0.7),
                 ],
               )
               .animate()
@@ -227,7 +229,7 @@ class ProfileScreen extends ConsumerWidget {
             label: 'Floor',
             gradientColors: [
               AppTheme.primaryColor,
-              AppTheme.primaryColor.withOpacity(0.7),
+              AppTheme.primaryColor.withValues(alpha: 0.7),
             ],
           ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
           // Messages
@@ -237,7 +239,7 @@ class ProfileScreen extends ConsumerWidget {
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,
-                  AppTheme.accentColor.withOpacity(0.7),
+                  AppTheme.accentColor.withValues(alpha: 0.7),
                 ],
               )
               .animate()
@@ -260,7 +262,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   /// Build XP card with progress indicator
-  Widget _buildXPCard(resident) {
+  Widget _buildXPCard(Resident? resident) {
     final xp = resident?.xp ?? 0;
 
     // Default placeholder
@@ -313,9 +315,11 @@ class ProfileScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.duoGreen.withOpacity(0.1),
+                  color: AppTheme.duoGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.duoGreen.withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppTheme.duoGreen.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -377,10 +381,10 @@ class ProfileScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withOpacity(0.1),
+                  color: AppTheme.accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppTheme.accentColor.withOpacity(0.3),
+                    color: AppTheme.accentColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -469,12 +473,14 @@ class ProfileScreen extends ConsumerWidget {
                             left: AppTheme.duoSpacingSmall,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.1),
+                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               AppTheme.duoRadiusSmall,
                             ),
                             border: Border.all(
-                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.3,
+                              ),
                               width: 2,
                             ),
                           ),
@@ -531,7 +537,7 @@ class ProfileScreen extends ConsumerWidget {
         ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0);
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
@@ -546,8 +552,8 @@ class ProfileScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryColor.withOpacity(0.2),
-                    AppTheme.secondaryColor.withOpacity(0.2),
+                    AppTheme.primaryColor.withValues(alpha: 0.2),
+                    AppTheme.secondaryColor.withValues(alpha: 0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),

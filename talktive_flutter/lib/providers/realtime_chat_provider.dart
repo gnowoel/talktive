@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -42,7 +43,7 @@ class RealtimeChat extends _$RealtimeChat {
         offset: 0,
       );
     } catch (e) {
-      print('RealtimeChat: Fetch error: $e');
+      debugPrint('RealtimeChat: Fetch error: $e');
       rethrow;
     }
   }
@@ -63,18 +64,18 @@ class RealtimeChat extends _$RealtimeChat {
           _handleNewMessage(message);
         },
         onError: (error) {
-          print('RealtimeChat: Stream error: $error');
+          debugPrint('RealtimeChat: Stream error: $error');
         },
         onDone: () {
-          print('RealtimeChat: Stream closed');
+          debugPrint('RealtimeChat: Stream closed');
           _isSubscribed = false;
         },
       );
 
       _isSubscribed = true;
-      print('RealtimeChat: Subscribed to channel $_channelId');
+      debugPrint('RealtimeChat: Subscribed to channel $_channelId');
     } catch (e) {
-      print('RealtimeChat: Subscribe error: $e');
+      debugPrint('RealtimeChat: Subscribe error: $e');
     }
   }
 
@@ -83,7 +84,7 @@ class RealtimeChat extends _$RealtimeChat {
     _messageSubscription?.cancel();
     _messageSubscription = null;
     _isSubscribed = false;
-    print('RealtimeChat: Unsubscribed from channel $_channelId');
+    debugPrint('RealtimeChat: Unsubscribed from channel $_channelId');
   }
 
   /// Handles a new message received via WebSocket.
@@ -99,7 +100,7 @@ class RealtimeChat extends _$RealtimeChat {
     final updatedMessages = [newMessage, ...currentState];
     state = AsyncValue.data(updatedMessages);
 
-    print('RealtimeChat: New message received: ${newMessage.content}');
+    debugPrint('RealtimeChat: New message received: ${newMessage.content}');
   }
 
   /// Sends a message to the channel.
@@ -126,9 +127,9 @@ class RealtimeChat extends _$RealtimeChat {
         state = AsyncValue.data(updatedMessages);
       }
 
-      print('RealtimeChat: Message sent: ${savedMessage.content}');
+      debugPrint('RealtimeChat: Message sent: ${savedMessage.content}');
     } catch (e) {
-      print('RealtimeChat: Send error: $e');
+      debugPrint('RealtimeChat: Send error: $e');
       rethrow;
     }
   }
@@ -163,7 +164,7 @@ class RealtimeChat extends _$RealtimeChat {
         state = AsyncValue.data(updatedMessages);
       }
     } catch (e) {
-      print('RealtimeChat: Load more error: $e');
+      debugPrint('RealtimeChat: Load more error: $e');
     }
   }
 }

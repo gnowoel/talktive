@@ -105,12 +105,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? item.color.withOpacity(0.12)
+                          ? item.color.withValues(alpha: 0.12)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
-                            ? item.color.withOpacity(0.2)
+                            ? item.color.withValues(alpha: 0.2)
                             : Colors.transparent,
                         width: 2,
                       ),
@@ -175,7 +175,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 : FontWeight.w600,
                             color: isSelected
                                 ? item.color
-                                : AppTheme.textSecondary.withOpacity(0.7),
+                                : AppTheme.textSecondary.withValues(alpha: 0.7),
                             fontFamily: 'Poppins',
                           ),
                         ),

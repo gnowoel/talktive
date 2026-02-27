@@ -38,7 +38,7 @@ Future<void> main() async {
       rethrow;
     }
     // Default app already exists (native pre-init). Safe to proceed.
-    await Firebase.app();
+    Firebase.app();
   }
 
   // Background message handler needs to be registered early

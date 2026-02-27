@@ -27,7 +27,7 @@ class MessageInput extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -43,7 +43,7 @@ class MessageInput extends StatelessWidget {
                   Icons.image,
                   color: enabled
                       ? AppTheme.primaryColor
-                      : AppTheme.textSecondary.withOpacity(0.5),
+                      : AppTheme.textSecondary.withValues(alpha: 0.5),
                 ),
                 onPressed: enabled ? onImagePick : null,
               ),
@@ -56,7 +56,7 @@ class MessageInput extends StatelessWidget {
                   color: AppTheme.backgroundColor,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppTheme.primaryColor.withOpacity(0.2),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
                   ),
                 ),
                 child: TextField(
@@ -67,7 +67,7 @@ class MessageInput extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: hintText,
                     hintStyle: TextStyle(
-                      color: AppTheme.textSecondary.withOpacity(0.6),
+                      color: AppTheme.textSecondary.withValues(alpha: 0.6),
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -94,12 +94,12 @@ class MessageInput extends StatelessWidget {
                         ],
                       )
                     : null,
-                color: enabled ? null : AppTheme.textSecondary.withOpacity(0.3),
+                color: enabled ? null : AppTheme.textSecondary.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
                 boxShadow: enabled
                     ? [
                         BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.4),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),

@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import 'package:serverpod/serverpod.dart';
 import 'dart:math';
 import '../generated/protocol.dart';
@@ -82,8 +83,9 @@ class ApartmentService {
     if (resident.suspended) return true;
     if (resident.trustScore <= 0) return true;
     if (resident.mutedUntil != null &&
-        resident.mutedUntil!.isAfter(DateTime.now()))
+        resident.mutedUntil!.isAfter(DateTime.now())) {
       return true;
+    }
     return false;
   }
 

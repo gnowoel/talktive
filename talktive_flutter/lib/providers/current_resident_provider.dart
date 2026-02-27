@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
@@ -45,7 +46,7 @@ class CurrentResident extends _$CurrentResident {
       final resident = await client.resident.getResident();
       return resident;
     } catch (e) {
-      print('CurrentResident: Fetch error: $e');
+      debugPrint('CurrentResident: Fetch error: $e');
       // Return null instead of throwing to avoid breaking the UI
       return null;
     }

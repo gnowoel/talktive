@@ -234,6 +234,6 @@ class Auth extends _$Auth {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    state = const AsyncValue.data(const Unauthenticated());
+    state = const AsyncValue.data(Unauthenticated());
   }
 }

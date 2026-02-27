@@ -88,7 +88,7 @@ class UserProfileScreen extends ConsumerWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     AppTheme.primaryColor,
-                    AppTheme.secondaryColor.withOpacity(0.8),
+                    AppTheme.secondaryColor.withValues(alpha: 0.8),
                   ],
                 ),
               ),
@@ -108,7 +108,7 @@ class UserProfileScreen extends ConsumerWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
@@ -140,7 +140,7 @@ class UserProfileScreen extends ConsumerWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -203,7 +203,7 @@ class UserProfileScreen extends ConsumerWidget {
                     value: profile['totalMessages'].toString(),
                     gradientColors: [
                       AppTheme.primaryColor,
-                      AppTheme.primaryColor.withOpacity(0.7),
+                      AppTheme.primaryColor.withValues(alpha: 0.7),
                     ],
                   ),
                   DuoStatCard(
@@ -212,7 +212,7 @@ class UserProfileScreen extends ConsumerWidget {
                     value: profile['totalMoments'].toString(),
                     gradientColors: [
                       AppTheme.secondaryColor,
-                      AppTheme.secondaryColor.withOpacity(0.7),
+                      AppTheme.secondaryColor.withValues(alpha: 0.7),
                     ],
                   ),
                   DuoStatCard(
@@ -221,7 +221,7 @@ class UserProfileScreen extends ConsumerWidget {
                     value: profile['achievementsUnlocked'].toString(),
                     gradientColors: [
                       AppTheme.duoYellow,
-                      AppTheme.duoYellow.withOpacity(0.7),
+                      AppTheme.duoYellow.withValues(alpha: 0.7),
                     ],
                   ),
                   DuoStatCard(
@@ -230,7 +230,7 @@ class UserProfileScreen extends ConsumerWidget {
                     value: profile['currentStreak'].toString(),
                     gradientColors: [
                       AppTheme.duoOrange,
-                      AppTheme.duoOrange.withOpacity(0.7),
+                      AppTheme.duoOrange.withValues(alpha: 0.7),
                     ],
                   ),
                 ],
@@ -327,9 +327,11 @@ class UserProfileScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.duoGreen.withOpacity(0.1),
+                  color: AppTheme.duoGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.duoGreen.withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppTheme.duoGreen.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -383,10 +385,10 @@ class UserProfileScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withOpacity(0.1),
+                  color: AppTheme.accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppTheme.accentColor.withOpacity(0.3),
+                    color: AppTheme.accentColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -473,12 +475,16 @@ class UserProfileScreen extends ConsumerWidget {
     final chatList = ref.read(privateChatListProvider.notifier);
     chatList
         .getOrCreateChat(userId)
-        .then((chat) => context.push('/chat/${chat.channelId}'))
-        .catchError(
-          (error) => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to start chat: $error')),
-          ),
-        );
+        .then((chat) {
+          if (context.mounted) context.push('/chat/${chat.channelId}');
+        })
+        .catchError((error) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to start chat: $error')),
+            );
+          }
+        });
   }
 
   Future<void> _toggleBlock(
@@ -491,21 +497,27 @@ class UserProfileScreen extends ConsumerWidget {
       final client = ref.read(clientProvider);
       if (isBlocked) {
         await client.userProfile.unblockUser(userId);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('User unblocked')));
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('User unblocked')));
+        }
       } else {
         await client.userProfile.blockUser(userId);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('User blocked')));
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('User blocked')));
+        }
       }
       // Refresh profile
       ref.invalidate(userProfileProvider(userId));
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -557,13 +569,17 @@ class UserProfileScreen extends ConsumerWidget {
                   targetUserId: userId,
                   reason: reason,
                 );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Report submitted')),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Report submitted')),
+                  );
+                }
               } catch (e) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
               }
             },
             child: const Text(

@@ -252,7 +252,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                         _isPublic = value;
                       });
                     },
-                    activeColor: AppTheme.duoGreen,
+                    activeThumbColor: AppTheme.duoGreen,
                   ),
                 ],
               ),

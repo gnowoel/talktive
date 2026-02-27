@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print, unawaited_futures
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 import 'package:serverpod/serverpod.dart';

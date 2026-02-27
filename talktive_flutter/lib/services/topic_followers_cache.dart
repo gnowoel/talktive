@@ -98,11 +98,11 @@ class TopicFollowersCache extends ChangeNotifier {
         .collection('followers')
         .snapshots()
         .listen(
-      _handleFollowersUpdate,
-      onError: (error) {
-        debugPrint('Error listening to topic followers: $error');
-      },
-    );
+          _handleFollowersUpdate,
+          onError: (error) {
+            debugPrint('Error listening to topic followers: $error');
+          },
+        );
   }
 
   void _handleFollowersUpdate(QuerySnapshot snapshot) {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
@@ -17,7 +18,7 @@ class PrivateChatList extends _$PrivateChatList {
     try {
       return await client.privateChat.listPrivateChats();
     } catch (e) {
-      print('PrivateChatList: Fetch error: $e');
+      debugPrint('PrivateChatList: Fetch error: $e');
       rethrow;
     }
   }
@@ -33,7 +34,7 @@ class PrivateChatList extends _$PrivateChatList {
 
       return chat;
     } catch (e) {
-      print('PrivateChatList: Create chat error: $e');
+      debugPrint('PrivateChatList: Create chat error: $e');
       rethrow;
     }
   }
@@ -60,7 +61,7 @@ Future<Map<String, dynamic>> privateChatDetails(
   try {
     return await client.privateChat.getPrivateChatDetails(privateChatId);
   } catch (e) {
-    print('PrivateChatDetails: Fetch error: $e');
+    debugPrint('PrivateChatDetails: Fetch error: $e');
     rethrow;
   }
 }

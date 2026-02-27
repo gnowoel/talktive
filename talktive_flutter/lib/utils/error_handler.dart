@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:serverpod_flutter/serverpod_flutter.dart';
 
 /// Centralized error handling utility for the Flutter app.
 class ErrorHandler {

@@ -1,5 +1,4 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 
 class AchievementEndpoint extends Endpoint {

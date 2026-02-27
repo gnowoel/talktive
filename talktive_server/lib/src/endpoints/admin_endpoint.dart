@@ -1,6 +1,5 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
-import 'package:uuid/uuid.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
@@ -475,7 +474,7 @@ class AdminEndpoint extends Endpoint {
         'momentCount': momentCount,
         'reportCount': reportCount,
         'createdAt':
-            userInfo?.created?.toIso8601String() ??
+            userInfo?.created.toIso8601String() ??
             DateTime.now().toIso8601String(),
       });
     }
@@ -593,7 +592,7 @@ class AdminEndpoint extends Endpoint {
         'isAdmin': resident.isAdmin,
         'suspended': resident.suspended,
         'createdAt':
-            userInfo?.created?.toIso8601String() ??
+            userInfo?.created.toIso8601String() ??
             DateTime.now().toIso8601String(),
       },
       'stats': {

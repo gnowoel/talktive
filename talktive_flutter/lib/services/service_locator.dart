@@ -64,24 +64,24 @@ class ServiceLocator {
 
     try {
       if (kDebugMode) {
-        print('ServiceLocator: Starting simplified initialization...');
+        debugPrint('ServiceLocator: Starting simplified initialization...');
       }
 
       // Initialize error recovery service (optional)
       if (kDebugMode) {
-        print('ServiceLocator: Initializing error recovery service...');
+        debugPrint('ServiceLocator: Initializing error recovery service...');
       }
       try {
         _errorRecoveryService = ErrorRecoveryService();
         if (kDebugMode) {
-          print('ServiceLocator: Error recovery service initialized');
+          debugPrint('ServiceLocator: Error recovery service initialized');
         }
       } catch (e) {
         if (kDebugMode) {
-          print(
+          debugPrint(
             'ServiceLocator: Error recovery service initialization failed: $e',
           );
-          print('ServiceLocator: Continuing without error recovery service');
+          debugPrint('ServiceLocator: Continuing without error recovery service');
         }
         // Error recovery service is optional, continue without it
         _errorRecoveryService = null;
@@ -91,14 +91,14 @@ class ServiceLocator {
       _initializationTime = DateTime.now();
 
       if (kDebugMode) {
-        print('ServiceLocator: All services initialized successfully');
+        debugPrint('ServiceLocator: All services initialized successfully');
       }
     } catch (e) {
       _initializationError = e.toString();
 
       if (kDebugMode) {
-        print('ServiceLocator: Failed to initialize services: $e');
-        print('ServiceLocator: Stack trace: ${StackTrace.current}');
+        debugPrint('ServiceLocator: Failed to initialize services: $e');
+        debugPrint('ServiceLocator: Stack trace: ${StackTrace.current}');
       }
 
       throw Exception('Service initialization failed: ${e.toString()}');
@@ -132,7 +132,7 @@ class ServiceLocator {
     _isInitialized = false;
 
     if (kDebugMode) {
-      print('ServiceLocator: Services reset (references cleared)');
+      debugPrint('ServiceLocator: Services reset (references cleared)');
     }
   }
 
@@ -148,7 +148,7 @@ class ServiceLocator {
         UserCache().dispose();
       } catch (e) {
         if (kDebugMode) {
-          print('ServiceLocator: Error disposing UserCache: $e');
+          debugPrint('ServiceLocator: Error disposing UserCache: $e');
         }
       }
 
@@ -156,7 +156,7 @@ class ServiceLocator {
         FollowCache().dispose();
       } catch (e) {
         if (kDebugMode) {
-          print('ServiceLocator: Error disposing FollowCache: $e');
+          debugPrint('ServiceLocator: Error disposing FollowCache: $e');
         }
       }
 
@@ -164,7 +164,7 @@ class ServiceLocator {
         TopicCache().dispose();
       } catch (e) {
         if (kDebugMode) {
-          print('ServiceLocator: Error disposing TopicCache: $e');
+          debugPrint('ServiceLocator: Error disposing TopicCache: $e');
         }
       }
 
@@ -172,7 +172,7 @@ class ServiceLocator {
         Avatar().dispose();
       } catch (e) {
         if (kDebugMode) {
-          print('ServiceLocator: Error disposing Avatar: $e');
+          debugPrint('ServiceLocator: Error disposing Avatar: $e');
         }
       }
 
@@ -180,7 +180,7 @@ class ServiceLocator {
         LoggingService.instance.dispose();
       } catch (e) {
         if (kDebugMode) {
-          print('ServiceLocator: Error disposing LoggingService: $e');
+          debugPrint('ServiceLocator: Error disposing LoggingService: $e');
         }
       }
 
@@ -192,11 +192,11 @@ class ServiceLocator {
       _isInitialized = false;
 
       if (kDebugMode) {
-        print('ServiceLocator: All services disposed');
+        debugPrint('ServiceLocator: All services disposed');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('ServiceLocator: Error disposing services: $e');
+        debugPrint('ServiceLocator: Error disposing services: $e');
       }
     }
   }
@@ -292,11 +292,11 @@ class ServiceLocator {
       _paginatedMessageService = null;
 
       if (kDebugMode) {
-        print('ServiceLocator: All message data cleared');
+        debugPrint('ServiceLocator: All message data cleared');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('ServiceLocator: Error clearing message data: $e');
+        debugPrint('ServiceLocator: Error clearing message data: $e');
       }
     }
   }

@@ -121,7 +121,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.textSecondary.withOpacity(0.3),
+                color: AppTheme.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -366,7 +366,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           border: Border.all(
             color: isSelected
                 ? AppTheme.primaryColor
-                : AppTheme.textSecondary.withOpacity(0.3),
+                : AppTheme.textSecondary.withValues(alpha: 0.3),
           ),
         ),
         child: Text(
@@ -401,7 +401,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(report.status).withOpacity(0.1),
+                  color: _getStatusColor(report.status).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

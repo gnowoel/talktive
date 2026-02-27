@@ -244,13 +244,13 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           gradient: LinearGradient(
             colors: [
               AppTheme.secondaryColor,
-              AppTheme.secondaryColor.withOpacity(0.8),
+              AppTheme.secondaryColor.withValues(alpha: 0.8),
             ],
           ),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.secondaryColor.withOpacity(0.4),
+              color: AppTheme.secondaryColor.withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -407,7 +407,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       height: 300,
                       color: AppTheme.lightBackground,
                       child: const Center(

@@ -253,7 +253,7 @@ class PlazaScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
             ),
             child: Text(emoji, style: const TextStyle(fontSize: 24)),

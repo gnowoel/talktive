@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart'; // Ensure this import is correct
@@ -24,7 +25,7 @@ class Chat extends _$Chat {
         offset: 0,
       );
     } catch (e) {
-      print('ChatProvider: Fetch error: $e');
+      debugPrint('ChatProvider: Fetch error: $e');
       // Return empty list on error to avoid crashing UI, or rethrow?
       // AsyncValue handles error state if we throw.
       // Let's rethrow so UI shows error.
@@ -49,13 +50,13 @@ class Chat extends _$Chat {
 
       final previousState = state.value ?? [];
       final newState = [savedMessage, ...previousState];
-      print(
+      debugPrint(
         'ChatProvider: Updating state with ${newState.length} messages. Newest: ${savedMessage.content}',
       );
       state = AsyncValue.data(newState);
     } catch (e) {
-      print('ChatProvider: Send error: $e');
-      throw e;
+      debugPrint('ChatProvider: Send error: $e');
+      rethrow;
     }
   }
 }

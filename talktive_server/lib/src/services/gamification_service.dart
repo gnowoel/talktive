@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import 'dart:math';
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';

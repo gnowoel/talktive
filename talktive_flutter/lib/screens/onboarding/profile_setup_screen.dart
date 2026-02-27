@@ -326,8 +326,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.primaryColor.withOpacity(0.1),
-                  AppTheme.secondaryColor.withOpacity(0.1),
+                  AppTheme.primaryColor.withValues(alpha: 0.1),
+                  AppTheme.secondaryColor.withValues(alpha: 0.1),
                 ],
               ),
             ),
@@ -442,7 +442,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               gradient: const LinearGradient(colors: AppTheme.primaryGradient),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -478,7 +478,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       Container(
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppTheme.primaryColor.withOpacity(0.2)
+                              ? AppTheme.primaryColor.withValues(alpha: 0.2)
                               : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
@@ -538,7 +538,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
             ),
             child: Center(
               child: Text(
@@ -592,7 +592,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   _nameController.text = name;
                   HapticFeedback.selectionClick();
                 },
-                backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                 labelStyle: const TextStyle(color: AppTheme.primaryColor),
               );
             }).toList(),
@@ -720,7 +720,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.duoGreen.withOpacity(0.1),
+              color: AppTheme.duoGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -767,7 +767,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       Container(
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppTheme.duoGreen.withOpacity(0.2)
+                              ? AppTheme.duoGreen.withValues(alpha: 0.2)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -885,7 +885,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       }
                       HapticFeedback.selectionClick();
                     },
-                    backgroundColor: AppTheme.secondaryColor.withOpacity(0.1),
+                    backgroundColor: AppTheme.secondaryColor.withValues(alpha: 0.1),
                     labelStyle: const TextStyle(
                       color: AppTheme.secondaryColor,
                       fontSize: 12,
@@ -921,7 +921,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.accentColor.withOpacity(0.1),
+              color: AppTheme.accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -960,7 +960,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       Container(
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppTheme.accentColor.withOpacity(0.2)
+                              ? AppTheme.accentColor.withValues(alpha: 0.2)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -1025,8 +1025,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.happyColor.withOpacity(0.3),
-                  AppTheme.excitedColor.withOpacity(0.3),
+                  AppTheme.happyColor.withValues(alpha: 0.3),
+                  AppTheme.excitedColor.withValues(alpha: 0.3),
                 ],
               ),
             ),
@@ -1057,7 +1057,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       Container(
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppTheme.happyColor.withOpacity(0.2)
+                              ? AppTheme.happyColor.withValues(alpha: 0.2)
                               : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
@@ -1105,7 +1105,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.primaryColor.withOpacity(0.1)
+              ? AppTheme.primaryColor.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -1141,7 +1141,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -1321,7 +1321,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderSide: BorderSide(
-              color: const Color(0xFF8C98A8).withOpacity(0.2),
+              color: const Color(0xFF8C98A8).withValues(alpha: 0.2),
             ),
           ),
         ),

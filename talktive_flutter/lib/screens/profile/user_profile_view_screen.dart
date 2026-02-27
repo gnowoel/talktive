@@ -43,14 +43,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       final client = ref.read(clientProvider);
       final profile = await client.userProfile.getUserProfile(widget.userId);
 
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _profile = profile;
           _loading = false;
         });
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _error = e.toString();
           _loading = false;
@@ -89,23 +89,29 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                   await ref
                       .read(userLikesProvider.notifier)
                       .unlikeUser(widget.userId);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vouch removed.')),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Vouch removed.')),
+                    );
+                  }
                 } else {
                   await ref
                       .read(userLikesProvider.notifier)
                       .likeUser(widget.userId);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('User vouched! Trust Score increased.'),
-                    ),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('User vouched! Trust Score increased.'),
+                      ),
+                    );
+                  }
                 }
               } catch (e) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
               }
             },
           ),
@@ -219,7 +225,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         } else {
           await ref.read(blockedUsersProvider.notifier).block(widget.userId);
         }
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -237,7 +243,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           );
         }
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: ${e.toString()}'),
@@ -334,7 +340,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                     .map(
                       (i) => Chip(
                         label: Text(i.toString()),
-                        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                        backgroundColor: AppTheme.primaryColor.withValues(
+                          alpha: 0.1,
+                        ),
                         labelStyle: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.primaryColor,
@@ -357,7 +365,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                     .map(
                       (l) => Chip(
                         label: Text(l.toString()),
-                        backgroundColor: AppTheme.accentColor.withOpacity(0.1),
+                        backgroundColor: AppTheme.accentColor.withValues(
+                          alpha: 0.1,
+                        ),
                         labelStyle: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.accentColor,
@@ -418,7 +428,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

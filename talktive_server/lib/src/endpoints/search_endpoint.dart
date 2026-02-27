@@ -30,19 +30,18 @@ class SearchEndpoint extends Endpoint {
       for (final resident in residents) {
         if (results.length >= limit) break; // Early exit when limit reached
 
-        // Find user info via Auth module
         final userInfo = await UserInfo.db.findFirstRow(
           session,
           where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
         );
 
-        if (userInfo != null &&
-            userInfo.userName != null &&
-            userInfo.userName!.toLowerCase().contains(query.toLowerCase())) {
+        final userName = userInfo?.userName ?? 'Resident';
+
+        if (userName.toLowerCase().contains(query.toLowerCase())) {
           results.add({
             'userId': resident.userInfoId.toString(),
-            'userName': userInfo.userName,
-            'userAvatar': resident.avatar ?? userInfo.imageUrl,
+            'userName': userName,
+            'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'trustScore': resident.trustScore,
           });
@@ -193,15 +192,14 @@ class SearchEndpoint extends Endpoint {
             where: (t) =>
                 t.userIdentifier.equals(resident.userInfoId.toString()),
           );
-          if (userInfo != null) {
-            activeUsers.add({
-              'userId': resident.userInfoId.toString(),
-              'userName': userInfo.userName,
-              'userAvatar': resident.avatar ?? userInfo.imageUrl,
-              'floor': ApartmentService.computeEffectiveFloor(resident),
-              'messageCount': entry.value,
-            });
-          }
+          
+          activeUsers.add({
+            'userId': resident.userInfoId.toString(),
+            'userName': userInfo?.userName ?? 'Resident',
+            'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+            'floor': ApartmentService.computeEffectiveFloor(resident),
+            'messageCount': entry.value,
+          });
         }
       }
 
@@ -324,16 +322,14 @@ class SearchEndpoint extends Endpoint {
           where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
         );
 
-        if (userInfo != null) {
-          matches.add({
-            'userId': resident.userInfoId.toString(),
-            'userName': userInfo.userName,
-            'userAvatar': resident.avatar ?? userInfo.imageUrl,
-            'floor': ApartmentService.computeEffectiveFloor(resident),
-            'sharedInterests': sharedInterests,
-            'matchScore': sharedInterests.length,
-          });
-        }
+        matches.add({
+          'userId': resident.userInfoId.toString(),
+          'userName': userInfo?.userName ?? 'Resident',
+          'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+          'floor': ApartmentService.computeEffectiveFloor(resident),
+          'sharedInterests': sharedInterests,
+          'matchScore': sharedInterests.length,
+        });
       }
     }
 
@@ -401,16 +397,14 @@ class SearchEndpoint extends Endpoint {
           where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
         );
 
-        if (userInfo != null) {
-          matches.add({
-            'userId': resident.userInfoId.toString(),
-            'userName': userInfo.userName,
-            'userAvatar': resident.avatar ?? userInfo.imageUrl,
-            'floor': ApartmentService.computeEffectiveFloor(resident),
-            'sharedLanguages': sharedLanguages,
-            'matchScore': sharedLanguages.length,
-          });
-        }
+        matches.add({
+          'userId': resident.userInfoId.toString(),
+          'userName': userInfo?.userName ?? 'Resident',
+          'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+          'floor': ApartmentService.computeEffectiveFloor(resident),
+          'sharedLanguages': sharedLanguages,
+          'matchScore': sharedLanguages.length,
+        });
       }
     }
 

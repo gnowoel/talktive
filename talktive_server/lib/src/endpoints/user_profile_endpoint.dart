@@ -38,10 +38,6 @@ class UserProfileEndpoint extends Endpoint {
         where: (t) => t.userIdentifier.equals(targetId.toString()),
       );
 
-      if (userInfo == null) {
-        return null; // Should not happen if resident exists
-      }
-
       // Check if blocked
       final isBlocked = await protocol.Block.db.findFirstRow(
         session,
@@ -103,8 +99,8 @@ class UserProfileEndpoint extends Endpoint {
 
       return {
         'userId': userId,
-        'userName': userInfo.userName,
-        'userAvatar': resident.avatar ?? userInfo.imageUrl,
+        'userName': userInfo?.userName ?? 'Resident',
+        'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
         'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,

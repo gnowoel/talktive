@@ -152,9 +152,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       userProfileProvider(widget.otherUserId),
     );
     final otherProfile = otherProfileAsync.value;
-    final otherName = otherProfile?['userName'] as String? ?? 'Resident';
-    final otherAvatar = otherProfile?['userAvatar'] as String?;
-    final otherFloor = otherProfile?['floor'] as int? ?? 1;
+    final otherName = otherProfile?.userName ?? 'Resident';
+    final otherAvatar = otherProfile?.userAvatar;
+    final otherFloor = otherProfile?.floor ?? 1;
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,

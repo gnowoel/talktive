@@ -6,7 +6,7 @@ import '../services/input_validation_service.dart';
 
 class UserProfileEndpoint extends Endpoint {
   /// Get a user's profile by their user ID
-  Future<Map<String, dynamic>?> getUserProfile(
+  Future<protocol.UserProfileView?> getUserProfile(
     Session session,
     String userId,
   ) async {
@@ -97,26 +97,29 @@ class UserProfileEndpoint extends Endpoint {
       final targetGroupIds = targetGroups.map((g) => g.channelId).toSet();
       final mutualGroups = viewerGroupIds.intersection(targetGroupIds).length;
 
-      return {
-        'userId': userId,
-        'userName': userInfo?.userName ?? 'Resident',
-        'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
-        'floor': ApartmentService.computeEffectiveFloor(resident),
-        'trustScore': resident.trustScore,
-        'level': resident.level,
-        'xp': resident.xp,
-        'totalMessages': messageCount,
-        'totalMoments': momentCount,
-        'achievementsUnlocked': achievements.length,
-        'currentStreak': streak?.currentStreak ?? 0,
-        'longestStreak': streak?.longestStreak ?? 0,
-        'isBlocked': isBlocked != null,
-        'hasBlockedMe': hasBlockedMe != null,
-        'mutualGroups': mutualGroups,
-        'recentMoments': recentMoments.map((m) => m.toJson()).toList(),
-        'interests': resident.interests,
-        'languages': resident.languages,
-      };
+      return protocol.UserProfileView(
+        userId: userId,
+        userName: userInfo?.userName ?? 'Resident',
+        userAvatar: resident.avatar ?? userInfo?.imageUrl ?? '👤',
+        floor: ApartmentService.computeEffectiveFloor(resident),
+        trustScore: resident.trustScore,
+        level: resident.level,
+        xp: resident.xp,
+        totalMessages: messageCount,
+        totalMoments: momentCount,
+        achievementsUnlocked: achievements.length,
+        currentStreak: streak?.currentStreak ?? 0,
+        longestStreak: streak?.longestStreak ?? 0,
+        isBlocked: isBlocked != null,
+        hasBlockedMe: hasBlockedMe != null,
+        mutualGroups: mutualGroups,
+        recentMoments: recentMoments,
+        interests: resident.interests,
+        languages: resident.languages,
+        gender: resident.gender,
+        country: resident.country,
+        bio: resident.bio,
+      );
     } catch (e) {
       session.log('Error getting user profile: $e', level: LogLevel.error);
       rethrow;

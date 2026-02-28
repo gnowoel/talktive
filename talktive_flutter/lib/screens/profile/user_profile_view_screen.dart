@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
+import 'package:talktive_client/talktive_client.dart';
 import '../../providers/user_likes_provider.dart';
 
 /// Simple user profile view screen
@@ -28,7 +29,7 @@ class UserProfileViewScreen extends ConsumerStatefulWidget {
 }
 
 class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
-  Map<String, dynamic>? _profile;
+  UserProfileView? _profile;
   bool _loading = true;
   String? _error;
 
@@ -260,19 +261,19 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       return const Center(child: Text('Profile not found'));
     }
 
-    final name = _profile!['name'] as String? ?? widget.userName ?? 'Unknown';
-    final avatar = _profile!['avatar'] as String? ?? widget.userAvatar;
-    final floor = _profile!['floor'] as int? ?? widget.userFloor ?? 0;
-    final bio = _profile!['bio'] as String?;
-    final gender = _profile!['gender'] as String?;
-    final country = _profile!['country'] as String?;
-    final interests = _profile!['interests'] as List<dynamic>?;
-    final languages = _profile!['languages'] as List<dynamic>?;
-    final messageCount = _profile!['messageCount'] as int? ?? 0;
-    final momentCount = _profile!['momentCount'] as int? ?? 0;
-    final achievementCount = _profile!['achievementCount'] as int? ?? 0;
-    final streakDays = _profile!['streakDays'] as int? ?? 0;
-    final mutualGroups = _profile!['mutualGroups'] as int? ?? 0;
+    final name = _profile!.userName ?? widget.userName ?? 'Unknown';
+    final avatar = _profile!.userAvatar ?? widget.userAvatar;
+    final floor = _profile!.floor;
+    final bio = _profile!.bio;
+    final gender = _profile!.gender;
+    final country = _profile!.country;
+    final interests = _profile!.interests;
+    final languages = _profile!.languages;
+    final messageCount = _profile!.totalMessages;
+    final momentCount = _profile!.totalMoments;
+    final achievementCount = _profile!.achievementsUnlocked;
+    final streakDays = _profile!.currentStreak;
+    final mutualGroups = _profile!.mutualGroups;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),

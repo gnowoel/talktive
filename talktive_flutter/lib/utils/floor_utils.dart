@@ -18,10 +18,10 @@ class FloorUtils {
     return min(baseFloor, trustCap);
   }
 
-  /// Helper used in some places where we only have the profile map
-  static int computeFloorFromProfile(Map<String, dynamic> profile) {
-    final baseFloor = profile['level'] as int? ?? 0;
-    final trustScore = profile['trustScore'] as int? ?? 100;
+  /// Helper used in some places where we only have the profile view
+  static int computeFloorFromProfile(UserProfileView profile) {
+    final baseFloor = profile.level ?? 0;
+    final trustScore = profile.trustScore;
     return min(baseFloor, _trustCap(trustScore));
   }
 

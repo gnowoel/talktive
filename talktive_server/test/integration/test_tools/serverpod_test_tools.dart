@@ -32,7 +32,8 @@ import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
 import 'package:talktive_server/src/generated/report.dart' as _i17;
 import 'package:talktive_server/src/generated/user_streak.dart' as _i18;
 import 'package:talktive_server/src/generated/daily_reward.dart' as _i19;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i20;
+import 'package:talktive_server/src/generated/user_profile_view.dart' as _i20;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i21;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -3452,7 +3453,7 @@ class _UserProfileEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<Map<String, dynamic>?> getUserProfile(
+  _i3.Future<_i20.UserProfileView?> getUserProfile(
     _i1.TestSessionBuilder sessionBuilder,
     String userId,
   ) async {
@@ -3475,7 +3476,7 @@ class _UserProfileEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>?>);
+                as _i3.Future<_i20.UserProfileView?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3617,7 +3618,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i20.Greeting> hello(
+  _i3.Future<_i21.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -3640,7 +3641,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i20.Greeting>);
+                as _i3.Future<_i21.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

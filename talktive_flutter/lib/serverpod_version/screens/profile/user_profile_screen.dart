@@ -9,6 +9,7 @@ import '../../../widgets/duo/duo_stat_card.dart';
 import '../../../providers/client_provider.dart';
 import '../../../providers/private_chat_provider.dart';
 import '../../../providers/user_profile_provider.dart';
+import 'package:talktive_client/talktive_client.dart';
 
 class UserProfileScreen extends ConsumerWidget {
   final String userId;
@@ -32,7 +33,7 @@ class UserProfileScreen extends ConsumerWidget {
           return _buildProfileContent(context, ref, profile);
         },
         loading: () => _buildLoadingState(),
-        error: (error, stack) => _buildErrorState(context),
+        error: (error, stack) => _buildErrorState(context, error: error),
       ),
     );
   }
@@ -43,7 +44,7 @@ class UserProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(BuildContext context) {
+  Widget _buildErrorState(BuildContext context, {Object? error}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -58,6 +59,13 @@ class UserProfileScreen extends ConsumerWidget {
               fontFamily: 'Poppins',
             ),
           ),
+          if (error != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              error.toString(),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
           const SizedBox(height: 24),
           DuoButton(text: 'Go Back', onPressed: () => context.pop()),
         ],
@@ -68,10 +76,10 @@ class UserProfileScreen extends ConsumerWidget {
   Widget _buildProfileContent(
     BuildContext context,
     WidgetRef ref,
-    Map<String, dynamic> profile,
+    UserProfileView profile,
   ) {
-    final isBlocked = profile['isBlocked'] as bool? ?? false;
-    final hasBlockedMe = profile['hasBlockedMe'] as bool? ?? false;
+    final isBlocked = profile.isBlocked;
+    final hasBlockedMe = profile.hasBlockedMe;
 
     return CustomScrollView(
       slivers: [
@@ -116,7 +124,7 @@ class UserProfileScreen extends ConsumerWidget {
                       ),
                       child: Center(
                         child: Text(
-                          profile['userAvatar'] ?? '👤',
+                          profile.userAvatar ?? '👤',
                           style: const TextStyle(fontSize: 48),
                         ),
                       ),
@@ -124,7 +132,7 @@ class UserProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     // Name
                     Text(
-                      profile['userName'] ?? 'Anonymous',
+                      profile.userName ?? 'Anonymous',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -144,7 +152,7 @@ class UserProfileScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Floor ${profile['floor']}',
+                        'Floor ${profile.floor}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -200,7 +208,7 @@ class UserProfileScreen extends ConsumerWidget {
                   DuoStatCard(
                     icon: Icons.chat_bubble_outline,
                     label: 'Messages',
-                    value: profile['totalMessages'].toString(),
+                    value: profile.totalMessages.toString(),
                     gradientColors: [
                       AppTheme.primaryColor,
                       AppTheme.primaryColor.withValues(alpha: 0.7),
@@ -209,7 +217,7 @@ class UserProfileScreen extends ConsumerWidget {
                   DuoStatCard(
                     icon: Icons.camera_alt_outlined,
                     label: 'Moments',
-                    value: profile['totalMoments'].toString(),
+                    value: profile.totalMoments.toString(),
                     gradientColors: [
                       AppTheme.secondaryColor,
                       AppTheme.secondaryColor.withValues(alpha: 0.7),
@@ -218,7 +226,7 @@ class UserProfileScreen extends ConsumerWidget {
                   DuoStatCard(
                     icon: Icons.emoji_events_outlined,
                     label: 'Achievements',
-                    value: profile['achievementsUnlocked'].toString(),
+                    value: profile.achievementsUnlocked.toString(),
                     gradientColors: [
                       AppTheme.duoYellow,
                       AppTheme.duoYellow.withValues(alpha: 0.7),
@@ -227,7 +235,7 @@ class UserProfileScreen extends ConsumerWidget {
                   DuoStatCard(
                     icon: Icons.local_fire_department_outlined,
                     label: 'Streak',
-                    value: profile['currentStreak'].toString(),
+                    value: profile.currentStreak.toString(),
                     gradientColors: [
                       AppTheme.duoOrange,
                       AppTheme.duoOrange.withValues(alpha: 0.7),
@@ -273,16 +281,16 @@ class UserProfileScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // Languages
-              if (profile['languages'] != null)
-                _buildLanguagesSection(profile['languages'] as List),
+              if (profile.languages != null)
+                _buildLanguagesSection(profile.languages!),
 
               // Interests
-              if (profile['interests'] != null)
-                _buildInterestsSection(profile['interests'] as List),
+              if (profile.interests != null)
+                _buildInterestsSection(profile.interests!),
 
               // Recent Moments
-              if (profile['recentMoments'] != null &&
-                  (profile['recentMoments'] as List).isNotEmpty) ...[
+              if (profile.recentMoments != null &&
+                  profile.recentMoments!.isNotEmpty) ...[
                 const Text(
                   'Recent Moments',
                   style: TextStyle(
@@ -292,7 +300,7 @@ class UserProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ..._buildRecentMoments(profile['recentMoments'] as List),
+                ..._buildRecentMoments(profile.recentMoments!),
               ],
             ]),
           ),
@@ -490,7 +498,7 @@ class UserProfileScreen extends ConsumerWidget {
   Future<void> _toggleBlock(
     BuildContext context,
     WidgetRef ref,
-    Map<String, dynamic> profile,
+    UserProfileView profile,
     bool isBlocked,
   ) async {
     try {
@@ -524,7 +532,7 @@ class UserProfileScreen extends ConsumerWidget {
   void _reportUser(
     BuildContext context,
     WidgetRef ref,
-    Map<String, dynamic> profile,
+    UserProfileView profile,
   ) {
     final reasonController = TextEditingController();
     showDialog(

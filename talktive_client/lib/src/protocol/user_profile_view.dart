@@ -31,6 +31,13 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required this.hasBlockedMe,
     required this.mutualGroups,
     this.recentMoments,
+    this.level,
+    this.xp,
+    this.interests,
+    this.languages,
+    this.gender,
+    this.country,
+    this.bio,
   });
 
   factory UserProfileView({
@@ -48,6 +55,13 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required bool hasBlockedMe,
     required int mutualGroups,
     List<_i2.Moment>? recentMoments,
+    int? level,
+    int? xp,
+    List<String>? interests,
+    List<String>? languages,
+    String? gender,
+    String? country,
+    String? bio,
   }) = _UserProfileViewImpl;
 
   factory UserProfileView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -70,6 +84,21 @@ abstract class UserProfileView implements _i1.SerializableModel {
           : _i3.Protocol().deserialize<List<_i2.Moment>>(
               jsonSerialization['recentMoments'],
             ),
+      level: jsonSerialization['level'] as int?,
+      xp: jsonSerialization['xp'] as int?,
+      interests: jsonSerialization['interests'] == null
+          ? null
+          : _i3.Protocol().deserialize<List<String>>(
+              jsonSerialization['interests'],
+            ),
+      languages: jsonSerialization['languages'] == null
+          ? null
+          : _i3.Protocol().deserialize<List<String>>(
+              jsonSerialization['languages'],
+            ),
+      gender: jsonSerialization['gender'] as String?,
+      country: jsonSerialization['country'] as String?,
+      bio: jsonSerialization['bio'] as String?,
     );
   }
 
@@ -101,6 +130,20 @@ abstract class UserProfileView implements _i1.SerializableModel {
 
   List<_i2.Moment>? recentMoments;
 
+  int? level;
+
+  int? xp;
+
+  List<String>? interests;
+
+  List<String>? languages;
+
+  String? gender;
+
+  String? country;
+
+  String? bio;
+
   /// Returns a shallow copy of this [UserProfileView]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -119,6 +162,13 @@ abstract class UserProfileView implements _i1.SerializableModel {
     bool? hasBlockedMe,
     int? mutualGroups,
     List<_i2.Moment>? recentMoments,
+    int? level,
+    int? xp,
+    List<String>? interests,
+    List<String>? languages,
+    String? gender,
+    String? country,
+    String? bio,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -139,6 +189,13 @@ abstract class UserProfileView implements _i1.SerializableModel {
       'mutualGroups': mutualGroups,
       if (recentMoments != null)
         'recentMoments': recentMoments?.toJson(valueToJson: (v) => v.toJson()),
+      if (level != null) 'level': level,
+      if (xp != null) 'xp': xp,
+      if (interests != null) 'interests': interests?.toJson(),
+      if (languages != null) 'languages': languages?.toJson(),
+      if (gender != null) 'gender': gender,
+      if (country != null) 'country': country,
+      if (bio != null) 'bio': bio,
     };
   }
 
@@ -166,6 +223,13 @@ class _UserProfileViewImpl extends UserProfileView {
     required bool hasBlockedMe,
     required int mutualGroups,
     List<_i2.Moment>? recentMoments,
+    int? level,
+    int? xp,
+    List<String>? interests,
+    List<String>? languages,
+    String? gender,
+    String? country,
+    String? bio,
   }) : super._(
          userId: userId,
          userName: userName,
@@ -181,6 +245,13 @@ class _UserProfileViewImpl extends UserProfileView {
          hasBlockedMe: hasBlockedMe,
          mutualGroups: mutualGroups,
          recentMoments: recentMoments,
+         level: level,
+         xp: xp,
+         interests: interests,
+         languages: languages,
+         gender: gender,
+         country: country,
+         bio: bio,
        );
 
   /// Returns a shallow copy of this [UserProfileView]
@@ -202,6 +273,13 @@ class _UserProfileViewImpl extends UserProfileView {
     bool? hasBlockedMe,
     int? mutualGroups,
     Object? recentMoments = _Undefined,
+    Object? level = _Undefined,
+    Object? xp = _Undefined,
+    Object? interests = _Undefined,
+    Object? languages = _Undefined,
+    Object? gender = _Undefined,
+    Object? country = _Undefined,
+    Object? bio = _Undefined,
   }) {
     return UserProfileView(
       userId: userId ?? this.userId,
@@ -220,6 +298,17 @@ class _UserProfileViewImpl extends UserProfileView {
       recentMoments: recentMoments is List<_i2.Moment>?
           ? recentMoments
           : this.recentMoments?.map((e0) => e0.copyWith()).toList(),
+      level: level is int? ? level : this.level,
+      xp: xp is int? ? xp : this.xp,
+      interests: interests is List<String>?
+          ? interests
+          : this.interests?.map((e0) => e0).toList(),
+      languages: languages is List<String>?
+          ? languages
+          : this.languages?.map((e0) => e0).toList(),
+      gender: gender is String? ? gender : this.gender,
+      country: country is String? ? country : this.country,
+      bio: bio is String? ? bio : this.bio,
     );
   }
 }

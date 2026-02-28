@@ -31,9 +31,10 @@ import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
 import 'package:talktive_client/src/protocol/report.dart' as _i16;
 import 'package:talktive_client/src/protocol/user_streak.dart' as _i17;
 import 'package:talktive_client/src/protocol/daily_reward.dart' as _i18;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i19;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i20;
-import 'protocol.dart' as _i21;
+import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i19;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i20;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i21;
+import 'protocol.dart' as _i22;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -1261,8 +1262,8 @@ class EndpointUserProfile extends _i2.EndpointRef {
   String get name => 'userProfile';
 
   /// Get a user's profile by their user ID
-  _i3.Future<Map<String, dynamic>?> getUserProfile(String userId) =>
-      caller.callServerEndpoint<Map<String, dynamic>?>(
+  _i3.Future<_i19.UserProfileView?> getUserProfile(String userId) =>
+      caller.callServerEndpoint<_i19.UserProfileView?>(
         'userProfile',
         'getUserProfile',
         {'userId': userId},
@@ -1310,8 +1311,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i19.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i19.Greeting>(
+  _i3.Future<_i20.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i20.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1322,14 +1323,14 @@ class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
-    auth = _i20.Caller(client);
+    auth = _i21.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
   late final _i4.Caller serverpod_auth_core;
 
-  late final _i20.Caller auth;
+  late final _i21.Caller auth;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -1352,7 +1353,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i21.Protocol(),
+         _i22.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

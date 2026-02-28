@@ -15,3 +15,10 @@ fields:
   hasBlockedMe: bool
   mutualGroups: int
   recentMoments: List<Moment>?
+  level: int?
+  xp: int?
+  interests: List<String>?
+  languages: List<String>?
+  gender: String?
+  country: String?
+  bio: String?

@@ -39,7 +39,7 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ## Status
 
-- **Backend**: Serverpod 3.2.3 (Postgres + Redis)
+- **Backend**: Serverpod 3.3.1 (Postgres + Redis)
 - **Frontend**: Flutter (Dual-boot Firebase/Serverpod)
 - **Authentication**: **Firebase Auth** (Google) -> Serverpod Auth Core session (JWT/SAS).
   - Replaced native Serverpod Google Sign-In with Firebase to leverage existing infrastructure.

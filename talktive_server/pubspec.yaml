@@ -7,10 +7,10 @@ environment:
   sdk: '^3.8.0'
 
 dependencies:
-  serverpod: 3.2.3
-  serverpod_auth_idp_server: 3.2.3
-  serverpod_auth_core_server: 3.2.3
-  serverpod_auth_server: 3.2.3
+  serverpod: 3.3.1
+  serverpod_auth_idp_server: 3.3.1
+  serverpod_auth_core_server: 3.3.1
+  serverpod_auth_server: 3.3.1
   uuid: ^4.5.2
   firebase_admin: ^0.3.0
   googleapis_auth: ^1.6.0
@@ -20,7 +20,7 @@ dependencies:
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'
-  serverpod_test: 3.2.3
+  serverpod_test: 3.3.1
   test: ^1.25.5
 
 serverpod:

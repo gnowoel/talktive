@@ -6,8 +6,10 @@ emailIdp:
   - startPasswordReset:
   - verifyPasswordResetCode:
   - finishPasswordReset:
+  - hasAccount:
 firebaseIdp:
   - login:
+  - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
 achievement:

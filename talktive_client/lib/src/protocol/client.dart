@@ -210,6 +210,13 @@ class EndpointEmailIdp extends _i1.EndpointEmailIdpBase {
       'newPassword': newPassword,
     },
   );
+
+  @override
+  _i3.Future<bool> hasAccount() => caller.callServerEndpoint<bool>(
+    'emailIdp',
+    'hasAccount',
+    {},
+  );
 }
 
 /// Exposes Firebase ID token login for the Serverpod auth core flow.
@@ -231,6 +238,13 @@ class EndpointFirebaseIdp extends _i1.EndpointFirebaseIdpBase {
         'login',
         {'idToken': idToken},
       );
+
+  @override
+  _i3.Future<bool> hasAccount() => caller.callServerEndpoint<bool>(
+    'firebaseIdp',
+    'hasAccount',
+    {},
+  );
 }
 
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint

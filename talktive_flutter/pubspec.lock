@@ -1299,74 +1299,74 @@ packages:
     dependency: transitive
     description:
       name: serverpod_auth_client
-      sha256: "5cefed4aad5a4bb22c73b0e80375b32032c60f765980080a2b6f33b936025891"
+      sha256: fba8b2d6cc741295e84cf0d35ddbb050a7366a421c92b9f92b977a140a146d10
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_auth_core_client:
     dependency: transitive
     description:
       name: serverpod_auth_core_client
-      sha256: "88cbbcdea6f4b2b634a66ee52855817f850903c365e2fee4c3fee74ed0d53eac"
+      sha256: "0a9e2c83aad06fdf233cd5c4064c5dab1bf2daed1f55e9e218b2deba62522e17"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_auth_core_flutter:
     dependency: "direct main"
     description:
       name: serverpod_auth_core_flutter
-      sha256: "8b9a84d9bb3f8860b62a79db83baf239af29a0f791b641bdc78abb91d6dc7327"
+      sha256: "052c9bee53f626dcde7dd34c3e9525755b68c584680d32f01ac73609b622c938"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_auth_google_flutter:
     dependency: "direct main"
     description:
       name: serverpod_auth_google_flutter
-      sha256: f35c14f2c9874d669e61da0e8f8548fafe3d82bea55bec2d6406b000ee63f8b0
+      sha256: c03c8b946dd714d8dd28338bd3c83996796c4b80ae14024be06cc114a5e2b72f
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_auth_idp_client:
     dependency: transitive
     description:
       name: serverpod_auth_idp_client
-      sha256: "50e65f6b8374403c5717cc4a96bdc4246b3c18b448ba68b61d43ccfaeefec0b6"
+      sha256: "5339d06858541dce5867d7b39695844a7c6eef91205da53485071313a64b9eba"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_auth_shared_flutter:
     dependency: transitive
     description:
       name: serverpod_auth_shared_flutter
-      sha256: f4160219e475c0084f82a22c4a96affb5ded855163767c8f3897f6ad8bf2683b
+      sha256: "2b63e0c4e8ffde70337765e53c78764852a8808f87dccc5615511f9842cd34b0"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_client:
     dependency: transitive
     description:
       name: serverpod_client
-      sha256: "4add5cba3fd6f13d05f12928bff09752efc9096e83d0a8c7d67b4f036634f2b1"
+      sha256: e936d6fa951f548cf2a16f75a526d645162c3b88437ff57550fb596835266a00
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_flutter:
     dependency: "direct main"
     description:
       name: serverpod_flutter
-      sha256: "7d63b5b2b648bb03d3a49687d2dbcc1713bb4245cb832dc334d984c7d7e54e02"
+      sha256: "563e5e7935c530456f27668b00bac04fc94f27786fd49f1a83372b8ebab77b6a"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   serverpod_serialization:
     dependency: transitive
     description:
       name: serverpod_serialization
-      sha256: "69d0b721c4b7d50b53861681e1c7d385a3def0be9a52e89fd3bd0c704fce0d37"
+      sha256: b1422d3e99a26e8c5fc9cf09785cb2f6c10713cb08d46b2b86dd7054e9e7decd
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.3.1"
   shared_preferences:
     dependency: "direct main"
     description:

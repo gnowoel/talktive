@@ -4,6 +4,16 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 3, 2026 - Local Environment Fixes
+
+### Setup & Credentials
+- Restored `debug.keystore` to resolve SHA-1 mismatch for Google Sign-In `ApiException: 10`.
+- Generated missing database schema migration for `serverpod_auth_idp_anonymous_account` and `serverpod_auth_idp_github_account`.
+- Created authentication configurations (`auth_config.dart`, `passwords.yaml`, `firebase_service_account_key.json`).
+- Updated Flutter dependencies to resolve build issues.
+
+---
+
 ## February 15, 2026 - Production Launch Ready 🚀
 
 ### All Essential Features Completed

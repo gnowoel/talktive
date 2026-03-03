@@ -32,11 +32,8 @@ class UserProfileEndpoint extends Endpoint {
         return null;
       }
 
-      // Get user info (name, avatar) from Auth module
-      final userInfo = await UserInfo.db.findFirstRow(
-        session,
-        where: (t) => t.userIdentifier.equals(targetId.toString()),
-      );
+      // Get user info (name, avatar) from Resident (already backfilled)
+
 
       // Check if blocked
       final isBlocked = await protocol.Block.db.findFirstRow(
@@ -99,8 +96,8 @@ class UserProfileEndpoint extends Endpoint {
 
       return protocol.UserProfileView(
         userId: userId,
-        userName: userInfo?.userName ?? 'Resident',
-        userAvatar: resident.avatar ?? userInfo?.imageUrl ?? '👤',
+        userName: resident.userName ?? 'Resident',
+        userAvatar: resident.avatar ?? '👤',
         floor: ApartmentService.computeEffectiveFloor(resident),
         trustScore: resident.trustScore,
         level: resident.level,

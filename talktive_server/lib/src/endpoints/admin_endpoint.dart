@@ -44,13 +44,7 @@ class AdminEndpoint extends Endpoint {
     return resident;
   }
 
-  /// Helper to get user info
-  Future<UserInfo?> _getUserInfo(Session session, UuidValue userId) async {
-    return await UserInfo.db.findFirstRow(
-      session,
-      where: (t) => t.userIdentifier.equals(userId.toString()),
-    );
-  }
+  // Helper to get user info removed: using Resident natively
 
   /// Get all pending reports with pagination
   Future<List<Map<String, dynamic>>> getPendingReports(
@@ -76,27 +70,22 @@ class AdminEndpoint extends Endpoint {
         session,
         where: (t) => t.userInfoId.equals(report.reporterId),
       );
-      final reporterInfo = await _getUserInfo(session, report.reporterId);
-
-      // Get target info
       final target = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.targetId),
       );
-      final targetInfo = await _getUserInfo(session, report.targetId);
-
       result.add({
         'report': report.toJson(),
         'reporter': {
           'userId': report.reporterId.uuid,
-          'userName': reporterInfo?.userName ?? 'Unknown',
+          'userName': reporter?.userName ?? 'Unknown',
           'floor': reporter != null
               ? ApartmentService.computeEffectiveFloor(reporter)
               : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
-          'userName': targetInfo?.userName ?? 'Unknown',
+          'userName': target?.userName ?? 'Unknown',
           'floor': target != null ? ApartmentService.computeEffectiveFloor(target) : 0,
           'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
@@ -131,26 +120,22 @@ class AdminEndpoint extends Endpoint {
         session,
         where: (t) => t.userInfoId.equals(report.reporterId),
       );
-      final reporterInfo = await _getUserInfo(session, report.reporterId);
-
       final target = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.targetId),
       );
-      final targetInfo = await _getUserInfo(session, report.targetId);
-
       result.add({
         'report': report.toJson(),
         'reporter': {
           'userId': report.reporterId.uuid,
-          'userName': reporterInfo?.userName ?? 'Unknown',
+          'userName': reporter?.userName ?? 'Unknown',
           'floor': reporter != null
               ? ApartmentService.computeEffectiveFloor(reporter)
               : 0,
         },
         'target': {
           'userId': report.targetId.uuid,
-          'userName': targetInfo?.userName ?? 'Unknown',
+          'userName': target?.userName ?? 'Unknown',
           'floor': target != null ? ApartmentService.computeEffectiveFloor(target) : 0,
           'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
@@ -432,11 +417,10 @@ class AdminEndpoint extends Endpoint {
 
     final result = <Map<String, dynamic>>[];
     for (final resident in residents) {
-      final userInfo = await _getUserInfo(session, resident.userInfoId);
 
       // Filter by name if searching by name
-      if (searchUuid == null && userInfo?.userName != null) {
-        if (!userInfo!.userName!.toLowerCase().contains(query.toLowerCase())) {
+      if (searchUuid == null && resident.userName != null) {
+        if (!resident.userName!.toLowerCase().contains(query.toLowerCase())) {
           continue;
         }
       }
@@ -463,7 +447,7 @@ class AdminEndpoint extends Endpoint {
 
       result.add({
         'userId': resident.userInfoId.uuid,
-        'userName': userInfo?.userName ?? 'Unknown',
+        'userName': resident.userName ?? 'Unknown',
         'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,
@@ -473,9 +457,7 @@ class AdminEndpoint extends Endpoint {
         'messageCount': messageCount,
         'momentCount': momentCount,
         'reportCount': reportCount,
-        'createdAt':
-            userInfo?.created.toIso8601String() ??
-            DateTime.now().toIso8601String(),
+        'createdAt': DateTime.now().toIso8601String(), // Optional: could fetch Profile creation
       });
     }
 
@@ -545,8 +527,6 @@ class AdminEndpoint extends Endpoint {
       throw Exception('User not found');
     }
 
-    final userInfo = await _getUserInfo(session, resident.userInfoId);
-
     // Get recent messages
     final recentMessages = await protocol.Message.db.find(
       session,
@@ -584,16 +564,14 @@ class AdminEndpoint extends Endpoint {
     return {
       'user': {
         'userId': resident.userInfoId.uuid,
-        'userName': userInfo?.userName ?? 'Unknown',
+        'userName': resident.userName ?? 'Unknown',
         'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,
         'isAdmin': resident.isAdmin,
         'suspended': resident.suspended,
-        'createdAt':
-            userInfo?.created.toIso8601String() ??
-            DateTime.now().toIso8601String(),
+        'createdAt': DateTime.now().toIso8601String(),
       },
       'stats': {
         'totalMessages': await protocol.Message.db.count(

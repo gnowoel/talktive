@@ -30,18 +30,13 @@ class SearchEndpoint extends Endpoint {
       for (final resident in residents) {
         if (results.length >= limit) break; // Early exit when limit reached
 
-        final userInfo = await UserInfo.db.findFirstRow(
-          session,
-          where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
-        );
-
-        final userName = userInfo?.userName ?? 'Resident';
+        final userName = resident.userName ?? 'Resident';
 
         if (userName.toLowerCase().contains(query.toLowerCase())) {
           results.add({
             'userId': resident.userInfoId.toString(),
             'userName': userName,
-            'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+            'userAvatar': resident.avatar ?? '👤',
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'trustScore': resident.trustScore,
           });
@@ -187,16 +182,10 @@ class SearchEndpoint extends Endpoint {
         );
 
         if (resident != null) {
-          final userInfo = await UserInfo.db.findFirstRow(
-            session,
-            where: (t) =>
-                t.userIdentifier.equals(resident.userInfoId.toString()),
-          );
-          
           activeUsers.add({
             'userId': resident.userInfoId.toString(),
-            'userName': userInfo?.userName ?? 'Resident',
-            'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+            'userName': resident.userName ?? 'Resident',
+            'userAvatar': resident.avatar ?? '👤',
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'messageCount': entry.value,
           });
@@ -316,16 +305,10 @@ class SearchEndpoint extends Endpoint {
           .toList();
 
       if (sharedInterests.isNotEmpty) {
-        // Get user info
-        final userInfo = await UserInfo.db.findFirstRow(
-          session,
-          where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
-        );
-
         matches.add({
           'userId': resident.userInfoId.toString(),
-          'userName': userInfo?.userName ?? 'Resident',
-          'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+          'userName': resident.userName ?? 'Resident',
+          'userAvatar': resident.avatar ?? '👤',
           'floor': ApartmentService.computeEffectiveFloor(resident),
           'sharedInterests': sharedInterests,
           'matchScore': sharedInterests.length,
@@ -391,16 +374,10 @@ class SearchEndpoint extends Endpoint {
           .toList();
 
       if (sharedLanguages.isNotEmpty) {
-        // Get user info
-        final userInfo = await UserInfo.db.findFirstRow(
-          session,
-          where: (t) => t.userIdentifier.equals(resident.userInfoId.toString()),
-        );
-
         matches.add({
           'userId': resident.userInfoId.toString(),
-          'userName': userInfo?.userName ?? 'Resident',
-          'userAvatar': resident.avatar ?? userInfo?.imageUrl ?? '👤',
+          'userName': resident.userName ?? 'Resident',
+          'userAvatar': resident.avatar ?? '👤',
           'floor': ApartmentService.computeEffectiveFloor(resident),
           'sharedLanguages': sharedLanguages,
           'matchScore': sharedLanguages.length,

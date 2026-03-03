@@ -236,6 +236,86 @@ class AchievementService {
     );
   }
 
+  /// Tracks progress for multiple achievements in a single database round-trip.
+  static Future<List<protocol.UserAchievement>> trackMultipleProgress(
+    Session session,
+    UuidValue userId,
+    List<String> achievementKeys, {
+    int increment = 1,
+  }) async {
+    final result = <protocol.UserAchievement>[];
+    if (achievementKeys.isEmpty) return result;
+
+    // 1. Fetch all matching achievements in one query
+    final achievements = await protocol.Achievement.db.find(
+      session,
+      where: (t) => t.key.inSet(achievementKeys.toSet()),
+    );
+
+    if (achievements.isEmpty) return result;
+
+    final achievementIds = achievements.map((a) => a.id!).toList();
+
+    // 2. Fetch existing user progress for these achievements in one query
+    final existingProgress = await protocol.UserAchievement.db.find(
+      session,
+      where: (t) => t.userId.equals(userId) & t.achievementId.inSet(achievementIds.toSet()),
+    );
+
+    final progressMap = {for (var p in existingProgress) p.achievementId: p};
+    final now = DateTime.now();
+    
+    final toInsert = <protocol.UserAchievement>[];
+    final toUpdate = <protocol.UserAchievement>[];
+
+    // 3. Process each achievement
+    for (final achievement in achievements) {
+      var userAchievement = progressMap[achievement.id!];
+
+      if (userAchievement == null) {
+        // Create new progress entry
+        userAchievement = protocol.UserAchievement(
+          userId: userId,
+          achievementId: achievement.id!,
+          progress: increment, // Start with increment
+          unlockedAt: increment >= achievement.targetValue ? now : null,
+          notified: false,
+        );
+        toInsert.add(userAchievement);
+        result.add(userAchievement);
+      } else {
+        // Don't update if already unlocked
+        if (userAchievement.unlockedAt != null) {
+          result.add(userAchievement);
+          continue;
+        }
+
+        // Update progress
+        userAchievement.progress += increment;
+
+        // Check if unlocked
+        if (userAchievement.progress >= achievement.targetValue) {
+          userAchievement.unlockedAt = now;
+          userAchievement.notified = false;
+        }
+        
+        toUpdate.add(userAchievement);
+        result.add(userAchievement);
+      }
+    }
+
+    // 4. Batch write to database
+    if (toInsert.isNotEmpty) {
+      await protocol.UserAchievement.db.insert(session, toInsert);
+    }
+    
+    if (toUpdate.isNotEmpty) {
+      await protocol.UserAchievement.db.update(session, toUpdate);
+    }
+
+    return result;
+  }
+
   /// Checks and awards floor-based achievements.
   static Future<void> checkFloorAchievements(
     Session session,

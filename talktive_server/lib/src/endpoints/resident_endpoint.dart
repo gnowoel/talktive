@@ -23,11 +23,22 @@ class ResidentEndpoint extends Endpoint {
     );
 
     if (resident != null) {
+      bool needsSave = false;
+
       // Passively restore trustScore on load
-      await ApartmentService.restoreTrustScore(session, resident);
+      if (await ApartmentService.restoreTrustScore(session, resident, save: false)) {
+        needsSave = true;
+      }
 
       // Check daily login and award XP
-      await GamificationService.checkDailyLogin(session, resident);
+      if (await GamificationService.checkDailyLogin(session, resident, save: false)) {
+        needsSave = true;
+      }
+
+      // Batch save if any changes occurred
+      if (needsSave) {
+        await Resident.db.updateRow(session, resident);
+      }
     }
 
     return resident;
@@ -132,6 +143,7 @@ class ResidentEndpoint extends Endpoint {
       // Legacy
       experienceMessageCount: 0,
       // Profile
+      userName: name,
       gender: gender,
       country: country,
       bio: bio,
@@ -202,6 +214,7 @@ class ResidentEndpoint extends Endpoint {
     }
 
     // Update Resident fields
+    resident.userName = name;
     resident.avatar = avatar;
     resident.gender = gender;
     resident.country = country;

@@ -29,6 +29,7 @@ abstract class Resident
     this.lastLoginDate,
     this.lastMessageDate,
     int? experienceMessageCount,
+    this.userName,
     this.gender,
     this.country,
     this.bio,
@@ -61,6 +62,7 @@ abstract class Resident
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
     int? experienceMessageCount,
+    String? userName,
     String? gender,
     String? country,
     String? bio,
@@ -105,6 +107,7 @@ abstract class Resident
             ),
       experienceMessageCount:
           jsonSerialization['experienceMessageCount'] as int?,
+      userName: jsonSerialization['userName'] as String?,
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
       bio: jsonSerialization['bio'] as String?,
@@ -156,6 +159,8 @@ abstract class Resident
 
   int experienceMessageCount;
 
+  String? userName;
+
   String? gender;
 
   String? country;
@@ -194,6 +199,7 @@ abstract class Resident
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
     int? experienceMessageCount,
+    String? userName,
     String? gender,
     String? country,
     String? bio,
@@ -222,6 +228,7 @@ abstract class Resident
       if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
       if (lastMessageDate != null) 'lastMessageDate': lastMessageDate?.toJson(),
       'experienceMessageCount': experienceMessageCount,
+      if (userName != null) 'userName': userName,
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
@@ -252,6 +259,7 @@ abstract class Resident
       if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
       if (lastMessageDate != null) 'lastMessageDate': lastMessageDate?.toJson(),
       'experienceMessageCount': experienceMessageCount,
+      if (userName != null) 'userName': userName,
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
@@ -311,6 +319,7 @@ class _ResidentImpl extends Resident {
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
     int? experienceMessageCount,
+    String? userName,
     String? gender,
     String? country,
     String? bio,
@@ -334,6 +343,7 @@ class _ResidentImpl extends Resident {
          lastLoginDate: lastLoginDate,
          lastMessageDate: lastMessageDate,
          experienceMessageCount: experienceMessageCount,
+         userName: userName,
          gender: gender,
          country: country,
          bio: bio,
@@ -363,6 +373,7 @@ class _ResidentImpl extends Resident {
     Object? lastLoginDate = _Undefined,
     Object? lastMessageDate = _Undefined,
     int? experienceMessageCount,
+    Object? userName = _Undefined,
     Object? gender = _Undefined,
     Object? country = _Undefined,
     Object? bio = _Undefined,
@@ -394,6 +405,7 @@ class _ResidentImpl extends Resident {
           : this.lastMessageDate,
       experienceMessageCount:
           experienceMessageCount ?? this.experienceMessageCount,
+      userName: userName is String? ? userName : this.userName,
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
       bio: bio is String? ? bio : this.bio,
@@ -480,6 +492,11 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         table.experienceMessageCount,
         value,
       );
+
+  _i1.ColumnValue<String, String> userName(String? value) => _i1.ColumnValue(
+    table.userName,
+    value,
+  );
 
   _i1.ColumnValue<String, String> gender(String? value) => _i1.ColumnValue(
     table.gender,
@@ -587,6 +604,10 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    userName = _i1.ColumnString(
+      'userName',
+      this,
+    );
     gender = _i1.ColumnString(
       'gender',
       this,
@@ -652,6 +673,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt experienceMessageCount;
 
+  late final _i1.ColumnString userName;
+
   late final _i1.ColumnString gender;
 
   late final _i1.ColumnString country;
@@ -685,6 +708,7 @@ class ResidentTable extends _i1.Table<int?> {
     lastLoginDate,
     lastMessageDate,
     experienceMessageCount,
+    userName,
     gender,
     country,
     bio,

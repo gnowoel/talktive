@@ -28,6 +28,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.lastLoginDate,
     this.lastMessageDate,
     int? experienceMessageCount,
+    this.userName,
     this.gender,
     this.country,
     this.bio,
@@ -60,6 +61,7 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
     int? experienceMessageCount,
+    String? userName,
     String? gender,
     String? country,
     String? bio,
@@ -104,6 +106,7 @@ abstract class Resident implements _i1.SerializableModel {
             ),
       experienceMessageCount:
           jsonSerialization['experienceMessageCount'] as int?,
+      userName: jsonSerialization['userName'] as String?,
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
       bio: jsonSerialization['bio'] as String?,
@@ -153,6 +156,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   int experienceMessageCount;
 
+  String? userName;
+
   String? gender;
 
   String? country;
@@ -188,6 +193,7 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
     int? experienceMessageCount,
+    String? userName,
     String? gender,
     String? country,
     String? bio,
@@ -216,6 +222,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
       if (lastMessageDate != null) 'lastMessageDate': lastMessageDate?.toJson(),
       'experienceMessageCount': experienceMessageCount,
+      if (userName != null) 'userName': userName,
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
@@ -251,6 +258,7 @@ class _ResidentImpl extends Resident {
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
     int? experienceMessageCount,
+    String? userName,
     String? gender,
     String? country,
     String? bio,
@@ -274,6 +282,7 @@ class _ResidentImpl extends Resident {
          lastLoginDate: lastLoginDate,
          lastMessageDate: lastMessageDate,
          experienceMessageCount: experienceMessageCount,
+         userName: userName,
          gender: gender,
          country: country,
          bio: bio,
@@ -303,6 +312,7 @@ class _ResidentImpl extends Resident {
     Object? lastLoginDate = _Undefined,
     Object? lastMessageDate = _Undefined,
     int? experienceMessageCount,
+    Object? userName = _Undefined,
     Object? gender = _Undefined,
     Object? country = _Undefined,
     Object? bio = _Undefined,
@@ -334,6 +344,7 @@ class _ResidentImpl extends Resident {
           : this.lastMessageDate,
       experienceMessageCount:
           experienceMessageCount ?? this.experienceMessageCount,
+      userName: userName is String? ? userName : this.userName,
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
       bio: bio is String? ? bio : this.bio,

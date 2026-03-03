@@ -24,6 +24,7 @@ fields:
   experienceMessageCount: int, default=0
   
   # Profile
+  userName: String?
   gender: String?
   country: String?
   bio: String?

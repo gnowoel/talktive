@@ -19,12 +19,13 @@ class GamificationService {
   static const int XP_STREAK_30_DAYS = 500;
 
   /// Award XP to a resident and update their level/floor
-  static Future<void> awardXP(
+  static Future<bool> awardXP(
     Session session,
     Resident resident,
     int xp,
-    String reason,
-  ) async {
+    String reason, {
+    bool save = true,
+  }) async {
     final oldLevel = resident.level;
 
     // Add XP
@@ -33,10 +34,10 @@ class GamificationService {
     // Calculate new Base Floor (exponential curve up to 50)
     resident.level = computeBaseFloor(resident.xp);
 
-    // NOTE: effective floor is computed dynamically via
-    // ApartmentService.computeEffectiveFloor() and is NOT stored.
-    // Save
-    await Resident.db.updateRow(session, resident);
+    // Save if required
+    if (save) {
+      await Resident.db.updateRow(session, resident);
+    }
 
     // Log level up
     if (resident.level > oldLevel) {
@@ -44,6 +45,8 @@ class GamificationService {
         'User ${resident.userInfoId} leveled up to ${resident.level}! Reason: $reason',
       );
     }
+    
+    return true; // Returns true indicating changes were made
   }
 
   /// Fetch all residents starting with top XP
@@ -69,27 +72,32 @@ class GamificationService {
     return min(floor, 50);
   }
 
-  /// Check and award daily login bonus
-  static Future<void> checkDailyLogin(
+  /// Check and award daily login bonus. Returns true if changes were made to resident.
+  static Future<bool> checkDailyLogin(
     Session session,
-    Resident resident,
-  ) async {
+    Resident resident, {
+    bool save = true,
+  }) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastLogin = resident.lastLoginDate;
 
     if (lastLogin == null || lastLogin.isBefore(today)) {
-      // Award login bonus
-      await awardXP(session, resident, XP_PER_LOGIN, 'Daily login');
+      // Award login bonus (don't save yet, we batch it)
+      await awardXP(session, resident, XP_PER_LOGIN, 'Daily login', save: false);
 
       // Update login date
       resident.lastLoginDate = now;
 
-      // Update streak
-      await _updateLoginStreak(session, resident, lastLogin, today);
+      // Update streak (don't save yet)
+      await _updateLoginStreak(session, resident, lastLogin, today, save: false);
 
-      await Resident.db.updateRow(session, resident);
+      if (save) {
+        await Resident.db.updateRow(session, resident);
+      }
+      return true;
     }
+    return false;
   }
 
   /// Update login streak
@@ -97,8 +105,9 @@ class GamificationService {
     Session session,
     Resident resident,
     DateTime? lastLogin,
-    DateTime today,
-  ) async {
+    DateTime today, {
+    bool save = true,
+  }) async {
     if (lastLogin == null) {
       // First login
       resident.currentStreak = 1;
@@ -124,11 +133,11 @@ class GamificationService {
 
       // Award streak bonuses
       if (resident.currentStreak == 3) {
-        await awardXP(session, resident, XP_STREAK_3_DAYS, '3-day streak');
+        await awardXP(session, resident, XP_STREAK_3_DAYS, '3-day streak', save: save);
       } else if (resident.currentStreak == 7) {
-        await awardXP(session, resident, XP_STREAK_7_DAYS, '7-day streak');
+        await awardXP(session, resident, XP_STREAK_7_DAYS, '7-day streak', save: save);
       } else if (resident.currentStreak == 30) {
-        await awardXP(session, resident, XP_STREAK_30_DAYS, '30-day streak');
+        await awardXP(session, resident, XP_STREAK_30_DAYS, '30-day streak', save: save);
       }
     } else if (lastLoginDay != today) {
       // Streak broken
@@ -139,12 +148,14 @@ class GamificationService {
   /// Update message streak
   static Future<void> updateMessageStreak(
     Session session,
-    Resident resident,
-  ) async {
+    Resident resident, {
+    bool save = true,
+  }) async {
     final now = DateTime.now();
     resident.lastMessageDate = now;
-    await Resident.db.updateRow(session, resident);
-    // Could add message-specific streak logic here if desired
+    if (save) {
+      await Resident.db.updateRow(session, resident);
+    }
   }
 
   /// Check if user has reached a level milestone

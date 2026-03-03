@@ -171,6 +171,12 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Plaza Dashboard Redesign**: Relocated the public chat stream (`PlazaChatScreen`) out of the root Plaza tab to convert the Plaza landing page into a dedicated lobby Dashboard featuring navigation cards and info.
   - **Codebase Simplification**: Deleted redundant legacy screens (`_screen.dart`), stripped `_modern` suffixes from all active Duolingo-styled UI files, and renamed widget classes to remove the `Modern` branding.
 
+- Phase 8.12: Serverpod API & Database Optimizations (March 2026)
+  - **Query Reduction**: Reduced N+1 query overhead in high-throughput endpoints (like `MessageEndpoint.sendMessage`) which previously executed ~9 separate SQL statements per message.
+  - **Name Denormalization**: Added `userName` directly onto the `Resident` model to eliminate cross-module `UserInfo` table lookups for every chat message.
+  - **Achievement Batching**: Drafted `trackMultipleProgress` in `AchievementService` to batch achievement lookups and progress updates into a single database transaction.
+  - **Login Saves**: Refactored `GamificationService` and `ApartmentService` to use a `save` flag, enabling `ResidentEndpoint` to coalesce sequential `.updateRow()` queries into a single conditionally tracked batch update.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

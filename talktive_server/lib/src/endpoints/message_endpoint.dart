@@ -56,14 +56,10 @@ class MessageEndpoint extends Endpoint {
         throw Exception('Resident not found');
       }
 
-      // Fetch UserInfo for denormalization
-      final userInfo = await UserInfo.db.findFirstRow(
-        session,
-        where: (t) => t.userIdentifier.equals(senderIdentifier),
-      );
-
-      final senderName = userInfo?.userName ?? 'Resident';
-      final senderAvatar = sender.avatar ?? userInfo?.imageUrl;
+      // Use denormalized userName and avatar from Resident model
+      // fallback to 'Resident' if not set
+      final senderName = sender.userName ?? 'Resident';
+      final senderAvatar = sender.avatar;
 
       // Compute effective floor (hybrid: min of XP level and trustScore tier)
       final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(
@@ -155,21 +151,11 @@ class MessageEndpoint extends Endpoint {
       sender.experienceMessageCount += 1;
       await GamificationService.updateMessageStreak(session, sender);
 
-      // 10. Track achievements
-      await AchievementService.trackProgress(
+      // 10. Track achievements (Batched)
+      await AchievementService.trackMultipleProgress(
         session,
         sender.userInfoId,
-        'first_message',
-      );
-      await AchievementService.trackProgress(
-        session,
-        sender.userInfoId,
-        'conversationalist',
-      );
-      await AchievementService.trackProgress(
-        session,
-        sender.userInfoId,
-        'chatterbox',
+        ['first_message', 'conversationalist', 'chatterbox'],
       );
       await AchievementService.checkTimeBasedAchievements(
         session,

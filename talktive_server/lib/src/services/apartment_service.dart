@@ -47,11 +47,12 @@ class ApartmentService {
   // ---------------------------------------------------------------------------
 
   /// Restore trustScore passively (5 pts/hour) ONLY up to 100.
-  /// Once above 100, Trust Score never decays or recovers passively.
-  static Future<void> restoreTrustScore(
+  /// Returns true if changes were made to the resident object.
+  static Future<bool> restoreTrustScore(
     Session session,
-    Resident resident,
-  ) async {
+    Resident resident, {
+    bool save = true,
+  }) async {
     final now = DateTime.now();
     final lastIncrease = resident.lastReputationIncrease ?? now;
     final hoursPassed = now.difference(lastIncrease).inHours;
@@ -63,15 +64,22 @@ class ApartmentService {
       resident.lastReputationIncrease = lastIncrease.add(
         Duration(hours: hoursPassed),
       );
-      await Resident.db.updateRow(session, resident);
+      if (save) {
+        await Resident.db.updateRow(session, resident);
+      }
       session.log(
         'Restored $points trustScore to ${resident.userInfoId}. '
         'New trustScore: ${resident.trustScore}',
       );
+      return true;
     } else if (resident.lastReputationIncrease == null) {
       resident.lastReputationIncrease = now;
-      await Resident.db.updateRow(session, resident);
+      if (save) {
+        await Resident.db.updateRow(session, resident);
+      }
+      return true;
     }
+    return false;
   }
 
   // ---------------------------------------------------------------------------

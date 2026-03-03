@@ -8,6 +8,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../../utils/floor_utils.dart';
 
 /// Screen to manage blocked users
 class BlockedUsersScreen extends ConsumerWidget {
@@ -128,7 +129,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Level ${resident.level} • ⭐ ${resident.trustScore}',
+                            'Floor ${FloorUtils.computeFloor(resident)} • ⭐ ${resident.trustScore}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.textSecondary,

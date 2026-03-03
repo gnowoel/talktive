@@ -135,6 +135,9 @@ Even for the new Serverpod version, we use **Firebase Authentication**.
 2.  On launch, you will see the **Start Screen**:
     - Tap **"Start"** to use the existing Firebase version.
     - Tap **"New safer version"** to preview the Serverpod integration.
+    
+    > **⚠️ IMPORTANT FOR TESTING**
+    > We run the old Firebase version along with the new Serverpod version. For testing the new Serverpod version, please tap **"New safer version"** instead of "Start" on app start.
 
 ## 🏗️ Architecture Notes
 

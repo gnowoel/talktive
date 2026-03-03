@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_stat_card.dart';
+import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_badge.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/user_likes_provider.dart';
+import '../../utils/floor_utils.dart';
+import '../../config/languages.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -65,102 +72,24 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final blockedIds = ref.watch(blockedUsersProvider).value ?? [];
     final isBlocked = blockedIds.contains(widget.userId);
 
-    final likedIds = ref.watch(userLikesProvider).value ?? [];
-    final isLiked = likedIds.contains(widget.userId);
-
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          // Vouch / Like button
-          IconButton(
-            icon: Icon(
-              isLiked ? Icons.favorite : Icons.favorite_border,
-              color: isLiked ? AppTheme.errorColor : AppTheme.textPrimary,
-            ),
-            onPressed: () async {
-              try {
-                if (isLiked) {
-                  await ref
-                      .read(userLikesProvider.notifier)
-                      .unlikeUser(widget.userId);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Vouch removed.')),
-                    );
-                  }
-                } else {
-                  await ref
-                      .read(userLikesProvider.notifier)
-                      .likeUser(widget.userId);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User vouched! Trust Score increased.'),
-                      ),
-                    );
-                  }
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                }
-              }
-            },
-          ),
-          // Block / Unblock menu
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: AppTheme.textPrimary),
-            onSelected: (value) async {
-              if (value == 'block') {
-                await _confirmBlock(context, isBlocked);
-              }
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: 'block',
-                child: Row(
-                  children: [
-                    Icon(
-                      isBlocked ? Icons.person_add : Icons.block,
-                      color: isBlocked
-                          ? AppTheme.duoGreen
-                          : AppTheme.errorColor,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      isBlocked ? 'Unblock user' : 'Block user',
-                      style: TextStyle(
-                        color: isBlocked
-                            ? AppTheme.duoGreen
-                            : AppTheme.errorColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return DuoPageScaffold(
+      emoji: '👤',
+      title: widget.userName ?? 'Profile',
+      gradient: AppTheme.duoBlueGradient,
+      hasBackButton: true,
+      trailingHeader: _buildTrailingMenu(isBlocked),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+              ),
+            )
           : _error != null
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                  const Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
                   const SizedBox(height: 16),
                   const Text(
                     'Could not load profile',
@@ -175,7 +104,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                     _error!,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
+                      color: AppTheme.textSecondary,
                       fontFamily: 'Rubik',
                     ),
                     textAlign: TextAlign.center,
@@ -183,7 +112,40 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 ],
               ),
             )
-          : _buildProfile(),
+          : _buildProfileContent(isBlocked),
+    );
+  }
+
+  Widget _buildTrailingMenu(bool isBlocked) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_horiz, color: Colors.white),
+      onSelected: (value) async {
+        if (value == 'block') {
+          await _confirmBlock(context, isBlocked);
+        }
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(
+          value: 'block',
+          child: Row(
+            children: [
+              Icon(
+                isBlocked ? Icons.person_add : Icons.block,
+                color: isBlocked ? AppTheme.duoGreen : AppTheme.errorColor,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                isBlocked ? 'Unblock user' : 'Block user',
+                style: TextStyle(
+                  color: isBlocked ? AppTheme.duoGreen : AppTheme.errorColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -256,7 +218,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     }
   }
 
-  Widget _buildProfile() {
+  Widget _buildProfileContent(bool isBlocked) {
     if (_profile == null) {
       return const Center(child: Text('Profile not found'));
     }
@@ -280,11 +242,13 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       child: Column(
         children: [
           // Avatar and basic info
-          DuoAvatar(
-            imageUrl: avatar,
-            size: 120,
-            floorLevel: floor,
-            showRing: true,
+          Center(
+            child: DuoAvatar(
+              imageUrl: avatar,
+              size: 120,
+              floorLevel: floor,
+              showRing: true,
+            ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),
           ),
           const SizedBox(height: 16),
           Text(
@@ -294,7 +258,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
             ),
-          ),
+          ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
           if (bio != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -305,21 +269,17 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 color: Colors.grey[600],
               ),
               textAlign: TextAlign.center,
-            ),
+            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: AppTheme.duoSpacingLarge),
 
-          // Stats
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildStat('Floor', '$floor'),
-              _buildStat('Messages', '$messageCount'),
-              _buildStat('Moments', '$momentCount'),
-              _buildStat('Streak', '$streakDays🔥'),
-            ],
-          ),
-          const SizedBox(height: 24),
+          // Action Button (Vouch)
+          _buildVouchButton().animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: AppTheme.duoSpacingLarge),
+
+          // Stats Grid
+          _buildStatsGrid(),
+          const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Info cards
           if (gender != null || country != null)
@@ -395,45 +355,111 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     );
   }
 
-  Widget _buildStat(String label, String value) {
-    return Column(
+  Widget _buildVouchButton() {
+    final likedIds = ref.watch(userLikesProvider).value ?? [];
+    final isLiked = likedIds.contains(widget.userId);
+
+    return DuoButton(
+      text: isLiked ? 'Vouched' : '❤️ Vouch for Resident',
+      color: isLiked ? AppTheme.duoGreen : AppTheme.secondaryColor,
+      isSecondary: isLiked,
+      width: double.infinity,
+      onPressed: () async {
+        try {
+          if (isLiked) {
+            await ref.read(userLikesProvider.notifier).unlikeUser(widget.userId);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Vouch removed.')),
+              );
+            }
+          } else {
+            await ref.read(userLikesProvider.notifier).likeUser(widget.userId);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('User vouched! Trust Score increased.'),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+          }
+        }
+      },
+    );
+  }
+
+  Widget _buildStatsGrid() {
+    final floor = _profile!.floor;
+    final messages = _profile!.totalMessages;
+    final moments = _profile!.totalMoments;
+    final actualTrustScore = _profile!.trustScore;
+
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: AppTheme.duoSpacingMedium,
+      crossAxisSpacing: AppTheme.duoSpacingMedium,
+      childAspectRatio: 1.1,
       children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.primaryColor,
-            fontFamily: 'Poppins',
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontFamily: 'Rubik',
-            color: Colors.grey[600],
-          ),
-        ),
+        DuoStatCard(
+          icon: Icons.shield,
+          value: '$actualTrustScore',
+          label: 'Trust Score',
+          gradientColors: [
+            _getTrustColor(actualTrustScore),
+            _getTrustColor(actualTrustScore).withValues(alpha: 0.7),
+          ],
+        ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
+        DuoStatCard(
+          icon: Icons.apartment,
+          value: '$floor',
+          label: 'Floor',
+          gradientColors: [
+            AppTheme.primaryColor,
+            AppTheme.primaryColor.withValues(alpha: 0.7),
+          ],
+        ).animate().fadeIn(delay: 350.ms).scale(begin: const Offset(0.8, 0.8)),
+        DuoStatCard(
+          icon: Icons.message,
+          value: '$messages',
+          label: 'Messages',
+          gradientColors: [
+            AppTheme.accentColor,
+            AppTheme.accentColor.withValues(alpha: 0.7),
+          ],
+        ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
+        DuoStatCard(
+          icon: Icons.photo_library,
+          value: '$moments',
+          label: 'Moments',
+          gradientColors: [
+            AppTheme.duoYellow,
+            AppTheme.duoYellow.withValues(alpha: 0.7),
+          ],
+        ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
       ],
     );
+  }
+
+  Color _getTrustColor(int reputation) {
+    if (reputation > 50) return AppTheme.duoGreen;
+    if (reputation >= 20) return AppTheme.duoYellow;
+    return AppTheme.duoRed;
   }
 
   Widget _buildInfoCard(String title, List<Widget> children) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+        boxShadow: AppTheme.duoCardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,13 +470,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               fontSize: 18,
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
+              color: AppTheme.textPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
           ...children,
         ],
       ),
-    );
+    ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -458,9 +485,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
+          Icon(icon, size: 20, color: AppTheme.textSecondary),
           const SizedBox(width: 12),
-          Text(text, style: const TextStyle(fontSize: 16, fontFamily: 'Rubik')),
+          Text(text, style: const TextStyle(fontSize: 16, fontFamily: 'Rubik', color: AppTheme.textPrimary)),
         ],
       ),
     );

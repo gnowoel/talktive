@@ -1,6 +1,14 @@
-# Talktive
+# Talktive: Anonymous Chat
 
 Talktive is a group chat application where users log in securely via Google but interact using custom, anonymous personas designed for privacy and authentic conversations.
+
+## 🎯 Purpose
+
+We built the **Talktive: Anonymous Chat** app for lonely modern people, especially young adults living in cities. They may not have many friends in real life, they crave communication, but they also value privacy and security.
+
+Our goal is to provide a convenient, fun, and safe chat environment. We don't use AI; everyone you meet is a real person. 
+
+Unlike traditional chat applications or social networking sites, chatting here is stress-free. Nobody knows who you are, we don't keep records, you can come and go as you please, and you don't need to care about others' opinions. Of course, if you repeatedly send inappropriate messages or harass others, our safety system will mute or suspend your account based on your Trust Score.
 
 ## 🎨 Design Philosophy
 

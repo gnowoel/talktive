@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f06a069-f813-4053-87e4-97f44f48b1c6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/talktive_client/lib/src/protocol/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/talktive_client/lib/src/protocol/protocol.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/talktive_server/lib/src/generated/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/talktive_server/lib/src/generated/protocol.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/talktive_server/migrations/migration_registry.txt" beforeDir="false" afterPath="$PROJECT_DIR$/talktive_server/migrations/migration_registry.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,10 +18,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="39VxpStLPKh7AFjCYrIX0YyJmKt" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -41,6 +39,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "v8",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/leo/Develop/builds/talktive/production/talktive3",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }

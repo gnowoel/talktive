@@ -633,72 +633,83 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-          const SizedBox(height: 48),
-          Text(
-            'Gender',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _buildGenderOption('male', '♂️', 'Male')),
-              const SizedBox(width: 12),
-              Expanded(child: _buildGenderOption('female', '♀️', 'Female')),
-            ],
-          ).animate().fadeIn(delay: 200.ms),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildGenderOption('non-binary', '⚧️', 'Non-binary'),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildGenderOption('prefer-not-to-say', '🔒', 'Private'),
-              ),
-            ],
-          ).animate().fadeIn(delay: 300.ms),
-          const SizedBox(height: 48),
-          Text(
-            'Country',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
-          InkWell(
-            onTap: _selectCountry,
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade300, width: 1),
-              ),
-              child: Row(
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
                 children: [
+                  const SizedBox(height: 24),
                   Text(
-                    _selectedCountryFlag,
-                    style: const TextStyle(fontSize: 32),
+                    'Gender',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      _selectedCountry,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(child: _buildGenderOption('male', '♂️', 'Male')),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildGenderOption('female', '♀️', 'Female')),
+                    ],
+                  ).animate().fadeIn(delay: 200.ms),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildGenderOption('non-binary', '⚧️', 'Non-binary'),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildGenderOption('prefer-not-to-say', '🔒', 'Private'),
+                      ),
+                    ],
+                  ).animate().fadeIn(delay: 300.ms),
+                  const SizedBox(height: 48),
+                  Text(
+                    'Country',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: _selectCountry,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade300, width: 1),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            _selectedCountryFlag,
+                            style: const TextStyle(fontSize: 32),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              _selectedCountry,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
                       ),
                     ),
-                  ),
-                  const Icon(Icons.arrow_drop_down),
+                  ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
-          ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0),
+          ),
         ],
       ),
     );

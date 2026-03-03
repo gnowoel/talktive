@@ -433,80 +433,92 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-          const SizedBox(height: 32),
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: AppTheme.primaryGradient),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                _selectedAvatar,
-                style: const TextStyle(fontSize: 60),
-              ),
-            ),
-          ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: _popularAvatars.length,
-              itemBuilder: (context, index) {
-                final avatar = _popularAvatars[index];
-                final isSelected = avatar == _selectedAvatar;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedAvatar = avatar;
-                    });
-                    HapticFeedback.selectionClick();
-                  },
-                  child:
-                      Container(
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.primaryColor.withValues(alpha: 0.2)
-                              : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.primaryColor
-                                : Colors.transparent,
-                            width: 2,
-                          ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(colors: AppTheme.primaryGradient),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
-                        child: Center(
-                          child: Text(
-                            avatar,
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                        ),
-                      ).animate().scale(
-                        delay: Duration(milliseconds: index * 20),
-                        duration: 300.ms,
-                        curve: Curves.easeOut,
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        _selectedAvatar,
+                        style: const TextStyle(fontSize: 60),
                       ),
-                );
-              },
+                    ),
+                  ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
+                  const SizedBox(height: 32),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: _popularAvatars.length,
+                    itemBuilder: (context, index) {
+                      final avatar = _popularAvatars[index];
+                      final isSelected = avatar == _selectedAvatar;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedAvatar = avatar;
+                          });
+                          HapticFeedback.selectionClick();
+                        },
+                        child:
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.primaryColor.withValues(alpha: 0.2)
+                                    : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.primaryColor
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  avatar,
+                                  style: const TextStyle(fontSize: 32),
+                                ),
+                              ),
+                            ).animate().scale(
+                              delay: Duration(milliseconds: index * 20),
+                              duration: 300.ms,
+                              curve: Curves.easeOut,
+                            ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: _showEmojiPicker,
+                    icon: const Icon(Icons.add_reaction_outlined),
+                    label: const Text('Choose Custom Emoji'),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
-          ),
-          TextButton.icon(
-            onPressed: _showEmojiPicker,
-            icon: const Icon(Icons.add_reaction_outlined),
-            label: const Text('Choose Custom Emoji'),
           ),
         ],
       ),
@@ -737,95 +749,106 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
 
-          const SizedBox(height: 24),
-
-          // Selected count
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.duoGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '${_selectedLanguages.length} selected',
-              style: const TextStyle(
-                color: AppTheme.duoGreen,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ).animate().fadeIn(delay: 200.ms),
-
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 3,
-              ),
-              itemCount: AppLanguages.all.length,
-              itemBuilder: (context, index) {
-                final language = AppLanguages.all[index];
-                final code = language['code']!;
-                final name = language['name']!;
-                final flag = language['flag']!;
-                final isSelected = _selectedLanguages.contains(code);
-
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        if (_selectedLanguages.length > 1) {
-                          _selectedLanguages.remove(code);
-                        }
-                      } else {
-                        _selectedLanguages.add(code);
-                      }
-                    });
-                    HapticFeedback.selectionClick();
-                  },
-                  child:
-                      Container(
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.duoGreen.withValues(alpha: 0.2)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.duoGreen
-                                : Colors.grey.shade300,
-                            width: isSelected ? 2 : 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(flag, style: const TextStyle(fontSize: 20)),
-                            const SizedBox(width: 8),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? AppTheme.duoGreen
-                                    : AppTheme.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().scale(
-                        delay: Duration(milliseconds: index * 30),
-                        duration: 300.ms,
-                        curve: Curves.easeOut,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  // Selected count
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.duoGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${_selectedLanguages.length} selected',
+                      style: const TextStyle(
+                        color: AppTheme.duoGreen,
+                        fontWeight: FontWeight.w600,
                       ),
-                );
-              },
+                    ),
+                  ).animate().fadeIn(delay: 200.ms),
+
+                  const SizedBox(height: 24),
+
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 3,
+                    ),
+                    itemCount: AppLanguages.all.length,
+                    itemBuilder: (context, index) {
+                      final language = AppLanguages.all[index];
+                      final code = language['code']!;
+                      final name = language['name']!;
+                      final flag = language['flag']!;
+                      final isSelected = _selectedLanguages.contains(code);
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              if (_selectedLanguages.length > 1) {
+                                _selectedLanguages.remove(code);
+                              }
+                            } else {
+                              _selectedLanguages.add(code);
+                            }
+                          });
+                          HapticFeedback.selectionClick();
+                        },
+                        child:
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.duoGreen.withValues(alpha: 0.2)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.duoGreen
+                                      : Colors.grey.shade300,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(flag, style: const TextStyle(fontSize: 20)),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    name,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: isSelected
+                                          ? AppTheme.duoGreen
+                                          : AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ).animate().scale(
+                              delay: Duration(milliseconds: index * 30),
+                              duration: 300.ms,
+                              curve: Curves.easeOut,
+                            ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
         ],
@@ -950,80 +973,91 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '${_selectedInterests.length} selected',
-              style: const TextStyle(
-                color: AppTheme.accentColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ).animate().fadeIn(delay: 200.ms),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 3,
-              ),
-              itemCount: _availableInterests.length,
-              itemBuilder: (context, index) {
-                final interest = _availableInterests[index];
-                final isSelected = _selectedInterests.contains(interest);
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedInterests.remove(interest);
-                      } else {
-                        _selectedInterests.add(interest);
-                      }
-                    });
-                    HapticFeedback.selectionClick();
-                  },
-                  child:
-                      Container(
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.accentColor.withValues(alpha: 0.2)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.accentColor
-                                : Colors.grey.shade300,
-                            width: isSelected ? 2 : 1,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            interest,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? AppTheme.accentColor
-                                  : AppTheme.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ).animate().scale(
-                        delay: Duration(milliseconds: index * 30),
-                        duration: 300.ms,
-                        curve: Curves.easeOut,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${_selectedInterests.length} selected',
+                      style: const TextStyle(
+                        color: AppTheme.accentColor,
+                        fontWeight: FontWeight.w600,
                       ),
-                );
-              },
+                    ),
+                  ).animate().fadeIn(delay: 200.ms),
+                  const SizedBox(height: 24),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 3,
+                    ),
+                    itemCount: _availableInterests.length,
+                    itemBuilder: (context, index) {
+                      final interest = _availableInterests[index];
+                      final isSelected = _selectedInterests.contains(interest);
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              _selectedInterests.remove(interest);
+                            } else {
+                              _selectedInterests.add(interest);
+                            }
+                          });
+                          HapticFeedback.selectionClick();
+                        },
+                        child:
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.accentColor.withValues(alpha: 0.2)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.accentColor
+                                      : Colors.grey.shade300,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  interest,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? AppTheme.accentColor
+                                        : AppTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ).animate().scale(
+                              delay: Duration(milliseconds: index * 30),
+                              duration: 300.ms,
+                              curve: Curves.easeOut,
+                            ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
         ],
@@ -1050,76 +1084,87 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-          const SizedBox(height: 48),
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.happyColor.withValues(alpha: 0.3),
-                  AppTheme.excitedColor.withValues(alpha: 0.3),
+          const SizedBox(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.happyColor.withValues(alpha: 0.3),
+                          AppTheme.excitedColor.withValues(alpha: 0.3),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(_selectedMood, style: const TextStyle(fontSize: 50)),
+                    ),
+                  ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
+                  const SizedBox(height: 32),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: _moods.length,
+                    itemBuilder: (context, index) {
+                      final mood = _moods[index];
+                      final isSelected = mood == _selectedMood;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedMood = mood;
+                          });
+                          HapticFeedback.selectionClick();
+                        },
+                        child:
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.happyColor.withValues(alpha: 0.2)
+                                    : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.happyColor
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  mood,
+                                  style: const TextStyle(fontSize: 28),
+                                ),
+                              ),
+                            ).animate().scale(
+                              delay: Duration(milliseconds: index * 20),
+                              duration: 300.ms,
+                              curve: Curves.easeOut,
+                            ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    '💡 You can change your mood anytime',
+                    style: TextStyle(color: AppTheme.textLight, fontSize: 14),
+                  ).animate().fadeIn(delay: 400.ms),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
-            child: Center(
-              child: Text(_selectedMood, style: const TextStyle(fontSize: 50)),
-            ),
-          ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
-          const SizedBox(height: 32),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: _moods.length,
-              itemBuilder: (context, index) {
-                final mood = _moods[index];
-                final isSelected = mood == _selectedMood;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedMood = mood;
-                    });
-                    HapticFeedback.selectionClick();
-                  },
-                  child:
-                      Container(
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.happyColor.withValues(alpha: 0.2)
-                              : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.happyColor
-                                : Colors.transparent,
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            mood,
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                        ),
-                      ).animate().scale(
-                        delay: Duration(milliseconds: index * 20),
-                        duration: 300.ms,
-                        curve: Curves.easeOut,
-                      ),
-                );
-              },
-            ),
           ),
-          const SizedBox(height: 24),
-          const Text(
-            '💡 You can change your mood anytime',
-            style: TextStyle(color: AppTheme.textLight, fontSize: 14),
-          ).animate().fadeIn(delay: 400.ms),
         ],
       ),
     );

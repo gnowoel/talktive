@@ -532,71 +532,83 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-          const SizedBox(height: 48),
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
-            ),
-            child: Center(
-              child: Text(
-                _selectedAvatar,
-                style: const TextStyle(fontSize: 40),
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    ),
+                    child: Center(
+                      child: Text(
+                        _selectedAvatar,
+                        style: const TextStyle(fontSize: 40),
+                      ),
+                    ),
+                  ).animate().scale(),
+                  const SizedBox(height: 32),
+                  TextField(
+                    controller: _nameController,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      hintText: 'Enter your name',
+                      hintStyle: const TextStyle(
+                        color: AppTheme.textLight,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: AppTheme.primaryColor,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                    maxLength: 20,
+                  ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+                  const SizedBox(height: 32),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: ['Mystic', 'Phoenix', 'Luna', 'Star', 'Sky', 'Nova'].map((
+                      name,
+                    ) {
+                      return ActionChip(
+                        label: Text(name),
+                        onPressed: () {
+                          _nameController.text = name;
+                          HapticFeedback.selectionClick();
+                        },
+                        backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        labelStyle: const TextStyle(color: AppTheme.primaryColor),
+                      );
+                    }).toList(),
+                  ).animate().fadeIn(delay: 300.ms),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
-          ).animate().scale(),
-          const SizedBox(height: 32),
-          TextField(
-            controller: _nameController,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-            decoration: InputDecoration(
-              hintText: 'Enter your name',
-              hintStyle: const TextStyle(
-                color: AppTheme.textLight,
-                fontWeight: FontWeight.normal,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: AppTheme.primaryColor,
-                  width: 2,
-                ),
-              ),
-            ),
-            textCapitalization: TextCapitalization.words,
-            maxLength: 20,
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
-          const Spacer(),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: ['Mystic', 'Phoenix', 'Luna', 'Star', 'Sky', 'Nova'].map((
-              name,
-            ) {
-              return ActionChip(
-                label: Text(name),
-                onPressed: () {
-                  _nameController.text = name;
-                  HapticFeedback.selectionClick();
-                },
-                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                labelStyle: const TextStyle(color: AppTheme.primaryColor),
-              );
-            }).toList(),
-          ).animate().fadeIn(delay: 300.ms),
+          ),
         ],
       ),
     );
@@ -829,70 +841,80 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
           ).animate().fadeIn(delay: 100.ms),
-          const SizedBox(height: 32),
-          TextField(
-            controller: _bioController,
-            maxLines: 5,
-            maxLength: 150,
-            decoration: InputDecoration(
-              hintText:
-                  'Tell others about yourself...\n\nExample: Love coffee ☕, late night chats 🌙, and good vibes ✨',
-              hintStyle: const TextStyle(color: AppTheme.textLight),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: AppTheme.primaryColor,
-                  width: 2,
-                ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _bioController,
+                    maxLines: 5,
+                    maxLength: 150,
+                    decoration: InputDecoration(
+                      hintText:
+                          'Tell others about yourself...\n\nExample: Love coffee ☕, late night chats 🌙, and good vibes ✨',
+                      hintStyle: const TextStyle(color: AppTheme.textLight),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: AppTheme.primaryColor,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Need inspiration? Try these:',
+                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children:
+                        [
+                          '🎮 Gamer at heart',
+                          '🎵 Music is life',
+                          '📚 Bookworm',
+                          '✈️ Travel addict',
+                          '🎬 Movie buff',
+                          '☕ Coffee lover',
+                        ].map((template) {
+                          return ActionChip(
+                            label: Text(template),
+                            onPressed: () {
+                              if (_bioController.text.isNotEmpty) {
+                                _bioController.text += '\n$template';
+                              } else {
+                                _bioController.text = template;
+                              }
+                              HapticFeedback.selectionClick();
+                            },
+                            backgroundColor: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                            labelStyle: const TextStyle(
+                              color: AppTheme.secondaryColor,
+                              fontSize: 12,
+                            ),
+                          );
+                        }).toList(),
+                  ).animate().fadeIn(delay: 300.ms),
+                ],
               ),
             ),
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
-          const SizedBox(height: 24),
-          const Text(
-            'Need inspiration? Try these:',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
           ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children:
-                [
-                  '🎮 Gamer at heart',
-                  '🎵 Music is life',
-                  '📚 Bookworm',
-                  '✈️ Travel addict',
-                  '🎬 Movie buff',
-                  '☕ Coffee lover',
-                ].map((template) {
-                  return ActionChip(
-                    label: Text(template),
-                    onPressed: () {
-                      if (_bioController.text.isNotEmpty) {
-                        _bioController.text += '\n$template';
-                      } else {
-                        _bioController.text = template;
-                      }
-                      HapticFeedback.selectionClick();
-                    },
-                    backgroundColor: AppTheme.secondaryColor.withValues(alpha: 0.1),
-                    labelStyle: const TextStyle(
-                      color: AppTheme.secondaryColor,
-                      fontSize: 12,
-                    ),
-                  );
-                }).toList(),
-          ).animate().fadeIn(delay: 300.ms),
         ],
       ),
     );

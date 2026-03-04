@@ -13,6 +13,8 @@ import '../../providers/user_likes_provider.dart';
 import '../../utils/floor_utils.dart';
 import '../../config/languages.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
+import '../../providers/private_chat_provider.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -126,6 +128,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               ),
             )
           : _buildProfileContent(isBlocked),
+      bottomNavigationBar: isBlocked || _loading || _error != null
+          ? null
+          : _buildBottomBar(context, ref),
     );
   }
 
@@ -135,6 +140,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       onSelected: (value) async {
         if (value == 'block') {
           await _confirmBlock(context, isBlocked);
+        } else if (value == 'report') {
+          _reportUser(context, ref);
         }
       },
       itemBuilder: (_) => [
@@ -158,6 +165,23 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             ],
           ),
         ),
+        if (!isBlocked)
+          const PopupMenuItem(
+            value: 'report',
+            child: Row(
+              children: [
+                Icon(Icons.flag_outlined, color: AppTheme.errorColor, size: 20),
+                SizedBox(width: 12),
+                Text(
+                  'Report user',
+                  style: TextStyle(
+                    color: AppTheme.errorColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -568,5 +592,108 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       default:
         return gender;
     }
+  }
+
+  Widget _buildBottomBar(BuildContext context, WidgetRef ref) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: AppTheme.duoSpacingLarge,
+          right: AppTheme.duoSpacingLarge,
+          bottom: AppTheme.duoSpacingMedium,
+          top: AppTheme.duoSpacingSmall,
+        ),
+        child: DuoButton(
+          text: 'Knock on Door',
+          icon: Icons.chat_bubble_outline,
+          width: double.infinity,
+          onPressed: () => _knockOnDoor(context, ref),
+        ),
+      ),
+    );
+  }
+
+  void _knockOnDoor(BuildContext context, WidgetRef ref) {
+    final chatList = ref.read(privateChatListProvider.notifier);
+    chatList
+        .getOrCreateChat(widget.userId)
+        .then((chat) {
+          if (context.mounted) context.push('/chat/${chat.channelId}');
+        })
+        .catchError((error) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to knock on door: $error')),
+            );
+          }
+        });
+  }
+
+  void _reportUser(BuildContext context, WidgetRef ref) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Report User', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Please tell us what happened. Reports help keep Talktive safe.',
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Reason for report',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final reason = reasonController.text.trim();
+              if (reason.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please add a reason.')),
+                );
+                return;
+              }
+              Navigator.pop(context);
+              try {
+                final client = ref.read(clientProvider);
+                await client.report.reportUser(
+                  targetUserId: widget.userId,
+                  reason: reason,
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Report submitted securely.')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              }
+            },
+            child: const Text(
+              'Report',
+              style: TextStyle(color: AppTheme.errorColor, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

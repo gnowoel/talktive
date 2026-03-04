@@ -33,6 +33,8 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ## Development Philosophy
 
+**Underlying Structural Changes Over Quick Patches**: To ensure the codebase remains simple and robust, we consistently prioritize making deep structural or database-level optimizations rather than relying on brittle surface-level UI patches or workarounds.
+
 **Optimization Over Backward Compatibility**: Since the Serverpod version is not yet deployed, we prioritize the **best secured architecture** over backward compatibility. We actively refactor and introduce breaking changes (e.g., protocol denormalization) to ensure the final product is efficient, robust, and scalable.
 
 **Git Protocol**: When committing changes, please DO NOT run `git push`. Leave the pushing to the repository owner to do manually.

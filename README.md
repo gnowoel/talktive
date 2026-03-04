@@ -138,14 +138,21 @@ Even for the new Serverpod version, we use **Firebase Authentication**.
 
 1.  From the `talktive_flutter` directory:
     ```bash
-    flutter run
+    flutter run -d web-server --web-port 8083 --web-hostname=localhost
     ```
+    > **⚠️ IMPORTANT FOR GOOGLE SIGN-IN**
+    > Only `localhost:8083` is registered with Google Cloud OAuth. You must explicitly start the server using `--web-hostname=localhost` and access it via `http://localhost:8083`. Do not use `127.0.0.1`, otherwise Google Sign-In will fail with origin errors.
+
 2.  On launch, you will see the **Start Screen**:
     - Tap **"Start"** to use the existing Firebase version.
     - Tap **"New safer version"** to preview the Serverpod integration.
     
     > **⚠️ IMPORTANT FOR TESTING**
     > We run the old Firebase version along with the new Serverpod version. For testing the new Serverpod version, please tap **"New safer version"** instead of "Start" on app start.
+
+## 🧠 Development Philosophy
+
+**Underlying Structural Changes Over Quick Patches**: To ensure the codebase remains simple and robust, we consistently prioritize making deep structural or database-level optimizations rather than relying on brittle surface-level UI patches or workarounds.
 
 ## 🏗️ Architecture Notes
 

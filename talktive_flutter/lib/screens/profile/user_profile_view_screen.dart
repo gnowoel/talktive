@@ -243,9 +243,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         children: [
           // Avatar and basic info
           Center(
-            child: DuoAvatar(
+              child: DuoAvatar(
               imageUrl: avatar,
               size: 120,
+              mood: _profile!.userMood,
               floorLevel: floor,
               showRing: true,
             ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),

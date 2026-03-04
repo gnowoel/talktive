@@ -155,6 +155,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final otherName = otherProfile?.userName ?? 'Resident';
     final otherAvatar = otherProfile?.userAvatar;
     final otherFloor = otherProfile?.floor ?? 1;
+    final otherMood = otherProfile?.userMood;
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -173,6 +174,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             DuoAvatar(
               imageUrl: otherAvatar,
               size: 36,
+              mood: otherMood,
               showRing: true,
               floorLevel: otherFloor,
             ),

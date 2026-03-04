@@ -122,6 +122,7 @@ class ChatsScreen extends ConsumerWidget {
                 DuoAvatar(
                   imageUrl: otherUserAvatar,
                   size: 56,
+                  mood: chatItem.otherUserMood,
                   showRing: true,
                   floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
                 ),

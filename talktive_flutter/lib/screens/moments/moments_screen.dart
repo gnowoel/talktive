@@ -354,8 +354,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                     DuoAvatar(
                       imageUrl: moment.authorAvatar,
                       size: 40,
+                      mood: moment.authorMood,
                       floorLevel: moment.authorFloor,
-                      showRing: false,
+                      showRing: true,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -761,6 +762,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
           DuoAvatar(
             imageUrl: comment.userAvatar,
             size: 32,
+            mood: comment.userMood,
             floorLevel: comment.userFloor,
             showRing: false,
           ),

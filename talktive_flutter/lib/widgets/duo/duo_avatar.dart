@@ -7,6 +7,7 @@ class DuoAvatar extends StatelessWidget {
 
   final double size;
   final int? floorLevel;
+  final String? mood;
   final Color? ringColor;
   final bool showRing;
   final VoidCallback? onTap;
@@ -17,6 +18,7 @@ class DuoAvatar extends StatelessWidget {
 
     this.size = 48,
     this.floorLevel,
+    this.mood,
     this.ringColor,
     this.showRing = true,
     this.onTap,
@@ -106,42 +108,71 @@ class DuoAvatar extends StatelessWidget {
       );
     }
 
-    if (floorLevel != null) {
+    if (floorLevel != null || (mood != null && mood!.isNotEmpty)) {
       return Stack(
         clipBehavior: Clip.none,
         children: [
           avatar,
-          Positioned(
-            right: -4,
-            bottom: -4,
-            child: Container(
-              width: badgeSize,
-              height: badgeSize,
-              decoration: BoxDecoration(
-                color: _getFloorColor(floorLevel!),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  '$floorLevel',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: badgeSize * 0.5,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
+          if (floorLevel != null)
+            Positioned(
+              right: -4,
+              bottom: -4,
+              child: Container(
+                width: badgeSize,
+                height: badgeSize,
+                decoration: BoxDecoration(
+                  color: _getFloorColor(floorLevel!),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    '$floorLevel',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: badgeSize * 0.5,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          if (mood != null && mood!.isNotEmpty)
+            Positioned(
+              left: -4, // Placed on the left to avoid cluttering with the floor badge
+              top: -4,
+              child: Container(
+                width: badgeSize * 1.2, // Slightly larger for emojis
+                height: badgeSize * 1.2,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    mood!,
+                    style: TextStyle(
+                      fontSize: badgeSize * 0.7,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       );
     }

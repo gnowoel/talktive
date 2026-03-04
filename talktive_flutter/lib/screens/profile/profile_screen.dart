@@ -84,6 +84,7 @@ class ProfileScreen extends ConsumerWidget {
                 DuoAvatar(
                       imageUrl: resident?.avatar,
                       size: 100,
+                      mood: resident?.mood,
                       floorLevel: resident != null
                           ? FloorUtils.computeFloor(resident!)
                           : null,

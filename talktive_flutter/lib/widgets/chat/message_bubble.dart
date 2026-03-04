@@ -43,6 +43,7 @@ class MessageBubble extends ConsumerWidget {
               child: DuoAvatar(
                 imageUrl: senderAvatar,
                 size: 36,
+                mood: message.senderMood,
                 showRing: true,
                 floorLevel: senderFloor,
               ),
@@ -166,6 +167,7 @@ class MessageBubble extends ConsumerWidget {
             DuoAvatar(
               imageUrl: currentResident?.avatar,
               size: 36,
+              mood: currentResident?.mood,
               showRing: false,
             ),
           ],

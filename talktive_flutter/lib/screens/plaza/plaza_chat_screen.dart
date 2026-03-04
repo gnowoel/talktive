@@ -79,15 +79,44 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
 
-    return DuoPageScaffold(
-      emoji: '🌍',
-      title: 'Global Lounge',
-      subtitle: 'Chat with everyone',
-      gradient: AppTheme.primaryGradient,
-      hasBackButton: true,
-      trailingHeader: currentResident != null
-          ? _buildStatsChip(currentResident)
-          : null,
+    return Scaffold(
+      backgroundColor: AppTheme.lightBackground,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          children: [
+            const Text('🌍', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Global Lounge',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  'Chat with everyone',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: Column(
         children: [
           // Info banner
@@ -122,45 +151,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildStatsChip(Resident currentResident) {
-    return DuoCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingMedium,
-        vertical: AppTheme.duoSpacingSmall,
-      ),
-      borderRadius: AppTheme.duoRadiusPill,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '🏢 ${FloorUtils.computeFloor(currentResident)}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
-            ),
-          ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          Container(width: 1, height: 16, color: AppTheme.textLight),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          Text(
-            '⭐ ${currentResident.trustScore}',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: currentResident.trustScore > 50
-                  ? AppTheme.duoGreen
-                  : currentResident.trustScore >= 20
-                  ? AppTheme.duoYellow
-                  : AppTheme.errorColor,
-              fontFamily: 'Poppins',
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8));
   }
 
   Widget _buildInfoBanner() {
@@ -254,10 +244,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
               decoration: BoxDecoration(
                 color: AppTheme.lightBackground,
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),

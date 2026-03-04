@@ -156,7 +156,7 @@ class ProfileScreen extends ConsumerWidget {
     if (id == null || id.isEmpty) {
       return 'Anonymous';
     }
-    return 'Resident ${id.substring(0, 6)}';
+    return 'Resident';
   }
 
   Widget _buildStreakCard(BuildContext context, WidgetRef ref) {

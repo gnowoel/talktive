@@ -10,7 +10,7 @@ import '../screens/onboarding/profile_setup_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/achievements/achievements_screen.dart';
-import 'screens/profile/user_profile_screen.dart';
+import '../screens/profile/user_profile_view_screen.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -74,8 +74,7 @@ class ServerpodApp extends StatelessWidget {
           path: '/user/:userId',
           builder: (context, state) {
             final userId = state.pathParameters['userId'] ?? '';
-            final userName = state.uri.queryParameters['name'];
-            return UserProfileScreen(userId: userId, userName: userName);
+            return UserProfileViewScreen(userId: userId);
           },
         ),
         GoRoute(

@@ -317,6 +317,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ),
         ],
       ),
+      ),
     );
   }
 }

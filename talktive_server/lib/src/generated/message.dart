@@ -23,6 +23,7 @@ abstract class Message
     required this.createdAt,
     required this.senderName,
     this.senderAvatar,
+    this.senderMood,
     required this.senderFloor,
   });
 
@@ -35,6 +36,7 @@ abstract class Message
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
+    String? senderMood,
     required int senderFloor,
   }) = _MessageImpl;
 
@@ -52,6 +54,7 @@ abstract class Message
       ),
       senderName: jsonSerialization['senderName'] as String,
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
+      senderMood: jsonSerialization['senderMood'] as String?,
       senderFloor: jsonSerialization['senderFloor'] as int,
     );
   }
@@ -77,6 +80,8 @@ abstract class Message
 
   String? senderAvatar;
 
+  String? senderMood;
+
   int senderFloor;
 
   @override
@@ -94,6 +99,7 @@ abstract class Message
     DateTime? createdAt,
     String? senderName,
     String? senderAvatar,
+    String? senderMood,
     int? senderFloor,
   });
   @override
@@ -108,6 +114,7 @@ abstract class Message
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
+      if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
     };
   }
@@ -124,6 +131,7 @@ abstract class Message
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
+      if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
     };
   }
@@ -170,6 +178,7 @@ class _MessageImpl extends Message {
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
+    String? senderMood,
     required int senderFloor,
   }) : super._(
          id: id,
@@ -180,6 +189,7 @@ class _MessageImpl extends Message {
          createdAt: createdAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
+         senderMood: senderMood,
          senderFloor: senderFloor,
        );
 
@@ -196,6 +206,7 @@ class _MessageImpl extends Message {
     DateTime? createdAt,
     String? senderName,
     Object? senderAvatar = _Undefined,
+    Object? senderMood = _Undefined,
     int? senderFloor,
   }) {
     return Message(
@@ -207,6 +218,7 @@ class _MessageImpl extends Message {
       createdAt: createdAt ?? this.createdAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
+      senderMood: senderMood is String? ? senderMood : this.senderMood,
       senderFloor: senderFloor ?? this.senderFloor,
     );
   }
@@ -253,6 +265,11 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
         value,
       );
 
+  _i1.ColumnValue<String, String> senderMood(String? value) => _i1.ColumnValue(
+    table.senderMood,
+    value,
+  );
+
   _i1.ColumnValue<int, int> senderFloor(int value) => _i1.ColumnValue(
     table.senderFloor,
     value,
@@ -290,6 +307,10 @@ class MessageTable extends _i1.Table<int?> {
       'senderAvatar',
       this,
     );
+    senderMood = _i1.ColumnString(
+      'senderMood',
+      this,
+    );
     senderFloor = _i1.ColumnInt(
       'senderFloor',
       this,
@@ -312,6 +333,8 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString senderAvatar;
 
+  late final _i1.ColumnString senderMood;
+
   late final _i1.ColumnInt senderFloor;
 
   @override
@@ -324,6 +347,7 @@ class MessageTable extends _i1.Table<int?> {
     createdAt,
     senderName,
     senderAvatar,
+    senderMood,
     senderFloor,
   ];
 }

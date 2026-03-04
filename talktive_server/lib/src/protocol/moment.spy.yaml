@@ -11,6 +11,7 @@ fields:
   # Denormalized Author Info
   authorName: String
   authorAvatar: String
+  authorMood: String?
   authorFloor: int
 indexes:
   moment_author_idx:

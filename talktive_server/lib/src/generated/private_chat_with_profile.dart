@@ -22,6 +22,7 @@ abstract class PrivateChatWithProfile
     required this.otherResident,
     this.otherUserName,
     this.otherUserAvatar,
+    this.otherUserMood,
   });
 
   factory PrivateChatWithProfile({
@@ -29,6 +30,7 @@ abstract class PrivateChatWithProfile
     required _i3.Resident otherResident,
     String? otherUserName,
     String? otherUserAvatar,
+    String? otherUserMood,
   }) = _PrivateChatWithProfileImpl;
 
   factory PrivateChatWithProfile.fromJson(
@@ -43,6 +45,7 @@ abstract class PrivateChatWithProfile
       ),
       otherUserName: jsonSerialization['otherUserName'] as String?,
       otherUserAvatar: jsonSerialization['otherUserAvatar'] as String?,
+      otherUserMood: jsonSerialization['otherUserMood'] as String?,
     );
   }
 
@@ -54,6 +57,8 @@ abstract class PrivateChatWithProfile
 
   String? otherUserAvatar;
 
+  String? otherUserMood;
+
   /// Returns a shallow copy of this [PrivateChatWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -62,6 +67,7 @@ abstract class PrivateChatWithProfile
     _i3.Resident? otherResident,
     String? otherUserName,
     String? otherUserAvatar,
+    String? otherUserMood,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -71,6 +77,7 @@ abstract class PrivateChatWithProfile
       'otherResident': otherResident.toJson(),
       if (otherUserName != null) 'otherUserName': otherUserName,
       if (otherUserAvatar != null) 'otherUserAvatar': otherUserAvatar,
+      if (otherUserMood != null) 'otherUserMood': otherUserMood,
     };
   }
 
@@ -82,6 +89,7 @@ abstract class PrivateChatWithProfile
       'otherResident': otherResident.toJsonForProtocol(),
       if (otherUserName != null) 'otherUserName': otherUserName,
       if (otherUserAvatar != null) 'otherUserAvatar': otherUserAvatar,
+      if (otherUserMood != null) 'otherUserMood': otherUserMood,
     };
   }
 
@@ -99,11 +107,13 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     required _i3.Resident otherResident,
     String? otherUserName,
     String? otherUserAvatar,
+    String? otherUserMood,
   }) : super._(
          chat: chat,
          otherResident: otherResident,
          otherUserName: otherUserName,
          otherUserAvatar: otherUserAvatar,
+         otherUserMood: otherUserMood,
        );
 
   /// Returns a shallow copy of this [PrivateChatWithProfile]
@@ -115,6 +125,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     _i3.Resident? otherResident,
     Object? otherUserName = _Undefined,
     Object? otherUserAvatar = _Undefined,
+    Object? otherUserMood = _Undefined,
   }) {
     return PrivateChatWithProfile(
       chat: chat ?? this.chat.copyWith(),
@@ -125,6 +136,9 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
       otherUserAvatar: otherUserAvatar is String?
           ? otherUserAvatar
           : this.otherUserAvatar,
+      otherUserMood: otherUserMood is String?
+          ? otherUserMood
+          : this.otherUserMood,
     );
   }
 }

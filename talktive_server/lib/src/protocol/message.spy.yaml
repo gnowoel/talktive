@@ -10,6 +10,7 @@ fields:
   # Denormalized Sender Info
   senderName: String
   senderAvatar: String?
+  senderMood: String?
   senderFloor: int
 indexes:
   message_channel_idx:

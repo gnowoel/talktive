@@ -23,6 +23,7 @@ abstract class Moment implements _i1.SerializableModel {
     required this.commentsCount,
     required this.authorName,
     required this.authorAvatar,
+    this.authorMood,
     required this.authorFloor,
   });
 
@@ -36,6 +37,7 @@ abstract class Moment implements _i1.SerializableModel {
     required int commentsCount,
     required String authorName,
     required String authorAvatar,
+    String? authorMood,
     required int authorFloor,
   }) = _MomentImpl;
 
@@ -52,6 +54,7 @@ abstract class Moment implements _i1.SerializableModel {
       commentsCount: jsonSerialization['commentsCount'] as int,
       authorName: jsonSerialization['authorName'] as String,
       authorAvatar: jsonSerialization['authorAvatar'] as String,
+      authorMood: jsonSerialization['authorMood'] as String?,
       authorFloor: jsonSerialization['authorFloor'] as int,
     );
   }
@@ -77,6 +80,8 @@ abstract class Moment implements _i1.SerializableModel {
 
   String authorAvatar;
 
+  String? authorMood;
+
   int authorFloor;
 
   /// Returns a shallow copy of this [Moment]
@@ -92,6 +97,7 @@ abstract class Moment implements _i1.SerializableModel {
     int? commentsCount,
     String? authorName,
     String? authorAvatar,
+    String? authorMood,
     int? authorFloor,
   });
   @override
@@ -107,6 +113,7 @@ abstract class Moment implements _i1.SerializableModel {
       'commentsCount': commentsCount,
       'authorName': authorName,
       'authorAvatar': authorAvatar,
+      if (authorMood != null) 'authorMood': authorMood,
       'authorFloor': authorFloor,
     };
   }
@@ -130,6 +137,7 @@ class _MomentImpl extends Moment {
     required int commentsCount,
     required String authorName,
     required String authorAvatar,
+    String? authorMood,
     required int authorFloor,
   }) : super._(
          id: id,
@@ -141,6 +149,7 @@ class _MomentImpl extends Moment {
          commentsCount: commentsCount,
          authorName: authorName,
          authorAvatar: authorAvatar,
+         authorMood: authorMood,
          authorFloor: authorFloor,
        );
 
@@ -158,6 +167,7 @@ class _MomentImpl extends Moment {
     int? commentsCount,
     String? authorName,
     String? authorAvatar,
+    Object? authorMood = _Undefined,
     int? authorFloor,
   }) {
     return Moment(
@@ -170,6 +180,7 @@ class _MomentImpl extends Moment {
       commentsCount: commentsCount ?? this.commentsCount,
       authorName: authorName ?? this.authorName,
       authorAvatar: authorAvatar ?? this.authorAvatar,
+      authorMood: authorMood is String? ? authorMood : this.authorMood,
       authorFloor: authorFloor ?? this.authorFloor,
     );
   }

@@ -22,6 +22,7 @@ abstract class Message implements _i1.SerializableModel {
     required this.createdAt,
     required this.senderName,
     this.senderAvatar,
+    this.senderMood,
     required this.senderFloor,
   });
 
@@ -34,6 +35,7 @@ abstract class Message implements _i1.SerializableModel {
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
+    String? senderMood,
     required int senderFloor,
   }) = _MessageImpl;
 
@@ -51,6 +53,7 @@ abstract class Message implements _i1.SerializableModel {
       ),
       senderName: jsonSerialization['senderName'] as String,
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
+      senderMood: jsonSerialization['senderMood'] as String?,
       senderFloor: jsonSerialization['senderFloor'] as int,
     );
   }
@@ -74,6 +77,8 @@ abstract class Message implements _i1.SerializableModel {
 
   String? senderAvatar;
 
+  String? senderMood;
+
   int senderFloor;
 
   /// Returns a shallow copy of this [Message]
@@ -88,6 +93,7 @@ abstract class Message implements _i1.SerializableModel {
     DateTime? createdAt,
     String? senderName,
     String? senderAvatar,
+    String? senderMood,
     int? senderFloor,
   });
   @override
@@ -102,6 +108,7 @@ abstract class Message implements _i1.SerializableModel {
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
+      if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
     };
   }
@@ -124,6 +131,7 @@ class _MessageImpl extends Message {
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
+    String? senderMood,
     required int senderFloor,
   }) : super._(
          id: id,
@@ -134,6 +142,7 @@ class _MessageImpl extends Message {
          createdAt: createdAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
+         senderMood: senderMood,
          senderFloor: senderFloor,
        );
 
@@ -150,6 +159,7 @@ class _MessageImpl extends Message {
     DateTime? createdAt,
     String? senderName,
     Object? senderAvatar = _Undefined,
+    Object? senderMood = _Undefined,
     int? senderFloor,
   }) {
     return Message(
@@ -161,6 +171,7 @@ class _MessageImpl extends Message {
       createdAt: createdAt ?? this.createdAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
+      senderMood: senderMood is String? ? senderMood : this.senderMood,
       senderFloor: senderFloor ?? this.senderFloor,
     );
   }

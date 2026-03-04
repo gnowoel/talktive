@@ -22,6 +22,7 @@ abstract class MomentComment
     required this.createdAt,
     required this.userName,
     required this.userAvatar,
+    this.userMood,
     required this.userFloor,
   });
 
@@ -33,6 +34,7 @@ abstract class MomentComment
     required DateTime createdAt,
     required String userName,
     required String userAvatar,
+    String? userMood,
     required int userFloor,
   }) = _MomentCommentImpl;
 
@@ -47,6 +49,7 @@ abstract class MomentComment
       ),
       userName: jsonSerialization['userName'] as String,
       userAvatar: jsonSerialization['userAvatar'] as String,
+      userMood: jsonSerialization['userMood'] as String?,
       userFloor: jsonSerialization['userFloor'] as int,
     );
   }
@@ -70,6 +73,8 @@ abstract class MomentComment
 
   String userAvatar;
 
+  String? userMood;
+
   int userFloor;
 
   @override
@@ -86,6 +91,7 @@ abstract class MomentComment
     DateTime? createdAt,
     String? userName,
     String? userAvatar,
+    String? userMood,
     int? userFloor,
   });
   @override
@@ -99,6 +105,7 @@ abstract class MomentComment
       'createdAt': createdAt.toJson(),
       'userName': userName,
       'userAvatar': userAvatar,
+      if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
     };
   }
@@ -114,6 +121,7 @@ abstract class MomentComment
       'createdAt': createdAt.toJson(),
       'userName': userName,
       'userAvatar': userAvatar,
+      if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
     };
   }
@@ -159,6 +167,7 @@ class _MomentCommentImpl extends MomentComment {
     required DateTime createdAt,
     required String userName,
     required String userAvatar,
+    String? userMood,
     required int userFloor,
   }) : super._(
          id: id,
@@ -168,6 +177,7 @@ class _MomentCommentImpl extends MomentComment {
          createdAt: createdAt,
          userName: userName,
          userAvatar: userAvatar,
+         userMood: userMood,
          userFloor: userFloor,
        );
 
@@ -183,6 +193,7 @@ class _MomentCommentImpl extends MomentComment {
     DateTime? createdAt,
     String? userName,
     String? userAvatar,
+    Object? userMood = _Undefined,
     int? userFloor,
   }) {
     return MomentComment(
@@ -193,6 +204,7 @@ class _MomentCommentImpl extends MomentComment {
       createdAt: createdAt ?? this.createdAt,
       userName: userName ?? this.userName,
       userAvatar: userAvatar ?? this.userAvatar,
+      userMood: userMood is String? ? userMood : this.userMood,
       userFloor: userFloor ?? this.userFloor,
     );
   }
@@ -233,6 +245,11 @@ class MomentCommentUpdateTable extends _i1.UpdateTable<MomentCommentTable> {
     value,
   );
 
+  _i1.ColumnValue<String, String> userMood(String? value) => _i1.ColumnValue(
+    table.userMood,
+    value,
+  );
+
   _i1.ColumnValue<int, int> userFloor(int value) => _i1.ColumnValue(
     table.userFloor,
     value,
@@ -267,6 +284,10 @@ class MomentCommentTable extends _i1.Table<int?> {
       'userAvatar',
       this,
     );
+    userMood = _i1.ColumnString(
+      'userMood',
+      this,
+    );
     userFloor = _i1.ColumnInt(
       'userFloor',
       this,
@@ -287,6 +308,8 @@ class MomentCommentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString userAvatar;
 
+  late final _i1.ColumnString userMood;
+
   late final _i1.ColumnInt userFloor;
 
   @override
@@ -298,6 +321,7 @@ class MomentCommentTable extends _i1.Table<int?> {
     createdAt,
     userName,
     userAvatar,
+    userMood,
     userFloor,
   ];
 }

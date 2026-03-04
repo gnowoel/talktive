@@ -20,6 +20,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required this.userId,
     this.userName,
     this.userAvatar,
+    this.userMood,
     required this.floor,
     required this.trustScore,
     required this.totalMessages,
@@ -44,6 +45,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required String userId,
     String? userName,
     String? userAvatar,
+    String? userMood,
     required int floor,
     required int trustScore,
     required int totalMessages,
@@ -69,6 +71,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       userId: jsonSerialization['userId'] as String,
       userName: jsonSerialization['userName'] as String?,
       userAvatar: jsonSerialization['userAvatar'] as String?,
+      userMood: jsonSerialization['userMood'] as String?,
       floor: jsonSerialization['floor'] as int,
       trustScore: jsonSerialization['trustScore'] as int,
       totalMessages: jsonSerialization['totalMessages'] as int,
@@ -107,6 +110,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
   String? userName;
 
   String? userAvatar;
+
+  String? userMood;
 
   int floor;
 
@@ -151,6 +156,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     String? userId,
     String? userName,
     String? userAvatar,
+    String? userMood,
     int? floor,
     int? trustScore,
     int? totalMessages,
@@ -177,6 +183,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       'userId': userId,
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
+      if (userMood != null) 'userMood': userMood,
       'floor': floor,
       'trustScore': trustScore,
       'totalMessages': totalMessages,
@@ -212,6 +219,7 @@ class _UserProfileViewImpl extends UserProfileView {
     required String userId,
     String? userName,
     String? userAvatar,
+    String? userMood,
     required int floor,
     required int trustScore,
     required int totalMessages,
@@ -234,6 +242,7 @@ class _UserProfileViewImpl extends UserProfileView {
          userId: userId,
          userName: userName,
          userAvatar: userAvatar,
+         userMood: userMood,
          floor: floor,
          trustScore: trustScore,
          totalMessages: totalMessages,
@@ -262,6 +271,7 @@ class _UserProfileViewImpl extends UserProfileView {
     String? userId,
     Object? userName = _Undefined,
     Object? userAvatar = _Undefined,
+    Object? userMood = _Undefined,
     int? floor,
     int? trustScore,
     int? totalMessages,
@@ -285,6 +295,7 @@ class _UserProfileViewImpl extends UserProfileView {
       userId: userId ?? this.userId,
       userName: userName is String? ? userName : this.userName,
       userAvatar: userAvatar is String? ? userAvatar : this.userAvatar,
+      userMood: userMood is String? ? userMood : this.userMood,
       floor: floor ?? this.floor,
       trustScore: trustScore ?? this.trustScore,
       totalMessages: totalMessages ?? this.totalMessages,

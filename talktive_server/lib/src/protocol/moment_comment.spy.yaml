@@ -6,9 +6,10 @@ fields:
   text: String
   createdAt: DateTime
 
-  # Denormalized User Info
+  # Denormalized
   userName: String
   userAvatar: String
+  userMood: String?
   userFloor: int
 
 indexes:

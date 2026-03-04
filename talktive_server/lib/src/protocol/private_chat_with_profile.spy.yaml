@@ -4,3 +4,4 @@ fields:
   otherResident: Resident
   otherUserName: String?
   otherUserAvatar: String?
+  otherUserMood: String?

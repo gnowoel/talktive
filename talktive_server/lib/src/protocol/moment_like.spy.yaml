@@ -5,9 +5,10 @@ fields:
   userId: UuidValue
   createdAt: DateTime
 
-  # Denormalized User Info
+  # Denormalized Cache
   userName: String
   userAvatar: String
+  userMood: String?
   userFloor: int
 
 indexes:

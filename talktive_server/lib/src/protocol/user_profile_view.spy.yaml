@@ -4,6 +4,7 @@ fields:
   userId: String
   userName: String?
   userAvatar: String?
+  userMood: String?
   floor: int
   trustScore: int
   totalMessages: int

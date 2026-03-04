@@ -94,6 +94,23 @@ class ProfileScreen extends ConsumerWidget {
                     .scale(begin: const Offset(0.8, 0.8)),
           ),
           
+          if (resident?.bio != null && resident!.bio!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                resident.bio!,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary.withValues(alpha: 0.9),
+                  fontFamily: 'Rubik',
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ).animate().fadeIn(delay: 120.ms).slideY(begin: 0.1, end: 0),
+          ],
+          
           if (resident?.mood != null && resident!.mood!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Container(

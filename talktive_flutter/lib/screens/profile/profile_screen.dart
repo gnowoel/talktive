@@ -84,7 +84,6 @@ class ProfileScreen extends ConsumerWidget {
                 DuoAvatar(
                       imageUrl: resident?.avatar,
                       size: 100,
-                      mood: resident?.mood,
                       floorLevel: resident != null
                           ? FloorUtils.computeFloor(resident!)
                           : null,
@@ -94,6 +93,39 @@ class ProfileScreen extends ConsumerWidget {
                     .fadeIn(delay: 100.ms)
                     .scale(begin: const Offset(0.8, 0.8)),
           ),
+          
+          if (resident?.mood != null && resident!.mood!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(resident.mood!, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Current Mood',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
+          ],
 
           // Streak card
           _buildStreakCard(context, ref),

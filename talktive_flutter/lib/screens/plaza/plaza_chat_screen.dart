@@ -14,6 +14,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_info_banner.dart';
 
 import '../../widgets/duo/duo_page_scaffold.dart';
 
@@ -120,7 +121,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       body: Column(
         children: [
           // Info banner
-          _buildInfoBanner(),
+          const DuoInfoBanner(
+            bannerId: 'plaza_text_only',
+            text: 'Text only. No images allowed in Plaza.',
+          ),
           // Messages list
           Expanded(
             child: chatState.when(
@@ -151,40 +155,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildInfoBanner() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingLarge,
-        vertical: AppTheme.duoSpacingSmall,
-      ),
-      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-      decoration: BoxDecoration(
-        color: AppTheme.accentColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-        border: Border.all(
-          color: AppTheme.accentColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline, color: AppTheme.accentColor, size: 20),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          Expanded(
-            child: Text(
-              'Text only. No images allowed in Plaza.',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppTheme.accentColor,
-                fontFamily: 'Rubik',
-              ),
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0);
   }
 
   Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {

@@ -246,7 +246,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               child: DuoAvatar(
               imageUrl: avatar,
               size: 120,
-              mood: _profile!.userMood,
               floorLevel: floor,
               showRing: true,
             ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),
@@ -271,6 +270,38 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               ),
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
+          ],
+          if (_profile!.userMood != null && _profile!.userMood!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(_profile!.userMood!, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Current Mood',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(delay: 220.ms).slideY(begin: 0.1, end: 0),
           ],
           const SizedBox(height: AppTheme.duoSpacingLarge),
 

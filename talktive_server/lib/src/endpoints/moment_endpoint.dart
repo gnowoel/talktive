@@ -51,13 +51,6 @@ class MomentEndpoint extends Endpoint {
       throw Exception(ApartmentService.getMuteReason(resident));
     }
 
-    // 4. Fetch User Profile
-    final userProfile = await AuthServices.instance.userProfiles
-        .findUserProfileByUserId(
-          session,
-          senderUuid,
-        );
-
     // 5. Create Moment
     final moment = Moment(
       authorId: resident.id!,
@@ -66,8 +59,9 @@ class MomentEndpoint extends Endpoint {
       createdAt: DateTime.now(),
       likesCount: 0,
       commentsCount: 0,
-      authorName: userProfile.userName ?? 'Anonymous',
-      authorAvatar: userProfile.imageUrl?.toString() ?? '',
+      authorName: resident.userName ?? 'Anonymous',
+      authorAvatar: resident.avatar ?? '',
+      authorMood: resident.mood,
       authorFloor: ApartmentService.computeEffectiveFloor(resident),
     );
 
@@ -152,9 +146,6 @@ class MomentEndpoint extends Endpoint {
       throw Exception('Resident not found');
     }
 
-    final userProfile = await AuthServices.instance.userProfiles
-        .findUserProfileByUserId(session, userId);
-
     // Check if already liked
     final existingLike = await MomentLike.db.findFirstRow(
       session,
@@ -171,8 +162,9 @@ class MomentEndpoint extends Endpoint {
       momentId: momentId,
       userId: userId,
       createdAt: DateTime.now(),
-      userName: userProfile.userName ?? 'Anonymous',
-      userAvatar: userProfile.imageUrl?.toString() ?? '',
+      userName: resident.userName ?? 'Anonymous',
+      userAvatar: resident.avatar ?? '',
+      userMood: resident.mood,
       userFloor: ApartmentService.computeEffectiveFloor(resident),
     );
 
@@ -190,7 +182,7 @@ class MomentEndpoint extends Endpoint {
         await NotificationService.sendMomentLikeNotification(
           session,
           momentAuthor.userInfoId,
-          userProfile.userName ?? 'Someone',
+          resident.userName ?? 'Someone',
           momentId,
         );
       }
@@ -324,17 +316,15 @@ class MomentEndpoint extends Endpoint {
       throw Exception('Resident not found');
     }
 
-    final userProfile = await AuthServices.instance.userProfiles
-        .findUserProfileByUserId(session, userId);
-
     // Create comment
     final comment = MomentComment(
       momentId: momentId,
       userId: userId,
       text: text,
       createdAt: DateTime.now(),
-      userName: userProfile.userName ?? 'Anonymous',
-      userAvatar: userProfile.imageUrl?.toString() ?? '',
+      userName: resident.userName ?? 'Anonymous',
+      userAvatar: resident.avatar ?? '',
+      userMood: resident.mood,
       userFloor: ApartmentService.computeEffectiveFloor(resident),
     );
 
@@ -352,7 +342,7 @@ class MomentEndpoint extends Endpoint {
         await NotificationService.sendMomentCommentNotification(
           session,
           momentAuthor.userInfoId,
-          userProfile.userName ?? 'Someone',
+          resident.userName ?? 'Someone',
           text,
           momentId,
         );

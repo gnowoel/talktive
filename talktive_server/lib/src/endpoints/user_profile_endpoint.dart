@@ -98,6 +98,7 @@ class UserProfileEndpoint extends Endpoint {
         userId: userId,
         userName: resident.userName ?? 'Resident',
         userAvatar: resident.avatar ?? '👤',
+        userMood: resident.mood,
         floor: ApartmentService.computeEffectiveFloor(resident),
         trustScore: resident.trustScore,
         level: resident.level,

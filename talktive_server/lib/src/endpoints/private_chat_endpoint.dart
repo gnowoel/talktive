@@ -183,9 +183,10 @@ class PrivateChatEndpoint extends Endpoint {
         result.add(
           protocol.PrivateChatWithProfile(
             chat: chat,
-            otherResident: otherResident,
-            otherUserName: userInfo?.userName,
+            otherResident: otherResident!,
+            otherUserName: otherResident.userName ?? userInfo?.userName,
             otherUserAvatar: otherResident.avatar ?? userInfo?.imageUrl,
+            otherUserMood: otherResident.mood,
           ),
         );
       }

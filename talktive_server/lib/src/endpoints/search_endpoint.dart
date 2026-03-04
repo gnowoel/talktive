@@ -186,6 +186,7 @@ class SearchEndpoint extends Endpoint {
             'userId': resident.userInfoId.toString(),
             'userName': resident.userName ?? 'Resident',
             'userAvatar': resident.avatar ?? '👤',
+            'userMood': resident.mood,
             'floor': ApartmentService.computeEffectiveFloor(resident),
             'messageCount': entry.value,
           });

@@ -127,6 +127,7 @@ class MessageEndpoint extends Endpoint {
         createdAt: DateTime.now(),
         senderName: senderName,
         senderAvatar: senderAvatar,
+        senderMood: sender.mood,
         senderFloor: senderEffectiveFloor, // Use computed effective floor
       );
 

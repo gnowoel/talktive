@@ -154,7 +154,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       _bioController.text = bioText;
       _selectedMood = resident.mood ?? '😊';
 
-      if (widget.initialName != null) {
+      if (resident.userName != null && resident.userName!.isNotEmpty) {
+        _nameController.text = resident.userName!;
+      } else if (widget.initialName != null) {
         _nameController.text = widget.initialName!;
       }
     }

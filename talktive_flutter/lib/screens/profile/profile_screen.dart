@@ -94,6 +94,18 @@ class ProfileScreen extends ConsumerWidget {
                     .scale(begin: const Offset(0.8, 0.8)),
           ),
           
+          if (resident?.userName != null && resident!.userName!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text(
+              resident.userName!,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ).animate().fadeIn(delay: 110.ms).slideY(begin: 0.1, end: 0),
+          ],
+          
           if (resident?.bio != null && resident!.bio!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Padding(
@@ -677,13 +689,9 @@ class ProfileScreen extends ConsumerWidget {
         width: double.infinity,
         onPressed: () {
           if (resident != null) {
-            final authState = ref.read(authProvider).value;
-            final String? userName = (authState is Authenticated)
-                ? authState.userName
-                : null;
             context.push(
               '/profile-setup',
-              extra: {'resident': resident, 'userName': userName},
+              extra: {'resident': resident},
             );
           }
         },

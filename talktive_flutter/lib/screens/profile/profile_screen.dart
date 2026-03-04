@@ -326,7 +326,9 @@ class ProfileScreen extends ConsumerWidget {
         horizontal: AppTheme.duoSpacingLarge,
         vertical: AppTheme.duoSpacingMedium,
       ),
-      child: Column(
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
@@ -376,6 +378,7 @@ class ProfileScreen extends ConsumerWidget {
             }).toList(),
           ),
         ],
+        ),
       ),
     ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0);
   }
@@ -392,7 +395,9 @@ class ProfileScreen extends ConsumerWidget {
         horizontal: AppTheme.duoSpacingLarge,
         vertical: AppTheme.duoSpacingMedium,
       ),
-      child: Column(
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
@@ -432,6 +437,7 @@ class ProfileScreen extends ConsumerWidget {
             }).toList(),
           ),
         ],
+        ),
       ),
     ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1, end: 0);
   }

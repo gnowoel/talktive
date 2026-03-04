@@ -55,9 +55,22 @@ class FloorUtils {
     return max(0, resident.xp - xpForCurrent);
   }
 
+  static int getXPProgressFromProfile(UserProfileView profile) {
+    final floor = profile.level ?? 0;
+    final xpForCurrent = xpForBaseFloor(floor);
+    return max(0, (profile.xp ?? 0) - xpForCurrent);
+  }
+
   /// Get the total XP required to level up to the next base floor from the current base floor
   static int getXPNeeded(Resident resident) {
     final floor = resident.level;
+    final xpForCurrent = xpForBaseFloor(floor);
+    final xpForNext = xpForBaseFloor(floor + 1);
+    return xpForNext - xpForCurrent;
+  }
+
+  static int getXPNeededFromProfile(UserProfileView profile) {
+    final floor = profile.level ?? 0;
     final xpForCurrent = xpForBaseFloor(floor);
     final xpForNext = xpForBaseFloor(floor + 1);
     return xpForNext - xpForCurrent;

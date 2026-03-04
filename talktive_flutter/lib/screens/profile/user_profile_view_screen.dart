@@ -72,12 +72,25 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final blockedIds = ref.watch(blockedUsersProvider).value ?? [];
     final isBlocked = blockedIds.contains(widget.userId);
 
-    return DuoPageScaffold(
-      emoji: '👤',
-      title: widget.userName ?? 'Profile',
-      gradient: AppTheme.duoBlueGradient,
-      hasBackButton: true,
-      trailingHeader: _buildTrailingMenu(isBlocked),
+    return Scaffold(
+      backgroundColor: AppTheme.lightBackground,
+      appBar: AppBar(
+        title: Text(
+          widget.userName ?? 'Profile',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [_buildTrailingMenu(isBlocked)],
+      ),
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(
@@ -118,7 +131,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   Widget _buildTrailingMenu(bool isBlocked) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_horiz, color: Colors.white),
+      icon: const Icon(Icons.more_horiz, color: Colors.black),
       onSelected: (value) async {
         if (value == 'block') {
           await _confirmBlock(context, isBlocked);
@@ -427,7 +440,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   Widget _buildStatsGrid() {
     final floor = _profile!.floor;
     final messages = _profile!.totalMessages;
-    final moments = _profile!.totalMoments;
     final actualTrustScore = _profile!.trustScore;
 
     return GridView.count(
@@ -447,6 +459,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             _getTrustColor(actualTrustScore).withValues(alpha: 0.7),
           ],
         ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
+        _buildXPCard()
+            .animate()
+            .fadeIn(delay: 350.ms)
+            .scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
           icon: Icons.apartment,
           value: '$floor',
@@ -455,7 +471,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             AppTheme.primaryColor,
             AppTheme.primaryColor.withValues(alpha: 0.7),
           ],
-        ).animate().fadeIn(delay: 350.ms).scale(begin: const Offset(0.8, 0.8)),
+        ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
           icon: Icons.message,
           value: '$messages',
@@ -464,25 +480,39 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             AppTheme.accentColor,
             AppTheme.accentColor.withValues(alpha: 0.7),
           ],
-        ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
-        DuoStatCard(
-          icon: Icons.photo_library,
-          value: '$moments',
-          label: 'Moments',
-          gradientColors: [
-            AppTheme.duoYellow,
-            AppTheme.duoYellow.withValues(alpha: 0.7),
-          ],
         ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
       ],
     );
   }
 
   Color _getTrustColor(int reputation) {
-    if (reputation > 50) return AppTheme.duoGreen;
-    if (reputation >= 20) return AppTheme.duoYellow;
-    return AppTheme.duoRed;
+    if (reputation > 50) {
+      return AppTheme.duoGreen;
+    } else if (reputation >= 20) {
+      return AppTheme.duoYellow;
+    } else {
+      return AppTheme.duoRed;
+    }
   }
+
+  Widget _buildXPCard() {
+    final xp = _profile?.xp ?? 0;
+    
+    var xpDisplay = '0/50';
+    if (_profile != null) {
+      final progress = FloorUtils.getXPProgressFromProfile(_profile!);
+      final needed = FloorUtils.getXPNeededFromProfile(_profile!);
+      xpDisplay = '$progress/$needed';
+    }
+
+    return DuoStatCard(
+      icon: Icons.stars,
+      value: '$xp',
+      label: 'XP • $xpDisplay',
+      gradientColors: [AppTheme.duoYellow, Colors.orange],
+    );
+  }
+
 
   Widget _buildInfoCard(String title, List<Widget> children) {
     return Container(

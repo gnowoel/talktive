@@ -31,9 +31,8 @@ class _ChatLoaderScreenState extends ConsumerState<ChatLoaderScreen> {
         widget.channelId,
       );
 
-      // Extract data from the map returned by getPrivateChatDetails
-      final privateChat = result['privateChat'] as PrivateChat;
-      final otherResident = result['otherResident'] as Resident;
+      final privateChat = result.chat;
+      final otherResident = result.otherResident;
 
       if (!mounted) return;
 

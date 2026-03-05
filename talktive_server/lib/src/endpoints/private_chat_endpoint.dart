@@ -196,7 +196,7 @@ class PrivateChatEndpoint extends Endpoint {
   }
 
   /// Gets details about a private chat including the other participant's info.
-  Future<Map<String, dynamic>> getPrivateChatDetails(
+  Future<protocol.PrivateChatWithProfile> getPrivateChatDetails(
     Session session,
     int channelId,
   ) async {
@@ -240,15 +240,19 @@ class PrivateChatEndpoint extends Endpoint {
       throw Exception('Other participant not found');
     }
 
-    // Get unread message count (messages in channel after user's last read)
-    // For now, we'll return 0 - implement read receipts later
-    final unreadCount = 0;
+    // Include the user info fallback if the resident data lacks name/avatar
+    final userInfo = await UserInfo.db.findFirstRow(
+      session,
+      where: (t) => t.userIdentifier.equals(otherUserId.toString()),
+    );
 
-    return {
-      'privateChat': privateChat,
-      'otherResident': otherResident,
-      'unreadCount': unreadCount,
-    };
+    return protocol.PrivateChatWithProfile(
+      chat: privateChat,
+      otherResident: otherResident,
+      otherUserName: otherResident.userName ?? userInfo?.userName,
+      otherUserAvatar: otherResident.avatar ?? userInfo?.imageUrl,
+      otherUserMood: otherResident.mood,
+    );
   }
 
   /// Updates the lastMessageAt timestamp for a private chat.

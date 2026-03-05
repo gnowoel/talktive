@@ -8,6 +8,7 @@ import '../chats/chats_screen.dart';
 import '../groups/groups_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
+import '../../providers/group_provider.dart';
 
 import '../../config/theme.dart';
 import '../../services/serverpod_notification_service.dart';
@@ -97,9 +98,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       _currentIndex = index;
                     });
                     
-                    // Refresh chats list when switching to the Chats tab (index 2)
+                    // Refresh target list when switching to a dynamic tab
                     if (index == 2) {
                       ref.read(privateChatListProvider.notifier).refresh();
+                    } else if (index == 3) {
+                      ref.read(groupListProvider.notifier).refresh();
                     }
                   },
                   child: AnimatedContainer(

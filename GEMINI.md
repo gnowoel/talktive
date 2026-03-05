@@ -219,3 +219,4 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 - **Kill Stalled Server**: `lsof -t -i:8080 -i:8081 -i:8082 | xargs kill -9`
 - **Regenerate Code**: `serverpod generate`
 - **Create Migration**: `serverpod create-migration --force`
+- **Reset Database**: `./scripts/reset_db.sh` (Drops public schema and cleans local db for safe recreation)

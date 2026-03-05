@@ -86,7 +86,7 @@ final class MomentLikesProvider
   MomentLikes create() => MomentLikes();
 }
 
-String _$momentLikesHash() => r'22965b50f97abe2dca1405186a8e38f83b7b9af1';
+String _$momentLikesHash() => r'6f0e9bd4de15cfc4f4992210ea7c88a5a0b24733';
 
 /// Provider for tracking which moments are liked by the current user
 

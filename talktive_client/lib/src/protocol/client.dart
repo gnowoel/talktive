@@ -921,12 +921,13 @@ class EndpointPrivateChat extends _i2.EndpointRef {
       );
 
   /// Gets details about a private chat including the other participant's info.
-  _i3.Future<Map<String, dynamic>> getPrivateChatDetails(int channelId) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'privateChat',
-        'getPrivateChatDetails',
-        {'channelId': channelId},
-      );
+  _i3.Future<_i15.PrivateChatWithProfile> getPrivateChatDetails(
+    int channelId,
+  ) => caller.callServerEndpoint<_i15.PrivateChatWithProfile>(
+    'privateChat',
+    'getPrivateChatDetails',
+    {'channelId': channelId},
+  );
 
   /// Updates the lastMessageAt timestamp for a private chat.
   _i3.Future<void> updateLastMessageTime(int privateChatId) =>

@@ -36,7 +36,7 @@ final class GroupListProvider
   GroupList create() => GroupList();
 }
 
-String _$groupListHash() => r'07d8781f38c31c7f3cc3f9d35c658af0016eb561';
+String _$groupListHash() => r'27290b99f8603504077b298d383dd1d9508d52b2';
 
 /// Provider for listing all groups.
 
@@ -112,7 +112,7 @@ final class GroupDetailsProvider
   }
 }
 
-String _$groupDetailsHash() => r'6d21baaf33057f8c2cd91e3f7340c48b1af98b6e';
+String _$groupDetailsHash() => r'4b8923b7cabdfdfd7cc163aa2e6b8f59fd7d275e';
 
 /// Provider for getting details about a specific group.
 
@@ -196,7 +196,7 @@ final class GroupMembersProvider
   }
 }
 
-String _$groupMembersHash() => r'9db93c269d7d8eeed1135f8e87b71468ee624d66';
+String _$groupMembersHash() => r'e07771ed19c988f9034427ccdd4fa548a600e309';
 
 /// Provider for getting members of a group.
 

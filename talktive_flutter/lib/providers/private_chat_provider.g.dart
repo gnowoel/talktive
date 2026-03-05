@@ -37,7 +37,7 @@ final class PrivateChatListProvider
   PrivateChatList create() => PrivateChatList();
 }
 
-String _$privateChatListHash() => r'ac489ca58820a1929b386fab0890a7ace9bb3d5e';
+String _$privateChatListHash() => r'd5c6afea44f4fb87a8fb3ad5679d4c098ef6f73f';
 
 /// Provider for listing all private chats for the current user.
 
@@ -78,13 +78,13 @@ final privateChatDetailsProvider = PrivateChatDetailsFamily._();
 final class PrivateChatDetailsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<Map<String, dynamic>>,
-          Map<String, dynamic>,
-          FutureOr<Map<String, dynamic>>
+          AsyncValue<PrivateChatWithProfile>,
+          PrivateChatWithProfile,
+          FutureOr<PrivateChatWithProfile>
         >
     with
-        $FutureModifier<Map<String, dynamic>>,
-        $FutureProvider<Map<String, dynamic>> {
+        $FutureModifier<PrivateChatWithProfile>,
+        $FutureProvider<PrivateChatWithProfile> {
   /// Provider for getting details about a specific private chat.
   PrivateChatDetailsProvider._({
     required PrivateChatDetailsFamily super.from,
@@ -109,12 +109,12 @@ final class PrivateChatDetailsProvider
 
   @$internal
   @override
-  $FutureProviderElement<Map<String, dynamic>> $createElement(
+  $FutureProviderElement<PrivateChatWithProfile> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<Map<String, dynamic>> create(Ref ref) {
+  FutureOr<PrivateChatWithProfile> create(Ref ref) {
     final argument = this.argument as int;
     return privateChatDetails(ref, argument);
   }
@@ -131,12 +131,12 @@ final class PrivateChatDetailsProvider
 }
 
 String _$privateChatDetailsHash() =>
-    r'0fd9e6a6f5fa5adbc517b431180e0818933d4aad';
+    r'1c1408b79f6f63cebfa24fa58a022d6f9aa195fb';
 
 /// Provider for getting details about a specific private chat.
 
 final class PrivateChatDetailsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<Map<String, dynamic>>, int> {
+    with $FunctionalFamilyOverride<FutureOr<PrivateChatWithProfile>, int> {
   PrivateChatDetailsFamily._()
     : super(
         retry: null,

@@ -25,9 +25,6 @@ class PlazaScreen extends ConsumerWidget {
       title: 'The Plaza',
       subtitle: 'Your digital apartment lobby',
       gradient: AppTheme.primaryGradient,
-      trailingHeader: currentResident != null
-          ? _buildStatsChip(currentResident)
-          : null,
       body: ListView(
         padding: const EdgeInsets.only(
           left: AppTheme.duoSpacingMedium,
@@ -52,45 +49,6 @@ class PlazaScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Widget _buildStatsChip(Resident currentResident) {
-    return DuoCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingMedium,
-        vertical: AppTheme.duoSpacingSmall,
-      ),
-      borderRadius: AppTheme.duoRadiusPill,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '🏢 ${FloorUtils.computeFloor(currentResident)}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
-            ),
-          ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          Container(width: 1, height: 16, color: AppTheme.textLight),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          Text(
-            '⭐ ${currentResident.trustScore}',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: currentResident.trustScore > 50
-                  ? AppTheme.duoGreen
-                  : currentResident.trustScore >= 20
-                  ? AppTheme.duoYellow
-                  : AppTheme.errorColor,
-              fontFamily: 'Poppins',
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8));
   }
 
   Widget _buildWelcomeBanner() {

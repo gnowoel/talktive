@@ -165,7 +165,7 @@ class PrivateChatEndpoint extends Endpoint {
     final result = <protocol.PrivateChatWithProfile>[];
 
     for (final chat in chats) {
-      final otherUserId = chat.participant1Id == currentUserId
+      final otherUserId = chat.participant1Id.uuid == currentUserId.uuid
           ? chat.participant2Id
           : chat.participant1Id;
 

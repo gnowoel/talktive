@@ -7,6 +7,7 @@ import '../moments/moments_screen.dart';
 import '../chats/chats_screen.dart';
 import '../groups/groups_screen.dart';
 import '../profile/profile_screen.dart';
+import '../../providers/private_chat_provider.dart';
 
 import '../../config/theme.dart';
 import '../../services/serverpod_notification_service.dart';
@@ -95,6 +96,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     setState(() {
                       _currentIndex = index;
                     });
+                    
+                    // Refresh chats list when switching to the Chats tab (index 2)
+                    if (index == 2) {
+                      ref.read(privateChatListProvider.notifier).refresh();
+                    }
                   },
                   child: AnimatedContainer(
                     duration: AppTheme.duoAnimationQuick,

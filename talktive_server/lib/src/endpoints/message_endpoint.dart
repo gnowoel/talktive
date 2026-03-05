@@ -137,6 +137,18 @@ class MessageEndpoint extends Endpoint {
         message,
       );
 
+      // Update lastMessageAt for private chats to ensure they bubble up in the list
+      if (channel.type == protocol.ChannelType.private) {
+        final privateChat = await protocol.PrivateChat.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channelId),
+        );
+        if (privateChat != null) {
+          privateChat.lastMessageAt = DateTime.now();
+          await protocol.PrivateChat.db.updateRow(session, privateChat);
+        }
+      }
+
       // 8. Distribute Message via Streaming
       // Broadcast to all subscribers of this channel using the new API
       final streamKey = 'channel_$channelId';

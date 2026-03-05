@@ -23,7 +23,6 @@ class UserProfileViewScreen extends ConsumerStatefulWidget {
   final String? userName;
   final String? userAvatar;
   final int? userFloor;
-  final int? fromChannelId;
 
   const UserProfileViewScreen({
     super.key,
@@ -31,7 +30,6 @@ class UserProfileViewScreen extends ConsumerStatefulWidget {
     this.userName,
     this.userAvatar,
     this.userFloor,
-    this.fromChannelId,
   });
 
   @override
@@ -621,13 +619,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         .getOrCreateChat(widget.userId)
         .then((chat) {
           if (context.mounted) {
-            // Smart navigation: if we are already inside THIS chat thread and just viewing the profile, 
-            // popping back gracefully prevents unlimited view nesting (`Chats > Thread > Profile > Thread...`).
-            if (widget.fromChannelId != null && widget.fromChannelId == chat.channelId) {
-              context.pop();
-            } else {
-              context.push('/chat/${chat.channelId}');
-            }
+            // Unconditionally use a strict path anchor
+            // This discards any deep stack we were on and firmly drops the user in the "Chats -> Thread" hierarchy.
+            context.go('/chats/thread/${chat.channelId}');
           }
         })
         .catchError((error) {

@@ -66,7 +66,7 @@ class ChatsScreen extends ConsumerWidget {
         subtitle: 'Start a conversation with someone in the Plaza!',
         buttonText: 'Go to Plaza',
         onButtonPressed: () {
-          context.go('/users');
+          context.go('/plaza');
         },
       ),
     );

@@ -221,7 +221,7 @@ class ServerpodNotificationService {
       case 'private_chat_message':
         final channelId = data['channelId'];
         if (channelId != null) {
-          GoRouter.of(context).go('/chat/$channelId');
+          GoRouter.of(context).go('/chats/thread/$channelId');
         } else {
           GoRouter.of(context).go('/chats');
         }

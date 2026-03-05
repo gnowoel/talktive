@@ -65,6 +65,16 @@ class ServerpodApp extends StatelessWidget {
         GoRoute(
           path: '/chats',
           builder: (context, state) => const HomeScreen(initialIndex: 2),
+          routes: [
+            GoRoute(
+              path: 'thread/:channelId',
+              builder: (context, state) {
+                final channelId =
+                    int.tryParse(state.pathParameters['channelId'] ?? '') ?? 0;
+                return ChatLoaderScreen(channelId: channelId);
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/groups',
@@ -82,25 +92,10 @@ class ServerpodApp extends StatelessWidget {
           path: '/user/:userId',
           builder: (context, state) {
             final userId = state.pathParameters['userId']!;
-            final fromStr = state.uri.queryParameters['fromChannelId'];
-            final fromChannelId = fromStr != null ? int.tryParse(fromStr) : null;
-            return UserProfileViewScreen(
-              userId: userId,
-              fromChannelId: fromChannelId,
-            );
+            return UserProfileViewScreen(userId: userId);
           },
         ),
-        GoRoute(
-          path: '/chat/:channelId',
-          builder: (context, state) {
-            final channelId =
-                int.tryParse(state.pathParameters['channelId'] ?? '') ?? 0;
-            // Get title from extra or query param, or default
-            // Get title from extra or query param, or default
-            // final title = state.extra as String? ?? 'Chat $channelId'; // Title not needed for loader
-            return ChatLoaderScreen(channelId: channelId);
-          },
-        ),
+
       ],
     );
   }

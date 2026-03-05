@@ -82,7 +82,12 @@ class ServerpodApp extends StatelessWidget {
           path: '/user/:userId',
           builder: (context, state) {
             final userId = state.pathParameters['userId']!;
-            return UserProfileViewScreen(userId: userId);
+            final fromStr = state.uri.queryParameters['fromChannelId'];
+            final fromChannelId = fromStr != null ? int.tryParse(fromStr) : null;
+            return UserProfileViewScreen(
+              userId: userId,
+              fromChannelId: fromChannelId,
+            );
           },
         ),
         GoRoute(

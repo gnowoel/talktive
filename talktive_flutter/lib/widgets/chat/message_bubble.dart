@@ -38,7 +38,7 @@ class MessageBubble extends ConsumerWidget {
           if (!isCurrentUser) ...[
             GestureDetector(
               onTap: () {
-                context.push('/user/${message.senderId}');
+                context.push('/user/${message.senderId}?fromChannelId=${message.channelId}');
               },
               child: DuoAvatar(
                 imageUrl: senderAvatar,

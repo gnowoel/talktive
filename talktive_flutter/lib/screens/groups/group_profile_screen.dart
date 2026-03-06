@@ -42,10 +42,11 @@ class GroupProfileScreen extends ConsumerWidget {
           return const DuoPageScaffold(
             emoji: '❓',
             title: 'Not Found',
+            gradient: AppTheme.duoBlueGradient,
             body: DuoEmptyState(
               emoji: '🕵️',
               title: 'Group Not Found',
-              message: 'This clubhouse might have been disbanded.',
+              subtitle: 'This clubhouse might have been disbanded.',
             ),
           );
         }
@@ -131,12 +132,16 @@ class GroupProfileScreen extends ConsumerWidget {
       loading: () => initialGroup != null 
           ? _buildWithInitialData(context, ref, initialGroup!, currentResident)
           : const Scaffold(body: DuoLoadingIndicator()),
-      error: (err, stack) => Scaffold(
+      error: (err, stack) => DuoPageScaffold(
+        emoji: '⚠️',
+        title: 'Error',
+        gradient: AppTheme.duoRedGradient,
         body: DuoEmptyState(
-          emoji: '❌',
-          title: 'Error',
-          message: err.toString(),
-          onRetry: () => ref.invalidate(groupWithMembershipProvider(groupId)),
+          emoji: '🔥',
+          title: 'Clubhouse Trouble',
+          subtitle: err.toString(),
+          buttonText: 'Retry',
+          onButtonPressed: () => ref.invalidate(groupWithMembershipProvider(groupId)),
         ),
       ),
     );
@@ -224,17 +229,16 @@ class GroupProfileScreen extends ConsumerWidget {
         creatorAsync.when(
           data: (profile) {
             if (profile == null) return const Text('Resident not found');
-            final resident = profile.resident;
             return DuoCard(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => UserProfileViewScreen(
-                      userId: resident.userInfoId.toString(),
-                      userName: resident.userName,
-                      userAvatar: resident.avatar,
-                      userFloor: FloorUtils.computeFloor(resident),
+                      userId: profile.userId,
+                      userName: profile.userName,
+                      userAvatar: profile.userAvatar,
+                      userFloor: profile.floor,
                     ),
                   ),
                 );
@@ -244,11 +248,11 @@ class GroupProfileScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     DuoAvatar(
-                      imageUrl: resident.avatar,
+                      imageUrl: profile.userAvatar,
                       size: 48,
-                      mood: resident.mood,
+                      mood: profile.userMood,
                       showRing: true,
-                      floorLevel: FloorUtils.computeFloor(resident),
+                      floorLevel: profile.floor,
                     ),
                     const SizedBox(width: AppTheme.duoSpacingMedium),
                     Expanded(
@@ -256,12 +260,12 @@ class GroupProfileScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            resident.userName ?? 'Resident',
+                            profile.userName ?? 'Resident',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           Text(
-                            'Floor ${FloorUtils.computeFloor(resident)}',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                            'Floor ${profile.floor}',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
                           ),
                         ],
                       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
 import '../../config/interests.dart';

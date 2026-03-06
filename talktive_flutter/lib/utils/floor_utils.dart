@@ -127,7 +127,8 @@ class FloorUtils {
   }
 
   /// Returns a short input hint when muted.
-  static String getMuteInputHint(Resident resident) {
+  static String getMuteInputHint(Resident? resident) {
+    if (resident == null) return 'Not authenticated';
     if (resident.suspended) return 'Account suspended';
     if (resident.mutedUntil != null &&
         resident.mutedUntil!.isAfter(DateTime.now())) {

@@ -31,12 +31,10 @@ class GroupChatScreen extends ConsumerStatefulWidget {
 class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
-  Resident? _currentResident;
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentResident();
   }
 
   @override
@@ -44,15 +42,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadCurrentResident() async {
-    final residentAsync = ref.read(currentResidentProvider);
-    if (residentAsync.hasValue) {
-      setState(() {
-        _currentResident = residentAsync.value;
-      });
-    }
   }
 
   Future<void> _sendMessage() async {
@@ -90,8 +79,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(widget.group.channelId));
-    final canSend =
-        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+    final currentResident = ref.watch(currentResidentProvider).value;
+    final canSend = currentResident != null && !FloorUtils.isMuted(currentResident);
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -201,7 +190,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               }
             },
             itemBuilder: (_) {
-              final isCreator = _currentResident?.userInfoId == widget.group.creatorId;
+              final isCreator = currentResident?.userInfoId == widget.group.creatorId;
               return [
                 const PopupMenuItem(
                   value: 'profile',
@@ -271,7 +260,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         onSend: _sendMessage,
         enabled: canSend,
         activeColor: AppTheme.duoYellow,
-        hintText: canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(_currentResident),
+        hintText: canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident),
       ),
     );
   }
@@ -398,72 +387,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     );
   }
 
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightBackground,
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: TextField(
-                  controller: _messageController,
-                  enabled: canSend,
-                  decoration: InputDecoration(
-                    hintText: hintText,
-                    border: InputBorder.none,
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                  ),
-                  maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
-                  onSubmitted: canSend ? (_) => _sendMessage() : null,
-                ),
-              ),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-            GestureDetector(
-              onTap: canSend ? _sendMessage : null,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: canSend
-                      ? LinearGradient(colors: AppTheme.duoBlueGradient)
-                      : null,
-                  color: canSend ? null : Colors.grey[300],
-                  shape: BoxShape.circle,
-                  boxShadow: canSend
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.duoBlue.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Icon(
-                  Icons.send_rounded,
-                  color: canSend ? Colors.white : Colors.grey[500],
-                  size: 20,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
   void _confirmLeaveClub(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,

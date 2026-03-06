@@ -79,6 +79,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     final chatState = ref.watch(realtimeChatProvider(1));
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
+    final canSend = currentResident != null && !FloorUtils.isMuted(currentResident);
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,

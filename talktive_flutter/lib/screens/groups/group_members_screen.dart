@@ -152,7 +152,7 @@ class GroupMembersScreen extends ConsumerWidget {
     HapticFeedback.mediumImpact();
     try {
       final client = ref.read(clientProvider);
-      await client.group.respondToGroupApplication(group.id!, userId, approved);
+      await client.group.approveGroupApplication(group.id!, userId, approved);
       
       ref.invalidate(groupMembersWithProfilesProvider(group.id!));
       ref.invalidate(pendingApplicationsProvider(group.id!));

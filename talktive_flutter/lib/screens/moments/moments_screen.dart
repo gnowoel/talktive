@@ -5,7 +5,6 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../providers/moments_provider.dart';
-import '../../providers/current_resident_provider.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../helpers/date_formatter.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';

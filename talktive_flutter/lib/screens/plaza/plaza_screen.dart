@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:talktive_client/talktive_client.dart';
-import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
@@ -17,9 +14,6 @@ class PlazaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentResidentAsync = ref.watch(currentResidentProvider);
-    final currentResident = currentResidentAsync.value;
-
     return DuoPageScaffold(
       emoji: '🏛️',
       title: 'The Plaza',

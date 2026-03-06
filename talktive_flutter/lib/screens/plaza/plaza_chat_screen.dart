@@ -10,12 +10,10 @@ import '../../config/theme.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
 
-import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_chat_input.dart';
 
 /// Duolingo-style Global Lounge screen - public chat

@@ -5,3 +5,5 @@ fields:
   otherUserName: String?
   otherUserAvatar: String?
   otherUserMood: String?
+  currentMemberStatus: ChannelMemberStatus?
+  otherMemberStatus: ChannelMemberStatus?

@@ -13,7 +13,8 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'private_chat.dart' as _i2;
 import 'resident.dart' as _i3;
-import 'package:talktive_client/src/protocol/protocol.dart' as _i4;
+import 'channel_member_status.dart' as _i4;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i5;
 
 abstract class PrivateChatWithProfile implements _i1.SerializableModel {
   PrivateChatWithProfile._({
@@ -22,6 +23,8 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     this.otherUserName,
     this.otherUserAvatar,
     this.otherUserMood,
+    this.currentMemberStatus,
+    this.otherMemberStatus,
   });
 
   factory PrivateChatWithProfile({
@@ -30,21 +33,33 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     String? otherUserName,
     String? otherUserAvatar,
     String? otherUserMood,
+    _i4.ChannelMemberStatus? currentMemberStatus,
+    _i4.ChannelMemberStatus? otherMemberStatus,
   }) = _PrivateChatWithProfileImpl;
 
   factory PrivateChatWithProfile.fromJson(
     Map<String, dynamic> jsonSerialization,
   ) {
     return PrivateChatWithProfile(
-      chat: _i4.Protocol().deserialize<_i2.PrivateChat>(
+      chat: _i5.Protocol().deserialize<_i2.PrivateChat>(
         jsonSerialization['chat'],
       ),
-      otherResident: _i4.Protocol().deserialize<_i3.Resident>(
+      otherResident: _i5.Protocol().deserialize<_i3.Resident>(
         jsonSerialization['otherResident'],
       ),
       otherUserName: jsonSerialization['otherUserName'] as String?,
       otherUserAvatar: jsonSerialization['otherUserAvatar'] as String?,
       otherUserMood: jsonSerialization['otherUserMood'] as String?,
+      currentMemberStatus: jsonSerialization['currentMemberStatus'] == null
+          ? null
+          : _i4.ChannelMemberStatus.fromJson(
+              (jsonSerialization['currentMemberStatus'] as String),
+            ),
+      otherMemberStatus: jsonSerialization['otherMemberStatus'] == null
+          ? null
+          : _i4.ChannelMemberStatus.fromJson(
+              (jsonSerialization['otherMemberStatus'] as String),
+            ),
     );
   }
 
@@ -58,6 +73,10 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
 
   String? otherUserMood;
 
+  _i4.ChannelMemberStatus? currentMemberStatus;
+
+  _i4.ChannelMemberStatus? otherMemberStatus;
+
   /// Returns a shallow copy of this [PrivateChatWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -67,6 +86,8 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     String? otherUserName,
     String? otherUserAvatar,
     String? otherUserMood,
+    _i4.ChannelMemberStatus? currentMemberStatus,
+    _i4.ChannelMemberStatus? otherMemberStatus,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -77,6 +98,10 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
       if (otherUserName != null) 'otherUserName': otherUserName,
       if (otherUserAvatar != null) 'otherUserAvatar': otherUserAvatar,
       if (otherUserMood != null) 'otherUserMood': otherUserMood,
+      if (currentMemberStatus != null)
+        'currentMemberStatus': currentMemberStatus?.toJson(),
+      if (otherMemberStatus != null)
+        'otherMemberStatus': otherMemberStatus?.toJson(),
     };
   }
 
@@ -95,12 +120,16 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     String? otherUserName,
     String? otherUserAvatar,
     String? otherUserMood,
+    _i4.ChannelMemberStatus? currentMemberStatus,
+    _i4.ChannelMemberStatus? otherMemberStatus,
   }) : super._(
          chat: chat,
          otherResident: otherResident,
          otherUserName: otherUserName,
          otherUserAvatar: otherUserAvatar,
          otherUserMood: otherUserMood,
+         currentMemberStatus: currentMemberStatus,
+         otherMemberStatus: otherMemberStatus,
        );
 
   /// Returns a shallow copy of this [PrivateChatWithProfile]
@@ -113,6 +142,8 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     Object? otherUserName = _Undefined,
     Object? otherUserAvatar = _Undefined,
     Object? otherUserMood = _Undefined,
+    Object? currentMemberStatus = _Undefined,
+    Object? otherMemberStatus = _Undefined,
   }) {
     return PrivateChatWithProfile(
       chat: chat ?? this.chat.copyWith(),
@@ -126,6 +157,12 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
       otherUserMood: otherUserMood is String?
           ? otherUserMood
           : this.otherUserMood,
+      currentMemberStatus: currentMemberStatus is _i4.ChannelMemberStatus?
+          ? currentMemberStatus
+          : this.currentMemberStatus,
+      otherMemberStatus: otherMemberStatus is _i4.ChannelMemberStatus?
+          ? otherMemberStatus
+          : this.otherMemberStatus,
     );
   }
 }

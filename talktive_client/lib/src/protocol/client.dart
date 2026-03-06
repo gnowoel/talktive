@@ -936,6 +936,19 @@ class EndpointPrivateChat extends _i2.EndpointRef {
         'updateLastMessageTime',
         {'privateChatId': privateChatId},
       );
+
+  /// Accepts or declines a private chat invitation
+  _i3.Future<void> respondToChatInvite(
+    int channelId,
+    bool accept,
+  ) => caller.callServerEndpoint<void>(
+    'privateChat',
+    'respondToChatInvite',
+    {
+      'channelId': channelId,
+      'accept': accept,
+    },
+  );
 }
 
 /// {@category Endpoint}

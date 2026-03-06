@@ -124,7 +124,7 @@ class PrivateChatEndpoint extends Endpoint {
       protocol.ChannelMember(
         channelId: savedChannel.id!,
         userInfoId: otherUserUuid,
-        status: protocol.ChannelMemberStatus.joined,
+        status: protocol.ChannelMemberStatus.invited,
         joinedAt: DateTime.now(),
       ),
     );
@@ -169,6 +169,28 @@ class PrivateChatEndpoint extends Endpoint {
           ? chat.participant2Id
           : chat.participant1Id;
 
+      // Get channel members to check statuses
+      final currentMember = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.channelId.equals(chat.channelId) &
+            t.userInfoId.equals(currentUserId),
+      );
+
+      final otherMember = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.channelId.equals(chat.channelId) &
+            t.userInfoId.equals(otherUserId),
+      );
+
+      // Skip declined or left chats
+      if (currentMember != null &&
+          (currentMember.status == protocol.ChannelMemberStatus.left ||
+              currentMember.status == protocol.ChannelMemberStatus.declined)) {
+        continue;
+      }
+
       final otherResident = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(otherUserId),
@@ -183,10 +205,12 @@ class PrivateChatEndpoint extends Endpoint {
         result.add(
           protocol.PrivateChatWithProfile(
             chat: chat,
-            otherResident: otherResident!,
+            otherResident: otherResident,
             otherUserName: otherResident.userName ?? userInfo?.userName,
             otherUserAvatar: otherResident.avatar ?? userInfo?.imageUrl,
             otherUserMood: otherResident.mood,
+            currentMemberStatus: currentMember?.status,
+            otherMemberStatus: otherMember?.status,
           ),
         );
       }
@@ -246,12 +270,29 @@ class PrivateChatEndpoint extends Endpoint {
       where: (t) => t.userIdentifier.equals(otherUserId.toString()),
     );
 
+    // Get channel members to check statuses
+    final currentMember = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(privateChat.channelId) &
+          t.userInfoId.equals(currentUserId),
+    );
+
+    final otherMember = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(privateChat.channelId) &
+          t.userInfoId.equals(otherUserId),
+    );
+
     return protocol.PrivateChatWithProfile(
       chat: privateChat,
       otherResident: otherResident,
       otherUserName: otherResident.userName ?? userInfo?.userName,
       otherUserAvatar: otherResident.avatar ?? userInfo?.imageUrl,
       otherUserMood: otherResident.mood,
+      currentMemberStatus: currentMember?.status,
+      otherMemberStatus: otherMember?.status,
     );
   }
 
@@ -271,5 +312,42 @@ class PrivateChatEndpoint extends Endpoint {
 
     privateChat.lastMessageAt = DateTime.now();
     await protocol.PrivateChat.db.updateRow(session, privateChat);
+  }
+
+  /// Accepts or declines a private chat invitation
+  Future<void> respondToChatInvite(
+    Session session,
+    int channelId,
+    bool accept,
+  ) async {
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+
+    if (currentUserIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+
+    final member = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(channelId) &
+          t.userInfoId.equals(currentUserId),
+    );
+
+    if (member == null) {
+      throw Exception('Not a member of this chat');
+    }
+
+    if (member.status != protocol.ChannelMemberStatus.invited) {
+      // Ignore if not invited (already joined, left, declined)
+      return;
+    }
+
+    member.status = accept
+        ? protocol.ChannelMemberStatus.joined
+        : protocol.ChannelMemberStatus.declined;
+    await protocol.ChannelMember.db.updateRow(session, member);
   }
 }

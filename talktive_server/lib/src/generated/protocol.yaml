@@ -77,6 +77,7 @@ privateChat:
   - listPrivateChats:
   - getPrivateChatDetails:
   - updateLastMessageTime:
+  - respondToChatInvite:
 report:
   - reportUser:
   - getReportCount:

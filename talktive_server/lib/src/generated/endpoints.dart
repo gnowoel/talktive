@@ -1588,6 +1588,31 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['privateChatId'],
                   ),
         ),
+        'respondToChatInvite': _i1.MethodConnector(
+          name: 'respondToChatInvite',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'accept': _i1.ParameterDescription(
+              name: 'accept',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['privateChat'] as _i13.PrivateChatEndpoint)
+                  .respondToChatInvite(
+                    session,
+                    params['channelId'],
+                    params['accept'],
+                  ),
+        ),
       },
     );
     connectors['report'] = _i1.EndpointConnector(

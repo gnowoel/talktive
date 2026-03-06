@@ -31,35 +31,31 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       final senderUuid = await getUserId(session);
-      // 1. Fetch channel to verify access and type
+      
+      // 1. Fetch sender resident data
+      final sender = await getResidentProfile(session, senderUuid);
+
+      // Passively restore trustScore early (important for mute checks)
+      await ApartmentService.restoreTrustScore(session, sender, save: false);
+
+      // 2. Fetch channel to verify access and type
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel == null) {
         session.log('sendMessage: Channel $channelId not found');
         throw Exception('Channel not found');
       }
 
-      // 2. Fetch sender resident data
-      final sender = await getResidentProfile(session, senderUuid);
-
-      // Use denormalized userName and avatar from Resident model
-      // fallback to 'Resident' if not set
+      // 3. User info and floor Computation
       final senderName = sender.userName ?? 'Resident';
       final senderAvatar = sender.avatar;
+      final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(sender);
 
-      // Compute effective floor (hybrid: min of XP level and trustScore tier)
-      final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(
-        sender,
-      );
-
-      // Try to restore trustScore first (passive restoration)
-      await ApartmentService.restoreTrustScore(session, sender);
-
-      // 3. Check for penalties (Muted)
+      // 4. Safety Checks (Muted / Suspended)
       if (ApartmentService.isMuted(sender)) {
         throw Exception(ApartmentService.getMuteReason(sender));
       }
 
-      // 4. Validate content (profanity and spam filtering)
+      // 5. Content Validation (profanity and spam filtering)
       final validation = await ContentFilterService.validateMessage(
         session,
         content,
@@ -72,7 +68,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       // Check for repeated messages (spam detection)
       final isRepeated = await ContentFilterService.isRepeatedMessage(
         session,
-        senderIdentifier,
+        senderUuid.toString(),
         content,
       );
       if (isRepeated) {
@@ -82,10 +78,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       // Use filtered content
       final filteredContent = validation.filteredContent ?? content;
 
-      // 5. Check rate limiting with Redis (faster than database)
+      // 6. Check rate limiting with Redis (faster than database)
       final rateLimitError = await RedisRateLimitService.checkRateLimit(
         session,
-        senderIdentifier,
+        senderUuid.toString(),
         channelId,
         senderEffectiveFloor,
       );
@@ -93,7 +89,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         throw Exception(rateLimitError);
       }
 
-      // 5. Floor-based content restrictions
+      // 7. Floor-based content restrictions
       if (channel.type == protocol.ChannelType.plaza) {
         // Plaza (floor 0) restrictions: no images allowed
         if (imageUrl != null && imageUrl.isNotEmpty) {
@@ -103,26 +99,23 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         }
       }
 
-      // 6. Create Message with filtered content
+      // 8. Create Message object
       final message = protocol.Message(
         channelId: channelId,
-        senderId: sender.userInfoId, // Use Resident UserInfoId (UUID)
-        content: filteredContent, // Use filtered content instead of raw content
+        senderId: sender.userInfoId,
+        content: filteredContent,
         imageUrl: imageUrl,
         createdAt: DateTime.now(),
         senderName: senderName,
         senderAvatar: senderAvatar,
         senderMood: sender.mood,
-        senderFloor: senderEffectiveFloor, // Use computed effective floor
+        senderFloor: senderEffectiveFloor,
       );
 
-      // 7. Save Message
-      final savedMessage = await protocol.Message.db.insertRow(
-        session,
-        message,
-      );
+      // 9. Database Updates (Single transaction if possible or batched saves)
+      final savedMessage = await protocol.Message.db.insertRow(session, message);
 
-      // Update lastMessageAt for private chats to ensure they bubble up in the list
+      // Update lastMessageAt for private chats (Bubbling up)
       if (channel.type == protocol.ChannelType.private) {
         final privateChat = await protocol.PrivateChat.db.findFirstRow(
           session,
@@ -134,33 +127,33 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         }
       }
 
-      // 8. Distribute Message via Streaming
-      // Broadcast to all subscribers of this channel using the new API
+      // 10. Distribute via Streaming (Real-time)
       final streamKey = 'channel_$channelId';
       await session.messages.postMessage(streamKey, savedMessage);
 
-      // 9. Award XP and update message count
+      // 11. Gamification & Stats Batching
       await GamificationService.awardXP(
         session,
         sender,
         GamificationService.XP_PER_MESSAGE,
         'Sent message',
+        save: false,
       );
       sender.experienceMessageCount += 1;
-      await GamificationService.updateMessageStreak(session, sender);
+      await GamificationService.updateMessageStreak(session, sender, save: false);
+      
+      // FINAL SINGLE SAVE for the resident object
+      await protocol.Resident.db.updateRow(session, sender);
 
-      // 10. Track achievements (Batched)
+      // 12. Achievement tracking (already uses batching internally)
       await AchievementService.trackMultipleProgress(
         session,
         sender.userInfoId,
         ['first_message', 'conversationalist', 'chatterbox'],
       );
-      await AchievementService.checkTimeBasedAchievements(
-        session,
-        sender.userInfoId,
-      );
-
-      // 11. Update streak
+      
+      // Secondary checks
+      await AchievementService.checkTimeBasedAchievements(session, sender.userInfoId);
       await StreakService.updateStreak(session, sender.userInfoId);
 
       return savedMessage;

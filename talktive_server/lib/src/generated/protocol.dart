@@ -2279,6 +2279,15 @@ class Protocol extends _i1.SerializationManagerServer {
           )
           as T;
     }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_i36.GroupWithMembership>) {
       return (data as List)
               .map((e) => deserialize<_i36.GroupWithMembership>(e))
@@ -2340,15 +2349,6 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == List<_i46.Report>) {
       return (data as List).map((e) => deserialize<_i46.Report>(e)).toList()
-          as T;
-    }
-    if (t == List<String>) {
-      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
-    }
-    if (t == _i1.getType<List<String>?>()) {
-      return (data != null
-              ? (data as List).map((e) => deserialize<String>(e)).toList()
-              : null)
           as T;
     }
     if (t == List<_i47.DailyReward>) {

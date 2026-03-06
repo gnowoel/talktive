@@ -512,6 +512,7 @@ class EndpointGroup extends _i2.EndpointRef {
     String? emoji,
     required bool isPublic,
     required int maxMembers,
+    List<String>? interests,
   }) => caller.callServerEndpoint<_i6.Group>(
     'group',
     'createGroup',
@@ -521,6 +522,7 @@ class EndpointGroup extends _i2.EndpointRef {
       'emoji': emoji,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      'interests': interests,
     },
   );
 
@@ -662,6 +664,7 @@ class EndpointGroup extends _i2.EndpointRef {
     String? emoji,
     bool? isPublic,
     int? maxMembers,
+    List<String>? interests,
   }) => caller.callServerEndpoint<_i6.Group>(
     'group',
     'updateGroup',
@@ -672,6 +675,7 @@ class EndpointGroup extends _i2.EndpointRef {
       'emoji': emoji,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      'interests': interests,
     },
   );
 

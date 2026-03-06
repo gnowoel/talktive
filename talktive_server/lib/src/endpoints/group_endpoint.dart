@@ -164,6 +164,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     String query, {
     int limit = 50,
     int offset = 0,
+  }) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
     UuidValue? currentUserId;
@@ -571,12 +572,18 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       orderBy: (t) => t.joinedAt,
     );
 
+    final userIds = members.map((m) => m.userInfoId).toSet();
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userIds),
+    );
+
+    // Map resident profiles by ID for quick lookup
+    final profileMap = {for (var r in residents) r.userInfoId: r};
+
     final results = <protocol.GroupMemberWithProfile>[];
     for (final member in members) {
-      final resident = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(member.userInfoId),
-      );
+      final resident = profileMap[member.userInfoId];
       if (resident != null) {
         results.add(protocol.GroupMemberWithProfile(
           resident: resident,
@@ -622,12 +629,18 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       orderBy: (t) => t.joinedAt, // reuse joinedAt for application time
     );
 
+    final userIds = members.map((m) => m.userInfoId).toSet();
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userIds),
+    );
+
+    // Map resident profiles by ID for quick lookup
+    final profileMap = {for (var r in residents) r.userInfoId: r};
+
     final results = <protocol.GroupMemberWithProfile>[];
     for (final member in members) {
-      final resident = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(member.userInfoId),
-      );
+      final resident = profileMap[member.userInfoId];
       if (resident != null) {
         results.add(protocol.GroupMemberWithProfile(
           resident: resident,
@@ -637,7 +650,6 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         ));
       }
     }
-
     return results;
   }
 

@@ -1314,6 +1314,7 @@ class _GroupEndpoint {
     String? emoji,
     required bool isPublic,
     required int maxMembers,
+    List<String>? interests,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1332,6 +1333,7 @@ class _GroupEndpoint {
             'emoji': emoji,
             'isPublic': isPublic,
             'maxMembers': maxMembers,
+            'interests': interests,
           }),
           serializationManager: _serializationManager,
         );
@@ -1757,6 +1759,7 @@ class _GroupEndpoint {
     String? emoji,
     bool? isPublic,
     int? maxMembers,
+    List<String>? interests,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1776,6 +1779,7 @@ class _GroupEndpoint {
             'emoji': emoji,
             'isPublic': isPublic,
             'maxMembers': maxMembers,
+            'interests': interests,
           }),
           serializationManager: _serializationManager,
         );

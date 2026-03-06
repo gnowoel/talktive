@@ -806,6 +806,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int>(),
               nullable: false,
             ),
+            'interests': _i1.ParameterDescription(
+              name: 'interests',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -818,6 +823,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 emoji: params['emoji'],
                 isPublic: params['isPublic'],
                 maxMembers: params['maxMembers'],
+                interests: params['interests'],
               ),
         ),
         'listMyGroups': _i1.MethodConnector(
@@ -1124,6 +1130,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int?>(),
               nullable: true,
             ),
+            'interests': _i1.ParameterDescription(
+              name: 'interests',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1137,6 +1148,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 emoji: params['emoji'],
                 isPublic: params['isPublic'],
                 maxMembers: params['maxMembers'],
+                interests: params['interests'],
               ),
         ),
         'deleteGroup': _i1.MethodConnector(

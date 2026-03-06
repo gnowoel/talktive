@@ -52,29 +52,23 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
 
     final savedMoment = await Moment.db.insertRow(session, moment);
 
-    // Award XP for posting moment
+    // Award XP for posting moment (Batched)
     await GamificationService.awardXP(
       session,
       resident,
       GamificationService.XP_PER_MOMENT,
       'Posted moment',
+      save: false,
     );
+    
+    // Final single save for resident
+    await Resident.db.updateRow(session, resident);
 
-    // Track achievements
-    await AchievementService.trackProgress(
+    // Track achievements (Batched)
+    await AchievementService.trackMultipleProgress(
       session,
       senderUuid,
-      'first_moment',
-    );
-    await AchievementService.trackProgress(
-      session,
-      senderUuid,
-      'photographer',
-    );
-    await AchievementService.trackProgress(
-      session,
-      senderUuid,
-      'influencer',
+      ['first_moment', 'photographer', 'influencer'],
     );
 
     // Update streak

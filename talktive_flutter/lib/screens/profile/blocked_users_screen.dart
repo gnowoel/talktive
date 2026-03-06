@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/blocked_users_provider.dart';
-import '../../providers/resident_provider.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
@@ -89,29 +90,12 @@ class BlockedUsersScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    // Avatar
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.primaryColor,
-                            AppTheme.secondaryColor,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'R',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                    DuoAvatar(
+                      imageUrl: resident.avatar,
+                      size: 48,
+                      mood: resident.mood,
+                      floorLevel: FloorUtils.computeFloor(resident),
+                      showRing: false,
                     ),
                     const SizedBox(width: 12),
                     // User info
@@ -120,11 +104,12 @@ class BlockedUsersScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Resident',
+                            resident.userName ?? 'Resident',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.textPrimary,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -133,6 +118,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.textSecondary,
+                              fontFamily: 'Rubik',
                             ),
                           ),
                         ],
@@ -141,7 +127,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                     // Unblock button
                     ElevatedButton(
                       onPressed: () =>
-                          _unblockUser(context, ref, userId, 'Resident'),
+                          _unblockUser(context, ref, userId, resident.userName ?? 'Resident'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.duoGreen,
                         foregroundColor: Colors.white,

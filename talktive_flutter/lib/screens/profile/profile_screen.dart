@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/resident_provider.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../providers/achievement_provider.dart';
 import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';

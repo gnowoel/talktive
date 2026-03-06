@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
-import 'client_provider.dart';
-import 'auth_provider.dart';
+import '../../providers/client_provider.dart'; // Retained as it's a dependency and not explicitly removed
+import '../../providers/auth_provider.dart';
+import '../../providers/achievement_provider.dart'; // Added as per instruction
 
 part 'current_resident_provider.g.dart';
 
@@ -61,5 +62,17 @@ class CurrentResident extends _$CurrentResident {
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
+  }
+}
+
+/// Provider to fetch a resident by their user ID.
+@riverpod
+Future<Resident?> residentById(Ref ref, String userId) async {
+  final client = ref.read(clientProvider);
+  try {
+    return await client.resident.getResidentById(userId);
+  } catch (e) {
+    debugPrint('ResidentById: Fetch error for $userId: $e');
+    return null;
   }
 }

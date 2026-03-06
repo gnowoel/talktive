@@ -43,6 +43,11 @@ class AppTheme {
     Color(0xFF49C0F8),
   ];
 
+  static const List<Color> duoRedGradient = [
+    Color(0xFFFF4B4B),
+    Color(0xFFFF6B6B),
+  ];
+
   // Duolingo-Inspired Colors
   static const Color duoGreen = Color(0xFF58CC02); // Duolingo's signature green
   static const Color duoYellow = Color(0xFFFFD93D); // Bright, cheerful yellow

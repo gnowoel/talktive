@@ -7,6 +7,7 @@ import '../../providers/blocked_users_provider.dart';
 import '../../providers/moments_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../../helpers/date_formatter.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
@@ -127,7 +128,11 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             Container(
               padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
               decoration: BoxDecoration(
-                gradient: AppTheme.secondaryGradient,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: AppTheme.secondaryGradient,
+                ),
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(AppTheme.duoRadiusLarge),
                 ),

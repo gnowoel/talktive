@@ -15,10 +15,15 @@ class DuoEmptyState extends StatelessWidget {
     super.key,
     required this.emoji,
     required this.title,
-    required this.subtitle,
-    this.buttonText,
-    this.onButtonPressed,
-  });
+    String? subtitle,
+    String? message, // Alias for subtitle
+    String? buttonText,
+    String? actionLabel, // Alias for buttonText
+    VoidCallback? onButtonPressed,
+    VoidCallback? onActionPressed, // Alias for onButtonPressed
+  }) : subtitle = subtitle ?? message ?? '',
+       buttonText = buttonText ?? actionLabel,
+       onButtonPressed = onButtonPressed ?? onActionPressed;
 
   @override
   Widget build(BuildContext context) {

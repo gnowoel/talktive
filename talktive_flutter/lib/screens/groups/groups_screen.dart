@@ -265,7 +265,7 @@ class GroupsScreen extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       decoration: BoxDecoration(
-        color: isInvite ? AppTheme.duoYellow.withOpacity(0.15) : AppTheme.duoBlue.withOpacity(0.15),
+        color: isInvite ? AppTheme.duoYellow.withValues(alpha: 0.15) : AppTheme.duoBlue.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
         border: Border.all(
           color: isInvite ? AppTheme.duoYellow : AppTheme.duoBlue,

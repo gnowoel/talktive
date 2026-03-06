@@ -27,9 +27,9 @@ class GroupList extends _$GroupList {
   Future<Group> createGroup(
     String name, {
     String? description,
-    String? emoji,
     bool isPublic = false,
     int maxMembers = 50,
+    List<String>? interests,
   }) async {
     final client = ref.read(clientProvider);
     try {
@@ -39,6 +39,7 @@ class GroupList extends _$GroupList {
         emoji: emoji,
         isPublic: isPublic,
         maxMembers: maxMembers,
+        interests: interests,
       );
 
       // Refresh the list to include the new group

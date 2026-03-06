@@ -10,6 +10,7 @@ fields:
   memberCount: int, default=1
   isPublic: bool, default=false
   maxMembers: int, default=50
+  interests: List<String>?
 indexes:
   group_channel_idx:
     fields: channelId

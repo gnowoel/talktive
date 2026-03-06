@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
+import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
 
@@ -19,6 +20,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
   String _selectedEmoji = '👥';
   bool _isPublic = false;
   int _maxMembers = 50;
+  List<String> _selectedInterests = [];
   bool _isCreating = false;
 
   final List<String> _emojiOptions = [
@@ -71,6 +73,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
             emoji: _selectedEmoji,
             isPublic: _isPublic,
             maxMembers: _maxMembers,
+            interests: _selectedInterests.isEmpty ? null : _selectedInterests,
           );
 
       if (mounted) {
@@ -221,6 +224,44 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                 hintText: 'What is this group about?',
                 maxLines: 3,
                 maxLength: 200,
+              ),
+              const SizedBox(height: AppTheme.duoSpacingMedium),
+
+              // Interests
+              Text(
+                'Add Interest Tags',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingSmall),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: AppInterests.all.map((interest) {
+                  final isSelected = _selectedInterests.contains(interest);
+                  return FilterChip(
+                    label: Text(interest, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : Colors.black)),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      HapticFeedback.lightImpact();
+                      setState(() {
+                        if (selected) {
+                          if (_selectedInterests.length < 5) {
+                            _selectedInterests.add(interest);
+                          }
+                        } else {
+                          _selectedInterests.remove(interest);
+                        }
+                      });
+                    },
+                    selectedColor: AppTheme.duoBlue,
+                    checkmarkColor: Colors.white,
+                    backgroundColor: Colors.grey[100],
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    side: BorderSide.none,
+                  );
+                }).toList(),
               ),
               const SizedBox(height: AppTheme.duoSpacingMedium),
 

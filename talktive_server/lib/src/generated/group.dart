@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
+import 'package:talktive_server/src/generated/protocol.dart' as _i2;
 
 abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   Group._({
@@ -24,6 +25,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    this.interests,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
        maxMembers = maxMembers ?? 50;
@@ -39,6 +41,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    List<String>? interests,
   }) = _GroupImpl;
 
   factory Group.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -57,6 +60,11 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       memberCount: jsonSerialization['memberCount'] as int?,
       isPublic: jsonSerialization['isPublic'] as bool?,
       maxMembers: jsonSerialization['maxMembers'] as int?,
+      interests: jsonSerialization['interests'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<String>>(
+              jsonSerialization['interests'],
+            ),
     );
   }
 
@@ -85,6 +93,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   int maxMembers;
 
+  List<String>? interests;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -102,6 +112,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    List<String>? interests,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -117,6 +128,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'memberCount': memberCount,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      if (interests != null) 'interests': interests?.toJson(),
     };
   }
 
@@ -134,6 +146,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'memberCount': memberCount,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      if (interests != null) 'interests': interests?.toJson(),
     };
   }
 
@@ -181,6 +194,7 @@ class _GroupImpl extends Group {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    List<String>? interests,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -192,6 +206,7 @@ class _GroupImpl extends Group {
          memberCount: memberCount,
          isPublic: isPublic,
          maxMembers: maxMembers,
+         interests: interests,
        );
 
   /// Returns a shallow copy of this [Group]
@@ -209,6 +224,7 @@ class _GroupImpl extends Group {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    Object? interests = _Undefined,
   }) {
     return Group(
       id: id is int? ? id : this.id,
@@ -221,6 +237,9 @@ class _GroupImpl extends Group {
       memberCount: memberCount ?? this.memberCount,
       isPublic: isPublic ?? this.isPublic,
       maxMembers: maxMembers ?? this.maxMembers,
+      interests: interests is List<String>?
+          ? interests
+          : this.interests?.map((e0) => e0).toList(),
     );
   }
 }
@@ -275,6 +294,12 @@ class GroupUpdateTable extends _i1.UpdateTable<GroupTable> {
     table.maxMembers,
     value,
   );
+
+  _i1.ColumnValue<List<String>, List<String>> interests(List<String>? value) =>
+      _i1.ColumnValue(
+        table.interests,
+        value,
+      );
 }
 
 class GroupTable extends _i1.Table<int?> {
@@ -319,6 +344,10 @@ class GroupTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    interests = _i1.ColumnSerializable<List<String>>(
+      'interests',
+      this,
+    );
   }
 
   late final GroupUpdateTable updateTable;
@@ -341,6 +370,8 @@ class GroupTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt maxMembers;
 
+  late final _i1.ColumnSerializable<List<String>> interests;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -353,6 +384,7 @@ class GroupTable extends _i1.Table<int?> {
     memberCount,
     isPublic,
     maxMembers,
+    interests,
   ];
 }
 

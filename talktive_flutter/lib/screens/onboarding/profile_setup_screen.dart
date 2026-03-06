@@ -8,6 +8,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:confetti/confetti.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
+import '../../config/interests.dart';
 import '../../providers/auth_provider.dart';
 
 import 'package:talktive_client/talktive_client.dart';
@@ -93,32 +94,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     '😈',
   ];
 
-  final List<String> _availableInterests = [
-    '🎮 Gaming',
-    '🎵 Music',
-    '🎬 Movies',
-    '📚 Books',
-    '🎨 Art',
-    '📷 Photography',
-    '✈️ Travel',
-    '🍔 Food',
-    '💪 Fitness',
-    '🧘 Yoga',
-    '⚽ Sports',
-    '💻 Tech',
-    '🌱 Nature',
-    '🐕 Pets',
-    '👗 Fashion',
-    '💄 Beauty',
-    '🎭 Theater',
-    '🎪 Comedy',
-    '🔬 Science',
-    '🌍 Culture',
-    '💰 Crypto',
-    '📈 Trading',
-    '🎯 Business',
-    '🚀 Startups',
-  ];
+  // Using AppInterests.all
 
   @override
   void initState() {
@@ -1006,9 +982,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       mainAxisSpacing: 12,
                       childAspectRatio: 3,
                     ),
-                    itemCount: _availableInterests.length,
+                    itemCount: AppInterests.all.length,
                     itemBuilder: (context, index) {
-                      final interest = _availableInterests[index];
+                      final interest = AppInterests.all[index];
                       final isSelected = _selectedInterests.contains(interest);
                       return GestureDetector(
                         onTap: () {

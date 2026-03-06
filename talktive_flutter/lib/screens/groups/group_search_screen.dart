@@ -27,6 +27,13 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
   List<Group> _searchResults = [];
 
   @override
+  void initState() {
+    super.initState();
+    // Fetch initial recommendations
+    _performSearch('');
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     _debounce?.cancel();
@@ -36,13 +43,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (query.isNotEmpty) {
-        _performSearch(query);
-      } else {
-        setState(() {
-          _searchResults = [];
-        });
-      }
+      _performSearch(query);
     });
   }
 
@@ -136,7 +137,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
       return const Center(child: DuoLoadingIndicator());
     }
 
-    if (_searchController.text.isEmpty) {
+    if (_searchController.text.isEmpty && _searchResults.isEmpty) {
       return Center(
         child: DuoEmptyState(
           emoji: '🔍',
@@ -161,6 +162,28 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
       itemCount: _searchResults.length,
       itemBuilder: (context, index) {
         final group = _searchResults[index];
+        final isRecommendation = _searchController.text.isEmpty;
+        
+        if (isRecommendation && index == 0) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12, left: 4),
+                child: Text(
+                  '💡 SUGGESTED FOR YOU',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: AppTheme.duoBlue,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+              _buildSearchResultCard(group, index),
+            ],
+          );
+        }
+        
         return _buildSearchResultCard(group, index);
       },
     );
@@ -179,7 +202,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppTheme.duoYellow.withOpacity(0.2),
+                    color: AppTheme.duoYellow.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
                   ),
                   child: Center(
@@ -214,6 +237,20 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
                 ),
               ],
             ),
+            if (group.interests != null && group.interests!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: -6,
+                children: group.interests!.take(3).map((interest) => Chip(
+                  label: Text('#$interest', style: TextStyle(fontSize: 10, color: AppTheme.duoBlue, fontWeight: FontWeight.bold)),
+                  padding: EdgeInsets.zero,
+                  backgroundColor: AppTheme.duoBlue.withValues(alpha: 0.1),
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                )).toList(),
+              ),
+            ],
             if (group.description != null && group.description!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(

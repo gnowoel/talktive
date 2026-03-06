@@ -13,6 +13,7 @@ class GroupEndpoint extends Endpoint {
     String? emoji,
     bool isPublic = false,
     int maxMembers = 50,
+    List<String>? interests,
   }) async {
     // Validate inputs
     InputValidationService.validateGroupName(name).throwIfInvalid();
@@ -74,6 +75,7 @@ class GroupEndpoint extends Endpoint {
       memberCount: 1,
       isPublic: isPublic,
       maxMembers: maxMembers,
+      interests: interests,
     );
 
     final savedGroup = await protocol.Group.db.insertRow(session, group);
@@ -177,12 +179,39 @@ class GroupEndpoint extends Endpoint {
     String query, {
     int limit = 50,
     int offset = 0,
-  }) async {
-    // Validate inputs
-    InputValidationService.validatePagination(
-      limit: limit,
-      offset: offset,
-    ).throwIfInvalid();
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+    UuidValue? currentUserId;
+    if (currentUserIdentifier != null) {
+      currentUserId = UuidValue.fromString(currentUserIdentifier);
+    }
+
+    // If query is empty and user is logged in, show personalized recommendations
+    if (query.trim().isEmpty && currentUserId != null) {
+      final resident = await protocol.Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(currentUserId!),
+      );
+
+      if (resident != null && resident.interests != null && resident.interests!.isNotEmpty) {
+        // Find public groups
+        final allPublicGroups = await protocol.Group.db.find(
+          session,
+          where: (t) => t.isPublic.equals(true),
+          limit: 100, // Limit the scan for personalization
+        );
+
+        // Sort by interest match count
+        allPublicGroups.sort((a, b) {
+          final aMatch = a.interests?.where((i) => resident.interests!.contains(i)).length ?? 0;
+          final bMatch = b.interests?.where((i) => resident.interests!.contains(i)).length ?? 0;
+          if (aMatch != bMatch) return bMatch.compareTo(aMatch); // More matches first
+          return b.memberCount.compareTo(a.memberCount); // Then more members first
+        });
+
+        return allPublicGroups.skip(offset).take(limit).toList();
+      }
+    }
 
     if (query.trim().isEmpty) {
       return [];
@@ -684,6 +713,7 @@ class GroupEndpoint extends Endpoint {
     String? emoji,
     bool? isPublic,
     int? maxMembers,
+    List<String>? interests,
   }) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
@@ -742,6 +772,10 @@ class GroupEndpoint extends Endpoint {
         throw Exception('Max members must be between 2 and 500');
       }
       group.maxMembers = maxMembers;
+    }
+
+    if (interests != null) {
+      group.interests = interests;
     }
 
     return await protocol.Group.db.updateRow(session, group);

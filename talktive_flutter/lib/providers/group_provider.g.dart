@@ -36,7 +36,7 @@ final class GroupListProvider
   GroupList create() => GroupList();
 }
 
-String _$groupListHash() => r'055302966958ffc1d85580460ae10b5d8fb8e9f7';
+String _$groupListHash() => r'd35a2cd44305dbc84d51f1b2450397db0407638b';
 
 /// Provider for listing all groups.
 
@@ -403,4 +403,91 @@ final class GroupMembersFamily extends $Family
 
   @override
   String toString() => r'groupMembersProvider';
+}
+
+/// Provider for getting a single group with membership from the current user.
+
+@ProviderFor(groupWithMembership)
+final groupWithMembershipProvider = GroupWithMembershipFamily._();
+
+/// Provider for getting a single group with membership from the current user.
+
+final class GroupWithMembershipProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GroupWithMembership?>,
+          GroupWithMembership?,
+          FutureOr<GroupWithMembership?>
+        >
+    with
+        $FutureModifier<GroupWithMembership?>,
+        $FutureProvider<GroupWithMembership?> {
+  /// Provider for getting a single group with membership from the current user.
+  GroupWithMembershipProvider._({
+    required GroupWithMembershipFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'groupWithMembershipProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$groupWithMembershipHash();
+
+  @override
+  String toString() {
+    return r'groupWithMembershipProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<GroupWithMembership?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GroupWithMembership?> create(Ref ref) {
+    final argument = this.argument as int;
+    return groupWithMembership(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupWithMembershipProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$groupWithMembershipHash() =>
+    r'2cb4cb0b823ed10d8f7c872e8d16432af7af7613';
+
+/// Provider for getting a single group with membership from the current user.
+
+final class GroupWithMembershipFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<GroupWithMembership?>, int> {
+  GroupWithMembershipFamily._()
+    : super(
+        retry: null,
+        name: r'groupWithMembershipProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider for getting a single group with membership from the current user.
+
+  GroupWithMembershipProvider call(int groupId) =>
+      GroupWithMembershipProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'groupWithMembershipProvider';
 }

@@ -189,6 +189,16 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - Split `ChatsScreen` into separate sections for "🚪 Knocking..." (Pending Invites) and "📬 Active Chats".
     - Created `PeepholeScreen` (`peephole_screen.dart`): An immersive vignette review screen where users can securely look at a stranger's avatar and verified Floor/Trust stats before tapping 🔓 "Open the Door" or 🔒 "Keep it Locked".
 
+- Phase 8.14: Community Groups & Clubhouse Application Flow (March 2026)
+  - **The Clubhouse Metaphor**: Groups are redesigned into two tiers: Public (Clubhouse) and Private (Parties). 
+  - **Apply/Invite Mechanics**:
+    - Replaced generic `joinGroup` with `applyToGroup`, `inviteUserToGroup`, and target-approval flows.
+    - Extended `ChannelMemberStatus` with `applied` status to handle queueing users awaiting admin approval.
+  - **Client Updates**:
+    - `GroupsScreen`: Partitioned the timeline to display a "🎫 The Doorstep" section for pending invitations and applications above "🛋️ My Lounges" for joined groups.
+    - `GroupSearchScreen`: Built an immersive search query page where users can discover and send applications to join Public Clubs.
+    - `UserProfileViewScreen`: Appended a "🎟️ Invite to Group" sheet so users can easily distribute invites ("slips flyer under the door") to members for their active groups directly from the Profile page.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

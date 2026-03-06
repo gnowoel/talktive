@@ -1,0 +1,6 @@
+class: GroupMemberWithProfile
+fields:
+  resident: Resident
+  status: ChannelMemberStatus
+  role: String?
+  joinedAt: DateTime?

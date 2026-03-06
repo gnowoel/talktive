@@ -1,0 +1,116 @@
+/* AUTOMATICALLY GENERATED CODE DO NOT MODIFY */
+/*   To generate run: "serverpod generate"    */
+
+// ignore_for_file: implementation_imports
+// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: public_member_api_docs
+// ignore_for_file: type_literal_in_constant_pattern
+// ignore_for_file: use_super_parameters
+// ignore_for_file: invalid_use_of_internal_member
+
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:serverpod_client/serverpod_client.dart' as _i1;
+import 'resident.dart' as _i2;
+import 'channel_member_status.dart' as _i3;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i4;
+
+abstract class GroupMemberWithProfile implements _i1.SerializableModel {
+  GroupMemberWithProfile._({
+    required this.resident,
+    required this.status,
+    this.role,
+    this.joinedAt,
+  });
+
+  factory GroupMemberWithProfile({
+    required _i2.Resident resident,
+    required _i3.ChannelMemberStatus status,
+    String? role,
+    DateTime? joinedAt,
+  }) = _GroupMemberWithProfileImpl;
+
+  factory GroupMemberWithProfile.fromJson(
+    Map<String, dynamic> jsonSerialization,
+  ) {
+    return GroupMemberWithProfile(
+      resident: _i4.Protocol().deserialize<_i2.Resident>(
+        jsonSerialization['resident'],
+      ),
+      status: _i3.ChannelMemberStatus.fromJson(
+        (jsonSerialization['status'] as String),
+      ),
+      role: jsonSerialization['role'] as String?,
+      joinedAt: jsonSerialization['joinedAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['joinedAt']),
+    );
+  }
+
+  _i2.Resident resident;
+
+  _i3.ChannelMemberStatus status;
+
+  String? role;
+
+  DateTime? joinedAt;
+
+  /// Returns a shallow copy of this [GroupMemberWithProfile]
+  /// with some or all fields replaced by the given arguments.
+  @_i1.useResult
+  GroupMemberWithProfile copyWith({
+    _i2.Resident? resident,
+    _i3.ChannelMemberStatus? status,
+    String? role,
+    DateTime? joinedAt,
+  });
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      '__className__': 'GroupMemberWithProfile',
+      'resident': resident.toJson(),
+      'status': status.toJson(),
+      if (role != null) 'role': role,
+      if (joinedAt != null) 'joinedAt': joinedAt?.toJson(),
+    };
+  }
+
+  @override
+  String toString() {
+    return _i1.SerializationManager.encode(this);
+  }
+}
+
+class _Undefined {}
+
+class _GroupMemberWithProfileImpl extends GroupMemberWithProfile {
+  _GroupMemberWithProfileImpl({
+    required _i2.Resident resident,
+    required _i3.ChannelMemberStatus status,
+    String? role,
+    DateTime? joinedAt,
+  }) : super._(
+         resident: resident,
+         status: status,
+         role: role,
+         joinedAt: joinedAt,
+       );
+
+  /// Returns a shallow copy of this [GroupMemberWithProfile]
+  /// with some or all fields replaced by the given arguments.
+  @_i1.useResult
+  @override
+  GroupMemberWithProfile copyWith({
+    _i2.Resident? resident,
+    _i3.ChannelMemberStatus? status,
+    Object? role = _Undefined,
+    Object? joinedAt = _Undefined,
+  }) {
+    return GroupMemberWithProfile(
+      resident: resident ?? this.resident.copyWith(),
+      status: status ?? this.status,
+      role: role is String? ? role : this.role,
+      joinedAt: joinedAt is DateTime? ? joinedAt : this.joinedAt,
+    );
+  }
+}

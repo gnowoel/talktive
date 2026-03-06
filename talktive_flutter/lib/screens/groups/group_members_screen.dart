@@ -12,6 +12,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../helpers/snackbar_helper.dart';
 
 class GroupMembersScreen extends ConsumerWidget {
@@ -31,26 +32,11 @@ class GroupMembersScreen extends ConsumerWidget {
         ? ref.watch(pendingApplicationsProvider(group.id!))
         : const AsyncValue.data(<GroupMemberWithProfile>[]);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          group.name,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
+    return DuoPageScaffold(
+      emoji: '👥',
+      title: group.name,
+      subtitle: '${group.memberCount} members',
+      gradient: AppTheme.duoBlueGradient,
       body: membersAsync.when(
         data: (members) => pendingAsync.when(
           data: (pending) => _buildBody(context, ref, members, pending, isCreator),

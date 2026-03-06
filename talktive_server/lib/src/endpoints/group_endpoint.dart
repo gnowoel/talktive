@@ -5,6 +5,23 @@ import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 
 class GroupEndpoint extends Endpoint {
+  Future<UuidValue> _getUserId(Session session) async {
+    final auth = session.authenticated;
+    if (auth == null || auth.userIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+    return UuidValue.fromString(auth.userIdentifier!);
+  }
+
+  Future<protocol.Resident> _getResident(Session session, UuidValue userId) async {
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+    if (resident == null) throw Exception('User not found');
+    return resident;
+  }
+
   /// Creates a new group.
   Future<protocol.Group> createGroup(
     Session session,
@@ -24,24 +41,8 @@ class GroupEndpoint extends Endpoint {
       maxMembers,
     ).throwIfInvalid();
 
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
-
-    // Verify user exists
-    final currentResident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(currentUserId),
-    );
-
-    if (currentResident == null) {
-      throw Exception('User not found');
-    }
+    final currentUserId = await _getUserId(session);
+    final currentResident = await _getResident(session, currentUserId);
 
     // Safety: muted or suspended users cannot create groups
     if (ApartmentService.isMuted(currentResident)) {
@@ -377,14 +378,7 @@ class GroupEndpoint extends Endpoint {
 
   /// Responds to a group invite (accept or decline).
   Future<void> respondToGroupInvite(Session session, int groupId, bool accept) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await _getUserId(session);
 
     // Get the group
     final group = await protocol.Group.db.findById(session, groupId);
@@ -437,14 +431,7 @@ class GroupEndpoint extends Endpoint {
 
   /// Approves or rejects a pending group application (creator only).
   Future<void> approveGroupApplication(Session session, int groupId, String targetUserIdString, bool approve) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await _getUserId(session);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
     // Get the group
@@ -715,14 +702,7 @@ class GroupEndpoint extends Endpoint {
     int? maxMembers,
     List<String>? interests,
   }) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await _getUserId(session);
 
     // Get the group
     final group = await protocol.Group.db.findById(session, groupId);
@@ -783,14 +763,7 @@ class GroupEndpoint extends Endpoint {
 
   /// Deletes a group (creator only).
   Future<void> deleteGroup(Session session, int groupId) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await _getUserId(session);
 
     // Get the group
     final group = await protocol.Group.db.findById(session, groupId);

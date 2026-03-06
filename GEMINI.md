@@ -29,6 +29,11 @@ This project is a migration of the "Talktive" chat app from Firebase to Serverpo
 - **Screens Redesigned**: All five main screens (Plaza, Moments, Chats, Groups, Profile) follow the Duolingo aesthetic
 - **Animations**: Entrance animations, staggered list items, tap feedback, smooth transitions using flutter_animate
 
+**The Interest Taxonomy**: To facilitate meaningful connections, we use a centralized interest system (`AppInterests`) that categorizes users and groups. This taxonomy is used for:
+- **Discovery**: Ranking groups based on shared interests with the user.
+- **Identity**: Personalizing resident profiles with badges.
+- **Consistency**: Unified emojis and naming across all screens.
+
 The onboarding wizard established these Duolingo-style patterns, and this design language has been extended across the entire app.
 
 ## Development Philosophy
@@ -199,12 +204,20 @@ The onboarding wizard established these Duolingo-style patterns, and this design
     - `GroupSearchScreen`: Built an immersive search query page where users can discover and send applications to join Public Clubs.
     - `UserProfileViewScreen`: Appended a "🎟️ Invite to Group" sheet so users can easily distribute invites ("slips flyer under the door") to members for their active groups directly from the Profile page.
 
+- Phase 8.15: Interest-Based Group Discovery & Filtering (March 2026)
+  - **Group Interests**: Updated `Group` protocol to include interest tags, enabling a unified taxonomy across users and communities.
+  - **Shared Interest Configuration**: Created centralized `AppInterests` config in the frontend to eliminate hardcoded strings and ensure consistency.
+  - **Personalized Discovery**: Refactored `searchPublicGroups` to provide personalized recommendations. When the query is empty, the system ranks groups based on how many interests they share with the current user.
+  - **Discovery UI**: Updated `GroupSearchScreen` with a "💡 SUGGESTED FOR YOU" section and interest badges on all group cards.
+  - **Group Creation**: Added interest tag selection (up to 5) to the `CreateGroupDialog`.
+
 **Status:** 🏗️ In Progress
 
 **Next:**
 
-- Enhanced Discovery based on interests
+- Group Profile view & editing
 - Production launch
+- Performance benchmark & final cleanup
 
 ## Key Components
 

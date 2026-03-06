@@ -11,6 +11,8 @@ import '../../utils/floor_utils.dart';
 import '../../widgets/chat/message_bubble.dart';
 
 import 'group_members_screen.dart';
+import 'group_profile_screen.dart';
+import 'create_group_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
@@ -100,49 +102,60 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             Navigator.pop(context);
           },
         ),
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
-                    AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
+        title: InkWell(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GroupProfileScreen(group: widget.group),
+              ),
+            );
+          },
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                      AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
+                ),
+                child: Center(
+                  child: Text(
+                    widget.group.emoji ?? '👥',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.group.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      '${widget.group.memberCount} members',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
               ),
-              child: Center(
-                child: Text(
-                  widget.group.emoji ?? '👥',
-                  style: const TextStyle(fontSize: 20),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.group.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    '${widget.group.memberCount} members',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -160,7 +173,19 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_horiz, color: Colors.black),
             onSelected: (value) async {
-              if (value == 'leave') {
+              if (value == 'profile') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GroupProfileScreen(group: widget.group),
+                  ),
+                );
+              } else if (value == 'edit') {
+                showDialog(
+                  context: context,
+                  builder: (context) => CreateGroupDialog(existingGroup: widget.group),
+                );
+              } else if (value == 'leave') {
                 _confirmLeaveClub(context, ref);
               } else if (value == 'delete') {
                 _confirmDeleteClub(context, ref);
@@ -169,6 +194,27 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             itemBuilder: (_) {
               final isCreator = _currentResident?.userInfoId == widget.group.creatorId;
               return [
+                const PopupMenuItem(
+                  value: 'profile',
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: AppTheme.duoBlue, size: 20),
+                      SizedBox(width: 12),
+                      Text('Club Info', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                if (isCreator)
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, color: AppTheme.duoBlue, size: 20),
+                        SizedBox(width: 12),
+                        Text('Edit Club Info', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
                 if (!isCreator)
                   const PopupMenuItem(
                     value: 'leave',

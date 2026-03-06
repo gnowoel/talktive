@@ -8,7 +8,9 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
 
 class CreateGroupDialog extends ConsumerStatefulWidget {
-  const CreateGroupDialog({super.key});
+  final Group? existingGroup;
+  
+  const CreateGroupDialog({super.key, this.existingGroup});
 
   @override
   ConsumerState<CreateGroupDialog> createState() => _CreateGroupDialogState();
@@ -39,14 +41,29 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.existingGroup != null) {
+      final g = widget.existingGroup!;
+      _nameController.text = g.name;
+      _descriptionController.text = g.description ?? '';
+      _selectedEmoji = g.emoji ?? '👥';
+      _isPublic = g.isPublic;
+      _maxMembers = g.maxMembers;
+      _selectedInterests = List<String>.from(g.interests ?? []);
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
-  Future<void> _createGroup() async {
+  Future<void> _saveGroup() async {
     final name = _nameController.text.trim();
+    final isEditing = widget.existingGroup != null;
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,25 +80,37 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
     });
 
     try {
-      await ref
-          .read(groupListProvider.notifier)
-          .createGroup(
-            name,
-            description: _descriptionController.text.trim().isEmpty
-                ? null
-                : _descriptionController.text.trim(),
-            emoji: _selectedEmoji,
-            isPublic: _isPublic,
-            maxMembers: _maxMembers,
-            interests: _selectedInterests.isEmpty ? null : _selectedInterests,
-          );
+      if (isEditing) {
+        await ref.read(groupListProvider.notifier).updateGroup(
+              widget.existingGroup!.id!,
+              name: name,
+              description: _descriptionController.text.trim().isEmpty
+                  ? null
+                  : _descriptionController.text.trim(),
+              emoji: _selectedEmoji,
+              isPublic: _isPublic,
+              maxMembers: _maxMembers,
+              interests: _selectedInterests.isEmpty ? null : _selectedInterests,
+            );
+      } else {
+        await ref.read(groupListProvider.notifier).createGroup(
+              name,
+              description: _descriptionController.text.trim().isEmpty
+                  ? null
+                  : _descriptionController.text.trim(),
+              emoji: _selectedEmoji,
+              isPublic: _isPublic,
+              maxMembers: _maxMembers,
+              interests: _selectedInterests.isEmpty ? null : _selectedInterests,
+            );
+      }
 
       if (mounted) {
         HapticFeedback.mediumImpact();
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Group "$name" created!'),
+            content: Text(isEditing ? 'Group updated!' : 'Group "$name" created!'),
             backgroundColor: AppTheme.duoGreen,
           ),
         );
@@ -93,7 +122,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to create group: $e'),
+            content: Text('Failed to ${isEditing ? 'update' : 'create'} group: $e'),
             backgroundColor: AppTheme.duoRed,
           ),
         );
@@ -137,7 +166,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                   const SizedBox(width: AppTheme.duoSpacingMedium),
                   Expanded(
                     child: Text(
-                      'Create Group',
+                      widget.existingGroup != null ? 'Edit Group' : 'Create Group',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
@@ -324,8 +353,8 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
               SizedBox(
                 width: double.infinity,
                 child: DuoButton(
-                  text: 'Create Group',
-                  onPressed: _isCreating ? null : _createGroup,
+                  text: widget.existingGroup != null ? 'Save Changes' : 'Create Group',
+                  onPressed: _isCreating ? null : _saveGroup,
                   isLoading: _isCreating,
                 ),
               ),

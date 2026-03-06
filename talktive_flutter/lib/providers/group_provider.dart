@@ -27,6 +27,7 @@ class GroupList extends _$GroupList {
   Future<Group> createGroup(
     String name, {
     String? description,
+    String? emoji,
     bool isPublic = false,
     int maxMembers = 50,
     List<String>? interests,
@@ -48,6 +49,38 @@ class GroupList extends _$GroupList {
       return group;
     } catch (e) {
       debugPrint('GroupList: Create group error: $e');
+      rethrow;
+    }
+  }
+
+  /// Updates an existing group.
+  Future<Group> updateGroup(
+    int groupId, {
+    String? name,
+    String? description,
+    String? emoji,
+    bool? isPublic,
+    int? maxMembers,
+    List<String>? interests,
+  }) async {
+    final client = ref.read(clientProvider);
+    try {
+      final group = await client.group.updateGroup(
+        groupId,
+        name: name,
+        description: description,
+        emoji: emoji,
+        isPublic: isPublic,
+        maxMembers: maxMembers,
+        interests: interests,
+      );
+
+      // Refresh the list to include the updated group
+      ref.invalidateSelf();
+
+      return group;
+    } catch (e) {
+      debugPrint('GroupList: Update group error: $e');
       rethrow;
     }
   }

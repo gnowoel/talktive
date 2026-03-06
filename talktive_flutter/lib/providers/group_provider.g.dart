@@ -15,7 +15,7 @@ final groupListProvider = GroupListProvider._();
 
 /// Provider for listing all groups.
 final class GroupListProvider
-    extends $AsyncNotifierProvider<GroupList, List<Group>> {
+    extends $AsyncNotifierProvider<GroupList, List<GroupWithMembership>> {
   /// Provider for listing all groups.
   GroupListProvider._()
     : super(
@@ -36,21 +36,29 @@ final class GroupListProvider
   GroupList create() => GroupList();
 }
 
-String _$groupListHash() => r'27290b99f8603504077b298d383dd1d9508d52b2';
+String _$groupListHash() => r'055302966958ffc1d85580460ae10b5d8fb8e9f7';
 
 /// Provider for listing all groups.
 
-abstract class _$GroupList extends $AsyncNotifier<List<Group>> {
-  FutureOr<List<Group>> build();
+abstract class _$GroupList extends $AsyncNotifier<List<GroupWithMembership>> {
+  FutureOr<List<GroupWithMembership>> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<List<Group>>, List<Group>>;
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<List<GroupWithMembership>>,
+              List<GroupWithMembership>
+            >;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<Group>>, List<Group>>,
-              AsyncValue<List<Group>>,
+              AnyNotifier<
+                AsyncValue<List<GroupWithMembership>>,
+                List<GroupWithMembership>
+              >,
+              AsyncValue<List<GroupWithMembership>>,
               Object?,
               Object?
             >;

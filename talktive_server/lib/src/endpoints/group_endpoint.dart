@@ -100,8 +100,8 @@ class GroupEndpoint extends Endpoint {
     return savedGroup;
   }
 
-  /// Lists all groups (public groups + groups user is a member of).
-  Future<List<protocol.Group>> listGroups(
+  /// Lists all groups the user considers 'theirs' (joined, invited, applied).
+  Future<List<protocol.GroupWithMembership>> listMyGroups(
     Session session, {
     int limit = 50,
     int offset = 0,
@@ -121,35 +121,43 @@ class GroupEndpoint extends Endpoint {
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
 
-    // Get all groups where user is a member
-    final memberChannelIds = await protocol.ChannelMember.db.find(
+    // Get all groups where user is a tracked member
+    final memberships = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
           t.userInfoId.equals(currentUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
-    );
-
-    final memberChannelIdList = memberChannelIds
-        .map((m) => m.channelId)
-        .toList();
-
-    // Get all public groups OR groups where user is a member
-    final groups = await protocol.Group.db.find(
-      session,
-      where: (t) =>
-          t.isPublic.equals(true) |
-          (memberChannelIdList.isNotEmpty
-              ? t.channelId.inSet(memberChannelIdList.toSet())
-              : t.channelId.equals(
-                  -1,
-                )), // Impossible condition if no memberships
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
+          t.status.inSet({
+            protocol.ChannelMemberStatus.joined,
+            protocol.ChannelMemberStatus.invited,
+            protocol.ChannelMemberStatus.applied,
+          }),
       limit: limit,
       offset: offset,
     );
 
-    return groups;
+    final membershipMap = {
+      for (var m in memberships) m.channelId: m,
+    };
+
+    if (membershipMap.isEmpty) {
+      return [];
+    }
+
+    final groups = await protocol.Group.db.find(
+      session,
+      where: (t) => t.channelId.inSet(membershipMap.keys.toSet()),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+    );
+
+    return groups.map((g) {
+      final member = membershipMap[g.channelId];
+      return protocol.GroupWithMembership(
+        group: g,
+        membershipStatus: member?.status ?? protocol.ChannelMemberStatus.left,
+        membershipRole: member?.role,
+      );
+    }).toList();
   }
 
   /// Gets details about a specific group.
@@ -163,8 +171,43 @@ class GroupEndpoint extends Endpoint {
     return group;
   }
 
-  /// Joins a group.
-  Future<void> joinGroup(Session session, int groupId) async {
+  /// Searches for public groups based on a query.
+  Future<List<protocol.Group>> searchPublicGroups(
+    Session session,
+    String query, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    // Validate inputs
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
+
+    if (query.trim().isEmpty) {
+      return [];
+    }
+
+    final sanitizedQuery = query.trim().toLowerCase();
+
+    // Find all public groups that contain the query string in name or description
+    final groups = await protocol.Group.db.find(
+      session,
+      where: (t) =>
+          t.isPublic.equals(true) &
+          (t.name.ilike('%$sanitizedQuery%') |
+              t.description.ilike('%$sanitizedQuery%')),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+      limit: limit,
+      offset: offset,
+    );
+
+    return groups;
+  }
+
+  /// Applies to join a public group.
+  Future<void> applyToGroup(Session session, int groupId) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -181,6 +224,10 @@ class GroupEndpoint extends Endpoint {
       throw Exception('Group not found');
     }
 
+    if (!group.isPublic) {
+      throw Exception('Cannot apply to a private group');
+    }
+
     // Check if group is full
     if (group.memberCount >= group.maxMembers) {
       throw Exception('Group is full');
@@ -195,12 +242,12 @@ class GroupEndpoint extends Endpoint {
       throw Exception('User profile not found');
     }
 
-    // Safety: muted or suspended users cannot join groups
+    // Safety: muted or suspended users cannot apply to groups
     if (ApartmentService.isMuted(currentResident)) {
       throw Exception(ApartmentService.getMuteReason(currentResident));
     }
 
-    // Check if user is already a member
+    // Check if user is already a member or has already applied
     final existingMember = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
@@ -211,34 +258,257 @@ class GroupEndpoint extends Endpoint {
     if (existingMember != null) {
       if (existingMember.status == protocol.ChannelMemberStatus.joined) {
         throw Exception('Already a member of this group');
+      } else if (existingMember.status == protocol.ChannelMemberStatus.applied) {
+        throw Exception('Already applied to this group');
       }
-      // Update status if previously left
-      existingMember.status = protocol.ChannelMemberStatus.joined;
+      
+      // Update status if previously left or declined
+      existingMember.status = protocol.ChannelMemberStatus.applied;
       existingMember.joinedAt = DateTime.now();
       await protocol.ChannelMember.db.updateRow(session, existingMember);
     } else {
-      // Add as new member
+      // Add as new applied member
       await protocol.ChannelMember.db.insertRow(
         session,
         protocol.ChannelMember(
           channelId: group.channelId,
           userInfoId: currentUserId,
-          status: protocol.ChannelMemberStatus.joined,
+          status: protocol.ChannelMemberStatus.applied,
           joinedAt: DateTime.now(),
         ),
       );
     }
+  }
 
-    // Increment member count
+  /// Invites a user to a group (by any current member or creator).
+  Future<void> inviteUserToGroup(Session session, int groupId, String targetUserIdString) async {
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+
+    if (currentUserIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final targetUserId = UuidValue.fromString(targetUserIdString);
+
+    if (currentUserId == targetUserId) {
+      throw Exception('Cannot invite yourself');
+    }
+
+    // Get the group
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    // Verify current user is a joined member
+    final currentUserMemberResult = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(group.channelId) & t.userInfoId.equals(currentUserId) & t.status.equals(protocol.ChannelMemberStatus.joined),
+    );
+
+    if (currentUserMemberResult == null) {
+      throw Exception('You are not a member of this group');
+    }
+
+    // Check if target is already in the group
+    final targetMember = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.userInfoId.equals(targetUserId),
+    );
+
+    if (targetMember != null) {
+      if (targetMember.status == protocol.ChannelMemberStatus.joined) {
+        throw Exception('User is already a member');
+      } else if (targetMember.status == protocol.ChannelMemberStatus.invited) {
+        throw Exception('User is already invited');
+      }
+      
+      targetMember.status = protocol.ChannelMemberStatus.invited;
+      targetMember.invitedBy = currentUserId;
+      targetMember.joinedAt = DateTime.now();
+      await protocol.ChannelMember.db.updateRow(session, targetMember);
+    } else {
+      await protocol.ChannelMember.db.insertRow(
+        session,
+        protocol.ChannelMember(
+          channelId: group.channelId,
+          userInfoId: targetUserId,
+          status: protocol.ChannelMemberStatus.invited,
+          invitedBy: currentUserId,
+          joinedAt: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  /// Responds to a group invite (accept or decline).
+  Future<void> respondToGroupInvite(Session session, int groupId, bool accept) async {
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+
+    if (currentUserIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+
+    // Get the group
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    final member = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.userInfoId.equals(currentUserId) &
+          t.status.equals(protocol.ChannelMemberStatus.invited),
+    );
+
+    if (member == null) {
+      throw Exception('No pending invitation found');
+    }
+
+    if (!accept) {
+      member.status = protocol.ChannelMemberStatus.declined;
+      await protocol.ChannelMember.db.updateRow(session, member);
+      return;
+    }
+
+    // The user accepted. 
+    // If they were invited by the creator (host), they bypass approval and join instantly.
+    if (member.invitedBy == group.creatorId) {
+      if (group.memberCount >= group.maxMembers) {
+        throw Exception('Group is full');
+      }
+      member.status = protocol.ChannelMemberStatus.joined;
+      await protocol.ChannelMember.db.updateRow(session, member);
+      
+      group.memberCount += 1;
+      await protocol.Group.db.updateRow(session, group);
+
+      await AchievementService.trackProgress(
+        session,
+        currentUserId,
+        'social_butterfly',
+      );
+    } else {
+      // Invited by a regular member, they transition to "applied" and wait for the Host to approve.
+      member.status = protocol.ChannelMemberStatus.applied;
+      await protocol.ChannelMember.db.updateRow(session, member);
+    }
+  }
+
+  /// Approves or rejects a pending group application (creator only).
+  Future<void> approveGroupApplication(Session session, int groupId, String targetUserIdString, bool approve) async {
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+
+    if (currentUserIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final targetUserId = UuidValue.fromString(targetUserIdString);
+
+    // Get the group
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    // Enforce creator access control
+    if (group.creatorId != currentUserId) {
+      throw Exception('Only the creator can approve applications');
+    }
+
+    final pendingMember = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.userInfoId.equals(targetUserId) &
+          t.status.equals(protocol.ChannelMemberStatus.applied),
+    );
+
+    if (pendingMember == null) {
+      throw Exception('No pending application found for this user');
+    }
+
+    if (!approve) {
+      pendingMember.status = protocol.ChannelMemberStatus.declined;
+      await protocol.ChannelMember.db.updateRow(session, pendingMember);
+      return;
+    }
+
+    // Approve user
+    if (group.memberCount >= group.maxMembers) {
+      throw Exception('Group is full');
+    }
+
+    pendingMember.status = protocol.ChannelMemberStatus.joined;
+    await protocol.ChannelMember.db.updateRow(session, pendingMember);
+
     group.memberCount += 1;
     await protocol.Group.db.updateRow(session, group);
 
-    // Track achievement
     await AchievementService.trackProgress(
       session,
-      currentUserId,
+      targetUserId,
       'social_butterfly',
     );
+  }
+
+  /// Kicks a member from the group (creator only).
+  Future<void> kickMember(Session session, int groupId, String targetUserIdString) async {
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+
+    if (currentUserIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final targetUserId = UuidValue.fromString(targetUserIdString);
+
+    if (currentUserId == targetUserId) {
+      throw Exception('You cannot kick yourself. Use leaveGroup instead.');
+    }
+
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    if (group.creatorId != currentUserId) {
+      throw Exception('Only the creator can kick members');
+    }
+
+    final member = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.userInfoId.equals(targetUserId) &
+          t.status.equals(protocol.ChannelMemberStatus.joined),
+    );
+
+    if (member == null) {
+      throw Exception('User is not a member of the group');
+    }
+
+    member.status = protocol.ChannelMemberStatus.left;
+    await protocol.ChannelMember.db.updateRow(session, member);
+
+    group.memberCount = (group.memberCount - 1).clamp(0, group.maxMembers);
+    await protocol.Group.db.updateRow(session, group);
   }
 
   /// Leaves a group.

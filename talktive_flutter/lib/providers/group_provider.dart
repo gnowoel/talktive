@@ -9,14 +9,14 @@ part 'group_provider.g.dart';
 @riverpod
 class GroupList extends _$GroupList {
   @override
-  FutureOr<List<Group>> build() async {
+  FutureOr<List<GroupWithMembership>> build() async {
     return fetchGroups();
   }
 
-  Future<List<Group>> fetchGroups() async {
+  Future<List<GroupWithMembership>> fetchGroups() async {
     final client = ref.read(clientProvider);
     try {
-      return await client.group.listGroups(limit: 50, offset: 0);
+      return await client.group.listMyGroups(limit: 50, offset: 0);
     } catch (e) {
       debugPrint('GroupList: Fetch error: $e');
       rethrow;
@@ -51,16 +51,30 @@ class GroupList extends _$GroupList {
     }
   }
 
-  /// Joins a group.
-  Future<void> joinGroup(int groupId) async {
+  /// Applies to join a group.
+  Future<void> applyToGroup(int groupId) async {
     final client = ref.read(clientProvider);
     try {
-      await client.group.joinGroup(groupId);
+      await client.group.applyToGroup(groupId);
 
       // Refresh the list
       ref.invalidateSelf();
     } catch (e) {
-      debugPrint('GroupList: Join group error: $e');
+      debugPrint('GroupList: Apply to group error: $e');
+      rethrow;
+    }
+  }
+
+  /// Responds to a group invite.
+  Future<void> respondToInvite(int groupId, bool accept) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.group.respondToGroupInvite(groupId, accept);
+      
+      // Refresh the list
+      ref.invalidateSelf();
+    } catch (e) {
+      debugPrint('GroupList: Respond to invite error: $e');
       rethrow;
     }
   }

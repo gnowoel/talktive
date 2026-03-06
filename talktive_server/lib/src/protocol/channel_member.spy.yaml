@@ -6,6 +6,7 @@ fields:
   joinedAt: DateTime
   role: String?
   status: ChannelMemberStatus
+  invitedBy: UuidValue?
 indexes:
   channel_user_idx:
     fields: channelId, userInfoId

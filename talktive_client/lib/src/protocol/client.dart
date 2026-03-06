@@ -18,23 +18,24 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
 import 'package:talktive_client/src/protocol/report_status.dart' as _i5;
 import 'package:talktive_client/src/protocol/group.dart' as _i6;
-import 'package:talktive_client/src/protocol/resident.dart' as _i7;
-import 'dart:typed_data' as _i8;
-import 'package:talktive_client/src/protocol/message.dart' as _i9;
-import 'package:talktive_client/src/protocol/moment.dart' as _i10;
-import 'package:talktive_client/src/protocol/moment_like.dart' as _i11;
-import 'package:talktive_client/src/protocol/moment_comment.dart' as _i12;
-import 'package:talktive_client/src/protocol/user_notification.dart' as _i13;
-import 'package:talktive_client/src/protocol/private_chat.dart' as _i14;
+import 'package:talktive_client/src/protocol/group_with_membership.dart' as _i7;
+import 'package:talktive_client/src/protocol/resident.dart' as _i8;
+import 'dart:typed_data' as _i9;
+import 'package:talktive_client/src/protocol/message.dart' as _i10;
+import 'package:talktive_client/src/protocol/moment.dart' as _i11;
+import 'package:talktive_client/src/protocol/moment_like.dart' as _i12;
+import 'package:talktive_client/src/protocol/moment_comment.dart' as _i13;
+import 'package:talktive_client/src/protocol/user_notification.dart' as _i14;
+import 'package:talktive_client/src/protocol/private_chat.dart' as _i15;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
-    as _i15;
-import 'package:talktive_client/src/protocol/report.dart' as _i16;
-import 'package:talktive_client/src/protocol/user_streak.dart' as _i17;
-import 'package:talktive_client/src/protocol/daily_reward.dart' as _i18;
-import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i19;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i20;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i21;
-import 'protocol.dart' as _i22;
+    as _i16;
+import 'package:talktive_client/src/protocol/report.dart' as _i17;
+import 'package:talktive_client/src/protocol/user_streak.dart' as _i18;
+import 'package:talktive_client/src/protocol/daily_reward.dart' as _i19;
+import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i20;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i21;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i22;
+import 'protocol.dart' as _i23;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -521,13 +522,13 @@ class EndpointGroup extends _i2.EndpointRef {
     },
   );
 
-  /// Lists all groups (public groups + groups user is a member of).
-  _i3.Future<List<_i6.Group>> listGroups({
+  /// Lists all groups the user considers 'theirs' (joined, invited, applied).
+  _i3.Future<List<_i7.GroupWithMembership>> listMyGroups({
     required int limit,
     required int offset,
-  }) => caller.callServerEndpoint<List<_i6.Group>>(
+  }) => caller.callServerEndpoint<List<_i7.GroupWithMembership>>(
     'group',
-    'listGroups',
+    'listMyGroups',
     {
       'limit': limit,
       'offset': offset,
@@ -542,11 +543,80 @@ class EndpointGroup extends _i2.EndpointRef {
         {'groupId': groupId},
       );
 
-  /// Joins a group.
-  _i3.Future<void> joinGroup(int groupId) => caller.callServerEndpoint<void>(
+  /// Searches for public groups based on a query.
+  _i3.Future<List<_i6.Group>> searchPublicGroups(
+    String query, {
+    required int limit,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_i6.Group>>(
     'group',
-    'joinGroup',
+    'searchPublicGroups',
+    {
+      'query': query,
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Applies to join a public group.
+  _i3.Future<void> applyToGroup(int groupId) => caller.callServerEndpoint<void>(
+    'group',
+    'applyToGroup',
     {'groupId': groupId},
+  );
+
+  /// Invites a user to a group (by any current member or creator).
+  _i3.Future<void> inviteUserToGroup(
+    int groupId,
+    String targetUserIdString,
+  ) => caller.callServerEndpoint<void>(
+    'group',
+    'inviteUserToGroup',
+    {
+      'groupId': groupId,
+      'targetUserIdString': targetUserIdString,
+    },
+  );
+
+  /// Responds to a group invite (accept or decline).
+  _i3.Future<void> respondToGroupInvite(
+    int groupId,
+    bool accept,
+  ) => caller.callServerEndpoint<void>(
+    'group',
+    'respondToGroupInvite',
+    {
+      'groupId': groupId,
+      'accept': accept,
+    },
+  );
+
+  /// Approves or rejects a pending group application (creator only).
+  _i3.Future<void> approveGroupApplication(
+    int groupId,
+    String targetUserIdString,
+    bool approve,
+  ) => caller.callServerEndpoint<void>(
+    'group',
+    'approveGroupApplication',
+    {
+      'groupId': groupId,
+      'targetUserIdString': targetUserIdString,
+      'approve': approve,
+    },
+  );
+
+  /// Kicks a member from the group (creator only).
+  _i3.Future<void> kickMember(
+    int groupId,
+    String targetUserIdString,
+  ) => caller.callServerEndpoint<void>(
+    'group',
+    'kickMember',
+    {
+      'groupId': groupId,
+      'targetUserIdString': targetUserIdString,
+    },
   );
 
   /// Leaves a group.
@@ -557,8 +627,8 @@ class EndpointGroup extends _i2.EndpointRef {
   );
 
   /// Gets all members of a group.
-  _i3.Future<List<_i7.Resident>> getGroupMembers(int groupId) =>
-      caller.callServerEndpoint<List<_i7.Resident>>(
+  _i3.Future<List<_i8.Resident>> getGroupMembers(int groupId) =>
+      caller.callServerEndpoint<List<_i8.Resident>>(
         'group',
         'getGroupMembers',
         {'groupId': groupId},
@@ -660,7 +730,7 @@ class EndpointImage extends _i2.EndpointRef {
   /// - Allowed formats: JPEG, PNG, WebP
   /// - Only authenticated users can upload
   _i3.Future<String> uploadImage(
-    _i8.ByteData imageData,
+    _i9.ByteData imageData,
     String fileName,
   ) => caller.callServerEndpoint<String>(
     'image',
@@ -688,11 +758,11 @@ class EndpointMessage extends _i2.EndpointRef {
   String get name => 'message';
 
   /// Sends a message to a channel (Plaza, Group, or Private).
-  _i3.Future<_i9.Message> sendMessage(
+  _i3.Future<_i10.Message> sendMessage(
     int channelId,
     String content, {
     String? imageUrl,
-  }) => caller.callServerEndpoint<_i9.Message>(
+  }) => caller.callServerEndpoint<_i10.Message>(
     'message',
     'sendMessage',
     {
@@ -703,8 +773,8 @@ class EndpointMessage extends _i2.EndpointRef {
   );
 
   /// Subscribes to a channel to receive real-time messages.
-  _i3.Stream<_i9.Message> subscribe(int channelId) =>
-      caller.callStreamingServerEndpoint<_i3.Stream<_i9.Message>, _i9.Message>(
+  _i3.Stream<_i10.Message> subscribe(int channelId) => caller
+      .callStreamingServerEndpoint<_i3.Stream<_i10.Message>, _i10.Message>(
         'message',
         'subscribe',
         {'channelId': channelId},
@@ -712,11 +782,11 @@ class EndpointMessage extends _i2.EndpointRef {
       );
 
   /// Fetches the history of messages for a channel.
-  _i3.Future<List<_i9.Message>> listMessages(
+  _i3.Future<List<_i10.Message>> listMessages(
     int channelId, {
     required int limit,
     required int offset,
-  }) => caller.callServerEndpoint<List<_i9.Message>>(
+  }) => caller.callServerEndpoint<List<_i10.Message>>(
     'message',
     'listMessages',
     {
@@ -736,10 +806,10 @@ class EndpointMoment extends _i2.EndpointRef {
 
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
-  _i3.Future<_i10.Moment> postMoment({
+  _i3.Future<_i11.Moment> postMoment({
     required String imageUrl,
     required String caption,
-  }) => caller.callServerEndpoint<_i10.Moment>(
+  }) => caller.callServerEndpoint<_i11.Moment>(
     'moment',
     'postMoment',
     {
@@ -749,10 +819,10 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Lists the latest moments.
-  _i3.Future<List<_i10.Moment>> listMoments({
+  _i3.Future<List<_i11.Moment>> listMoments({
     required int limit,
     int? lastId,
-  }) => caller.callServerEndpoint<List<_i10.Moment>>(
+  }) => caller.callServerEndpoint<List<_i11.Moment>>(
     'moment',
     'listMoments',
     {
@@ -777,8 +847,8 @@ class EndpointMoment extends _i2.EndpointRef {
       );
 
   /// Gets likes for a moment.
-  _i3.Future<List<_i11.MomentLike>> getMomentLikes(int momentId) =>
-      caller.callServerEndpoint<List<_i11.MomentLike>>(
+  _i3.Future<List<_i12.MomentLike>> getMomentLikes(int momentId) =>
+      caller.callServerEndpoint<List<_i12.MomentLike>>(
         'moment',
         'getMomentLikes',
         {'momentId': momentId},
@@ -803,10 +873,10 @@ class EndpointMoment extends _i2.EndpointRef {
       );
 
   /// Adds a comment to a moment.
-  _i3.Future<_i12.MomentComment> addComment(
+  _i3.Future<_i13.MomentComment> addComment(
     int momentId,
     String text,
-  ) => caller.callServerEndpoint<_i12.MomentComment>(
+  ) => caller.callServerEndpoint<_i13.MomentComment>(
     'moment',
     'addComment',
     {
@@ -816,10 +886,10 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Gets comments for a moment.
-  _i3.Future<List<_i12.MomentComment>> getMomentComments(
+  _i3.Future<List<_i13.MomentComment>> getMomentComments(
     int momentId, {
     required int limit,
-  }) => caller.callServerEndpoint<List<_i12.MomentComment>>(
+  }) => caller.callServerEndpoint<List<_i13.MomentComment>>(
     'moment',
     'getMomentComments',
     {
@@ -845,11 +915,11 @@ class EndpointNotification extends _i2.EndpointRef {
   String get name => 'notification';
 
   /// Gets user's notifications.
-  _i3.Future<List<_i13.UserNotification>> getUserNotifications({
+  _i3.Future<List<_i14.UserNotification>> getUserNotifications({
     required int limit,
     required int offset,
     required bool unreadOnly,
-  }) => caller.callServerEndpoint<List<_i13.UserNotification>>(
+  }) => caller.callServerEndpoint<List<_i14.UserNotification>>(
     'notification',
     'getUserNotifications',
     {
@@ -905,25 +975,25 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
-  _i3.Future<_i14.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
-      caller.callServerEndpoint<_i14.PrivateChat>(
+  _i3.Future<_i15.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
+      caller.callServerEndpoint<_i15.PrivateChat>(
         'privateChat',
         'getOrCreatePrivateChat',
         {'otherUserId': otherUserId},
       );
 
   /// Lists all private chats for the current user.
-  _i3.Future<List<_i15.PrivateChatWithProfile>> listPrivateChats() =>
-      caller.callServerEndpoint<List<_i15.PrivateChatWithProfile>>(
+  _i3.Future<List<_i16.PrivateChatWithProfile>> listPrivateChats() =>
+      caller.callServerEndpoint<List<_i16.PrivateChatWithProfile>>(
         'privateChat',
         'listPrivateChats',
         {},
       );
 
   /// Gets details about a private chat including the other participant's info.
-  _i3.Future<_i15.PrivateChatWithProfile> getPrivateChatDetails(
+  _i3.Future<_i16.PrivateChatWithProfile> getPrivateChatDetails(
     int channelId,
-  ) => caller.callServerEndpoint<_i15.PrivateChatWithProfile>(
+  ) => caller.callServerEndpoint<_i16.PrivateChatWithProfile>(
     'privateChat',
     'getPrivateChatDetails',
     {'channelId': channelId},
@@ -989,10 +1059,10 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i16.Report>> listReports({
+  _i3.Future<List<_i17.Report>> listReports({
     required int limit,
     required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i16.Report>>(
+  }) => caller.callServerEndpoint<List<_i17.Report>>(
     'report',
     'listReports',
     {
@@ -1031,16 +1101,16 @@ class EndpointResident extends _i2.EndpointRef {
   String get name => 'resident';
 
   /// Checks if the authenticated user has a Resident profile.
-  _i3.Future<_i7.Resident?> getResident() =>
-      caller.callServerEndpoint<_i7.Resident?>(
+  _i3.Future<_i8.Resident?> getResident() =>
+      caller.callServerEndpoint<_i8.Resident?>(
         'resident',
         'getResident',
         {},
       );
 
   /// Fetches a Resident profile by their user ID.
-  _i3.Future<_i7.Resident?> getResidentById(String userId) =>
-      caller.callServerEndpoint<_i7.Resident?>(
+  _i3.Future<_i8.Resident?> getResidentById(String userId) =>
+      caller.callServerEndpoint<_i8.Resident?>(
         'resident',
         'getResidentById',
         {'userId': userId},
@@ -1049,7 +1119,7 @@ class EndpointResident extends _i2.EndpointRef {
   /// Initializes a Resident profile for an authenticated user.
   /// This overwrites any existing UserProfile data (e.g. from Google) with
   /// the chosen anonymous persona.
-  _i3.Future<_i7.Resident> initializeResident({
+  _i3.Future<_i8.Resident> initializeResident({
     required String name,
     required String avatar,
     required String gender,
@@ -1058,7 +1128,7 @@ class EndpointResident extends _i2.EndpointRef {
     List<String>? interests,
     List<String>? languages,
     required String mood,
-  }) => caller.callServerEndpoint<_i7.Resident>(
+  }) => caller.callServerEndpoint<_i8.Resident>(
     'resident',
     'initializeResident',
     {
@@ -1074,7 +1144,7 @@ class EndpointResident extends _i2.EndpointRef {
   );
 
   /// Updates an existing Resident's profile details.
-  _i3.Future<_i7.Resident> updateResident({
+  _i3.Future<_i8.Resident> updateResident({
     required String name,
     required String avatar,
     required String gender,
@@ -1083,7 +1153,7 @@ class EndpointResident extends _i2.EndpointRef {
     List<String>? interests,
     List<String>? languages,
     String? mood,
-  }) => caller.callServerEndpoint<_i7.Resident>(
+  }) => caller.callServerEndpoint<_i8.Resident>(
     'resident',
     'updateResident',
     {
@@ -1133,8 +1203,8 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Get trending moments (most liked in last 7 days) - CACHED
-  _i3.Future<List<_i10.Moment>> getTrendingMoments({required int limit}) =>
-      caller.callServerEndpoint<List<_i10.Moment>>(
+  _i3.Future<List<_i11.Moment>> getTrendingMoments({required int limit}) =>
+      caller.callServerEndpoint<List<_i11.Moment>>(
         'search',
         'getTrendingMoments',
         {'limit': limit},
@@ -1157,10 +1227,10 @@ class EndpointSearch extends _i2.EndpointRef {
       );
 
   /// Get recent moments (for discovery feed)
-  _i3.Future<List<_i10.Moment>> getRecentMoments({
+  _i3.Future<List<_i11.Moment>> getRecentMoments({
     required int limit,
     required int offset,
-  }) => caller.callServerEndpoint<List<_i10.Moment>>(
+  }) => caller.callServerEndpoint<List<_i11.Moment>>(
     'search',
     'getRecentMoments',
     {
@@ -1217,8 +1287,8 @@ class EndpointStreak extends _i2.EndpointRef {
   String get name => 'streak';
 
   /// Gets the current user's streak data.
-  _i3.Future<_i17.UserStreak?> getUserStreak() =>
-      caller.callServerEndpoint<_i17.UserStreak?>(
+  _i3.Future<_i18.UserStreak?> getUserStreak() =>
+      caller.callServerEndpoint<_i18.UserStreak?>(
         'streak',
         'getUserStreak',
         {},
@@ -1232,16 +1302,16 @@ class EndpointStreak extends _i2.EndpointRef {
   );
 
   /// Claims the daily reward.
-  _i3.Future<_i18.DailyReward> claimDailyReward() =>
-      caller.callServerEndpoint<_i18.DailyReward>(
+  _i3.Future<_i19.DailyReward> claimDailyReward() =>
+      caller.callServerEndpoint<_i19.DailyReward>(
         'streak',
         'claimDailyReward',
         {},
       );
 
   /// Gets the user's reward history.
-  _i3.Future<List<_i18.DailyReward>> getRewardHistory({required int limit}) =>
-      caller.callServerEndpoint<List<_i18.DailyReward>>(
+  _i3.Future<List<_i19.DailyReward>> getRewardHistory({required int limit}) =>
+      caller.callServerEndpoint<List<_i19.DailyReward>>(
         'streak',
         'getRewardHistory',
         {'limit': limit},
@@ -1290,8 +1360,8 @@ class EndpointUserProfile extends _i2.EndpointRef {
   String get name => 'userProfile';
 
   /// Get a user's profile by their user ID
-  _i3.Future<_i19.UserProfileView?> getUserProfile(String userId) =>
-      caller.callServerEndpoint<_i19.UserProfileView?>(
+  _i3.Future<_i20.UserProfileView?> getUserProfile(String userId) =>
+      caller.callServerEndpoint<_i20.UserProfileView?>(
         'userProfile',
         'getUserProfile',
         {'userId': userId},
@@ -1339,8 +1409,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i20.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i20.Greeting>(
+  _i3.Future<_i21.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i21.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1351,14 +1421,14 @@ class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
-    auth = _i21.Caller(client);
+    auth = _i22.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
   late final _i4.Caller serverpod_auth_core;
 
-  late final _i21.Caller auth;
+  late final _i22.Caller auth;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -1381,7 +1451,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i22.Protocol(),
+         _i23.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

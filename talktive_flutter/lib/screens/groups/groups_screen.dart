@@ -11,6 +11,7 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import 'group_chat_screen.dart';
 import 'create_group_dialog.dart';
+import 'group_search_screen.dart';
 
 /// Duolingo-style Groups screen - Community discussions
 class GroupsScreen extends ConsumerWidget {
@@ -25,6 +26,18 @@ class GroupsScreen extends ConsumerWidget {
       title: 'Groups',
       subtitle: 'Join communities',
       gradient: AppTheme.duoBlueGradient,
+      trailingHeader: IconButton(
+        icon: const Icon(Icons.search, color: Colors.white, size: 28),
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const GroupSearchScreen(),
+            ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'groups_fab',
         onPressed: () {
@@ -38,30 +51,58 @@ class GroupsScreen extends ConsumerWidget {
         child: const Icon(Icons.add, size: 28),
       ).animate().scale(delay: 300.ms, duration: 300.ms),
       body: groupsState.when(
-        data: (groups) => groups.isEmpty
-            ? _buildEmptyState(context)
-            : RefreshIndicator(
-                onRefresh: () async {
-                  await ref.read(groupListProvider.notifier).refresh();
-                },
-                color: AppTheme.primaryColor,
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppTheme.duoSpacingMedium,
-                    AppTheme.duoSpacingMedium,
-                    AppTheme.duoSpacingMedium,
-                    AppTheme.contentBottomPadding,
-                  ),
-                  itemCount: groups.length,
-                  itemBuilder: (context, index) {
-                    final group = groups[index];
-                    return _buildGroupCard(context, ref, group, index)
-                        .animate(delay: Duration(milliseconds: index * 50))
-                        .fadeIn(duration: 300.ms)
-                        .slideX(begin: -0.1, end: 0);
-                  },
-                ),
+        data: (groups) {
+          if (groups.isEmpty) return _buildEmptyState(context);
+
+          final pendingGroups = groups.where((g) => g.membershipStatus == ChannelMemberStatus.invited || g.membershipStatus == ChannelMemberStatus.applied).toList();
+          final activeGroups = groups.where((g) => g.membershipStatus == ChannelMemberStatus.joined).toList();
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(groupListProvider.notifier).refresh();
+            },
+            color: AppTheme.primaryColor,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.duoSpacingMedium,
+                AppTheme.duoSpacingMedium,
+                AppTheme.duoSpacingMedium,
+                AppTheme.contentBottomPadding,
               ),
+              children: [
+                if (pendingGroups.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      '🎫 The Doorstep',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ),
+                  ...pendingGroups.asMap().entries.map((entry) => _buildPendingCard(context, ref, entry.value, entry.key)),
+                  const SizedBox(height: AppTheme.duoSpacingMedium),
+                ],
+                if (activeGroups.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      '🛋️ My Lounges',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ),
+                  ...activeGroups.asMap().entries.map((entry) => _buildGroupCard(context, ref, entry.value, entry.key)),
+                ],
+              ],
+            ),
+          );
+        },
         loading: () => const DuoLoadingIndicator(),
         error: (error, stack) => _buildErrorState(context, ref, error),
       ),
@@ -102,9 +143,10 @@ class GroupsScreen extends ConsumerWidget {
   Widget _buildGroupCard(
     BuildContext context,
     WidgetRef ref,
-    Group group,
+    GroupWithMembership groupWithMembership,
     int index,
   ) {
+    final group = groupWithMembership.group;
     return DuoCard(
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       onTap: () {
@@ -207,6 +249,95 @@ class GroupsScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ).animate(delay: Duration(milliseconds: index * 50)).fadeIn(duration: 300.ms).slideX(begin: -0.1, end: 0);
+  }
+
+  Widget _buildPendingCard(
+    BuildContext context,
+    WidgetRef ref,
+    GroupWithMembership groupWithMembership,
+    int index,
+  ) {
+    final group = groupWithMembership.group;
+    final isInvite = groupWithMembership.membershipStatus == ChannelMemberStatus.invited;
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+      decoration: BoxDecoration(
+        color: isInvite ? AppTheme.duoYellow.withOpacity(0.15) : AppTheme.duoBlue.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+        border: Border.all(
+          color: isInvite ? AppTheme.duoYellow : AppTheme.duoBlue,
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(group.emoji ?? '👥', style: const TextStyle(fontSize: 24)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      isInvite ? 'invited you to join' : 'Pending host approval',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (isInvite) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      ref.read(groupListProvider.notifier).respondToInvite(group.channelId, false);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.duoRed,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: const Text('Decline', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      ref.read(groupListProvider.notifier).respondToInvite(group.channelId, true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.duoGreen,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: const Text('Accept', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ]
+        ],
+      ),
+    ).animate(delay: Duration(milliseconds: index * 50)).fadeIn(duration: 300.ms).slideX(begin: -0.1, end: 0);
   }
 }

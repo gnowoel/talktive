@@ -35,9 +35,14 @@ admin:
   - getArchivalStats:
 group:
   - createGroup:
-  - listGroups:
+  - listMyGroups:
   - getGroup:
-  - joinGroup:
+  - searchPublicGroups:
+  - applyToGroup:
+  - inviteUserToGroup:
+  - respondToGroupInvite:
+  - approveGroupApplication:
+  - kickMember:
   - leaveGroup:
   - getGroupMembers:
   - updateGroup:

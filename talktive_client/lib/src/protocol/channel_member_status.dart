@@ -16,7 +16,8 @@ enum ChannelMemberStatus implements _i1.SerializableModel {
   invited,
   joined,
   left,
-  declined;
+  declined,
+  applied;
 
   static ChannelMemberStatus fromJson(String name) {
     switch (name) {
@@ -28,6 +29,8 @@ enum ChannelMemberStatus implements _i1.SerializableModel {
         return ChannelMemberStatus.left;
       case 'declined':
         return ChannelMemberStatus.declined;
+      case 'applied':
+        return ChannelMemberStatus.applied;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "ChannelMemberStatus"',

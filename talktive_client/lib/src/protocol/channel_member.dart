@@ -21,6 +21,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     required this.joinedAt,
     this.role,
     required this.status,
+    this.invitedBy,
   });
 
   factory ChannelMember({
@@ -30,6 +31,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     required DateTime joinedAt,
     String? role,
     required _i2.ChannelMemberStatus status,
+    _i1.UuidValue? invitedBy,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -46,6 +48,9 @@ abstract class ChannelMember implements _i1.SerializableModel {
       status: _i2.ChannelMemberStatus.fromJson(
         (jsonSerialization['status'] as String),
       ),
+      invitedBy: jsonSerialization['invitedBy'] == null
+          ? null
+          : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['invitedBy']),
     );
   }
 
@@ -64,6 +69,8 @@ abstract class ChannelMember implements _i1.SerializableModel {
 
   _i2.ChannelMemberStatus status;
 
+  _i1.UuidValue? invitedBy;
+
   /// Returns a shallow copy of this [ChannelMember]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -74,6 +81,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     DateTime? joinedAt,
     String? role,
     _i2.ChannelMemberStatus? status,
+    _i1.UuidValue? invitedBy,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -85,6 +93,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
       'joinedAt': joinedAt.toJson(),
       if (role != null) 'role': role,
       'status': status.toJson(),
+      if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
     };
   }
 
@@ -104,6 +113,7 @@ class _ChannelMemberImpl extends ChannelMember {
     required DateTime joinedAt,
     String? role,
     required _i2.ChannelMemberStatus status,
+    _i1.UuidValue? invitedBy,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -111,6 +121,7 @@ class _ChannelMemberImpl extends ChannelMember {
          joinedAt: joinedAt,
          role: role,
          status: status,
+         invitedBy: invitedBy,
        );
 
   /// Returns a shallow copy of this [ChannelMember]
@@ -124,6 +135,7 @@ class _ChannelMemberImpl extends ChannelMember {
     DateTime? joinedAt,
     Object? role = _Undefined,
     _i2.ChannelMemberStatus? status,
+    Object? invitedBy = _Undefined,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
@@ -132,6 +144,7 @@ class _ChannelMemberImpl extends ChannelMember {
       joinedAt: joinedAt ?? this.joinedAt,
       role: role is String? ? role : this.role,
       status: status ?? this.status,
+      invitedBy: invitedBy is _i1.UuidValue? ? invitedBy : this.invitedBy,
     );
   }
 }

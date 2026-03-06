@@ -1,0 +1,5 @@
+class: GroupWithMembership
+fields:
+  group: Group
+  membershipStatus: ChannelMemberStatus?
+  membershipRole: String?

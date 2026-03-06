@@ -820,8 +820,8 @@ class Endpoints extends _i1.EndpointDispatch {
                 maxMembers: params['maxMembers'],
               ),
         ),
-        'listGroups': _i1.MethodConnector(
-          name: 'listGroups',
+        'listMyGroups': _i1.MethodConnector(
+          name: 'listMyGroups',
           params: {
             'limit': _i1.ParameterDescription(
               name: 'limit',
@@ -838,7 +838,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).listGroups(
+              ) async => (endpoints['group'] as _i7.GroupEndpoint).listMyGroups(
                 session,
                 limit: params['limit'],
                 offset: params['offset'],
@@ -862,8 +862,39 @@ class Endpoints extends _i1.EndpointDispatch {
                 params['groupId'],
               ),
         ),
-        'joinGroup': _i1.MethodConnector(
-          name: 'joinGroup',
+        'searchPublicGroups': _i1.MethodConnector(
+          name: 'searchPublicGroups',
+          params: {
+            'query': _i1.ParameterDescription(
+              name: 'query',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['group'] as _i7.GroupEndpoint).searchPublicGroups(
+                    session,
+                    params['query'],
+                    limit: params['limit'],
+                    offset: params['offset'],
+                  ),
+        ),
+        'applyToGroup': _i1.MethodConnector(
+          name: 'applyToGroup',
           params: {
             'groupId': _i1.ParameterDescription(
               name: 'groupId',
@@ -875,9 +906,114 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).joinGroup(
+              ) async => (endpoints['group'] as _i7.GroupEndpoint).applyToGroup(
                 session,
                 params['groupId'],
+              ),
+        ),
+        'inviteUserToGroup': _i1.MethodConnector(
+          name: 'inviteUserToGroup',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'targetUserIdString': _i1.ParameterDescription(
+              name: 'targetUserIdString',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['group'] as _i7.GroupEndpoint).inviteUserToGroup(
+                    session,
+                    params['groupId'],
+                    params['targetUserIdString'],
+                  ),
+        ),
+        'respondToGroupInvite': _i1.MethodConnector(
+          name: 'respondToGroupInvite',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'accept': _i1.ParameterDescription(
+              name: 'accept',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['group'] as _i7.GroupEndpoint)
+                  .respondToGroupInvite(
+                    session,
+                    params['groupId'],
+                    params['accept'],
+                  ),
+        ),
+        'approveGroupApplication': _i1.MethodConnector(
+          name: 'approveGroupApplication',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'targetUserIdString': _i1.ParameterDescription(
+              name: 'targetUserIdString',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'approve': _i1.ParameterDescription(
+              name: 'approve',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['group'] as _i7.GroupEndpoint)
+                  .approveGroupApplication(
+                    session,
+                    params['groupId'],
+                    params['targetUserIdString'],
+                    params['approve'],
+                  ),
+        ),
+        'kickMember': _i1.MethodConnector(
+          name: 'kickMember',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'targetUserIdString': _i1.ParameterDescription(
+              name: 'targetUserIdString',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['group'] as _i7.GroupEndpoint).kickMember(
+                session,
+                params['groupId'],
+                params['targetUserIdString'],
               ),
         ),
         'leaveGroup': _i1.MethodConnector(

@@ -15,6 +15,8 @@ import '../../config/languages.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
+import '../../providers/group_provider.dart';
+import '../../helpers/snackbar_helper.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -603,11 +605,24 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           bottom: AppTheme.duoSpacingMedium,
           top: AppTheme.duoSpacingSmall,
         ),
-        child: DuoButton(
-          text: 'Knock on Door',
-          icon: Icons.chat_bubble_outline,
-          width: double.infinity,
-          onPressed: () => _knockOnDoor(context, ref),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DuoButton(
+              text: 'Knock on Door',
+              icon: Icons.chat_bubble_outline,
+              width: double.infinity,
+              onPressed: () => _knockOnDoor(context, ref),
+            ),
+            const SizedBox(height: AppTheme.duoSpacingSmall),
+            DuoButton(
+              text: '🎟️ Invite to Group',
+              color: AppTheme.duoYellow,
+              width: double.infinity,
+              onPressed: () => _showInviteBottomSheet(context, ref),
+            ),
+          ],
         ),
       ),
     );
@@ -626,11 +641,110 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         })
         .catchError((error) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to knock on door: $error')),
-            );
+            SnackBarHelper.showError(context, 'Failed to knock on door: $error');
           }
         });
+  }
+
+  void _showInviteBottomSheet(BuildContext context, WidgetRef ref) async {
+    final groupsState = await ref.read(groupListProvider.notifier).fetchGroups();
+    
+    // Only show groups where the user is actually joined
+    final activeGroups = groupsState.where((g) => g.membershipStatus == ChannelMemberStatus.joined).toList();
+
+    if (!context.mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+            minHeight: MediaQuery.of(context).size.height * 0.3,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              const Text(
+                'Slip a flyer under the door',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Invite them to one of your clubs',
+                style: TextStyle(color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              if (activeGroups.isEmpty)
+                const Expanded(
+                  child: Center(
+                    child: Text(
+                      'You are not a member of any clubs yet!',
+                      style: TextStyle(color: AppTheme.textSecondary),
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: activeGroups.length,
+                    itemBuilder: (context, index) {
+                      final group = activeGroups[index].group;
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppTheme.duoYellow.withOpacity(0.2),
+                          child: Text(group.emoji ?? '👥'),
+                        ),
+                        title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text('${group.memberCount} members'),
+                        trailing: DuoButton(
+                          text: 'Invite',
+                          color: AppTheme.duoGreen,
+                          onPressed: () async {
+                            HapticFeedback.lightImpact();
+                            Navigator.pop(context); // Close sheet immediately
+                            try {
+                              final client = ref.read(clientProvider);
+                              await client.group.inviteUserToGroup(group.id!, widget.userId);
+                              if (context.mounted) {
+                                SnackBarHelper.showSuccess(context, 'Flyer slipped under the door!');
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                SnackBarHelper.showError(context, e.toString().contains('Exception:') ? e.toString().split('Exception: ')[1] : 'Could not invite user');
+                              }
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _reportUser(BuildContext context, WidgetRef ref) {

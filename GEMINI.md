@@ -179,10 +179,10 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Codebase Simplification**: Deleted redundant legacy screens (`_screen.dart`), stripped `_modern` suffixes from all active Duolingo-styled UI files, and renamed widget classes to remove the `Modern` branding.
 
 - Phase 8.12: Serverpod API & Database Optimizations (March 2026)
-  - **Query Reduction**: Reduced N+1 query overhead in high-throughput endpoints (like `MessageEndpoint.sendMessage`) which previously executed ~9 separate SQL statements per message.
+  - **Query Reduction**: Reduced N+1 query overhead in high-throughput endpoints (like `MessageEndpoint.sendMessage`) and restricted listings (`GroupEndpoint.getGroupMembersWithProfiles`).
   - **Name Denormalization**: Added `userName` directly onto the `Resident` model to eliminate cross-module `UserInfo` table lookups for every chat message.
-  - **Achievement Batching**: Drafted `trackMultipleProgress` in `AchievementService` to batch achievement lookups and progress updates into a single database transaction.
-  - **Login Saves**: Refactored `GamificationService` and `ApartmentService` to use a `save` flag, enabling `ResidentEndpoint` to coalesce sequential `.updateRow()` queries into a single conditionally tracked batch update.
+  - **Achievement Batching**: Implemented `trackMultipleProgress` in `AchievementService` to batch achievement lookups and progress updates into a single database transaction.
+  - **Login & Message Saves**: Refactored `GamificationService` and `ApartmentService` to use a `save` flag, enabling `ResidentEndpoint` and `MessageEndpoint` to coalesce sequential `.updateRow()` queries into a single batched save.
 
 - Phase 8.13: Privacy & Doorbell System (March 2026)
   - **The Doorbell & Peephole Metaphor**: To protect users from receiving unprompted messages from strangers, we built an invite-based private chat system.
@@ -216,6 +216,14 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Interactive Stats**: Added clickable "Members" count to jump into the `GroupMembersScreen`.
   - **Verified Creator Section**: Added a "Club Host" section with the creator's avatar and level, linking to their full user profile.
   - **Backend Validation**: Hardened `GroupEndpoint.updateGroup` with `InputValidationService` to ensure consistent data integrity across creation and editing.
+
+- Phase 8.17: Deployment & Critical Bug Fixes (March 2026)
+  - **Flutter Build Resolution**: Fixed critical compilation errors in `DuoButton`, `MomentsScreen`, `GroupsScreen`, and `GroupChatScreen`. 
+  - **Component Versatility**: Enhanced `DuoButton` with `secondaryIcon` support and animated sparkle effects for premium feedback.
+  - **Provider Consolidation**: Merged redundant `resident_provider.dart` into `current_resident_provider.dart` to eliminate naming collisions and ensure consistent auth-aware state.
+  - **UI Integrity**: Fixed broken gradients and missing type conversions in `BoxDecoration` across several screens.
+  - **Safety UI**: Updated `BlockedUsersScreen` to use actual resident names and avatars instead of generic placeholders.
+  - **App Deployment**: Successfully started Serverpod server with migrations and launched the Flutter web app.
 
 **Status:** 🏗️ In Progress
 

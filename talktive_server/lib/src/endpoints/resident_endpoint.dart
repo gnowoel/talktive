@@ -3,19 +3,17 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class ResidentEndpoint extends Endpoint {
+class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Checks if the authenticated user has a Resident profile.
   Future<Resident?> getResident(Session session) async {
-    final authenticationInfo = session.authenticated;
-
-    final senderIdentifier = authenticationInfo?.userIdentifier;
-
-    if (senderIdentifier == null) {
+    final auth = session.authenticated;
+    if (auth == null || auth.userIdentifier == null) {
       return null;
     }
 
-    final senderUuid = UuidValue.fromString(senderIdentifier);
+    final senderUuid = UuidValue.fromString(auth.userIdentifier!);
 
     final resident = await Resident.db.findFirstRow(
       session,
@@ -68,14 +66,7 @@ class ResidentEndpoint extends Endpoint {
     List<String>? languages,
     String mood = '😊',
   }) async {
-    final authenticationInfo = session.authenticated;
-    final senderIdentifier = authenticationInfo?.userIdentifier;
-
-    if (senderIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final senderUuid = UuidValue.fromString(senderIdentifier);
+    final senderUuid = await getUserId(session);
 
     // 1. Check if resident already exists
     var resident = await Resident.db.findFirstRow(
@@ -172,19 +163,8 @@ class ResidentEndpoint extends Endpoint {
     List<String>? languages,
     String? mood,
   }) async {
-    final authenticationInfo = session.authenticated;
-    final senderIdentifier = authenticationInfo?.userIdentifier;
-
-    if (senderIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final senderUuid = UuidValue.fromString(senderIdentifier);
-
-    var resident = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(senderUuid),
-    );
+    final senderUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, senderUuid);
 
     if (resident == null) {
       throw Exception('Resident profile not found.');

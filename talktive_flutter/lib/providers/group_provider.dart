@@ -186,3 +186,10 @@ Future<List<Resident>> groupMembers(Ref ref, int groupId) async {
     rethrow;
   }
 }
+
+/// Provider for getting a single group with membership from the current user.
+@riverpod
+Future<GroupWithMembership?> groupWithMembership(Ref ref, int groupId) async {
+  final groups = await ref.watch(groupListProvider.future);
+  return groups.where((g) => g.group.id == groupId).firstOrNull;
+}

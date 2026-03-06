@@ -3,8 +3,9 @@ import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class ReportEndpoint extends Endpoint {
+class ReportEndpoint extends Endpoint with EndpointAuthMixin {
   /// Reports a user for inappropriate behavior.
   /// Implements abuse prevention:
   /// - Floor 0 users cannot report
@@ -34,12 +35,7 @@ class ReportEndpoint extends Endpoint {
       ).throwIfInvalid();
     }
 
-    final reporterIdentifier = session.authenticated?.userIdentifier;
-    if (reporterIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final reporterUuid = UuidValue.fromString(reporterIdentifier);
+    final reporterUuid = await getUserId(session);
     final targetUuid = UuidValue.fromString(targetUserId);
 
     // Cannot report yourself
@@ -48,13 +44,7 @@ class ReportEndpoint extends Endpoint {
     }
 
     // Fetch reporter
-    final reporter = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(reporterUuid),
-    );
-    if (reporter == null) {
-      throw Exception('Reporter profile not found');
-    }
+    final reporter = await getResidentProfile(session, reporterUuid);
 
     // Effective floor ≥ 1 required to report (prevents abuse from new
     // accounts and from trustScore-restricted users)
@@ -209,20 +199,7 @@ class ReportEndpoint extends Endpoint {
     int limit = 50,
     bool onlyUnresolved = true,
   }) async {
-    final reporterIdentifier = session.authenticated?.userIdentifier;
-    if (reporterIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final reporterUuid = UuidValue.fromString(reporterIdentifier);
-    final reporter = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(reporterUuid),
-    );
-
-    if (reporter?.role != 'admin') {
-      throw Exception('Admin access required');
-    }
+    await getAdminProfile(session);
 
     return await protocol.Report.db.find(
       session,
@@ -241,20 +218,7 @@ class ReportEndpoint extends Endpoint {
     int reportId,
     bool approved,
   ) async {
-    final reporterIdentifier = session.authenticated?.userIdentifier;
-    if (reporterIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final reporterUuid = UuidValue.fromString(reporterIdentifier);
-    final reporter = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(reporterUuid),
-    );
-
-    if (reporter?.role != 'admin') {
-      throw Exception('Admin access required');
-    }
+    await getAdminProfile(session);
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
@@ -277,20 +241,7 @@ class ReportEndpoint extends Endpoint {
     // Validate inputs
     InputValidationService.validateId(reportId, 'Report ID').throwIfInvalid();
 
-    final adminIdentifier = session.authenticated?.userIdentifier;
-    if (adminIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final adminUuid = UuidValue.fromString(adminIdentifier);
-    final admin = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(adminUuid),
-    );
-
-    if (admin?.role != 'admin') {
-      throw Exception('Admin access required');
-    }
+    await getAdminProfile(session);
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {

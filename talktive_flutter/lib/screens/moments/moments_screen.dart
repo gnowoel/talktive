@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import 'package:talktive/serverpod_client.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
-import '../../helpers/date_formatter.dart';
-import '../../utils/error_handler.dart';
+import '../../providers/moments_provider.dart';
+import '../../providers/current_resident_provider.dart';
+import '../../helpers/snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
@@ -14,6 +14,7 @@ import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_moment_card.dart';
 import '../profile/user_profile_view_screen.dart';
 
 /// Duolingo-style Moments screen - Photo feed
@@ -21,125 +22,99 @@ class MomentsScreen extends ConsumerStatefulWidget {
   const MomentsScreen({super.key});
 
   @override
-  ConsumerState<MomentsScreen> createState() =>
-      _MomentsScreenState();
+  ConsumerState<MomentsScreen> createState() => _MomentsScreenState();
 }
 
 class _MomentsScreenState extends ConsumerState<MomentsScreen> {
-  List<Moment>? _moments;
-  bool _isLoading = true;
-  String? _error;
-  final Set<int> _likedMoments = {}; // Track liked moments
+  final _captionController = TextEditingController();
+  final _urlController = TextEditingController(text: 'https://picsum.photos/400/300');
 
   @override
-  void initState() {
-    super.initState();
-    _loadMoments();
+  void dispose() {
+    _captionController.dispose();
+    _urlController.dispose();
+    super.dispose();
   }
 
-  Future<void> _loadMoments() async {
+  Future<void> _postMoment() async {
+    final caption = _captionController.text.trim();
+    final imageUrl = _urlController.text.trim();
+    
+    if (imageUrl.isEmpty) return;
+
     try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
-      final moments = await client.moment.listMoments(limit: 20);
-
-      // Check which moments are liked
-      _likedMoments.clear();
-      for (final moment in moments) {
-        final isLiked = await client.moment.hasLikedMoment(moment.id!);
-        if (isLiked) {
-          _likedMoments.add(moment.id!);
-        }
-      }
-
-      setState(() {
-        _moments = moments;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _postMoment(String caption, String imageUrl) async {
-    try {
-      await client.moment.postMoment(imageUrl: imageUrl, caption: caption);
+      await ref.read(momentsProvider.notifier).postMoment(
+        imageUrl: imageUrl, 
+        caption: caption,
+      );
       if (mounted) {
         Navigator.pop(context);
-        _loadMoments();
-        ErrorHandler.showSuccess(context, 'Moment posted! 🎉');
+        _captionController.clear();
+        SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
       }
     } catch (e) {
       if (mounted) {
-        final errorMessage = ErrorHandler.getErrorMessage(e);
-
-        if (errorMessage.contains('Floor 2')) {
-          // Show a nice dialog for the floor restriction
-          showDialog(
-            context: context,
-            builder: (context) => Dialog(
-              backgroundColor: Colors.transparent,
-              child: DuoCard(
-                padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('🔒', style: TextStyle(fontSize: 48)),
-                    const SizedBox(height: AppTheme.duoSpacingMedium),
-                    const Text(
-                      'Level Up Required!',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppTheme.duoSpacingSmall),
-                    Text(
-                      errorMessage,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondary,
-                        fontFamily: 'Rubik',
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppTheme.duoSpacingLarge),
-                    DuoButton(
-                      text: 'Got it',
-                      onPressed: () => Navigator.pop(context),
-                      width: double.infinity,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+        final errorMessage = e.toString();
+        if (errorMessage.contains('Level 10')) {
+          _showLevelRequirementDialog(errorMessage);
         } else {
-          ErrorHandler.showError(context, e);
+          SnackBarHelper.showError(context, e.toString());
         }
       }
     }
+  }
+
+  void _showLevelRequirementDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: DuoCard(
+          padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🏢', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: AppTheme.duoSpacingMedium),
+              const Text(
+                'High-Rise Access Required',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppTheme.duoSpacingSmall),
+              Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textSecondary,
+                  fontFamily: 'Rubik',
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              DuoButton(
+                text: 'Got it',
+                onPressed: () => Navigator.pop(context),
+                width: double.infinity,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _showCreateDialog() {
-    final captionController = TextEditingController();
-    final urlController = TextEditingController(
-      text: 'https://picsum.photos/400/300',
-    );
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.9,
+        height: MediaQuery.of(context).size.height * 0.8,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(
@@ -152,9 +127,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             Container(
               padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
-                ),
+                gradient: AppTheme.secondaryGradient,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(AppTheme.duoRadiusLarge),
                 ),
@@ -192,14 +165,14 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     DuoInput(
-                      controller: urlController,
+                      controller: _urlController,
                       labelText: 'Image URL',
                       hintText: 'https://example.com/image.jpg',
                       prefixIcon: Icons.link,
                     ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
                     DuoInput(
-                      controller: captionController,
+                      controller: _captionController,
                       labelText: 'Caption',
                       hintText: "What's happening?",
                       maxLines: 4,
@@ -217,12 +190,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 child: DuoButton(
                   text: 'Post Moment',
                   icon: Icons.send,
+                  secondaryIcon: Icons.auto_awesome,
                   width: double.infinity,
-                  onPressed: () {
-                    if (urlController.text.isNotEmpty) {
-                      _postMoment(captionController.text, urlController.text);
-                    }
-                  },
+                  onPressed: _postMoment,
                 ),
               ),
             ),
@@ -257,309 +227,116 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           ],
         ),
         child: FloatingActionButton(
-          heroTag: 'moments_modern_fab',
+          heroTag: 'moments_fab',
           onPressed: _showCreateDialog,
           backgroundColor: Colors.transparent,
           elevation: 0,
           child: const Icon(Icons.add_a_photo, color: Colors.white),
         ),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
-      body: _buildBody(ref.watch(blockedUsersProvider).value ?? []),
+      body: _buildBody(),
     );
   }
 
-  Widget _buildBody(List<String> blockedUsers) {
-    if (_isLoading) {
-      return const DuoLoadingIndicator();
-    }
+  Widget _buildBody() {
+    final momentsAsync = ref.watch(momentsProvider);
+    final blockedUsers = ref.watch(blockedUsersProvider).value ?? [];
+    final likedMoments = ref.watch(momentLikesProvider).value ?? {};
 
-    if (_error != null) {
-      return Center(
+    return momentsAsync.when(
+      data: (moments) {
+        if (moments.isEmpty) {
+          return DuoEmptyState(
+            emoji: '📷',
+            title: 'No moments yet',
+            subtitle: 'Share your first photo!',
+            buttonText: 'Create Moment',
+            onButtonPressed: _showCreateDialog,
+          );
+        }
+
+        final filteredMoments = moments
+            .where((m) => !blockedUsers.contains(m.authorId.toString()))
+            .toList();
+
+        if (filteredMoments.isEmpty && moments.isNotEmpty) {
+          return const DuoEmptyState(
+            emoji: '🙈',
+            title: 'No moments to show',
+            subtitle: 'The only moments available are from users you have blocked.',
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(momentsProvider);
+            ref.invalidate(momentLikesProvider);
+          },
+          color: AppTheme.primaryColor,
+          child: ListView.builder(
+            padding: const EdgeInsets.only(
+              left: AppTheme.duoSpacingMedium,
+              right: AppTheme.duoSpacingMedium,
+              bottom: AppTheme.contentBottomPadding,
+            ),
+            itemCount: filteredMoments.length,
+            itemBuilder: (context, index) {
+              final moment = filteredMoments[index];
+              return DuoMomentCard(
+                moment: moment,
+                index: index,
+                isLiked: likedMoments.contains(moment.id),
+                onLike: () => _toggleLike(moment, likedMoments.contains(moment.id)),
+                onComment: () => _showComments(moment),
+                onAuthorTap: () => _navigateToProfile(moment),
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const DuoLoadingIndicator(),
+      error: (error, stack) => Center(
         child: DuoCard(
           margin: const EdgeInsets.all(AppTheme.duoSpacingLarge),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.error_outline,
-                color: AppTheme.errorColor,
-                size: 48,
-              ),
+              const Icon(Icons.error_outline, color: AppTheme.errorColor, size: 48),
               const SizedBox(height: AppTheme.duoSpacingMedium),
               Text(
-                'Error: $_error',
+                'Error: $error',
                 style: const TextStyle(color: AppTheme.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppTheme.duoSpacingMedium),
-              DuoButton(text: 'Retry', onPressed: _loadMoments),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_moments == null || _moments!.isEmpty) {
-      return DuoEmptyState(
-        emoji: '📷',
-        title: 'No moments yet',
-        subtitle: 'Share your first photo!',
-        buttonText: 'Create Moment',
-        onButtonPressed: _showCreateDialog,
-      );
-    }
-
-    final filteredMoments = _moments!
-        .where((m) => !blockedUsers.contains(m.authorId.toString()))
-        .toList();
-
-    if (filteredMoments.isEmpty && _moments!.isNotEmpty) {
-      return DuoEmptyState(
-        emoji: '🙈',
-        title: 'No moments to show',
-        subtitle: 'The only moments available are from users you have blocked.',
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadMoments,
-      color: AppTheme.primaryColor,
-      child: ListView.builder(
-        padding: const EdgeInsets.only(
-          left: AppTheme.duoSpacingMedium,
-          right: AppTheme.duoSpacingMedium,
-          bottom: AppTheme.contentBottomPadding,
-        ),
-        itemCount: filteredMoments.length,
-        itemBuilder: (context, index) {
-          final moment = filteredMoments[index];
-          return _buildMomentCard(moment, index);
-        },
-      ),
-    );
-  }
-
-  Widget _buildMomentCard(Moment moment, int index) {
-    return DuoCard(
-          margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Author header
-              Padding(
-                padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-                child: Row(
-                  children: [
-                    DuoAvatar(
-                      imageUrl: moment.authorAvatar,
-                      size: 40,
-                      mood: moment.authorMood,
-                      floorLevel: moment.authorFloor,
-                      showRing: true,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UserProfileViewScreen(
-                              userId: moment.authorId.toString(),
-                              userName: moment.authorName,
-                              userFloor: moment.authorFloor,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: AppTheme.duoSpacingSmall),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            moment.authorName,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                          Text(
-                            formatTimestamp(moment.createdAt),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary,
-                              fontFamily: 'Rubik',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Image
-              if (moment.imageUrl.isNotEmpty)
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppTheme.duoRadiusMedium),
-                  ),
-                  child: Image.network(
-                    moment.imageUrl,
-                    width: double.infinity,
-                    height: 300,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      height: 300,
-                      color: AppTheme.lightBackground,
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 64,
-                          color: AppTheme.textLight,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              // Caption
-              if (moment.caption != null && moment.caption!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-                  child: Text(
-                    moment.caption!,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: AppTheme.textPrimary,
-                      fontFamily: 'Rubik',
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-              // Like and Comment buttons
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.duoSpacingMedium,
-                  vertical: AppTheme.duoSpacingSmall,
-                ),
-                child: Row(
-                  children: [
-                    // Like button
-                    _buildActionButton(
-                      icon: Icons.favorite_border,
-                      activeIcon: Icons.favorite,
-                      count: moment.likesCount,
-                      isActive: _likedMoments.contains(moment.id),
-                      onTap: () => _toggleLike(moment),
-                      color: AppTheme.duoRed,
-                    ),
-                    const SizedBox(width: AppTheme.duoSpacingMedium),
-                    // Comment button
-                    _buildActionButton(
-                      icon: Icons.chat_bubble_outline,
-                      activeIcon: Icons.chat_bubble,
-                      count: moment.commentsCount,
-                      isActive: false,
-                      onTap: () => _showComments(moment),
-                      color: AppTheme.primaryColor,
-                    ),
-                  ],
-                ),
+              DuoButton(
+                text: 'Retry', 
+                onPressed: () => ref.invalidate(momentsProvider),
               ),
             ],
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: index * 50))
-        .slideX(begin: -0.1, end: 0);
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required IconData activeIcon,
-    required int count,
-    required bool isActive,
-    required VoidCallback onTap,
-    required Color color,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Row(
-          children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              size: 20,
-              color: isActive ? color : AppTheme.textSecondary,
-            ),
-            if (count > 0) ...[
-              const SizedBox(width: 4),
-              Text(
-                count.toString(),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isActive ? color : AppTheme.textSecondary,
-                  fontFamily: 'Rubik',
-                ),
-              ),
-            ],
-          ],
         ),
       ),
     );
   }
 
-  Future<void> _toggleLike(Moment moment) async {
+  Future<void> _toggleLike(Moment moment, bool currentlyLiked) async {
     if (moment.id == null) return;
-
-    final isLiked = _likedMoments.contains(moment.id);
-
+    
+    // Use optimistic UI update
+    ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
+    
     try {
-      // Optimistic update
-      setState(() {
-        if (isLiked) {
-          _likedMoments.remove(moment.id);
-          moment.likesCount = (moment.likesCount - 1).clamp(0, 999999);
-        } else {
-          _likedMoments.add(moment.id!);
-          moment.likesCount += 1;
-        }
-      });
-
-      // API call
-      if (isLiked) {
-        await client.moment.unlikeMoment(moment.id!);
-      } else {
-        await client.moment.likeMoment(moment.id!);
-      }
+      await ref.read(momentsProvider.notifier).toggleLike(moment.id!, currentlyLiked);
     } catch (e) {
-      // Revert on error
-      setState(() {
-        if (isLiked) {
-          _likedMoments.add(moment.id!);
-          moment.likesCount += 1;
-        } else {
-          _likedMoments.remove(moment.id);
-          moment.likesCount = (moment.likesCount - 1).clamp(0, 999999);
-        }
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to ${isLiked ? 'unlike' : 'like'}: $e'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
-      }
+      // Revert if error
+      ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
+      if (mounted) SnackBarHelper.showError(context, e.toString());
     }
   }
 
-  Future<void> _showComments(Moment moment) async {
+  void _showComments(Moment moment) {
     if (moment.id == null) return;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -567,28 +344,33 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       builder: (context) => _CommentsSheet(momentId: moment.id!),
     );
   }
+
+  void _navigateToProfile(Moment moment) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserProfileViewScreen(
+          userId: moment.authorId.toString(),
+          userName: moment.authorName,
+          userFloor: moment.authorFloor,
+        ),
+      ),
+    );
+  }
 }
 
 /// Comments bottom sheet
-class _CommentsSheet extends StatefulWidget {
+class _CommentsSheet extends ConsumerStatefulWidget {
   final int momentId;
 
   const _CommentsSheet({required this.momentId});
 
   @override
-  State<_CommentsSheet> createState() => _CommentsSheetState();
+  ConsumerState<_CommentsSheet> createState() => _CommentsSheetState();
 }
 
-class _CommentsSheetState extends State<_CommentsSheet> {
-  List<MomentComment>? _comments;
-  bool _isLoading = true;
+class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
   final _commentController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadComments();
-  }
 
   @override
   void dispose() {
@@ -596,44 +378,26 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     super.dispose();
   }
 
-  Future<void> _loadComments() async {
-    try {
-      setState(() => _isLoading = true);
-      final comments = await client.moment.getMomentComments(
-        widget.momentId,
-        limit: 50,
-      );
-      setState(() {
-        _comments = comments;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
-  }
-
   Future<void> _addComment() async {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
 
     try {
-      await client.moment.addComment(widget.momentId, text);
+      await ref.read(momentCommentsProvider(widget.momentId).notifier).addComment(
+        widget.momentId, 
+        text,
+      );
       _commentController.clear();
-      _loadComments();
+      FocusScope.of(context).unfocus();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add comment: $e'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
-      }
+      if (mounted) SnackBarHelper.showError(context, e.toString());
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final commentsAsync = ref.watch(momentCommentsProvider(widget.momentId));
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: const BoxDecoration(
@@ -668,14 +432,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
           ),
           // Comments list
           Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.primaryColor,
-                    ),
-                  )
-                : _comments == null || _comments!.isEmpty
-                ? const Center(
+            child: commentsAsync.when(
+              data: (comments) {
+                if (comments.isEmpty) {
+                  return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -691,15 +451,20 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                         ),
                       ],
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-                    itemCount: _comments!.length,
-                    itemBuilder: (context, index) {
-                      final comment = _comments![index];
-                      return _buildCommentItem(comment);
-                    },
-                  ),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                  itemCount: comments.length,
+                  itemBuilder: (context, index) {
+                    final comment = comments[index];
+                    return _buildCommentItem(comment);
+                  },
+                );
+              },
+              loading: () => const DuoLoadingIndicator(),
+              error: (error, _) => Center(child: Text(error.toString())),
+            ),
           ),
           // Input area
           Container(
@@ -707,9 +472,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
               left: AppTheme.duoSpacingMedium,
               right: AppTheme.duoSpacingMedium,
               top: AppTheme.duoSpacingSmall,
-              bottom:
-                  MediaQuery.of(context).viewInsets.bottom +
-                  AppTheme.duoSpacingMedium,
+              bottom: MediaQuery.of(context).viewInsets.bottom + AppTheme.duoSpacingMedium,
             ),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -740,9 +503,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                   icon: const Icon(Icons.send),
                   color: AppTheme.primaryColor,
                   style: IconButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor.withValues(
-                      alpha: 0.1,
-                    ),
+                    backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                   ),
                 ),
               ],
@@ -777,7 +538,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                       comment.userName,
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
                       ),
                     ),
@@ -795,12 +556,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 const SizedBox(height: 4),
                 Text(
                   comment.text,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textPrimary,
-                    fontFamily: 'Rubik',
-                    height: 1.4,
-                  ),
+                  style: const TextStyle(fontSize: 14, fontFamily: 'Rubik'),
                 ),
               ],
             ),

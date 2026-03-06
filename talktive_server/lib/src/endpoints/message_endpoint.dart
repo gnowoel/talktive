@@ -9,8 +9,9 @@ import '../services/content_filter_service.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/input_validation_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class MessageEndpoint extends Endpoint {
+class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   /// Sends a message to a channel (Plaza, Group, or Private).
   Future<protocol.Message> sendMessage(
     Session session,
@@ -29,16 +30,7 @@ class MessageEndpoint extends Endpoint {
         InputValidationService.validateUrl(imageUrl).throwIfInvalid();
       }
 
-      final authenticationInfo = session.authenticated;
-      final senderIdentifier = authenticationInfo?.userIdentifier;
-
-      if (senderIdentifier == null) {
-        session.log('sendMessage: User NOT authenticated');
-        throw Exception('Not authenticated');
-      }
-
-      final senderUuid = UuidValue.fromString(senderIdentifier);
-
+      final senderUuid = await getUserId(session);
       // 1. Fetch channel to verify access and type
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel == null) {
@@ -47,14 +39,7 @@ class MessageEndpoint extends Endpoint {
       }
 
       // 2. Fetch sender resident data
-      final sender = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(senderUuid),
-      );
-      if (sender == null) {
-        session.log('sendMessage: Resident not found for User $senderUuid');
-        throw Exception('Resident not found');
-      }
+      final sender = await getResidentProfile(session, senderUuid);
 
       // Use denormalized userName and avatar from Resident model
       // fallback to 'Resident' if not set

@@ -143,7 +143,10 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => GroupProfileScreen(group: group, isFromSearch: true),
+            builder: (context) => GroupProfileScreen(
+              groupId: group.id!,
+              initialGroup: group,
+            ),
           ),
         );
       },

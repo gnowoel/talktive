@@ -3,25 +3,9 @@ import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class GroupEndpoint extends Endpoint {
-  Future<UuidValue> _getUserId(Session session) async {
-    final auth = session.authenticated;
-    if (auth == null || auth.userIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-    return UuidValue.fromString(auth.userIdentifier!);
-  }
-
-  Future<protocol.Resident> _getResident(Session session, UuidValue userId) async {
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-    if (resident == null) throw Exception('User not found');
-    return resident;
-  }
-
+class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   /// Creates a new group.
   Future<protocol.Group> createGroup(
     Session session,
@@ -41,8 +25,8 @@ class GroupEndpoint extends Endpoint {
       maxMembers,
     ).throwIfInvalid();
 
-    final currentUserId = await _getUserId(session);
-    final currentResident = await _getResident(session, currentUserId);
+    final currentUserId = await getUserId(session);
+    final currentResident = await getResidentProfile(session, currentUserId);
 
     // Safety: muted or suspended users cannot create groups
     if (ApartmentService.isMuted(currentResident)) {
@@ -378,7 +362,7 @@ class GroupEndpoint extends Endpoint {
 
   /// Responds to a group invite (accept or decline).
   Future<void> respondToGroupInvite(Session session, int groupId, bool accept) async {
-    final currentUserId = await _getUserId(session);
+    final currentUserId = await getUserId(session);
 
     // Get the group
     final group = await protocol.Group.db.findById(session, groupId);
@@ -431,7 +415,7 @@ class GroupEndpoint extends Endpoint {
 
   /// Approves or rejects a pending group application (creator only).
   Future<void> approveGroupApplication(Session session, int groupId, String targetUserIdString, bool approve) async {
-    final currentUserId = await _getUserId(session);
+    final currentUserId = await getUserId(session);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
     // Get the group
@@ -702,7 +686,7 @@ class GroupEndpoint extends Endpoint {
     int? maxMembers,
     List<String>? interests,
   }) async {
-    final currentUserId = await _getUserId(session);
+    final currentUserId = await getUserId(session);
 
     // Get the group
     final group = await protocol.Group.db.findById(session, groupId);
@@ -724,11 +708,19 @@ class GroupEndpoint extends Endpoint {
       throw Exception('Only admins can update group details');
     }
 
+    // Validate inputs if provided
+    if (name != null) {
+      InputValidationService.validateGroupName(name).throwIfInvalid();
+    }
+    if (description != null) {
+      InputValidationService.validateGroupDescription(description).throwIfInvalid();
+    }
+    if (maxMembers != null) {
+      InputValidationService.validateGroupMemberLimit(maxMembers).throwIfInvalid();
+    }
+
     // Update fields
     if (name != null && name.trim().isNotEmpty) {
-      if (name.length > 50) {
-        throw Exception('Group name must be 50 characters or less');
-      }
       group.name = name;
     }
 
@@ -748,9 +740,6 @@ class GroupEndpoint extends Endpoint {
       if (maxMembers < group.memberCount) {
         throw Exception('Cannot set max members below current member count');
       }
-      if (maxMembers < 2 || maxMembers > 500) {
-        throw Exception('Max members must be between 2 and 500');
-      }
       group.maxMembers = maxMembers;
     }
 
@@ -763,7 +752,7 @@ class GroupEndpoint extends Endpoint {
 
   /// Deletes a group (creator only).
   Future<void> deleteGroup(Session session, int groupId) async {
-    final currentUserId = await _getUserId(session);
+    final currentUserId = await getUserId(session);
 
     // Get the group
     final group = await protocol.Group.db.findById(session, groupId);

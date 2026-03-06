@@ -8,12 +8,12 @@ import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../utils/floor_utils.dart';
-import '../../widgets/duo/duo_avatar.dart';
-import '../../widgets/duo/duo_card.dart';
-import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_resident_card.dart';
+import '../../widgets/duo/duo_button.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../profile/user_profile_view_screen.dart';
 
 class GroupMembersScreen extends ConsumerWidget {
   final Group group;
@@ -100,120 +100,78 @@ class GroupMembersScreen extends ConsumerWidget {
     final resident = memberProfile.resident;
     final isTargetCreator = resident.userInfoId == group.creatorId;
 
-    return DuoCard(
-      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                DuoAvatar(
-                  imageUrl: resident.avatar,
-                  size: 48,
-                  mood: resident.mood,
-                  showRing: true,
-                  floorLevel: FloorUtils.computeFloor(resident),
-                ),
-                const SizedBox(width: AppTheme.duoSpacingMedium),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            resident.userName ?? 'Resident',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (isTargetCreator) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppTheme.duoYellow.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Text('HOST', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Floor ${FloorUtils.computeFloor(resident)} • ⭐ ${resident.trustScore}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return DuoResidentCard(
+      resident: resident,
+      isHost: isTargetCreator,
+      showBadge: isPending,
+      badgeText: 'APPLYING',
+      badgeColor: AppTheme.duoBlue,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserProfileViewScreen(
+              userId: resident.userInfoId.toString(),
+              userName: resident.userName,
+              userAvatar: resident.avatar,
+              userFloor: FloorUtils.computeFloor(resident),
             ),
-            if (isCreator && !isTargetCreator) ...[
-              const SizedBox(height: 12),
-              if (isPending)
-                Row(
-                  children: [
-                    Expanded(
-                      child: DuoButton(
-                        text: 'Decline',
-                        color: AppTheme.duoRed,
-                        onPressed: () => _respondToApplication(context, ref, resident.userInfoId.toString(), false),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: DuoButton(
-                        text: 'Approve',
-                        color: AppTheme.duoGreen,
-                        onPressed: () => _respondToApplication(context, ref, resident.userInfoId.toString(), true),
-                      ),
-                    ),
-                  ],
-                )
-              else
+          ),
+        );
+      },
+      actions: isCreator && !isTargetCreator
+          ? [
+              if (isPending) ...[
                 DuoButton(
-                  text: 'Kick from Club',
+                  text: 'Ignore',
+                  variant: DuoButtonVariant.secondary,
+                  size: DuoButtonSize.small,
+                  onPressed: () => _handleApplication(context, ref, resident.userInfoId.toString(), false),
+                ),
+                const SizedBox(width: 8),
+                DuoButton(
+                  text: 'Accept',
+                  size: DuoButtonSize.small,
+                  onPressed: () => _handleApplication(context, ref, resident.userInfoId.toString(), true),
+                ),
+              ] else ...[
+                DuoButton(
+                  text: 'Kick',
+                  variant: DuoButtonVariant.secondary,
+                  size: DuoButtonSize.small,
                   color: AppTheme.duoRed,
-                  isSecondary: true,
-                  width: double.infinity,
                   onPressed: () => _confirmKick(context, ref, resident),
                 ),
-            ],
-          ],
-        ),
-      ),
-    ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1, end: 0);
+              ]
+            ]
+          : null,
+    );
   }
 
-  void _respondToApplication(BuildContext context, WidgetRef ref, String userId, bool approve) async {
+  Future<void> _handleApplication(BuildContext context, WidgetRef ref, String userId, bool approved) async {
     HapticFeedback.mediumImpact();
     try {
       final client = ref.read(clientProvider);
-      await client.group.approveGroupApplication(group.id!, userId, approve);
+      await client.group.respondToGroupApplication(group.id!, userId, approved);
+      
+      ref.invalidate(groupMembersWithProfilesProvider(group.id!));
+      ref.invalidate(pendingApplicationsProvider(group.id!));
+      ref.invalidate(groupListProvider);
       
       if (context.mounted) {
-        SnackBarHelper.showSuccess(context, approve ? 'Member approved!' : 'Application declined.');
-        ref.invalidate(pendingApplicationsProvider(group.id!));
-        ref.invalidate(groupMembersWithProfilesProvider(group.id!));
+        SnackBarHelper.showSuccess(context, approved ? 'Member accepted!' : 'Application ignored.');
       }
     } catch (e) {
-      if (context.mounted) {
-        SnackBarHelper.showError(context, e.toString());
-      }
+      if (context.mounted) SnackBarHelper.showError(context, e.toString());
     }
   }
 
-  void _confirmKick(BuildContext context, WidgetRef ref, Resident member) async {
+  void _confirmKick(BuildContext context, WidgetRef ref, Resident resident) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Kick Member?'),
-        content: Text('Are you sure you want to remove ${member.userName} from the club?'),
+        title: const Text('Kick resident?'),
+        content: Text('Are you sure you want to remove ${resident.userName} from this club?'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           TextButton(
@@ -226,40 +184,37 @@ class GroupMembersScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      HapticFeedback.heavyImpact();
-      try {
-        final client = ref.read(clientProvider);
-        await client.group.kickMember(group.id!, member.userInfoId.toString());
-        if (context.mounted) {
-          SnackBarHelper.showSuccess(context, '${member.userName} has been removed.');
-          ref.invalidate(groupMembersWithProfilesProvider(group.id!));
-        }
-      } catch (e) {
-        if (context.mounted) {
-          SnackBarHelper.showError(context, e.toString());
-        }
-      }
+      _kickMember(context, ref, resident.userInfoId.toString());
+    }
+  }
+
+  Future<void> _kickMember(BuildContext context, WidgetRef ref, String userId) async {
+    HapticFeedback.heavyImpact();
+    try {
+      final client = ref.read(clientProvider);
+      await client.group.kickMember(group.id!, userId);
+      
+      ref.invalidate(groupMembersWithProfilesProvider(group.id!));
+      ref.invalidate(groupListProvider);
+      
+      if (context.mounted) SnackBarHelper.showSuccess(context, 'Resident removed from club.');
+    } catch (e) {
+      if (context.mounted) SnackBarHelper.showError(context, e.toString());
     }
   }
 
   Widget _buildErrorState(BuildContext context, Object error) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          Text(
-            'Failed to load members',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: AppTheme.duoSpacingSmall),
-          Text(
-            error.toString(),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
+            const SizedBox(height: 16),
+            Text('Error: $error', textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }

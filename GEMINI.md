@@ -211,13 +211,18 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Discovery UI**: Updated `GroupSearchScreen` with a "💡 SUGGESTED FOR YOU" section and interest badges on all group cards.
   - **Group Creation**: Added interest tag selection (up to 5) to the `CreateGroupDialog`.
 
+- Phase 8.16: Group Profile Refinement & Reactive Updates (March 2026)
+  - **Reactive Group Profile**: Refactored `GroupProfileScreen` to be reactive using a new `groupWithMembershipProvider`. Edits to the group now immediately reflect on the profile screen.
+  - **Interactive Stats**: Added clickable "Members" count to jump into the `GroupMembersScreen`.
+  - **Verified Creator Section**: Added a "Club Host" section with the creator's avatar and level, linking to their full user profile.
+  - **Backend Validation**: Hardened `GroupEndpoint.updateGroup` with `InputValidationService` to ensure consistent data integrity across creation and editing.
+
 **Status:** 🏗️ In Progress
 
 **Next:**
 
-- Group Profile view & editing
-- Production launch
 - Performance benchmark & final cleanup
+- Production launch
 
 ## Key Components
 

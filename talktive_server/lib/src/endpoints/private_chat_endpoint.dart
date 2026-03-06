@@ -3,22 +3,16 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class PrivateChatEndpoint extends Endpoint {
+class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
   Future<protocol.PrivateChat> getOrCreatePrivateChat(
     Session session,
     String otherUserId,
   ) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await getUserId(session);
     final otherUserUuid = UuidValue.fromString(otherUserId);
 
     // Ensure we don't create a chat with ourselves
@@ -27,17 +21,14 @@ class PrivateChatEndpoint extends Endpoint {
     }
 
     // Check if both users exist
-    final currentResident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(currentUserId),
-    );
+    final currentResident = await getResidentProfile(session, currentUserId);
 
     final otherResident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(otherUserUuid),
     );
 
-    if (currentResident == null || otherResident == null) {
+    if (otherResident == null) {
       throw Exception('User not found');
     }
 
@@ -143,14 +134,7 @@ class PrivateChatEndpoint extends Endpoint {
   Future<List<protocol.PrivateChatWithProfile>> listPrivateChats(
     Session session,
   ) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await getUserId(session);
 
     // Find all private chats where user is participant1 or participant2
     final chats = await protocol.PrivateChat.db.find(
@@ -320,14 +304,7 @@ class PrivateChatEndpoint extends Endpoint {
     int channelId,
     bool accept,
   ) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await getUserId(session);
 
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,

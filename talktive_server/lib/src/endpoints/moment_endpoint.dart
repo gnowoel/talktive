@@ -7,8 +7,9 @@ import '../services/notification_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class MomentEndpoint extends Endpoint {
+class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
   Future<Moment> postMoment(
@@ -20,24 +21,8 @@ class MomentEndpoint extends Endpoint {
     InputValidationService.validateImageUrl(imageUrl).throwIfInvalid();
     InputValidationService.validateCaption(caption).throwIfInvalid();
 
-    final authenticationInfo = session.authenticated;
-    final senderIdentifier = authenticationInfo?.userIdentifier;
-
-    if (senderIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final senderUuid = UuidValue.fromString(senderIdentifier);
-
-    // 1. Fetch Resident (for ID and Floor)
-    final resident = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(senderUuid),
-    );
-
-    if (resident == null) {
-      throw Exception('Resident not found');
-    }
+    final senderUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, senderUuid);
 
     // 2. Level restriction: Only Level 10+ can post moments (prevent spam)
     if (resident.level < 10) {
@@ -127,24 +112,8 @@ class MomentEndpoint extends Endpoint {
     // Validate inputs
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
 
-    final authenticationInfo = session.authenticated;
-    final userIdentifier = authenticationInfo?.userIdentifier;
-
-    if (userIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final userId = UuidValue.fromString(userIdentifier);
-
-    // Fetch resident for denormalized data
-    final resident = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-
-    if (resident == null) {
-      throw Exception('Resident not found');
-    }
+    final userId = await getUserId(session);
+    final resident = await getResidentProfile(session, userId);
 
     // Check if already liked
     final existingLike = await MomentLike.db.findFirstRow(
@@ -194,14 +163,7 @@ class MomentEndpoint extends Endpoint {
     // Validate inputs
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
 
-    final authenticationInfo = session.authenticated;
-    final userIdentifier = authenticationInfo?.userIdentifier;
-
-    if (userIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final userId = UuidValue.fromString(userIdentifier);
+    final userId = await getUserId(session);
 
     // Find and delete like
     final existingLike = await MomentLike.db.findFirstRow(
@@ -297,24 +259,8 @@ class MomentEndpoint extends Endpoint {
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
     InputValidationService.validateComment(text).throwIfInvalid();
 
-    final authenticationInfo = session.authenticated;
-    final userIdentifier = authenticationInfo?.userIdentifier;
-
-    if (userIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final userId = UuidValue.fromString(userIdentifier);
-
-    // Fetch resident for denormalized data
-    final resident = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-
-    if (resident == null) {
-      throw Exception('Resident not found');
-    }
+    final userId = await getUserId(session);
+    final resident = await getResidentProfile(session, userId);
 
     // Create comment
     final comment = MomentComment(
@@ -369,14 +315,7 @@ class MomentEndpoint extends Endpoint {
 
   /// Deletes a comment (only by author).
   Future<void> deleteComment(Session session, int commentId) async {
-    final authenticationInfo = session.authenticated;
-    final userIdentifier = authenticationInfo?.userIdentifier;
-
-    if (userIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final userId = UuidValue.fromString(userIdentifier);
+    final userId = await getUserId(session);
 
     final comment = await MomentComment.db.findById(session, commentId);
 

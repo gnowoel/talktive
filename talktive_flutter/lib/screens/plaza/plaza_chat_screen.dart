@@ -15,8 +15,8 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
-
 import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_chat_input.dart';
 
 /// Duolingo-style Global Lounge screen - public chat
 class PlazaChatScreen extends ConsumerStatefulWidget {
@@ -150,9 +150,13 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
               ),
             ),
           ),
-          // Input area
-          _buildInputArea(currentResident),
         ],
+      ),
+      bottomNavigationBar: DuoChatInput(
+        controller: _messageController,
+        onSend: _sendMessage,
+        enabled: canSend,
+        hintText: canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident),
       ),
     );
   }
@@ -199,95 +203,5 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     );
   }
 
-  Widget _buildInputArea(Resident? currentResident) {
-    final canSend = currentResident == null || currentResident.trustScore > 0;
 
-    return Container(
-      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-              decoration: BoxDecoration(
-                color: AppTheme.lightBackground,
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: TextField(
-                controller: _messageController,
-                enabled: canSend,
-                maxLines: null,
-                textCapitalization: TextCapitalization.sentences,
-                style: const TextStyle(fontSize: 15, fontFamily: 'Rubik'),
-                decoration: InputDecoration(
-                  hintText: canSend
-                      ? 'Type a message...'
-                      : 'Need credits to chat',
-                  hintStyle: TextStyle(
-                    color: AppTheme.textLight,
-                    fontFamily: 'Rubik',
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.duoSpacingMedium,
-                    vertical: AppTheme.duoSpacingSmall,
-                  ),
-                  prefixIcon: canSend
-                      ? null
-                      : const Icon(
-                          Icons.lock,
-                          color: AppTheme.textLight,
-                          size: 20,
-                        ),
-                ),
-                onSubmitted: canSend ? (_) => _sendMessage() : null,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          GestureDetector(
-            onTap: canSend ? _sendMessage : null,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: canSend
-                    ? LinearGradient(
-                        colors: [
-                          AppTheme.primaryColor,
-                          AppTheme.primaryColor.withValues(alpha: 0.8),
-                        ],
-                      )
-                    : null,
-                color: canSend ? null : Colors.grey.shade300,
-                shape: BoxShape.circle,
-                boxShadow: canSend
-                    ? [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: const Icon(Icons.send, color: Colors.white, size: 20),
-            ),
-          ),
-        ],
-      ),
-      ),
-    );
-  }
 }

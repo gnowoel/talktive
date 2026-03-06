@@ -16,6 +16,7 @@ import 'create_group_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
+import '../../widgets/duo/duo_chat_input.dart';
 
 /// Group chat screen for multi-user conversations
 class GroupChatScreen extends ConsumerStatefulWidget {
@@ -89,6 +90,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(widget.group.channelId));
+    final canSend =
+        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -108,7 +111,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GroupProfileScreen(group: widget.group),
+                builder: (context) => GroupProfileScreen(
+                  groupId: widget.group.id!,
+                  initialGroup: widget.group,
+                ),
               ),
             );
           },
@@ -177,7 +183,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GroupProfileScreen(group: widget.group),
+                    builder: (context) => GroupProfileScreen(
+                      groupId: widget.group.id!,
+                      initialGroup: widget.group,
+                    ),
                   ),
                 );
               } else if (value == 'edit') {
@@ -255,8 +264,14 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               error: (error, stack) => _buildErrorState(error),
             ),
           ),
-          _buildInputArea(),
         ],
+      ),
+      bottomNavigationBar: DuoChatInput(
+        controller: _messageController,
+        onSend: _sendMessage,
+        enabled: canSend,
+        activeColor: AppTheme.duoYellow,
+        hintText: canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(_currentResident),
       ),
     );
   }
@@ -383,18 +398,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     );
   }
 
-  Widget _buildInputArea() {
-    final canSend =
-        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
-    final hintText =
-        (_currentResident != null && FloorUtils.isMuted(_currentResident!))
-        ? FloorUtils.getMuteInputHint(_currentResident!)
-        : 'Type a message...';
-
-    return Container(
-      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-      decoration: BoxDecoration(
-        color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

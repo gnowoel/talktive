@@ -4,45 +4,20 @@ import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
 import '../services/data_archival_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class AdminEndpoint extends Endpoint {
+class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   /// Check if the current user is an admin
   Future<bool> isAdmin(Session session) async {
-    final userIdentifier = session.authenticated?.userIdentifier;
-    if (userIdentifier == null) return false;
-
-    final userUuid = UuidValue.fromString(userIdentifier);
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userUuid),
-    );
-
-    return resident?.isAdmin ?? false;
+    try {
+      final resident = await getAuthenticatedResident(session);
+      return resident.isAdmin;
+    } catch (e) {
+      return false;
+    }
   }
 
-  /// Require admin authentication
-  Future<protocol.Resident> _requireAdmin(Session session) async {
-    final userIdentifier = session.authenticated?.userIdentifier;
-    if (userIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
 
-    final userUuid = UuidValue.fromString(userIdentifier);
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userUuid),
-    );
-
-    if (resident == null) {
-      throw Exception('User not found');
-    }
-
-    if (!resident.isAdmin) {
-      throw Exception('Admin access required');
-    }
-
-    return resident;
-  }
 
   // Helper to get user info removed: using Resident natively
 
@@ -52,7 +27,7 @@ class AdminEndpoint extends Endpoint {
     int limit = 20,
     int offset = 0,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final reports = await protocol.Report.db.find(
       session,
@@ -103,7 +78,7 @@ class AdminEndpoint extends Endpoint {
     int limit = 50,
     int offset = 0,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final reports = await protocol.Report.db.find(
       session,
@@ -153,7 +128,7 @@ class AdminEndpoint extends Endpoint {
     required protocol.ReportStatus status,
     String? adminNotes,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
@@ -173,7 +148,7 @@ class AdminEndpoint extends Endpoint {
     required String userId,
     String? reason,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -197,7 +172,7 @@ class AdminEndpoint extends Endpoint {
     Session session, {
     required String userId,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -222,7 +197,7 @@ class AdminEndpoint extends Endpoint {
     required String userId,
     String? reason,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -247,7 +222,7 @@ class AdminEndpoint extends Endpoint {
     required int messageId,
     String? reason,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final message = await protocol.Message.db.findById(session, messageId);
     if (message == null) {
@@ -264,7 +239,7 @@ class AdminEndpoint extends Endpoint {
     required int momentId,
     String? reason,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final moment = await protocol.Moment.db.findById(session, momentId);
     if (moment == null) {
@@ -287,7 +262,7 @@ class AdminEndpoint extends Endpoint {
 
   /// Get platform statistics - OPTIMIZED with caching
   Future<Map<String, dynamic>> getStatistics(Session session) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     // Try to get from cache first
     final cached = await CacheService.getStatistics(session);
@@ -397,7 +372,7 @@ class AdminEndpoint extends Endpoint {
     required String query,
     int limit = 20,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     // Try to parse as UUID first
     UuidValue? searchUuid;
@@ -469,7 +444,7 @@ class AdminEndpoint extends Endpoint {
     Session session, {
     required String userId,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -492,7 +467,7 @@ class AdminEndpoint extends Endpoint {
     Session session, {
     required String userId,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -515,7 +490,7 @@ class AdminEndpoint extends Endpoint {
     Session session, {
     required String userId,
   }) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -594,13 +569,13 @@ class AdminEndpoint extends Endpoint {
 
   /// Run data archival tasks (admin only).
   Future<Map<String, int>> runArchival(Session session) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
     return await DataArchivalService.runArchivalTasks(session);
   }
 
   /// Get archival statistics (admin only).
   Future<Map<String, int>> getArchivalStats(Session session) async {
-    await _requireAdmin(session);
+    await getAdminProfile(session);
     return await DataArchivalService.getArchivalStats(session);
   }
 }

@@ -3,8 +3,9 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
-class UserProfileEndpoint extends Endpoint {
+class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
   /// Get a user's profile by their user ID
   Future<protocol.UserProfileView?> getUserProfile(
     Session session,
@@ -15,11 +16,7 @@ class UserProfileEndpoint extends Endpoint {
 
     try {
       // Get the viewing user's ID
-      final viewerIdentifier = session.authenticated?.userIdentifier;
-      if (viewerIdentifier == null) {
-        throw Exception('Not authenticated');
-      }
-      final viewerId = UuidValue.fromString(viewerIdentifier);
+      final viewerId = await getUserId(session);
       final targetId = UuidValue.fromString(userId);
 
       // Get the target user's resident data
@@ -130,12 +127,7 @@ class UserProfileEndpoint extends Endpoint {
     InputValidationService.validateUuid(userId).throwIfInvalid();
 
     try {
-      final blockerIdentifier = session.authenticated?.userIdentifier;
-      if (blockerIdentifier == null) {
-        throw Exception('Not authenticated');
-      }
-
-      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final blockerId = await getUserId(session);
       final targetId = UuidValue.fromString(userId);
 
       // Check if already blocked
@@ -170,12 +162,7 @@ class UserProfileEndpoint extends Endpoint {
     InputValidationService.validateUuid(userId).throwIfInvalid();
 
     try {
-      final blockerIdentifier = session.authenticated?.userIdentifier;
-      if (blockerIdentifier == null) {
-        throw Exception('Not authenticated');
-      }
-
-      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final blockerId = await getUserId(session);
       final targetId = UuidValue.fromString(userId);
 
       final block = await protocol.Block.db.findFirstRow(
@@ -202,12 +189,11 @@ class UserProfileEndpoint extends Endpoint {
     InputValidationService.validateUuid(userId).throwIfInvalid();
 
     try {
-      final blockerIdentifier = session.authenticated?.userIdentifier;
-      if (blockerIdentifier == null) {
+      final auth = session.authenticated;
+      if (auth == null || auth.userIdentifier == null) {
         return false;
       }
-
-      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final blockerId = UuidValue.fromString(auth.userIdentifier!);
       final targetId = UuidValue.fromString(userId);
 
       final block = await protocol.Block.db.findFirstRow(
@@ -229,12 +215,7 @@ class UserProfileEndpoint extends Endpoint {
   /// Get list of user IDs blocked by the current user
   Future<List<String>> getBlockedUserIds(Session session) async {
     try {
-      final blockerIdentifier = session.authenticated?.userIdentifier;
-      if (blockerIdentifier == null) {
-        return [];
-      }
-
-      final blockerId = UuidValue.fromString(blockerIdentifier);
+      final blockerId = await getUserId(session);
 
       final blocks = await protocol.Block.db.find(
         session,

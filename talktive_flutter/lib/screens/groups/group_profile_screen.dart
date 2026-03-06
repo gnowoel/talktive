@@ -5,111 +5,174 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/group_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/current_resident_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../../utils/floor_utils.dart';
 import 'create_group_dialog.dart';
+import 'group_members_screen.dart';
+import '../profile/user_profile_view_screen.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
-  final Group group;
-  final bool isFromSearch;
+  final int groupId;
+  final Group? initialGroup; // Used for immediate display
 
   const GroupProfileScreen({
     super.key,
-    required this.group,
-    this.isFromSearch = false,
+    required this.groupId,
+    this.initialGroup,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final groupAsync = ref.watch(groupWithMembershipProvider(groupId));
     final currentResident = ref.watch(currentResidentProvider).value;
-    final isCreator = currentResident?.userInfoId == group.creatorId;
-    
-    // Check if user is already a member
-    final myGroups = ref.watch(groupListProvider).value ?? [];
-    final membership = myGroups.where((g) => g.group.id == group.id).firstOrNull;
-    final isJoined = membership?.membershipStatus == ChannelMemberStatus.joined;
-    final isApplied = membership?.membershipStatus == ChannelMemberStatus.applied;
-    final isInvited = membership?.membershipStatus == ChannelMemberStatus.invited;
 
-    return DuoPageScaffold(
-      emoji: group.emoji ?? '👥',
-      title: group.name,
-      subtitle: group.isPublic ? 'Public Club' : 'Private Party',
-      gradient: AppTheme.duoBlueGradient,
-      trailingHeader: isCreator
-          ? IconButton(
-              icon: const Icon(Icons.edit, color: Colors.white),
-              onPressed: () {
-                _showEditDialog(context, group);
-              },
-            )
-          : null,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, AppTheme.contentBottomPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Status Card
-            _buildStatusCard(context, group),
-            
-            const SizedBox(height: 24),
-            
-            // Description
-            Text(
-              'About this Club',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    return groupAsync.when(
+      data: (membership) {
+        final group = membership?.group ?? initialGroup;
+        if (group == null) {
+          return const DuoPageScaffold(
+            emoji: '❓',
+            title: 'Not Found',
+            body: DuoEmptyState(
+              emoji: '🕵️',
+              title: 'Group Not Found',
+              message: 'This clubhouse might have been disbanded.',
             ),
-            const SizedBox(height: 12),
-            DuoCard(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                group.description ?? 'No description provided.',
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
-              ),
+          );
+        }
+
+        final isCreator = currentResident?.userInfoId == group.creatorId;
+        final status = membership?.membershipStatus;
+        final isJoined = status == ChannelMemberStatus.joined;
+        final isApplied = status == ChannelMemberStatus.applied;
+        final isInvited = status == ChannelMemberStatus.invited;
+
+        return DuoPageScaffold(
+          emoji: group.emoji ?? '👥',
+          title: group.name,
+          subtitle: group.isPublic ? 'Public Club' : 'Private Party',
+          gradient: AppTheme.duoBlueGradient,
+          trailingHeader: isCreator
+              ? IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  onPressed: () {
+                    _showEditDialog(context, group);
+                  },
+                )
+              : null,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, AppTheme.contentBottomPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Status Card
+                _buildStatusCard(context, group, isJoined),
+                
+                const SizedBox(height: 24),
+                
+                // Creator section
+                _buildCreatorSection(context, ref, group.creatorId),
+
+                const SizedBox(height: 24),
+                
+                // Description
+                Text(
+                  'About this Club',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                DuoCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    group.description ?? 'No description provided.',
+                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Interests
+                if (group.interests != null && group.interests!.isNotEmpty) ...[
+                  Text(
+                    'Interests',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: group.interests!.map((interest) => Chip(
+                      label: Text(interest, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoBlue)),
+                      backgroundColor: AppTheme.duoBlue.withValues(alpha: 0.1),
+                      side: BorderSide.none,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    )).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                
+                // Actions
+                const SizedBox(height: 16),
+                _buildActionArea(context, ref, group, isJoined, isApplied, isInvited),
+              ],
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Interests
-            if (group.interests != null && group.interests!.isNotEmpty) ...[
-              Text(
-                'Interests',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: group.interests!.map((interest) => Chip(
-                  label: Text(interest, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoBlue)),
-                  backgroundColor: AppTheme.duoBlue.withValues(alpha: 0.1),
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                )).toList(),
-              ),
-              const SizedBox(height: 24),
-            ],
-            
-            // Actions
-            const SizedBox(height: 16),
-            _buildActionArea(context, ref, group, isJoined, isApplied, isInvited),
-          ],
+          ),
+        );
+      },
+      loading: () => initialGroup != null 
+          ? _buildWithInitialData(context, ref, initialGroup!, currentResident)
+          : const Scaffold(body: DuoLoadingIndicator()),
+      error: (err, stack) => Scaffold(
+        body: DuoEmptyState(
+          emoji: '❌',
+          title: 'Error',
+          message: err.toString(),
+          onRetry: () => ref.invalidate(groupWithMembershipProvider(groupId)),
         ),
       ),
     );
   }
 
-  Widget _buildStatusCard(BuildContext context, Group group) {
+  Widget _buildWithInitialData(BuildContext context, WidgetRef ref, Group group, Resident? currentResident) {
+    // Partial view while loading full membership state
+    return DuoPageScaffold(
+      emoji: group.emoji ?? '👥',
+      title: group.name,
+      subtitle: group.isPublic ? 'Public Club' : 'Private Party',
+      gradient: AppTheme.duoBlueGradient,
+      body: const Center(child: DuoLoadingIndicator()),
+    );
+  }
+
+  Widget _buildStatusCard(BuildContext context, Group group, bool isJoined) {
     return DuoCard(
       padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(context, group.memberCount.toString(), 'Members'),
+          _buildStatItem(
+            context, 
+            group.memberCount.toString(), 
+            'Members',
+            onTap: isJoined ? () {
+               HapticFeedback.lightImpact();
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GroupMembersScreen(group: group),
+                ),
+              );
+            } : null,
+          ),
           Container(width: 1, height: 40, color: Colors.grey[200]),
           _buildStatItem(context, group.maxMembers.toString(), 'Capacity'),
           Container(width: 1, height: 40, color: Colors.grey[200]),
@@ -119,8 +182,8 @@ class GroupProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String value, String label) {
-    return Column(
+  Widget _buildStatItem(BuildContext context, String value, String label, {VoidCallback? onTap}) {
+    final content = Column(
       children: [
         Text(
           value,
@@ -129,6 +192,88 @@ class GroupProfileScreen extends ConsumerWidget {
         Text(
           label,
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ],
+    );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: content,
+        ),
+      );
+    }
+
+    return content;
+  }
+
+  Widget _buildCreatorSection(BuildContext context, WidgetRef ref, UuidValue creatorId) {
+    final creatorAsync = ref.watch(userProfileProvider(creatorId.toString()));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Club Host',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        creatorAsync.when(
+          data: (profile) {
+            if (profile == null) return const Text('Resident not found');
+            final resident = profile.resident;
+            return DuoCard(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserProfileViewScreen(
+                      userId: resident.userInfoId.toString(),
+                      userName: resident.userName,
+                      userAvatar: resident.avatar,
+                      userFloor: FloorUtils.computeFloor(resident),
+                    ),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                child: Row(
+                  children: [
+                    DuoAvatar(
+                      imageUrl: resident.avatar,
+                      size: 48,
+                      mood: resident.mood,
+                      showRing: true,
+                      floorLevel: FloorUtils.computeFloor(resident),
+                    ),
+                    const SizedBox(width: AppTheme.duoSpacingMedium),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            resident.userName ?? 'Resident',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Text(
+                            'Floor ${FloorUtils.computeFloor(resident)}',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.grey),
+                  ],
+                ),
+              ),
+            );
+          },
+          loading: () => const DuoLoadingIndicator(),
+          error: (_, __) => const Text('Could not load host info'),
         ),
       ],
     );
@@ -149,8 +294,6 @@ class GroupProfileScreen extends ConsumerWidget {
           color: AppTheme.duoBlue,
           onPressed: () {
             HapticFeedback.mediumImpact();
-            // In a real app we'd navigate to chat. Since we're in profile, 
-            // if we came from chat we might want to just pop.
             Navigator.pop(context);
           },
         ),

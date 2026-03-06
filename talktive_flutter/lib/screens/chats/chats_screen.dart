@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import 'chat_thread_screen.dart';
+import 'peephole_screen.dart';
 
 /// Duolingo-style Chats screen - list of private conversations
 class ChatsScreen extends ConsumerWidget {
@@ -28,30 +29,85 @@ class ChatsScreen extends ConsumerWidget {
       subtitle: 'Private conversations',
       gradient: AppTheme.duoOrangeGradient,
       body: chatsState.when(
-        data: (chats) => chats.isEmpty
-            ? _buildEmptyState(context)
-            : RefreshIndicator(
-                onRefresh: () async {
-                  await ref.read(privateChatListProvider.notifier).refresh();
-                },
-                color: AppTheme.primaryColor,
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppTheme.duoSpacingMedium,
-                    AppTheme.duoSpacingMedium,
-                    AppTheme.duoSpacingMedium,
-                    AppTheme.contentBottomPadding,
+        data: (chats) {
+          if (chats.isEmpty) {
+            return _buildEmptyState(context);
+          }
+
+          final pendingChats = chats.where((c) => c.currentMemberStatus == ChannelMemberStatus.invited).toList();
+          final activeChats = chats.where((c) => c.currentMemberStatus != ChannelMemberStatus.invited).toList();
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(privateChatListProvider.notifier).refresh();
+            },
+            color: AppTheme.primaryColor,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.duoSpacingMedium,
+                AppTheme.duoSpacingMedium,
+                AppTheme.duoSpacingMedium,
+                AppTheme.contentBottomPadding,
+              ),
+              children: [
+                if (pendingChats.isNotEmpty) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: Text(
+                      '🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  itemCount: chats.length,
-                  itemBuilder: (context, index) {
-                    final chatWithProfile = chats[index];
-                    return _buildChatCard(context, ref, chatWithProfile, index)
+                  ...pendingChats.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final chat = entry.value;
+                    return _buildPendingCard(context, ref, chat, index)
                         .animate(delay: Duration(milliseconds: index * 50))
                         .fadeIn(duration: 300.ms)
                         .slideX(begin: -0.1, end: 0);
-                  },
-                ),
-              ),
+                  }),
+                  const SizedBox(height: AppTheme.duoSpacingLarge),
+                  if (activeChats.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        '📬 Active Chats',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white70,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: AppTheme.duoSpacingSmall),
+                ],
+                
+                if (activeChats.isEmpty && pendingChats.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Center(
+                      child: Text(
+                        'No active chats.\nReview the door!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white54, fontSize: 16),
+                      ),
+                    ),
+                  )
+                else
+                  ...activeChats.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final chat = entry.value;
+                    return _buildChatCard(context, ref, chat, index)
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: -0.1, end: 0);
+                  }),
+              ],
+            ),
+          );
+        },
         loading: () => const DuoLoadingIndicator(),
         error: (error, stack) => _buildErrorState(context, ref, error),
       ),
@@ -198,5 +254,84 @@ class ChatsScreen extends ConsumerWidget {
     } else {
       return '${timestamp.month}/${timestamp.day}';
     }
+  }
+
+  Widget _buildPendingCard(
+    BuildContext context,
+    WidgetRef ref,
+    PrivateChatWithProfile chatItem,
+    int index,
+  ) {
+    final otherUserName = chatItem.otherUserName ?? 'Stranger';
+    final otherUserAvatar = chatItem.otherUserAvatar;
+
+    return DuoCard(
+      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
+      color: Colors.white,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PeepholeScreen(chatItem: chatItem),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+          border: Border.all(color: AppTheme.duoOrange, width: 2),
+        ),
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        child: Row(
+          children: [
+             Hero(
+               tag: 'avatar_${chatItem.chat.id}',
+               child: DuoAvatar(
+                 imageUrl: otherUserAvatar,
+                 size: 56,
+                 mood: chatItem.otherUserMood,
+                 showRing: false,
+                 floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
+               ),
+             ),
+             const SizedBox(width: AppTheme.duoSpacingMedium),
+             Expanded(
+               child: Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Text(
+                     otherUserName,
+                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                       fontWeight: FontWeight.bold,
+                       color: AppTheme.duoOrange, // Highlighted text
+                     ),
+                     overflow: TextOverflow.ellipsis,
+                   ),
+                   const SizedBox(height: 4),
+                   Text(
+                     'Tap to look through the peephole',
+                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                       color: Colors.grey[700],
+                       fontStyle: FontStyle.italic,
+                     ),
+                     overflow: TextOverflow.ellipsis,
+                   ),
+                 ],
+               ),
+             ),
+             Container(
+               width: 32,
+               height: 32,
+               decoration: BoxDecoration(
+                 color: AppTheme.duoOrange.withOpacity(0.2),
+                 shape: BoxShape.circle,
+               ),
+               child: const Icon(Icons.remove_red_eye_rounded, color: AppTheme.duoOrange, size: 20),
+             ),
+          ],
+        ),
+      ),
+    );
   }
 }

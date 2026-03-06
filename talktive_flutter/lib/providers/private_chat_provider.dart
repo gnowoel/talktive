@@ -49,6 +49,19 @@ class PrivateChatList extends _$PrivateChatList {
       state = AsyncValue.error(e, stack);
     }
   }
+
+  /// Responds to a private chat invitation
+  Future<void> respondToInvite(int channelId, bool accept) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.privateChat.respondToChatInvite(channelId, accept);
+      // Refresh the local list
+      ref.invalidateSelf();
+    } catch (e) {
+      debugPrint('PrivateChatList: Error responding to invite: $e');
+      rethrow;
+    }
+  }
 }
 
 /// Provider for getting details about a specific private chat.

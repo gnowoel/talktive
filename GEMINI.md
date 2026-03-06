@@ -179,6 +179,16 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Achievement Batching**: Drafted `trackMultipleProgress` in `AchievementService` to batch achievement lookups and progress updates into a single database transaction.
   - **Login Saves**: Refactored `GamificationService` and `ApartmentService` to use a `save` flag, enabling `ResidentEndpoint` to coalesce sequential `.updateRow()` queries into a single conditionally tracked batch update.
 
+- Phase 8.13: Privacy & Doorbell System (March 2026)
+  - **The Doorbell & Peephole Metaphor**: To protect users from receiving unprompted messages from strangers, we built an invite-based private chat system.
+  - **Backend Updates**:
+    - `PrivateChatEndpoint`: Unsolicited chats initialize with the receiver status set to `ChannelMemberStatus.invited` rather than `joined`.
+    - Added `respondToChatInvite` endpoint to allow users to toggle their status to `joined` (accept) or `declined` (reject).
+    - `PrivateChatWithProfile` protocol denormalized to track both current and other user's `ChannelMemberStatus`.
+  - **Client & UI Updates**:
+    - Split `ChatsScreen` into separate sections for "🚪 Knocking..." (Pending Invites) and "📬 Active Chats".
+    - Created `PeepholeScreen` (`peephole_screen.dart`): An immersive vignette review screen where users can securely look at a stranger's avatar and verified Floor/Trust stats before tapping 🔓 "Open the Door" or 🔒 "Keep it Locked".
+
 **Status:** 🏗️ In Progress
 
 **Next:**

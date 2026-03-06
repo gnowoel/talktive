@@ -144,6 +144,183 @@ final class GroupDetailsFamily extends $Family
   String toString() => r'groupDetailsProvider';
 }
 
+/// Provider for getting members of a group with their profiles.
+
+@ProviderFor(groupMembersWithProfiles)
+final groupMembersWithProfilesProvider = GroupMembersWithProfilesFamily._();
+
+/// Provider for getting members of a group with their profiles.
+
+final class GroupMembersWithProfilesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GroupMemberWithProfile>>,
+          List<GroupMemberWithProfile>,
+          FutureOr<List<GroupMemberWithProfile>>
+        >
+    with
+        $FutureModifier<List<GroupMemberWithProfile>>,
+        $FutureProvider<List<GroupMemberWithProfile>> {
+  /// Provider for getting members of a group with their profiles.
+  GroupMembersWithProfilesProvider._({
+    required GroupMembersWithProfilesFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'groupMembersWithProfilesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$groupMembersWithProfilesHash();
+
+  @override
+  String toString() {
+    return r'groupMembersWithProfilesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GroupMemberWithProfile>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GroupMemberWithProfile>> create(Ref ref) {
+    final argument = this.argument as int;
+    return groupMembersWithProfiles(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupMembersWithProfilesProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$groupMembersWithProfilesHash() =>
+    r'eb070059c8e90343fd4139f87678a8aee276c81e';
+
+/// Provider for getting members of a group with their profiles.
+
+final class GroupMembersWithProfilesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<FutureOr<List<GroupMemberWithProfile>>, int> {
+  GroupMembersWithProfilesFamily._()
+    : super(
+        retry: null,
+        name: r'groupMembersWithProfilesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider for getting members of a group with their profiles.
+
+  GroupMembersWithProfilesProvider call(int groupId) =>
+      GroupMembersWithProfilesProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'groupMembersWithProfilesProvider';
+}
+
+/// Provider for getting pending applications of a group.
+
+@ProviderFor(pendingApplications)
+final pendingApplicationsProvider = PendingApplicationsFamily._();
+
+/// Provider for getting pending applications of a group.
+
+final class PendingApplicationsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GroupMemberWithProfile>>,
+          List<GroupMemberWithProfile>,
+          FutureOr<List<GroupMemberWithProfile>>
+        >
+    with
+        $FutureModifier<List<GroupMemberWithProfile>>,
+        $FutureProvider<List<GroupMemberWithProfile>> {
+  /// Provider for getting pending applications of a group.
+  PendingApplicationsProvider._({
+    required PendingApplicationsFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'pendingApplicationsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$pendingApplicationsHash();
+
+  @override
+  String toString() {
+    return r'pendingApplicationsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GroupMemberWithProfile>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GroupMemberWithProfile>> create(Ref ref) {
+    final argument = this.argument as int;
+    return pendingApplications(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PendingApplicationsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$pendingApplicationsHash() =>
+    r'784fe25dea9c11745a83c986cc82445c8c4ff12a';
+
+/// Provider for getting pending applications of a group.
+
+final class PendingApplicationsFamily extends $Family
+    with
+        $FunctionalFamilyOverride<FutureOr<List<GroupMemberWithProfile>>, int> {
+  PendingApplicationsFamily._()
+    : super(
+        retry: null,
+        name: r'pendingApplicationsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider for getting pending applications of a group.
+
+  PendingApplicationsProvider call(int groupId) =>
+      PendingApplicationsProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'pendingApplicationsProvider';
+}
+
 /// Provider for getting members of a group.
 
 @ProviderFor(groupMembers)

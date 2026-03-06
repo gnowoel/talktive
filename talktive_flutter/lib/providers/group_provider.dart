@@ -117,6 +117,30 @@ Future<Group> groupDetails(Ref ref, int groupId) async {
   }
 }
 
+/// Provider for getting members of a group with their profiles.
+@riverpod
+Future<List<GroupMemberWithProfile>> groupMembersWithProfiles(Ref ref, int groupId) async {
+  final client = ref.read(clientProvider);
+  try {
+    return await client.group.getGroupMembersWithProfiles(groupId);
+  } catch (e) {
+    debugPrint('GroupMembersWithProfiles: Fetch error: $e');
+    rethrow;
+  }
+}
+
+/// Provider for getting pending applications of a group.
+@riverpod
+Future<List<GroupMemberWithProfile>> pendingApplications(Ref ref, int groupId) async {
+  final client = ref.read(clientProvider);
+  try {
+    return await client.group.getPendingApplicationsWithProfiles(groupId);
+  } catch (e) {
+    debugPrint('PendingApplications: Fetch error: $e');
+    rethrow;
+  }
+}
+
 /// Provider for getting members of a group.
 @riverpod
 Future<List<Resident>> groupMembers(Ref ref, int groupId) async {

@@ -551,6 +551,96 @@ class GroupEndpoint extends Endpoint {
     await protocol.Group.db.updateRow(session, group);
   }
 
+  /// Gets all members of a group with their profiles.
+  Future<List<protocol.GroupMemberWithProfile>> getGroupMembersWithProfiles(
+    Session session,
+    int groupId,
+  ) async {
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    // Get all active members
+    final members = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.status.equals(protocol.ChannelMemberStatus.joined),
+      orderBy: (t) => t.joinedAt,
+    );
+
+    final results = <protocol.GroupMemberWithProfile>[];
+    for (final member in members) {
+      final resident = await protocol.Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(member.userInfoId),
+      );
+      if (resident != null) {
+        results.add(protocol.GroupMemberWithProfile(
+          resident: resident,
+          status: member.status,
+          role: member.role,
+          joinedAt: member.joinedAt,
+        ));
+      }
+    }
+
+    return results;
+  }
+
+  /// Gets all pending applications for a group (creator only).
+  Future<List<protocol.GroupMemberWithProfile>> getPendingApplicationsWithProfiles(
+    Session session,
+    int groupId,
+  ) async {
+    final authenticationInfo = session.authenticated;
+    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+
+    if (currentUserIdentifier == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    if (group.creatorId != currentUserId) {
+      throw Exception('Only the creator can view pending applications');
+    }
+
+    // Get all applied members
+    final members = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.status.equals(protocol.ChannelMemberStatus.applied),
+      orderBy: (t) => t.joinedAt, // reuse joinedAt for application time
+    );
+
+    final results = <protocol.GroupMemberWithProfile>[];
+    for (final member in members) {
+      final resident = await protocol.Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(member.userInfoId),
+      );
+      if (resident != null) {
+        results.add(protocol.GroupMemberWithProfile(
+          resident: resident,
+          status: member.status,
+          role: member.role,
+          joinedAt: member.joinedAt,
+        ));
+      }
+    }
+
+    return results;
+  }
+
   /// Gets all members of a group.
   Future<List<protocol.Resident>> getGroupMembers(
     Session session,

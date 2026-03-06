@@ -11,6 +11,9 @@ import '../../utils/floor_utils.dart';
 import '../../widgets/chat/message_bubble.dart';
 
 import 'group_members_screen.dart';
+import '../../helpers/snackbar_helper.dart';
+import '../../providers/group_provider.dart';
+import '../../providers/client_provider.dart';
 
 /// Group chat screen for multi-user conversations
 class GroupChatScreen extends ConsumerStatefulWidget {
@@ -152,6 +155,43 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   builder: (context) => GroupMembersScreen(group: widget.group),
                 ),
               );
+            },
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_horiz, color: Colors.black),
+            onSelected: (value) async {
+              if (value == 'leave') {
+                _confirmLeaveClub(context, ref);
+              } else if (value == 'delete') {
+                _confirmDeleteClub(context, ref);
+              }
+            },
+            itemBuilder: (_) {
+              final isCreator = _currentResident?.userInfoId == widget.group.creatorId;
+              return [
+                if (!isCreator)
+                  const PopupMenuItem(
+                    value: 'leave',
+                    child: Row(
+                      children: [
+                        Icon(Icons.exit_to_app, color: AppTheme.duoRed, size: 20),
+                        SizedBox(width: 12),
+                        Text('Leave Club', style: TextStyle(color: AppTheme.duoRed, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                if (isCreator)
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_forever, color: AppTheme.duoRed, size: 20),
+                        SizedBox(width: 12),
+                        Text('Disband Club', style: TextStyle(color: AppTheme.duoRed, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+              ];
             },
           ),
         ],
@@ -374,5 +414,72 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         ),
       ),
     );
+  }
+  void _confirmLeaveClub(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Leave Club?'),
+        content: const Text('Are you sure you want to leave this community?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true), 
+            style: TextButton.styleFrom(foregroundColor: AppTheme.duoRed),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      HapticFeedback.mediumImpact();
+      try {
+        await ref.read(groupListProvider.notifier).leaveGroup(widget.group.id!);
+        if (context.mounted) {
+          Navigator.pop(context); // Go back to Groups screen
+          SnackBarHelper.showSuccess(context, 'You left the club.');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          SnackBarHelper.showError(context, e.toString());
+        }
+      }
+    }
+  }
+
+  void _confirmDeleteClub(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Disband Club?', style: TextStyle(color: AppTheme.duoRed)),
+        content: const Text('This will delete the club for everyone and all messages will be lost. This cannot be undone!'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true), 
+            style: TextButton.styleFrom(foregroundColor: AppTheme.duoRed),
+            child: const Text('DISBAND'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      HapticFeedback.heavyImpact();
+      try {
+        final client = ref.read(clientProvider);
+        await client.group.deleteGroup(widget.group.id!);
+        if (context.mounted) {
+          ref.invalidate(groupListProvider);
+          Navigator.pop(context); 
+          SnackBarHelper.showSuccess(context, 'The club has been disbanded.');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          SnackBarHelper.showError(context, e.toString());
+        }
+      }
+    }
   }
 }

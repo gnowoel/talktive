@@ -712,7 +712,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                       final group = activeGroups[index].group;
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: AppTheme.duoYellow.withOpacity(0.2),
+                          backgroundColor: AppTheme.duoYellow.withValues(alpha: 0.2),
                           child: Text(group.emoji ?? '👥'),
                         ),
                         title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),

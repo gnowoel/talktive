@@ -1034,6 +1034,44 @@ class Endpoints extends _i1.EndpointDispatch {
                 params['groupId'],
               ),
         ),
+        'getGroupMembersWithProfiles': _i1.MethodConnector(
+          name: 'getGroupMembersWithProfiles',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['group'] as _i7.GroupEndpoint)
+                  .getGroupMembersWithProfiles(
+                    session,
+                    params['groupId'],
+                  ),
+        ),
+        'getPendingApplicationsWithProfiles': _i1.MethodConnector(
+          name: 'getPendingApplicationsWithProfiles',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['group'] as _i7.GroupEndpoint)
+                  .getPendingApplicationsWithProfiles(
+                    session,
+                    params['groupId'],
+                  ),
+        ),
         'getGroupMembers': _i1.MethodConnector(
           name: 'getGroupMembers',
           params: {

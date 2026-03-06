@@ -246,7 +246,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             child: chatState.when(
               data: (messages) => messages.isEmpty
                   ? _buildEmptyState()
-                  : _buildMessagesList(messages),
+                  : _buildMessagesList(messages, currentResident),
               loading: () => const Center(
                 child: CircularProgressIndicator(color: AppTheme.primaryColor),
               ),
@@ -348,7 +348,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     );
   }
 
-  Widget _buildMessagesList(List<Message> messages) {
+  Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
@@ -371,13 +371,13 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         itemBuilder: (context, index) {
           final message = filteredMessages[index];
           final isCurrentUser =
-              _currentResident != null &&
-              message.senderId == _currentResident!.userInfoId;
+              currentResident != null &&
+              message.senderId == currentResident.userInfoId;
 
           return MessageBubble(
                 message: message,
                 isCurrentUser: isCurrentUser,
-                currentResident: _currentResident,
+                currentResident: currentResident,
               )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)

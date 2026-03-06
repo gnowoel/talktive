@@ -51,7 +51,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     
     try {
       final client = ref.read(clientProvider);
-      final results = await client.group.searchPublicGroups(query);
+      final results = await client.group.searchPublicGroups(query, limit: 50, offset: 0);
       
       setState(() {
         _searchResults = results;

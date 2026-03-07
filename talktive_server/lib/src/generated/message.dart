@@ -20,6 +20,8 @@ abstract class Message
     required this.senderId,
     this.content,
     this.imageUrl,
+    this.mediaUrl,
+    this.mediaType,
     required this.createdAt,
     required this.senderName,
     this.senderAvatar,
@@ -33,6 +35,8 @@ abstract class Message
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
@@ -49,6 +53,8 @@ abstract class Message
       ),
       content: jsonSerialization['content'] as String?,
       imageUrl: jsonSerialization['imageUrl'] as String?,
+      mediaUrl: jsonSerialization['mediaUrl'] as String?,
+      mediaType: jsonSerialization['mediaType'] as String?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -74,6 +80,10 @@ abstract class Message
 
   String? imageUrl;
 
+  String? mediaUrl;
+
+  String? mediaType;
+
   DateTime createdAt;
 
   String senderName;
@@ -96,6 +106,8 @@ abstract class Message
     _i1.UuidValue? senderId,
     String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
     DateTime? createdAt,
     String? senderName,
     String? senderAvatar,
@@ -111,6 +123,8 @@ abstract class Message
       'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (mediaUrl != null) 'mediaUrl': mediaUrl,
+      if (mediaType != null) 'mediaType': mediaType,
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
@@ -128,6 +142,8 @@ abstract class Message
       'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (mediaUrl != null) 'mediaUrl': mediaUrl,
+      if (mediaType != null) 'mediaType': mediaType,
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
@@ -175,6 +191,8 @@ class _MessageImpl extends Message {
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
@@ -186,6 +204,8 @@ class _MessageImpl extends Message {
          senderId: senderId,
          content: content,
          imageUrl: imageUrl,
+         mediaUrl: mediaUrl,
+         mediaType: mediaType,
          createdAt: createdAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
@@ -203,6 +223,8 @@ class _MessageImpl extends Message {
     _i1.UuidValue? senderId,
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
+    Object? mediaUrl = _Undefined,
+    Object? mediaType = _Undefined,
     DateTime? createdAt,
     String? senderName,
     Object? senderAvatar = _Undefined,
@@ -215,6 +237,8 @@ class _MessageImpl extends Message {
       senderId: senderId ?? this.senderId,
       content: content is String? ? content : this.content,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
+      mediaUrl: mediaUrl is String? ? mediaUrl : this.mediaUrl,
+      mediaType: mediaType is String? ? mediaType : this.mediaType,
       createdAt: createdAt ?? this.createdAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
@@ -245,6 +269,16 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
 
   _i1.ColumnValue<String, String> imageUrl(String? value) => _i1.ColumnValue(
     table.imageUrl,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> mediaUrl(String? value) => _i1.ColumnValue(
+    table.mediaUrl,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> mediaType(String? value) => _i1.ColumnValue(
+    table.mediaType,
     value,
   );
 
@@ -295,6 +329,14 @@ class MessageTable extends _i1.Table<int?> {
       'imageUrl',
       this,
     );
+    mediaUrl = _i1.ColumnString(
+      'mediaUrl',
+      this,
+    );
+    mediaType = _i1.ColumnString(
+      'mediaType',
+      this,
+    );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
       this,
@@ -327,6 +369,10 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString imageUrl;
 
+  late final _i1.ColumnString mediaUrl;
+
+  late final _i1.ColumnString mediaType;
+
   late final _i1.ColumnDateTime createdAt;
 
   late final _i1.ColumnString senderName;
@@ -344,6 +390,8 @@ class MessageTable extends _i1.Table<int?> {
     senderId,
     content,
     imageUrl,
+    mediaUrl,
+    mediaType,
     createdAt,
     senderName,
     senderAvatar,

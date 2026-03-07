@@ -15,9 +15,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   /// Sends a message to a channel (Plaza, Group, or Private).
   Future<protocol.Message> sendMessage(
     Session session,
-    int channelId,
-    String content, {
+    int channelId, {
+    String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
   }) async {
     try {
       // Validate inputs
@@ -25,9 +27,17 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         channelId,
         'Channel ID',
       ).throwIfInvalid();
-      InputValidationService.validateMessageContent(content).throwIfInvalid();
+      
+      if (content != null) {
+        InputValidationService.validateMessageContent(content).throwIfInvalid();
+      }
+      
       if (imageUrl != null) {
         InputValidationService.validateUrl(imageUrl).throwIfInvalid();
+      }
+
+      if (mediaUrl != null) {
+        InputValidationService.validateUrl(mediaUrl).throwIfInvalid();
       }
 
       final senderUuid = await getUserId(session);
@@ -56,27 +66,29 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       // 5. Content Validation (profanity and spam filtering)
-      final validation = await ContentFilterService.validateMessage(
-        session,
-        content,
-        senderEffectiveFloor,
-      );
-      if (!validation.isValid) {
-        throw Exception(validation.reason ?? 'Invalid message content');
-      }
+      String? filteredContent = content;
+      if (content != null && content.isNotEmpty) {
+        final validation = await ContentFilterService.validateMessage(
+          session,
+          content,
+          senderEffectiveFloor,
+        );
+        if (!validation.isValid) {
+          throw Exception(validation.reason ?? 'Invalid message content');
+        }
 
-      // Check for repeated messages (spam detection)
-      final isRepeated = await ContentFilterService.isRepeatedMessage(
-        session,
-        senderUuid.toString(),
-        content,
-      );
-      if (isRepeated) {
-        throw Exception('Please don\'t send the same message repeatedly');
-      }
+        // Check for repeated messages (spam detection)
+        final isRepeated = await ContentFilterService.isRepeatedMessage(
+          session,
+          senderUuid.toString(),
+          content,
+        );
+        if (isRepeated) {
+          throw Exception('Please don\'t send the same message repeatedly');
+        }
 
-      // Use filtered content
-      final filteredContent = validation.filteredContent ?? content;
+        filteredContent = validation.filteredContent ?? content;
+      }
 
       // 6. Check rate limiting with Redis (faster than database)
       final rateLimitError = await RedisRateLimitService.checkRateLimit(
@@ -90,11 +102,12 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       // 7. Floor-based content restrictions
-      if (channel.type == protocol.ChannelType.plaza) {
-        // Plaza (floor 0) restrictions: no images allowed
-        if (imageUrl != null && imageUrl.isNotEmpty) {
+      final hasMedia = (imageUrl != null && imageUrl.isNotEmpty) || (mediaUrl != null && mediaUrl.isNotEmpty);
+      if (channel.type == protocol.ChannelType.plaza && hasMedia) {
+        // Plaza restrictions: images allowed only for Floor 2+
+        if (senderEffectiveFloor < 2) {
           throw Exception(
-            'Images are not allowed in Plaza. Only text messages.',
+            'You must reach Floor 2 to send images in the Plaza. Keep interacting to climb higher!',
           );
         }
       }
@@ -105,6 +118,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         senderId: sender.userInfoId,
         content: filteredContent,
         imageUrl: imageUrl,
+        mediaUrl: mediaUrl,
+        mediaType: mediaType,
         createdAt: DateTime.now(),
         senderName: senderName,
         senderAvatar: senderAvatar,

@@ -175,6 +175,8 @@ class TestEndpoints {
 
   late final _SearchEndpoint search;
 
+  late final _StorageEndpoint storage;
+
   late final _StreakEndpoint streak;
 
   late final _UserLikeEndpoint userLike;
@@ -248,6 +250,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     search = _SearchEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    storage = _StorageEndpoint(
       endpoints,
       serializationManager,
     );
@@ -2078,9 +2084,11 @@ class _MessageEndpoint {
 
   _i3.Future<_i11.Message> sendMessage(
     _i1.TestSessionBuilder sessionBuilder,
-    int channelId,
-    String content, {
+    int channelId, {
+    String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2097,6 +2105,8 @@ class _MessageEndpoint {
             'channelId': channelId,
             'content': content,
             'imageUrl': imageUrl,
+            'mediaUrl': mediaUrl,
+            'mediaType': mediaType,
           }),
           serializationManager: _serializationManager,
         );
@@ -2245,6 +2255,43 @@ class _MomentEndpoint {
           endpointPath: 'moment',
           methodName: 'listMoments',
           parameters: _i1.testObjectToJson({
+            'limit': limit,
+            'lastId': lastId,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i12.Moment>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i12.Moment>> listUserMoments(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required _i2.UuidValue userId,
+    required int limit,
+    int? lastId,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'listUserMoments',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'listUserMoments',
+          parameters: _i1.testObjectToJson({
+            'userId': userId,
             'limit': limit,
             'lastId': lastId,
           }),
@@ -3541,6 +3588,110 @@ class _SearchEndpoint {
                   _localCallContext.arguments,
                 )
                 as _i3.Future<Map<String, dynamic>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _StorageEndpoint {
+  _StorageEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<String?> getUploadDescription(
+    _i1.TestSessionBuilder sessionBuilder,
+    String path,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'storage',
+            method: 'getUploadDescription',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'storage',
+          methodName: 'getUploadDescription',
+          parameters: _i1.testObjectToJson({'path': path}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<String?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<bool> verifyUpload(
+    _i1.TestSessionBuilder sessionBuilder,
+    String path,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'storage',
+            method: 'verifyUpload',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'storage',
+          methodName: 'verifyUpload',
+          parameters: _i1.testObjectToJson({'path': path}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<Uri?> getPublicUrl(
+    _i1.TestSessionBuilder sessionBuilder,
+    String path,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'storage',
+            method: 'getPublicUrl',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'storage',
+          methodName: 'getPublicUrl',
+          parameters: _i1.testObjectToJson({'path': path}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<Uri?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

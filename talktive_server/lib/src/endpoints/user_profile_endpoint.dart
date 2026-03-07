@@ -53,7 +53,7 @@ class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
 
       final momentCount = await protocol.Moment.db.count(
         session,
-        where: (t) => t.authorId.equals(resident.id),
+        where: (t) => t.authorId.equals(resident.userInfoId),
       );
 
       final achievements = await protocol.UserAchievement.db.find(
@@ -70,7 +70,7 @@ class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
       // Get recent moments
       final recentMoments = await protocol.Moment.db.find(
         session,
-        where: (t) => t.authorId.equals(resident.id),
+        where: (t) => t.authorId.equals(resident.userInfoId),
         orderBy: (t) => t.createdAt,
         orderDescending: true,
         limit: 6,

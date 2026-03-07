@@ -18,6 +18,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.authorId,
     required this.imageUrl,
     this.caption,
+    String? mediaType,
     required this.createdAt,
     required this.likesCount,
     required this.commentsCount,
@@ -25,13 +26,14 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.authorAvatar,
     this.authorMood,
     required this.authorFloor,
-  });
+  }) : mediaType = mediaType ?? 'image';
 
   factory Moment({
     int? id,
-    required int authorId,
+    required _i1.UuidValue authorId,
     required String imageUrl,
     String? caption,
+    String? mediaType,
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
@@ -44,9 +46,12 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   factory Moment.fromJson(Map<String, dynamic> jsonSerialization) {
     return Moment(
       id: jsonSerialization['id'] as int?,
-      authorId: jsonSerialization['authorId'] as int,
+      authorId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['authorId'],
+      ),
       imageUrl: jsonSerialization['imageUrl'] as String,
       caption: jsonSerialization['caption'] as String?,
+      mediaType: jsonSerialization['mediaType'] as String?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -66,11 +71,13 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @override
   int? id;
 
-  int authorId;
+  _i1.UuidValue authorId;
 
   String imageUrl;
 
   String? caption;
+
+  String mediaType;
 
   DateTime createdAt;
 
@@ -94,9 +101,10 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @_i1.useResult
   Moment copyWith({
     int? id,
-    int? authorId,
+    _i1.UuidValue? authorId,
     String? imageUrl,
     String? caption,
+    String? mediaType,
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
@@ -110,9 +118,10 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'Moment',
       if (id != null) 'id': id,
-      'authorId': authorId,
+      'authorId': authorId.toJson(),
       'imageUrl': imageUrl,
       if (caption != null) 'caption': caption,
+      'mediaType': mediaType,
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
@@ -128,9 +137,10 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'Moment',
       if (id != null) 'id': id,
-      'authorId': authorId,
+      'authorId': authorId.toJson(),
       'imageUrl': imageUrl,
       if (caption != null) 'caption': caption,
+      'mediaType': mediaType,
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
@@ -176,9 +186,10 @@ class _Undefined {}
 class _MomentImpl extends Moment {
   _MomentImpl({
     int? id,
-    required int authorId,
+    required _i1.UuidValue authorId,
     required String imageUrl,
     String? caption,
+    String? mediaType,
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
@@ -191,6 +202,7 @@ class _MomentImpl extends Moment {
          authorId: authorId,
          imageUrl: imageUrl,
          caption: caption,
+         mediaType: mediaType,
          createdAt: createdAt,
          likesCount: likesCount,
          commentsCount: commentsCount,
@@ -206,9 +218,10 @@ class _MomentImpl extends Moment {
   @override
   Moment copyWith({
     Object? id = _Undefined,
-    int? authorId,
+    _i1.UuidValue? authorId,
     String? imageUrl,
     Object? caption = _Undefined,
+    String? mediaType,
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
@@ -222,6 +235,7 @@ class _MomentImpl extends Moment {
       authorId: authorId ?? this.authorId,
       imageUrl: imageUrl ?? this.imageUrl,
       caption: caption is String? ? caption : this.caption,
+      mediaType: mediaType ?? this.mediaType,
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
@@ -236,10 +250,11 @@ class _MomentImpl extends Moment {
 class MomentUpdateTable extends _i1.UpdateTable<MomentTable> {
   MomentUpdateTable(super.table);
 
-  _i1.ColumnValue<int, int> authorId(int value) => _i1.ColumnValue(
-    table.authorId,
-    value,
-  );
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> authorId(_i1.UuidValue value) =>
+      _i1.ColumnValue(
+        table.authorId,
+        value,
+      );
 
   _i1.ColumnValue<String, String> imageUrl(String value) => _i1.ColumnValue(
     table.imageUrl,
@@ -248,6 +263,11 @@ class MomentUpdateTable extends _i1.UpdateTable<MomentTable> {
 
   _i1.ColumnValue<String, String> caption(String? value) => _i1.ColumnValue(
     table.caption,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> mediaType(String value) => _i1.ColumnValue(
+    table.mediaType,
     value,
   );
 
@@ -291,7 +311,7 @@ class MomentUpdateTable extends _i1.UpdateTable<MomentTable> {
 class MomentTable extends _i1.Table<int?> {
   MomentTable({super.tableRelation}) : super(tableName: 'moment') {
     updateTable = MomentUpdateTable(this);
-    authorId = _i1.ColumnInt(
+    authorId = _i1.ColumnUuid(
       'authorId',
       this,
     );
@@ -302,6 +322,11 @@ class MomentTable extends _i1.Table<int?> {
     caption = _i1.ColumnString(
       'caption',
       this,
+    );
+    mediaType = _i1.ColumnString(
+      'mediaType',
+      this,
+      hasDefault: true,
     );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
@@ -335,11 +360,13 @@ class MomentTable extends _i1.Table<int?> {
 
   late final MomentUpdateTable updateTable;
 
-  late final _i1.ColumnInt authorId;
+  late final _i1.ColumnUuid authorId;
 
   late final _i1.ColumnString imageUrl;
 
   late final _i1.ColumnString caption;
+
+  late final _i1.ColumnString mediaType;
 
   late final _i1.ColumnDateTime createdAt;
 
@@ -361,6 +388,7 @@ class MomentTable extends _i1.Table<int?> {
     authorId,
     imageUrl,
     caption,
+    mediaType,
     createdAt,
     likesCount,
     commentsCount,

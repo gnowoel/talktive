@@ -65,6 +65,7 @@ message:
 moment:
   - postMoment:
   - listMoments:
+  - listUserMoments:
   - likeMoment:
   - unlikeMoment:
   - getMomentLikes:
@@ -107,6 +108,10 @@ search:
   - discoverUsersByInterests:
   - discoverUsersByLanguages:
   - getDiscoveryFeed:
+storage:
+  - getUploadDescription:
+  - verifyUpload:
+  - getPublicUrl:
 streak:
   - getUserStreak:
   - canClaimDailyReward:

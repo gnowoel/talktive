@@ -421,7 +421,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       // Count moments
       final momentCount = await protocol.Moment.db.count(
         session,
-        where: (t) => t.authorId.equals(resident.id!), // Use authorId (int)
+        where: (t) => t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
       );
 
       // Count reports against this user
@@ -522,10 +522,9 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
           t.senderId.equals(resident.userInfoId), // Use userInfoId (UuidValue)
     );
 
-    // Get recent moments
     final recentMoments = await protocol.Moment.db.find(
       session,
-      where: (t) => t.authorId.equals(resident.id!), // Use authorId (int)
+      where: (t) => t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: 10,
@@ -568,7 +567,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         ),
         'totalMoments': await protocol.Moment.db.count(
           session,
-          where: (t) => t.authorId.equals(resident.id!),
+          where: (t) => t.authorId.equals(resident.userInfoId),
         ),
         'reportsAgainst': reports.length,
         'reportsMade': reportsMade.length,

@@ -5,6 +5,8 @@ fields:
   senderId: UuidValue
   content: String?
   imageUrl: String?
+  mediaUrl: String?
+  mediaType: String?
   createdAt: DateTime
 
   # Denormalized Sender Info

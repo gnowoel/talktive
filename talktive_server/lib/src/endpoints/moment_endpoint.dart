@@ -24,10 +24,11 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     final senderUuid = await getUserId(session);
     final resident = await getResidentProfile(session, senderUuid);
 
-    // 2. Level restriction: Only Level 10+ can post moments (prevent spam)
-    if (resident.level < 10) {
+    // 2. Floor restriction: Only Floor 2+ can post moments (prevent spam)
+    final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
+    if (effectiveFloor < 2) {
       throw Exception(
-        'You must be at least Level 10 to post moments. Keep chatting to level up! (Current level: ${resident.level})',
+        'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
       );
     }
 
@@ -38,16 +39,17 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
 
     // 5. Create Moment
     final moment = Moment(
-      authorId: resident.id!,
+      authorId: resident.userInfoId,
       imageUrl: imageUrl,
       caption: caption,
+      mediaType: 'image',
       createdAt: DateTime.now(),
       likesCount: 0,
       commentsCount: 0,
       authorName: resident.userName ?? 'Anonymous',
       authorAvatar: resident.avatar ?? '',
       authorMood: resident.mood,
-      authorFloor: ApartmentService.computeEffectiveFloor(resident),
+      authorFloor: effectiveFloor,
     );
 
     final savedMoment = await Moment.db.insertRow(session, moment);
@@ -101,6 +103,34 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
+  /// Lists the moments for a specific user.
+  Future<List<Moment>> listUserMoments(
+    Session session, {
+    required UuidValue userId,
+    int limit = 20,
+    int? lastId,
+  }) async {
+    // Validate inputs
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: 0,
+    ).throwIfInvalid();
+
+    return await Moment.db.find(
+      session,
+      limit: limit,
+      orderBy: (t) => t.id,
+      orderDescending: true,
+      where: (t) {
+        var filter = t.authorId.equals(userId);
+        if (lastId != null) {
+          filter &= t.id < lastId;
+        }
+        return filter;
+      },
+    );
+  }
+
   /// Likes a moment.
   Future<void> likeMoment(Session session, int momentId) async {
     // Validate inputs
@@ -140,7 +170,10 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       await Moment.db.updateRow(session, moment);
 
       // Send notification to moment author (if not liking own moment)
-      final momentAuthor = await Resident.db.findById(session, moment.authorId);
+      final momentAuthor = await Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(moment.authorId),
+      );
       if (momentAuthor != null && momentAuthor.userInfoId != userId) {
         await NotificationService.sendMomentLikeNotification(
           session,
@@ -277,7 +310,10 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       await Moment.db.updateRow(session, moment);
 
       // Send notification to moment author (if not commenting on own moment)
-      final momentAuthor = await Resident.db.findById(session, moment.authorId);
+      final momentAuthor = await Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(moment.authorId),
+      );
       if (momentAuthor != null && momentAuthor.userInfoId != userId) {
         await NotificationService.sendMomentCommentNotification(
           session,

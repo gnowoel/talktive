@@ -1,9 +1,10 @@
 class: Moment
 table: moment
 fields:
-  authorId: int
+  authorId: UuidValue
   imageUrl: String
   caption: String?
+  mediaType: String, default='image'
   createdAt: DateTime
   likesCount: int
   commentsCount: int

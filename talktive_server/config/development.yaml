@@ -52,6 +52,12 @@ sessionLogs:
   consoleEnabled: true
   consoleLogFormat: text # Defaults to "json", options are "text" or "json"
 
+# Configuration for Cloud Storage.
+storage:
+  - id: public
+    type: database
+    public: true
+
 # futureCallExecutionEnabled: true # Defaults to true
 
 #futureCall:

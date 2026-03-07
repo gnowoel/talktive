@@ -783,9 +783,11 @@ class EndpointMessage extends _i2.EndpointRef {
 
   /// Sends a message to a channel (Plaza, Group, or Private).
   _i3.Future<_i11.Message> sendMessage(
-    int channelId,
-    String content, {
+    int channelId, {
+    String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
   }) => caller.callServerEndpoint<_i11.Message>(
     'message',
     'sendMessage',
@@ -793,6 +795,8 @@ class EndpointMessage extends _i2.EndpointRef {
       'channelId': channelId,
       'content': content,
       'imageUrl': imageUrl,
+      'mediaUrl': mediaUrl,
+      'mediaType': mediaType,
     },
   );
 
@@ -850,6 +854,21 @@ class EndpointMoment extends _i2.EndpointRef {
     'moment',
     'listMoments',
     {
+      'limit': limit,
+      'lastId': lastId,
+    },
+  );
+
+  /// Lists the moments for a specific user.
+  _i3.Future<List<_i12.Moment>> listUserMoments({
+    required _i2.UuidValue userId,
+    required int limit,
+    int? lastId,
+  }) => caller.callServerEndpoint<List<_i12.Moment>>(
+    'moment',
+    'listUserMoments',
+    {
+      'userId': userId,
       'limit': limit,
       'lastId': lastId,
     },
@@ -1304,6 +1323,37 @@ class EndpointSearch extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointStorage extends _i2.EndpointRef {
+  EndpointStorage(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'storage';
+
+  /// Generates a description for a direct file upload to the public storage.
+  /// Only active residents (Floor 1+) can upload files.
+  _i3.Future<String?> getUploadDescription(String path) =>
+      caller.callServerEndpoint<String?>(
+        'storage',
+        'getUploadDescription',
+        {'path': path},
+      );
+
+  /// Verifies if a file was successfully uploaded.
+  _i3.Future<bool> verifyUpload(String path) => caller.callServerEndpoint<bool>(
+    'storage',
+    'verifyUpload',
+    {'path': path},
+  );
+
+  /// Gets the public URL for a file in the public storage.
+  _i3.Future<Uri?> getPublicUrl(String path) => caller.callServerEndpoint<Uri?>(
+    'storage',
+    'getPublicUrl',
+    {'path': path},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointStreak extends _i2.EndpointRef {
   EndpointStreak(_i2.EndpointCaller caller) : super(caller);
 
@@ -1499,6 +1549,7 @@ class Client extends _i2.ServerpodClientShared {
     report = EndpointReport(this);
     resident = EndpointResident(this);
     search = EndpointSearch(this);
+    storage = EndpointStorage(this);
     streak = EndpointStreak(this);
     userLike = EndpointUserLike(this);
     userProfile = EndpointUserProfile(this);
@@ -1536,6 +1587,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointSearch search;
 
+  late final EndpointStorage storage;
+
   late final EndpointStreak streak;
 
   late final EndpointUserLike userLike;
@@ -1563,6 +1616,7 @@ class Client extends _i2.ServerpodClientShared {
     'report': report,
     'resident': resident,
     'search': search,
+    'storage': storage,
     'streak': streak,
     'userLike': userLike,
     'userProfile': userProfile,

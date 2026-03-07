@@ -156,3 +156,31 @@ class MomentComments extends _$MomentComments {
     }
   }
 }
+
+/// Provider for a specific user's moments
+@riverpod
+class UserMoments extends _$UserMoments {
+  @override
+  FutureOr<List<Moment>> build(String userId) async {
+    return fetchUserMoments(userId);
+  }
+
+  Future<List<Moment>> fetchUserMoments(String userId, {int limit = 50}) async {
+    final client = ref.read(clientProvider);
+    return await client.moment.listUserMoments(
+      userId: UuidValue.fromString(userId),
+      limit: limit,
+    );
+  }
+
+  /// Refreshes the user's moments list
+  Future<void> refresh(String userId) async {
+    state = const AsyncValue.loading();
+    try {
+      final moments = await fetchUserMoments(userId);
+      state = AsyncValue.data(moments);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}

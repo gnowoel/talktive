@@ -18,6 +18,7 @@ abstract class Moment implements _i1.SerializableModel {
     required this.authorId,
     required this.imageUrl,
     this.caption,
+    String? mediaType,
     required this.createdAt,
     required this.likesCount,
     required this.commentsCount,
@@ -25,13 +26,14 @@ abstract class Moment implements _i1.SerializableModel {
     required this.authorAvatar,
     this.authorMood,
     required this.authorFloor,
-  });
+  }) : mediaType = mediaType ?? 'image';
 
   factory Moment({
     int? id,
-    required int authorId,
+    required _i1.UuidValue authorId,
     required String imageUrl,
     String? caption,
+    String? mediaType,
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
@@ -44,9 +46,12 @@ abstract class Moment implements _i1.SerializableModel {
   factory Moment.fromJson(Map<String, dynamic> jsonSerialization) {
     return Moment(
       id: jsonSerialization['id'] as int?,
-      authorId: jsonSerialization['authorId'] as int,
+      authorId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['authorId'],
+      ),
       imageUrl: jsonSerialization['imageUrl'] as String,
       caption: jsonSerialization['caption'] as String?,
+      mediaType: jsonSerialization['mediaType'] as String?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -64,11 +69,13 @@ abstract class Moment implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  int authorId;
+  _i1.UuidValue authorId;
 
   String imageUrl;
 
   String? caption;
+
+  String mediaType;
 
   DateTime createdAt;
 
@@ -89,9 +96,10 @@ abstract class Moment implements _i1.SerializableModel {
   @_i1.useResult
   Moment copyWith({
     int? id,
-    int? authorId,
+    _i1.UuidValue? authorId,
     String? imageUrl,
     String? caption,
+    String? mediaType,
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
@@ -105,9 +113,10 @@ abstract class Moment implements _i1.SerializableModel {
     return {
       '__className__': 'Moment',
       if (id != null) 'id': id,
-      'authorId': authorId,
+      'authorId': authorId.toJson(),
       'imageUrl': imageUrl,
       if (caption != null) 'caption': caption,
+      'mediaType': mediaType,
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
@@ -129,9 +138,10 @@ class _Undefined {}
 class _MomentImpl extends Moment {
   _MomentImpl({
     int? id,
-    required int authorId,
+    required _i1.UuidValue authorId,
     required String imageUrl,
     String? caption,
+    String? mediaType,
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
@@ -144,6 +154,7 @@ class _MomentImpl extends Moment {
          authorId: authorId,
          imageUrl: imageUrl,
          caption: caption,
+         mediaType: mediaType,
          createdAt: createdAt,
          likesCount: likesCount,
          commentsCount: commentsCount,
@@ -159,9 +170,10 @@ class _MomentImpl extends Moment {
   @override
   Moment copyWith({
     Object? id = _Undefined,
-    int? authorId,
+    _i1.UuidValue? authorId,
     String? imageUrl,
     Object? caption = _Undefined,
+    String? mediaType,
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
@@ -175,6 +187,7 @@ class _MomentImpl extends Moment {
       authorId: authorId ?? this.authorId,
       imageUrl: imageUrl ?? this.imageUrl,
       caption: caption is String? ? caption : this.caption,
+      mediaType: mediaType ?? this.mediaType,
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,

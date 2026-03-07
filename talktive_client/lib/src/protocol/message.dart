@@ -19,6 +19,8 @@ abstract class Message implements _i1.SerializableModel {
     required this.senderId,
     this.content,
     this.imageUrl,
+    this.mediaUrl,
+    this.mediaType,
     required this.createdAt,
     required this.senderName,
     this.senderAvatar,
@@ -32,6 +34,8 @@ abstract class Message implements _i1.SerializableModel {
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
@@ -48,6 +52,8 @@ abstract class Message implements _i1.SerializableModel {
       ),
       content: jsonSerialization['content'] as String?,
       imageUrl: jsonSerialization['imageUrl'] as String?,
+      mediaUrl: jsonSerialization['mediaUrl'] as String?,
+      mediaType: jsonSerialization['mediaType'] as String?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -71,6 +77,10 @@ abstract class Message implements _i1.SerializableModel {
 
   String? imageUrl;
 
+  String? mediaUrl;
+
+  String? mediaType;
+
   DateTime createdAt;
 
   String senderName;
@@ -90,6 +100,8 @@ abstract class Message implements _i1.SerializableModel {
     _i1.UuidValue? senderId,
     String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
     DateTime? createdAt,
     String? senderName,
     String? senderAvatar,
@@ -105,6 +117,8 @@ abstract class Message implements _i1.SerializableModel {
       'senderId': senderId.toJson(),
       if (content != null) 'content': content,
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (mediaUrl != null) 'mediaUrl': mediaUrl,
+      if (mediaType != null) 'mediaType': mediaType,
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
@@ -128,6 +142,8 @@ class _MessageImpl extends Message {
     required _i1.UuidValue senderId,
     String? content,
     String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
@@ -139,6 +155,8 @@ class _MessageImpl extends Message {
          senderId: senderId,
          content: content,
          imageUrl: imageUrl,
+         mediaUrl: mediaUrl,
+         mediaType: mediaType,
          createdAt: createdAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
@@ -156,6 +174,8 @@ class _MessageImpl extends Message {
     _i1.UuidValue? senderId,
     Object? content = _Undefined,
     Object? imageUrl = _Undefined,
+    Object? mediaUrl = _Undefined,
+    Object? mediaType = _Undefined,
     DateTime? createdAt,
     String? senderName,
     Object? senderAvatar = _Undefined,
@@ -168,6 +188,8 @@ class _MessageImpl extends Message {
       senderId: senderId ?? this.senderId,
       content: content is String? ? content : this.content,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
+      mediaUrl: mediaUrl is String? ? mediaUrl : this.mediaUrl,
+      mediaType: mediaType is String? ? mediaType : this.mediaType,
       createdAt: createdAt ?? this.createdAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,

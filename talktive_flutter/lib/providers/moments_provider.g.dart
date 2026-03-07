@@ -207,3 +207,102 @@ abstract class _$MomentComments extends $AsyncNotifier<List<MomentComment>> {
     element.handleCreate(ref, () => build(_$args));
   }
 }
+
+/// Provider for a specific user's moments
+
+@ProviderFor(UserMoments)
+final userMomentsProvider = UserMomentsFamily._();
+
+/// Provider for a specific user's moments
+final class UserMomentsProvider
+    extends $AsyncNotifierProvider<UserMoments, List<Moment>> {
+  /// Provider for a specific user's moments
+  UserMomentsProvider._({
+    required UserMomentsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'userMomentsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$userMomentsHash();
+
+  @override
+  String toString() {
+    return r'userMomentsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  UserMoments create() => UserMoments();
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserMomentsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$userMomentsHash() => r'89f4ef058a9476abd772d15c3d245bd7b8c1fca9';
+
+/// Provider for a specific user's moments
+
+final class UserMomentsFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          UserMoments,
+          AsyncValue<List<Moment>>,
+          List<Moment>,
+          FutureOr<List<Moment>>,
+          String
+        > {
+  UserMomentsFamily._()
+    : super(
+        retry: null,
+        name: r'userMomentsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider for a specific user's moments
+
+  UserMomentsProvider call(String userId) =>
+      UserMomentsProvider._(argument: userId, from: this);
+
+  @override
+  String toString() => r'userMomentsProvider';
+}
+
+/// Provider for a specific user's moments
+
+abstract class _$UserMoments extends $AsyncNotifier<List<Moment>> {
+  late final _$args = ref.$arg as String;
+  String get userId => _$args;
+
+  FutureOr<List<Moment>> build(String userId);
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<List<Moment>>, List<Moment>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<Moment>>, List<Moment>>,
+              AsyncValue<List<Moment>>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, () => build(_$args));
+  }
+}

@@ -15,6 +15,8 @@ import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
 import '../../widgets/duo/duo_chat_input.dart';
+import '../../services/media_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// Duolingo-style Global Lounge screen - public chat
 class PlazaChatScreen extends ConsumerStatefulWidget {
@@ -28,6 +30,7 @@ class PlazaChatScreen extends ConsumerStatefulWidget {
 class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  bool _isUploading = false;
 
   @override
   void dispose() {
@@ -36,9 +39,45 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     super.dispose();
   }
 
-  Future<void> _sendMessage() async {
+  Future<void> _pickAndSendImage() async {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    final floor = FloorUtils.computeFloor(currentResident);
+    if (floor < 2) {
+      SnackBarHelper.showError(context, 'You need to be Floor 2+ to send images in Plaza! 🏢');
+      return;
+    }
+
+    final mediaService = ref.read(mediaServiceProvider);
+    final image = await mediaService.pickImage();
+    if (image == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final imageUrl = await mediaService.uploadFile(image, 'chats');
+      if (imageUrl != null) {
+        await _sendMessage(imageUrl: imageUrl);
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.showError(context, 'Failed to upload image: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _sendMessage({String? imageUrl}) async {
     final content = _messageController.text.trim();
-    if (content.isEmpty) return;
+    if (content.isEmpty && imageUrl == null) return;
 
     final currentResident = ref.read(currentResidentProvider).value;
 
@@ -54,7 +93,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
 
     try {
-      await ref.read(realtimeChatProvider(1).notifier).sendMessage(content);
+      await ref.read(realtimeChatProvider(1).notifier).sendMessage(content, imageUrl: imageUrl);
       _messageController.clear();
       HapticFeedback.lightImpact();
 
@@ -120,9 +159,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       body: Column(
         children: [
           // Info banner
-          const DuoInfoBanner(
-            bannerId: 'plaza_text_only',
-            text: 'Text only. No images allowed in Plaza.',
+          DuoInfoBanner(
+            bannerId: 'plaza_image_rules',
+            text: currentResident != null && FloorUtils.computeFloor(currentResident) >= 2 
+              ? '📸 You can now share images in the Global Lounge!' 
+              : 'Text only. Floor 2+ residents can share images.',
           ),
           // Messages list
           Expanded(
@@ -154,8 +195,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       bottomNavigationBar: DuoChatInput(
         controller: _messageController,
         onSend: _sendMessage,
-        enabled: canSend,
-        hintText: canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident),
+        onImagePick: _pickAndSendImage,
+        enabled: canSend && !_isUploading,
+        hintText: _isUploading 
+            ? 'Uploading image...' 
+            : (canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident)),
       ),
     );
   }

@@ -17,6 +17,8 @@ import '../../helpers/snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_input.dart';
+import '../../services/media_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// Group chat screen for multi-user conversations
 class GroupChatScreen extends ConsumerStatefulWidget {
@@ -31,6 +33,7 @@ class GroupChatScreen extends ConsumerStatefulWidget {
 class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -44,16 +47,43 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     super.dispose();
   }
 
-  Future<void> _sendMessage() async {
+  Future<void> _pickAndSendImage() async {
+    final mediaService = ref.read(mediaServiceProvider);
+    final image = await mediaService.pickImage();
+    if (image == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final imageUrl = await mediaService.uploadFile(image, 'chats');
+      if (imageUrl != null) {
+        await _sendMessage(imageUrl: imageUrl);
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.showError(context, 'Failed to upload image: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _sendMessage({String? imageUrl}) async {
     final content = _messageController.text.trim();
-    if (content.isEmpty) {
+    if (content.isEmpty && imageUrl == null) {
       return;
     }
 
     try {
       await ref
           .read(realtimeChatProvider(widget.group.channelId).notifier)
-          .sendMessage(content);
+          .sendMessage(content, imageUrl: imageUrl);
       _messageController.clear();
       HapticFeedback.lightImpact();
 
@@ -258,9 +288,12 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       bottomNavigationBar: DuoChatInput(
         controller: _messageController,
         onSend: _sendMessage,
-        enabled: canSend,
+        onImagePick: _pickAndSendImage,
+        enabled: canSend && !_isUploading,
         activeColor: AppTheme.duoYellow,
-        hintText: canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident),
+        hintText: _isUploading 
+            ? 'Uploading image...' 
+            : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -15,6 +17,8 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
+import '../../services/media_service.dart';
+import 'package:image_picker/image_picker.dart';
 import '../profile/user_profile_view_screen.dart';
 
 /// Duolingo-style Moments screen - Photo feed
@@ -27,39 +31,89 @@ class MomentsScreen extends ConsumerStatefulWidget {
 
 class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   final _captionController = TextEditingController();
-  final _urlController = TextEditingController(text: 'https://picsum.photos/400/300');
+  XFile? _selectedImage;
+  bool _isUploading = false;
 
   @override
   void dispose() {
     _captionController.dispose();
-    _urlController.dispose();
     super.dispose();
   }
 
-  Future<void> _postMoment() async {
+  Future<void> _pickImage(StateSetter setModalState) async {
+    final image = await ref.read(mediaServiceProvider).pickImage();
+    if (image != null) {
+      setModalState(() {
+        _selectedImage = image;
+      });
+      // also update outer state if needed, but primary is modal
+      setState(() {
+        _selectedImage = image;
+      });
+    }
+  }
+
+  Future<void> _postMoment(StateSetter setModalState) async {
+    if (_selectedImage == null) {
+      SnackBarHelper.showError(context, 'Please select an image first! 📸');
+      return;
+    }
+
     final caption = _captionController.text.trim();
-    final imageUrl = _urlController.text.trim();
     
-    if (imageUrl.isEmpty) return;
+    setModalState(() {
+      _isUploading = true;
+    });
+    setState(() {
+      _isUploading = true;
+    });
 
     try {
+      // 1. Upload image to storage
+      debugPrint('Moments: Starting image upload...');
+      final imageUrl = await ref.read(mediaServiceProvider).uploadFile(
+        _selectedImage!, 
+        'moments',
+      );
+
+      if (imageUrl == null) {
+        throw Exception('Failed to upload image.');
+      }
+      debugPrint('Moments: Image uploaded successfully: $imageUrl');
+
+      // 2. Post moment to backend
       await ref.read(momentsProvider.notifier).postMoment(
         imageUrl: imageUrl, 
         caption: caption,
       );
+
       if (mounted) {
         Navigator.pop(context);
         _captionController.clear();
+        setState(() {
+          _selectedImage = null;
+          _isUploading = false;
+        });
         SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
       }
     } catch (e) {
+      debugPrint('Moments: Error posting moment: $e');
       if (mounted) {
         final errorMessage = e.toString();
-        if (errorMessage.contains('Level 10')) {
+        if (errorMessage.contains('Floor')) {
           _showLevelRequirementDialog(errorMessage);
         } else {
           SnackBarHelper.showError(context, e.toString());
         }
+      }
+    } finally {
+      if (mounted) {
+        setModalState(() {
+          _isUploading = false;
+        });
+        setState(() {
+          _isUploading = false;
+        });
       }
     }
   }
@@ -113,96 +167,129 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppTheme.duoRadiusLarge),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppTheme.duoRadiusLarge),
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: AppTheme.secondaryGradient,
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: AppTheme.secondaryGradient,
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.duoRadiusLarge),
+                  ),
                 ),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppTheme.duoRadiusLarge),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Row(
-                  children: [
-                    const Text('📸', style: TextStyle(fontSize: 28)),
-                    const SizedBox(width: AppTheme.duoSpacingSmall),
-                    const Expanded(
-                      child: Text(
-                        'New Moment',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Poppins',
+                child: SafeArea(
+                  bottom: false,
+                  child: Row(
+                    children: [
+                      const Text('📸', style: TextStyle(fontSize: 28)),
+                      const SizedBox(width: AppTheme.duoSpacingSmall),
+                      const Expanded(
+                        child: Text(
+                          'New Moment',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Image selector
+                      GestureDetector(
+                        onTap: _isUploading ? null : () => _pickImage(setModalState),
+                        child: Container(
+                          width: double.infinity,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                            border: Border.all(color: Colors.grey[300]!, width: 2, style: BorderStyle.solid),
+                          ),
+                          child: _selectedImage != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium - 2),
+                                  child: kIsWeb 
+                                    ? Image.network(_selectedImage!.path, fit: BoxFit.cover)
+                                    : Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add_a_photo, size: 48, color: Colors.grey[400]),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Select photo',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.duoSpacingLarge),
+                      DuoInput(
+                        controller: _captionController,
+                        labelText: 'Caption',
+                        hintText: "What's happening?",
+                        maxLines: 4,
+                        maxLength: 200,
+                        enabled: !_isUploading,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Post button
+              Padding(
                 padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DuoInput(
-                      controller: _urlController,
-                      labelText: 'Image URL',
-                      hintText: 'https://example.com/image.jpg',
-                      prefixIcon: Icons.link,
-                    ),
-                    const SizedBox(height: AppTheme.duoSpacingLarge),
-                    DuoInput(
-                      controller: _captionController,
-                      labelText: 'Caption',
-                      hintText: "What's happening?",
-                      maxLines: 4,
-                      maxLength: 200,
-                    ),
-                  ],
+                child: SafeArea(
+                  top: false,
+                  child: DuoButton(
+                    text: 'Post Moment',
+                    icon: Icons.send,
+                    secondaryIcon: Icons.auto_awesome,
+                    width: double.infinity,
+                    isLoading: _isUploading,
+                    onPressed: () => _postMoment(setModalState),
+                  ),
                 ),
               ),
-            ),
-            // Post button
-            Padding(
-              padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-              child: SafeArea(
-                top: false,
-                child: DuoButton(
-                  text: 'Post Moment',
-                  icon: Icons.send,
-                  secondaryIcon: Icons.auto_awesome,
-                  width: double.infinity,
-                  onPressed: _postMoment,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ).animate().slideY(begin: 1, end: 0, duration: 300.ms),
+            ],
+          ),
+        ).animate().slideY(begin: 1, end: 0, duration: 300.ms),
+      ),
     );
   }
 

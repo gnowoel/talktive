@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../services/achievement_service.dart';
+import '../services/input_validation_service.dart';
 
 class AchievementEndpoint extends Endpoint {
   /// Gets all achievements with user progress.
@@ -26,6 +27,10 @@ class AchievementEndpoint extends Endpoint {
     Session session,
     List<int> achievementIds,
   ) async {
+    for (final id in achievementIds) {
+      InputValidationService.validateId(id, 'Achievement ID').throwIfInvalid();
+    }
+
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -48,3 +53,4 @@ class AchievementEndpoint extends Endpoint {
     await AchievementService.seedAchievements(session);
   }
 }
+

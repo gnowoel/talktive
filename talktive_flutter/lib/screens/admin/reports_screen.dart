@@ -7,6 +7,7 @@ import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_button.dart';
 
 /// Reports moderation screen for admins
 class ReportsScreen extends ConsumerStatefulWidget {
@@ -186,50 +187,25 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton(
+                          child: DuoButton(
+                            text: 'Reject',
                             onPressed: () {
                               Navigator.pop(context);
                               _resolveReport(report.id!, ReportStatus.rejected);
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.textSecondary,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Reject',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            variant: DuoButtonVariant.secondary,
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: ElevatedButton(
+                          child: DuoButton(
+                            text: 'Approve & Take Action',
                             onPressed: () {
                               Navigator.pop(context);
                               _resolveReport(report.id!, ReportStatus.approved);
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.errorColor,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Approve & Take Action',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            color: AppTheme.errorColor,
                           ),
                         ),
                       ],
@@ -475,36 +451,23 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: DuoButton(
+                    text: 'Reject',
                     onPressed: () =>
                         _resolveReport(report.id!, ReportStatus.rejected),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppTheme.textSecondary),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Reject',
-                      style: TextStyle(color: AppTheme.textSecondary),
-                    ),
+                    variant: DuoButtonVariant.secondary,
+                    size: DuoButtonSize.small,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton(
+                  child: DuoButton(
+                    text: 'Approve',
                     onPressed: () =>
                         _resolveReport(report.id!, ReportStatus.approved),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.errorColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Approve',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    size: DuoButtonSize.small,
+                    color: AppTheme.errorColor,
                   ),
                 ),
               ],

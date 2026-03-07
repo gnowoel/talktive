@@ -8,6 +8,7 @@ import '../../config/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth/google_sign_in_button.dart';
+import '../../widgets/duo/duo_button.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -184,16 +185,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               top: 50,
               right: 20,
               child: SafeArea(
-                child: TextButton(
+                child: DuoButton(
+                  text: 'Skip',
                   onPressed: _skipToEnd,
-                  child: Text(
-                    'Skip',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  variant: DuoButtonVariant.ghost,
+                  size: DuoButtonSize.small,
+                  color: Colors.white.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -229,28 +226,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                     // Action Button
                     SizedBox(
                           width: double.infinity,
-                          height: 58,
                           child: _currentPage < _pages.length - 1
-                              ? ElevatedButton(
+                              ? DuoButton(
+                                  text: 'Next',
                                   onPressed: _nextPage,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor:
-                                        _pages[_currentPage].backgroundColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(29),
-                                    ),
-                                    elevation: 8,
-                                    shadowColor: Colors.black.withValues(alpha: 0.3),
-                                  ),
-                                  child: const Text(
-                                    'Next',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
+                                  variant: DuoButtonVariant.secondary,
+                                  size: DuoButtonSize.large,
+                                  color: Colors.white,
                                 )
                               : GoogleSignInButton(
                                   onPressed: _getStarted,

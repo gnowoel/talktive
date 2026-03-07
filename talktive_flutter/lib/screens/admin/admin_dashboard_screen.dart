@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_button.dart';
 import 'reports_screen.dart';
 import 'users_screen.dart';
 import 'analytics_screen.dart';
@@ -102,28 +103,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
                 ),
                 const SizedBox(height: 32),
-                ElevatedButton(
+                DuoButton(
+                  text: 'Go Back',
                   onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppTheme.duoRadiusMedium,
-                      ),
-                    ),
-                  ),
-                  child: const Text(
-                    'Go Back',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  variant: DuoButtonVariant.primary,
                 ),
               ],
             ),

@@ -225,6 +225,13 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Safety UI**: Updated `BlockedUsersScreen` to use actual resident names and avatars instead of generic placeholders.
   - **App Deployment**: Successfully started Serverpod server with migrations and launched the Flutter web app.
 
+- Phase 8.18: UI Standardization & Backend Hardening (March 2026)
+  - **UI Consistency**: Standardized primary actions by migrating all standard Flutter buttons (`ElevatedButton`, `TextButton`, `OutlinedButton`) to the custom `DuoButton` component across all major screens (Onboarding, Profiles, Admin, Groups).
+  - **Backend Safety**: Integrated `InputValidationService` across all key endpoints (`Resident`, `Admin`, `PrivateChat`, `Achievement`, `Streak`, `UserLike`) to ensure strict data integrity and prevent malformed requests.
+  - **Validation Expansion**: Added `validateName` and `validateGender` to the central validation service.
+  - **UX Polishing**: Refactored `AdminDashboard`, `UsersScreen`, `ReportsScreen`, and `UserProfileViewScreen` for a more consistent Duolingo-inspired aesthetic.
+  - **Error Handling**: Standardized error displays using `DuoEmptyState` with retry logic and integrated `DuoLoadingIndicator` for all asynchronous states.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

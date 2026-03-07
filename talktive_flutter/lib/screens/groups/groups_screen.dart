@@ -90,10 +90,12 @@ class GroupsScreen extends ConsumerWidget {
           
           const SizedBox(height: 32),
           Center(
-            child: TextButton.icon(
+            child: DuoButton(
               onPressed: () => _showCreateDialog(context),
-              icon: const Icon(Icons.add, color: AppTheme.duoYellow),
-              label: const Text('Create New Club', style: TextStyle(color: AppTheme.duoYellow, fontWeight: FontWeight.bold)),
+              icon: Icons.add,
+              text: 'Create New Club',
+              variant: DuoButtonVariant.ghost,
+              color: AppTheme.duoYellow,
             ),
           ),
           const SizedBox(height: 100), // Space for bottom nav

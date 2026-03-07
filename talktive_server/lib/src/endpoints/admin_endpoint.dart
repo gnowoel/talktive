@@ -4,6 +4,7 @@ import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
 import '../services/data_archival_service.dart';
+import '../services/input_validation_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class AdminEndpoint extends Endpoint with EndpointAuthMixin {
@@ -27,6 +28,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 20,
     int offset = 0,
   }) async {
+    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
     await getAdminProfile(session);
 
     final reports = await protocol.Report.db.find(
@@ -78,6 +80,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 50,
     int offset = 0,
   }) async {
+    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
     await getAdminProfile(session);
 
     final reports = await protocol.Report.db.find(
@@ -128,6 +131,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required protocol.ReportStatus status,
     String? adminNotes,
   }) async {
+    InputValidationService.validateId(reportId, 'Report ID').throwIfInvalid();
     await getAdminProfile(session);
 
     final report = await protocol.Report.db.findById(session, reportId);
@@ -148,6 +152,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required String userId,
     String? reason,
   }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
@@ -172,6 +177,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     Session session, {
     required String userId,
   }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
@@ -197,6 +203,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required String userId,
     String? reason,
   }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
@@ -222,6 +229,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required int messageId,
     String? reason,
   }) async {
+    InputValidationService.validateId(messageId, 'Message ID').throwIfInvalid();
     await getAdminProfile(session);
 
     final message = await protocol.Message.db.findById(session, messageId);
@@ -239,6 +247,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required int momentId,
     String? reason,
   }) async {
+    InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
     await getAdminProfile(session);
 
     final moment = await protocol.Moment.db.findById(session, momentId);
@@ -372,6 +381,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required String query,
     int limit = 20,
   }) async {
+    InputValidationService.validatePagination(limit: limit, offset: 0).throwIfInvalid();
     await getAdminProfile(session);
 
     // Try to parse as UUID first
@@ -444,6 +454,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     Session session, {
     required String userId,
   }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
@@ -467,6 +478,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     Session session, {
     required String userId,
   }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
@@ -490,6 +502,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     Session session, {
     required String userId,
   }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     await getAdminProfile(session);
 
     final userUuid = UuidValue.fromString(userId);

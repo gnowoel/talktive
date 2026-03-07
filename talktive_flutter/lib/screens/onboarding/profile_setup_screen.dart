@@ -10,6 +10,7 @@ import '../../config/theme.dart';
 import '../../config/languages.dart';
 import '../../config/interests.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/duo/duo_button.dart';
 
 import 'package:talktive_client/talktive_client.dart';
 
@@ -488,10 +489,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                     },
                   ),
                   const SizedBox(height: 16),
-                  TextButton.icon(
+                  DuoButton(
                     onPressed: _showEmojiPicker,
-                    icon: const Icon(Icons.add_reaction_outlined),
-                    label: const Text('Choose Custom Emoji'),
+                    icon: Icons.add_reaction_outlined,
+                    text: 'Choose Custom Emoji',
+                    variant: DuoButtonVariant.ghost,
+                    size: DuoButtonSize.small,
                   ),
                   const SizedBox(height: 32),
                 ],
@@ -1209,58 +1212,21 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           children: [
             if (_currentStep > 0)
               Expanded(
-                child: OutlinedButton(
+                child: DuoButton(
+                  text: 'Back',
                   onPressed: _isLoading ? null : _previousStep,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    side: const BorderSide(
-                      color: AppTheme.primaryColor,
-                      width: 2,
-                    ),
-                  ),
-                  child: const Text(
-                    'Back',
-                    style: TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  variant: DuoButtonVariant.secondary,
                 ),
               ),
             if (_currentStep > 0) const SizedBox(width: 12),
             Expanded(
               flex: _currentStep == 0 ? 1 : 2,
-              child: ElevatedButton(
+              child: DuoButton(
+                text: _currentStep < 6 ? 'Next' : 'Complete Setup',
                 onPressed: _isLoading ? null : _nextStep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        _currentStep < 6 ? 'Next' : 'Complete Setup',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                isLoading: _isLoading,
+                variant: DuoButtonVariant.primary,
+                secondaryIcon: _currentStep < 6 ? null : Icons.celebration,
               ),
             ),
           ],

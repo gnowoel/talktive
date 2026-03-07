@@ -1,11 +1,13 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
+import '../services/input_validation_service.dart';
 import 'dart:math';
 
 class UserLikeEndpoint extends Endpoint {
   /// Vouch/Like a user.
   /// Implements One-Vote Rule and adds +10 to target's Trust Score.
   Future<void> likeUser(Session session, String targetUserId) async {
+    InputValidationService.validateUuid(targetUserId).throwIfInvalid();
     final callerIdentifier = session.authenticated?.userIdentifier;
     if (callerIdentifier == null) {
       throw Exception('Not authenticated');
@@ -76,6 +78,7 @@ class UserLikeEndpoint extends Endpoint {
   /// Remove a Vouch/Like from a user.
   /// Removes -10 from target's Trust Score.
   Future<void> unlikeUser(Session session, String targetUserId) async {
+    InputValidationService.validateUuid(targetUserId).throwIfInvalid();
     final callerIdentifier = session.authenticated?.userIdentifier;
     if (callerIdentifier == null) {
       throw Exception('Not authenticated');
@@ -132,3 +135,4 @@ class UserLikeEndpoint extends Endpoint {
     return likes.map((e) => e.receiverId.toString()).toList();
   }
 }
+

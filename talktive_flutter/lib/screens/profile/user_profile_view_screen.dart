@@ -7,6 +7,7 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_badge.dart';
+import '../../widgets/duo/duo_card.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -204,18 +205,17 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               : 'You will no longer see their messages, and they cannot start a chat with you.',
         ),
         actions: [
-          TextButton(
+          DuoButton(
+            text: 'Cancel',
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            variant: DuoButtonVariant.ghost,
+            size: DuoButtonSize.small,
           ),
-          TextButton(
+          DuoButton(
+            text: isBlocked ? 'Unblock' : 'Block',
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(
-              foregroundColor: isBlocked
-                  ? AppTheme.duoGreen
-                  : AppTheme.errorColor,
-            ),
-            child: Text(isBlocked ? 'Unblock' : 'Block'),
+            color: isBlocked ? AppTheme.duoGreen : AppTheme.errorColor,
+            size: DuoButtonSize.small,
           ),
         ],
       ),
@@ -773,11 +773,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           ],
         ),
         actions: [
-          TextButton(
+          DuoButton(
+            text: 'Cancel',
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+            variant: DuoButtonVariant.ghost,
+            size: DuoButtonSize.small,
           ),
-          TextButton(
+          DuoButton(
+            text: 'Report',
             onPressed: () async {
               final reason = reasonController.text.trim();
               if (reason.isEmpty) {
@@ -806,10 +809,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 }
               }
             },
-            child: const Text(
-              'Report',
-              style: TextStyle(color: AppTheme.errorColor, fontWeight: FontWeight.bold),
-            ),
+            color: AppTheme.errorColor,
+            size: DuoButtonSize.small,
           ),
         ],
       ),

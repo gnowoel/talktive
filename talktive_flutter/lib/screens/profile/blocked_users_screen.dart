@@ -8,6 +8,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_button.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
 
@@ -125,21 +126,13 @@ class BlockedUsersScreen extends ConsumerWidget {
                       ),
                     ),
                     // Unblock button
-                    ElevatedButton(
+                    DuoButton(
+                      text: 'Unblock',
                       onPressed: () =>
                           _unblockUser(context, ref, userId, resident.userName ?? 'Resident'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.duoGreen,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text('Unblock'),
+                      variant: DuoButtonVariant.secondary,
+                      size: DuoButtonSize.small,
+                      color: AppTheme.duoGreen,
                     ),
                   ],
                 ),

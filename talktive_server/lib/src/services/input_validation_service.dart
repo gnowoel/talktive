@@ -8,6 +8,7 @@ class InputValidationService {
   static const int maxCaptionLength = 500;
   static const int maxCommentLength = 500;
   static const int maxGroupNameLength = 50;
+  static const int maxNameLength = 50;
   static const int maxGroupDescriptionLength = 500;
   static const int maxReportReasonLength = 500;
   static const int maxBioLength = 500;
@@ -17,6 +18,32 @@ class InputValidationService {
   static const int maxGroupMembers = 500;
   static const int maxListLimit = 100;
   static const int maxOffset = 10000;
+
+  /// Validates a user name or group name.
+  static ValidationResult validateName(String name, {String fieldName = 'Name'}) {
+    if (name.trim().isEmpty) {
+      return ValidationResult(
+        isValid: false,
+        error: '$fieldName cannot be empty',
+      );
+    }
+
+    if (name.length > maxNameLength) {
+      return ValidationResult(
+        isValid: false,
+        error: '$fieldName must be $maxNameLength characters or less',
+      );
+    }
+
+    if (name.length < 2) {
+      return ValidationResult(
+        isValid: false,
+        error: '$fieldName must be at least 2 characters',
+      );
+    }
+
+    return ValidationResult(isValid: true);
+  }
 
   /// Validates a message content string.
   static ValidationResult validateMessageContent(String content) {
@@ -70,21 +97,7 @@ class InputValidationService {
 
   /// Validates a group name.
   static ValidationResult validateGroupName(String name) {
-    if (name.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Group name cannot be empty',
-      );
-    }
-
-    if (name.length > maxGroupNameLength) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Group name must be $maxGroupNameLength characters or less',
-      );
-    }
-
-    return ValidationResult(isValid: true);
+    return validateName(name, fieldName: 'Group name');
   }
 
   /// Validates a group description.
@@ -201,6 +214,18 @@ class InputValidationService {
     }
 
     return validateUrl(imageUrl);
+  }
+
+  /// Validates a gender string.
+  static ValidationResult validateGender(String gender) {
+    const validGenders = ['male', 'female', 'non-binary', 'prefer-not-to-say'];
+    if (!validGenders.contains(gender.toLowerCase())) {
+      return ValidationResult(
+        isValid: false,
+        error: 'Invalid gender selection',
+      );
+    }
+    return ValidationResult(isValid: true);
   }
 
   /// Validates a bio text.

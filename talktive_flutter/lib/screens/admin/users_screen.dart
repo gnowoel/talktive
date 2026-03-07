@@ -7,6 +7,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_input.dart';
+import '../../widgets/duo/duo_button.dart';
 
 /// User management screen for admins
 class UsersScreen extends ConsumerStatefulWidget {
@@ -358,16 +359,17 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(
+          DuoButton(
+            text: 'Cancel',
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            variant: DuoButtonVariant.ghost,
+            size: DuoButtonSize.small,
           ),
-          ElevatedButton(
+          DuoButton(
+            text: 'Confirm',
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.errorColor,
-            ),
-            child: const Text('Confirm'),
+            color: AppTheme.errorColor,
+            size: DuoButtonSize.small,
           ),
         ],
       ),

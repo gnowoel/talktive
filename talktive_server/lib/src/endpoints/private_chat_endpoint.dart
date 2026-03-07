@@ -3,6 +3,7 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
+import '../services/input_validation_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
@@ -12,6 +13,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     String otherUserId,
   ) async {
+    InputValidationService.validateUuid(otherUserId).throwIfInvalid();
     final currentUserId = await getUserId(session);
     final otherUserUuid = UuidValue.fromString(otherUserId);
 
@@ -208,6 +210,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int channelId,
   ) async {
+    InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -285,6 +288,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int privateChatId,
   ) async {
+    InputValidationService.validateId(privateChatId, 'Private Chat ID').throwIfInvalid();
     final privateChat = await protocol.PrivateChat.db.findById(
       session,
       privateChatId,
@@ -304,6 +308,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     int channelId,
     bool accept,
   ) async {
+    InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final currentUserId = await getUserId(session);
 
     final member = await protocol.ChannelMember.db.findFirstRow(

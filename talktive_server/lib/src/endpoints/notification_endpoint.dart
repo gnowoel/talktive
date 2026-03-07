@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/notification_service.dart';
+import '../services/input_validation_service.dart';
 
 class NotificationEndpoint extends Endpoint {
   /// Gets user's notifications.
@@ -10,6 +11,7 @@ class NotificationEndpoint extends Endpoint {
     int offset = 0,
     bool unreadOnly = false,
   }) async {
+    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -33,6 +35,9 @@ class NotificationEndpoint extends Endpoint {
     Session session,
     List<int> notificationIds,
   ) async {
+    for (final id in notificationIds) {
+      InputValidationService.validateId(id, 'Notification ID').throwIfInvalid();
+    }
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -88,3 +93,4 @@ class NotificationEndpoint extends Endpoint {
     await NotificationService.unregisterDeviceToken(session, token);
   }
 }
+

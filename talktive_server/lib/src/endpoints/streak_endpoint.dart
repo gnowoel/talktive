@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/streak_service.dart';
+import '../services/input_validation_service.dart';
 
 class StreakEndpoint extends Endpoint {
   /// Gets the current user's streak data.
@@ -50,6 +51,7 @@ class StreakEndpoint extends Endpoint {
     Session session, {
     int limit = 30,
   }) async {
+    InputValidationService.validatePagination(limit: limit, offset: 0).throwIfInvalid();
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -66,3 +68,4 @@ class StreakEndpoint extends Endpoint {
     );
   }
 }
+

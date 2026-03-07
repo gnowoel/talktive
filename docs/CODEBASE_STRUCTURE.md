@@ -68,7 +68,7 @@ talktive_flutter/lib/
 
 **Services:**
 - `services/fireauth.dart` - Firebase Authentication
-- `services/firedata.dart` - Firebase Realtime Database
+- `services/firedata.dartMap` - Firebase Realtime Database
 - `services/firestore.dart` - Firestore operations
 - `services/storage.dart` - Firebase Storage
 
@@ -109,12 +109,13 @@ talktive_flutter/lib/
 - `providers/chat_provider.dart` - Chat state
 - `providers/private_chat_provider.dart` - Private chats
 - `providers/group_provider.dart` - Groups
-- `providers/resident_provider.dart` - User data
-- `providers/current_resident_provider.dart` - Current user
+- `providers/current_resident_provider.dart` - Current user data
 - `providers/realtime_chat_provider.dart` - Real-time messaging
 - `providers/notification_provider.dart` - Notifications
 - `providers/streak_provider.dart` - Streaks
 - `providers/achievement_provider.dart` - Achievements
+- `providers/user_likes_provider.dart` - User likes/vouches
+- `providers/user_profile_provider.dart` - External user profiles
 
 **Services:**
 - `services/serverpod_notification_service.dart` - Serverpod notifications

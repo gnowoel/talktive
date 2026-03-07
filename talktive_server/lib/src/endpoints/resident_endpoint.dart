@@ -3,6 +3,7 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
+import '../services/input_validation_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
@@ -44,6 +45,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Fetches a Resident profile by their user ID.
   Future<Resident?> getResidentById(Session session, String userId) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
     final userUuid = UuidValue.fromString(userId);
 
     return await Resident.db.findFirstRow(
@@ -66,6 +68,13 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? languages,
     String mood = '😊',
   }) async {
+    // Input validation
+    InputValidationService.validateName(name).throwIfInvalid();
+    InputValidationService.validateGender(gender).throwIfInvalid();
+    InputValidationService.validateBio(bio).throwIfInvalid();
+    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
+    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+
     final senderUuid = await getUserId(session);
 
     // 1. Check if resident already exists
@@ -163,6 +172,13 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? languages,
     String? mood,
   }) async {
+    // Input validation
+    InputValidationService.validateName(name).throwIfInvalid();
+    InputValidationService.validateGender(gender).throwIfInvalid();
+    InputValidationService.validateBio(bio).throwIfInvalid();
+    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
+    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+
     final senderUuid = await getUserId(session);
     final resident = await getResidentProfile(session, senderUuid);
 

@@ -19,6 +19,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../moments/user_moments_screen.dart';
+import '../../providers/user_profile_provider.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -42,41 +44,16 @@ class UserProfileViewScreen extends ConsumerStatefulWidget {
 }
 
 class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
-  UserProfileView? _profile;
-  bool _loading = true;
-  String? _error;
-
   @override
   void initState() {
     super.initState();
-    _loadProfile();
-  }
-
-  Future<void> _loadProfile() async {
-    try {
-      final client = ref.read(clientProvider);
-      final profile = await client.userProfile.getUserProfile(widget.userId);
-
-      if (context.mounted) {
-        setState(() {
-          _profile = profile;
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (context.mounted) {
-        setState(() {
-          _error = e.toString();
-          _loading = false;
-        });
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final blockedIds = ref.watch(blockedUsersProvider).value ?? [];
     final isBlocked = blockedIds.contains(widget.userId);
+    final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
@@ -97,44 +74,53 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         ),
         actions: [_buildTrailingMenu(isBlocked)],
       ),
-      body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-              ),
-            )
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Could not load profile',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _error!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textSecondary,
-                      fontFamily: 'Rubik',
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            )
-          : _buildProfileContent(isBlocked),
-      bottomNavigationBar: isBlocked || _loading || _error != null
+      body: profileAsync.when(
+        data: (profile) => _buildProfileContent(isBlocked, profile),
+        loading: () => const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          ),
+        ),
+        error: (error, stack) => _buildErrorState(error.toString()),
+      ),
+      bottomNavigationBar: isBlocked || profileAsync.isLoading || profileAsync.hasError
           ? null
           : _buildBottomBar(context, ref),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
+          const SizedBox(height: 16),
+          const Text(
+            'Could not load profile',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error,
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppTheme.textSecondary,
+              fontFamily: 'Rubik',
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          TextButton(
+            onPressed: () => ref.invalidate(userProfileProvider(widget.userId)),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -258,24 +244,20 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     }
   }
 
-  Widget _buildProfileContent(bool isBlocked) {
-    if (_profile == null) {
-      return const Center(child: Text('Profile not found'));
-    }
-
-    final name = _profile!.userName ?? widget.userName ?? 'Unknown';
-    final avatar = _profile!.userAvatar ?? widget.userAvatar;
-    final floor = _profile!.floor;
-    final bio = _profile!.bio;
-    final gender = _profile!.gender;
-    final country = _profile!.country;
-    final interests = _profile!.interests;
-    final languages = _profile!.languages;
-    final messageCount = _profile!.totalMessages;
-    final momentCount = _profile!.totalMoments;
-    final achievementCount = _profile!.achievementsUnlocked;
-    final streakDays = _profile!.currentStreak;
-    final mutualGroups = _profile!.mutualGroups;
+  Widget _buildProfileContent(bool isBlocked, UserProfileView? profile) {
+    final name = profile?.userName ?? widget.userName ?? 'Neighbor';
+    final avatar = profile?.userAvatar ?? widget.userAvatar;
+    final floor = profile?.floor ?? widget.userFloor ?? 1;
+    final bio = profile?.bio ?? 'No bio yet.';
+    final gender = profile?.gender;
+    final country = profile?.country;
+    final interests = profile?.interests ?? [];
+    final languages = profile?.languages ?? [];
+    final messageCount = profile?.totalMessages ?? 0;
+    final momentCount = profile?.totalMoments ?? 0;
+    final achievementCount = profile?.achievementsUnlocked ?? 0;
+    final streakDays = profile?.currentStreak ?? 0;
+    final mutualGroups = profile?.mutualGroups ?? 0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -311,7 +293,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
           ],
-          if (_profile!.userMood != null && _profile!.userMood!.isNotEmpty) ...[
+          if (profile?.userMood != null && profile!.userMood!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -329,7 +311,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(_profile!.userMood!, style: const TextStyle(fontSize: 24)),
+                  Text(profile.userMood!, style: const TextStyle(fontSize: 24)),
                   const SizedBox(width: 8),
                   Text(
                     'Current Mood',
@@ -346,11 +328,11 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Action Button (Vouch)
-          _buildVouchButton().animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+          _buildVouchButton(profile).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Stats Grid
-          _buildStatsGrid(),
+          _buildStatsGrid(profile),
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Info cards
@@ -427,7 +409,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     );
   }
 
-  Widget _buildVouchButton() {
+  Widget _buildVouchButton(UserProfileView? profile) {
     final likedIds = ref.watch(userLikesProvider).value ?? [];
     final isLiked = likedIds.contains(widget.userId);
 
@@ -464,10 +446,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     );
   }
 
-  Widget _buildStatsGrid() {
-    final floor = _profile!.floor;
-    final messages = _profile!.totalMessages;
-    final actualTrustScore = _profile!.trustScore;
+  Widget _buildStatsGrid(UserProfileView? profile) {
+    final floor = profile?.floor ?? widget.userFloor ?? 1;
+    final messages = profile?.totalMessages ?? 0;
+    final actualTrustScore = profile?.trustScore ?? 100;
 
     return GridView.count(
       crossAxisCount: 2,
@@ -486,7 +468,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             _getTrustColor(actualTrustScore).withValues(alpha: 0.7),
           ],
         ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
-        _buildXPCard()
+        _buildXPCard(profile)
             .animate()
             .fadeIn(delay: 350.ms)
             .scale(begin: const Offset(0.8, 0.8)),
@@ -508,6 +490,27 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             AppTheme.accentColor.withValues(alpha: 0.7),
           ],
         ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
+        // Moments
+        DuoStatCard(
+          icon: Icons.photo_library,
+          value: '${profile?.totalMoments ?? 0}',
+          label: 'Moments',
+          gradientColors: [
+            AppTheme.secondaryColor,
+            AppTheme.secondaryColor.withValues(alpha: 0.7),
+          ],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserMomentsScreen(
+                  userId: widget.userId,
+                  userName: profile?.userName ?? widget.userName ?? 'Resident',
+                ),
+              ),
+            );
+          },
+        ).animate().fadeIn(delay: 500.ms).scale(begin: const Offset(0.8, 0.8)),
       ],
     );
   }
@@ -522,13 +525,13 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     }
   }
 
-  Widget _buildXPCard() {
-    final xp = _profile?.xp ?? 0;
+  Widget _buildXPCard(UserProfileView? profile) {
+    final xp = profile?.xp ?? 0;
     
     var xpDisplay = '0/50';
-    if (_profile != null) {
-      final progress = FloorUtils.getXPProgressFromProfile(_profile!);
-      final needed = FloorUtils.getXPNeededFromProfile(_profile!);
+    if (profile != null) {
+      final progress = FloorUtils.getXPProgressFromProfile(profile);
+      final needed = FloorUtils.getXPNeededFromProfile(profile);
       xpDisplay = '$progress/$needed';
     }
 

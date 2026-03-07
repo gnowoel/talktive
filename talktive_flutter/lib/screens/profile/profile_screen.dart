@@ -19,6 +19,8 @@ import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import '../achievements/achievements_screen.dart';
 import 'blocked_users_screen.dart';
+import '../moments/user_moments_screen.dart';
+import '../../providers/user_profile_provider.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreen extends ConsumerWidget {
@@ -159,7 +161,7 @@ class ProfileScreen extends ConsumerWidget {
           // Streak card
           _buildStreakCard(context, ref),
           // Stats grid
-          _buildStatsGrid(resident),
+          _buildStatsGrid(context, ref, resident),
           // Languages section
           _buildLanguagesSection(resident),
           // Interests section
@@ -252,7 +254,12 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsGrid(Resident? resident) {
+  Widget _buildStatsGrid(BuildContext context, WidgetRef ref, Resident? resident) {
+    // We also fetch the profile view for complete stats (like total moments)
+    final profileView = resident != null 
+        ? ref.watch(userProfileProvider(resident.userInfoId.toString())).value 
+        : null;
+
     return Padding(
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       child: GridView.count(
@@ -279,7 +286,7 @@ class ProfileScreen extends ConsumerWidget {
               .fadeIn(delay: 300.ms)
               .scale(begin: const Offset(0.8, 0.8)),
           // XP (Experience Points)
-          _buildXPCard(resident)
+          _buildXPCard(context, resident)
               .animate()
               .fadeIn(delay: 350.ms)
               .scale(begin: const Offset(0.8, 0.8)),
@@ -297,7 +304,7 @@ class ProfileScreen extends ConsumerWidget {
           // Messages
           DuoStatCard(
                 icon: Icons.message,
-                value: '${resident?.experienceMessageCount ?? 0}',
+                value: '${profileView?.totalMessages ?? resident?.experienceMessageCount ?? 0}',
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,
@@ -306,6 +313,32 @@ class ProfileScreen extends ConsumerWidget {
               )
               .animate()
               .fadeIn(delay: 450.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
+          // Moments
+          DuoStatCard(
+                icon: Icons.photo_library,
+                value: '${profileView?.totalMoments ?? 0}',
+                label: 'Moments',
+                gradientColors: [
+                  AppTheme.secondaryColor,
+                  AppTheme.secondaryColor.withValues(alpha: 0.7),
+                ],
+                onTap: () {
+                  if (resident != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserMomentsScreen(
+                          userId: resident.userInfoId.toString(),
+                          userName: resident.userName ?? 'Me',
+                        ),
+                      ),
+                    );
+                  }
+                },
+              )
+              .animate()
+              .fadeIn(delay: 500.ms)
               .scale(begin: const Offset(0.8, 0.8)),
         ],
       ),
@@ -324,7 +357,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   /// Build XP card with progress indicator
-  Widget _buildXPCard(Resident? resident) {
+  Widget _buildXPCard(BuildContext context, Resident? resident) {
     final xp = resident?.xp ?? 0;
 
     // Default placeholder

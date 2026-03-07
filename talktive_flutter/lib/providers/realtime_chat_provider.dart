@@ -113,7 +113,7 @@ class RealtimeChat extends _$RealtimeChat {
       // Send message to server
       final savedMessage = await client.message.sendMessage(
         _channelId,
-        content.trim(),
+        content: content.trim(),
         imageUrl: imageUrl,
       );
 

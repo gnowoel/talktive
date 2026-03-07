@@ -41,7 +41,7 @@ class Chat extends _$Chat {
     try {
       final savedMessage = await client.message.sendMessage(
         _channelId,
-        content,
+        content: content,
       );
 
       // Optimistic update logic is tricky without ID, so valid strategy is:

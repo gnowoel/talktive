@@ -8,10 +8,11 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
+import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
-import '../../services/storage.dart';
+import '../../services/media_service.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -99,46 +100,28 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   }
 
   Future<void> _pickAndSendImage() async {
+    final mediaService = ref.read(mediaServiceProvider);
+    final image = await mediaService.pickImage();
+    if (image == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 70,
-        maxWidth: 1440,
-      );
-
-      if (image == null) return;
-
-      setState(() {
-        _isUploading = true;
-      });
-
-      // Upload image
-      // Note: Using legacy Storage service which uses Firebase Storage
-      // This maintains compatibility with existing infrastructure
-      final bytes = await image.readAsBytes();
-      final storage = Storage();
-      final path =
-          'private_chats/${widget.privateChat.channelId}/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
-      final downloadUrl = await storage.saveData(path, bytes);
-
-      // Send message with image URL
-      await _sendMessageInternal(imageUrl: downloadUrl);
-
-      setState(() {
-        _isUploading = false;
-      });
+      final imageUrl = await mediaService.uploadFile(image, 'chats');
+      if (imageUrl != null) {
+        await _sendMessageInternal(imageUrl: imageUrl);
+      }
     } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to upload image: $e'),
-            backgroundColor: AppTheme.duoRed,
-          ),
-        );
+        SnackBarHelper.showError(context, 'Failed to upload image: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
       }
     }
   }

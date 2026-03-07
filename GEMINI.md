@@ -232,6 +232,18 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **UX Polishing**: Refactored `AdminDashboard`, `UsersScreen`, `ReportsScreen`, and `UserProfileViewScreen` for a more consistent Duolingo-inspired aesthetic.
   - **Error Handling**: Standardized error displays using `DuoEmptyState` with retry logic and integrated `DuoLoadingIndicator` for all asynchronous states.
 
+- Phase 8.19: Reactive Profile & State Consolidation (March 2026)
+  - **Provider Migration**: Migrated `UserProfileViewScreen` from manual `initState` fetching to the unified `userProfileProvider`. 
+  - **State Safety**: Ensured sub-widgets (`_buildStatsGrid`, `_buildXPCard`) are pure and rely on passed-down profile data rather than internal mutable state.
+  - **Error Resilience**: Added robust error states with retry logic to the user profile view.
+  - **API Correctness**: Fixed critical compilation errors in `ChatProvider` and `RealtimeChatProvider` involving named parameter mismatches in `sendMessage`.
+
+- Phase 8.20: Moments Feed Polishing & Cross-Platform Stability (March 2026)
+  - **Reactive Creation UI**: Refactored `MomentsScreen` creation dialog with `StatefulBuilder` to ensure real-time upload progress visibility.
+  - **Web Compatibility**: Implemented `kIsWeb` guards to switch between `Image.network` (blob) and `Image.file` for cross-platform image previews.
+  - **Android Network Fix**: Added an automatic `localhost` to `10.0.2.2` transformer in `MediaService` to resolve loopback connection issues on Android emulators.
+  - **UX Polish**: Added keyboard avoidance (`viewInsets`) to the moment creation sheet and refined error messaging for floor-based restrictions.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

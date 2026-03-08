@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../helpers/date_formatter.dart';
+import '../../helpers/url_helper.dart';
 import 'duo_card.dart';
 import 'duo_avatar.dart';
 
@@ -83,7 +84,7 @@ class DuoMomentCard extends StatelessWidget {
                     top: Radius.circular(AppTheme.duoRadiusMedium),
                   ),
                   child: Image.network(
-                    moment.imageUrl,
+                    UrlHelper.resolve(moment.imageUrl),
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
+import '../../helpers/url_helper.dart';
 
 /// Duolingo-style avatar with gradient ring and optional floor badge
 class DuoAvatar extends StatelessWidget {
@@ -65,7 +66,10 @@ class DuoAvatar extends StatelessWidget {
               ),
         color: isEmoji ? Colors.white : null,
         image: hasImageUrl
-            ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover)
+            ? DecorationImage(
+                image: NetworkImage(UrlHelper.resolve(imageUrl!)), 
+                fit: BoxFit.cover,
+              )
             : null,
       ),
       child: hasImageUrl

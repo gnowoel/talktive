@@ -1,4 +1,4 @@
-import 'dart:io';
+// import 'dart:io'; // Removed to avoid Web crash
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +32,7 @@ class MomentsScreen extends ConsumerStatefulWidget {
 class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   final _captionController = TextEditingController();
   XFile? _selectedImage;
+  Uint8List? _imageBytes; // For cross-platform preview
   bool _isUploading = false;
 
   @override
@@ -43,12 +44,14 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   Future<void> _pickImage(StateSetter setModalState) async {
     final image = await ref.read(mediaServiceProvider).pickImage();
     if (image != null) {
+      final bytes = await image.readAsBytes();
       setModalState(() {
         _selectedImage = image;
+        _imageBytes = bytes;
       });
-      // also update outer state if needed, but primary is modal
       setState(() {
         _selectedImage = image;
+        _imageBytes = bytes;
       });
     }
   }
@@ -238,9 +241,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                           child: _selectedImage != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium - 2),
-                                  child: kIsWeb 
-                                    ? Image.network(_selectedImage!.path, fit: BoxFit.cover)
-                                    : Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
+                                  child: _imageBytes != null 
+                                    ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                                    : const Center(child: CircularProgressIndicator()),
                                 )
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,

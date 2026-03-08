@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
+import 'package:serverpod_client/serverpod_client.dart';
 import '../providers/client_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,43 +28,27 @@ class MediaService {
     final path = '$folder/$fileName';
 
     try {
-      // 1. Get upload description from server
-      final uploadDescriptionJson = await client.storage.getUploadDescription(path);
+      debugPrint('MediaService: Getting upload description for $path...');
+      var uploadDescriptionJson = await client.storage.getUploadDescription(path);
       if (uploadDescriptionJson == null) return null;
 
-      final uploadDescription = jsonDecode(uploadDescriptionJson);
-      var uploadUrl = uploadDescription['url'] as String;
-      
       // Fix for Android emulator to reach localhost on host machine
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android && uploadUrl.contains('localhost')) {
-        uploadUrl = uploadUrl.replaceFirst('localhost', '10.0.2.2');
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android && uploadDescriptionJson.contains('localhost')) {
+        uploadDescriptionJson = uploadDescriptionJson.replaceAll('localhost', '10.0.2.2');
+        debugPrint('MediaService: Adjusted Upload Description for Android Emulator');
       }
-      debugPrint('MediaService: Adjusted Upload URL: $uploadUrl');
       
-      // 2. Upload the file using HTTP PUT
+      // 2. Upload the file using Serverpod's FileUploader
+      // This handles the correct HTTP method and headers automatically
       final fileBytes = await file.readAsBytes();
-      debugPrint('MediaService: File size: ${fileBytes.length} bytes');
+      debugPrint('MediaService: File size: ${fileBytes.length} bytes. Platform: ${kIsWeb ? "Web" : "Mobile"}');
+      debugPrint('MediaService: Starting upload using FileUploader...');
       
-      // Build headers from the description
-      final headers = <String, String>{};
-      if (uploadDescription['headers'] != null) {
-        final descHeaders = uploadDescription['headers'] as Map<String, dynamic>;
-        descHeaders.forEach((key, value) {
-          headers[key] = value.toString();
-        });
-      }
-      debugPrint('MediaService: Headers: $headers');
+      final uploader = FileUploader(uploadDescriptionJson);
+      final success = await uploader.uploadByteData(fileBytes.buffer.asByteData());
 
-      final response = await http.put(
-        Uri.parse(uploadUrl),
-        headers: headers,
-        body: fileBytes,
-      );
-
-      debugPrint('MediaService: Response status: ${response.statusCode}');
-      if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
-        debugPrint('MediaService: Error body: ${response.body}');
-        throw Exception('Failed to upload file: ${response.statusCode} - ${response.body}');
+      if (!success) {
+        throw Exception('File upload failed (FileUploader returned false).');
       }
 
       // 3. Verify upload on server (important for database storage)

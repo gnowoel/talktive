@@ -427,12 +427,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 },
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MomentDetailScreen(moment: moment),
-                    ),
-                  );
+                  context.push('/moments/detail', extra: moment);
                 },
               );
             },

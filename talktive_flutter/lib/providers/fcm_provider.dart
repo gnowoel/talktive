@@ -109,7 +109,7 @@ class FCMManager extends _$FCMManager {
     final body = message.notification?.body ?? 'New update';
     final emoji = _getEmojiForType(message.data['type'] ?? '');
 
-    ref.read(notificationNotifierProvider.notifier).show(
+    ref.read(notificationProvider.notifier).show(
       DuoNotification(
         title: title,
         message: body,

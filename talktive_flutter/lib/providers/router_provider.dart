@@ -10,6 +10,8 @@ import '../screens/home/home_screen.dart';
 import '../screens/chats/chat_loader_screen.dart';
 import '../screens/achievements/achievements_screen.dart';
 import '../screens/profile/user_profile_view_screen.dart';
+import '../screens/moments/moment_detail_screen.dart';
+import '../screens/moments/image_gallery_screen.dart';
 
 part 'router_provider.g.dart';
 
@@ -46,6 +48,22 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/moments',
         builder: (context, state) => const HomeScreen(initialIndex: 1),
+        routes: [
+          GoRoute(
+            path: 'detail',
+            builder: (context, state) {
+              final moment = state.extra as Moment;
+              return MomentDetailScreen(moment: moment);
+            },
+          ),
+          GoRoute(
+            path: 'gallery',
+            builder: (context, state) {
+              final imageUrl = state.extra as String;
+              return ImageGalleryScreen(imageUrl: imageUrl);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/chats',

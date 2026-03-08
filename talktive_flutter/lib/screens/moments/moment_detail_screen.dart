@@ -1,11 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
-import '../../providers/moment_provider.dart';
+import '../../providers/moments_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
@@ -38,11 +39,15 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   Future<void> _toggleLike() async {
     setState(() => _isLiking = true);
     try {
-      final isLiked = ref.read(momentLikesProvider(widget.moment.id!)).value ?? false;
+      final likedMoments = ref.read(momentLikesProvider).value ?? {};
+      final isLiked = likedMoments.contains(widget.moment.id!);
+      
       if (isLiked) {
-        await ref.read(momentsProvider.notifier).unlikeMoment(widget.moment.id!);
+        await ref.read(momentsProvider.notifier).toggleLike(widget.moment.id!, true);
+        ref.read(momentLikesProvider.notifier).toggleLike(widget.moment.id!);
       } else {
-        await ref.read(momentsProvider.notifier).likeMoment(widget.moment.id!);
+        await ref.read(momentsProvider.notifier).toggleLike(widget.moment.id!, false);
+        ref.read(momentLikesProvider.notifier).toggleLike(widget.moment.id!);
       }
       HapticFeedback.mediumImpact();
     } catch (e) {
@@ -68,7 +73,8 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final commentsAsync = ref.watch(momentCommentsProvider(widget.moment.id!));
-    final isLikedAsync = ref.watch(momentLikesProvider(widget.moment.id!));
+    final isLikedAsync = ref.watch(momentLikesProvider);
+    final isLiked = isLikedAsync.value?.contains(widget.moment.id!) ?? false;
     final currentResident = ref.watch(currentResidentProvider).value;
 
     return Scaffold(
@@ -92,7 +98,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
                       _buildAuthorHeader(),
                       _buildImage(context),
                       _buildCaption(),
-                      _buildStats(isLikedAsync.value ?? false),
+                      _buildStats(isLiked),
                       const Divider(height: 1, thickness: 1, color: AppTheme.duoBorder),
                     ],
                   ),
@@ -150,13 +156,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   Widget _buildImage(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImageGalleryScreen(imageUrl: widget.moment.imageUrl),
-            fullscreenDialog: true,
-          ),
-        );
+        context.push('/moments/gallery', extra: widget.moment.imageUrl);
       },
       child: Container(
         width: double.infinity,

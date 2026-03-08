@@ -64,7 +64,7 @@ class CurrentResident extends _$CurrentResident {
 
       // Trigger level-up notification
       if (oldResident != null && resident != null && resident.level > oldResident.level) {
-        ref.read(notificationNotifierProvider.notifier).show(
+        ref.read(notificationProvider.notifier).show(
           DuoNotification(
             title: 'Level Up! 🏢',
             message: "You've reached Floor ${resident.level}!",

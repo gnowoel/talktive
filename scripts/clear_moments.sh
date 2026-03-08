@@ -14,8 +14,8 @@ fi
 
 echo "🗑️  Deleting moment data..."
 docker exec talktive_server-postgres-1 psql -U postgres -d talktive -c "
-DELETE FROM moment_like;
-DELETE FROM moment_comment;
+DELETE FROM moment_likes;
+DELETE FROM moment_comments;
 DELETE FROM moment;
 "
 

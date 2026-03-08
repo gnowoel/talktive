@@ -101,7 +101,7 @@ class GroupsScreen extends ConsumerWidget {
               color: AppTheme.duoYellow,
             ),
           ),
-          const SizedBox(height: 100), // Space for bottom nav
+          const SizedBox(height: AppTheme.contentBottomPadding),
         ],
       ),
     );

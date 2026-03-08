@@ -424,7 +424,10 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 index: index,
                 isLiked: likedMoments.contains(moment.id),
                 onLike: () => _toggleLike(moment, likedMoments.contains(moment.id)),
-                onComment: () => _showComments(moment),
+                onComment: () {
+                  HapticFeedback.lightImpact();
+                  context.push('/moments/detail', extra: moment);
+                },
                 onAuthorTap: () {
                   context.push('/user/${moment.authorId}');
                 },
@@ -478,16 +481,6 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
   }
 
-  void _showComments(Moment moment) {
-    if (moment.id == null) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _CommentsSheet(momentId: moment.id!),
-    );
-  }
-
   void _navigateToProfile(Moment moment) {
     Navigator.push(
       context,
@@ -497,214 +490,6 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           userName: moment.authorName,
           userFloor: moment.authorFloor,
         ),
-      ),
-    );
-  }
-}
-
-/// Comments bottom sheet
-class _CommentsSheet extends ConsumerStatefulWidget {
-  final int momentId;
-
-  const _CommentsSheet({required this.momentId});
-
-  @override
-  ConsumerState<_CommentsSheet> createState() => _CommentsSheetState();
-}
-
-class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
-  final _commentController = TextEditingController();
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _addComment() async {
-    final text = _commentController.text.trim();
-    if (text.isEmpty) return;
-
-    try {
-      await ref.read(momentCommentsProvider(widget.momentId).notifier).addComment(
-        widget.momentId, 
-        text,
-      );
-      _commentController.clear();
-      FocusScope.of(context).unfocus();
-    } catch (e) {
-      if (mounted) SnackBarHelper.showError(context, e.toString());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final commentsAsync = ref.watch(momentCommentsProvider(widget.momentId));
-
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-            ),
-            child: Row(
-              children: [
-                const Text(
-                  'Comments',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-          // Comments list
-          Expanded(
-            child: commentsAsync.when(
-              data: (comments) {
-                if (comments.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('💬', style: TextStyle(fontSize: 48)),
-                        SizedBox(height: 8),
-                        Text(
-                          'No comments yet',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppTheme.textSecondary,
-                            fontFamily: 'Rubik',
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-                  itemCount: comments.length,
-                  itemBuilder: (context, index) {
-                    final comment = comments[index];
-                    return _buildCommentItem(comment);
-                  },
-                );
-              },
-              loading: () => const DuoLoadingIndicator(),
-              error: (error, _) => Center(child: Text(error.toString())),
-            ),
-          ),
-          // Input area
-          Container(
-            padding: EdgeInsets.only(
-              left: AppTheme.duoSpacingMedium,
-              right: AppTheme.duoSpacingMedium,
-              top: AppTheme.duoSpacingSmall,
-              bottom: MediaQuery.of(context).viewInsets.bottom + AppTheme.duoSpacingMedium,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Colors.grey[200]!)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _commentController,
-                    decoration: InputDecoration(
-                      hintText: 'Add a comment...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    maxLines: null,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _addComment,
-                  icon: const Icon(Icons.send),
-                  color: AppTheme.primaryColor,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommentItem(MomentComment comment) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DuoAvatar(
-            imageUrl: comment.userAvatar,
-            size: 32,
-            mood: comment.userMood,
-            floorLevel: comment.userFloor,
-            showRing: false,
-          ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      comment.userName,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      formatTimestamp(comment.createdAt),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  comment.text,
-                  style: const TextStyle(fontSize: 14, fontFamily: 'Rubik'),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -283,17 +283,17 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               error: (error, stack) => _buildErrorState(error),
             ),
           ),
+          DuoChatInput(
+            controller: _messageController,
+            onSend: _sendMessage,
+            onImagePick: _pickAndSendImage,
+            enabled: canSend && !_isUploading,
+            activeColor: AppTheme.duoYellow,
+            hintText: _isUploading 
+                ? 'Uploading image...' 
+                : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),
+          ),
         ],
-      ),
-      bottomNavigationBar: DuoChatInput(
-        controller: _messageController,
-        onSend: _sendMessage,
-        onImagePick: _pickAndSendImage,
-        enabled: canSend && !_isUploading,
-        activeColor: AppTheme.duoYellow,
-        hintText: _isUploading 
-            ? 'Uploading image...' 
-            : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),
       ),
     );
   }

@@ -185,21 +185,37 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: chatState.when(
-              data: (messages) => messages.isEmpty
-                  ? _buildEmptyState()
-                  : _buildMessagesList(messages),
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryColor),
+      body: Builder(
+        builder: (context) {
+          final canSend = _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+          final hintText = (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+              ? FloorUtils.getMuteInputHint(_currentResident!)
+              : 'Type a message...';
+
+          return Column(
+            children: [
+              Expanded(
+                child: chatState.when(
+                  data: (messages) => messages.isEmpty
+                      ? _buildEmptyState()
+                      : _buildMessagesList(messages),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(color: AppTheme.primaryColor),
+                  ),
+                  error: (error, stack) => _buildErrorState(error),
+                ),
               ),
-              error: (error, stack) => _buildErrorState(error),
-            ),
-          ),
-          _buildInputArea(),
-        ],
+              DuoChatInput(
+                controller: _messageController,
+                onSend: _sendMessage,
+                onImagePick: _pickAndSendImage,
+                enabled: canSend && !_isUploading,
+                activeColor: AppTheme.duoOrange,
+                hintText: _isUploading ? 'Sending image...' : hintText,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -316,113 +332,5 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     );
   }
 
-  Widget _buildInputArea() {
-    final canSend =
-        _currentResident != null && !FloorUtils.isMuted(_currentResident!);
-    final hintText =
-        (_currentResident != null && FloorUtils.isMuted(_currentResident!))
-        ? FloorUtils.getMuteInputHint(_currentResident!)
-        : 'Type a message...';
 
-    return Container(
-      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightBackground,
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: _isUploading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(
-                              Icons.attach_file,
-                              color: canSend
-                                  ? Colors.grey[600]
-                                  : Colors.grey[400],
-                            ),
-                      onPressed: canSend && !_isUploading
-                          ? _pickAndSendImage
-                          : null,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        enabled: canSend,
-                        decoration: InputDecoration(
-                          hintText: hintText,
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.grey[400]),
-                        ),
-                        maxLines: null,
-                        textCapitalization: TextCapitalization.sentences,
-                        onSubmitted: canSend ? (_) => _sendMessage() : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-            GestureDetector(
-              onTap: canSend ? _sendMessage : null,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: canSend
-                      ? LinearGradient(
-                          colors: [
-                            AppTheme.primaryColor,
-                            AppTheme.secondaryColor,
-                          ],
-                        )
-                      : null,
-                  color: canSend ? null : Colors.grey[300],
-                  shape: BoxShape.circle,
-                  boxShadow: canSend
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Icon(
-                  Icons.send_rounded,
-                  color: canSend ? Colors.white : Colors.grey[500],
-                  size: 20,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

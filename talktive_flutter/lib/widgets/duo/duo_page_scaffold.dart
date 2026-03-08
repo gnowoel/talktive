@@ -79,7 +79,7 @@ class DuoPageScaffold extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      color: AppTheme.lightBackground,
+                      color: Colors.white,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(AppTheme.duoRadiusLarge * 1.5),
                       ),

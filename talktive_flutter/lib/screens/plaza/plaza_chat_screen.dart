@@ -190,16 +190,16 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
               ),
             ),
           ),
+          DuoChatInput(
+            controller: _messageController,
+            onSend: _sendMessage,
+            onImagePick: _pickAndSendImage,
+            enabled: canSend && !_isUploading,
+            hintText: _isUploading 
+                ? 'Uploading image...' 
+                : (canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident)),
+          ),
         ],
-      ),
-      bottomNavigationBar: DuoChatInput(
-        controller: _messageController,
-        onSend: _sendMessage,
-        onImagePick: _pickAndSendImage,
-        enabled: canSend && !_isUploading,
-        hintText: _isUploading 
-            ? 'Uploading image...' 
-            : (canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident)),
       ),
     );
   }

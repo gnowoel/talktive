@@ -56,7 +56,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
     return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           widget.userName ?? 'Profile',

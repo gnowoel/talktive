@@ -67,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       extendBody: false,
       resizeToAvoidBottomInset: false,
-      backgroundColor: AppTheme.lightBackground,
+      backgroundColor: Colors.white,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildDuoBottomNav(),
     );

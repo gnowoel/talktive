@@ -645,7 +645,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         })
         .catchError((error) {
           if (context.mounted) {
-            SnackBarHelper.showError(context, 'Failed to knock on door: $error');
+            SnackBarHelper.showError(context, error);
           }
         });
   }
@@ -735,7 +735,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                SnackBarHelper.showError(context, e.toString().contains('Exception:') ? e.toString().split('Exception: ')[1] : 'Could not invite user');
+                                SnackBarHelper.showError(context, e);
                               }
                             }
                           },

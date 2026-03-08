@@ -27,14 +27,18 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     // 2. Floor restriction: Only Floor 2+ can post moments (prevent spam)
     final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
     if (effectiveFloor < 2) {
-      throw Exception(
-        'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+      throw TalktiveException(
+        message: 'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+        code: 'FLOOR_TOO_LOW',
       );
     }
 
     // 3. Check if user is muted
     if (ApartmentService.isMuted(resident)) {
-      throw Exception(ApartmentService.getMuteReason(resident));
+      throw TalktiveException(
+        message: ApartmentService.getMuteReason(resident),
+        code: 'USER_MUTED',
+      );
     }
 
     // 5. Create Moment

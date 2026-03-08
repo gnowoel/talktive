@@ -128,18 +128,18 @@ class ApartmentService {
   // INVITE / SOCIAL RULES
   // ---------------------------------------------------------------------------
 
-  /// Returns true if [sender] is allowed to invite [receiver] to a chat.
+  /// Returns true if [sender] is allowed to invite [receiver] to a chat or group.
   ///
   /// Rules:
   ///   1. Sender must not be muted or suspended.
-  ///   2. Receiver's effective floor must be ≤ sender's effective floor.
-  ///      (You can only invite those on your floor or below — apartment rule.)
+  ///   2. (Simplified) We no longer enforce Floor restrictions for private knocking,
+  ///      relying on the "Peephole" system for mutual consent.
   static bool canInvite({
     required Resident sender,
     required Resident receiver,
   }) {
     if (isMuted(sender)) return false;
-    return computeEffectiveFloor(receiver) <= computeEffectiveFloor(sender);
+    return true;
   }
 
   /// Returns the reason canInvite returned false, for user-facing messages.
@@ -148,10 +148,7 @@ class ApartmentService {
     required Resident receiver,
   }) {
     if (isMuted(sender)) return getMuteReason(sender);
-    final senderReputation = computeEffectiveFloor(sender);
-    final receiverReputation = computeEffectiveFloor(receiver);
-    return 'You are on Floor $senderReputation and cannot invite someone from Floor $receiverReputation. '
-        'Increase your XP or Trust Score to reach a higher Floor.';
+    return 'You cannot invite this resident at this time.';
   }
 
   // ---------------------------------------------------------------------------

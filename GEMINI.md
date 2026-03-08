@@ -253,6 +253,12 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Unified Notifications**: Built a custom `DuoNotificationToast` system with deep-linking, integrated with FCM foreground messages and global level-up events.
   - **Router Integration**: Exposed `GoRouter` as a Riverpod provider to allow seamless navigation from background services and notification handlers.
 
+- Phase 8.22: Universal Knocking & Protocol Error Handling (March 2026)
+  - **Relaxed Knocking**: Removed Floor restrictions for "Knocking on Doors". Anyone can knock on any door if not muted, relying on the **Peephole system** for mutual consent and safety.
+  - **Protocol Exceptions**: Defined `TalktiveException` in the Serverpod protocol to replace brittle 500 errors with descriptive, serializable client-side messages.
+  - **SnackBar Architecture**: Upgraded `SnackBarHelper` in the Flutter app to intelligently parse and display `TalktiveException` and `ServerpodClientException` messages.
+  - **Safety Standardization**: Migrated `MomentEndpoint`, `GroupEndpoint`, and `PrivateChatEndpoint` to the new universal error handling pattern.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

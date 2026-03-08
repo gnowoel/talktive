@@ -35,8 +35,9 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Safety: must be at least Floor 1 to create a group
     if (ApartmentService.computeEffectiveFloor(currentResident) < 1) {
-      throw Exception(
-        'You must reach Floor 1 to create a group. Keep chatting!',
+      throw protocol.TalktiveException(
+        message: 'You must reach Floor 1 to create a group. Keep chatting!',
+        code: 'FLOOR_TOO_LOW',
       );
     }
 

@@ -1,0 +1,4 @@
+exception: TalktiveException
+fields:
+  message: String
+  code: String?

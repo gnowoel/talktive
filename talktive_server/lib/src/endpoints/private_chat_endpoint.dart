@@ -39,8 +39,12 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       sender: currentResident,
       receiver: otherResident,
     )) {
-      throw Exception(
-        'Residents can only invite people living on the same floor or below.',
+      throw protocol.TalktiveException(
+        message: ApartmentService.cannotInviteReason(
+          sender: currentResident,
+          receiver: otherResident,
+        ),
+        code: 'FLOOR_TOO_LOW',
       );
     }
 

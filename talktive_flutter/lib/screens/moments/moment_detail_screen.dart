@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -161,16 +162,33 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
         width: double.infinity,
         constraints: const BoxConstraints(maxHeight: 500, minHeight: 200),
         color: AppTheme.lightBackground,
-        child: Hero(
-          tag: 'moment_image_${widget.moment.id}',
-          child: Image.network(
-            UrlHelper.resolve(widget.moment.imageUrl),
-            fit: BoxFit.contain,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(child: DuoLoadingIndicator());
-            },
-          ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Blurred background
+            Positioned.fill(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                child: Image.network(
+                  UrlHelper.resolve(widget.moment.imageUrl),
+                  fit: BoxFit.cover,
+                  opacity: const AlwaysStoppedAnimation(0.4),
+                ),
+              ),
+            ),
+            // Hero Image
+            Hero(
+              tag: 'moment_image_${widget.moment.id}',
+              child: Image.network(
+                UrlHelper.resolve(widget.moment.imageUrl),
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(child: DuoLoadingIndicator());
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

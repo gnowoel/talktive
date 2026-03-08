@@ -245,9 +245,13 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **UX Polish**: Added keyboard avoidance (`viewInsets`) to the moment creation sheet and refined error messaging for floor-based restrictions.
 
 - Phase 8.21: Immersive Moments & Community Rewards (March 2026)
-  - **Direct Image Uploads**: Standardized on Client -> Firebase Storage uploads. This bypasses the Serverpod server for high-performance, low-latency media handling, leveraging Firebase's global CDN while maintaining security via Auth-guarded Storage Rules.
-  - **Image Guardrails**: Implemented client-side size validation and fixed-quality compression.
-  - **Gamified Engagement**: Linked social interactions (Likes) to XP and Trust Score rewards.
+  - **Direct Image Uploads**: Standardized on Client -> Firebase Storage uploads for high-performance, low-latency media handling.
+  - **Image Guardrails**: Implemented client-side 10MB size validation and fixed-quality compression.
+  - **Gamified Engagement**: Linked social interactions (Likes) to XP rewards (+20) and Trust Score bonuses (+10 Vouch).
+  - **Premium Visuals**: Implemented "Blurred Letterbox" backgrounds for the moment feed and detail views to preserve original aspect ratios elegantly.
+  - **Immersive Viewing**: Created dedicated `MomentDetailScreen` for comments and `ImageGalleryScreen` with pinch-to-zoom for full-screen viewing.
+  - **Unified Notifications**: Built a custom `DuoNotificationToast` system with deep-linking, integrated with FCM foreground messages and global level-up events.
+  - **Router Integration**: Exposed `GoRouter` as a Riverpod provider to allow seamless navigation from background services and notification handlers.
 
 **Status:** 🏗️ In Progress
 

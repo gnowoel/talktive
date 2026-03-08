@@ -13,6 +13,7 @@ import 'screens/achievements/achievements_screen.dart';
 import 'screens/profile/user_profile_view_screen.dart';
 import 'wrappers/initialize.dart';
 import 'widgets/duo/duo_notification_toast.dart';
+import 'providers/router_provider.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -22,99 +23,40 @@ class ServerpodApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      child: Initialize(
-        useEmulators: true,
-        child: MaterialApp.router(
-          title: 'Talktive (Serverpod)',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          routerConfig: _buildRouter(onExit),
-          builder: (context, child) {
-            return Stack(
-              children: [
-                if (child != null) child,
-                const Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: DuoNotificationToast(),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+      child: _ServerpodAppContent(onExit: onExit),
     );
   }
+}
 
-  GoRouter _buildRouter(VoidCallback onExit) {
-    return GoRouter(
-      initialLocation: '/splash',
-      routes: [
-        GoRoute(
-          path: '/splash',
-          builder: (context, state) => const SplashScreen(),
-        ),
-        GoRoute(
-          path: '/welcome',
-          builder: (context, state) => const WelcomeScreen(),
-        ),
-        GoRoute(
-          path: '/profile-setup',
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
-            final resident = extra?['resident'] as Resident?;
-            final userName = extra?['userName'] as String?;
-            return ProfileSetupScreen(
-              initialResident: resident,
-              initialName: userName,
-            );
-          },
-        ),
-        GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
-        GoRoute(
-          path: '/plaza',
-          builder: (context, state) => const HomeScreen(initialIndex: 0),
-        ),
-        GoRoute(
-          path: '/moments',
-          builder: (context, state) => const HomeScreen(initialIndex: 1),
-        ),
-        GoRoute(
-          path: '/chats',
-          builder: (context, state) => const HomeScreen(initialIndex: 2),
-          routes: [
-            GoRoute(
-              path: 'thread/:channelId',
-              builder: (context, state) {
-                final channelId =
-                    int.tryParse(state.pathParameters['channelId'] ?? '') ?? 0;
-                return ChatLoaderScreen(channelId: channelId);
-              },
-            ),
-          ],
-        ),
-        GoRoute(
-          path: '/groups',
-          builder: (context, state) => const HomeScreen(initialIndex: 3),
-        ),
-        GoRoute(
-          path: '/profile',
-          builder: (context, state) => const HomeScreen(initialIndex: 4),
-        ),
-        GoRoute(
-          path: '/achievements',
-          builder: (context, state) => const AchievementsScreen(),
-        ),
-        GoRoute(
-          path: '/user/:userId',
-          builder: (context, state) {
-            final userId = state.pathParameters['userId']!;
-            return UserProfileViewScreen(userId: userId);
-          },
-        ),
+class _ServerpodAppContent extends ConsumerWidget {
+  final VoidCallback onExit;
+  const _ServerpodAppContent({required this.onExit});
 
-      ],
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return Initialize(
+      useEmulators: true,
+      child: MaterialApp.router(
+        title: 'Talktive (Serverpod)',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        routerConfig: router,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              if (child != null) child,
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: DuoNotificationToast(),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

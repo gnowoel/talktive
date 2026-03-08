@@ -1,4 +1,4 @@
-// import 'dart:io'; // Removed to avoid Web crash
+import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -289,6 +289,14 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'Max size: 10MB',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: AppTheme.textLight,
+                                      ),
+                                    ),
                                   ],
                                 ),
                         ),
@@ -414,7 +422,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 isLiked: likedMoments.contains(moment.id),
                 onLike: () => _toggleLike(moment, likedMoments.contains(moment.id)),
                 onComment: () => _showComments(moment),
-                onAuthorTap: () => _navigateToProfile(moment),
+                onAuthorTap: () {
+                  context.push('/user/${moment.authorId}');
+                },
                 onTap: () {
                   HapticFeedback.lightImpact();
                   Navigator.push(

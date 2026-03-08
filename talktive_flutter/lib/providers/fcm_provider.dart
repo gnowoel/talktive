@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'client_provider.dart';
+import 'notification_provider.dart';
 
 part 'fcm_provider.g.dart';
 
@@ -104,9 +105,30 @@ class FCMManager extends _$FCMManager {
 
   /// Handle foreground message (show local notification).
   void _handleForegroundMessage(RemoteMessage message) {
-    // TODO: Show local notification using flutter_local_notifications
-    // For now, just log it
-    debugPrint('Foreground notification: ${message.notification?.title}');
+    final title = message.notification?.title ?? 'Notification';
+    final body = message.notification?.body ?? 'New update';
+    final emoji = _getEmojiForType(message.data['type'] ?? '');
+
+    ref.read(notificationNotifierProvider.notifier).show(
+      DuoNotification(
+        title: title,
+        message: body,
+        emoji: emoji,
+        onTap: () => _handleNotificationTap(message),
+      ),
+    );
+  }
+
+  String _getEmojiForType(String type) {
+    switch (type) {
+      case 'message': return '💬';
+      case 'moment_like': return '❤️';
+      case 'moment_comment': return '💬';
+      case 'achievement': return '🏆';
+      case 'streak': return '🔥';
+      case 'group_invite': return '🎫';
+      default: return '🔔';
+    }
   }
 
   /// Handle notification tap (navigate to appropriate screen).
@@ -115,8 +137,8 @@ class FCMManager extends _$FCMManager {
     final route = data['route'] as String?;
 
     if (route != null) {
-      // TODO: Navigate to route using navigator
-      debugPrint('Should navigate to: $route');
+      debugPrint('Navigating to from notification: $route');
+      ref.read(routerProvider).push(route);
     }
   }
 

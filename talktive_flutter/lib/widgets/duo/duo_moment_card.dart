@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -93,25 +94,42 @@ class DuoMomentCard extends StatelessWidget {
                       minHeight: 200,
                       maxHeight: 450,
                     ),
-                    color: AppTheme.lightBackground, // Simple letterbox background
-                    child: Hero(
-                      tag: 'moment_image_${moment.id}',
-                      child: Image.network(
-                        UrlHelper.resolve(moment.imageUrl),
-                        width: double.infinity,
-                        fit: BoxFit.contain, // Preserve aspect ratio
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 300,
-                          color: AppTheme.lightBackground,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 64,
-                              color: AppTheme.textLight,
+                    color: AppTheme.lightBackground,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Blurred background
+                        Positioned.fill(
+                          child: ImageFiltered(
+                            imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                            child: Image.network(
+                              UrlHelper.resolve(moment.imageUrl),
+                              fit: BoxFit.cover,
+                              opacity: const AlwaysStoppedAnimation(0.3),
                             ),
                           ),
                         ),
-                      ),
+                        // Main sharp image
+                        Hero(
+                          tag: 'moment_image_${moment.id}',
+                          child: Image.network(
+                            UrlHelper.resolve(moment.imageUrl),
+                            width: double.infinity,
+                            fit: BoxFit.contain, // Preserve aspect ratio
+                            errorBuilder: (_, __, ___) => Container(
+                              height: 300,
+                              color: AppTheme.lightBackground,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.broken_image,
+                                  size: 64,
+                                  color: AppTheme.textLight,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

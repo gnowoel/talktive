@@ -12,7 +12,7 @@ class GamificationService {
   static const int XP_PER_COMMENT = 5;
   static const int XP_PER_LIKE = 2;
   static const int XP_PER_LOGIN = 5;
-  static const int XP_USER_VOUCH = 10; // Reward for the publisher when liked
+  static const int XP_USER_VOUCH = 20; // Reward for the publisher when liked
 
   // Streak Rewards
   static const int XP_STREAK_3_DAYS = 50;

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -25,25 +26,33 @@ class MediaService {
     final path = '$folder/$fileName';
 
     try {
-      debugPrint('MediaService: Uploading to Firebase Storage at $path...');
-      final storageRef = FirebaseStorage.instance.ref(path);
+      final storage = FirebaseStorage.instance;
+      debugPrint('MediaService: Starting upload to bucket: ${storage.bucket}');
+      debugPrint('MediaService: Destination path: $path');
       
-      // For cross-platform (Web & Mobile)
-      final bytes = await file.readAsBytes();
+      final storageRef = storage.ref(path);
+      final metadata = SettableMetadata(contentType: 'image/jpeg');
       
-      // Upload with metadata if needed
-      final uploadTask = storageRef.putData(
-        bytes,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+      TaskSnapshot snapshot;
       
-      final snapshot = await uploadTask;
+      if (kIsWeb) {
+        debugPrint('MediaService: Using putData for Web upload...');
+        final bytes = await file.readAsBytes();
+        snapshot = await storageRef.putData(bytes, metadata);
+      } else {
+        debugPrint('MediaService: Using putFile for Mobile upload. Path: ${file.path}');
+        // On mobile, putFile is more efficient and reliable
+        snapshot = await storageRef.putFile(File(file.path), metadata);
+      }
+      
+      debugPrint('MediaService: Upload task completed. Status: ${snapshot.state}');
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
-      debugPrint('MediaService: Upload successful. Download URL: $downloadUrl');
+      debugPrint('MediaService: Successfully generated Download URL: $downloadUrl');
       return downloadUrl;
-    } catch (e) {
-      debugPrint('Error uploading file to Firebase: $e');
+    } catch (e, stack) {
+      debugPrint('MediaService: CRITICAL ERROR during upload: $e');
+      debugPrint('MediaService: Stack trace: $stack');
       rethrow;
     }
   }

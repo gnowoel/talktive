@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# A script to delete only the chat data in your local 'talktive' database.
-# This keeps your account, profiles, moments, etc. intact.
+# A script to delete all chat data in your local 'talktive' database.
+# This keeps your account, profiles, and moments intact.
 
 echo "⚠️  WARNING: This will delete all messages, private chats, and groups."
-echo "   It will NOT delete account data or the Plaza channel."
+echo "   It will NOT delete your resident account or the main Plaza channel."
 read -p "Are you absolutely sure you want to proceed? (y/N) " -n 1 -r
 echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
@@ -23,5 +23,4 @@ DELETE FROM channel WHERE id != 1;
 "
 
 echo "✅ Chat data has been successfully cleared!"
-echo "🚀 Next steps:"
-echo "   1. You may need to restart your Flutter app or refresh to see the changes."
+echo "🚀 Next steps: You may need to restart your Flutter app or refresh to see the changes."

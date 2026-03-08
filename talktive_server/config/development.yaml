@@ -26,6 +26,7 @@ webServer:
   publicHost: localhost
   publicPort: 8082
   publicScheme: http
+  allowedOrigins: ["*"]
 
 # This is the database setup for your server.
 database:

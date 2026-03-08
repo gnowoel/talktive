@@ -56,7 +56,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
   }
 
-  Future<void> _postMoment(StateSetter setModalState) async {
+  void _postMoment(StateSetter setModalState) async {
     if (_selectedImage == null) {
       SnackBarHelper.showError(context, 'Please select an image first! 📸');
       return;
@@ -64,6 +64,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
     final caption = _captionController.text.trim();
     
+    print('Moments: [UI] Starting post process...');
     setModalState(() {
       _isUploading = true;
     });
@@ -73,34 +74,46 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
     try {
       // 1. Upload image to storage
-      debugPrint('Moments: Starting image upload...');
+      print('Moments: [UI] Uploading image to Firebase...');
       final imageUrl = await ref.read(mediaServiceProvider).uploadFile(
         _selectedImage!, 
         'moments',
       );
 
       if (imageUrl == null) {
-        throw Exception('Failed to upload image.');
+        throw Exception('Failed to upload image. URL was null.');
       }
-      debugPrint('Moments: Image uploaded successfully: $imageUrl');
+      print('Moments: [UI] Image uploaded successfully. URL: $imageUrl');
 
       // 2. Post moment to backend
+      print('Moments: [UI] Sending post request to Serverpod...');
       await ref.read(momentsProvider.notifier).postMoment(
         imageUrl: imageUrl, 
         caption: caption,
       );
+      print('Moments: [UI] Status: Post successful on server.');
 
       if (mounted) {
-        Navigator.pop(context);
+        print('Moments: [UI] Closing dialog...');
+        // Try multiple ways to pop if necessary, but Navigator.of(context).pop() is most standard
+        Navigator.of(context).pop();
+        
         _captionController.clear();
-        setState(() {
-          _selectedImage = null;
-          _isUploading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _selectedImage = null;
+            _imageBytes = null;
+            _isUploading = false;
+          });
+        }
+        print('Moments: [UI] Dialog closed and state reset.');
         SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
+      } else {
+        print('Moments: [UI] Warning: Widget not mounted after post.');
       }
-    } catch (e) {
-      debugPrint('Moments: Error posting moment: $e');
+    } catch (e, stack) {
+      print('Moments: [CRITICAL ERROR] Failed to post: $e');
+      print('Moments: Stack trace: $stack');
       if (mounted) {
         final errorMessage = e.toString();
         if (errorMessage.contains('Floor')) {
@@ -118,6 +131,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           _isUploading = false;
         });
       }
+      print('Moments: [UI] Post process finished.');
     }
   }
 

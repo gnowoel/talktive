@@ -14,6 +14,7 @@ import 'src/web/routes/root.dart';
 import 'src/future_calls/message_cleanup.dart';
 import 'src/future_calls/credit_restoration.dart';
 import 'src/services/fcm_service.dart';
+import 'src/services/emulator_auth_service.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -33,13 +34,23 @@ void run(List<String> args) async {
       ),
     ],
     identityProviderBuilders: [
-      FirebaseIdpConfig(
-        credentials: FirebaseServiceAccountCredentials.fromJson(
-          jsonDecode(
-            File('config/firebase_service_account_key.json').readAsStringSync(),
-          ),
-        ),
-      ),
+      pod.runMode == 'development'
+          ? EmulatorFirebaseIdpConfig(
+              credentials: FirebaseServiceAccountCredentials.fromJson(
+                jsonDecode(
+                  File('config/firebase_service_account_key.json')
+                      .readAsStringSync(),
+                ),
+              ),
+            )
+          : FirebaseIdpConfig(
+              credentials: FirebaseServiceAccountCredentials.fromJson(
+                jsonDecode(
+                  File('config/firebase_service_account_key.json')
+                      .readAsStringSync(),
+                ),
+              ),
+            ),
     ],
   );
 

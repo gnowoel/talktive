@@ -20,6 +20,7 @@ import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
 import '../profile/user_profile_view_screen.dart';
+import '../../providers/client_provider.dart';
 
 /// Duolingo-style Moments screen - Photo feed
 class MomentsScreen extends ConsumerStatefulWidget {

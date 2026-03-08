@@ -57,7 +57,7 @@ class GroupsScreen extends ConsumerWidget {
         emoji: '🏢',
         title: 'Empty Clubhouse',
         subtitle: 'No clubs yet. Why not create one?',
-        onActionPressed: () => _showCreateDialog(context),
+        onActionPressed: () => _showCreateDialog(context, ref),
         actionLabel: 'Start a Club',
       );
     }
@@ -91,7 +91,7 @@ class GroupsScreen extends ConsumerWidget {
           const SizedBox(height: 32),
           Center(
             child: DuoButton(
-              onPressed: () => _showCreateDialog(context),
+              onPressed: () => _showCreateDialog(context, ref),
               icon: Icons.add,
               text: 'Create New Club',
               variant: DuoButtonVariant.ghost,
@@ -175,8 +175,22 @@ class GroupsScreen extends ConsumerWidget {
     );
   }
 
-  void _showCreateDialog(BuildContext context) {
+  void _showCreateDialog(BuildContext context, WidgetRef ref) {
     HapticFeedback.lightImpact();
+    
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    if (FloorUtils.isMuted(currentResident)) {
+      SnackBarHelper.showError(context, FloorUtils.getMuteReason(currentResident));
+      return;
+    }
+
+    if (FloorUtils.computeFloor(currentResident) < 1) {
+      SnackBarHelper.showError(context, 'You must reach Floor 1 to create a club. Keep chatting!');
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => const CreateGroupDialog(),

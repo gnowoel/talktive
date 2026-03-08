@@ -57,6 +57,21 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
   }
 
+  void _handleCreatePressed() {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    final effectiveFloor = FloorUtils.computeFloor(currentResident);
+    if (effectiveFloor < 2) {
+      _showLevelRequirementDialog(
+        'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+      );
+      return;
+    }
+
+    _showCreateDialog();
+  }
+
   void _postMoment(StateSetter setModalState) async {
     if (_selectedImage == null) {
       SnackBarHelper.showError(context, 'Please select an image first! 📸');
@@ -99,7 +114,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         print('Moments: [UI] Closing dialog...');
         Navigator.of(context).pop();
         
-        // Refresh the feed in the background to show the new moment
+        // Refresh the feed in the background
         ref.read(momentsProvider.notifier).refresh();
         
         _captionController.clear();
@@ -112,8 +127,6 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         }
         print('Moments: [UI] Dialog closed and state reset.');
         SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
-      } else {
-        print('Moments: [UI] Warning: Widget not mounted after post.');
       }
     } catch (e, stack) {
       print('Moments: [CRITICAL ERROR] Failed to post: $e');
@@ -340,7 +353,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         ),
         child: FloatingActionButton(
           heroTag: 'moments_fab',
-          onPressed: _showCreateDialog,
+          onPressed: _handleCreatePressed,
           backgroundColor: Colors.transparent,
           elevation: 0,
           child: const Icon(Icons.add_a_photo, color: Colors.white),
@@ -363,7 +376,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             title: 'No moments yet',
             subtitle: 'Share your first photo!',
             buttonText: 'Create Moment',
-            onButtonPressed: _showCreateDialog,
+            onButtonPressed: _handleCreatePressed,
           );
         }
 

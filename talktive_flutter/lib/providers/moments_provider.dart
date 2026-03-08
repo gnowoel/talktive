@@ -29,15 +29,6 @@ class Moments extends _$Moments {
     }
   }
 
-  /// Posts a new moment
-  Future<void> postMoment({
-    required String imageUrl,
-    required String caption,
-  }) async {
-    final client = ref.read(clientProvider);
-    await client.moment.postMoment(imageUrl: imageUrl, caption: caption);
-    await refresh();
-  }
 
   /// Toggles like on a moment
   Future<void> toggleLike(int momentId, bool currentlyLiked) async {

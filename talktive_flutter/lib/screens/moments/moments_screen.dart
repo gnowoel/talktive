@@ -87,7 +87,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
       // 2. Post moment to backend
       print('Moments: [UI] Sending post request to Serverpod...');
-      await ref.read(momentsProvider.notifier).postMoment(
+      final client = ref.read(clientProvider);
+      await client.moment.postMoment(
         imageUrl: imageUrl, 
         caption: caption,
       );
@@ -95,8 +96,10 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
       if (mounted) {
         print('Moments: [UI] Closing dialog...');
-        // Try multiple ways to pop if necessary, but Navigator.of(context).pop() is most standard
         Navigator.of(context).pop();
+        
+        // Refresh the feed in the background to show the new moment
+        ref.read(momentsProvider.notifier).refresh();
         
         _captionController.clear();
         if (mounted) {

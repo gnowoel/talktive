@@ -60,7 +60,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   Future<void> _postComment(String text) async {
     if (text.trim().isEmpty) return;
     try {
-      await ref.read(momentsProvider.notifier).addComment(widget.moment.id!, text);
+      await ref.read(momentCommentsProvider(widget.moment.id!).notifier).addComment(widget.moment.id!, text);
       _commentController.clear();
       HapticFeedback.lightImpact();
       FocusScope.of(context).unfocus();
@@ -115,7 +115,6 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
             controller: _commentController,
             onSend: (_) => _postComment(_commentController.text),
             hintText: 'Add a comment...',
-            showImagePick: false,
           ),
         ],
       ),

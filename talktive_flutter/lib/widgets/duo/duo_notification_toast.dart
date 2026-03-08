@@ -9,7 +9,7 @@ class DuoNotificationToast extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notification = ref.watch(notificationNotifierProvider);
+    final notification = ref.watch(notificationProvider);
     if (notification == null) return const SizedBox.shrink();
 
     return SafeArea(
@@ -20,7 +20,7 @@ class DuoNotificationToast extends ConsumerWidget {
           child: GestureDetector(
             onTap: () {
               notification.onTap?.call();
-              ref.read(notificationNotifierProvider.notifier).dismiss();
+              ref.read(notificationProvider.notifier).dismiss();
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -67,7 +67,7 @@ class DuoNotificationToast extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20, color: AppTheme.textLight),
-                    onPressed: () => ref.read(notificationNotifierProvider.notifier).dismiss(),
+                    onPressed: () => ref.read(notificationProvider.notifier).dismiss(),
                   ),
                 ],
               ),

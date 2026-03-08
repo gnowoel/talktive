@@ -13,10 +13,12 @@ import '../screens/profile/user_profile_view_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 part 'router_provider.g.dart';
 
 @riverpod
-GoRouter router(RouterRef ref) {
+GoRouter router(Ref ref) {
   return GoRouter(
     initialLocation: '/splash',
     routes: [

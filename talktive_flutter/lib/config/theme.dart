@@ -87,6 +87,7 @@ class AppTheme {
   static const Color textSecondary = Color(0xFF636E72);
   static const Color textLight = Color(0xFFB2BEC3);
   static const Color textOnPrimary = Colors.white;
+  static const Color duoBorder = Color(0xFFE5E5E5);
 
   // Badge Colors (Gamification)
   static const Color diamondBadge = Color(0xFFB9F2FF);

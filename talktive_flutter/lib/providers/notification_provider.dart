@@ -1,69 +1,40 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:talktive_client/talktive_client.dart';
-import 'client_provider.dart';
 
 part 'notification_provider.g.dart';
 
-/// Provider for user notifications.
-@riverpod
-class UserNotifications extends _$UserNotifications {
-  @override
-  FutureOr<List<UserNotification>> build() async {
-    return fetchNotifications();
-  }
+class DuoNotification {
+  final String title;
+  final String message;
+  final String emoji;
+  final VoidCallback? onTap;
+  final Duration duration;
 
-  Future<List<UserNotification>> fetchNotifications({
-    int limit = 50,
-    bool unreadOnly = false,
-  }) async {
-    final client = ref.read(clientProvider);
-    try {
-      return await client.notification.getUserNotifications(
-        limit: limit,
-        offset: 0,
-        unreadOnly: unreadOnly,
-      );
-    } catch (e) {
-      return [];
-    }
-  }
-
-  /// Marks notifications as read.
-  Future<void> markAsRead(List<int> notificationIds) async {
-    final client = ref.read(clientProvider);
-    try {
-      await client.notification.markAsRead(notificationIds);
-      ref.invalidateSelf();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Refreshes the notifications list.
-  Future<void> refresh() async {
-    ref.invalidateSelf();
-  }
+  DuoNotification({
+    required this.title,
+    required this.message,
+    this.emoji = '🔔',
+    this.onTap,
+    this.duration = const Duration(seconds: 4),
+  });
 }
 
-/// Provider for unread notification count.
 @riverpod
-class UnreadNotificationCount extends _$UnreadNotificationCount {
+class NotificationNotifier extends _$NotificationNotifier {
   @override
-  FutureOr<int> build() async {
-    return fetchUnreadCount();
+  DuoNotification? build() => null;
+
+  void show(DuoNotification notification) {
+    state = notification;
+    // Auto-dismiss
+    Future.delayed(notification.duration, () {
+      if (state == notification) {
+        state = null;
+      }
+    });
   }
 
-  Future<int> fetchUnreadCount() async {
-    final client = ref.read(clientProvider);
-    try {
-      return await client.notification.getUnreadCount();
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  /// Refreshes the unread count.
-  Future<void> refresh() async {
-    ref.invalidateSelf();
+  void dismiss() {
+    state = null;
   }
 }

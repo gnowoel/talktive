@@ -24,11 +24,15 @@ class DuoMomentCard extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onAuthorTap,
+    this.onTap,
   });
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return DuoCard(
+      onTap: onTap,
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
       padding: EdgeInsets.zero,
       child: Column(
@@ -83,19 +87,29 @@ class DuoMomentCard extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(AppTheme.duoRadiusMedium),
                   ),
-                  child: Image.network(
-                    UrlHelper.resolve(moment.imageUrl),
+                  child: Container(
                     width: double.infinity,
-                    height: 300,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 300,
-                      color: AppTheme.lightBackground,
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 64,
-                          color: AppTheme.textLight,
+                    constraints: const BoxConstraints(
+                      minHeight: 200,
+                      maxHeight: 450,
+                    ),
+                    color: AppTheme.lightBackground, // Simple letterbox background
+                    child: Hero(
+                      tag: 'moment_image_${moment.id}',
+                      child: Image.network(
+                        UrlHelper.resolve(moment.imageUrl),
+                        width: double.infinity,
+                        fit: BoxFit.contain, // Preserve aspect ratio
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 300,
+                          color: AppTheme.lightBackground,
+                          child: const Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              size: 64,
+                              color: AppTheme.textLight,
+                            ),
+                          ),
                         ),
                       ),
                     ),

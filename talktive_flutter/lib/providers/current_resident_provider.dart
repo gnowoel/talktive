@@ -3,7 +3,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/client_provider.dart'; // Retained as it's a dependency and not explicitly removed
 import '../../providers/auth_provider.dart';
-import '../../providers/achievement_provider.dart'; // Added as per instruction
+import '../../providers/achievement_provider.dart';
+import '../../providers/notification_provider.dart';
 
 part 'current_resident_provider.g.dart';
 
@@ -55,10 +56,22 @@ class CurrentResident extends _$CurrentResident {
 
   /// Refreshes the current resident's data.
   Future<void> refresh() async {
+    final oldResident = state.value;
     state = const AsyncValue.loading();
     try {
       final resident = await fetchCurrentResident();
       state = AsyncValue.data(resident);
+
+      // Trigger level-up notification
+      if (oldResident != null && resident != null && resident.level > oldResident.level) {
+        ref.read(notificationNotifierProvider.notifier).show(
+          DuoNotification(
+            title: 'Level Up! 🏢',
+            message: "You've reached Floor ${resident.level}!",
+            emoji: '🎉',
+          ),
+        );
+      }
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

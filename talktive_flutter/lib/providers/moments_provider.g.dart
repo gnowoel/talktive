@@ -36,7 +36,7 @@ final class MomentsProvider
   Moments create() => Moments();
 }
 
-String _$momentsHash() => r'685a16a79e82c5deabb94260d4adacb4e3ccfc94';
+String _$momentsHash() => r'6793fb975bae4fced66a47cc17957e1598d551c4';
 
 /// Provider for the moments feed
 

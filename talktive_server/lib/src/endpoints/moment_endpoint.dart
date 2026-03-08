@@ -175,6 +175,21 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
         where: (t) => t.userInfoId.equals(moment.authorId),
       );
       if (momentAuthor != null && momentAuthor.userInfoId != userId) {
+        // Award XP to author
+        await GamificationService.awardXP(
+          session,
+          momentAuthor,
+          GamificationService.XP_USER_VOUCH,
+          'Moment liked',
+          save: false,
+        );
+
+        // Award Trust Score (Vouch) to author
+        ApartmentService.awardVouch(target: momentAuthor);
+
+        // Save author updates
+        await Resident.db.updateRow(session, momentAuthor);
+
         await NotificationService.sendMomentLikeNotification(
           session,
           momentAuthor.userInfoId,

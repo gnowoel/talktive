@@ -244,6 +244,11 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - **Android Network Fix**: Added an automatic `localhost` to `10.0.2.2` transformer in `MediaService` to resolve loopback connection issues on Android emulators.
   - **UX Polish**: Added keyboard avoidance (`viewInsets`) to the moment creation sheet and refined error messaging for floor-based restrictions.
 
+- Phase 8.21: Immersive Moments & Community Rewards (March 2026)
+  - **Direct Image Uploads**: Standardized on Client -> Firebase Storage uploads. This bypasses the Serverpod server for high-performance, low-latency media handling, leveraging Firebase's global CDN while maintaining security via Auth-guarded Storage Rules.
+  - **Image Guardrails**: Implemented client-side size validation and fixed-quality compression.
+  - **Gamified Engagement**: Linked social interactions (Likes) to XP and Trust Score rewards.
+
 **Status:** 🏗️ In Progress
 
 **Next:**

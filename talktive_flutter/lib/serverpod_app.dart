@@ -12,6 +12,7 @@ import 'screens/chats/chat_loader_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/profile/user_profile_view_screen.dart';
 import 'wrappers/initialize.dart';
+import 'widgets/duo/duo_notification_toast.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -28,6 +29,19 @@ class ServerpodApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           routerConfig: _buildRouter(onExit),
+          builder: (context, child) {
+            return Stack(
+              children: [
+                if (child != null) child,
+                const Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: DuoNotificationToast(),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

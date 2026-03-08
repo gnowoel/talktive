@@ -1,0 +1,270 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talktive_client/talktive_client.dart';
+import '../../config/theme.dart';
+import '../../providers/client_provider.dart';
+import '../../providers/moment_provider.dart';
+import '../../providers/current_resident_provider.dart';
+import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_chat_input.dart';
+import '../../helpers/date_formatter.dart';
+import '../../helpers/url_helper.dart';
+import '../../helpers/snackbar_helper.dart';
+import 'image_gallery_screen.dart';
+
+class MomentDetailScreen extends ConsumerStatefulWidget {
+  final Moment moment;
+
+  const MomentDetailScreen({super.key, required this.moment});
+
+  @override
+  ConsumerState<MomentDetailScreen> createState() => _MomentDetailScreenState();
+}
+
+class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
+  final TextEditingController _commentController = TextEditingController();
+  bool _isLiking = false;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggleLike() async {
+    setState(() => _isLiking = true);
+    try {
+      final isLiked = ref.read(momentLikesProvider(widget.moment.id!)).value ?? false;
+      if (isLiked) {
+        await ref.read(momentsProvider.notifier).unlikeMoment(widget.moment.id!);
+      } else {
+        await ref.read(momentsProvider.notifier).likeMoment(widget.moment.id!);
+      }
+      HapticFeedback.mediumImpact();
+    } catch (e) {
+      SnackBarHelper.showError(context, 'Failed to update like: $e');
+    } finally {
+      if (mounted) setState(() => _isLiking = false);
+    }
+  }
+
+  Future<void> _postComment(String text) async {
+    if (text.trim().isEmpty) return;
+    try {
+      await ref.read(momentsProvider.notifier).addComment(widget.moment.id!, text);
+      _commentController.clear();
+      HapticFeedback.lightImpact();
+      FocusScope.of(context).unfocus();
+      SnackBarHelper.showSuccess(context, 'Comment posted! 💬');
+    } catch (e) {
+      SnackBarHelper.showError(context, 'Failed to post comment: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final commentsAsync = ref.watch(momentCommentsProvider(widget.moment.id!));
+    final isLikedAsync = ref.watch(momentLikesProvider(widget.moment.id!));
+    final currentResident = ref.watch(currentResidentProvider).value;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Moment', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                // Moment Content
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildAuthorHeader(),
+                      _buildImage(context),
+                      _buildCaption(),
+                      _buildStats(isLikedAsync.value ?? false),
+                      const Divider(height: 1, thickness: 1, color: AppTheme.duoBorder),
+                    ],
+                  ),
+                ),
+                
+                // Comments Section
+                _buildCommentsList(commentsAsync),
+              ],
+            ),
+          ),
+          
+          // Comment Input
+          DuoChatInput(
+            controller: _commentController,
+            onSend: (_) => _postComment(_commentController.text),
+            hintText: 'Add a comment...',
+            showImagePick: false,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAuthorHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+      child: Row(
+        children: [
+          DuoAvatar(
+            imageUrl: widget.moment.authorAvatar,
+            mood: widget.moment.authorMood,
+            floorLevel: widget.moment.authorFloor,
+            size: 44,
+            showRing: true,
+          ),
+          const SizedBox(width: AppTheme.duoSpacingSmall),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.moment.authorName,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              Text(
+                formatTimestamp(widget.moment.createdAt),
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImage(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImageGalleryScreen(imageUrl: widget.moment.imageUrl),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(maxHeight: 500, minHeight: 200),
+        color: AppTheme.lightBackground,
+        child: Hero(
+          tag: 'moment_image_${widget.moment.id}',
+          child: Image.network(
+            UrlHelper.resolve(widget.moment.imageUrl),
+            fit: BoxFit.contain,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return const Center(child: DuoLoadingIndicator());
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCaption() {
+    if (widget.moment.caption == null || widget.moment.caption!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+      child: Text(
+        widget.moment.caption!,
+        style: const TextStyle(fontSize: 16, height: 1.5),
+      ),
+    );
+  }
+
+  Widget _buildStats(bool isLiked) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingMedium, vertical: AppTheme.duoSpacingSmall),
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border,
+              color: isLiked ? AppTheme.duoRed : AppTheme.textSecondary,
+            ),
+            onPressed: _isLiking ? null : _toggleLike,
+          ),
+          Text(
+            '${widget.moment.likesCount} likes',
+            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary),
+          ),
+          const SizedBox(width: AppTheme.duoSpacingMedium),
+          const Icon(Icons.chat_bubble_outline, color: AppTheme.textSecondary),
+          const SizedBox(width: 4),
+          Text(
+            '${widget.moment.commentsCount} comments',
+            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommentsList(AsyncValue<List<MomentComment>> commentsAsync) {
+    return commentsAsync.when(
+      data: (comments) {
+        if (comments.isEmpty) {
+          return const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Text(
+                'No comments yet. Be the first! 💬',
+                style: TextStyle(color: AppTheme.textSecondary),
+              ),
+            ),
+          );
+        }
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final comment = comments[index];
+              return ListTile(
+                leading: DuoAvatar(
+                  imageUrl: comment.userAvatar,
+                  mood: comment.userMood,
+                  floorLevel: comment.userFloor,
+                  size: 32,
+                ),
+                title: Text(comment.userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(comment.text, style: const TextStyle(color: AppTheme.textPrimary)),
+                    const SizedBox(height: 4),
+                    Text(formatTimestamp(comment.createdAt), style: const TextStyle(fontSize: 11, color: AppTheme.textLight)),
+                  ],
+                ),
+              );
+            },
+            childCount: comments.length,
+          ),
+        );
+      },
+      loading: () => const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: DuoLoadingIndicator()),
+      ),
+      error: (e, _) => SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: Text('Error loading comments: $e')),
+      ),
+    );
+  }
+}

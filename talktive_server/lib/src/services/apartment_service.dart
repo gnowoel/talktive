@@ -111,9 +111,17 @@ class ApartmentService {
       return 'You are temporarily muted for $hoursLeft more hour${hoursLeft == 1 ? '' : 's'} due to multiple reports.';
     }
     if (resident.trustScore <= 0) {
-      return 'Your trustScore is too low to send messages. It restores automatically at 2 points per hour.';
+      return 'Your trustScore is too low to interact. It restores automatically at 5 points per hour.';
     }
     return 'You are muted.';
+  }
+
+  /// Award a trustScore bonus to [target] when their content is liked.
+  /// Bonus is a flat +10 to Trust Score.
+  static void awardVouch({
+    required Resident target,
+  }) {
+    target.trustScore += 10;
   }
 
   // ---------------------------------------------------------------------------

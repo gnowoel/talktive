@@ -21,7 +21,14 @@ class MediaService {
 
   /// Uploads a file to Firebase Cloud Storage.
   /// Returns the public URL of the uploaded file.
-  Future<String?> uploadFile(XFile file, String folder) async {
+  Future<String?> uploadFile(XFile file, String folder, {int maxSizeMb = 10}) async {
+    final bytes = await file.readAsBytes();
+    final sizeInMb = bytes.length / (1024 * 1024);
+    
+    if (sizeInMb > maxSizeMb) {
+      throw Exception('Image is too large (${sizeInMb.toStringAsFixed(1)}MB). Max size is ${maxSizeMb}MB! 📸');
+    }
+
     final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
     final path = '$folder/$fileName';
 
@@ -37,7 +44,6 @@ class MediaService {
       
       if (kIsWeb) {
         print('MediaService: Using putData for Web upload...');
-        final bytes = await file.readAsBytes();
         snapshot = await storageRef.putData(bytes, metadata);
       } else {
         print('MediaService: Using putFile for Mobile upload. Path: ${file.path}');

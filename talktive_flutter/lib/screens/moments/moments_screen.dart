@@ -19,6 +19,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
+import 'moment_detail_screen.dart';
 import '../profile/user_profile_view_screen.dart';
 import '../../providers/client_provider.dart';
 
@@ -414,6 +415,15 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 onLike: () => _toggleLike(moment, likedMoments.contains(moment.id)),
                 onComment: () => _showComments(moment),
                 onAuthorTap: () => _navigateToProfile(moment),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MomentDetailScreen(moment: moment),
+                    ),
+                  );
+                },
               );
             },
           ),

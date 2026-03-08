@@ -113,7 +113,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
           // Comment Input
           DuoChatInput(
             controller: _commentController,
-            onSend: (_) => _postComment(_commentController.text),
+            onSend: () => _postComment(_commentController.text),
             hintText: 'Add a comment...',
           ),
         ],

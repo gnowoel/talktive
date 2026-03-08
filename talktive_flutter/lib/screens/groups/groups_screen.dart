@@ -13,6 +13,9 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import 'group_chat_screen.dart';
 import 'create_group_dialog.dart';
 import 'group_search_screen.dart';
+import '../../helpers/snackbar_helper.dart';
+import '../../utils/floor_utils.dart';
+import '../../providers/current_resident_provider.dart';
 
 /// Duolingo-style Groups screen - Community discussions
 class GroupsScreen extends ConsumerWidget {
@@ -33,7 +36,7 @@ class GroupsScreen extends ConsumerWidget {
           HapticFeedback.lightImpact();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const GroupSearchScreen()),
+            MaterialPageRoute(builder: (context) => GroupSearchScreen()),
           );
         },
       ),
@@ -181,12 +184,12 @@ class GroupsScreen extends ConsumerWidget {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    if (FloorUtils.isMuted(currentResident)) {
-      SnackBarHelper.showError(context, FloorUtils.getMuteReason(currentResident));
+    if (FloorUtils.isMuted(currentResident!)) {
+      SnackBarHelper.showError(context, FloorUtils.getMuteReason(currentResident!));
       return;
     }
 
-    if (FloorUtils.computeFloor(currentResident) < 1) {
+    if (FloorUtils.computeFloor(currentResident!) < 1) {
       SnackBarHelper.showError(context, 'You must reach Floor 1 to create a club. Keep chatting!');
       return;
     }

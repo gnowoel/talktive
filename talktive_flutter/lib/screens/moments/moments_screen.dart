@@ -19,9 +19,11 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
+import '../../utils/floor_utils.dart';
 import 'package:image_picker/image_picker.dart';
 import 'moment_detail_screen.dart';
 import '../profile/user_profile_view_screen.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 
 /// Duolingo-style Moments screen - Photo feed
@@ -63,7 +65,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    final effectiveFloor = FloorUtils.computeFloor(currentResident);
+    final effectiveFloor = FloorUtils.computeFloor(currentResident!);
     if (effectiveFloor < 2) {
       _showLevelRequirementDialog(
         'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',

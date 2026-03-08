@@ -11,6 +11,7 @@ import 'screens/home/home_screen.dart';
 import 'screens/chats/chat_loader_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/profile/user_profile_view_screen.dart';
+import 'wrappers/initialize.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -20,11 +21,14 @@ class ServerpodApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      child: MaterialApp.router(
-        title: 'Talktive (Serverpod)',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        routerConfig: _buildRouter(onExit),
+      child: Initialize(
+        useEmulators: true,
+        child: MaterialApp.router(
+          title: 'Talktive (Serverpod)',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          routerConfig: _buildRouter(onExit),
+        ),
       ),
     );
   }

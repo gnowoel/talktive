@@ -2,12 +2,13 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import '../generated/protocol.dart';
 import '../services/apartment_service.dart';
-import '../services/gamification_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/resident_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
-  /// Checks if the authenticated user has a Resident profile.
+  /// Checks if the authenticated user has a Resident profile and 
+  /// performs standard background tasks (daily login bonus, etc.).
   Future<Resident?> getResident(Session session) async {
     final auth = session.authenticated;
     if (auth == null || auth.userIdentifier == null) {
@@ -15,43 +16,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     final senderUuid = UuidValue.fromString(auth.userIdentifier!);
-
-    final resident = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(senderUuid),
-    );
-
-    if (resident != null) {
-      bool needsSave = false;
-
-      // Passively restore trustScore on load
-      if (await ApartmentService.restoreTrustScore(session, resident, save: false)) {
-        needsSave = true;
-      }
-
-      // Check daily login and award XP
-      if (await GamificationService.checkDailyLogin(session, resident, save: false)) {
-        needsSave = true;
-      }
-
-      // Batch save if any changes occurred
-      if (needsSave) {
-        await Resident.db.updateRow(session, resident);
-      }
-    }
-
-    return resident;
+    return await ResidentService.getActiveResident(session, senderUuid);
   }
 
   /// Fetches a Resident profile by their user ID.
   Future<Resident?> getResidentById(Session session, String userId) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
     final userUuid = UuidValue.fromString(userId);
-
-    return await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userUuid),
-    );
+    return await ResidentService.getResident(session, userUuid);
   }
 
   /// Initializes a Resident profile for an authenticated user.
@@ -78,11 +50,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final senderUuid = await getUserId(session);
 
     // 1. Check if resident already exists
-    var resident = await Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(senderUuid),
-    );
-
+    var resident = await ResidentService.getResident(session, senderUuid);
     if (resident != null) {
       return resident; // Already initialized
     }
@@ -90,31 +58,10 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     // 2. Fetch/Update User Profile (Force Anonymous Identity)
     try {
       final userProfile = await AuthServices.instance.userProfiles
-          .findUserProfileByUserId(
-            session,
-            senderUuid,
-          );
+          .findUserProfileByUserId(session, senderUuid);
 
       // Overwrite Google name with Anonymous name
-      if (userProfile.userName != name) {
-        await AuthServices.instance.userProfiles.changeUserName(
-          session,
-          senderUuid,
-          name,
-        );
-      }
-
-      // We also update full name to keep it consistent
-      if (userProfile.fullName != name) {
-        await AuthServices.instance.userProfiles.changeFullName(
-          session,
-          senderUuid,
-          name,
-        );
-      }
-
-      // Note: We don't wipe the email here to allow account recovery/admin lookup if needed,
-      // but we ensure the public facing 'userName' is the anonymous one.
+      await ResidentService.syncAuthProfile(session, senderUuid, name);
     } catch (e) {
       // User profile might not exist (though getting here means we are authenticated)
       // If so, we create one.
@@ -132,31 +79,25 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     // 3. Create Resident with new gamification fields
     resident = Resident(
       userInfoId: senderUuid,
-      // Gamification (floor is computed dynamically, not stored)
       xp: 0,
-      level: 0,
+      level: 1, // Start at Floor 1
       currentStreak: 0,
       longestStreak: 0,
-      // Safety
       trustScore: ApartmentService.TRUST_SCORE_START,
       suspended: false,
-      // Legacy
       experienceMessageCount: 0,
-      // Profile
       userName: name,
       gender: gender,
       country: country,
       bio: bio,
       mood: mood,
-      avatar: avatar, // Store the emoji/avatar string here
+      avatar: avatar,
       interests: interests ?? [],
       languages: languages ?? ['en'],
-      // Admin
       role: 'resident',
     );
 
     await Resident.db.insertRow(session, resident);
-
     return resident;
   }
 
@@ -179,35 +120,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
     InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
 
-    final senderUuid = await getUserId(session);
-    final resident = await getResidentProfile(session, senderUuid);
-
-    if (resident == null) {
-      throw Exception('Resident profile not found.');
-    }
+    final resident = await getAuthenticatedResident(session);
+    final senderUuid = resident.userInfoId;
 
     // Update User Profile name if changed
-    try {
-      final userProfile = await AuthServices.instance.userProfiles
-          .findUserProfileByUserId(session, senderUuid);
-
-      if (userProfile.userName != name) {
-        await AuthServices.instance.userProfiles.changeUserName(
-          session,
-          senderUuid,
-          name,
-        );
-      }
-      if (userProfile.fullName != name) {
-        await AuthServices.instance.userProfiles.changeFullName(
-          session,
-          senderUuid,
-          name,
-        );
-      }
-    } catch (_) {
-      // Ignore if userProfile doesn't exist
-    }
+    await ResidentService.syncAuthProfile(session, senderUuid, name);
 
     // Update Resident fields
     resident.userName = name;

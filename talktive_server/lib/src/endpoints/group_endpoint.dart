@@ -26,11 +26,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     ).throwIfInvalid();
 
     final currentUserId = await getUserId(session);
-    final currentResident = await getResidentProfile(session, currentUserId);
+    final currentResident = await getAuthenticatedResident(session);
 
     // Safety: muted or suspended users cannot create groups
     if (ApartmentService.isMuted(currentResident)) {
-      throw Exception(ApartmentService.getMuteReason(currentResident));
+      throw protocol.TalktiveException(
+        message: ApartmentService.getMuteReason(currentResident),
+        code: 'USER_MUTED',
+      );
     }
 
     // Safety: must be at least Floor 1 to create a group
@@ -100,14 +103,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     ).throwIfInvalid();
 
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await getUserId(session);
 
     // Get all groups where user is a tracked member
     final memberships = await protocol.ChannelMember.db.find(
@@ -153,7 +149,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     return group;
@@ -237,7 +236,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     if (!group.isPublic) {
@@ -316,7 +318,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Verify current user is a joined member
@@ -370,7 +375,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     final member = await protocol.ChannelMember.db.findFirstRow(
@@ -424,7 +432,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Enforce creator access control
@@ -487,7 +498,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     if (group.creatorId != currentUserId) {
@@ -528,7 +542,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Check if user is a member
@@ -561,7 +578,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Get all active members
@@ -614,7 +634,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     if (group.creatorId != currentUserId) {
@@ -662,7 +685,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Get all active members
@@ -705,7 +731,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Check if user is admin
@@ -718,7 +747,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null || member.role != 'admin') {
-      throw Exception('Only admins can update group details');
+      throw protocol.TalktiveException(
+        message: 'Only admins can update group details',
+        code: 'ACCESS_DENIED',
+      );
     }
 
     // Validate inputs if provided
@@ -751,7 +783,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     if (maxMembers != null) {
       if (maxMembers < group.memberCount) {
-        throw Exception('Cannot set max members below current member count');
+        throw protocol.TalktiveException(
+          message: 'Cannot set max members below current member count',
+          code: 'INVALID_INPUT',
+        );
       }
       group.maxMembers = maxMembers;
     }
@@ -771,12 +806,18 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final group = await protocol.Group.db.findById(session, groupId);
 
     if (group == null) {
-      throw Exception('Group not found');
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
     }
 
     // Check if user is the creator
     if (group.creatorId != currentUserId) {
-      throw Exception('Only the creator can delete the group');
+      throw protocol.TalktiveException(
+        message: 'Only the creator can delete the group',
+        code: 'ACCESS_DENIED',
+      );
     }
 
     // Delete all channel members

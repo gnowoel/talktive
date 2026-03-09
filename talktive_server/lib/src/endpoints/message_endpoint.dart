@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+// Removed redundant Auth Server import
 // Added UUID import
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
@@ -51,18 +51,23 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       // 2. Fetch channel to verify access and type
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel == null) {
-        session.log('sendMessage: Channel $channelId not found');
-        throw Exception('Channel not found');
+        throw protocol.TalktiveException(
+          message: 'Channel not found.',
+          code: 'CHANNEL_NOT_FOUND',
+        );
       }
 
       // 3. User info and floor Computation
-      final senderName = sender.userName ?? 'Resident';
+      final senderName = sender.userName;
       final senderAvatar = sender.avatar;
       final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(sender);
 
       // 4. Safety Checks (Muted / Suspended)
       if (ApartmentService.isMuted(sender)) {
-        throw Exception(ApartmentService.getMuteReason(sender));
+        throw protocol.TalktiveException(
+          message: ApartmentService.getMuteReason(sender),
+          code: 'USER_MUTED',
+        );
       }
 
       // 5. Content Validation (profanity and spam filtering)
@@ -74,7 +79,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           senderEffectiveFloor,
         );
         if (!validation.isValid) {
-          throw Exception(validation.reason ?? 'Invalid message content');
+          throw protocol.TalktiveException(
+            message: validation.reason ?? 'Invalid message content',
+            code: 'CONTENT_FILTER_FAIL',
+          );
         }
 
         // Check for repeated messages (spam detection)
@@ -84,7 +92,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           content,
         );
         if (isRepeated) {
-          throw Exception('Please don\'t send the same message repeatedly');
+          throw protocol.TalktiveException(
+            message: 'Please don\'t send the same message repeatedly',
+            code: 'SPAM_DETECTED',
+          );
         }
 
         filteredContent = validation.filteredContent ?? content;
@@ -98,7 +109,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         senderEffectiveFloor,
       );
       if (rateLimitError != null) {
-        throw Exception(rateLimitError);
+        throw protocol.TalktiveException(
+          message: rateLimitError,
+          code: 'RATE_LIMIT_EXCEEDED',
+        );
       }
 
       // 7. Floor-based content restrictions
@@ -106,11 +120,13 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       if (channel.type == protocol.ChannelType.plaza && hasMedia) {
         // Plaza restrictions: images allowed only for Floor 2+
         if (senderEffectiveFloor < 2) {
-          throw Exception(
-            'You must reach Floor 2 to send images in the Plaza. Keep interacting to climb higher!',
+          throw protocol.TalktiveException(
+            message: 'You must reach Floor 2 to send images in the Plaza.',
+            code: 'FLOOR_RESTRICTION',
           );
         }
       }
+
 
       // 8. Create Message object
       final message = protocol.Message(
@@ -121,7 +137,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         mediaUrl: mediaUrl,
         mediaType: mediaType,
         createdAt: DateTime.now(),
-        senderName: senderName,
+        senderName: senderName ?? 'Resident',
         senderAvatar: senderAvatar,
         senderMood: sender.mood,
         senderFloor: senderEffectiveFloor,
@@ -222,20 +238,17 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     // For Plaza (floor 0), it's public. For others, check membership.
     final channel = await protocol.Channel.db.findById(session, channelId);
     if (channel == null) {
-      throw Exception('Channel not found');
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
     }
 
     // Check membership for private/group channels
     if (channel.type != protocol.ChannelType.plaza) {
-      final userIdentifier = session.authenticated?.userIdentifier;
-      if (userIdentifier == null) {
-        throw Exception('Authentication required for private channels');
-      }
-
-      final userUuid = UuidValue.fromString(userIdentifier);
+      final userUuid = await getUserId(session);
 
       // Check if user is a member of this channel
-      // Fixed: use userInfoId instead of userId
       final membership = await protocol.ChannelMember.db.findFirstRow(
         session,
         where: (t) =>
@@ -243,14 +256,21 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       );
 
       if (membership == null) {
-        throw Exception('Access denied: Not a member of this channel');
+        throw protocol.TalktiveException(
+          message: 'Access denied: Not a member of this channel.',
+          code: 'ACCESS_DENIED',
+        );
       }
 
       // Check if membership is active
       if (membership.status != protocol.ChannelMemberStatus.joined) {
-        throw Exception('Access denied: Membership is not active');
+        throw protocol.TalktiveException(
+          message: 'Access denied: Membership is not active.',
+          code: 'ACCESS_INACTIVE',
+        );
       }
     }
+
 
     // 2. Fetch messages
     return await protocol.Message.db.find(

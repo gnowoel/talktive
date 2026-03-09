@@ -4,6 +4,7 @@ import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/resident_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
@@ -19,20 +20,15 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Ensure we don't create a chat with ourselves
     if (currentUserId == otherUserUuid) {
-      throw Exception('Cannot create private chat with yourself');
+      throw protocol.TalktiveException(
+        message: 'Cannot create private chat with yourself.',
+        code: 'SELF_CHAT_NOT_ALLOWED',
+      );
     }
 
     // Check if both users exist
-    final currentResident = await getResidentProfile(session, currentUserId);
-
-    final otherResident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(otherUserUuid),
-    );
-
-    if (otherResident == null) {
-      throw Exception('User not found');
-    }
+    final currentResident = await getAuthenticatedResident(session);
+    final otherResident = await getResidentProfile(session, otherUserUuid);
 
     // Safety: Check floor restrictions
     if (!ApartmentService.canInvite(
@@ -44,23 +40,25 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
           sender: currentResident,
           receiver: otherResident,
         ),
-        code: 'FLOOR_TOO_LOW',
+        code: 'INVITE_RESTRICTED',
       );
     }
 
-    // Safety: Check blocking
-    final blocked = await protocol.Block.db.findFirstRow(
-      session,
-      where: (t) =>
-          (t.blockerId.equals(currentUserId) &
-              t.blockedId.equals(otherUserUuid)) |
-          (t.blockerId.equals(otherUserUuid) &
-              t.blockedId.equals(currentUserId)),
-    );
-
-    if (blocked != null) {
-      throw Exception('Cannot create chat with this user.');
+    // Safety: Check blocking (both ways)
+    if (await ResidentService.isBlocked(session, blockerId: currentUserId, blockedId: otherUserUuid)) {
+      throw protocol.TalktiveException(
+        message: 'You have blocked this user.',
+        code: 'USER_BLOCKED',
+      );
     }
+
+    if (await ResidentService.isBlocked(session, blockerId: otherUserUuid, blockedId: currentUserId)) {
+      throw protocol.TalktiveException(
+        message: 'This user has blocked you.',
+        code: 'BLOCKED_BY_USER',
+      );
+    }
+
 
     // Order participants consistently (smaller UUID first) to avoid duplicates
     final participant1 = currentUserId.uuid.compareTo(otherUserUuid.uuid) < 0
@@ -215,14 +213,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     int channelId,
   ) async {
     InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final currentUserId = await getUserId(session);
 
     // Get the private chat by channel id (used for deep links)
     final privateChat = await protocol.PrivateChat.db.findFirstRow(
@@ -231,13 +222,19 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (privateChat == null) {
-      throw Exception('Private chat not found');
+      throw protocol.TalktiveException(
+        message: 'Private chat not found.',
+        code: 'CHAT_NOT_FOUND',
+      );
     }
 
     // Verify user is a participant
     if (privateChat.participant1Id != currentUserId &&
         privateChat.participant2Id != currentUserId) {
-      throw Exception('Not authorized to access this chat');
+      throw protocol.TalktiveException(
+        message: 'Access denied: Not a participant in this chat.',
+        code: 'ACCESS_DENIED',
+      );
     }
 
     // Get the other participant's ID
@@ -246,14 +243,8 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         : privateChat.participant1Id;
 
     // Get the other participant's resident info
-    final otherResident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(otherUserId),
-    );
+    final otherResident = await getResidentProfile(session, otherUserId);
 
-    if (otherResident == null) {
-      throw Exception('Other participant not found');
-    }
 
     // Include the user info fallback if the resident data lacks name/avatar
     final userInfo = await UserInfo.db.findFirstRow(
@@ -299,7 +290,10 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (privateChat == null) {
-      throw Exception('Private chat not found');
+      throw protocol.TalktiveException(
+        message: 'Private chat not found',
+        code: 'CHAT_NOT_FOUND',
+      );
     }
 
     privateChat.lastMessageAt = DateTime.now();
@@ -323,8 +317,12 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null) {
-      throw Exception('Not a member of this chat');
+      throw protocol.TalktiveException(
+        message: 'You are not a member of this chat.',
+        code: 'NOT_A_MEMBER',
+      );
     }
+
 
     if (member.status != protocol.ChannelMemberStatus.invited) {
       // Ignore if not invited (already joined, left, declined)

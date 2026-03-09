@@ -3,6 +3,7 @@ import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/resident_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
@@ -20,30 +21,21 @@ class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
       final targetId = UuidValue.fromString(userId);
 
       // Get the target user's resident data
-      final resident = await protocol.Resident.db.findFirstRow(
+      final resident = await getResidentProfile(session, targetId);
+
+      // Check if blocked (both ways)
+      final isBlocked = await ResidentService.isBlocked(
         session,
-        where: (t) => t.userInfoId.equals(targetId),
+        blockerId: viewerId,
+        blockedId: targetId,
       );
 
-      if (resident == null) {
-        return null;
-      }
-
-      // Get user info (name, avatar) from Resident (already backfilled)
-
-
-      // Check if blocked
-      final isBlocked = await protocol.Block.db.findFirstRow(
+      final hasBlockedMe = await ResidentService.isBlocked(
         session,
-        where: (t) =>
-            t.blockerId.equals(viewerId) & t.blockedId.equals(targetId),
+        blockerId: targetId,
+        blockedId: viewerId,
       );
 
-      final hasBlockedMe = await protocol.Block.db.findFirstRow(
-        session,
-        where: (t) =>
-            t.blockerId.equals(targetId) & t.blockedId.equals(viewerId),
-      );
 
       // Get stats
       final messageCount = await protocol.Message.db.count(

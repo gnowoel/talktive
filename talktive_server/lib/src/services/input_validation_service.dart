@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import '../generated/protocol.dart';
 
 /// Centralized input validation service for all endpoints.
 /// Provides consistent validation rules across the application.
@@ -294,16 +295,21 @@ class InputValidationService {
 class ValidationResult {
   final bool isValid;
   final String? error;
+  final String? errorCode;
 
   ValidationResult({
     required this.isValid,
     this.error,
+    this.errorCode,
   });
 
-  /// Throws an exception if validation failed.
+  /// Throws a TalktiveException if validation failed.
   void throwIfInvalid() {
     if (!isValid) {
-      throw Exception(error ?? 'Validation failed');
+      throw TalktiveException(
+        message: error ?? 'Validation failed',
+        code: errorCode ?? 'VALIDATION_ERROR',
+      );
     }
   }
 }

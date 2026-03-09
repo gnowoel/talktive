@@ -11,6 +11,7 @@ import '../../config/languages.dart';
 import '../../config/interests.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_keyboard_dismissible.dart';
 
 import 'package:talktive_client/talktive_client.dart';
 
@@ -314,28 +315,30 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
           // Main content
           SafeArea(
-            child: Column(
-              children: [
-                _buildProgressIndicator(),
+            child: DuoKeyboardDismissible(
+              child: Column(
+                children: [
+                  _buildProgressIndicator(),
 
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildAvatarStep(),
-                      _buildNameStep(),
-                      _buildGenderCountryStep(),
-                      _buildLanguagesStep(), // New Step
-                      _buildBioStep(),
-                      _buildInterestsStep(),
-                      _buildMoodStep(),
-                    ],
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        _buildAvatarStep(),
+                        _buildNameStep(),
+                        _buildGenderCountryStep(),
+                        _buildLanguagesStep(), // New Step
+                        _buildBioStep(),
+                        _buildInterestsStep(),
+                        _buildMoodStep(),
+                      ],
+                    ),
                   ),
-                ),
 
-                _buildNavigationButtons(),
-              ],
+                  _buildNavigationButtons(),
+                ],
+              ),
             ),
           ),
 

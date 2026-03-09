@@ -17,7 +17,7 @@ import 'create_group_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
-import '../../widgets/duo/duo_chat_input.dart';
+import '../../widgets/duo/duo_chat_layout.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -113,8 +113,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final currentResident = ref.watch(currentResidentProvider).value;
     final canSend = currentResident != null && !FloorUtils.isMuted(currentResident);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
+    return DuoChatInputLayout(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -259,30 +258,22 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: chatState.when(
-              data: (messages) => messages.isEmpty
-                  ? _buildEmptyState()
-                  : _buildMessagesList(messages, currentResident),
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryColor),
-              ),
-              error: (error, stack) => _buildErrorState(error),
-            ),
-          ),
-          DuoChatInput(
-            controller: _messageController,
-            onSend: _sendMessage,
-            onImagePick: _pickAndSendImage,
-            enabled: canSend && !_isUploading,
-            activeColor: AppTheme.duoYellow,
-            hintText: _isUploading 
-                ? 'Uploading image...' 
-                : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),
-          ),
-        ],
+      controller: _messageController,
+      onSend: _sendMessage,
+      onImagePick: _pickAndSendImage,
+      enabled: canSend && !_isUploading,
+      activeColor: AppTheme.duoYellow,
+      hintText: _isUploading 
+          ? 'Uploading image...' 
+          : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),
+      content: chatState.when(
+        data: (messages) => messages.isEmpty
+            ? _buildEmptyState()
+            : _buildMessagesList(messages, currentResident),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
+        error: (error, stack) => _buildErrorState(error),
       ),
     );
   }

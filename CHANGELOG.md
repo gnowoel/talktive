@@ -4,6 +4,19 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 9, 2026 - UX Refinement & Layout Consolidation ⌨️
+
+### UX & Accessibility
+- **Keyboard Dismissal**: Implemented "Tap Outside to Hide Keyboard" across all chat screens (Plaza, Private, Groups, Moments) and onboarding.
+- **Consolidated Layouts**: Created `DuoChatLayout` and `DuoChatInputLayout` to standardize screen structure and reduce boilerplate.
+- **Improved Focus Management**: Integrated automatic keyboard dismissal into the standard chat navigation flow and profile setup.
+
+### Architectural Polish
+- **Duo Component Expansion**: Added `DuoKeyboardDismissible` and `DuoChatLayout` widgets for rapid development of consistent chat-like screens.
+- **Structural Consolidation**: Refactored `PlazaChatScreen`, `ChatThreadScreen`, `GroupChatScreen`, and `MomentDetailScreen` to use unified layouts.
+
+---
+
 ## March 9, 2026 - Structural Consolidation & Start-up Success 🚀
 
 ### Architectural Polish

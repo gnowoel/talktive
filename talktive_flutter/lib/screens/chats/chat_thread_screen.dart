@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../widgets/duo/duo_chat_input.dart';
+import '../../widgets/duo/duo_chat_layout.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/user_profile_provider.dart';
@@ -140,8 +140,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final otherFloor = otherProfile?.floor ?? 1;
     final otherMood = otherProfile?.userMood;
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
+    final canSend = _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+    final hintText = (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+        ? FloorUtils.getMuteInputHint(_currentResident!)
+        : 'Type a message...';
+
+    return DuoChatInputLayout(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -185,37 +189,20 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ],
         ),
       ),
-      body: Builder(
-        builder: (context) {
-          final canSend = _currentResident != null && !FloorUtils.isMuted(_currentResident!);
-          final hintText = (_currentResident != null && FloorUtils.isMuted(_currentResident!))
-              ? FloorUtils.getMuteInputHint(_currentResident!)
-              : 'Type a message...';
-
-          return Column(
-            children: [
-              Expanded(
-                child: chatState.when(
-                  data: (messages) => messages.isEmpty
-                      ? _buildEmptyState()
-                      : _buildMessagesList(messages),
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppTheme.primaryColor),
-                  ),
-                  error: (error, stack) => _buildErrorState(error),
-                ),
-              ),
-              DuoChatInput(
-                controller: _messageController,
-                onSend: _sendMessage,
-                onImagePick: _pickAndSendImage,
-                enabled: canSend && !_isUploading,
-                activeColor: AppTheme.duoOrange,
-                hintText: _isUploading ? 'Sending image...' : hintText,
-              ),
-            ],
-          );
-        },
+      controller: _messageController,
+      onSend: _sendMessage,
+      onImagePick: _pickAndSendImage,
+      enabled: canSend && !_isUploading,
+      activeColor: AppTheme.duoOrange,
+      hintText: _isUploading ? 'Sending image...' : hintText,
+      content: chatState.when(
+        data: (messages) => messages.isEmpty
+            ? _buildEmptyState()
+            : _buildMessagesList(messages),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
+        error: (error, stack) => _buildErrorState(error),
       ),
     );
   }

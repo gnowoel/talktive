@@ -14,7 +14,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
-import '../../widgets/duo/duo_chat_input.dart';
+import '../../widgets/duo/duo_chat_layout.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -118,8 +118,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     final currentResident = currentResidentAsync.value;
     final canSend = currentResident != null && !FloorUtils.isMuted(currentResident);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
+    return DuoChatInputLayout(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -156,50 +155,40 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // Info banner
-          DuoInfoBanner(
-            bannerId: 'plaza_image_rules',
-            text: currentResident != null && FloorUtils.computeFloor(currentResident) >= 2 
-              ? '📸 You can now share images in the Global Lounge!' 
-              : 'Text only. Floor 2+ residents can share images.',
-          ),
-          // Messages list
-          Expanded(
-            child: chatState.when(
-              data: (messages) {
-                if (messages.isEmpty) {
-                  return const DuoEmptyState(
-                    emoji: '👋',
-                    title: 'Say hello!',
-                    subtitle: 'Be the first to start a conversation',
-                  );
-                }
-                return _buildMessagesList(messages, currentResident);
-              },
-              loading: () => const DuoLoadingIndicator(),
-              error: (error, stack) => DuoEmptyState(
-                emoji: '😕',
-                title: 'Connection Error',
-                subtitle: error.toString(),
-                buttonText: 'Retry',
-                onButtonPressed: () {
-                  ref.read(realtimeChatProvider(1).notifier).refresh();
-                },
-              ),
-            ),
-          ),
-          DuoChatInput(
-            controller: _messageController,
-            onSend: _sendMessage,
-            onImagePick: _pickAndSendImage,
-            enabled: canSend && !_isUploading,
-            hintText: _isUploading 
-                ? 'Uploading image...' 
-                : (canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident)),
-          ),
-        ],
+      header: DuoInfoBanner(
+        bannerId: 'plaza_image_rules',
+        text: currentResident != null && FloorUtils.computeFloor(currentResident) >= 2 
+          ? '📸 You can now share images in the Global Lounge!' 
+          : 'Text only. Floor 2+ residents can share images.',
+      ),
+      controller: _messageController,
+      onSend: _sendMessage,
+      onImagePick: _pickAndSendImage,
+      enabled: canSend && !_isUploading,
+      hintText: _isUploading 
+          ? 'Uploading image...' 
+          : (canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident)),
+      content: chatState.when(
+        data: (messages) {
+          if (messages.isEmpty) {
+            return const DuoEmptyState(
+              emoji: '👋',
+              title: 'Say hello!',
+              subtitle: 'Be the first to start a conversation',
+            );
+          }
+          return _buildMessagesList(messages, currentResident);
+        },
+        loading: () => const DuoLoadingIndicator(),
+        error: (error, stack) => DuoEmptyState(
+          emoji: '😕',
+          title: 'Connection Error',
+          subtitle: error.toString(),
+          buttonText: 'Retry',
+          onButtonPressed: () {
+            ref.read(realtimeChatProvider(1).notifier).refresh();
+          },
+        ),
       ),
     );
   }

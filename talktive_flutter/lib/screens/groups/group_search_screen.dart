@@ -11,6 +11,7 @@ import '../../widgets/duo/duo_group_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_keyboard_dismissible.dart';
 import '../../helpers/snackbar_helper.dart';
 import 'group_profile_screen.dart';
 
@@ -83,30 +84,32 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: TextField(
-          controller: _searchController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Search Clubs...',
-            border: InputBorder.none,
+    return DuoKeyboardDismissible(
+      child: Scaffold(
+        backgroundColor: AppTheme.lightBackground,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
           ),
-          onChanged: (val) => _performSearch(val),
+          title: TextField(
+            controller: _searchController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Search Clubs...',
+              border: InputBorder.none,
+            ),
+            onChanged: (val) => _performSearch(val),
+          ),
         ),
+        body: _isLoading
+            ? const Center(child: DuoLoadingIndicator())
+            : _results.isEmpty
+                ? _buildEmptyState()
+                : _buildResultsList(),
       ),
-      body: _isLoading
-          ? const Center(child: DuoLoadingIndicator())
-          : _results.isEmpty
-              ? _buildEmptyState()
-              : _buildResultsList(),
     );
   }
 

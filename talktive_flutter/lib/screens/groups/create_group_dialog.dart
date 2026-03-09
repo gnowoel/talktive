@@ -7,6 +7,7 @@ import '../../config/theme.dart';
 import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
+import '../../widgets/duo/duo_keyboard_dismissible.dart';
 
 class CreateGroupDialog extends ConsumerStatefulWidget {
   final Group? existingGroup;
@@ -137,14 +138,15 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: DuoKeyboardDismissible(
+        child: Container(
+          padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Header
               Row(
                 children: [
@@ -363,6 +365,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -11,7 +11,7 @@ import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import '../../widgets/duo/duo_chat_input.dart';
+import '../../widgets/duo/duo_chat_layout.dart';
 import '../../helpers/date_formatter.dart';
 import '../../helpers/url_helper.dart';
 import '../../helpers/snackbar_helper.dart';
@@ -77,7 +77,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     final isLiked = isLikedAsync.value?.contains(widget.moment.id!) ?? false;
     final currentResident = ref.watch(currentResidentProvider).value;
 
-    return Scaffold(
+    return DuoChatInputLayout(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Moment', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -85,37 +85,27 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
         elevation: 0,
         foregroundColor: Colors.black,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: CustomScrollView(
-              slivers: [
-                // Moment Content
-                SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildAuthorHeader(),
-                      _buildImage(context),
-                      _buildCaption(),
-                      _buildStats(isLiked),
-                      const Divider(height: 1, thickness: 1, color: AppTheme.duoBorder),
-                    ],
-                  ),
-                ),
-                
-                // Comments Section
-                _buildCommentsList(commentsAsync),
+      controller: _commentController,
+      onSend: () => _postComment(_commentController.text),
+      hintText: 'Add a comment...',
+      content: CustomScrollView(
+        slivers: [
+          // Moment Content
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAuthorHeader(),
+                _buildImage(context),
+                _buildCaption(),
+                _buildStats(isLiked),
+                const Divider(height: 1, thickness: 1, color: AppTheme.duoBorder),
               ],
             ),
           ),
           
-          // Comment Input
-          DuoChatInput(
-            controller: _commentController,
-            onSend: () => _postComment(_commentController.text),
-            hintText: 'Add a comment...',
-          ),
+          // Comments Section
+          _buildCommentsList(commentsAsync),
         ],
       ),
     );

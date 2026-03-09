@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../helpers/date_formatter.dart';
 
 class MessageBubble extends ConsumerWidget {
+
   final Message message;
   final bool isCurrentUser;
   final Resident? currentResident;
@@ -151,7 +153,7 @@ class MessageBubble extends ConsumerWidget {
                       const SizedBox(height: 4),
                     ],
                     Text(
-                      _formatTimestamp(message.createdAt),
+                      formatTimestamp(message.createdAt),
                       style: TextStyle(
                         fontSize: 11,
                         color: isCurrentUser
@@ -178,22 +180,8 @@ class MessageBubble extends ConsumerWidget {
     );
   }
 
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else {
-      return '${timestamp.month}/${timestamp.day} ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
-    }
-  }
-
   void _showMessageOptions(
+
     BuildContext context,
     WidgetRef ref,
     String senderName,

@@ -34,8 +34,8 @@ class MediaService {
 
     try {
       final storage = FirebaseStorage.instance;
-      print('MediaService: Starting upload to bucket: ${storage.bucket}');
-      print('MediaService: Destination path: $path');
+      debugPrint('MediaService: Starting upload to bucket: ${storage.bucket}');
+      debugPrint('MediaService: Destination path: $path');
       
       final storageRef = storage.ref(path);
       final metadata = SettableMetadata(contentType: 'image/jpeg');
@@ -43,22 +43,22 @@ class MediaService {
       TaskSnapshot snapshot;
       
       if (kIsWeb) {
-        print('MediaService: Using putData for Web upload...');
+        debugPrint('MediaService: Using putData for Web upload...');
         snapshot = await storageRef.putData(bytes, metadata);
       } else {
-        print('MediaService: Using putFile for Mobile upload. Path: ${file.path}');
+        debugPrint('MediaService: Using putFile for Mobile upload. Path: ${file.path}');
         // On mobile, putFile is more efficient and reliable
         snapshot = await storageRef.putFile(File(file.path), metadata);
       }
       
-      print('MediaService: Upload task completed. Status: ${snapshot.state}');
+      debugPrint('MediaService: Upload task completed. Status: ${snapshot.state}');
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
-      print('MediaService: Successfully generated Download URL: $downloadUrl');
+      debugPrint('MediaService: Successfully generated Download URL: $downloadUrl');
       return downloadUrl;
     } catch (e, stack) {
-      print('MediaService: CRITICAL ERROR during upload: $e');
-      print('MediaService: Stack trace: $stack');
+      debugPrint('MediaService: CRITICAL ERROR during upload: $e');
+      debugPrint('MediaService: Stack trace: $stack');
       rethrow;
     }
   }

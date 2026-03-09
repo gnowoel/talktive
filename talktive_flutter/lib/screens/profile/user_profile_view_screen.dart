@@ -3,12 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../widgets/duo/duo_badge.dart';
-import '../../widgets/duo/duo_card.dart';
-import '../../providers/client_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/user_likes_provider.dart';
@@ -345,7 +341,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 _buildInfoRow(Icons.group, '$mutualGroups mutual groups'),
             ]),
 
-          if (interests != null && interests.isNotEmpty) ...[
+          if (interests.isNotEmpty) ...[
             const SizedBox(height: 16),
             _buildInfoCard('Interests', [
               Wrap(
@@ -370,7 +366,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             ]),
           ],
 
-          if (languages != null && languages.isNotEmpty) ...[
+          if (languages.isNotEmpty) ...[
             const SizedBox(height: 16),
             _buildInfoCard('Languages', [
               Wrap(

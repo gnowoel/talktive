@@ -20,8 +20,6 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
 import '../../utils/floor_utils.dart';
-import 'package:image_picker/image_picker.dart';
-import 'moment_detail_screen.dart';
 import '../profile/user_profile_view_screen.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
@@ -94,7 +92,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
     try {
       // 1. Upload image to storage
-      print('Moments: [UI] Uploading image to Firebase...');
+      debugPrint('Moments: [UI] Uploading image to Firebase...');
       final imageUrl = await ref.read(mediaServiceProvider).uploadFile(
         _selectedImage!, 
         'moments',
@@ -103,19 +101,19 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       if (imageUrl == null) {
         throw Exception('Failed to upload image. URL was null.');
       }
-      print('Moments: [UI] Image uploaded successfully. URL: $imageUrl');
+      debugPrint('Moments: [UI] Image uploaded successfully. URL: $imageUrl');
 
       // 2. Post moment to backend
-      print('Moments: [UI] Sending post request to Serverpod...');
+      debugPrint('Moments: [UI] Sending post request to Serverpod...');
       final client = ref.read(clientProvider);
       await client.moment.postMoment(
         imageUrl: imageUrl, 
         caption: caption,
       );
-      print('Moments: [UI] Status: Post successful on server.');
+      debugPrint('Moments: [UI] Status: Post successful on server.');
 
       if (mounted) {
-        print('Moments: [UI] Closing dialog...');
+        debugPrint('Moments: [UI] Closing dialog...');
         Navigator.of(context).pop();
         
         // Refresh the feed in the background
@@ -129,12 +127,12 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             _isUploading = false;
           });
         }
-        print('Moments: [UI] Dialog closed and state reset.');
+        debugPrint('Moments: [UI] Dialog closed and state reset.');
         SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
       }
     } catch (e, stack) {
-      print('Moments: [CRITICAL ERROR] Failed to post: $e');
-      print('Moments: Stack trace: $stack');
+      debugPrint('Moments: [CRITICAL ERROR] Failed to post: $e');
+      debugPrint('Moments: Stack trace: $stack');
       if (mounted) {
         final errorMessage = e.toString();
         if (errorMessage.contains('Floor')) {
@@ -152,7 +150,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           _isUploading = false;
         });
       }
-      print('Moments: [UI] Post process finished.');
+      debugPrint('Moments: [UI] Post process finished.');
     }
   }
 

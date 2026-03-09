@@ -12,6 +12,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../helpers/date_formatter.dart';
 import 'chat_thread_screen.dart';
 import 'peephole_screen.dart';
 
@@ -54,7 +55,7 @@ class ChatsScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     child: Text(
-                      '🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...',
+                      "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...",
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -152,9 +153,6 @@ class ChatsScreen extends ConsumerWidget {
     final otherUserName = chatItem.otherUserName ?? 'Resident';
     final otherUserAvatar = chatItem.otherUserAvatar;
 
-    // We don't need to resolve current resident just to show the other user anymore!
-    // But we might need it for navigation (ChatThreadScreen might need my ID? No, it needs privateChat object)
-
     return DuoCard(
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       onTap: () {
@@ -214,7 +212,7 @@ class ChatsScreen extends ConsumerWidget {
                       ),
                       if (chat.lastMessageAt != null)
                         Text(
-                          _formatTimestamp(chat.lastMessageAt!),
+                          formatTimestamp(chat.lastMessageAt!),
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: Colors.grey[600]),
                         ),
@@ -222,7 +220,7 @@ class ChatsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Tap to open chat', // Ideally this would be the last message preview, but we don't have it yet
+                    'Tap to open chat',
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -237,23 +235,6 @@ class ChatsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.month}/${timestamp.day}';
-    }
   }
 
   Widget _buildPendingCard(

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'client_provider.dart';
 import 'notification_provider.dart';
+import 'router_provider.dart';
 
 part 'fcm_provider.g.dart';
 

@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:talktive_client/talktive_client.dart';
 import 'config/theme.dart';
-
-import 'screens/splash_screen.dart';
-import 'screens/onboarding/welcome_screen.dart';
-import 'screens/onboarding/profile_setup_screen.dart';
-import 'screens/home/home_screen.dart';
-import 'screens/chats/chat_loader_screen.dart';
-import 'screens/achievements/achievements_screen.dart';
-import 'screens/profile/user_profile_view_screen.dart';
 import 'wrappers/initialize.dart';
 import 'widgets/duo/duo_notification_toast.dart';
 import 'providers/router_provider.dart';

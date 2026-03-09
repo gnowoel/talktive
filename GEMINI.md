@@ -57,214 +57,33 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ## Current Phase
 
+## Current Status & Roadmap
+
 **Phase 8: Polish & Refinement (IN PROGRESS)**
 
-**Completed:**
+The project has successfully migrated from Firebase to Serverpod, featuring a comprehensive safety/gamification system and a complete Duolingo-styled UI.
 
-- Phase 1-5: Design foundation, core screens, backend stability, feature completion, polish & engagement
-- Phase 6: Advanced Features (Notifications, Profiles, Search, Admin)
-- Phase 7: Production Readiness (Performance, Security, Testing, Deployment)
-- Phase 8.1: Navigation Refinement
-  - Separated "Chats" and "Groups" into distinct tabs (Apartment metaphor: Private Rooms vs Lounge)
-  - 5-tab structure: Plaza, Moments, Chats, Groups, Profile
-- Phase 8.2: Profile & Matching Data
-  - Added `interests` field to Resident model (Interest Tags)
-  - Added `languages` field to Resident model (Language Matching)
-  - Updated onboarding wizard with Language selection step
-  - Displayed interest tags on user profiles
-- Phase 8.3: Identity Consistency
-  - Implemented `PrivateChatWithProfile` for rich chat lists
-  - Refactored all chat screens to show real user avatars/names
-- Phase 8.4: Optimization & Safety
-  - Denormalized `Message` protocol (senderName/Avatar/Floor) for high performance
-  - Implemented client-side filtering for blocked users in public chats (Plaza/Groups)
-- Phase 8.5: Immersive UI Polish
-  - Implemented "**Immersive Curve**" design across all main screens using `DuoPageScaffold`.
-  - Added vibrant, screen-specific gradients:
-    - **Plaza**: Primary Purple (Mystery & Magic)
-    - **Moments**: Pink (Warmth & Social)
-    - **Chats**: Orange (Communication)
-    - **Groups**: Yellow (Community)
-    - **Profile**: Green (Growth & Progress)
-  - Polished input areas and card styling for maximum visual consistency.
-  - Fixed `500 Error` logic in `MomentEndpoint` with graceful client-side handling.
-- Phase 8.6: Code Quality & Architecture Improvements (Feb 2026)
-  - **Shared Utilities**: Created reusable helpers to eliminate code duplication:
-    - `date_formatter.dart`: Centralized timestamp formatting (~60 lines saved)
-    - `snackbar_helper.dart`: Consistent SnackBar styling across all screens
-    - `DuoLoadingIndicator`: Standardized loading states
-  - **Provider Migration**: Migrated PlazaScreen from manual state to `currentResidentProvider`
-  - **Responsive Design**: Replaced hardcoded bottom padding (100px) with responsive constants:
-    - Added `AppTheme.bottomNavHeight`, `bottomNavMargin`, `contentBottomPadding`
-    - Updated all 5 main screens for proper responsiveness
-  - **Error Handling**: Standardized error states using `DuoEmptyState` with retry buttons
-  - **Code Reduction**: Removed ~150+ lines of duplicate code across screens
-  - **Future-Ready**: Created `MomentsProvider` for future state management migration
-- Phase 8.7: Safety & Gamification System Redesign (Feb 2026)
-  - **Separated Systems**: Split safety (reputation) from gamification (XP/levels/streaks)
-  - **Safety System**:
-    - Replaced `creditScore` with `reputation` (0-100, starts at 100)
-    - Passive restoration: 2pts/hour
-    - Muting: Users with reputation ≤ 0 cannot send messages
-    - Auto-escalation: 3/5/10 reports trigger warnings/mutes
-    - Added `mutedUntil` and `suspended` fields
-  - **Gamification System**:
-    - Added `xp`, `level`, `currentStreak`, `longestStreak` fields
-    - XP awards: 10pts/message, 50pts/moment
-    - Level progression: 100 XP per level
-    - Daily login bonuses and streak tracking
-    - `floor` field now aliases `level` (apartment metaphor)
-  - **Backend Changes**:
-    - Created `GamificationService` for XP/level/streak management
-    - Refactored `ApartmentService` to handle only reputation/safety
-    - Updated all endpoints (Message, Moment, Report, Resident, Admin)
-    - Database migration applied with new fields
-  - **Frontend Changes**:
-    - Updated profile screen with reputation (⭐), XP, level, streak stats
-    - Changed reputation icon from 💰 to ⭐ with color coding
-    - Updated all mute checks from `creditScore > 0` to `reputation > 0`
-    - Updated Plaza, chat, group, and admin screens
+### Completed (Phase 8 Refinement)
+- **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
+- **Privacy & Safety**: Privacy-first "Doorbell & Peephole" invite system; interest-based group discovery.
+- **Social & Engagement**: Immersive Moments feed with direct Firebase uploads and XP rewards.
+- **Architectural Polish**: Query optimizations, batch database operations, and reactive profile providers.
 
-- Phase 8.8: Hybrid Floor System & Safety Hardening (Feb 2026)
-  - **Hybrid Floor Formula**: `EffectiveFloor = min(XPLevel, ReputationTier)`
-    - Prevents spammers from farming XP to reach high floors and target users
-    - ReputationTier: rep 90-100→10, 75-89→7, 50-74→5, 25-49→3, 10-24→1, 0-9→0
-    - `floor` field **removed** from `Resident` schema — it is now purely computed
-    - Migration `20260219152503943` drops the `floor` column from the DB
-  - **Backend Hardening**:
-    - `ApartmentService.canInvite()`: now rejects muted/suspended senders
-    - `GroupEndpoint`: mute/suspend checks added to `createGroup` + `joinGroup`
-    - `ReportEndpoint`: floor guard uses `effectiveFloor` (not raw XP level)
-    - All endpoints (`message`, `moment`, `search`, `admin`, `user_profile`) use `effectiveFloor`
-  - **Client Updates**:
-    - New `lib/utils/floor_utils.dart`: client-side `effectiveFloor()`, `isMuted()`, `getMuteInputHint()`, `floorCapMessage()`
-    - All avatar badges, floor displays, and mute checks updated across the app
-    - `UserProfileViewScreen`: Block/Unblock menu with confirmation dialog
-    - Private chat + group chat: contextual mute hint shows time remaining
+*For detailed historical sub-phase notes (8.1 – 8.22), see [CHANGELOG.md](./CHANGELOG.md).*
 
-- Phase 8.9: Luxury High-Rise Gamification, Trust Score Caps, and One-Vote Rule (Feb 2026)
-  - **Unified Trust Score System**: Conceptually merged Likes and Reports into a single, uncapped `-30` to `+max` **Trust Score**.
-    - Replaced the previous dynamic 0-100 `reputation` system.
-    - Base passive restoration set to `+5` points per hour up to 100.
-    - Each Report penalizes `-30`. Each Vouch/Like adds `+10`.
-  - **Abuse Prevention**:
-    - **One-Vote Rule**: Created `UserLike` schema to restrict users to a single lifetime Like or Report per unique user.
-    - **Daily Report Cap**: Restricted reports to a maximum of 3 per day.
-    - **Minimum Floor Gate**: Users must be at least Floor 1 to report others.
-  - **Exponential Base Floor Generation**: Replaced linear `XP/100` formula with an exponential curve (`floor = 1 + floor(sqrt(xp) / 7.07)`), capping at **Floor 50**.
-  - **Keycard Effective Floor**: `EffectiveFloor = min(BaseFloor, TrustTier)`.
-    - Trust >= 100 -> Max Floor 50
-    - Trust >= 75 -> Max Floor 10
-    - Trust >= 50 -> Max Floor 5
-    - Trust >= 25 -> Max Floor 2
-    - Trust >= 10 -> Max Floor 1
-    - Trust < 10 -> Floor 0 (Muted)
-  - **UI/Terminology Updates**:
-    - Renamed internal `Reputation` terminology back to **Floor** globally.
-    - Added ❤️ **Vouch/Like** icon to `UserProfileViewScreen` via a new Riverpod Provider.
+### Status Summary
+- **Backend**: Serverpod 3.3.1 (PostgreSQL + Redis)
+- **Frontend**: Flutter (Standardized Duo UI)
+- **Auth**: Firebase Auth (Google) -> Serverpod Auth Core (JWT)
 
-- Phase 8.10: Profile Data Integrity & High-Rise Gamification UI (Feb 2026)
-  - **Native Mood Field**:
-    - Replaced the brittle string-splicing `Mood` hack (`\nMood: 😊` inside `bio`) with a pristine native `mood: String?` property across the `Resident` backend schema.
-    - Setup screen and edit profile natively decode the incoming emoji mood state cleanly without hacking string arrays.
-  - **Edit Profile Reseeding Fixed**:
-    - Fixed an issue where the user's previously configured name was missing. The `AuthServices.userProfiles` name is seamlessly bundled into the route state param now.
-    - Fixed Country Picker emoji missing on reload by invoking `CountryService().getAll()` to reverse-search the country strings into their target flags.
-  - **True XP Progress UI**: 
-    - Resolved the mismatch between Gamification levels and the Frontend Dashboard UI. Replaced simple mod 100 placeholder displays.
-    - Built out `getXPProgress` and `getXPNeeded` logic inside `FloorUtils` reflecting the precise `floor(sqrt(xp / 50)) + 1` mathematical constraints to show reliable true progress required to hit the next Base Floor in the Luxury High-Rise.
+---
 
-- Phase 8.11: UI Refactoring & Cleanup (Feb 2026)
-  - **Plaza Dashboard Redesign**: Relocated the public chat stream (`PlazaChatScreen`) out of the root Plaza tab to convert the Plaza landing page into a dedicated lobby Dashboard featuring navigation cards and info.
-  - **Codebase Simplification**: Deleted redundant legacy screens (`_screen.dart`), stripped `_modern` suffixes from all active Duolingo-styled UI files, and renamed widget classes to remove the `Modern` branding.
+## Next Steps 🚀
+- [ ] **Performance Benchmarking**: Final stress tests on high-throughput endpoints.
+- [ ] **Production Deployment**: Finalize Docker production environment.
+- [ ] **Analytics Implementation**: Privacy-preserving usage metrics.
 
-- Phase 8.12: Serverpod API & Database Optimizations (March 2026)
-  - **Query Reduction**: Reduced N+1 query overhead in high-throughput endpoints (like `MessageEndpoint.sendMessage`) and restricted listings (`GroupEndpoint.getGroupMembersWithProfiles`).
-  - **Name Denormalization**: Added `userName` directly onto the `Resident` model to eliminate cross-module `UserInfo` table lookups for every chat message.
-  - **Achievement Batching**: Implemented `trackMultipleProgress` in `AchievementService` to batch achievement lookups and progress updates into a single database transaction.
-  - **Login & Message Saves**: Refactored `GamificationService` and `ApartmentService` to use a `save` flag, enabling `ResidentEndpoint` and `MessageEndpoint` to coalesce sequential `.updateRow()` queries into a single batched save.
-
-- Phase 8.13: Privacy & Doorbell System (March 2026)
-  - **The Doorbell & Peephole Metaphor**: To protect users from receiving unprompted messages from strangers, we built an invite-based private chat system.
-  - **Backend Updates**:
-    - `PrivateChatEndpoint`: Unsolicited chats initialize with the receiver status set to `ChannelMemberStatus.invited` rather than `joined`.
-    - Added `respondToChatInvite` endpoint to allow users to toggle their status to `joined` (accept) or `declined` (reject).
-    - `PrivateChatWithProfile` protocol denormalized to track both current and other user's `ChannelMemberStatus`.
-  - **Client & UI Updates**:
-    - Split `ChatsScreen` into separate sections for "🚪 Knocking..." (Pending Invites) and "📬 Active Chats".
-    - Created `PeepholeScreen` (`peephole_screen.dart`): An immersive vignette review screen where users can securely look at a stranger's avatar and verified Floor/Trust stats before tapping 🔓 "Open the Door" or 🔒 "Keep it Locked".
-
-- Phase 8.14: Community Groups & Clubhouse Application Flow (March 2026)
-  - **The Clubhouse Metaphor**: Groups are redesigned into two tiers: Public (Clubhouse) and Private (Parties). 
-  - **Apply/Invite Mechanics**:
-    - Replaced generic `joinGroup` with `applyToGroup`, `inviteUserToGroup`, and target-approval flows.
-    - Extended `ChannelMemberStatus` with `applied` status to handle queueing users awaiting admin approval.
-  - **Client Updates**:
-    - `GroupsScreen`: Partitioned the timeline to display a "🎫 The Doorstep" section for pending invitations and applications above "🛋️ My Lounges" for joined groups.
-    - `GroupSearchScreen`: Built an immersive search query page where users can discover and send applications to join Public Clubs.
-    - `UserProfileViewScreen`: Appended a "🎟️ Invite to Group" sheet so users can easily distribute invites ("slips flyer under the door") to members for their active groups directly from the Profile page.
-
-- Phase 8.15: Interest-Based Group Discovery & Filtering (March 2026)
-  - **Group Interests**: Updated `Group` protocol to include interest tags, enabling a unified taxonomy across users and communities.
-  - **Shared Interest Configuration**: Created centralized `AppInterests` config in the frontend to eliminate hardcoded strings and ensure consistency.
-  - **Personalized Discovery**: Refactored `searchPublicGroups` to provide personalized recommendations. When the query is empty, the system ranks groups based on how many interests they share with the current user.
-  - **Discovery UI**: Updated `GroupSearchScreen` with a "💡 SUGGESTED FOR YOU" section and interest badges on all group cards.
-  - **Group Creation**: Added interest tag selection (up to 5) to the `CreateGroupDialog`.
-
-- Phase 8.16: Group Profile Refinement & Reactive Updates (March 2026)
-  - **Reactive Group Profile**: Refactored `GroupProfileScreen` to be reactive using a new `groupWithMembershipProvider`. Edits to the group now immediately reflect on the profile screen.
-  - **Interactive Stats**: Added clickable "Members" count to jump into the `GroupMembersScreen`.
-  - **Verified Creator Section**: Added a "Club Host" section with the creator's avatar and level, linking to their full user profile.
-  - **Backend Validation**: Hardened `GroupEndpoint.updateGroup` with `InputValidationService` to ensure consistent data integrity across creation and editing.
-
-- Phase 8.17: Deployment & Critical Bug Fixes (March 2026)
-  - **Flutter Build Resolution**: Fixed critical compilation errors in `DuoButton`, `MomentsScreen`, `GroupsScreen`, and `GroupChatScreen`. 
-  - **Component Versatility**: Enhanced `DuoButton` with `secondaryIcon` support and animated sparkle effects for premium feedback.
-  - **Provider Consolidation**: Merged redundant `resident_provider.dart` into `current_resident_provider.dart` to eliminate naming collisions and ensure consistent auth-aware state.
-  - **UI Integrity**: Fixed broken gradients and missing type conversions in `BoxDecoration` across several screens.
-  - **Safety UI**: Updated `BlockedUsersScreen` to use actual resident names and avatars instead of generic placeholders.
-  - **App Deployment**: Successfully started Serverpod server with migrations and launched the Flutter web app.
-
-- Phase 8.18: UI Standardization & Backend Hardening (March 2026)
-  - **UI Consistency**: Standardized primary actions by migrating all standard Flutter buttons (`ElevatedButton`, `TextButton`, `OutlinedButton`) to the custom `DuoButton` component across all major screens (Onboarding, Profiles, Admin, Groups).
-  - **Backend Safety**: Integrated `InputValidationService` across all key endpoints (`Resident`, `Admin`, `PrivateChat`, `Achievement`, `Streak`, `UserLike`) to ensure strict data integrity and prevent malformed requests.
-  - **Validation Expansion**: Added `validateName` and `validateGender` to the central validation service.
-  - **UX Polishing**: Refactored `AdminDashboard`, `UsersScreen`, `ReportsScreen`, and `UserProfileViewScreen` for a more consistent Duolingo-inspired aesthetic.
-  - **Error Handling**: Standardized error displays using `DuoEmptyState` with retry logic and integrated `DuoLoadingIndicator` for all asynchronous states.
-
-- Phase 8.19: Reactive Profile & State Consolidation (March 2026)
-  - **Provider Migration**: Migrated `UserProfileViewScreen` from manual `initState` fetching to the unified `userProfileProvider`. 
-  - **State Safety**: Ensured sub-widgets (`_buildStatsGrid`, `_buildXPCard`) are pure and rely on passed-down profile data rather than internal mutable state.
-  - **Error Resilience**: Added robust error states with retry logic to the user profile view.
-  - **API Correctness**: Fixed critical compilation errors in `ChatProvider` and `RealtimeChatProvider` involving named parameter mismatches in `sendMessage`.
-
-- Phase 8.20: Moments Feed Polishing & Cross-Platform Stability (March 2026)
-  - **Reactive Creation UI**: Refactored `MomentsScreen` creation dialog with `StatefulBuilder` to ensure real-time upload progress visibility.
-  - **Web Compatibility**: Implemented `kIsWeb` guards to switch between `Image.network` (blob) and `Image.file` for cross-platform image previews.
-  - **Android Network Fix**: Added an automatic `localhost` to `10.0.2.2` transformer in `MediaService` to resolve loopback connection issues on Android emulators.
-  - **UX Polish**: Added keyboard avoidance (`viewInsets`) to the moment creation sheet and refined error messaging for floor-based restrictions.
-
-- Phase 8.21: Immersive Moments & Community Rewards (March 2026)
-  - **Direct Image Uploads**: Standardized on Client -> Firebase Storage uploads for high-performance, low-latency media handling.
-  - **Image Guardrails**: Implemented client-side 10MB size validation and fixed-quality compression.
-  - **Gamified Engagement**: Linked social interactions (Likes) to XP rewards (+20) and Trust Score bonuses (+10 Vouch).
-  - **Premium Visuals**: Implemented "Blurred Letterbox" backgrounds for the moment feed and detail views to preserve original aspect ratios elegantly.
-  - **Immersive Viewing**: Created dedicated `MomentDetailScreen` for comments and `ImageGalleryScreen` with pinch-to-zoom for full-screen viewing.
-  - **Unified Notifications**: Built a custom `DuoNotificationToast` system with deep-linking, integrated with FCM foreground messages and global level-up events.
-  - **Router Integration**: Exposed `GoRouter` as a Riverpod provider to allow seamless navigation from background services and notification handlers.
-
-- Phase 8.22: Universal Knocking & Protocol Error Handling (March 2026)
-  - **Relaxed Knocking**: Removed Floor restrictions for "Knocking on Doors". Anyone can knock on any door if not muted, relying on the **Peephole system** for mutual consent and safety.
-  - **Protocol Exceptions**: Defined `TalktiveException` in the Serverpod protocol to replace brittle 500 errors with descriptive, serializable client-side messages.
-  - **SnackBar Architecture**: Upgraded `SnackBarHelper` in the Flutter app to intelligently parse and display `TalktiveException` and `ServerpodClientException` messages.
-  - **Safety Standardization**: Migrated `MomentEndpoint`, `GroupEndpoint`, and `PrivateChatEndpoint` to the new universal error handling pattern.
-
-**Status:** 🏗️ In Progress
-
-**Next:**
-
-- Performance benchmark & final cleanup
-- Production launch
+---
 
 ## Key Components
 

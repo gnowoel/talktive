@@ -39,35 +39,18 @@ The application has been successfully migrated from **Firebase** to **Serverpod*
 ### Key Features
 
 **Core Functionality:**
+- 🏰 **Apartment Metaphor**: Navigate the building from the Plaza (Lobby) to your Profile (My Unit).
+- 🎨 **Duolingo UI**: Clean, playful, and high-contrast design using the `Duo` component library.
+- 📬 **Secure Messaging**: 1-on-1 chats with a privacy-first "Doorbell" invite system.
+- 📸 **Moments**: A localized photo feed for residents to share snapshots and earn XP.
+- 🛋️ **Lounges (Groups)**: Join or create interest-based communities with admin approval flows.
+- 💎 **Gamified Socials**: Streaks, achievements, and level-up celebrations (Floor 1 to 50).
 
-- ✅ Duolingo-inspired UI/UX with gamification
-- ✅ Private 1-on-1 messaging
-- ✅ Group chats with member management
-- ✅ Moments (photo feed) with likes and comments
-- ✅ Achievements system (16 achievements)
-- ✅ Daily streaks and rewards
-- ✅ Push notifications (FCM)
-- ✅ User profiles with stats and interests
-- ✅ Interest-based user discovery
-- ✅ Search & Discovery functionality
-- ✅ Admin Dashboard with moderation tools
-- ✅ **Privacy-First Data Collection:** Google Sign-In is strictly limited to authentication (OpenID scope). The backend automatically anonymizes the user by dropping real names, assigning placeholder emails (`anon-uuid@anonymous.talktive.com`), and refusing to fetch Google avatars. All avatars natively support image URLs for future expansion but exclusively enforce selected Emojis currently.
-
-**Safety & Performance:**
-
-- ✅ Image upload validation (magic bytes, size, dimensions)
-- ✅ Input validation across all endpoints
-- ✅ Centralized error handling
-- ✅ Content filtering (profanity, spam)
-- ✅ Trust Score system for abuse resilience (-30 reports, +10 vouches)
-- ✅ Luxury High-Rise gamification (Exponential Base Floors up to Floor 50)
-- ✅ Keycard Effective Floor Caps (Mutes/Limits based on Trust Score Tier)
-- ✅ One-Vote Rule & Daily Report Caps (Anti-targeting abuse prevention)
-- ✅ Rate limiting with Redis
-- ✅ Community-driven moderation
-- ✅ Data archival for cost optimization
-- ✅ N+1 query optimization
-- ✅ Batch endpoints for efficiency
+**Safety & Safety Engineering:**
+- 🛡️ **Peephole Privacy**: Inspect stranger profiles before accepting private chat invites.
+- ⚖️ **Hybrid Floor System**: Access restricted by both reputation (Trust Score) and experience.
+- 👮 **Community Moderation**: Floor level-gated reporting with daily caps and anti-targeting rules.
+- 🧹 **Data Integrity**: Automatic archival of old data and centralized input validation.
 
 **Cost Optimization:**
 
@@ -78,14 +61,12 @@ The application has been successfully migrated from **Firebase** to **Serverpod*
 - Automatic data archival
 
 ### Documentation
-
-- **[CHANGELOG.md](CHANGELOG.md)** - Development history and milestones
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
-- **[GEMINI.md](GEMINI.md)** - Project context for AI assistants
-- **[docs/LAUNCH_IMPROVEMENTS.md](docs/LAUNCH_IMPROVEMENTS.md)** - Latest production improvements
-- **[docs/SERVERPOD_REVIEW.md](docs/SERVERPOD_REVIEW.md)** - Production readiness review
-- **[docs/CODEBASE_STRUCTURE.md](docs/CODEBASE_STRUCTURE.md)** - Code organization
-- **[docs/NOTIFICATION_ARCHITECTURE.md](docs/NOTIFICATION_ARCHITECTURE.md)** - Notification system design
+- 📜 **[PRODUCT_SPECS.md](docs/PRODUCT_SPECS.md)** - Full feature spec and architecture overview.
+- 📈 **[CHANGELOG.md](CHANGELOG.md)** - Historical development milestones and phase history.
+- 🚀 **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production and development deployment guide.
+- 🧠 **[GEMINI.md](GEMINI.md)** - Persistent context and roadmap for AI assistants.
+- 🌐 **[docs/NOTIFICATION_ARCHITECTURE.md](docs/NOTIFICATION_ARCHITECTURE.md)** - Deep dive into FCM and Serverpod notifications.
+- 🏗️ **[docs/CODEBASE_STRUCTURE.md](docs/CODEBASE_STRUCTURE.md)** - Technical directory and logic organization.
 
 ## 📂 Project Structure
 

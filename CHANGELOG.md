@@ -4,107 +4,49 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 3, 2026 - Local Environment Fixes
+## March 7-9, 2026 - Standardized Error Handling & UI Polish 💎
 
-### Setup & Credentials
-- Restored `debug.keystore` to resolve SHA-1 mismatch for Google Sign-In `ApiException: 10`.
-- Generated missing database schema migration for `serverpod_auth_idp_anonymous_account` and `serverpod_auth_idp_github_account`.
-- Created authentication configurations (`auth_config.dart`, `passwords.yaml`, `firebase_service_account_key.json`).
-- Updated Flutter dependencies to resolve build issues.
+### Standardization & Resilience
+- **Protocol Error Handling**: Replaced generic 500 errors with `TalktiveException` across all endpoints (`Moment`, `Group`, `Chat`, `Resident`).
+- **SnackBar Architecture**: Upgraded frontend to intelligently parse and display descriptive server exceptions.
+- **Input Validation**: Integrated `InputValidationService` into all core endpoints for strict data integrity.
+- **UI Consistency**: Migrated all standard buttons to `DuoButton` (Onboarding, Profiles, Admin, Groups).
+- **Reactive States**: Migrated user and group profiles to Riverpod providers for real-time UI updates.
 
----
-
-## February 15, 2026 - Production Launch Ready 🚀
-
-### All Essential Features Completed
-
-**Status:** 10/10 Production Ready
-
-**Completed Features:**
-1. ✅ Push Notifications (FCM) - Free unlimited notifications
-2. ✅ Image Upload Validation - Magic byte verification, no ML costs
-3. ✅ Avatars Tappable - Profile viewing with stats and interests
-4. ✅ Input Validation - Centralized validation across all endpoints
-5. ✅ Error Handling - Consistent error messages and user-friendly display
-6. ✅ Loading/Empty States - Professional UX throughout
-7. ✅ Enhanced Reporting - Community moderation with admin tools
-8. ✅ Interest-Based Discovery - Find users by shared interests/languages
-9. ✅ Data Archival - Automatic cleanup to reduce costs
-
-**Cost Optimization:**
-- Estimated monthly cost: $5-40 (VPS, database, Redis)
-- Firebase FCM: FREE
-- No ML services needed
-- Community-driven moderation
-- Data archival reduces storage costs
-
-**See:** `docs/LAUNCH_IMPROVEMENTS.md` for full details
+### Safety & Privacy (Phase 8.22)
+- **Universal Knocking**: Removed Floor restrictions for "Knocking". Anyone can knock on any door if not muted, relying on the **Peephole system** for mutual consent and safety.
+- **Peephole Screen**: Immersive vignette review screen for inspecting strangers before accepting private chat invites.
+- **Abuse Prevention**: Implemented One-Vote Rule for user likes/reports and daily report caps.
 
 ---
 
-## February 13, 2026 - Safety System Overhaul
+## March 1-6, 2026 - Social Features & Gamification 🎮
 
-### Phase 8.5: Safety & Logic Fixes
+### Moments Feed (Phase 8.20-8.21)
+- **Direct Firebase Uploads**: Standardized on Client -> Storage for high-performance media handling.
+- **Immersive Viewing**: Built `MomentDetailScreen` with comments and full-screen gallery with pinch-to-zoom.
+- **Engagement Rewards**: Social interactions (Likes) now award XP (+20) and Trust Score bonuses (+10).
+- **Web Compatibility**: Fixed cross-platform image preview issues and Android emulator networking (`10.0.2.2`).
 
-**Goal:** Ensure the "Apartment Building" safety rules are strictly enforced.
+### Clubhouse Mechanics (Phase 8.14-8.16)
+- **Apply/Invite Flow**: Replaced generic joining with application and approval flows.
+- **Personalized Discovery**: Interest-based group ranking and "Suggested for You" sorting.
+- **Group Creation**: Added animated interest tag selection to the creation dialog.
 
-**Key Changes:**
-
-1. **Passive Credit Restoration**
-   - Fixed: Users with 0 credits (muted) couldn't restore them
-   - Solution: Implemented passive restoration on app launch
-   - Result: Muted users now automatically recover 2 points/hour
-
-2. **Floor Restrictions Enforced**
-   - Rule: Residents can only invite people on same floor or below
-   - Updated `canInvite` logic in `PrivateChatEndpoint`
-
-3. **Blocking Enforcement**
-   - Blocked users cannot see each other's content
-   - Enforced in all endpoints
-
-4. **Image Validation**
-   - Magic byte verification (not just extensions)
-   - Size and dimension validation
-   - Aspect ratio checks
+### Core Optimizations (Phase 8.12-8.13)
+- **Query Reduction**: Eliminated N+1 overhead in chat messages and group member listings.
+- **Name Denormalization**: Added `userName` directly to `Resident` model to reduce database lookups.
+- **Achievement Batching**: Coalesced progress updates into single transactions for high performance.
 
 ---
 
-## February 12, 2026 - Polish & Refinement
+## February 2026 - Luxury High-Rise Gamification 🏙️
 
-### Phase 8: UI/UX Polish
-
-**Completed:**
-- Refined navigation to 5 tabs (Plaza, Moments, Chats, Groups, Profile)
-- Improved onboarding flow
-- Added achievements system (16 achievements)
-- Implemented daily streaks
-- Enhanced admin dashboard
-
-**Performance:**
-- Fixed N+1 query problem in Moments feed
-- Added batch endpoints for efficiency
-- Implemented Redis caching for rate limits
-
----
-
-## February 11, 2026 - Push Notifications
-
-### Phase 6.1: Push Notifications Implementation
-
-**Backend:**
-- Created `UserNotification` and `DeviceToken` protocols
-- Implemented `NotificationService` for all notification types
-- Created `NotificationEndpoint` for API access
-- Integrated notifications into moment endpoint
-
-**Frontend:**
-- Created `ServerpodNotificationService`
-- Updated `SplashScreen` to initialize notifications
-- Added pending notification handling
-- Implemented deep linking routes
-
-**Database Migration:** `20260211100938725`
+### Hybrid Floor System (Phase 8.7-8.10)
+- **The Formula**: `EffectiveFloor = min(BaseFloor, TrustTier)`.
+- **Trust Score System**: Unified likes/reports into a single uncapped Trust Score (-30 to +max).
+- **Exponential Leveling**: Implemented `floor(sqrt(xp) / 7.07)` curve for Base Floor generation (Capped at 50).
+- **Data Integrity**: Migrated "Mood" to a native field and fixed edit profile reseeding issues.
 
 ---
 

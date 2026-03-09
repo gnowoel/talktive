@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
@@ -250,11 +251,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final country = profile?.country;
     final interests = profile?.interests ?? [];
     final languages = profile?.languages ?? [];
-    final messageCount = profile?.totalMessages ?? 0;
-    final momentCount = profile?.totalMoments ?? 0;
-    final achievementCount = profile?.achievementsUnlocked ?? 0;
-    final streakDays = profile?.currentStreak ?? 0;
     final mutualGroups = profile?.mutualGroups ?? 0;
+    final achievementCount = profile?.achievementsUnlocked ?? 0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -497,15 +495,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             AppTheme.secondaryColor.withValues(alpha: 0.7),
           ],
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserMomentsScreen(
-                  userId: widget.userId,
-                  userName: profile?.userName ?? widget.userName ?? 'Resident',
-                ),
-              ),
-            );
+            final userName = profile?.userName ?? widget.userName ?? 'Resident';
+            context.push('/user/${widget.userId}/moments?name=${Uri.encodeComponent(userName)}');
           },
         ).animate().fadeIn(delay: 500.ms).scale(begin: const Offset(0.8, 0.8)),
       ],

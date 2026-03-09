@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -31,14 +32,12 @@ class GroupsScreen extends ConsumerWidget {
       title: 'Lounges',
       subtitle: 'Join the community clubhouse',
       gradient: AppTheme.duoYellowGradient,
+      textColor: AppTheme.textPrimary,
       trailingHeader: IconButton(
-        icon: const Icon(Icons.search, color: Colors.white, size: 28),
+        icon: const Icon(Icons.search, color: AppTheme.textPrimary, size: 28),
         onPressed: () {
           HapticFeedback.lightImpact();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => GroupSearchScreen()),
-          );
+          context.push('/groups/search');
         },
       ),
       body: groupsAsync.when(
@@ -132,10 +131,7 @@ class GroupsScreen extends ConsumerWidget {
       group: group,
       onTap: () {
         HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => GroupChatScreen(group: group)),
-        );
+        context.push('/groups/chat', extra: group);
       },
       trailing: (isInvite || isApplied) 
           ? _buildStatusBadge(context, isInvite ? 'INVITED' : 'APPLIED')

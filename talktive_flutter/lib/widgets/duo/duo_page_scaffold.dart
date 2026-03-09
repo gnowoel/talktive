@@ -19,6 +19,7 @@ class DuoPageScaffold extends StatelessWidget {
   final List<Color> gradient;
   final bool resizeToAvoidBottomInset;
   final bool hasBackButton;
+  final Color? textColor;
 
   const DuoPageScaffold({
     super.key,
@@ -31,13 +32,15 @@ class DuoPageScaffold extends StatelessWidget {
     this.floatingActionButton,
     this.resizeToAvoidBottomInset = true,
     this.hasBackButton = false,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
     // Determine status bar brightness based on gradient
-    // Assuming gradients are dark/vibrant enough for light text
-    final SystemUiOverlayStyle overlayStyle = SystemUiOverlayStyle.light;
+    // If textColor is dark, status bar should be dark icons
+    final isLightHeader = textColor != null && (textColor == AppTheme.textPrimary || textColor == Colors.black);
+    final SystemUiOverlayStyle overlayStyle = isLightHeader ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlayStyle,
@@ -70,7 +73,7 @@ class DuoPageScaffold extends StatelessWidget {
                     subtitle: subtitle,
                     trailing: trailingHeader,
                     hasBackButton: hasBackButton,
-                    textColor: Colors.white, // Invert text color for gradient
+                    textColor: textColor ?? Colors.white, // Invert text color for gradient
                   ),
                 ),
 

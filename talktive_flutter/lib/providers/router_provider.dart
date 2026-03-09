@@ -12,6 +12,11 @@ import '../screens/achievements/achievements_screen.dart';
 import '../screens/profile/user_profile_view_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
+import '../screens/moments/user_moments_screen.dart';
+import '../screens/groups/group_search_screen.dart';
+import '../screens/groups/group_profile_screen.dart';
+import '../screens/groups/group_chat_screen.dart';
+import '../screens/groups/group_members_screen.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -84,6 +89,35 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/groups',
         builder: (context, state) => const HomeScreen(initialIndex: 3),
+        routes: [
+          GoRoute(
+            path: 'search',
+            builder: (context, state) => const GroupSearchScreen(),
+          ),
+          GoRoute(
+            path: 'profile/:groupId',
+            builder: (context, state) {
+              final groupId = int.parse(state.pathParameters['groupId']!);
+              final group = state.extra as Group?;
+              return GroupProfileScreen(groupId: groupId, initialGroup: group);
+            },
+          ),
+          GoRoute(
+            path: 'chat',
+            builder: (context, state) {
+              final group = state.extra as Group;
+              return GroupChatScreen(group: group);
+            },
+          ),
+          GoRoute(
+            path: 'members/:groupId',
+            builder: (context, state) {
+              final groupId = int.parse(state.pathParameters['groupId']!);
+              final group = state.extra as Group?;
+              return GroupMembersScreen(groupId: groupId, initialGroup: group);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/profile',
@@ -99,6 +133,16 @@ GoRouter router(Ref ref) {
           final userId = state.pathParameters['userId']!;
           return UserProfileViewScreen(userId: userId);
         },
+        routes: [
+          GoRoute(
+            path: 'moments',
+             builder: (context, state) {
+              final userId = state.pathParameters['userId']!;
+              final userName = state.uri.queryParameters['name'] ?? 'Resident';
+              return UserMomentsScreen(userId: userId, userName: userName);
+            },
+          ),
+        ],
       ),
     ],
   );

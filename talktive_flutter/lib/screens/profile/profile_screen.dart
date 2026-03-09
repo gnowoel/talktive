@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/current_resident_provider.dart';
@@ -325,15 +325,8 @@ class ProfileScreen extends ConsumerWidget {
                 ],
                 onTap: () {
                   if (resident != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserMomentsScreen(
-                          userId: resident.userInfoId.toString(),
-                          userName: resident.userName ?? 'Me',
-                        ),
-                      ),
-                    );
+                    final userName = resident.userName ?? 'Me';
+                    context.push('/user/${resident.userInfoId}/moments?name=${Uri.encodeComponent(userName)}');
                   }
                 },
               )

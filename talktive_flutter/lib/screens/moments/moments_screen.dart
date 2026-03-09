@@ -8,12 +8,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
-import '../../providers/moments_provider.dart';
-import '../../helpers/snackbar_helper.dart';
-import '../../helpers/date_formatter.dart';
+ import '../../providers/moments_provider.dart';
+ import '../../helpers/snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
-import '../../widgets/duo/duo_card.dart';
-import '../../widgets/duo/duo_avatar.dart';
+ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -21,8 +19,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
 import '../../utils/floor_utils.dart';
-import '../profile/user_profile_view_screen.dart';
-import '../../providers/user_profile_provider.dart';
+ import '../profile/user_profile_view_screen.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
@@ -40,6 +37,10 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   XFile? _selectedImage;
   Uint8List? _imageBytes; // For cross-platform preview
   bool _isUploading = false;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -87,7 +88,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
     final caption = _captionController.text.trim();
     
-    print('Moments: [UI] Starting post process...');
+    debugPrint('Moments: [UI] Starting post process...');
     setModalState(() {
       _isUploading = true;
     });
@@ -439,18 +440,5 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
       if (mounted) SnackBarHelper.showError(context, e.toString());
     }
-  }
-
-  void _navigateToProfile(Moment moment) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserProfileViewScreen(
-          userId: moment.authorId.toString(),
-          userName: moment.authorName,
-          userFloor: moment.authorFloor,
-        ),
-      ),
-    );
   }
 }

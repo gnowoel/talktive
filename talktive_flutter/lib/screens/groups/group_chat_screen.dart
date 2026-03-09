@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -127,14 +128,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         title: InkWell(
           onTap: () {
             HapticFeedback.lightImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GroupProfileScreen(
-                  groupId: widget.group.id!,
-                  initialGroup: widget.group,
-                ),
-              ),
+            context.push(
+              '/groups/profile/${widget.group.id!}',
+              extra: widget.group,
             );
           },
           child: Row(
@@ -187,11 +183,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             icon: const Icon(Icons.people, color: Colors.black),
             onPressed: () {
               HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GroupMembersScreen(group: widget.group),
-                ),
+              context.push(
+                '/groups/members/${widget.group.id!}',
+                extra: widget.group,
               );
             },
           ),
@@ -199,14 +193,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             icon: const Icon(Icons.more_horiz, color: Colors.black),
             onSelected: (value) async {
               if (value == 'profile') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GroupProfileScreen(
-                      groupId: widget.group.id!,
-                      initialGroup: widget.group,
-                    ),
-                  ),
+                context.push(
+                  '/groups/profile/${widget.group.id!}',
+                  extra: widget.group,
                 );
               } else if (value == 'edit') {
                 showDialog(

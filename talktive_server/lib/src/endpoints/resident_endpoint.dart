@@ -57,9 +57,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     // 2. Fetch/Update User Profile (Force Anonymous Identity)
     try {
-      final userProfile = await AuthServices.instance.userProfiles
-          .findUserProfileByUserId(session, senderUuid);
-
       // Overwrite Google name with Anonymous name
       await ResidentService.syncAuthProfile(session, senderUuid, name);
     } catch (e) {

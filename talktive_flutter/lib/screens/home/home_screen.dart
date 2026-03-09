@@ -66,7 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: false,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildDuoBottomNav(),

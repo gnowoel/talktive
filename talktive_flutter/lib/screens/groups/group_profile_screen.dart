@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -170,12 +171,10 @@ class GroupProfileScreen extends ConsumerWidget {
             'Members',
             onTap: isJoined ? () {
                HapticFeedback.lightImpact();
-               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GroupMembersScreen(group: group),
-                ),
-              );
+               context.push(
+                 '/groups/members/${group.id!}',
+                 extra: group,
+               );
             } : null,
           ),
           Container(width: 1, height: 40, color: Colors.grey[200]),
@@ -231,17 +230,7 @@ class GroupProfileScreen extends ConsumerWidget {
             if (profile == null) return const Text('Resident not found');
             return DuoCard(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UserProfileViewScreen(
-                      userId: profile.userId,
-                      userName: profile.userName,
-                      userAvatar: profile.userAvatar,
-                      userFloor: profile.floor,
-                    ),
-                  ),
-                );
+                context.push('/user/${profile.userId}');
               },
               child: Padding(
                 padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),

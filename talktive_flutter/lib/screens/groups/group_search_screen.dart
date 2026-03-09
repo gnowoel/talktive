@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -138,14 +139,9 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
       showInterests: true,
       onTap: () {
         HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GroupProfileScreen(
-              groupId: group.id!,
-              initialGroup: group,
-            ),
-          ),
+        context.push(
+          '/groups/profile/${group.id!}',
+          extra: group,
         );
       },
       bottomActions: [

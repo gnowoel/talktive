@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/moments_provider.dart';
@@ -22,6 +24,7 @@ class UserMomentsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final momentsAsync = ref.watch(userMomentsProvider(userId));
+    final likedMoments = ref.watch(momentLikesProvider).value ?? {};
 
     return DuoPageScaffold(
       emoji: '🖼️',
@@ -31,7 +34,7 @@ class UserMomentsScreen extends ConsumerWidget {
       body: momentsAsync.when(
         data: (moments) {
           if (moments.isEmpty) {
-            return const Center(
+            return Center(
               child: DuoEmptyState(
                 emoji: '🏜️',
                 title: 'No moments yet',
@@ -40,21 +43,32 @@ class UserMomentsScreen extends ConsumerWidget {
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+            padding: EdgeInsets.all(AppTheme.duoSpacingMedium),
             itemCount: moments.length,
             itemBuilder: (context, index) {
               final moment = moments[index];
+              final isLiked = likedMoments.contains(moment.id);
               return DuoMomentCard(
                 moment: moment,
-                isLiked: false, // We'd need a separate provider for user-specific like states if we want full interactive here
+                index: index,
+                isLiked: isLiked,
                 onLike: () {
-                  ref.read(momentsProvider.notifier).toggleLike(
-                    moment.id!, 
-                    false, // Simple implementation for profile view
-                  );
+                  HapticFeedback.lightImpact();
+                  // Optimistic UI update
+                  ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
+                  ref.read(momentsProvider.notifier).toggleLike(moment.id!, isLiked).catchError((_) {
+                    // Revert on error
+                    ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
+                  });
                 },
-                onComment: () {}, // TODO: Show comments
-                onAuthorTap: () {}, // Already on the user's collection
+                onComment: () {
+                  HapticFeedback.lightImpact();
+                  context.push('/moments/detail', extra: moment);
+                },
+                onAuthorTap: () {
+                  // Already on the user's collection, but we can navigate to profile
+                  context.push('/user/$userId');
+                },
               );
             },
           );
@@ -62,7 +76,7 @@ class UserMomentsScreen extends ConsumerWidget {
         loading: () => const DuoLoadingIndicator(),
         error: (error, stack) => Center(
           child: DuoCard(
-            margin: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+            margin: EdgeInsets.all(AppTheme.duoSpacingLarge),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

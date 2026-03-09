@@ -24,7 +24,7 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 - **Aesthetic**: Duolingo-inspired playfulness (vibrant colors, rounded corners, emoji-first).
 - **State Management**: Riverpod (Reactive providers for all domains).
 - **Navigation**: Pill-shaped bottom bar with high-rise immersive transitions.
-- **Components**: `DuoButton`, `DuoAvatar`, `DuoCard`, `DuoInput` - shared visual language.
+- **Components**: `DuoButton`, `DuoAvatar`, `DuoCard`, `DuoInput`, `DuoFloorRequirementDialog` - shared visual language.
 
 ---
 

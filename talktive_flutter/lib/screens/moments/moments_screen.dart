@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +22,10 @@ import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
 import '../../utils/floor_utils.dart';
 import '../profile/user_profile_view_screen.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
+import '../../widgets/duo/duo_floor_requirement_dialog.dart';
 
 /// Duolingo-style Moments screen - Photo feed
 class MomentsScreen extends ConsumerStatefulWidget {
@@ -65,8 +68,10 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
     final effectiveFloor = FloorUtils.computeFloor(currentResident!);
     if (effectiveFloor < 2) {
-      _showLevelRequirementDialog(
-        'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+      DuoFloorRequirementDialog.show(
+        context,
+        message: 'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+        requiredFloor: 2,
       );
       return;
     }
@@ -136,7 +141,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       if (mounted) {
         final errorMessage = e.toString();
         if (errorMessage.contains('Floor')) {
-          _showLevelRequirementDialog(errorMessage);
+          DuoFloorRequirementDialog.show(context, message: errorMessage);
         } else {
           SnackBarHelper.showError(context, e.toString());
         }
@@ -154,49 +159,6 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
   }
 
-  void _showLevelRequirementDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: DuoCard(
-          padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('🏢', style: TextStyle(fontSize: 48)),
-              const SizedBox(height: AppTheme.duoSpacingMedium),
-              const Text(
-                'High-Rise Access Required',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppTheme.duoSpacingSmall),
-              Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                  fontFamily: 'Rubik',
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppTheme.duoSpacingLarge),
-              DuoButton(
-                text: 'Got it',
-                onPressed: () => Navigator.pop(context),
-                width: double.infinity,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   void _showCreateDialog() {
     showModalBottomSheet(

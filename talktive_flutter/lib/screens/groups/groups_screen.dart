@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import 'group_chat_screen.dart';
 import 'create_group_dialog.dart';
 import 'group_search_screen.dart';
+import '../../widgets/duo/duo_floor_requirement_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
 import '../../providers/current_resident_provider.dart';
@@ -190,7 +191,11 @@ class GroupsScreen extends ConsumerWidget {
     }
 
     if (FloorUtils.computeFloor(currentResident!) < 1) {
-      SnackBarHelper.showError(context, 'You must reach Floor 1 to create a club. Keep chatting!');
+      DuoFloorRequirementDialog.show(
+        context,
+        message: 'You must reach Floor 1 to create a club. Keep chatting!',
+        requiredFloor: 1,
+      );
       return;
     }
 

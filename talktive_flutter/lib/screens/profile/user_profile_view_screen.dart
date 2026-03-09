@@ -17,6 +17,7 @@ import '../../providers/group_provider.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../moments/user_moments_screen.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../providers/client_provider.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar

@@ -10,6 +10,9 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
 
+import 'package:go_router/go_router.dart';
+import '../../providers/user_profile_provider.dart';
+
 class PeepholeScreen extends ConsumerWidget {
   final PrivateChatWithProfile chatItem;
 
@@ -20,6 +23,8 @@ class PeepholeScreen extends ConsumerWidget {
     // Peephole vignette overlay could just be a radial gradient
     final otherResident = chatItem.otherResident;
     final otherUserName = chatItem.otherUserName ?? 'Stranger';
+    final otherUserId = otherResident.userInfoId.toString();
+    final profileAsync = ref.watch(userProfileProvider(otherUserId));
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -39,7 +44,7 @@ class PeepholeScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.primaryColor.withOpacity(0.4),
+                    AppTheme.primaryColor.withValues(alpha: 0.4),
                     Colors.black,
                   ],
                   stops: const [0.0, 1.0],
@@ -66,7 +71,8 @@ class PeepholeScreen extends ConsumerWidget {
                        trustScore: otherResident.trustScore,
                        showRing: true,
                        floorLevel: FloorUtils.computeFloor(otherResident),
-                       showFloor: true, // Show floor overlay here for importance
+                       showFloor: true,
+                       showMood: true,
                      ),
                    ),
                    const SizedBox(height: AppTheme.duoSpacingMedium),
@@ -99,7 +105,7 @@ class PeepholeScreen extends ConsumerWidget {
                        Container(
                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                          decoration: BoxDecoration(
-                           color: AppTheme.primaryColor.withOpacity(0.3),
+                           color: AppTheme.primaryColor.withValues(alpha: 0.3),
                            borderRadius: BorderRadius.circular(20),
                            border: Border.all(color: AppTheme.primaryColor),
                          ),
@@ -121,7 +127,7 @@ class PeepholeScreen extends ConsumerWidget {
                         Container(
                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                          decoration: BoxDecoration(
-                           color: AppTheme.infoColor.withOpacity(0.3),
+                           color: AppTheme.infoColor.withValues(alpha: 0.3),
                            borderRadius: BorderRadius.circular(20),
                            border: Border.all(color: AppTheme.infoColor),
                          ),
@@ -150,9 +156,9 @@ class PeepholeScreen extends ConsumerWidget {
                      Container(
                        padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
                        decoration: BoxDecoration(
-                         color: Colors.white.withOpacity(0.1),
+                         color: Colors.white.withValues(alpha: 0.1),
                          borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                         border: Border.all(color: Colors.white.withOpacity(0.2)),
+                         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                        ),
                        child: Text(
                          '"${otherResident.bio!}"',
@@ -165,6 +171,11 @@ class PeepholeScreen extends ConsumerWidget {
                        ),
                      ),
                      
+                   const SizedBox(height: AppTheme.duoSpacingMedium),
+
+                   // Moments Button
+                   _buildMomentsButton(context, profileAsync.value, otherUserId, otherUserName),
+                   
                    const SizedBox(height: AppTheme.duoSpacingLarge),
 
                    // Preview Box
@@ -252,6 +263,20 @@ class PeepholeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMomentsButton(BuildContext context, UserProfileView? profile, String userId, String userName) {
+    final momentsCount = profile?.totalMoments ?? 0;
+    return DuoButton(
+      text: '📸 View $momentsCount Moments',
+      icon: Icons.photo_library,
+      isSecondary: true,
+      color: AppTheme.secondaryColor.withValues(alpha: 0.8), // Slightly transparent for dark theme
+      width: double.infinity,
+      onPressed: () {
+        context.push('/user/$userId/moments?name=${Uri.encodeComponent(userName)}');
+      },
     );
   }
 }

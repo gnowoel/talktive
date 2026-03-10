@@ -89,7 +89,11 @@ class ProfileScreen extends ConsumerWidget {
                       floorLevel: resident != null
                           ? FloorUtils.computeFloor(resident!)
                           : null,
+                      mood: resident?.mood,
+                      trustScore: resident?.trustScore,
                       showRing: true,
+                      showFloor: true,
+                      showMood: true,
                     )
                     .animate()
                     .fadeIn(delay: 100.ms)
@@ -160,6 +164,10 @@ class ProfileScreen extends ConsumerWidget {
 
           // Streak card
           _buildStreakCard(context, ref),
+
+          // Moments Button (Prominent placement)
+          _buildMomentsButton(context, ref, resident).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+
           // Stats grid
           _buildStatsGrid(context, ref, resident),
           // Languages section
@@ -254,14 +262,38 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsGrid(BuildContext context, WidgetRef ref, Resident? resident) {
-    // We also fetch the profile view for complete stats (like total moments)
+  Widget _buildMomentsButton(BuildContext context, WidgetRef ref, Resident? resident) {
     final profileView = resident != null 
         ? ref.watch(userProfileProvider(resident.userInfoId.toString())).value 
         : null;
+    final momentsCount = profileView?.totalMoments ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
+      child: DuoButton(
+        text: '📸 View $momentsCount Moments',
+        icon: Icons.photo_library,
+        isSecondary: true,
+        color: AppTheme.secondaryColor,
+        width: double.infinity,
+        onPressed: () {
+          if (resident != null) {
+            final userName = resident.userName ?? 'Me';
+            context.push('/user/${resident.userInfoId}/moments?name=${Uri.encodeComponent(userName)}');
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatsGrid(BuildContext context, WidgetRef ref, Resident? resident) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppTheme.duoSpacingLarge,
+        AppTheme.duoSpacingMedium,
+        AppTheme.duoSpacingLarge,
+        AppTheme.duoSpacingLarge,
+      ),
       child: GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
@@ -304,7 +336,7 @@ class ProfileScreen extends ConsumerWidget {
           // Messages
           DuoStatCard(
                 icon: Icons.message,
-                value: '${profileView?.totalMessages ?? resident?.experienceMessageCount ?? 0}',
+                value: '${resident?.experienceMessageCount ?? 0}',
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,
@@ -313,25 +345,6 @@ class ProfileScreen extends ConsumerWidget {
               )
               .animate()
               .fadeIn(delay: 450.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-          // Moments
-          DuoStatCard(
-                icon: Icons.photo_library,
-                value: '${profileView?.totalMoments ?? 0}',
-                label: 'Moments',
-                gradientColors: [
-                  AppTheme.secondaryColor,
-                  AppTheme.secondaryColor.withValues(alpha: 0.7),
-                ],
-                onTap: () {
-                  if (resident != null) {
-                    final userName = resident.userName ?? 'Me';
-                    context.push('/user/${resident.userInfoId}/moments?name=${Uri.encodeComponent(userName)}');
-                  }
-                },
-              )
-              .animate()
-              .fadeIn(delay: 500.ms)
               .scale(begin: const Offset(0.8, 0.8)),
         ],
       ),

@@ -6,17 +6,15 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/user_likes_provider.dart';
 import '../../utils/floor_utils.dart';
-import '../../config/languages.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../helpers/snackbar_helper.dart';
-import '../moments/user_moments_screen.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../utils/trust_score_utils.dart';
@@ -54,27 +52,22 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final isBlocked = blockedIds.contains(widget.userId);
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          widget.userName ?? 'Profile',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [_buildTrailingMenu(isBlocked)],
-      ),
+    return DuoPageScaffold(
+      emoji: '👤',
+      title: widget.userName ?? 'Profile',
+      subtitle: 'Neighbor',
+      gradient: AppTheme.primaryGradient,
+      hasBackButton: true,
+      trailingHeader: _buildTrailingMenu(isBlocked),
       body: profileAsync.when(
-        data: (profile) => _buildProfileContent(isBlocked, profile),
+        data: (profile) => Column(
+          children: [
+            Expanded(
+              child: _buildProfileContent(isBlocked, profile),
+            ),
+            if (!isBlocked) _buildBottomBar(context, ref),
+          ],
+        ),
         loading: () => const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
@@ -82,9 +75,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         ),
         error: (error, stack) => _buildErrorState(error.toString()),
       ),
-      bottomNavigationBar: isBlocked || profileAsync.isLoading || profileAsync.hasError
-          ? null
-          : _buildBottomBar(context, ref),
     );
   }
 
@@ -125,7 +115,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   Widget _buildTrailingMenu(bool isBlocked) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_horiz, color: Colors.black),
+      icon: const Icon(Icons.more_horiz, color: Colors.white),
       onSelected: (value) async {
         if (value == 'block') {
           await _confirmBlock(context, isBlocked);
@@ -247,7 +237,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final name = profile?.userName ?? widget.userName ?? 'Neighbor';
     final avatar = profile?.userAvatar ?? widget.userAvatar;
     final floor = profile?.floor ?? widget.userFloor ?? 1;
-    final bio = profile?.bio ?? 'No bio yet.';
+    final bio = profile?.bio;
     final gender = profile?.gender;
     final country = profile?.country;
     final interests = profile?.interests ?? [];
@@ -263,10 +253,13 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           Center(
               child: DuoAvatar(
               imageUrl: avatar,
-              size: 120,
+              size: 110,
               floorLevel: floor,
+              mood: profile?.userMood,
               trustScore: profile?.trustScore,
               showRing: true,
+              showFloor: true,
+              showMood: true,
             ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),
           ),
           const SizedBox(height: 16),
@@ -278,7 +271,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               fontFamily: 'Poppins',
             ),
           ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
-          if (bio != null) ...[
+          if (bio != null && bio.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
               bio,
@@ -290,42 +283,15 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
           ],
-          if (profile?.userMood != null && profile!.userMood!.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(profile.userMood!, style: const TextStyle(fontSize: 24)),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Current Mood',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[700],
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(delay: 220.ms).slideY(begin: 0.1, end: 0),
-          ],
+          
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Action Button (Vouch)
           _buildVouchButton(profile).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+
+          // Moments Button (New prominent placement)
+          _buildMomentsButton(profile).animate().fadeIn(delay: 270.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Stats Grid
@@ -403,6 +369,21 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildMomentsButton(UserProfileView? profile) {
+    final momentsCount = profile?.totalMoments ?? 0;
+    return DuoButton(
+      text: '📸 View $momentsCount Moments',
+      icon: Icons.photo_library,
+      isSecondary: true,
+      color: AppTheme.secondaryColor,
+      width: double.infinity,
+      onPressed: () {
+        final userName = profile?.userName ?? widget.userName ?? 'Resident';
+        context.push('/user/${widget.userId}/moments?name=${Uri.encodeComponent(userName)}');
+      },
     );
   }
 
@@ -487,20 +468,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             AppTheme.accentColor.withValues(alpha: 0.7),
           ],
         ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
-        // Moments
-        DuoStatCard(
-          icon: Icons.photo_library,
-          value: '${profile?.totalMoments ?? 0}',
-          label: 'Moments',
-          gradientColors: [
-            AppTheme.secondaryColor,
-            AppTheme.secondaryColor.withValues(alpha: 0.7),
-          ],
-          onTap: () {
-            final userName = profile?.userName ?? widget.userName ?? 'Resident';
-            context.push('/user/${widget.userId}/moments?name=${Uri.encodeComponent(userName)}');
-          },
-        ).animate().fadeIn(delay: 500.ms).scale(begin: const Offset(0.8, 0.8)),
       ],
     );
   }

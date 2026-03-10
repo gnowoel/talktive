@@ -90,7 +90,9 @@ abstract class Resident
       mutedUntil: jsonSerialization['mutedUntil'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
-      suspended: jsonSerialization['suspended'] as bool?,
+      suspended: jsonSerialization['suspended'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['suspended']),
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
@@ -124,7 +126,9 @@ abstract class Resident
               jsonSerialization['languages'],
             ),
       role: jsonSerialization['role'] as String?,
-      isAdmin: jsonSerialization['isAdmin'] as bool?,
+      isAdmin: jsonSerialization['isAdmin'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
     );
   }
 
@@ -785,6 +789,8 @@ class ResidentRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<ResidentTable>? orderByList,
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.find<Resident>(
       where: where?.call(Resident.t),
@@ -794,6 +800,8 @@ class ResidentRepository {
       limit: limit,
       offset: offset,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -822,6 +830,8 @@ class ResidentRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<ResidentTable>? orderByList,
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.findFirstRow<Resident>(
       where: where?.call(Resident.t),
@@ -830,6 +840,8 @@ class ResidentRepository {
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -838,10 +850,14 @@ class ResidentRepository {
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.findById<Resident>(
       id,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -851,14 +867,20 @@ class ResidentRepository {
   ///
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// insert, none of the rows will be inserted.
+  ///
+  /// If [ignoreConflicts] is set to `true`, rows that conflict with existing
+  /// rows are silently skipped, and only the successfully inserted rows are
+  /// returned.
   Future<List<Resident>> insert(
     _i1.Session session,
     List<Resident> rows, {
     _i1.Transaction? transaction,
+    bool ignoreConflicts = false,
   }) async {
     return session.db.insert<Resident>(
       rows,
       transaction: transaction,
+      ignoreConflicts: ignoreConflicts,
     );
   }
 
@@ -999,6 +1021,22 @@ class ResidentRepository {
     return session.db.count<Resident>(
       where: where?.call(Resident.t),
       limit: limit,
+      transaction: transaction,
+    );
+  }
+
+  /// Acquires row-level locks on [Resident] rows matching the [where] expression.
+  Future<void> lockRows(
+    _i1.Session session, {
+    required _i1.WhereExpressionBuilder<ResidentTable> where,
+    required _i1.LockMode lockMode,
+    required _i1.Transaction transaction,
+    _i1.LockBehavior lockBehavior = _i1.LockBehavior.wait,
+  }) async {
+    return session.db.lockRows<Resident>(
+      where: where(Resident.t),
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
       transaction: transaction,
     );
   }

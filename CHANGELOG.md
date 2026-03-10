@@ -4,6 +4,15 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 10, 2026 - Serverpod Upgrade & Maintenance ⚙️
+
+### Infrastructure
+- **Serverpod Upgrade**: Upgraded entire stack (server, client, flutter) to Serverpod **3.4.2**.
+- **CLI Update**: Activated latest `serverpod_cli` for improved generation and cloud storage features.
+- **Protocol Synchronization**: Regenerated all client/server communication protocols to ensure compatibility with 3.4.2.
+
+---
+
 ## March 9, 2026 - UX Refinement & Layout Consolidation ⌨️
 
 ### UX & Accessibility

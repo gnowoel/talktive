@@ -49,7 +49,9 @@ abstract class Achievement implements _i1.SerializableModel {
       category: jsonSerialization['category'] as String,
       targetValue: jsonSerialization['targetValue'] as int?,
       points: jsonSerialization['points'] as int?,
-      isSecret: jsonSerialization['isSecret'] as bool?,
+      isSecret: jsonSerialization['isSecret'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isSecret']),
     );
   }
 

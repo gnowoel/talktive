@@ -58,7 +58,9 @@ abstract class Group implements _i1.SerializableModel {
         jsonSerialization['createdAt'],
       ),
       memberCount: jsonSerialization['memberCount'] as int?,
-      isPublic: jsonSerialization['isPublic'] as bool?,
+      isPublic: jsonSerialization['isPublic'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPublic']),
       maxMembers: jsonSerialization['maxMembers'] as int?,
       interests: jsonSerialization['interests'] == null
           ? null

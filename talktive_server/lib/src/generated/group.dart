@@ -58,7 +58,9 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
         jsonSerialization['createdAt'],
       ),
       memberCount: jsonSerialization['memberCount'] as int?,
-      isPublic: jsonSerialization['isPublic'] as bool?,
+      isPublic: jsonSerialization['isPublic'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPublic']),
       maxMembers: jsonSerialization['maxMembers'] as int?,
       interests: jsonSerialization['interests'] == null
           ? null
@@ -452,6 +454,8 @@ class GroupRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<GroupTable>? orderByList,
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.find<Group>(
       where: where?.call(Group.t),
@@ -461,6 +465,8 @@ class GroupRepository {
       limit: limit,
       offset: offset,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -489,6 +495,8 @@ class GroupRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<GroupTable>? orderByList,
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.findFirstRow<Group>(
       where: where?.call(Group.t),
@@ -497,6 +505,8 @@ class GroupRepository {
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -505,10 +515,14 @@ class GroupRepository {
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.findById<Group>(
       id,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -518,14 +532,20 @@ class GroupRepository {
   ///
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// insert, none of the rows will be inserted.
+  ///
+  /// If [ignoreConflicts] is set to `true`, rows that conflict with existing
+  /// rows are silently skipped, and only the successfully inserted rows are
+  /// returned.
   Future<List<Group>> insert(
     _i1.Session session,
     List<Group> rows, {
     _i1.Transaction? transaction,
+    bool ignoreConflicts = false,
   }) async {
     return session.db.insert<Group>(
       rows,
       transaction: transaction,
+      ignoreConflicts: ignoreConflicts,
     );
   }
 
@@ -666,6 +686,22 @@ class GroupRepository {
     return session.db.count<Group>(
       where: where?.call(Group.t),
       limit: limit,
+      transaction: transaction,
+    );
+  }
+
+  /// Acquires row-level locks on [Group] rows matching the [where] expression.
+  Future<void> lockRows(
+    _i1.Session session, {
+    required _i1.WhereExpressionBuilder<GroupTable> where,
+    required _i1.LockMode lockMode,
+    required _i1.Transaction transaction,
+    _i1.LockBehavior lockBehavior = _i1.LockBehavior.wait,
+  }) async {
+    return session.db.lockRows<Group>(
+      where: where(Group.t),
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
       transaction: transaction,
     );
   }

@@ -79,8 +79,10 @@ abstract class UserProfileView implements _i1.SerializableModel {
       achievementsUnlocked: jsonSerialization['achievementsUnlocked'] as int,
       currentStreak: jsonSerialization['currentStreak'] as int,
       longestStreak: jsonSerialization['longestStreak'] as int,
-      isBlocked: jsonSerialization['isBlocked'] as bool,
-      hasBlockedMe: jsonSerialization['hasBlockedMe'] as bool,
+      isBlocked: _i1.BoolJsonExtension.fromJson(jsonSerialization['isBlocked']),
+      hasBlockedMe: _i1.BoolJsonExtension.fromJson(
+        jsonSerialization['hasBlockedMe'],
+      ),
       mutualGroups: jsonSerialization['mutualGroups'] as int,
       recentMoments: jsonSerialization['recentMoments'] == null
           ? null

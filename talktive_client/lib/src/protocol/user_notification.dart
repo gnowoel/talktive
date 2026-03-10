@@ -43,7 +43,9 @@ abstract class UserNotification implements _i1.SerializableModel {
       title: jsonSerialization['title'] as String,
       body: jsonSerialization['body'] as String,
       data: jsonSerialization['data'] as String?,
-      read: jsonSerialization['read'] as bool?,
+      read: jsonSerialization['read'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['read']),
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),

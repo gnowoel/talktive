@@ -89,7 +89,9 @@ abstract class Resident implements _i1.SerializableModel {
       mutedUntil: jsonSerialization['mutedUntil'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['mutedUntil']),
-      suspended: jsonSerialization['suspended'] as bool?,
+      suspended: jsonSerialization['suspended'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['suspended']),
       xp: jsonSerialization['xp'] as int?,
       level: jsonSerialization['level'] as int?,
       currentStreak: jsonSerialization['currentStreak'] as int?,
@@ -123,7 +125,9 @@ abstract class Resident implements _i1.SerializableModel {
               jsonSerialization['languages'],
             ),
       role: jsonSerialization['role'] as String?,
-      isAdmin: jsonSerialization['isAdmin'] as bool?,
+      isAdmin: jsonSerialization['isAdmin'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
     );
   }
 

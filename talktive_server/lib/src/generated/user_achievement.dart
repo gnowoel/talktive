@@ -42,7 +42,9 @@ abstract class UserAchievement
       unlockedAt: jsonSerialization['unlockedAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['unlockedAt']),
-      notified: jsonSerialization['notified'] as bool?,
+      notified: jsonSerialization['notified'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['notified']),
     );
   }
 
@@ -321,6 +323,8 @@ class UserAchievementRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<UserAchievementTable>? orderByList,
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.find<UserAchievement>(
       where: where?.call(UserAchievement.t),
@@ -330,6 +334,8 @@ class UserAchievementRepository {
       limit: limit,
       offset: offset,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -358,6 +364,8 @@ class UserAchievementRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<UserAchievementTable>? orderByList,
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.findFirstRow<UserAchievement>(
       where: where?.call(UserAchievement.t),
@@ -366,6 +374,8 @@ class UserAchievementRepository {
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -374,10 +384,14 @@ class UserAchievementRepository {
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
+    _i1.LockMode? lockMode,
+    _i1.LockBehavior? lockBehavior,
   }) async {
     return session.db.findById<UserAchievement>(
       id,
       transaction: transaction,
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
     );
   }
 
@@ -387,14 +401,20 @@ class UserAchievementRepository {
   ///
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// insert, none of the rows will be inserted.
+  ///
+  /// If [ignoreConflicts] is set to `true`, rows that conflict with existing
+  /// rows are silently skipped, and only the successfully inserted rows are
+  /// returned.
   Future<List<UserAchievement>> insert(
     _i1.Session session,
     List<UserAchievement> rows, {
     _i1.Transaction? transaction,
+    bool ignoreConflicts = false,
   }) async {
     return session.db.insert<UserAchievement>(
       rows,
       transaction: transaction,
+      ignoreConflicts: ignoreConflicts,
     );
   }
 
@@ -537,6 +557,22 @@ class UserAchievementRepository {
     return session.db.count<UserAchievement>(
       where: where?.call(UserAchievement.t),
       limit: limit,
+      transaction: transaction,
+    );
+  }
+
+  /// Acquires row-level locks on [UserAchievement] rows matching the [where] expression.
+  Future<void> lockRows(
+    _i1.Session session, {
+    required _i1.WhereExpressionBuilder<UserAchievementTable> where,
+    required _i1.LockMode lockMode,
+    required _i1.Transaction transaction,
+    _i1.LockBehavior lockBehavior = _i1.LockBehavior.wait,
+  }) async {
+    return session.db.lockRows<UserAchievement>(
+      where: where(UserAchievement.t),
+      lockMode: lockMode,
+      lockBehavior: lockBehavior,
       transaction: transaction,
     );
   }

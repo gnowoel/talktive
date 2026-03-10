@@ -41,7 +41,9 @@ abstract class UserAchievement implements _i1.SerializableModel {
       unlockedAt: jsonSerialization['unlockedAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['unlockedAt']),
-      notified: jsonSerialization['notified'] as bool?,
+      notified: jsonSerialization['notified'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['notified']),
     );
   }
 

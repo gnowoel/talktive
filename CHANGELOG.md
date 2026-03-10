@@ -8,6 +8,7 @@ This document tracks the major development milestones and changes made during th
 
 ### Infrastructure
 - **Serverpod Upgrade**: Upgraded entire stack (server, client, flutter) to Serverpod **3.4.2**.
+- **Dependency Pinning**: Switched from caret ranges (`^3.4.2`) to exact versions (`3.4.2`) across all projects to ensure strict protocol compatibility.
 - **CLI Update**: Activated latest `serverpod_cli` for improved generation and cloud storage features.
 - **Protocol Synchronization**: Regenerated all client/server communication protocols to ensure compatibility with 3.4.2.
 

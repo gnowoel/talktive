@@ -63,6 +63,7 @@ class PeepholeScreen extends ConsumerWidget {
                        imageUrl: chatItem.otherUserAvatar,
                        size: 120,
                        mood: chatItem.otherUserMood,
+                       trustScore: otherResident.trustScore,
                        showRing: true,
                        floorLevel: FloorUtils.computeFloor(otherResident),
                        showFloor: true, // Show floor overlay here for importance

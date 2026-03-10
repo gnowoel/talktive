@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
+import '../../utils/trust_score_utils.dart';
 
 /// Duolingo-style avatar with gradient ring and optional mood or floor overlays.
 class DuoAvatar extends StatelessWidget {
   final String? imageUrl;
   final double size;
   final int? floorLevel;
+  final int? trustScore;
   final String? mood;
   final Color? ringColor;
   final bool showRing;
@@ -25,6 +27,7 @@ class DuoAvatar extends StatelessWidget {
     this.imageUrl,
     this.size = 48,
     this.floorLevel,
+    this.trustScore,
     this.mood,
     this.ringColor,
     this.showRing = true,
@@ -57,6 +60,10 @@ class DuoAvatar extends StatelessWidget {
         ? '👤'
         : (imageUrl?.isNotEmpty == true ? imageUrl : '👤');
 
+    // Determine ring color from trustScore or explicit ringColor
+    final effectiveRingColor = ringColor ?? 
+        (trustScore != null ? TrustScoreUtils.getTrustColor(trustScore!) : AppTheme.primaryColor);
+
     Widget avatar = Container(
       width: size,
       height: size,
@@ -66,8 +73,8 @@ class DuoAvatar extends StatelessWidget {
             ? null
             : LinearGradient(
                 colors: [
-                  ringColor ?? AppTheme.primaryColor,
-                  _lightenColor(ringColor ?? AppTheme.primaryColor, 0.2),
+                  effectiveRingColor,
+                  _lightenColor(effectiveRingColor, 0.2),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -102,8 +109,8 @@ class DuoAvatar extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: LinearGradient(
             colors: [
-              ringColor ?? AppTheme.primaryColor,
-              _lightenColor(ringColor ?? AppTheme.primaryColor, 0.2),
+              effectiveRingColor,
+              _lightenColor(effectiveRingColor, 0.2),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

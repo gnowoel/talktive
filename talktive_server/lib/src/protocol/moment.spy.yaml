@@ -11,9 +11,11 @@ fields:
 
   # Denormalized Author Info
   authorName: String
-  authorAvatar: String
+  authorAvatar: String?
   authorMood: String?
   authorFloor: int
+  authorTrustScore: int
+
 indexes:
   moment_author_idx:
     fields: authorId

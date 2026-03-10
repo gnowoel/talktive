@@ -5,11 +5,13 @@ fields:
   userId: UuidValue
   createdAt: DateTime
 
-  # Denormalized Cache
+  # Denormalized User Info
   userName: String
-  userAvatar: String
+  userAvatar: String?
   userMood: String?
   userFloor: int
+  userTrustScore: int
+
 
 indexes:
   moment_user_unique:

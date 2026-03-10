@@ -1143,7 +1143,8 @@ class EndpointResident extends _i2.EndpointRef {
   @override
   String get name => 'resident';
 
-  /// Checks if the authenticated user has a Resident profile.
+  /// Checks if the authenticated user has a Resident profile and
+  /// performs standard background tasks (daily login bonus, etc.).
   _i3.Future<_i9.Resident?> getResident() =>
       caller.callServerEndpoint<_i9.Resident?>(
         'resident',

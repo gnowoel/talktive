@@ -53,6 +53,7 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       authorAvatar: resident.avatar ?? '',
       authorMood: resident.mood,
       authorFloor: effectiveFloor,
+      authorTrustScore: resident.trustScore,
     );
 
     final savedMoment = await Moment.db.insertRow(session, moment);
@@ -162,6 +163,7 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       userAvatar: resident.avatar ?? '',
       userMood: resident.mood,
       userFloor: ApartmentService.computeEffectiveFloor(resident),
+      userTrustScore: resident.trustScore,
     );
 
     await MomentLike.db.insertRow(session, like);
@@ -317,6 +319,7 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       userAvatar: resident.avatar ?? '',
       userMood: resident.mood,
       userFloor: ApartmentService.computeEffectiveFloor(resident),
+      userTrustScore: resident.trustScore,
     );
 
     final savedComment = await MomentComment.db.insertRow(session, comment);

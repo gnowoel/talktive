@@ -141,6 +141,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         senderAvatar: senderAvatar,
         senderMood: sender.mood,
         senderFloor: senderEffectiveFloor,
+        senderTrustScore: sender.trustScore,
       );
 
       // 9. Database Updates (Single transaction if possible or batched saves)

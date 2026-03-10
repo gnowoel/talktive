@@ -47,6 +47,7 @@ class MessageBubble extends ConsumerWidget {
                 imageUrl: senderAvatar,
                 size: 36,
                 mood: message.senderMood,
+                trustScore: message.senderTrustScore,
                 showRing: true,
                 // floorLevel removed here to hide it on avatar
               ),
@@ -182,7 +183,8 @@ class MessageBubble extends ConsumerWidget {
             DuoAvatar(
               imageUrl: currentResident?.avatar,
               size: 36,
-              showRing: false,
+              trustScore: currentResident?.trustScore,
+              showRing: true, // Show the ring for current user too to reflect their status
             ),
           ],
         ],

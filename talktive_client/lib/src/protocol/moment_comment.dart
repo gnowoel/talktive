@@ -20,9 +20,10 @@ abstract class MomentComment implements _i1.SerializableModel {
     required this.text,
     required this.createdAt,
     required this.userName,
-    required this.userAvatar,
+    this.userAvatar,
     this.userMood,
     required this.userFloor,
+    required this.userTrustScore,
   });
 
   factory MomentComment({
@@ -32,9 +33,10 @@ abstract class MomentComment implements _i1.SerializableModel {
     required String text,
     required DateTime createdAt,
     required String userName,
-    required String userAvatar,
+    String? userAvatar,
     String? userMood,
     required int userFloor,
+    required int userTrustScore,
   }) = _MomentCommentImpl;
 
   factory MomentComment.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -47,9 +49,10 @@ abstract class MomentComment implements _i1.SerializableModel {
         jsonSerialization['createdAt'],
       ),
       userName: jsonSerialization['userName'] as String,
-      userAvatar: jsonSerialization['userAvatar'] as String,
+      userAvatar: jsonSerialization['userAvatar'] as String?,
       userMood: jsonSerialization['userMood'] as String?,
       userFloor: jsonSerialization['userFloor'] as int,
+      userTrustScore: jsonSerialization['userTrustScore'] as int,
     );
   }
 
@@ -68,11 +71,13 @@ abstract class MomentComment implements _i1.SerializableModel {
 
   String userName;
 
-  String userAvatar;
+  String? userAvatar;
 
   String? userMood;
 
   int userFloor;
+
+  int userTrustScore;
 
   /// Returns a shallow copy of this [MomentComment]
   /// with some or all fields replaced by the given arguments.
@@ -87,6 +92,7 @@ abstract class MomentComment implements _i1.SerializableModel {
     String? userAvatar,
     String? userMood,
     int? userFloor,
+    int? userTrustScore,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -98,9 +104,10 @@ abstract class MomentComment implements _i1.SerializableModel {
       'text': text,
       'createdAt': createdAt.toJson(),
       'userName': userName,
-      'userAvatar': userAvatar,
+      if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
+      'userTrustScore': userTrustScore,
     };
   }
 
@@ -120,9 +127,10 @@ class _MomentCommentImpl extends MomentComment {
     required String text,
     required DateTime createdAt,
     required String userName,
-    required String userAvatar,
+    String? userAvatar,
     String? userMood,
     required int userFloor,
+    required int userTrustScore,
   }) : super._(
          id: id,
          momentId: momentId,
@@ -133,6 +141,7 @@ class _MomentCommentImpl extends MomentComment {
          userAvatar: userAvatar,
          userMood: userMood,
          userFloor: userFloor,
+         userTrustScore: userTrustScore,
        );
 
   /// Returns a shallow copy of this [MomentComment]
@@ -146,9 +155,10 @@ class _MomentCommentImpl extends MomentComment {
     String? text,
     DateTime? createdAt,
     String? userName,
-    String? userAvatar,
+    Object? userAvatar = _Undefined,
     Object? userMood = _Undefined,
     int? userFloor,
+    int? userTrustScore,
   }) {
     return MomentComment(
       id: id is int? ? id : this.id,
@@ -157,9 +167,10 @@ class _MomentCommentImpl extends MomentComment {
       text: text ?? this.text,
       createdAt: createdAt ?? this.createdAt,
       userName: userName ?? this.userName,
-      userAvatar: userAvatar ?? this.userAvatar,
+      userAvatar: userAvatar is String? ? userAvatar : this.userAvatar,
       userMood: userMood is String? ? userMood : this.userMood,
       userFloor: userFloor ?? this.userFloor,
+      userTrustScore: userTrustScore ?? this.userTrustScore,
     );
   }
 }

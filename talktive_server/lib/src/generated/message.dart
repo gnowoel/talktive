@@ -27,6 +27,7 @@ abstract class Message
     this.senderAvatar,
     this.senderMood,
     required this.senderFloor,
+    required this.senderTrustScore,
   });
 
   factory Message({
@@ -42,6 +43,7 @@ abstract class Message
     String? senderAvatar,
     String? senderMood,
     required int senderFloor,
+    required int senderTrustScore,
   }) = _MessageImpl;
 
   factory Message.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -62,6 +64,7 @@ abstract class Message
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
       senderMood: jsonSerialization['senderMood'] as String?,
       senderFloor: jsonSerialization['senderFloor'] as int,
+      senderTrustScore: jsonSerialization['senderTrustScore'] as int,
     );
   }
 
@@ -94,6 +97,8 @@ abstract class Message
 
   int senderFloor;
 
+  int senderTrustScore;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -113,6 +118,7 @@ abstract class Message
     String? senderAvatar,
     String? senderMood,
     int? senderFloor,
+    int? senderTrustScore,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -130,6 +136,7 @@ abstract class Message
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
       if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
+      'senderTrustScore': senderTrustScore,
     };
   }
 
@@ -149,6 +156,7 @@ abstract class Message
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
       if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
+      'senderTrustScore': senderTrustScore,
     };
   }
 
@@ -198,6 +206,7 @@ class _MessageImpl extends Message {
     String? senderAvatar,
     String? senderMood,
     required int senderFloor,
+    required int senderTrustScore,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -211,6 +220,7 @@ class _MessageImpl extends Message {
          senderAvatar: senderAvatar,
          senderMood: senderMood,
          senderFloor: senderFloor,
+         senderTrustScore: senderTrustScore,
        );
 
   /// Returns a shallow copy of this [Message]
@@ -230,6 +240,7 @@ class _MessageImpl extends Message {
     Object? senderAvatar = _Undefined,
     Object? senderMood = _Undefined,
     int? senderFloor,
+    int? senderTrustScore,
   }) {
     return Message(
       id: id is int? ? id : this.id,
@@ -244,6 +255,7 @@ class _MessageImpl extends Message {
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
       senderMood: senderMood is String? ? senderMood : this.senderMood,
       senderFloor: senderFloor ?? this.senderFloor,
+      senderTrustScore: senderTrustScore ?? this.senderTrustScore,
     );
   }
 }
@@ -308,6 +320,11 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
     table.senderFloor,
     value,
   );
+
+  _i1.ColumnValue<int, int> senderTrustScore(int value) => _i1.ColumnValue(
+    table.senderTrustScore,
+    value,
+  );
 }
 
 class MessageTable extends _i1.Table<int?> {
@@ -357,6 +374,10 @@ class MessageTable extends _i1.Table<int?> {
       'senderFloor',
       this,
     );
+    senderTrustScore = _i1.ColumnInt(
+      'senderTrustScore',
+      this,
+    );
   }
 
   late final MessageUpdateTable updateTable;
@@ -383,6 +404,8 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt senderFloor;
 
+  late final _i1.ColumnInt senderTrustScore;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -397,6 +420,7 @@ class MessageTable extends _i1.Table<int?> {
     senderAvatar,
     senderMood,
     senderFloor,
+    senderTrustScore,
   ];
 }
 

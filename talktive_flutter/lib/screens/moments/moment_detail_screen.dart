@@ -120,6 +120,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
           DuoAvatar(
             imageUrl: widget.moment.authorAvatar,
             mood: widget.moment.authorMood,
+            trustScore: widget.moment.authorTrustScore,
             size: 44,
             showRing: true,
           ),
@@ -253,6 +254,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
                 leading: DuoAvatar(
                   imageUrl: comment.userAvatar,
                   mood: comment.userMood,
+                  trustScore: comment.userTrustScore,
                   size: 32,
                 ),
                 title: Row(

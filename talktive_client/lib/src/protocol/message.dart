@@ -26,6 +26,7 @@ abstract class Message implements _i1.SerializableModel {
     this.senderAvatar,
     this.senderMood,
     required this.senderFloor,
+    required this.senderTrustScore,
   });
 
   factory Message({
@@ -41,6 +42,7 @@ abstract class Message implements _i1.SerializableModel {
     String? senderAvatar,
     String? senderMood,
     required int senderFloor,
+    required int senderTrustScore,
   }) = _MessageImpl;
 
   factory Message.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -61,6 +63,7 @@ abstract class Message implements _i1.SerializableModel {
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
       senderMood: jsonSerialization['senderMood'] as String?,
       senderFloor: jsonSerialization['senderFloor'] as int,
+      senderTrustScore: jsonSerialization['senderTrustScore'] as int,
     );
   }
 
@@ -91,6 +94,8 @@ abstract class Message implements _i1.SerializableModel {
 
   int senderFloor;
 
+  int senderTrustScore;
+
   /// Returns a shallow copy of this [Message]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -107,6 +112,7 @@ abstract class Message implements _i1.SerializableModel {
     String? senderAvatar,
     String? senderMood,
     int? senderFloor,
+    int? senderTrustScore,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -124,6 +130,7 @@ abstract class Message implements _i1.SerializableModel {
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
       if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
+      'senderTrustScore': senderTrustScore,
     };
   }
 
@@ -149,6 +156,7 @@ class _MessageImpl extends Message {
     String? senderAvatar,
     String? senderMood,
     required int senderFloor,
+    required int senderTrustScore,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -162,6 +170,7 @@ class _MessageImpl extends Message {
          senderAvatar: senderAvatar,
          senderMood: senderMood,
          senderFloor: senderFloor,
+         senderTrustScore: senderTrustScore,
        );
 
   /// Returns a shallow copy of this [Message]
@@ -181,6 +190,7 @@ class _MessageImpl extends Message {
     Object? senderAvatar = _Undefined,
     Object? senderMood = _Undefined,
     int? senderFloor,
+    int? senderTrustScore,
   }) {
     return Message(
       id: id is int? ? id : this.id,
@@ -195,6 +205,7 @@ class _MessageImpl extends Message {
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
       senderMood: senderMood is String? ? senderMood : this.senderMood,
       senderFloor: senderFloor ?? this.senderFloor,
+      senderTrustScore: senderTrustScore ?? this.senderTrustScore,
     );
   }
 }

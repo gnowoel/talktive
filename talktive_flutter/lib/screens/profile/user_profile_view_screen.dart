@@ -19,6 +19,7 @@ import '../../helpers/snackbar_helper.dart';
 import '../moments/user_moments_screen.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
+import '../../utils/trust_score_utils.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -264,6 +265,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               imageUrl: avatar,
               size: 120,
               floorLevel: floor,
+              trustScore: profile?.trustScore,
               showRing: true,
             ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),
           ),
@@ -504,13 +506,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   }
 
   Color _getTrustColor(int reputation) {
-    if (reputation > 50) {
-      return AppTheme.duoGreen;
-    } else if (reputation >= 20) {
-      return AppTheme.duoYellow;
-    } else {
-      return AppTheme.duoRed;
-    }
+    return TrustScoreUtils.getTrustColor(reputation);
   }
 
   Widget _buildXPCard(UserProfileView? profile) {

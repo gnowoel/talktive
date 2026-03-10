@@ -21,9 +21,10 @@ abstract class MomentComment
     required this.text,
     required this.createdAt,
     required this.userName,
-    required this.userAvatar,
+    this.userAvatar,
     this.userMood,
     required this.userFloor,
+    required this.userTrustScore,
   });
 
   factory MomentComment({
@@ -33,9 +34,10 @@ abstract class MomentComment
     required String text,
     required DateTime createdAt,
     required String userName,
-    required String userAvatar,
+    String? userAvatar,
     String? userMood,
     required int userFloor,
+    required int userTrustScore,
   }) = _MomentCommentImpl;
 
   factory MomentComment.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -48,9 +50,10 @@ abstract class MomentComment
         jsonSerialization['createdAt'],
       ),
       userName: jsonSerialization['userName'] as String,
-      userAvatar: jsonSerialization['userAvatar'] as String,
+      userAvatar: jsonSerialization['userAvatar'] as String?,
       userMood: jsonSerialization['userMood'] as String?,
       userFloor: jsonSerialization['userFloor'] as int,
+      userTrustScore: jsonSerialization['userTrustScore'] as int,
     );
   }
 
@@ -71,11 +74,13 @@ abstract class MomentComment
 
   String userName;
 
-  String userAvatar;
+  String? userAvatar;
 
   String? userMood;
 
   int userFloor;
+
+  int userTrustScore;
 
   @override
   _i1.Table<int?> get table => t;
@@ -93,6 +98,7 @@ abstract class MomentComment
     String? userAvatar,
     String? userMood,
     int? userFloor,
+    int? userTrustScore,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -104,9 +110,10 @@ abstract class MomentComment
       'text': text,
       'createdAt': createdAt.toJson(),
       'userName': userName,
-      'userAvatar': userAvatar,
+      if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
+      'userTrustScore': userTrustScore,
     };
   }
 
@@ -120,9 +127,10 @@ abstract class MomentComment
       'text': text,
       'createdAt': createdAt.toJson(),
       'userName': userName,
-      'userAvatar': userAvatar,
+      if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
+      'userTrustScore': userTrustScore,
     };
   }
 
@@ -166,9 +174,10 @@ class _MomentCommentImpl extends MomentComment {
     required String text,
     required DateTime createdAt,
     required String userName,
-    required String userAvatar,
+    String? userAvatar,
     String? userMood,
     required int userFloor,
+    required int userTrustScore,
   }) : super._(
          id: id,
          momentId: momentId,
@@ -179,6 +188,7 @@ class _MomentCommentImpl extends MomentComment {
          userAvatar: userAvatar,
          userMood: userMood,
          userFloor: userFloor,
+         userTrustScore: userTrustScore,
        );
 
   /// Returns a shallow copy of this [MomentComment]
@@ -192,9 +202,10 @@ class _MomentCommentImpl extends MomentComment {
     String? text,
     DateTime? createdAt,
     String? userName,
-    String? userAvatar,
+    Object? userAvatar = _Undefined,
     Object? userMood = _Undefined,
     int? userFloor,
+    int? userTrustScore,
   }) {
     return MomentComment(
       id: id is int? ? id : this.id,
@@ -203,9 +214,10 @@ class _MomentCommentImpl extends MomentComment {
       text: text ?? this.text,
       createdAt: createdAt ?? this.createdAt,
       userName: userName ?? this.userName,
-      userAvatar: userAvatar ?? this.userAvatar,
+      userAvatar: userAvatar is String? ? userAvatar : this.userAvatar,
       userMood: userMood is String? ? userMood : this.userMood,
       userFloor: userFloor ?? this.userFloor,
+      userTrustScore: userTrustScore ?? this.userTrustScore,
     );
   }
 }
@@ -240,7 +252,7 @@ class MomentCommentUpdateTable extends _i1.UpdateTable<MomentCommentTable> {
     value,
   );
 
-  _i1.ColumnValue<String, String> userAvatar(String value) => _i1.ColumnValue(
+  _i1.ColumnValue<String, String> userAvatar(String? value) => _i1.ColumnValue(
     table.userAvatar,
     value,
   );
@@ -252,6 +264,11 @@ class MomentCommentUpdateTable extends _i1.UpdateTable<MomentCommentTable> {
 
   _i1.ColumnValue<int, int> userFloor(int value) => _i1.ColumnValue(
     table.userFloor,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> userTrustScore(int value) => _i1.ColumnValue(
+    table.userTrustScore,
     value,
   );
 }
@@ -292,6 +309,10 @@ class MomentCommentTable extends _i1.Table<int?> {
       'userFloor',
       this,
     );
+    userTrustScore = _i1.ColumnInt(
+      'userTrustScore',
+      this,
+    );
   }
 
   late final MomentCommentUpdateTable updateTable;
@@ -312,6 +333,8 @@ class MomentCommentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt userFloor;
 
+  late final _i1.ColumnInt userTrustScore;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -323,6 +346,7 @@ class MomentCommentTable extends _i1.Table<int?> {
     userAvatar,
     userMood,
     userFloor,
+    userTrustScore,
   ];
 }
 

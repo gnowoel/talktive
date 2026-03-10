@@ -23,9 +23,10 @@ abstract class Moment implements _i1.SerializableModel {
     required this.likesCount,
     required this.commentsCount,
     required this.authorName,
-    required this.authorAvatar,
+    this.authorAvatar,
     this.authorMood,
     required this.authorFloor,
+    required this.authorTrustScore,
   }) : mediaType = mediaType ?? 'image';
 
   factory Moment({
@@ -38,9 +39,10 @@ abstract class Moment implements _i1.SerializableModel {
     required int likesCount,
     required int commentsCount,
     required String authorName,
-    required String authorAvatar,
+    String? authorAvatar,
     String? authorMood,
     required int authorFloor,
+    required int authorTrustScore,
   }) = _MomentImpl;
 
   factory Moment.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -58,9 +60,10 @@ abstract class Moment implements _i1.SerializableModel {
       likesCount: jsonSerialization['likesCount'] as int,
       commentsCount: jsonSerialization['commentsCount'] as int,
       authorName: jsonSerialization['authorName'] as String,
-      authorAvatar: jsonSerialization['authorAvatar'] as String,
+      authorAvatar: jsonSerialization['authorAvatar'] as String?,
       authorMood: jsonSerialization['authorMood'] as String?,
       authorFloor: jsonSerialization['authorFloor'] as int,
+      authorTrustScore: jsonSerialization['authorTrustScore'] as int,
     );
   }
 
@@ -85,11 +88,13 @@ abstract class Moment implements _i1.SerializableModel {
 
   String authorName;
 
-  String authorAvatar;
+  String? authorAvatar;
 
   String? authorMood;
 
   int authorFloor;
+
+  int authorTrustScore;
 
   /// Returns a shallow copy of this [Moment]
   /// with some or all fields replaced by the given arguments.
@@ -107,6 +112,7 @@ abstract class Moment implements _i1.SerializableModel {
     String? authorAvatar,
     String? authorMood,
     int? authorFloor,
+    int? authorTrustScore,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -121,9 +127,10 @@ abstract class Moment implements _i1.SerializableModel {
       'likesCount': likesCount,
       'commentsCount': commentsCount,
       'authorName': authorName,
-      'authorAvatar': authorAvatar,
+      if (authorAvatar != null) 'authorAvatar': authorAvatar,
       if (authorMood != null) 'authorMood': authorMood,
       'authorFloor': authorFloor,
+      'authorTrustScore': authorTrustScore,
     };
   }
 
@@ -146,9 +153,10 @@ class _MomentImpl extends Moment {
     required int likesCount,
     required int commentsCount,
     required String authorName,
-    required String authorAvatar,
+    String? authorAvatar,
     String? authorMood,
     required int authorFloor,
+    required int authorTrustScore,
   }) : super._(
          id: id,
          authorId: authorId,
@@ -162,6 +170,7 @@ class _MomentImpl extends Moment {
          authorAvatar: authorAvatar,
          authorMood: authorMood,
          authorFloor: authorFloor,
+         authorTrustScore: authorTrustScore,
        );
 
   /// Returns a shallow copy of this [Moment]
@@ -178,9 +187,10 @@ class _MomentImpl extends Moment {
     int? likesCount,
     int? commentsCount,
     String? authorName,
-    String? authorAvatar,
+    Object? authorAvatar = _Undefined,
     Object? authorMood = _Undefined,
     int? authorFloor,
+    int? authorTrustScore,
   }) {
     return Moment(
       id: id is int? ? id : this.id,
@@ -192,9 +202,10 @@ class _MomentImpl extends Moment {
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
       authorName: authorName ?? this.authorName,
-      authorAvatar: authorAvatar ?? this.authorAvatar,
+      authorAvatar: authorAvatar is String? ? authorAvatar : this.authorAvatar,
       authorMood: authorMood is String? ? authorMood : this.authorMood,
       authorFloor: authorFloor ?? this.authorFloor,
+      authorTrustScore: authorTrustScore ?? this.authorTrustScore,
     );
   }
 }

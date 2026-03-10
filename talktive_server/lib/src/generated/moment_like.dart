@@ -20,9 +20,10 @@ abstract class MomentLike
     required this.userId,
     required this.createdAt,
     required this.userName,
-    required this.userAvatar,
+    this.userAvatar,
     this.userMood,
     required this.userFloor,
+    required this.userTrustScore,
   });
 
   factory MomentLike({
@@ -31,9 +32,10 @@ abstract class MomentLike
     required _i1.UuidValue userId,
     required DateTime createdAt,
     required String userName,
-    required String userAvatar,
+    String? userAvatar,
     String? userMood,
     required int userFloor,
+    required int userTrustScore,
   }) = _MomentLikeImpl;
 
   factory MomentLike.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -45,9 +47,10 @@ abstract class MomentLike
         jsonSerialization['createdAt'],
       ),
       userName: jsonSerialization['userName'] as String,
-      userAvatar: jsonSerialization['userAvatar'] as String,
+      userAvatar: jsonSerialization['userAvatar'] as String?,
       userMood: jsonSerialization['userMood'] as String?,
       userFloor: jsonSerialization['userFloor'] as int,
+      userTrustScore: jsonSerialization['userTrustScore'] as int,
     );
   }
 
@@ -66,11 +69,13 @@ abstract class MomentLike
 
   String userName;
 
-  String userAvatar;
+  String? userAvatar;
 
   String? userMood;
 
   int userFloor;
+
+  int userTrustScore;
 
   @override
   _i1.Table<int?> get table => t;
@@ -87,6 +92,7 @@ abstract class MomentLike
     String? userAvatar,
     String? userMood,
     int? userFloor,
+    int? userTrustScore,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -97,9 +103,10 @@ abstract class MomentLike
       'userId': userId.toJson(),
       'createdAt': createdAt.toJson(),
       'userName': userName,
-      'userAvatar': userAvatar,
+      if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
+      'userTrustScore': userTrustScore,
     };
   }
 
@@ -112,9 +119,10 @@ abstract class MomentLike
       'userId': userId.toJson(),
       'createdAt': createdAt.toJson(),
       'userName': userName,
-      'userAvatar': userAvatar,
+      if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
       'userFloor': userFloor,
+      'userTrustScore': userTrustScore,
     };
   }
 
@@ -157,9 +165,10 @@ class _MomentLikeImpl extends MomentLike {
     required _i1.UuidValue userId,
     required DateTime createdAt,
     required String userName,
-    required String userAvatar,
+    String? userAvatar,
     String? userMood,
     required int userFloor,
+    required int userTrustScore,
   }) : super._(
          id: id,
          momentId: momentId,
@@ -169,6 +178,7 @@ class _MomentLikeImpl extends MomentLike {
          userAvatar: userAvatar,
          userMood: userMood,
          userFloor: userFloor,
+         userTrustScore: userTrustScore,
        );
 
   /// Returns a shallow copy of this [MomentLike]
@@ -181,9 +191,10 @@ class _MomentLikeImpl extends MomentLike {
     _i1.UuidValue? userId,
     DateTime? createdAt,
     String? userName,
-    String? userAvatar,
+    Object? userAvatar = _Undefined,
     Object? userMood = _Undefined,
     int? userFloor,
+    int? userTrustScore,
   }) {
     return MomentLike(
       id: id is int? ? id : this.id,
@@ -191,9 +202,10 @@ class _MomentLikeImpl extends MomentLike {
       userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
       userName: userName ?? this.userName,
-      userAvatar: userAvatar ?? this.userAvatar,
+      userAvatar: userAvatar is String? ? userAvatar : this.userAvatar,
       userMood: userMood is String? ? userMood : this.userMood,
       userFloor: userFloor ?? this.userFloor,
+      userTrustScore: userTrustScore ?? this.userTrustScore,
     );
   }
 }
@@ -223,7 +235,7 @@ class MomentLikeUpdateTable extends _i1.UpdateTable<MomentLikeTable> {
     value,
   );
 
-  _i1.ColumnValue<String, String> userAvatar(String value) => _i1.ColumnValue(
+  _i1.ColumnValue<String, String> userAvatar(String? value) => _i1.ColumnValue(
     table.userAvatar,
     value,
   );
@@ -235,6 +247,11 @@ class MomentLikeUpdateTable extends _i1.UpdateTable<MomentLikeTable> {
 
   _i1.ColumnValue<int, int> userFloor(int value) => _i1.ColumnValue(
     table.userFloor,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> userTrustScore(int value) => _i1.ColumnValue(
+    table.userTrustScore,
     value,
   );
 }
@@ -270,6 +287,10 @@ class MomentLikeTable extends _i1.Table<int?> {
       'userFloor',
       this,
     );
+    userTrustScore = _i1.ColumnInt(
+      'userTrustScore',
+      this,
+    );
   }
 
   late final MomentLikeUpdateTable updateTable;
@@ -288,6 +309,8 @@ class MomentLikeTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt userFloor;
 
+  late final _i1.ColumnInt userTrustScore;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -298,6 +321,7 @@ class MomentLikeTable extends _i1.Table<int?> {
     userAvatar,
     userMood,
     userFloor,
+    userTrustScore,
   ];
 }
 

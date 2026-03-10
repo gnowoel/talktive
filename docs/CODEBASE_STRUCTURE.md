@@ -29,6 +29,7 @@ talktive_flutter/lib/
 ├── wrappers/                      # [MIXED] See breakdown below
 ├── widgets/                       # [MIXED] See breakdown below
 ├── config/                        # [SHARED] Configuration files
+├── utils/                         # [SERVERPOD] Serverpod utilities
 ├── models/                        # [SHARED] Data models
 ├── helpers/                       # [SHARED] Utility functions
 └── debug/                         # [SHARED] Debug utilities
@@ -126,6 +127,11 @@ talktive_flutter/lib/
   - `duo_chat_layout.dart` - Standardized chat screen structure
   - `duo_floor_badge.dart` - Resident floor level status badge
 - `widgets/chat/` - Chat components (used by Serverpod screens)
+
+**Utils:**
+- `utils/floor_utils.dart` - Reputation & Floor calculations
+- `utils/trust_score_utils.dart` - Trust-based UI color mapping
+- `utils/error_handler.dart` - Error handling and recovery
 
 ---
 

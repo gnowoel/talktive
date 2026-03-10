@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
@@ -152,16 +153,13 @@ class GroupMembersScreen extends ConsumerWidget {
       badgeText: 'APPLYING',
       badgeColor: AppTheme.duoBlue,
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UserProfileViewScreen(
-              userId: resident.userInfoId.toString(),
-              userName: resident.userName,
-              userAvatar: resident.avatar,
-              userFloor: FloorUtils.computeFloor(resident),
-            ),
-          ),
+        context.push(
+          '/user/${resident.userInfoId.toString()}',
+          extra: {
+            'userName': resident.userName,
+            'userAvatar': resident.avatar,
+            'userFloor': FloorUtils.computeFloor(resident),
+          },
         );
       },
       actions: isCreator && !isTargetCreator

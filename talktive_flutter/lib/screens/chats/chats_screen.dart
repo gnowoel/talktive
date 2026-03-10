@@ -157,15 +157,7 @@ class ChatsScreen extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       onTap: () {
         HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatThreadScreen(
-              privateChat: chat,
-              otherUserId: chatItem.otherResident.userInfoId.uuid,
-            ),
-          ),
-        );
+        context.push('/chats/thread/${chat.channelId}');
       },
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -251,12 +243,7 @@ class ChatsScreen extends ConsumerWidget {
       color: Colors.white,
       onTap: () {
         HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PeepholeScreen(chatItem: chatItem),
-          ),
-        );
+        context.push('/chats/peephole', extra: chatItem);
       },
       child: Container(
         decoration: BoxDecoration(

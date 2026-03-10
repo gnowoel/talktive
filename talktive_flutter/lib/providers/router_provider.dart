@@ -7,9 +7,11 @@ import '../screens/splash_screen.dart';
 import '../screens/onboarding/welcome_screen.dart';
 import '../screens/onboarding/profile_setup_screen.dart';
 import '../screens/home/home_screen.dart';
-import '../screens/chats/chat_loader_screen.dart';
+import '../screens/chats/chat_thread_screen.dart';
+import '../screens/chats/peephole_screen.dart';
 import '../screens/achievements/achievements_screen.dart';
 import '../screens/profile/user_profile_view_screen.dart';
+import '../screens/plaza/plaza_chat_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
 import '../screens/moments/user_moments_screen.dart';
@@ -51,6 +53,12 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/plaza',
         builder: (context, state) => const HomeScreen(initialIndex: 0),
+        routes: [
+          GoRoute(
+            path: 'chat',
+            builder: (context, state) => const PlazaChatScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/moments',
@@ -77,11 +85,18 @@ GoRouter router(Ref ref) {
         builder: (context, state) => const HomeScreen(initialIndex: 2),
         routes: [
           GoRoute(
+            path: 'peephole',
+            builder: (context, state) {
+              final chatItem = state.extra as PrivateChatWithProfile;
+              return PeepholeScreen(chatItem: chatItem);
+            },
+          ),
+          GoRoute(
             path: 'thread/:channelId',
             builder: (context, state) {
               final channelId =
                   int.tryParse(state.pathParameters['channelId'] ?? '') ?? 0;
-              return ChatLoaderScreen(channelId: channelId);
+              return ChatThreadScreen(channelId: channelId);
             },
           ),
         ],
@@ -131,7 +146,13 @@ GoRouter router(Ref ref) {
         path: '/user/:userId',
         builder: (context, state) {
           final userId = state.pathParameters['userId']!;
-          return UserProfileViewScreen(userId: userId);
+          final extra = state.extra as Map<String, dynamic>?;
+          return UserProfileViewScreen(
+            userId: userId,
+            userName: extra?['userName'] as String?,
+            userAvatar: extra?['userAvatar'] as String?,
+            userFloor: extra?['userFloor'] as int?,
+          );
         },
         routes: [
           GoRoute(

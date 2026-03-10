@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/theme.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
@@ -83,12 +84,7 @@ class PlazaScreen extends ConsumerWidget {
     return DuoCard(
       onTap: () {
         HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PlazaChatScreen(),
-          ),
-        );
+        context.push('/plaza/chat');
       },
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),

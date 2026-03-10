@@ -17,13 +17,11 @@ import '../../providers/private_chat_provider.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
-  final PrivateChat privateChat;
-  final String otherUserId;
+  final int channelId;
 
   const ChatThreadScreen({
     super.key,
-    required this.privateChat,
-    required this.otherUserId,
+    required this.channelId,
   });
 
   @override
@@ -71,11 +69,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     try {
       if (imageUrl != null) {
         await ref
-            .read(realtimeChatProvider(widget.privateChat.channelId).notifier)
+            .read(realtimeChatProvider(widget.channelId).notifier)
             .sendMessage(content ?? '', imageUrl: imageUrl);
       } else if (content != null) {
         await ref
-            .read(realtimeChatProvider(widget.privateChat.channelId).notifier)
+            .read(realtimeChatProvider(widget.channelId).notifier)
             .sendMessage(content);
       }
       _messageController.clear();
@@ -129,22 +127,25 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(
-      realtimeChatProvider(widget.privateChat.channelId),
-    );
-    final otherProfileAsync = ref.watch(
-      userProfileProvider(widget.otherUserId),
-    );
-    final otherProfile = otherProfileAsync.value;
-    final otherName = otherProfile?.userName ?? 'Resident';
-    final otherAvatar = otherProfile?.userAvatar;
-    final otherFloor = otherProfile?.floor ?? 1;
-    final otherMood = otherProfile?.userMood;
+    final chatDetailsAsync = ref.watch(privateChatDetailsProvider(widget.channelId));
 
-    final canSend = _currentResident != null && !FloorUtils.isMuted(_currentResident!);
-    final hintText = (_currentResident != null && FloorUtils.isMuted(_currentResident!))
-        ? FloorUtils.getMuteInputHint(_currentResident!)
-        : 'Type a message...';
+    return chatDetailsAsync.when(
+      data: (details) {
+        final privateChat = details.chat;
+        final otherResident = details.otherResident;
+        final otherName = details.otherUserName ?? 'Resident';
+        final otherAvatar = details.otherUserAvatar;
+        final otherFloor = FloorUtils.computeFloor(otherResident);
+        final otherMood = details.otherUserMood;
+    
+        final chatState = ref.watch(
+          realtimeChatProvider(widget.channelId),
+        );
+
+        final canSend = _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+        final hintText = (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+            ? FloorUtils.getMuteInputHint(_currentResident!)
+            : 'Type a message...';
 
     return DuoChatInputLayout(
       appBar: AppBar(
@@ -210,7 +211,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                  );
                  if (confirm == true && mounted) {
                     try {
-                      await ref.read(privateChatListProvider.notifier).leaveChat(widget.privateChat.channelId);
+                      await ref.read(privateChatListProvider.notifier).leaveChat(widget.channelId);
                       if (mounted) {
                         Navigator.pop(context); // Go back to chats list
                       }
@@ -251,6 +252,29 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           child: CircularProgressIndicator(color: AppTheme.primaryColor),
         ),
         error: (error, stack) => _buildErrorState(error),
+      ),
+    );
+        },
+      loading: () => Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: const Text('Loading Chat...'), elevation: 0, backgroundColor: Colors.white),
+        body: const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+      ),
+      error: (e, stack) => Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: const Text('Error'), elevation: 0, backgroundColor: Colors.white),
+        body: Center(child: Column(
+           mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
+             const SizedBox(height: 16),
+             Text('Failed to load chat: $e', style: const TextStyle(color: Colors.grey), textAlign: TextAlign.center),
+             TextButton(
+               onPressed: () => ref.invalidate(privateChatDetailsProvider(widget.channelId)), 
+               child: const Text('Retry')
+             ),
+           ],
+        )),
       ),
     );
   }
@@ -339,7 +363,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     return RefreshIndicator(
       onRefresh: () async {
         ref
-            .read(realtimeChatProvider(widget.privateChat.channelId).notifier)
+            .read(realtimeChatProvider(widget.channelId).notifier)
             .refresh();
       },
       color: AppTheme.primaryColor,

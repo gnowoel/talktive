@@ -54,26 +54,30 @@ class DuoMomentCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppTheme.duoSpacingSmall),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        moment.authorName,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Poppins',
+                  child: GestureDetector(
+                    onTap: onAuthorTap,
+                    behavior: HitTestBehavior.opaque,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          moment.authorName,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
-                      ),
-                      Text(
-                        formatTimestamp(moment.createdAt),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
-                          fontFamily: 'Rubik',
+                        Text(
+                          formatTimestamp(moment.createdAt),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textSecondary,
+                            fontFamily: 'Rubik',
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

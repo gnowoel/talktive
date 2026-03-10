@@ -9,7 +9,6 @@ import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_resident_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../helpers/snackbar_helper.dart';
@@ -45,11 +44,38 @@ class GroupMembersScreen extends ConsumerWidget {
             ? ref.watch(pendingApplicationsProvider(groupId))
             : const AsyncValue.data(<GroupMemberWithProfile>[]);
 
-        return DuoPageScaffold(
-          emoji: '👥',
-          title: group.name,
-          subtitle: '${group.memberCount} members',
-          gradient: AppTheme.duoBlueGradient,
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  group.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  '${group.memberCount} members',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                    fontFamily: 'Rubik',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
           body: membersAsync.when(
             data: (members) => pendingAsync.when(
               data: (pending) => _buildBody(context, ref, members, pending, isCreator, group),

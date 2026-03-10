@@ -11,7 +11,6 @@ import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -40,14 +39,19 @@ class GroupProfileScreen extends ConsumerWidget {
       data: (membership) {
         final group = membership?.group ?? initialGroup;
         if (group == null) {
-          return const DuoPageScaffold(
-            emoji: '❓',
-            title: 'Not Found',
-            gradient: AppTheme.duoBlueGradient,
-            body: DuoEmptyState(
-              emoji: '🕵️',
-              title: 'Group Not Found',
-              subtitle: 'This clubhouse might have been disbanded.',
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Not Found', style: TextStyle(fontWeight: FontWeight.bold)),
+              backgroundColor: Colors.white,
+              elevation: 0,
+              foregroundColor: Colors.black,
+            ),
+            body: const Center(
+              child: DuoEmptyState(
+                emoji: '🕵️',
+                title: 'Group Not Found',
+                subtitle: 'This clubhouse might have been disbanded.',
+              ),
             ),
           );
         }
@@ -58,24 +62,61 @@ class GroupProfileScreen extends ConsumerWidget {
         final isApplied = status == ChannelMemberStatus.applied;
         final isInvited = status == ChannelMemberStatus.invited;
 
-        return DuoPageScaffold(
-          emoji: group.emoji ?? '👥',
-          title: group.name,
-          subtitle: group.isPublic ? 'Public Club' : 'Private Party',
-          gradient: AppTheme.duoBlueGradient,
-          trailingHeader: isCreator
-              ? IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            foregroundColor: Colors.black,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: [
+              if (isCreator)
+                IconButton(
+                  icon: const Icon(Icons.edit),
                   onPressed: () {
                     _showEditDialog(context, group);
                   },
-                )
-              : null,
+                ),
+            ],
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, AppTheme.contentBottomPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header with Emoji and Type
+                Center(
+                  child: Column(
+                    children: [
+                      Text(group.emoji ?? '👥', style: const TextStyle(fontSize: 64)),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: (group.isPublic ? AppTheme.duoGreen : AppTheme.duoOrange).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          group.isPublic ? 'PUBLIC CLUB' : 'PRIVATE PARTY',
+                          style: TextStyle(
+                            fontSize: 12, 
+                            fontWeight: FontWeight.bold, 
+                            color: group.isPublic ? AppTheme.duoGreen : AppTheme.duoOrange,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+
                 // Status Card
                 _buildStatusCard(context, group, isJoined),
                 
@@ -132,17 +173,22 @@ class GroupProfileScreen extends ConsumerWidget {
       },
       loading: () => initialGroup != null 
           ? _buildWithInitialData(context, ref, initialGroup!, currentResident)
-          : const Scaffold(body: DuoLoadingIndicator()),
-      error: (err, stack) => DuoPageScaffold(
-        emoji: '⚠️',
-        title: 'Error',
-        gradient: AppTheme.duoRedGradient,
-        body: DuoEmptyState(
-          emoji: '🔥',
-          title: 'Clubhouse Trouble',
-          subtitle: err.toString(),
-          buttonText: 'Retry',
-          onButtonPressed: () => ref.invalidate(groupWithMembershipProvider(groupId)),
+          : const Scaffold(body: Center(child: DuoLoadingIndicator())),
+      error: (err, stack) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          foregroundColor: Colors.black,
+        ),
+        body: Center(
+          child: DuoEmptyState(
+            emoji: '🔥',
+            title: 'Clubhouse Trouble',
+            subtitle: err.toString(),
+            buttonText: 'Retry',
+            onButtonPressed: () => ref.invalidate(groupWithMembershipProvider(groupId)),
+          ),
         ),
       ),
     );
@@ -150,11 +196,14 @@ class GroupProfileScreen extends ConsumerWidget {
 
   Widget _buildWithInitialData(BuildContext context, WidgetRef ref, Group group, Resident? currentResident) {
     // Partial view while loading full membership state
-    return DuoPageScaffold(
-      emoji: group.emoji ?? '👥',
-      title: group.name,
-      subtitle: group.isPublic ? 'Public Club' : 'Private Party',
-      gradient: AppTheme.duoBlueGradient,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
       body: const Center(child: DuoLoadingIndicator()),
     );
   }

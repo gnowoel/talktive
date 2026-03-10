@@ -7,6 +7,8 @@ This document tracks the major development milestones and changes made during th
 ## March 9, 2026 - UX Refinement & Layout Consolidation ⌨️
 
 ### UX & Accessibility
+- **Avatar UI Refinement**: Streamlined resident avatars by moving Floor levels to a dedicated badge next to usernames, keeping only Mood emojis as overlays for a cleaner, more dynamic look.
+- **DuoFloorBadge**: Introduced a new color-coded floor level badge for consistent status display across chat bubbles, headers, and comments.
 - **Keyboard Dismissal**: Implemented "Tap Outside to Hide Keyboard" across all chat screens (Plaza, Private, Groups, Moments) and onboarding.
 - **Consolidated Layouts**: Created `DuoChatLayout` and `DuoChatInputLayout` to standardize screen structure and reduce boilerplate.
 - **Improved Focus Management**: Integrated automatic keyboard dismissal into the standard chat navigation flow and profile setup.

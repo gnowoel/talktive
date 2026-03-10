@@ -2,26 +2,34 @@ import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
 
-/// Duolingo-style avatar with gradient ring and optional floor badge
+/// Duolingo-style avatar with gradient ring and optional mood or floor overlays.
 class DuoAvatar extends StatelessWidget {
   final String? imageUrl;
-
   final double size;
   final int? floorLevel;
   final String? mood;
   final Color? ringColor;
   final bool showRing;
+  
+  /// Whether to show the floor level badge on the avatar itself.
+  /// Defaults to false to avoid clutter in chat threads.
+  final bool showFloor;
+  
+  /// Whether to show the mood emoji overlay on the avatar.
+  final bool showMood;
+  
   final VoidCallback? onTap;
 
   const DuoAvatar({
     super.key,
     this.imageUrl,
-
     this.size = 48,
     this.floorLevel,
     this.mood,
     this.ringColor,
     this.showRing = true,
+    this.showFloor = false,
+    this.showMood = true,
     this.onTap,
   });
 
@@ -112,14 +120,17 @@ class DuoAvatar extends StatelessWidget {
       );
     }
 
-    if (floorLevel != null || (mood != null && mood!.isNotEmpty)) {
+    final hasFloor = showFloor && floorLevel != null;
+    final hasMood = showMood && mood != null && mood!.isNotEmpty;
+
+    if (hasFloor || hasMood) {
       return Stack(
         clipBehavior: Clip.none,
         children: [
           avatar,
-          if (floorLevel != null)
+          if (hasFloor)
             Positioned(
-              right: -4,
+              left: -4,
               bottom: -4,
               child: Container(
                 width: badgeSize,
@@ -149,12 +160,12 @@ class DuoAvatar extends StatelessWidget {
                 ),
               ),
             ),
-          if (mood != null && mood!.isNotEmpty)
+          if (hasMood)
             Positioned(
-              left: -4, // Placed on the left to avoid cluttering with the floor badge
+              right: -4,
               top: -4,
               child: Container(
-                width: badgeSize * 1.2, // Slightly larger for emojis
+                width: badgeSize * 1.2,
                 height: badgeSize * 1.2,
                 decoration: BoxDecoration(
                   color: Colors.white,

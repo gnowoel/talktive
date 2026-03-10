@@ -9,6 +9,7 @@ import '../../providers/client_provider.dart';
 import '../../providers/moments_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_floor_badge.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
@@ -119,7 +120,6 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
           DuoAvatar(
             imageUrl: widget.moment.authorAvatar,
             mood: widget.moment.authorMood,
-            floorLevel: widget.moment.authorFloor,
             size: 44,
             showRing: true,
           ),
@@ -127,9 +127,16 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.moment.authorName,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.moment.authorName,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(width: 8),
+                  DuoFloorBadge(floor: widget.moment.authorFloor),
+                ],
               ),
               Text(
                 formatTimestamp(widget.moment.createdAt),
@@ -246,10 +253,16 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
                 leading: DuoAvatar(
                   imageUrl: comment.userAvatar,
                   mood: comment.userMood,
-                  floorLevel: comment.userFloor,
                   size: 32,
                 ),
-                title: Text(comment.userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(comment.userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(width: 8),
+                    DuoFloorBadge(floor: comment.userFloor, fontSize: 8, padding: 4),
+                  ],
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

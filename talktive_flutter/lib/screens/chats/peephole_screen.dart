@@ -8,6 +8,7 @@ import '../../utils/floor_utils.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_floor_badge.dart';
 
 class PeepholeScreen extends ConsumerWidget {
   final PrivateChatWithProfile chatItem;
@@ -64,15 +65,27 @@ class PeepholeScreen extends ConsumerWidget {
                        mood: chatItem.otherUserMood,
                        showRing: true,
                        floorLevel: FloorUtils.computeFloor(otherResident),
+                       showFloor: true, // Show floor overlay here for importance
                      ),
                    ),
                    const SizedBox(height: AppTheme.duoSpacingMedium),
-                   Text(
-                     otherUserName,
-                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                       color: Colors.white,
-                       fontWeight: FontWeight.bold,
-                     ),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.center,
+                     children: [
+                       Text(
+                         otherUserName,
+                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                           color: Colors.white,
+                           fontWeight: FontWeight.bold,
+                         ),
+                       ),
+                       const SizedBox(width: 8),
+                       DuoFloorBadge(
+                         floor: FloorUtils.computeFloor(otherResident),
+                         fontSize: 14,
+                         padding: 10,
+                       ),
+                     ],
                    ),
                    const SizedBox(height: 12),
                    

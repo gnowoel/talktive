@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/date_formatter.dart';
 
 class MessageBubble extends ConsumerWidget {
@@ -47,7 +48,7 @@ class MessageBubble extends ConsumerWidget {
                 size: 36,
                 mood: message.senderMood,
                 showRing: true,
-                floorLevel: senderFloor,
+                // floorLevel removed here to hide it on avatar
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingSmall),
@@ -95,15 +96,24 @@ class MessageBubble extends ConsumerWidget {
                   children: [
                     if (!isCurrentUser)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          senderName,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textSecondary,
-                            fontFamily: 'Poppins',
-                          ),
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              senderName,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textSecondary,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            if (senderFloor != null) ...[
+                              const SizedBox(width: 6),
+                              DuoFloorBadge(floor: senderFloor),
+                            ],
+                          ],
                         ),
                       ),
                     if (message.imageUrl != null &&

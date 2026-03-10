@@ -124,6 +124,7 @@ talktive_flutter/lib/
 - `widgets/duo/` (all files) - Duolingo-style components
   - `duo_keyboard_dismissible.dart` - Keyboard dismissal wrapper
   - `duo_chat_layout.dart` - Standardized chat screen structure
+  - `duo_floor_badge.dart` - Resident floor level status badge
 - `widgets/chat/` - Chat components (used by Serverpod screens)
 
 ---

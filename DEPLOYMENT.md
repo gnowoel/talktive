@@ -3,7 +3,7 @@
 ## Overview
 
 This guide covers deploying the Talktive Serverpod backend to production. The application uses:
-- **Backend**: Serverpod 3.2.3 (Dart)
+- **Backend**: Serverpod 3.4.2 (Dart)
 - **Database**: PostgreSQL 16+
 - **Cache**: Redis 7+
 - **Authentication**: Firebase Auth + Serverpod Auth Core

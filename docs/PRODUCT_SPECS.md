@@ -14,7 +14,7 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 
 ## 🏗️ Technical Architecture
 
-### Backend: Serverpod 3.3.1
+### Backend: Serverpod 3.4.2
 - **Database**: PostgreSQL with UUID identification. Fully migrated from legacy integer IDs.
 - **Caching**: Redis for rate limiting and temporary session storage.
 - **Authentication**: Firebase Auth (Google) linked to Serverpod Auth Core via `firebaseIdp`.

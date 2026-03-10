@@ -46,12 +46,12 @@ The onboarding wizard established these Duolingo-style patterns, and this design
 
 ## Status
 
-- **Backend**: Serverpod 3.3.1 (Postgres + Redis)
+- **Backend**: Serverpod 3.4.2 (Postgres + Redis)
 - **Frontend**: Flutter (Dual-boot Firebase/Serverpod)
 - **Authentication**: **Firebase Auth** (Google) -> Serverpod Auth Core session (JWT/SAS).
   - Replaced native Serverpod Google Sign-In with Firebase to leverage existing infrastructure.
   - `AuthServices` (serverpod_auth_core_server) used for user creation.
-  - `JwtTokenManager`/`ServerSideSessionsConfig` issue tokens.
+  - `JwtTokenManager`/ServerSideSessionsConfig issue tokens.
   - `Resident` table links to `AuthUser` via `userInfoId` (UUID).
   - **Legacy Warning**: Do not use `int` for User IDs. The system is fully migrated to UUIDs.
 
@@ -69,10 +69,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Social & Engagement**: Immersive Moments feed with direct Firebase uploads and XP rewards.
 - **Architectural Polish**: Query optimizations, batch database operations, and reactive profile providers.
 
-*For detailed historical sub-phase notes (8.1 – 8.22), see [CHANGELOG.md](./CHANGELOG.md).*
+*For detailed historical sub-phase notes (8.1 – 8.23), see [CHANGELOG.md](./CHANGELOG.md).*
 
 ### Status Summary
-- **Backend**: Serverpod 3.3.1 (PostgreSQL + Redis)
+- **Backend**: Serverpod 3.4.2 (PostgreSQL + Redis)
 - **Frontend**: Flutter (Standardized Duo UI)
 - **Auth**: Firebase Auth (Google) -> Serverpod Auth Core (JWT)
 

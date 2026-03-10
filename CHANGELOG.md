@@ -7,7 +7,8 @@ This document tracks the major development milestones and changes made during th
 ## March 10, 2026 - Serverpod Upgrade & Maintenance ⚙️
 
 ### Infrastructure
-- **Serverpod Upgrade**: Upgraded entire stack (server, client, flutter) to Serverpod **3.4.2**.
+- **Serverpod Upgrade (Phase 8.23)**: Upgraded entire stack (server, client, flutter) to Serverpod **3.4.2**.
+- **Database Migration**: Applied migration `20260310083913981` which includes the new `gen_random_uuid_v7()` function and support for Facebook/Microsoft auth IDPs.
 - **Dependency Pinning**: Switched from caret ranges (`^3.4.2`) to exact versions (`3.4.2`) across all projects to ensure strict protocol compatibility.
 - **CLI Update**: Activated latest `serverpod_cli` for improved generation and cloud storage features.
 - **Protocol Synchronization**: Regenerated all client/server communication protocols to ensure compatibility with 3.4.2.

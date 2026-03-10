@@ -6,14 +6,16 @@ import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
+import 'message_endpoint.dart';
 
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
   Future<protocol.PrivateChat> getOrCreatePrivateChat(
     Session session,
-    String otherUserId,
-  ) async {
+    String otherUserId, {
+    String? initialMessage,
+  }) async {
     InputValidationService.validateUuid(otherUserId).throwIfInvalid();
     final currentUserId = await getUserId(session);
     final otherUserUuid = UuidValue.fromString(otherUserId);
@@ -77,61 +79,89 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (privateChat != null) {
-      return privateChat;
+      // Handle re-inviting
+      var currentMember = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(privateChat!.channelId) & t.userInfoId.equals(currentUserId),
+      );
+      var otherMember = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(privateChat!.channelId) & t.userInfoId.equals(otherUserUuid),
+      );
+
+      if (currentMember != null && currentMember.status == protocol.ChannelMemberStatus.left) {
+        currentMember.status = protocol.ChannelMemberStatus.joined;
+        await protocol.ChannelMember.db.updateRow(session, currentMember);
+      }
+
+      if (otherMember != null && (otherMember.status == protocol.ChannelMemberStatus.left || otherMember.status == protocol.ChannelMemberStatus.declined)) {
+        otherMember.status = protocol.ChannelMemberStatus.invited;
+        otherMember.invitedBy = currentUserId;
+        await protocol.ChannelMember.db.updateRow(session, otherMember);
+      }
+    } else {
+      // Create a new channel for this private chat
+      final channel = protocol.Channel(
+        name: 'Private Chat',
+        type: protocol.ChannelType.private,
+        createdAt: DateTime.now(),
+      );
+
+      final savedChannel = await protocol.Channel.db.insertRow(session, channel);
+
+      // Create the private chat record
+      privateChat = protocol.PrivateChat(
+        channelId: savedChannel.id!,
+        participant1Id: participant1,
+        participant2Id: participant2,
+        createdAt: DateTime.now(),
+        lastMessageAt: DateTime.now(),
+      );
+
+      privateChat = await protocol.PrivateChat.db.insertRow(
+        session,
+        privateChat,
+      );
+
+      // Add both users as channel members
+      await protocol.ChannelMember.db.insertRow(
+        session,
+        protocol.ChannelMember(
+          channelId: savedChannel.id!,
+          userInfoId: currentUserId,
+          status: protocol.ChannelMemberStatus.joined,
+          joinedAt: DateTime.now(),
+        ),
+      );
+
+      await protocol.ChannelMember.db.insertRow(
+        session,
+        protocol.ChannelMember(
+          channelId: savedChannel.id!,
+          userInfoId: otherUserUuid,
+          status: protocol.ChannelMemberStatus.invited,
+          joinedAt: DateTime.now(),
+        ),
+      );
+
+      // Track achievement for starting a private chat
+      await AchievementService.trackProgress(
+        session,
+        currentUserId,
+        'private_chat',
+      );
+    }
+    
+    if (initialMessage != null && initialMessage.trim().isNotEmpty) {
+      try {
+        final messageEndpoint = MessageEndpoint();
+        await messageEndpoint.sendMessage(session, privateChat.channelId, content: initialMessage);
+      } catch (e) {
+        session.log('Warning: Failed to send initial message: $e', level: LogLevel.warning);
+      }
     }
 
-    // Create a new channel for this private chat
-    final channel = protocol.Channel(
-      name: 'Private Chat',
-      type: protocol.ChannelType.private,
-      createdAt: DateTime.now(),
-    );
-
-    final savedChannel = await protocol.Channel.db.insertRow(session, channel);
-
-    // Create the private chat record
-    privateChat = protocol.PrivateChat(
-      channelId: savedChannel.id!,
-      participant1Id: participant1,
-      participant2Id: participant2,
-      createdAt: DateTime.now(),
-      lastMessageAt: DateTime.now(),
-    );
-
-    final savedPrivateChat = await protocol.PrivateChat.db.insertRow(
-      session,
-      privateChat,
-    );
-
-    // Add both users as channel members
-    await protocol.ChannelMember.db.insertRow(
-      session,
-      protocol.ChannelMember(
-        channelId: savedChannel.id!,
-        userInfoId: currentUserId,
-        status: protocol.ChannelMemberStatus.joined,
-        joinedAt: DateTime.now(),
-      ),
-    );
-
-    await protocol.ChannelMember.db.insertRow(
-      session,
-      protocol.ChannelMember(
-        channelId: savedChannel.id!,
-        userInfoId: otherUserUuid,
-        status: protocol.ChannelMemberStatus.invited,
-        joinedAt: DateTime.now(),
-      ),
-    );
-
-    // Track achievement for starting a private chat
-    await AchievementService.trackProgress(
-      session,
-      currentUserId,
-      'private_chat',
-    );
-
-    return savedPrivateChat;
+    return privateChat;
   }
 
   /// Lists all private chats for the current user.
@@ -332,6 +362,51 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     member.status = accept
         ? protocol.ChannelMemberStatus.joined
         : protocol.ChannelMemberStatus.declined;
+    await protocol.ChannelMember.db.updateRow(session, member);
+
+    if (!accept) {
+      try {
+        await MessageEndpoint().sendMessage(session, channelId, content: "I'm not available to chat right now.");
+      } catch (e) {
+        session.log('Warning: Failed to send decline message: $e', level: LogLevel.warning);
+      }
+    }
+  }
+
+  /// Leaves a private chat.
+  Future<void> leaveChat(
+    Session session,
+    int channelId,
+  ) async {
+    InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
+    final currentUserId = await getUserId(session);
+
+    final member = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(channelId) &
+          t.userInfoId.equals(currentUserId),
+    );
+
+    if (member == null) {
+      throw protocol.TalktiveException(
+        message: 'You are not a member of this chat.',
+        code: 'NOT_A_MEMBER',
+      );
+    }
+
+    if (member.status != protocol.ChannelMemberStatus.joined) {
+      return;
+    }
+
+    // Send a message before leaving
+    try {
+      await MessageEndpoint().sendMessage(session, channelId, content: "I've left the chat.");
+    } catch (e) {
+      session.log('Warning: Failed to send leave message: $e', level: LogLevel.warning);
+    }
+
+    member.status = protocol.ChannelMemberStatus.left;
     await protocol.ChannelMember.db.updateRow(session, member);
   }
 }

@@ -1765,6 +1765,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String>(),
               nullable: false,
             ),
+            'initialMessage': _i1.ParameterDescription(
+              name: 'initialMessage',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1774,6 +1779,7 @@ class Endpoints extends _i1.EndpointDispatch {
                   .getOrCreatePrivateChat(
                     session,
                     params['otherUserId'],
+                    initialMessage: params['initialMessage'],
                   ),
         ),
         'listPrivateChats': _i1.MethodConnector(
@@ -1847,6 +1853,25 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     params['channelId'],
                     params['accept'],
+                  ),
+        ),
+        'leaveChat': _i1.MethodConnector(
+          name: 'leaveChat',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['privateChat'] as _i13.PrivateChatEndpoint)
+                  .leaveChat(
+                    session,
+                    params['channelId'],
                   ),
         ),
       },

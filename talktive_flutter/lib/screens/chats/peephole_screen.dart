@@ -12,6 +12,13 @@ import '../../widgets/duo/duo_floor_badge.dart';
 
 import 'package:go_router/go_router.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../providers/client_provider.dart';
+
+final _peepholeMessageProvider = FutureProvider.family<Message?, int>((ref, channelId) async {
+  final client = ref.read(clientProvider);
+  final messages = await client.message.listMessages(channelId, limit: 1, offset: 0);
+  return messages.isNotEmpty ? messages.first : null;
+});
 
 class PeepholeScreen extends ConsumerWidget {
   final PrivateChatWithProfile chatItem;
@@ -25,6 +32,8 @@ class PeepholeScreen extends ConsumerWidget {
     final otherUserName = chatItem.otherUserName ?? 'Stranger';
     final otherUserId = otherResident.userInfoId.toString();
     final profileAsync = ref.watch(userProfileProvider(otherUserId));
+
+    final initialMessageAsync = ref.watch(_peepholeMessageProvider(chatItem.chat.channelId));
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -203,9 +212,35 @@ class PeepholeScreen extends ConsumerWidget {
                            ],
                          ),
                          const SizedBox(height: 12),
-                         Text(
-                           'They sent you a message, but they won\'t know if you read it until you open the door. Tap "Open the Door" to add them to your Chats list.',
-                           style: TextStyle(color: Colors.grey[800], height: 1.4),
+                         initialMessageAsync.when(
+                           data: (msg) {
+                             if (msg?.content != null && msg!.content!.isNotEmpty) {
+                               return Container(
+                                 padding: const EdgeInsets.all(12),
+                                 decoration: BoxDecoration(
+                                   color: Colors.grey[100],
+                                   borderRadius: BorderRadius.circular(8),
+                                 ),
+                                 child: Text(
+                                   '"${msg.content}"',
+                                   style: TextStyle(
+                                     color: Colors.grey[800],
+                                     fontStyle: FontStyle.italic,
+                                     fontSize: 15,
+                                   ),
+                                 ),
+                               );
+                             }
+                             return Text(
+                               'They sent a knock, but they won\'t know if you read it until you open the door. Tap "Open the Door" to add them to your Chats list.',
+                               style: TextStyle(color: Colors.grey[800], height: 1.4),
+                             );
+                           },
+                           loading: () => const Center(child: CircularProgressIndicator()),
+                           error: (_, __) => Text(
+                             'They sent a knock, but they won\'t know if you read it until you open the door. Tap "Open the Door" to add them to your Chats list.',
+                             style: TextStyle(color: Colors.grey[800], height: 1.4),
+                           ),
                          ),
                        ],
                      ),

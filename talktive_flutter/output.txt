@@ -1,0 +1,139 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 91.0.0 (97.0.0 available)
+  _flutterfire_internals 1.3.65 (1.3.67 available)
+  analyzer 8.4.1 (11.0.0 available)
+  analyzer_buffer 0.1.11 (0.3.1 available)
+  archive 4.0.7 (4.0.9 available)
+  build 4.0.3 (4.0.4 available)
+  build_config 1.2.0 (1.3.0 available)
+  build_runner 2.11.0 (2.12.2 available)
+  built_value 8.12.1 (8.12.4 available)
+  cloud_firestore 6.1.1 (6.1.3 available)
+  cloud_firestore_platform_interface 7.0.5 (7.0.7 available)
+  cloud_firestore_web 5.1.1 (5.1.3 available)
+  cloud_functions 6.0.5 (6.0.7 available)
+  cloud_functions_platform_interface 5.8.8 (5.8.10 available)
+  cloud_functions_web 5.1.1 (5.1.3 available)
+  code_builder 4.11.0 (4.11.1 available)
+  cross_file 0.3.5+1 (0.3.5+2 available)
+  dart_jsonwebtoken 3.3.1 (3.3.2 available)
+  dart_style 3.1.3 (3.1.7 available)
+  dbus 0.7.11 (0.7.12 available)
+  equatable 2.0.7 (2.0.8 available)
+  ffi 2.1.4 (2.2.0 available)
+  firebase_auth 6.1.3 (6.2.0 available)
+  firebase_auth_platform_interface 8.1.5 (8.1.7 available)
+  firebase_auth_web 6.1.1 (6.1.3 available)
+  firebase_core 4.3.0 (4.5.0 available)
+  firebase_core_web 3.3.1 (3.5.0 available)
+  firebase_database 12.1.1 (12.1.4 available)
+  firebase_database_platform_interface 0.3.0+1 (0.3.0+3 available)
+  firebase_database_web 0.2.7+2 (0.2.7+4 available)
+  firebase_messaging 16.1.0 (16.1.2 available)
+  firebase_messaging_platform_interface 4.7.5 (4.7.7 available)
+  firebase_messaging_web 4.1.1 (4.1.3 available)
+  firebase_storage 13.0.5 (13.1.0 available)
+  firebase_storage_platform_interface 5.2.16 (5.2.18 available)
+  firebase_storage_web 3.11.1 (3.11.3 available)
+  flutter_local_notifications 19.5.0 (21.0.0 available)
+  flutter_local_notifications_linux 6.0.0 (8.0.0 available)
+  flutter_local_notifications_platform_interface 9.1.0 (11.0.0 available)
+  flutter_local_notifications_windows 1.0.3 (3.0.0 available)
+  flutter_riverpod 3.1.0 (3.3.1 available)
+! flutter_secure_storage 10.0.0 (overridden)
+  google_fonts 7.1.0 (8.0.2 available)
+  google_mobile_ads 6.0.0 (7.0.0 available)
+  google_sign_in 6.3.0 (7.2.0 available)
+  google_sign_in_android 6.2.1 (7.2.9 available)
+  google_sign_in_ios 5.9.0 (6.3.0 available)
+  google_sign_in_platform_interface 2.5.0 (3.1.0 available)
+  google_sign_in_web 0.12.4+4 (1.1.2 available)
+  image 4.6.0 (4.8.0 available)
+  image_picker_android 0.8.13+10 (0.8.13+14 available)
+  image_picker_ios 0.8.13+3 (0.8.13+6 available)
+  intl 0.19.0 (0.20.2 available)
+  json_annotation 4.9.0 (4.11.0 available)
+  lints 6.0.0 (6.1.0 available)
+  matcher 0.12.18 (0.12.19 available)
+  meta 1.17.0 (1.18.1 available)
+  mockito 5.6.1 (5.6.3 available)
+  path_provider_foundation 2.5.1 (2.6.0 available)
+  petitparser 7.0.1 (7.0.2 available)
+  posix 6.0.3 (6.5.0 available)
+  riverpod 3.1.0 (3.2.1 available)
+  riverpod_analyzer_utils 1.0.0-dev.8 (1.0.0-dev.9 available)
+  riverpod_annotation 4.0.0 (4.0.2 available)
+  riverpod_generator 4.0.0+1 (4.0.3 available)
+  shared_preferences_android 2.4.18 (2.4.21 available)
+  source_gen 4.1.1 (4.2.0 available)
+  source_span 1.10.1 (1.10.2 available)
+  sqflite_android 2.4.2+2 (2.4.2+3 available)
+  test 1.29.0 (1.30.0 available)
+  test_api 0.7.9 (0.7.10 available)
+  test_core 0.6.15 (0.6.16 available)
+  timezone 0.10.1 (0.11.0 available)
+  url_launcher_ios 6.3.6 (6.4.1 available)
+  url_launcher_web 2.4.1 (2.4.2 available)
+  watcher 1.2.0 (1.2.1 available)
+  webview_flutter 4.13.0 (4.13.1 available)
+  webview_flutter_android 4.10.11 (4.10.13 available)
+  webview_flutter_wkwebview 3.23.5 (3.23.8 available)
+  win32 5.15.0 (6.0.0 available)
+Got dependencies!
+79 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Compiling lib/main.dart for the Web...                          
+Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+Use --no-wasm-dry-run to disable these warnings.
+Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+lib/screens/chats/peephole_screen.dart:19:53:
+Error: Required named parameter 'offset' must be provided.
+  final messages = await client.message.listMessages(channelId, limit: 1);
+                                                    ^
+Error: Compilation failed.
+  Command: /Users/leo/Support/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/Users/leo/Support/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_VERSION=3.41.2 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=90673a4eef -DFLUTTER_ENGINE_REVISION=6c0baaebf7 -DFLUTTER_DART_VERSION=3.11.0 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/6c0baaebf70e0148f485f27d5616b3d3382da7bf/ --native-null-assertions --no-source-maps -O4 --minify -o /Users/leo/Develop/builds/talktive/production/talktive3/talktive_flutter/.dart_tool/flutter_build/46010745de88cddac85fb7c1abce03df/app.dill --packages=/Users/leo/Develop/builds/talktive/production/talktive3/talktive_flutter/.dart_tool/package_config.json --cfe-only /Users/leo/Develop/builds/talktive/production/talktive3/talktive_flutter/.dart_tool/flutter_build/46010745de88cddac85fb7c1abce03df/main.dart
+#0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
+#1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
+<asynchronous suspension>
+#2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:208:5)
+<asynchronous suspension>
+#3      _BuildInstance._invokeInternal (package:flutter_tools/src/build_system/build_system.dart:937:9)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:546:21)
+<asynchronous suspension>
+#5      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:875:32)
+<asynchronous suspension>
+#6      Future.wait.<anonymous closure> (dart:async/future.dart:546:21)
+<asynchronous suspension>
+#7      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:875:32)
+<asynchronous suspension>
+#8      FlutterBuildSystem.build (package:flutter_tools/src/build_system/build_system.dart:684:16)
+<asynchronous suspension>
+#9      WebBuilder.buildWeb (package:flutter_tools/src/web/compile.dart:107:34)
+<asynchronous suspension>
+#10     BuildWebCommand.runCommand (package:flutter_tools/src/commands/build_web.dart:300:5)
+<asynchronous suspension>
+#11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1590:27)
+<asynchronous suspension>
+#12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+<asynchronous suspension>
+#14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+<asynchronous suspension>
+#15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+<asynchronous suspension>
+#17     FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+<asynchronous suspension>
+#18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+<asynchronous suspension>
+#19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#20     main (package:flutter_tools/executable.dart:103:3)
+<asynchronous suspension>
+
+Compiling lib/main.dart for the Web...                             24.9s
+Error: Failed to compile application for the Web.

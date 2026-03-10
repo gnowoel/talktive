@@ -594,9 +594,52 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   }
 
   void _knockOnDoor(BuildContext context, WidgetRef ref) {
+    final messageController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Knock on Door', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Leave an optional message to let them know why you are knocking.'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: messageController,
+              maxLines: 2,
+              decoration: InputDecoration(
+                hintText: 'Say hi...',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          DuoButton(
+            text: 'Cancel',
+            onPressed: () => Navigator.pop(ctx),
+            variant: DuoButtonVariant.ghost,
+            size: DuoButtonSize.small,
+          ),
+          DuoButton(
+            text: 'Knock',
+            onPressed: () {
+              Navigator.pop(ctx);
+              _performKnock(context, ref, messageController.text.trim());
+            },
+            color: AppTheme.duoGreen,
+            size: DuoButtonSize.small,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _performKnock(BuildContext context, WidgetRef ref, String initialMessage) {
     final chatList = ref.read(privateChatListProvider.notifier);
     chatList
-        .getOrCreateChat(widget.userId)
+        .getOrCreateChat(widget.userId, initialMessage: initialMessage.isNotEmpty ? initialMessage : null)
         .then((chat) {
           if (context.mounted) {
             // Unconditionally use a strict path anchor

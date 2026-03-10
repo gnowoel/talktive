@@ -1018,12 +1018,17 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
-  _i3.Future<_i16.PrivateChat> getOrCreatePrivateChat(String otherUserId) =>
-      caller.callServerEndpoint<_i16.PrivateChat>(
-        'privateChat',
-        'getOrCreatePrivateChat',
-        {'otherUserId': otherUserId},
-      );
+  _i3.Future<_i16.PrivateChat> getOrCreatePrivateChat(
+    String otherUserId, {
+    String? initialMessage,
+  }) => caller.callServerEndpoint<_i16.PrivateChat>(
+    'privateChat',
+    'getOrCreatePrivateChat',
+    {
+      'otherUserId': otherUserId,
+      'initialMessage': initialMessage,
+    },
+  );
 
   /// Lists all private chats for the current user.
   _i3.Future<List<_i17.PrivateChatWithProfile>> listPrivateChats() =>
@@ -1061,6 +1066,13 @@ class EndpointPrivateChat extends _i2.EndpointRef {
       'channelId': channelId,
       'accept': accept,
     },
+  );
+
+  /// Leaves a private chat.
+  _i3.Future<void> leaveChat(int channelId) => caller.callServerEndpoint<void>(
+    'privateChat',
+    'leaveChat',
+    {'channelId': channelId},
   );
 }
 

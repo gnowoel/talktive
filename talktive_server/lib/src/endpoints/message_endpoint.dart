@@ -263,8 +263,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         );
       }
 
-      // Check if membership is active
-      if (membership.status != protocol.ChannelMemberStatus.joined) {
+      // Check if membership is active or invited
+      if (membership.status != protocol.ChannelMemberStatus.joined &&
+          membership.status != protocol.ChannelMemberStatus.invited) {
         throw protocol.TalktiveException(
           message: 'Access denied: Membership is not active.',
           code: 'ACCESS_INACTIVE',

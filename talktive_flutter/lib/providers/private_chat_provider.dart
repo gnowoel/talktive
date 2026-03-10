@@ -24,10 +24,10 @@ class PrivateChatList extends _$PrivateChatList {
   }
 
   /// Creates or retrieves a private chat with another user.
-  Future<PrivateChat> getOrCreateChat(String otherUserId) async {
+  Future<PrivateChat> getOrCreateChat(String otherUserId, {String? initialMessage}) async {
     final client = ref.read(clientProvider);
     try {
-      final chat = await client.privateChat.getOrCreatePrivateChat(otherUserId);
+      final chat = await client.privateChat.getOrCreatePrivateChat(otherUserId, initialMessage: initialMessage);
 
       // Refresh the list to include the new chat
       ref.invalidateSelf();
@@ -35,6 +35,19 @@ class PrivateChatList extends _$PrivateChatList {
       return chat;
     } catch (e) {
       debugPrint('PrivateChatList: Create chat error: $e');
+      rethrow;
+    }
+  }
+
+  /// Leaves a private chat.
+  Future<void> leaveChat(int channelId) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.privateChat.leaveChat(channelId);
+      // Refresh the local list
+      ref.invalidateSelf();
+    } catch (e) {
+      debugPrint('PrivateChatList: Leave chat error: $e');
       rethrow;
     }
   }

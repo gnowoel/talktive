@@ -2754,8 +2754,9 @@ class _PrivateChatEndpoint {
 
   _i3.Future<_i17.PrivateChat> getOrCreatePrivateChat(
     _i1.TestSessionBuilder sessionBuilder,
-    String otherUserId,
-  ) async {
+    String otherUserId, {
+    String? initialMessage,
+  }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
@@ -2767,7 +2768,10 @@ class _PrivateChatEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'privateChat',
           methodName: 'getOrCreatePrivateChat',
-          parameters: _i1.testObjectToJson({'otherUserId': otherUserId}),
+          parameters: _i1.testObjectToJson({
+            'otherUserId': otherUserId,
+            'initialMessage': initialMessage,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -2895,6 +2899,37 @@ class _PrivateChatEndpoint {
             'channelId': channelId,
             'accept': accept,
           }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> leaveChat(
+    _i1.TestSessionBuilder sessionBuilder,
+    int channelId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'privateChat',
+            method: 'leaveChat',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'privateChat',
+          methodName: 'leaveChat',
+          parameters: _i1.testObjectToJson({'channelId': channelId}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

@@ -13,6 +13,7 @@ import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../services/media_service.dart';
+import '../../providers/private_chat_provider.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -188,6 +189,53 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             ),
           ],
         ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.black),
+            onSelected: (value) async {
+              if (value == 'leave') {
+                 final confirm = await showDialog<bool>(
+                   context: context,
+                   builder: (ctx) => AlertDialog(
+                     title: const Text('Leave Chat?'),
+                     content: const Text('Are you sure you want to leave this chat? You won\'t be able to receive messages until you\'re invited back.'),
+                     actions: [
+                       TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+                       TextButton(
+                         onPressed: () => Navigator.pop(ctx, true), 
+                         child: const Text('Leave', style: TextStyle(color: AppTheme.duoRed)),
+                       ),
+                     ],
+                   )
+                 );
+                 if (confirm == true && mounted) {
+                    try {
+                      await ref.read(privateChatListProvider.notifier).leaveChat(widget.privateChat.channelId);
+                      if (mounted) {
+                        Navigator.pop(context); // Go back to chats list
+                      }
+                    } catch (e) {
+                      if (mounted) SnackBarHelper.showError(context, 'Failed to leave chat');
+                    }
+                 }
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'leave',
+                  child: Row(
+                    children: [
+                      Icon(Icons.exit_to_app, color: AppTheme.duoRed, size: 20),
+                      SizedBox(width: 8),
+                      Text('Leave Chat', style: TextStyle(color: AppTheme.duoRed)),
+                    ],
+                  ),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       controller: _messageController,
       onSend: _sendMessage,

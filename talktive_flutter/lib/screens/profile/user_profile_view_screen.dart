@@ -6,7 +6,6 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/user_likes_provider.dart';
@@ -52,22 +51,28 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final isBlocked = blockedIds.contains(widget.userId);
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
-    return DuoPageScaffold(
-      emoji: '👤',
-      title: widget.userName ?? 'Profile',
-      subtitle: 'Neighbor',
-      gradient: AppTheme.primaryGradient,
-      hasBackButton: true,
-      trailingHeader: _buildTrailingMenu(isBlocked),
-      body: profileAsync.when(
-        data: (profile) => Column(
-          children: [
-            Expanded(
-              child: _buildProfileContent(isBlocked, profile),
-            ),
-            if (!isBlocked) _buildBottomBar(context, ref),
-          ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          widget.userName ?? 'Resident',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontFamily: 'Poppins',
+          ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [_buildTrailingMenu(isBlocked)],
+      ),
+      body: profileAsync.when(
+        data: (profile) => _buildProfileContent(isBlocked, profile),
         loading: () => const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
@@ -75,6 +80,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         ),
         error: (error, stack) => _buildErrorState(error.toString()),
       ),
+      bottomNavigationBar: isBlocked || profileAsync.isLoading || profileAsync.hasError
+          ? null
+          : _buildBottomBar(context, ref),
     );
   }
 
@@ -115,7 +123,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   Widget _buildTrailingMenu(bool isBlocked) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_horiz, color: Colors.white),
+      icon: const Icon(Icons.more_horiz, color: Colors.black),
       onSelected: (value) async {
         if (value == 'block') {
           await _confirmBlock(context, isBlocked);
@@ -290,7 +298,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           _buildVouchButton(profile).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: AppTheme.duoSpacingMedium),
 
-          // Moments Button (New prominent placement)
+          // Moments Button (New style)
           _buildMomentsButton(profile).animate().fadeIn(delay: 270.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
@@ -375,10 +383,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   Widget _buildMomentsButton(UserProfileView? profile) {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
-      text: '📸 View $momentsCount Moments',
-      icon: Icons.photo_library,
+      text: '📸 Sharing $momentsCount Moments',
+      icon: Icons.auto_awesome,
       isSecondary: true,
-      color: AppTheme.secondaryColor,
+      color: AppTheme.duoBlue,
       width: double.infinity,
       onPressed: () {
         final userName = profile?.userName ?? widget.userName ?? 'Resident';
@@ -554,28 +562,30 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   Widget _buildBottomBar(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: AppTheme.duoSpacingLarge,
-          right: AppTheme.duoSpacingLarge,
-          bottom: AppTheme.duoSpacingMedium,
-          top: AppTheme.duoSpacingSmall,
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.duoSpacingLarge,
+          AppTheme.duoSpacingSmall,
+          AppTheme.duoSpacingLarge,
+          AppTheme.duoSpacingMedium,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
           children: [
-            DuoButton(
-              text: 'Knock on Door',
-              icon: Icons.chat_bubble_outline,
-              width: double.infinity,
-              onPressed: () => _knockOnDoor(context, ref),
+            Expanded(
+              flex: 2,
+              child: DuoButton(
+                text: 'Knock',
+                icon: Icons.chat_bubble_outline,
+                onPressed: () => _knockOnDoor(context, ref),
+              ),
             ),
-            const SizedBox(height: AppTheme.duoSpacingSmall),
-            DuoButton(
-              text: '🎟️ Invite to Group',
-              color: AppTheme.duoYellow,
-              width: double.infinity,
-              onPressed: () => _showInviteBottomSheet(context, ref),
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+            Expanded(
+              flex: 3,
+              child: DuoButton(
+                text: '🎟️ Group Invite',
+                color: AppTheme.duoYellow,
+                onPressed: () => _showInviteBottomSheet(context, ref),
+              ),
             ),
           ],
         ),

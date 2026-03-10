@@ -269,10 +269,10 @@ class PeepholeScreen extends ConsumerWidget {
   Widget _buildMomentsButton(BuildContext context, UserProfileView? profile, String userId, String userName) {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
-      text: '📸 View $momentsCount Moments',
-      icon: Icons.photo_library,
+      text: '📸 Sharing $momentsCount Moments',
+      icon: Icons.auto_awesome,
       isSecondary: true,
-      color: AppTheme.secondaryColor.withValues(alpha: 0.8), // Slightly transparent for dark theme
+      color: AppTheme.duoBlue.withValues(alpha: 0.8), // Slightly transparent for dark theme
       width: double.infinity,
       onPressed: () {
         context.push('/user/$userId/moments?name=${Uri.encodeComponent(userName)}');

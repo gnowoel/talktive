@@ -19,7 +19,6 @@ import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import '../achievements/achievements_screen.dart';
 import 'blocked_users_screen.dart';
-import '../moments/user_moments_screen.dart';
 import '../../providers/user_profile_provider.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
@@ -165,6 +164,8 @@ class ProfileScreen extends ConsumerWidget {
           // Streak card
           _buildStreakCard(context, ref),
 
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+
           // Moments Button (Prominent placement)
           _buildMomentsButton(context, ref, resident).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
 
@@ -271,10 +272,10 @@ class ProfileScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
       child: DuoButton(
-        text: '📸 View $momentsCount Moments',
-        icon: Icons.photo_library,
+        text: '📸 Sharing $momentsCount Moments',
+        icon: Icons.auto_awesome,
         isSecondary: true,
-        color: AppTheme.secondaryColor,
+        color: AppTheme.duoBlue,
         width: double.infinity,
         onPressed: () {
           if (resident != null) {

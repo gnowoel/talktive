@@ -366,7 +366,12 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
 
     if (!accept) {
       try {
-        await MessageEndpoint().sendMessage(session, channelId, content: "I'm not available to chat right now.");
+        await MessageEndpoint().sendMessage(
+          session, 
+          channelId, 
+          content: "I'm not available to chat right now.",
+          isSystem: true,
+        );
       } catch (e) {
         session.log('Warning: Failed to send decline message: $e', level: LogLevel.warning);
       }
@@ -401,7 +406,12 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Send a message before leaving
     try {
-      await MessageEndpoint().sendMessage(session, channelId, content: "I've left the chat.");
+      await MessageEndpoint().sendMessage(
+        session, 
+        channelId, 
+        content: "I've left the chat.",
+        isSystem: true,
+      );
     } catch (e) {
       session.log('Warning: Failed to send leave message: $e', level: LogLevel.warning);
     }

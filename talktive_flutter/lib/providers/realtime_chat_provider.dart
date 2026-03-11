@@ -115,6 +115,7 @@ class RealtimeChat extends _$RealtimeChat {
         _channelId,
         content: content.trim(),
         imageUrl: imageUrl,
+        isSystem: false,
       );
 
       // The message will be received via WebSocket stream,

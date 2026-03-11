@@ -20,6 +20,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    bool isSystem = false,
   }) async {
     try {
       // Validate inputs
@@ -136,6 +137,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         imageUrl: imageUrl,
         mediaUrl: mediaUrl,
         mediaType: mediaType,
+        isSystem: isSystem,
         createdAt: DateTime.now(),
         senderName: senderName ?? 'Resident',
         senderAvatar: senderAvatar,

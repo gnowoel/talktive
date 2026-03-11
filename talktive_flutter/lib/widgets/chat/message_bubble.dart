@@ -30,6 +30,31 @@ class MessageBubble extends ConsumerWidget {
     final senderAvatar = message.senderAvatar;
     final senderFloor = message.senderFloor;
 
+    if (message.isSystem == true) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppTheme.duoSpacingMedium),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              message.content ?? '',
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: 'Rubik',
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       child: Row(

@@ -2089,6 +2089,7 @@ class _MessageEndpoint {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    required bool isSystem,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2107,6 +2108,7 @@ class _MessageEndpoint {
             'imageUrl': imageUrl,
             'mediaUrl': mediaUrl,
             'mediaType': mediaType,
+            'isSystem': isSystem,
           }),
           serializationManager: _serializationManager,
         );

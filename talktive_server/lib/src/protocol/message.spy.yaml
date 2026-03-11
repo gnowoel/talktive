@@ -7,6 +7,7 @@ fields:
   imageUrl: String?
   mediaUrl: String?
   mediaType: String?
+  isSystem: bool
   createdAt: DateTime
 
   # Denormalized Sender Info

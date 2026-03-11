@@ -1314,6 +1314,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'isSystem': _i1.ParameterDescription(
+              name: 'isSystem',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -1327,6 +1332,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     imageUrl: params['imageUrl'],
                     mediaUrl: params['mediaUrl'],
                     mediaType: params['mediaType'],
+                    isSystem: params['isSystem'],
                   ),
         ),
         'listMessages': _i1.MethodConnector(

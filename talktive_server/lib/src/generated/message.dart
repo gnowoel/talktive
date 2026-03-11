@@ -22,6 +22,7 @@ abstract class Message
     this.imageUrl,
     this.mediaUrl,
     this.mediaType,
+    required this.isSystem,
     required this.createdAt,
     required this.senderName,
     this.senderAvatar,
@@ -38,6 +39,7 @@ abstract class Message
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    required bool isSystem,
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
@@ -57,6 +59,7 @@ abstract class Message
       imageUrl: jsonSerialization['imageUrl'] as String?,
       mediaUrl: jsonSerialization['mediaUrl'] as String?,
       mediaType: jsonSerialization['mediaType'] as String?,
+      isSystem: _i1.BoolJsonExtension.fromJson(jsonSerialization['isSystem']),
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -87,6 +90,8 @@ abstract class Message
 
   String? mediaType;
 
+  bool isSystem;
+
   DateTime createdAt;
 
   String senderName;
@@ -113,6 +118,7 @@ abstract class Message
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    bool? isSystem,
     DateTime? createdAt,
     String? senderName,
     String? senderAvatar,
@@ -131,6 +137,7 @@ abstract class Message
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (mediaUrl != null) 'mediaUrl': mediaUrl,
       if (mediaType != null) 'mediaType': mediaType,
+      'isSystem': isSystem,
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
@@ -151,6 +158,7 @@ abstract class Message
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (mediaUrl != null) 'mediaUrl': mediaUrl,
       if (mediaType != null) 'mediaType': mediaType,
+      'isSystem': isSystem,
       'createdAt': createdAt.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
@@ -201,6 +209,7 @@ class _MessageImpl extends Message {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    required bool isSystem,
     required DateTime createdAt,
     required String senderName,
     String? senderAvatar,
@@ -215,6 +224,7 @@ class _MessageImpl extends Message {
          imageUrl: imageUrl,
          mediaUrl: mediaUrl,
          mediaType: mediaType,
+         isSystem: isSystem,
          createdAt: createdAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
@@ -235,6 +245,7 @@ class _MessageImpl extends Message {
     Object? imageUrl = _Undefined,
     Object? mediaUrl = _Undefined,
     Object? mediaType = _Undefined,
+    bool? isSystem,
     DateTime? createdAt,
     String? senderName,
     Object? senderAvatar = _Undefined,
@@ -250,6 +261,7 @@ class _MessageImpl extends Message {
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
       mediaUrl: mediaUrl is String? ? mediaUrl : this.mediaUrl,
       mediaType: mediaType is String? ? mediaType : this.mediaType,
+      isSystem: isSystem ?? this.isSystem,
       createdAt: createdAt ?? this.createdAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
@@ -291,6 +303,11 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
 
   _i1.ColumnValue<String, String> mediaType(String? value) => _i1.ColumnValue(
     table.mediaType,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> isSystem(bool value) => _i1.ColumnValue(
+    table.isSystem,
     value,
   );
 
@@ -354,6 +371,10 @@ class MessageTable extends _i1.Table<int?> {
       'mediaType',
       this,
     );
+    isSystem = _i1.ColumnBool(
+      'isSystem',
+      this,
+    );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
       this,
@@ -394,6 +415,8 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString mediaType;
 
+  late final _i1.ColumnBool isSystem;
+
   late final _i1.ColumnDateTime createdAt;
 
   late final _i1.ColumnString senderName;
@@ -415,6 +438,7 @@ class MessageTable extends _i1.Table<int?> {
     imageUrl,
     mediaUrl,
     mediaType,
+    isSystem,
     createdAt,
     senderName,
     senderAvatar,

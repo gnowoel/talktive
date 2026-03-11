@@ -788,6 +788,7 @@ class EndpointMessage extends _i2.EndpointRef {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    required bool isSystem,
   }) => caller.callServerEndpoint<_i11.Message>(
     'message',
     'sendMessage',
@@ -797,6 +798,7 @@ class EndpointMessage extends _i2.EndpointRef {
       'imageUrl': imageUrl,
       'mediaUrl': mediaUrl,
       'mediaType': mediaType,
+      'isSystem': isSystem,
     },
   );
 

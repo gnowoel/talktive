@@ -93,25 +93,31 @@ class FCMManager extends _$FCMManager {
   /// Register FCM token with server.
   Future<void> _registerToken(String token) async {
     try {
+      debugPrint('FCM DEBUG: Registering token: $token');
       final client = ref.read(clientProvider);
       final platform = defaultTargetPlatform == TargetPlatform.iOS
           ? 'ios'
           : 'android';
 
       await client.notification.registerDeviceToken(token, platform);
-      debugPrint('Token registered with server');
+      debugPrint('FCM DEBUG: Token registered with server successfully');
     } catch (e) {
-      debugPrint('Failed to register token: $e');
+      debugPrint('FCM DEBUG: Failed to register token: $e');
     }
   }
 
   /// Handle foreground message (show local notification).
   void _handleForegroundMessage(RemoteMessage message) {
-    if (message.data['appVersion'] != 'serverpod') return;
+    debugPrint('FCM DEBUG: Incoming foreground message: ${message.data}');
+    if (message.data['appVersion'] != 'serverpod') {
+      debugPrint('FCM DEBUG: Ignoring message (wrong appVersion: ${message.data['appVersion']})');
+      return;
+    }
 
     final route = message.data['route'] as String?;
     if (route != null) {
       final currentRoute = ref.read(routerProvider).location;
+      debugPrint('FCM DEBUG: currentRoute: $currentRoute, messageRoute: $route');
       if (currentRoute == route) {
         debugPrint('Silencing toast, user is actively on: $route');
         return;
@@ -122,6 +128,7 @@ class FCMManager extends _$FCMManager {
     final body = message.notification?.body ?? 'New update';
     final emoji = _getEmojiForType(message.data['type'] ?? '');
 
+    debugPrint('FCM DEBUG: Showing DuoNotification: $title - $body');
     ref.read(notificationProvider.notifier).show(
       DuoNotification(
         title: title,

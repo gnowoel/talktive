@@ -10,6 +10,9 @@ class DuoNotificationToast extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notification = ref.watch(notificationProvider);
+    if (notification != null) {
+      debugPrint('FCM DEBUG: DuoNotificationToast building for: ${notification.title}');
+    }
     if (notification == null) return const SizedBox.shrink();
 
     return SafeArea(

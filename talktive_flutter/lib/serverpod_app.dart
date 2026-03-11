@@ -4,6 +4,7 @@ import 'config/theme.dart';
 import 'wrappers/initialize.dart';
 import 'widgets/duo/duo_notification_toast.dart';
 import 'providers/router_provider.dart';
+import 'providers/fcm_provider.dart';
 
 class ServerpodApp extends StatelessWidget {
   final VoidCallback onExit;
@@ -25,6 +26,8 @@ class _ServerpodAppContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    // Keep FCMManager alive to handle background/foreground messages
+    ref.watch(fCMManagerProvider);
 
     return Initialize(
       useEmulators: true,

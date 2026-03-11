@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 4.8.0+79
+
+- Renamed "Achievements" to "Activity" in Profile tab for a broader notification history scope
+- Fixed in-app notification toasts (`DuoNotificationToast`) for 1-on-1 and group messages
+- Improved FCM life-cycle management by watching the provider in the root application widget
+- Corrected FCM payload structure for Android compatibility (fixed invalid `priority` field)
+- Resolved Plaza route matching issue to ensure correct notification suppression behavior
+- Added extensive debug logging for focused notification troubleshooting
+
+
 ## 4.7.0+78
 
 - Introduced a new safer version preview

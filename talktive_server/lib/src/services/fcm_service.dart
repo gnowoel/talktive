@@ -112,7 +112,6 @@ class FCMService {
             'notification': {
               'sound': sound ?? 'default',
               'channel_id': 'talktive_messages',
-              'priority': 'high',
             },
           },
           'apns': {
@@ -130,6 +129,7 @@ class FCMService {
         },
       };
 
+      session.log('FCM DEBUG: Sending notification to $token');
       final response = await http.post(
         Uri.parse(url),
         headers: {
@@ -140,16 +140,17 @@ class FCMService {
       );
 
       if (response.statusCode == 200) {
+        session.log('FCM DEBUG: Successfully sent notification to $token');
         return true;
       } else {
         session.log(
-          'FCM send failed: ${response.statusCode} - ${response.body}',
+          'FCM DEBUG: FCM send failed: ${response.statusCode} - ${response.body}',
           level: LogLevel.warning,
         );
         return false;
       }
     } catch (e) {
-      session.log('Failed to send FCM notification: $e', level: LogLevel.error);
+      session.log('FCM DEBUG: Failed to send FCM notification: $e', level: LogLevel.error);
       return false;
     }
   }

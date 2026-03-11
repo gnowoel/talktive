@@ -73,7 +73,9 @@ class NotificationService {
       data: {
         'channelId': channelId,
         'channelType': channelType,
-        'route': channelType == 'private' ? '/chats/thread/$channelId' : '/groups/chat/$channelId', // Note: group route might need to be checked, but we adjust route directly here just in case.
+        'route': channelType == 'private' 
+            ? '/chats/thread/$channelId' 
+            : (channelType == 'plaza' ? '/plaza' : '/groups/chat/$channelId'),
       },
       saveToHistory: false,
     );

@@ -10,6 +10,7 @@ import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/input_validation_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
+import '../services/notification_service.dart';
 
 class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   /// Sends a message to a channel (Plaza, Group, or Private).
@@ -164,6 +165,33 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       // 10. Distribute via Streaming (Real-time)
       final streamKey = 'channel_$channelId';
       await session.messages.postMessage(streamKey, savedMessage);
+
+      // 10.1 Trigger Notifications (FCM / Activity Hub)
+      String channelTypeStr = 'plaza';
+      if (channel.type == protocol.ChannelType.private) {
+        channelTypeStr = 'private';
+      } else if (channel.type == protocol.ChannelType.group) {
+        channelTypeStr = 'group';
+      }
+
+      // Only notify if not Plaza (or if you want to notify even in Plaza, though it might be spammy)
+      if (channel.type != protocol.ChannelType.plaza) {
+        final members = await protocol.ChannelMember.db.find(
+          session,
+          where: (t) => t.channelId.equals(channelId) & t.userInfoId.notEquals(senderUuid),
+        );
+
+        for (final member in members) {
+          await NotificationService.sendMessageNotification(
+            session,
+            member.userInfoId,
+            senderName ?? 'Resident',
+            filteredContent ?? 'Sent a media',
+            channelId,
+            channelTypeStr,
+          );
+        }
+      }
 
       // 11. Gamification & Stats Batching
       await GamificationService.awardXP(

@@ -175,8 +175,8 @@ class ProfileScreen extends ConsumerWidget {
           _buildLanguagesSection(resident),
           // Interests section
           _buildInterestsSection(resident),
-          // Achievements section
-          _buildAchievementsSection(context, ref),
+          // Activity & Achievements section
+          _buildActivitySection(context, ref),
           // Info card
           _buildInfoCard(),
           // Edit Profile button
@@ -511,7 +511,7 @@ class ProfileScreen extends ConsumerWidget {
     ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildAchievementsSection(BuildContext context, WidgetRef ref) {
+  Widget _buildActivitySection(BuildContext context, WidgetRef ref) {
     final achievementsAsync = ref.watch(userAchievementsProvider);
 
     return achievementsAsync.when(
@@ -540,7 +540,7 @@ class ProfileScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Achievements',
+                    'Activity',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

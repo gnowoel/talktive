@@ -11,7 +11,6 @@ import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
 
 import '../../config/theme.dart';
-import '../../services/serverpod_notification_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final int initialIndex;
@@ -33,17 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _checkPendingNotifications() {
-    // Check if there's a pending notification to handle
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final notificationData = ServerpodNotificationService()
-          .getPendingNotificationData();
-      if (notificationData != null && mounted) {
-        ServerpodNotificationService().navigateFromNotification(
-          context,
-          notificationData,
-        );
-      }
-    });
+    // Handled natively by FCMManager initializing background messages
   }
 
   final List<Widget> _screens = [

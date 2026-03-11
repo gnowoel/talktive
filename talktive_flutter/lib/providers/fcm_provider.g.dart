@@ -36,7 +36,7 @@ final class FCMManagerProvider
   FCMManager create() => FCMManager();
 }
 
-String _$fCMManagerHash() => r'5202ae56d542bb694e95fd9c64862a4191987920';
+String _$fCMManagerHash() => r'd89f1235f6c005777edd55eacc1e89c3dcf4a8a7';
 
 /// Provider for Firebase Cloud Messaging.
 

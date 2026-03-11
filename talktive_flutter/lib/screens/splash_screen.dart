@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
-import '../services/serverpod_notification_service.dart';
+import '../providers/fcm_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -30,8 +30,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   void _initializeNotifications() {
-    // Initialize notification service for Serverpod version
-    ServerpodNotificationService().initialize().catchError((error) {
+    // Initialize notification service via Riverpod FCMManager
+    ref.read(fCMManagerProvider.notifier).initialize().catchError((error) {
       debugPrint('Error initializing notifications: $error');
     });
   }

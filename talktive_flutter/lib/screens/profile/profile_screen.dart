@@ -17,7 +17,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
-import '../achievements/achievements_screen.dart';
+import '../activity/activity_screen.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
 
@@ -569,11 +569,7 @@ class ProfileScreen extends ConsumerWidget {
                       // "View All" button
                       return GestureDetector(
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AchievementsScreen(),
-                            ),
-                          );
+                          context.push('/activity');
                         },
                         child: Container(
                           width: 80,
@@ -629,11 +625,7 @@ class ProfileScreen extends ConsumerWidget {
                         isUnlocked: achievement['unlocked'] == true,
                         isNew: achievement['isNew'] == true,
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AchievementsScreen(),
-                            ),
-                          );
+                          context.push('/activity');
                         },
                       ),
                     );

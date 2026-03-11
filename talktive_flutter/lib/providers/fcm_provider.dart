@@ -10,6 +10,7 @@ part 'fcm_provider.g.dart';
 /// Background message handler (must be top-level function)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (message.data['appVersion'] != 'serverpod') return;
   debugPrint('Handling background message: ${message.messageId}');
   // Handle background notification
 }
@@ -106,6 +107,17 @@ class FCMManager extends _$FCMManager {
 
   /// Handle foreground message (show local notification).
   void _handleForegroundMessage(RemoteMessage message) {
+    if (message.data['appVersion'] != 'serverpod') return;
+
+    final route = message.data['route'] as String?;
+    if (route != null) {
+      final currentRoute = ref.read(routerProvider).location;
+      if (currentRoute == route) {
+        debugPrint('Silencing toast, user is actively on: $route');
+        return;
+      }
+    }
+
     final title = message.notification?.title ?? 'Notification';
     final body = message.notification?.body ?? 'New update';
     final emoji = _getEmojiForType(message.data['type'] ?? '');
@@ -134,6 +146,8 @@ class FCMManager extends _$FCMManager {
 
   /// Handle notification tap (navigate to appropriate screen).
   void _handleNotificationTap(RemoteMessage message) {
+    if (message.data['appVersion'] != 'serverpod') return;
+
     final data = message.data;
     final route = data['route'] as String?;
 

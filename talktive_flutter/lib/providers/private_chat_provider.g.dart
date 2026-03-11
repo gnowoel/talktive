@@ -37,7 +37,7 @@ final class PrivateChatListProvider
   PrivateChatList create() => PrivateChatList();
 }
 
-String _$privateChatListHash() => r'1eeb3c7e072792d625eb01dc8bc54a4457cce26b';
+String _$privateChatListHash() => r'19d45edae653bde3ddf05a4be64698f4cd2e955e';
 
 /// Provider for listing all private chats for the current user.
 

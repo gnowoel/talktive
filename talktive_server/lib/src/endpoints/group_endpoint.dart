@@ -141,6 +141,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         group: g,
         membershipStatus: member?.status ?? protocol.ChannelMemberStatus.left,
         membershipRole: member?.role,
+        isMuted: member?.isMuted,
       );
     }).toList();
   }
@@ -378,7 +379,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         await NotificationService.sendGroupInviteNotification(
           session,
           targetUserId,
-          inviter.userName,
+          inviter.userName ?? 'Someone',
           group.name,
           group.emoji ?? '👥',
           group.id!,
@@ -590,6 +591,37 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     // Decrement member count
     group.memberCount = (group.memberCount - 1).clamp(0, group.maxMembers);
     await protocol.Group.db.updateRow(session, group);
+  }
+
+  /// Gets all members of a group with their profiles.
+  Future<void> toggleMuteGroup(Session session, int groupId, bool isMuted) async {
+    final currentUserId = await getUserId(session);
+
+    // Get the group
+    final group = await protocol.Group.db.findById(session, groupId);
+
+    if (group == null) {
+      throw protocol.TalktiveException(
+        message: 'Group not found',
+        code: 'GROUP_NOT_FOUND',
+      );
+    }
+
+    // Check if user is a member
+    final member = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.userInfoId.equals(currentUserId) &
+          t.status.equals(protocol.ChannelMemberStatus.joined),
+    );
+
+    if (member == null) {
+      throw Exception('Not a member of this group');
+    }
+
+    member.isMuted = isMuted;
+    await protocol.ChannelMember.db.updateRow(session, member);
   }
 
   /// Gets all members of a group with their profiles.

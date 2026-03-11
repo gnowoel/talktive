@@ -23,7 +23,8 @@ abstract class ChannelMember
     this.role,
     required this.status,
     this.invitedBy,
-  });
+    bool? isMuted,
+  }) : isMuted = isMuted ?? false;
 
   factory ChannelMember({
     int? id,
@@ -33,6 +34,7 @@ abstract class ChannelMember
     String? role,
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
+    bool? isMuted,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -52,6 +54,9 @@ abstract class ChannelMember
       invitedBy: jsonSerialization['invitedBy'] == null
           ? null
           : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['invitedBy']),
+      isMuted: jsonSerialization['isMuted'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isMuted']),
     );
   }
 
@@ -74,6 +79,8 @@ abstract class ChannelMember
 
   _i1.UuidValue? invitedBy;
 
+  bool isMuted;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -88,6 +95,7 @@ abstract class ChannelMember
     String? role,
     _i2.ChannelMemberStatus? status,
     _i1.UuidValue? invitedBy,
+    bool? isMuted,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -100,6 +108,7 @@ abstract class ChannelMember
       if (role != null) 'role': role,
       'status': status.toJson(),
       if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
+      'isMuted': isMuted,
     };
   }
 
@@ -114,6 +123,7 @@ abstract class ChannelMember
       if (role != null) 'role': role,
       'status': status.toJson(),
       if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
+      'isMuted': isMuted,
     };
   }
 
@@ -158,6 +168,7 @@ class _ChannelMemberImpl extends ChannelMember {
     String? role,
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
+    bool? isMuted,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -166,6 +177,7 @@ class _ChannelMemberImpl extends ChannelMember {
          role: role,
          status: status,
          invitedBy: invitedBy,
+         isMuted: isMuted,
        );
 
   /// Returns a shallow copy of this [ChannelMember]
@@ -180,6 +192,7 @@ class _ChannelMemberImpl extends ChannelMember {
     Object? role = _Undefined,
     _i2.ChannelMemberStatus? status,
     Object? invitedBy = _Undefined,
+    bool? isMuted,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
@@ -189,6 +202,7 @@ class _ChannelMemberImpl extends ChannelMember {
       role: role is String? ? role : this.role,
       status: status ?? this.status,
       invitedBy: invitedBy is _i1.UuidValue? ? invitedBy : this.invitedBy,
+      isMuted: isMuted ?? this.isMuted,
     );
   }
 }
@@ -232,6 +246,11 @@ class ChannelMemberUpdateTable extends _i1.UpdateTable<ChannelMemberTable> {
     table.invitedBy,
     value,
   );
+
+  _i1.ColumnValue<bool, bool> isMuted(bool value) => _i1.ColumnValue(
+    table.isMuted,
+    value,
+  );
 }
 
 class ChannelMemberTable extends _i1.Table<int?> {
@@ -263,6 +282,11 @@ class ChannelMemberTable extends _i1.Table<int?> {
       'invitedBy',
       this,
     );
+    isMuted = _i1.ColumnBool(
+      'isMuted',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final ChannelMemberUpdateTable updateTable;
@@ -279,6 +303,8 @@ class ChannelMemberTable extends _i1.Table<int?> {
 
   late final _i1.ColumnUuid invitedBy;
 
+  late final _i1.ColumnBool isMuted;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -288,6 +314,7 @@ class ChannelMemberTable extends _i1.Table<int?> {
     role,
     status,
     invitedBy,
+    isMuted,
   ];
 }
 

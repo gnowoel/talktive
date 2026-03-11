@@ -3,3 +3,4 @@ fields:
   group: Group
   membershipStatus: ChannelMemberStatus?
   membershipRole: String?
+  isMuted: bool?

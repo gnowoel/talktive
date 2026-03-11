@@ -127,6 +127,18 @@ class GroupList extends _$GroupList {
     }
   }
 
+  /// Toggles mute status for a group.
+  Future<void> toggleMuteGroup(int groupId, bool isMuted) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.group.toggleMuteGroup(groupId, isMuted);
+      ref.invalidateSelf();
+    } catch (e) {
+      debugPrint('GroupList: Toggle mute error: $e');
+      rethrow;
+    }
+  }
+
   /// Refreshes the group list.
   Future<void> refresh() async {
     state = const AsyncValue.loading();

@@ -1047,6 +1047,31 @@ class Endpoints extends _i1.EndpointDispatch {
                 params['groupId'],
               ),
         ),
+        'toggleMuteGroup': _i1.MethodConnector(
+          name: 'toggleMuteGroup',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'isMuted': _i1.ParameterDescription(
+              name: 'isMuted',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['group'] as _i7.GroupEndpoint).toggleMuteGroup(
+                    session,
+                    params['groupId'],
+                    params['isMuted'],
+                  ),
+        ),
         'getGroupMembersWithProfiles': _i1.MethodConnector(
           name: 'getGroupMembersWithProfiles',
           params: {

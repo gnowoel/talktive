@@ -44,6 +44,7 @@ group:
   - approveGroupApplication:
   - kickMember:
   - leaveGroup:
+  - toggleMuteGroup:
   - getGroupMembersWithProfiles:
   - getPendingApplicationsWithProfiles:
   - getGroupMembers:

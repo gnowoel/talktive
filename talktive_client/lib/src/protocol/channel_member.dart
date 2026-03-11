@@ -22,7 +22,8 @@ abstract class ChannelMember implements _i1.SerializableModel {
     this.role,
     required this.status,
     this.invitedBy,
-  });
+    bool? isMuted,
+  }) : isMuted = isMuted ?? false;
 
   factory ChannelMember({
     int? id,
@@ -32,6 +33,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     String? role,
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
+    bool? isMuted,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -51,6 +53,9 @@ abstract class ChannelMember implements _i1.SerializableModel {
       invitedBy: jsonSerialization['invitedBy'] == null
           ? null
           : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['invitedBy']),
+      isMuted: jsonSerialization['isMuted'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isMuted']),
     );
   }
 
@@ -71,6 +76,8 @@ abstract class ChannelMember implements _i1.SerializableModel {
 
   _i1.UuidValue? invitedBy;
 
+  bool isMuted;
+
   /// Returns a shallow copy of this [ChannelMember]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -82,6 +89,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     String? role,
     _i2.ChannelMemberStatus? status,
     _i1.UuidValue? invitedBy,
+    bool? isMuted,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -94,6 +102,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
       if (role != null) 'role': role,
       'status': status.toJson(),
       if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
+      'isMuted': isMuted,
     };
   }
 
@@ -114,6 +123,7 @@ class _ChannelMemberImpl extends ChannelMember {
     String? role,
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
+    bool? isMuted,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -122,6 +132,7 @@ class _ChannelMemberImpl extends ChannelMember {
          role: role,
          status: status,
          invitedBy: invitedBy,
+         isMuted: isMuted,
        );
 
   /// Returns a shallow copy of this [ChannelMember]
@@ -136,6 +147,7 @@ class _ChannelMemberImpl extends ChannelMember {
     Object? role = _Undefined,
     _i2.ChannelMemberStatus? status,
     Object? invitedBy = _Undefined,
+    bool? isMuted,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
@@ -145,6 +157,7 @@ class _ChannelMemberImpl extends ChannelMember {
       role: role is String? ? role : this.role,
       status: status ?? this.status,
       invitedBy: invitedBy is _i1.UuidValue? ? invitedBy : this.invitedBy,
+      isMuted: isMuted ?? this.isMuted,
     );
   }
 }

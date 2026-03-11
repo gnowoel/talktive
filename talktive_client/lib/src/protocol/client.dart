@@ -631,6 +631,19 @@ class EndpointGroup extends _i2.EndpointRef {
   );
 
   /// Gets all members of a group with their profiles.
+  _i3.Future<void> toggleMuteGroup(
+    int groupId,
+    bool isMuted,
+  ) => caller.callServerEndpoint<void>(
+    'group',
+    'toggleMuteGroup',
+    {
+      'groupId': groupId,
+      'isMuted': isMuted,
+    },
+  );
+
+  /// Gets all members of a group with their profiles.
   _i3.Future<List<_i8.GroupMemberWithProfile>> getGroupMembersWithProfiles(
     int groupId,
   ) => caller.callServerEndpoint<List<_i8.GroupMemberWithProfile>>(

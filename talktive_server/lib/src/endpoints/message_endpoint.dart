@@ -178,7 +178,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       if (channel.type != protocol.ChannelType.plaza) {
         final members = await protocol.ChannelMember.db.find(
           session,
-          where: (t) => t.channelId.equals(channelId) & t.userInfoId.notEquals(senderUuid),
+          where: (t) => t.channelId.equals(channelId) & t.userInfoId.notEquals(senderUuid) & t.isMuted.equals(false),
         );
 
         for (final member in members) {

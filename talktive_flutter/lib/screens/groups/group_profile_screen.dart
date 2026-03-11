@@ -160,7 +160,7 @@ class GroupProfileScreen extends ConsumerWidget {
                 
                 // Actions
                 const SizedBox(height: 16),
-                _buildActionArea(context, ref, group, isJoined, isApplied, isInvited),
+                _buildActionArea(context, ref, membership?.isMuted ?? false, group, isJoined, isApplied, isInvited),
               ],
             ),
           ),
@@ -319,21 +319,55 @@ class GroupProfileScreen extends ConsumerWidget {
   Widget _buildActionArea(
     BuildContext context, 
     WidgetRef ref, 
+    bool isMuted,
     Group group, 
     bool isJoined, 
     bool isApplied, 
     bool isInvited
   ) {
     if (isJoined) {
-      return Center(
-        child: DuoButton(
-          text: 'Enter Clubhouse',
-          color: AppTheme.duoBlue,
-          onPressed: () {
-            HapticFeedback.mediumImpact();
-            Navigator.pop(context);
-          },
-        ),
+      return Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.notifications_off_outlined, color: Colors.grey),
+                    SizedBox(width: 12),
+                    Text('Mute Notifications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Switch(
+                  value: isMuted,
+                  activeColor: AppTheme.primaryColor,
+                  onChanged: (val) {
+                    HapticFeedback.lightImpact();
+                    ref.read(groupListProvider.notifier).toggleMuteGroup(group.id!, val);
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: DuoButton(
+              text: 'Enter Clubhouse',
+              color: AppTheme.duoBlue,
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
       );
     }
 

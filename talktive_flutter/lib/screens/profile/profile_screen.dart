@@ -596,9 +596,9 @@ class ProfileScreen extends ConsumerWidget {
                                 color: AppTheme.primaryColor,
                                 size: 24,
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Activity',
+                              const SizedBox(height: 4),
+                              const Text(
+                                'View All',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

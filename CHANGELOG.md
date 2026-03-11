@@ -20,6 +20,14 @@ This document tracks the major development milestones and changes made during th
 - **Local Dev URL Translation**: Added reverse `10.0.2.2` -> `localhost` conversion in `UrlHelper` to allow Web/iOS clients to render Android Simulator uploaded images properly.
 - **Lint Cleanup**: Applied `dart fix` globally across the Serverpod and Flutter directories to remove unused imports and redundant null-assertions.
 
+### Notification System & Activity Hub 🔔
+- **Renamed "Achievements" to "Activity"**: Updated the Profile tab to use the "Activity" label, broadening the scope from just badges to include notification history and social interactions.
+- **In-App Notification Fixes**: Resolved issues preventing `DuoNotificationToast` from appearing for private and group chat messages.
+- **FCM Reliability**: Fixed an invalid `priority` field in the FCM v1 payload that caused Android delivery failures.
+- **Improved Life-cycle Management**: Ensured the `FCMManager` stays active by watching its provider in the root application widget.
+- **Route Resolution**: Fixed an issue in the Plaza where message routes were not correctly identified, ensuring notifications are properly suppressed when the user is already on the relevant screen.
+- **Debug Logging**: Added extensive `FCM DEBUG` logs to both client and server for precise troubleshooting of notification flows.
+
 ---
 
 ## March 10, 2026 - Serverpod Upgrade & Maintenance ⚙️

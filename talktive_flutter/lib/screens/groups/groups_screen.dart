@@ -30,17 +30,16 @@ class GroupsScreen extends ConsumerWidget {
       emoji: '🏘️',
       title: 'Lounges',
       subtitle: 'Join the community clubhouse',
-      gradient: AppTheme.duoYellowGradient,
-      textColor: AppTheme.textPrimary,
+      gradient: AppTheme.duoBlueGradient,
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           DuoRefreshButton(
-            color: AppTheme.textPrimary,
+            color: Colors.white,
             onRefresh: () async => ref.invalidate(groupListProvider),
           ),
           IconButton(
-            icon: const Icon(Icons.search, color: AppTheme.textPrimary, size: 28),
+            icon: const Icon(Icons.search, color: Colors.white, size: 28),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push('/groups/search');
@@ -106,7 +105,7 @@ class GroupsScreen extends ConsumerWidget {
               icon: Icons.add,
               text: 'Create New Club',
               variant: DuoButtonVariant.ghost,
-              color: AppTheme.duoYellow,
+              color: AppTheme.duoBlue,
             ),
           ),
           const SizedBox(height: AppTheme.contentBottomPadding),

@@ -58,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
     _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
     _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
-    _NavItem(emoji: '👥', label: 'Groups', color: AppTheme.duoYellow),
+    _NavItem(emoji: '👥', label: 'Groups', color: AppTheme.duoBlue),
     _NavItem(emoji: '👤', label: 'Profile', color: AppTheme.duoGreen),
   ];
 

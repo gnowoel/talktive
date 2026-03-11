@@ -266,7 +266,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       onSend: _sendMessage,
       onImagePick: _pickAndSendImage,
       enabled: canSend && !_isUploading,
-      activeColor: AppTheme.duoYellow,
+      activeColor: AppTheme.duoBlue,
       hintText: _isUploading 
           ? 'Uploading image...' 
           : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),

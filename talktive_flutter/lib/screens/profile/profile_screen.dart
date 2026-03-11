@@ -598,7 +598,7 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'View All',
+                                'Activity',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

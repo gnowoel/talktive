@@ -53,6 +53,7 @@ dependencies:
   riverpod_annotation: ^4.0.0
   http: ^1.2.1
 
+  flutter_web_plugins: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

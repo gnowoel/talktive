@@ -1,5 +1,4 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
@@ -182,10 +181,10 @@ class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
 
     try {
       final auth = session.authenticated;
-      if (auth == null || auth.userIdentifier == null) {
+      if (auth == null) {
         return false;
       }
-      final blockerId = UuidValue.fromString(auth.userIdentifier!);
+      final blockerId = UuidValue.fromString(auth.userIdentifier);
       final targetId = UuidValue.fromString(userId);
 
       final block = await protocol.Block.db.findFirstRow(

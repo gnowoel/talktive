@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -20,7 +19,6 @@ import '../screens/groups/group_profile_screen.dart';
 import '../screens/groups/group_chat_screen.dart';
 import '../screens/groups/group_members_screen.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'router_provider.g.dart';
 

@@ -2,7 +2,6 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/firebase.dart';
-import 'dart:convert';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart' as jwt;
 
 /// A custom FirebaseIdpConfig that targets the local Firebase Emulator.
@@ -131,12 +130,13 @@ class EmulatorFirebaseIdp implements FirebaseIdp {
 
 /// A custom FirebaseIdpUtils that overrides token verification for the emulator.
 class EmulatorFirebaseIdpUtils extends FirebaseIdpUtils {
+  @override
   final FirebaseIdpConfig config;
 
   EmulatorFirebaseIdpUtils({
     required this.config,
-    required AuthUsers authUsers,
-  }) : super(config: config, authUsers: authUsers);
+    required super.authUsers,
+  }) : super(config: config);
 
   @override
   Future<FirebaseAccountDetails> fetchAccountDetails(

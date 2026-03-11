@@ -13,8 +13,6 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../helpers/date_formatter.dart';
-import 'chat_thread_screen.dart';
-import 'peephole_screen.dart';
 
 /// Duolingo-style Chats screen - list of private conversations
 class ChatsScreen extends ConsumerWidget {

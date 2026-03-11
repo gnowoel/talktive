@@ -120,7 +120,7 @@ class DuoMomentCard extends StatelessWidget {
                             UrlHelper.resolve(moment.imageUrl),
                             width: double.infinity,
                             fit: BoxFit.contain, // Preserve aspect ratio
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                               height: 300,
                               color: AppTheme.lightBackground,
                               child: const Center(

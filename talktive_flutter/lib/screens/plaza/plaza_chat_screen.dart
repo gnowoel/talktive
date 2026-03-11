@@ -16,7 +16,6 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../services/media_service.dart';
-import 'package:image_picker/image_picker.dart';
 
 /// Duolingo-style Global Lounge screen - public chat
 class PlazaChatScreen extends ConsumerStatefulWidget {

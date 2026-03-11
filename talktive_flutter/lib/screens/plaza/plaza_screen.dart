@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
-import 'plaza_chat_screen.dart';
 
 /// Duolingo-style Plaza screen - entry point for public areas
 class PlazaScreen extends ConsumerWidget {

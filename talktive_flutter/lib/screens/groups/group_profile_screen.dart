@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/client_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/user_profile_provider.dart';
@@ -15,10 +13,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/snackbar_helper.dart';
-import '../../utils/floor_utils.dart';
 import 'create_group_dialog.dart';
-import 'group_members_screen.dart';
-import '../profile/user_profile_view_screen.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
   final int groupId;
@@ -315,7 +310,7 @@ class GroupProfileScreen extends ConsumerWidget {
             );
           },
           loading: () => const DuoLoadingIndicator(),
-          error: (_, __) => const Text('Could not load host info'),
+          error: (_, _) => const Text('Could not load host info'),
         ),
       ],
     );

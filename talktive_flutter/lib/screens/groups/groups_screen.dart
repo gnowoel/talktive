@@ -11,9 +11,7 @@ import '../../widgets/duo/duo_group_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
-import 'group_chat_screen.dart';
 import 'create_group_dialog.dart';
-import 'group_search_screen.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
@@ -181,12 +179,12 @@ class GroupsScreen extends ConsumerWidget {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    if (FloorUtils.isMuted(currentResident!)) {
-      SnackBarHelper.showError(context, FloorUtils.getMuteReason(currentResident!));
+    if (FloorUtils.isMuted(currentResident)) {
+      SnackBarHelper.showError(context, FloorUtils.getMuteReason(currentResident));
       return;
     }
 
-    if (FloorUtils.computeFloor(currentResident!) < 1) {
+    if (FloorUtils.computeFloor(currentResident) < 1) {
       DuoFloorRequirementDialog.show(
         context,
         message: 'You must reach Floor 1 to create a club. Keep chatting!',

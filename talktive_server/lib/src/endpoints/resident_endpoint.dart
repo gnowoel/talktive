@@ -11,11 +11,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// performs standard background tasks (daily login bonus, etc.).
   Future<Resident?> getResident(Session session) async {
     final auth = session.authenticated;
-    if (auth == null || auth.userIdentifier == null) {
+    if (auth == null) {
       return null;
     }
 
-    final senderUuid = UuidValue.fromString(auth.userIdentifier!);
+    final senderUuid = UuidValue.fromString(auth.userIdentifier);
     return await ResidentService.getActiveResident(session, senderUuid);
   }
 

@@ -3,7 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/client_provider.dart'; // Retained as it's a dependency and not explicitly removed
 import '../../providers/auth_provider.dart';
-import '../../providers/achievement_provider.dart';
 import '../../providers/notification_provider.dart';
 
 part 'current_resident_provider.g.dart';

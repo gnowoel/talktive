@@ -8,13 +8,13 @@ mixin EndpointAuthMixin {
   /// Throws a TalktiveException if the user is not authenticated.
   Future<UuidValue> getUserId(Session session) async {
     final auth = session.authenticated;
-    if (auth == null || auth.userIdentifier == null) {
+    if (auth == null) {
       throw protocol.TalktiveException(
         message: 'You must be signed in to perform this action.',
         code: 'NOT_AUTHENTICATED',
       );
     }
-    return UuidValue.fromString(auth.userIdentifier!);
+    return UuidValue.fromString(auth.userIdentifier);
   }
 
   /// Retrieves the Resident record for a specific user ID.

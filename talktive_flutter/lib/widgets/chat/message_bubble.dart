@@ -135,10 +135,10 @@ class MessageBubble extends ConsumerWidget {
                                 fontFamily: 'Poppins',
                               ),
                             ),
-                            if (senderFloor != null) ...[
-                              const SizedBox(width: 6),
-                              DuoFloorBadge(floor: senderFloor),
-                            ],
+                            ...[
+                            const SizedBox(width: 6),
+                            DuoFloorBadge(floor: senderFloor),
+                          ],
                           ],
                         ),
                       ),

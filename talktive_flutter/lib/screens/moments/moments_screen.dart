@@ -19,7 +19,6 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
 import '../../services/media_service.dart';
 import '../../utils/floor_utils.dart';
- import '../profile/user_profile_view_screen.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
@@ -67,7 +66,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    final effectiveFloor = FloorUtils.computeFloor(currentResident!);
+    final effectiveFloor = FloorUtils.computeFloor(currentResident);
     if (effectiveFloor < 2) {
       DuoFloorRequirementDialog.show(
         context,

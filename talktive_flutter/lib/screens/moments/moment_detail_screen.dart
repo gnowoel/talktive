@@ -5,18 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
-import '../../providers/client_provider.dart';
 import '../../providers/moments_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
-import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../helpers/date_formatter.dart';
 import '../../helpers/url_helper.dart';
 import '../../helpers/snackbar_helper.dart';
-import 'image_gallery_screen.dart';
 
 class MomentDetailScreen extends ConsumerStatefulWidget {
   final Moment moment;

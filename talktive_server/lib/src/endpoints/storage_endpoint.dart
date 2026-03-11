@@ -1,6 +1,5 @@
 import 'package:serverpod/serverpod.dart';
 import '../utils/endpoint_auth_mixin.dart';
-import '../services/input_validation_service.dart';
 import '../services/apartment_service.dart';
 
 class StorageEndpoint extends Endpoint with EndpointAuthMixin {

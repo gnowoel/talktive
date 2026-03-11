@@ -13,7 +13,6 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
 import '../../helpers/snackbar_helper.dart';
-import 'group_profile_screen.dart';
 
 class GroupSearchScreen extends ConsumerStatefulWidget {
   const GroupSearchScreen({super.key});

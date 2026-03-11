@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../config/theme.dart';
 import 'duo_chat_input.dart';
 import 'duo_keyboard_dismissible.dart';

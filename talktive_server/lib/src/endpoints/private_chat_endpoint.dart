@@ -78,6 +78,9 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
           t.participant2Id.equals(participant2),
     );
 
+    bool isCurrentlyInvited = false;
+    bool wasJustInvited = false;
+
     if (privateChat != null) {
       // Handle re-inviting
       var currentMember = await protocol.ChannelMember.db.findFirstRow(
@@ -89,15 +92,20 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         where: (t) => t.channelId.equals(privateChat!.channelId) & t.userInfoId.equals(otherUserUuid),
       );
 
-      if (currentMember != null && currentMember.status == protocol.ChannelMemberStatus.left) {
+      if (currentMember != null && (currentMember.status == protocol.ChannelMemberStatus.left || currentMember.status == protocol.ChannelMemberStatus.declined)) {
         currentMember.status = protocol.ChannelMemberStatus.joined;
         await protocol.ChannelMember.db.updateRow(session, currentMember);
       }
 
-      if (otherMember != null && (otherMember.status == protocol.ChannelMemberStatus.left || otherMember.status == protocol.ChannelMemberStatus.declined)) {
-        otherMember.status = protocol.ChannelMemberStatus.invited;
-        otherMember.invitedBy = currentUserId;
-        await protocol.ChannelMember.db.updateRow(session, otherMember);
+      if (otherMember != null) {
+        if (otherMember.status == protocol.ChannelMemberStatus.invited) {
+          isCurrentlyInvited = true;
+        } else if (otherMember.status == protocol.ChannelMemberStatus.left || otherMember.status == protocol.ChannelMemberStatus.declined) {
+          otherMember.status = protocol.ChannelMemberStatus.invited;
+          otherMember.invitedBy = currentUserId;
+          await protocol.ChannelMember.db.updateRow(session, otherMember);
+          wasJustInvited = true;
+        }
       }
     } else {
       // Create a new channel for this private chat
@@ -150,12 +158,36 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         currentUserId,
         'private_chat',
       );
+      
+      wasJustInvited = true;
     }
     
     if (initialMessage != null && initialMessage.trim().isNotEmpty) {
       try {
-        final messageEndpoint = MessageEndpoint();
-        await messageEndpoint.sendMessage(session, privateChat.channelId, content: initialMessage);
+        if (isCurrentlyInvited && !wasJustInvited) {
+          // The user is already invited, and we are knocking again.
+          // Overwrite our last message instead of spamming duplicates.
+          var lastMessageRows = await protocol.Message.db.find(
+            session,
+            where: (t) => t.channelId.equals(privateChat!.channelId) & t.senderId.equals(currentUserId),
+            orderBy: (t) => t.createdAt,
+            orderDescending: true,
+            limit: 1,
+          );
+
+          if (lastMessageRows.isNotEmpty) {
+            var lastMessage = lastMessageRows.first;
+            lastMessage.content = initialMessage;
+            await protocol.Message.db.updateRow(session, lastMessage);
+          } else {
+            final messageEndpoint = MessageEndpoint();
+            await messageEndpoint.sendMessage(session, privateChat.channelId, content: initialMessage);
+          }
+        } else {
+          // It's a brand new invite, or they are joined/re-invited
+          final messageEndpoint = MessageEndpoint();
+          await messageEndpoint.sendMessage(session, privateChat.channelId, content: initialMessage);
+        }
       } catch (e) {
         session.log('Warning: Failed to send initial message: $e', level: LogLevel.warning);
       }

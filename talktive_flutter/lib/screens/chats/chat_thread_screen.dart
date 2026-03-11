@@ -6,7 +6,6 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';

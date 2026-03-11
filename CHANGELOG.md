@@ -4,6 +4,17 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 11, 2026 - Knock Edge-Cases & Code Cleanup 🧹
+
+### Workflow & Edge-Cases
+- **"Double-Knocking" Improvements**: Overwriting the previously sent Knock message if a new one is sent while the invite is still pending to avoid redundant messages.
+- **Declined Invite Re-engagement**: Fixed an edge case where users who had previously declined an invite could not subsequently re-initiate a knock to resume the chat due to a stale 'declined' database status.
+
+### Maintenance
+- **Lint Cleanup**: Applied `dart fix` globally across the Serverpod and Flutter directories to remove unused imports and redundant null-assertions.
+
+---
+
 ## March 10, 2026 - Serverpod Upgrade & Maintenance ⚙️
 
 ### Infrastructure

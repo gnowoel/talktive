@@ -237,7 +237,7 @@ class PeepholeScreen extends ConsumerWidget {
                              );
                            },
                            loading: () => const Center(child: CircularProgressIndicator()),
-                           error: (_, __) => Text(
+                           error: (_, _) => Text(
                              'They sent a knock, but they won\'t know if you read it until you open the door. Tap "Open the Door" to add them to your Chats list.',
                              style: TextStyle(color: Colors.grey[800], height: 1.4),
                            ),

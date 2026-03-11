@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/moments_provider.dart';
 import '../../widgets/duo/duo_moment_card.dart';

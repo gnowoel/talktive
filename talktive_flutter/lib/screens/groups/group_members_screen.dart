@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +12,6 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_resident_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../helpers/snackbar_helper.dart';
-import '../profile/user_profile_view_screen.dart';
 
 class GroupMembersScreen extends ConsumerWidget {
   final int groupId;

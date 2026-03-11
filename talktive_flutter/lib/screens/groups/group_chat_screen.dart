@@ -11,15 +11,12 @@ import '../../config/theme.dart';
 import '../../utils/floor_utils.dart';
 import '../../widgets/chat/message_bubble.dart';
 
-import 'group_members_screen.dart';
-import 'group_profile_screen.dart';
 import 'create_group_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../services/media_service.dart';
-import 'package:image_picker/image_picker.dart';
 
 /// Group chat screen for multi-user conversations
 class GroupChatScreen extends ConsumerStatefulWidget {

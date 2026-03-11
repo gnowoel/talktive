@@ -19,6 +19,27 @@ import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 
+/// Loader for deep linking into GroupChatScreen without the Group model
+class GroupChatLoader extends ConsumerWidget {
+  final int groupId;
+  const GroupChatLoader({super.key, required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupAsync = ref.watch(groupWithMembershipProvider(groupId));
+    return groupAsync.when(
+      data: (membership) {
+        if (membership?.group != null) {
+          return GroupChatScreen(group: membership!.group);
+        }
+        return const Scaffold(body: Center(child: Text('Group not found')));
+      },
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
+    );
+  }
+}
+
 /// Group chat screen for multi-user conversations
 class GroupChatScreen extends ConsumerStatefulWidget {
   final Group group;

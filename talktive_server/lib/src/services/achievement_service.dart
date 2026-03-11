@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
+import 'notification_service.dart';
 
 /// Service for managing achievements and tracking user progress.
 class AchievementService {
@@ -228,6 +229,18 @@ class AchievementService {
     if (userAchievement.progress >= achievement.targetValue) {
       userAchievement.unlockedAt = DateTime.now();
       userAchievement.notified = false; // Will be notified on next fetch
+      
+      try {
+        await NotificationService.sendAchievementNotification(
+          session,
+          userId,
+          achievement.name ?? achievement.key,
+          achievement.emoji ?? '🏆',
+          achievement.points,
+        );
+      } catch (e) {
+        session.log('Failed to send achievement notification: $e');
+      }
     }
 
     return await protocol.UserAchievement.db.updateRow(
@@ -281,6 +294,21 @@ class AchievementService {
           unlockedAt: increment >= achievement.targetValue ? now : null,
           notified: false,
         );
+        
+        if (userAchievement.unlockedAt != null) {
+          try {
+            await NotificationService.sendAchievementNotification(
+              session,
+              userId,
+              achievement.name ?? achievement.key,
+              achievement.emoji ?? '🏆',
+              achievement.points,
+            );
+          } catch (e) {
+            session.log('Failed to send batch achievement notification: $e');
+          }
+        }
+        
         toInsert.add(userAchievement);
         result.add(userAchievement);
       } else {
@@ -297,6 +325,18 @@ class AchievementService {
         if (userAchievement.progress >= achievement.targetValue) {
           userAchievement.unlockedAt = now;
           userAchievement.notified = false;
+          
+          try {
+            await NotificationService.sendAchievementNotification(
+              session,
+              userId,
+              achievement.name ?? achievement.key,
+              achievement.emoji ?? '🏆',
+              achievement.points,
+            );
+          } catch (e) {
+            session.log('Failed to send batch achievement notification: $e');
+          }
         }
         
         toUpdate.add(userAchievement);

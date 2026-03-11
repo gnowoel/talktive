@@ -3,6 +3,7 @@ import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/notification_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class GroupEndpoint extends Endpoint with EndpointAuthMixin {
@@ -364,6 +365,27 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
           joinedAt: DateTime.now(),
         ),
       );
+    }
+
+    // Send notification
+    try {
+      final inviter = await protocol.Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(currentUserId),
+      );
+      
+      if (inviter != null) {
+        await NotificationService.sendGroupInviteNotification(
+          session,
+          targetUserId,
+          inviter.userName,
+          group.name,
+          group.emoji ?? '👥',
+          group.id!,
+        );
+      }
+    } catch (e) {
+      session.log('Failed to send group invite notification: $e');
     }
   }
 

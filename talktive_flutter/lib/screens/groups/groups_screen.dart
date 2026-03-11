@@ -138,7 +138,7 @@ class GroupsScreen extends ConsumerWidget {
       group: group,
       onTap: () {
         HapticFeedback.lightImpact();
-        context.push('/groups/chat', extra: group);
+        context.push('/groups/chat/${group.id!}', extra: group);
       },
       trailing: (isInvite || isApplied) 
           ? _buildStatusBadge(context, isInvite ? 'INVITED' : 'APPLIED')

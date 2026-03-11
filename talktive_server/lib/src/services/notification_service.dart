@@ -64,6 +64,17 @@ class NotificationService {
     int channelId,
     String channelType, // 'private', 'group', 'plaza'
   ) async {
+    int? routeId = channelId;
+    if (channelType == 'group') {
+      final group = await protocol.Group.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      if (group != null) {
+        routeId = group.id;
+      }
+    }
+
     await sendNotification(
       session,
       recipientId,
@@ -74,8 +85,8 @@ class NotificationService {
         'channelId': channelId,
         'channelType': channelType,
         'route': channelType == 'private' 
-            ? '/chats/thread/$channelId' 
-            : (channelType == 'plaza' ? '/plaza' : '/groups/chat/$channelId'),
+            ? '/chats/thread/$routeId' 
+            : (channelType == 'plaza' ? '/plaza' : '/groups/chat/$routeId'),
       },
       saveToHistory: false,
     );
@@ -137,7 +148,7 @@ class NotificationService {
       'Achievement Unlocked! $achievementEmoji',
       '$achievementName (+$points points)',
       data: {
-        'route': '/profile/achievements',
+        'route': '/activity',
       },
     );
   }

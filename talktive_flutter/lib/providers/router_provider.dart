@@ -118,10 +118,15 @@ GoRouter router(Ref ref) {
             },
           ),
           GoRoute(
-            path: 'chat',
+            path: 'chat/:groupId',
             builder: (context, state) {
-              final group = state.extra as Group;
-              return GroupChatScreen(group: group);
+              final groupId = int.parse(state.pathParameters['groupId']!);
+              final group = state.extra as Group?;
+              if (group != null) {
+                return GroupChatScreen(group: group);
+              } else {
+                return GroupChatLoader(groupId: groupId);
+              }
             },
           ),
           GoRoute(

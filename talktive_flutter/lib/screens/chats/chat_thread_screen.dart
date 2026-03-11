@@ -11,6 +11,7 @@ import '../../helpers/snackbar_helper.dart';
 import '../../utils/floor_utils.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import '../../providers/private_chat_provider.dart';
 
@@ -190,6 +191,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ],
         ),
         actions: [
+          DuoRefreshButton(
+            color: Colors.black,
+            onRefresh: () {
+              ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
+            },
+          ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.black),
             onSelected: (value) async {

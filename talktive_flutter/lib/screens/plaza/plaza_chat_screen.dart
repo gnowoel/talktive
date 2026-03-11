@@ -15,6 +15,7 @@ import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 
 /// Duolingo-style Global Lounge screen - public chat
@@ -153,6 +154,14 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
             ),
           ],
         ),
+        actions: [
+          DuoRefreshButton(
+            color: Colors.black,
+            onRefresh: () {
+              ref.read(realtimeChatProvider(1).notifier).refresh();
+            },
+          ),
+        ],
       ),
       header: DuoInfoBanner(
         bannerId: 'plaza_image_rules',

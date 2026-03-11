@@ -17,6 +17,7 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import '../../utils/floor_utils.dart';
 import '../../providers/current_resident_provider.dart';
@@ -305,6 +306,12 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       emoji: '📸',
       title: 'Moments',
       subtitle: 'Share your day',
+      trailingHeader: DuoRefreshButton(
+        onRefresh: () async {
+          ref.invalidate(momentsProvider);
+          ref.invalidate(momentLikesProvider);
+        },
+      ),
       gradient: AppTheme.secondaryGradient,
       floatingActionButton: Container(
         decoration: BoxDecoration(

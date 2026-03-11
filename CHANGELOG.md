@@ -11,6 +11,7 @@ This document tracks the major development milestones and changes made during th
 - **Declined Invite Re-engagement**: Fixed an edge case where users who had previously declined an invite could not subsequently re-initiate a knock to resume the chat due to a stale 'declined' database status.
 
 ### UI & UX Polish
+- **Web/Desktop Manual Refresh**: Created a conditional `DuoRefreshButton` injected into `AppBar` and `DuoPageScaffold` trailing headers universally on desktop and web targets to manually trigger data sync routines where native mobile pull-to-refresh gestures fail to translate natively.
 - **Moments Feed Padding**: Added missing top margin to `MomentsScreen` and `UserMomentsScreen` for visual separation from the header.
 - **Removed Floor Overlay**: Safely removed the explicit "Floor X" overlay from `DuoMomentCard` images since strict floor-based access restrictions have been lifted.
 

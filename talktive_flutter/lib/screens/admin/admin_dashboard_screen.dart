@@ -6,6 +6,7 @@ import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import 'reports_screen.dart';
 import 'users_screen.dart';
 import 'analytics_screen.dart';
@@ -152,6 +153,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                         ),
                       ],
                     ),
+                  ),
+                  DuoRefreshButton(
+                    color: Colors.black,
+                    onRefresh: _loadStatistics,
                   ),
                 ],
               ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.05, end: 0),

@@ -8,6 +8,7 @@ import '../../widgets/duo/duo_moment_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 
 class UserMomentsScreen extends ConsumerWidget {
   final String userId;
@@ -42,6 +43,15 @@ class UserMomentsScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          DuoRefreshButton(
+            color: Colors.black,
+            onRefresh: () {
+              ref.invalidate(userMomentsProvider(userId));
+              ref.invalidate(momentLikesProvider);
+            },
+          ),
+        ],
       ),
       body: momentsAsync.when(
         data: (moments) {

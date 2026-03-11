@@ -12,6 +12,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import '../../helpers/date_formatter.dart';
 
 /// Duolingo-style Chats screen - list of private conversations
@@ -26,6 +27,11 @@ class ChatsScreen extends ConsumerWidget {
       emoji: '💬',
       title: 'Chats',
       subtitle: 'Private conversations',
+      trailingHeader: DuoRefreshButton(
+        onRefresh: () async {
+          await ref.read(privateChatListProvider.notifier).refresh();
+        },
+      ),
       gradient: AppTheme.duoOrangeGradient,
       body: chatsState.when(
         data: (chats) {

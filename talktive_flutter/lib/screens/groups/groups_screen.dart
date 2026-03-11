@@ -11,6 +11,7 @@ import '../../widgets/duo/duo_group_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import 'create_group_dialog.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
 import '../../helpers/snackbar_helper.dart';
@@ -31,12 +32,21 @@ class GroupsScreen extends ConsumerWidget {
       subtitle: 'Join the community clubhouse',
       gradient: AppTheme.duoYellowGradient,
       textColor: AppTheme.textPrimary,
-      trailingHeader: IconButton(
-        icon: const Icon(Icons.search, color: AppTheme.textPrimary, size: 28),
-        onPressed: () {
-          HapticFeedback.lightImpact();
-          context.push('/groups/search');
-        },
+      trailingHeader: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DuoRefreshButton(
+            color: AppTheme.textPrimary,
+            onRefresh: () async => ref.invalidate(groupListProvider),
+          ),
+          IconButton(
+            icon: const Icon(Icons.search, color: AppTheme.textPrimary, size: 28),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.push('/groups/search');
+            },
+          ),
+        ],
       ),
       body: groupsAsync.when(
         data: (groups) => _buildGroupList(context, ref, groups),

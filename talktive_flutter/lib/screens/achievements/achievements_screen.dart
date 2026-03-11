@@ -7,6 +7,7 @@ import '../../providers/achievement_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 
 /// Achievements screen showing all unlockable badges
 class AchievementsScreen extends ConsumerStatefulWidget {
@@ -56,6 +57,14 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
             color: Colors.black,
           ),
         ),
+        actions: [
+          DuoRefreshButton(
+            color: Colors.black,
+            onRefresh: () async {
+              await ref.read(userAchievementsProvider.notifier).refresh();
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [

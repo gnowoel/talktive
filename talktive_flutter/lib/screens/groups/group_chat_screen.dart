@@ -16,6 +16,7 @@ import '../../helpers/snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
+import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 
 /// Group chat screen for multi-user conversations
@@ -175,6 +176,12 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           ),
         ),
         actions: [
+          DuoRefreshButton(
+            color: Colors.black,
+            onRefresh: () {
+              ref.read(realtimeChatProvider(widget.group.channelId).notifier).refresh();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.people, color: Colors.black),
             onPressed: () {

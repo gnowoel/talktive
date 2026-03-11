@@ -11,6 +11,7 @@ This document tracks the major development milestones and changes made during th
 - **Declined Invite Re-engagement**: Fixed an edge case where users who had previously declined an invite could not subsequently re-initiate a knock to resume the chat due to a stale 'declined' database status.
 
 ### Maintenance
+- **Local Dev URL Translation**: Added reverse `10.0.2.2` -> `localhost` conversion in `UrlHelper` to allow Web/iOS clients to render Android Simulator uploaded images properly.
 - **Lint Cleanup**: Applied `dart fix` globally across the Serverpod and Flutter directories to remove unused imports and redundant null-assertions.
 
 ---

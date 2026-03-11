@@ -372,6 +372,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           color: AppTheme.primaryColor,
           child: ListView.builder(
             padding: const EdgeInsets.only(
+              top: AppTheme.duoSpacingMedium,
               left: AppTheme.duoSpacingMedium,
               right: AppTheme.duoSpacingMedium,
               bottom: AppTheme.contentBottomPadding,

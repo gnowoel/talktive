@@ -10,6 +10,10 @@ This document tracks the major development milestones and changes made during th
 - **"Double-Knocking" Improvements**: Overwriting the previously sent Knock message if a new one is sent while the invite is still pending to avoid redundant messages.
 - **Declined Invite Re-engagement**: Fixed an edge case where users who had previously declined an invite could not subsequently re-initiate a knock to resume the chat due to a stale 'declined' database status.
 
+### UI & UX Polish
+- **Moments Feed Padding**: Added missing top margin to `MomentsScreen` and `UserMomentsScreen` for visual separation from the header.
+- **Removed Floor Overlay**: Safely removed the explicit "Floor X" overlay from `DuoMomentCard` images since strict floor-based access restrictions have been lifted.
+
 ### Maintenance
 - **Local Dev URL Translation**: Added reverse `10.0.2.2` -> `localhost` conversion in `UrlHelper` to allow Web/iOS clients to render Android Simulator uploaded images properly.
 - **Lint Cleanup**: Applied `dart fix` globally across the Serverpod and Flutter directories to remove unused imports and redundant null-assertions.

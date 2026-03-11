@@ -12,19 +12,22 @@ class NotificationService {
     String title,
     String body, {
     Map<String, dynamic>? data,
+    bool saveToHistory = true,
   }) async {
     // Create notification record
-    final notification = protocol.UserNotification(
-      userId: userId,
-      type: type,
-      title: title,
-      body: body,
-      data: data != null ? jsonEncode(data) : null,
-      read: false,
-      createdAt: DateTime.now(),
-    );
+    if (saveToHistory) {
+      final notification = protocol.UserNotification(
+        userId: userId,
+        type: type,
+        title: title,
+        body: body,
+        data: data != null ? jsonEncode(data) : null,
+        read: false,
+        createdAt: DateTime.now(),
+      );
 
-    await protocol.UserNotification.db.insertRow(session, notification);
+      await protocol.UserNotification.db.insertRow(session, notification);
+    }
 
     // Get user's device tokens
     final tokens = await protocol.DeviceToken.db.find(
@@ -36,6 +39,10 @@ class NotificationService {
       return; // User has no registered devices
     }
 
+    // Prepare FCM payload with dual-boot safety flag
+    final fcmData = data?.map((key, value) => MapEntry(key, value.toString())) ?? {};
+    fcmData['appVersion'] = 'serverpod';
+
     // Send FCM push notification to each token
     for (final deviceToken in tokens) {
       await FCMService.sendToToken(
@@ -43,7 +50,7 @@ class NotificationService {
         deviceToken.token,
         title,
         body,
-        data: data?.map((key, value) => MapEntry(key, value.toString())),
+        data: fcmData,
       );
     }
   }
@@ -66,8 +73,9 @@ class NotificationService {
       data: {
         'channelId': channelId,
         'channelType': channelType,
-        'route': '/chat/$channelId',
+        'route': channelType == 'private' ? '/chats/thread/$channelId' : '/groups/chat/$channelId', // Note: group route might need to be checked, but we adjust route directly here just in case.
       },
+      saveToHistory: false,
     );
   }
 
@@ -167,8 +175,9 @@ class NotificationService {
       'Tap to join',
       data: {
         'groupId': groupId,
-        'route': '/groups/$groupId',
+        'route': '/groups/profile/$groupId', // Usually group invites go to the group profile to apply/join
       },
+      saveToHistory: false,
     );
   }
 

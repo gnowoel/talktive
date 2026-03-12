@@ -9,6 +9,7 @@ import '../../services/firedata.dart';
 import '../models/user.dart';
 import '../services/server_clock.dart';
 import '../widgets/layout.dart';
+import '../helpers/snackbar_helper.dart';
 
 class EditProfilePage extends StatefulWidget {
   final User user;
@@ -137,7 +138,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       } on AppException catch (e) {
         if (mounted) {
-          ErrorHandler.showSnackBarMessage(context, e);
+          SnackBarHelper.showError(context, e);
         }
       } finally {
         if (mounted) {

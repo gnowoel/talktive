@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/ad_service/improved_consent_manager.dart';
 import '../services/ad_service/admob_compliance.dart';
+import '../helpers/snackbar_helper.dart';
 
 class PrivacySettingsPage extends StatefulWidget {
   const PrivacySettingsPage({super.key});
@@ -101,9 +102,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       await _loadPrivacyInfo();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-      );
+      SnackBarHelper.showError(context, e);
     } finally {
       setState(() {
         _isUpdatingConsent = false;
@@ -136,9 +135,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
       await _loadPrivacyInfo();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-      );
+      SnackBarHelper.showError(context, e);
     } finally {
       setState(() {
         _isUpdatingConsent = false;

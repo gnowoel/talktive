@@ -14,6 +14,7 @@ import '../services/ad_service/go_router_room_helper.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
+import '../helpers/snackbar_helper.dart';
 
 class FriendItem extends StatefulWidget {
   final Follow friend;
@@ -109,7 +110,7 @@ class _FriendItemState extends State<FriendItem> {
       await action();
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     } finally {
       if (mounted) {

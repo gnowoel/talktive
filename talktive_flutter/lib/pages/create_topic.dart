@@ -13,6 +13,7 @@ import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 import '../services/ad_service/go_router_room_helper.dart';
 import '../widgets/layout.dart';
+import '../helpers/snackbar_helper.dart';
 
 class CreateTopicPage extends StatefulWidget {
   final String? initialTribeId;
@@ -157,7 +158,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
         }
       } on AppException catch (e) {
         if (mounted) {
-          ErrorHandler.showSnackBarMessage(context, e);
+          SnackBarHelper.showError(context, e);
         }
       } finally {
         if (mounted) {

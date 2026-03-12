@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
+import '../../helpers/snackbar_helper.dart';
 import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
@@ -128,14 +129,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
         setState(() {
           _isCreating = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to ${isEditing ? 'update' : 'create'} group: $e',
-            ),
-            backgroundColor: AppTheme.duoRed,
-          ),
-        );
+        SnackBarHelper.showError(context, e);
       }
     }
   }

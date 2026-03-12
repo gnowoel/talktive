@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
+import '../../helpers/snackbar_helper.dart';
 
 /// Analytics dashboard for admins
 class AnalyticsScreen extends ConsumerStatefulWidget {
@@ -44,12 +45,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
+        SnackBarHelper.showError(context, e);
       }
     }
   }

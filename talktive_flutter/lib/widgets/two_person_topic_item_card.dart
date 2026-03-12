@@ -13,6 +13,7 @@ import '../services/server_clock.dart';
 import '../theme.dart';
 import 'tag.dart';
 import 'user_info_loader.dart';
+import '../helpers/snackbar_helper.dart';
 
 class TwoPersonTopicItemCard extends StatefulWidget {
   final Topic topic;
@@ -65,7 +66,7 @@ class _TwoPersonTopicItemCardState extends State<TwoPersonTopicItemCard> {
       await action();
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     }
   }

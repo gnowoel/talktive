@@ -19,6 +19,7 @@ import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../helpers/snackbar_helper.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreen extends ConsumerWidget {
@@ -249,12 +250,7 @@ class ProfileScreen extends ConsumerWidget {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to claim reward: $e'),
-                      backgroundColor: AppTheme.errorColor,
-                    ),
-                  );
+                  SnackBarHelper.showError(context, e);
                 }
               }
             },

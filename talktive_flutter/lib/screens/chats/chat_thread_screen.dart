@@ -85,12 +85,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to send message: $e'),
-            backgroundColor: AppTheme.duoRed,
-          ),
-        );
+        SnackBarHelper.showError(context, e);
       }
     }
   }

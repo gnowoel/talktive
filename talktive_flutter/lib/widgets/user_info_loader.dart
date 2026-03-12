@@ -6,6 +6,7 @@ import '../models/user.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';
 import 'user_info_dialog.dart';
+import '../helpers/snackbar_helper.dart';
 
 class UserInfoLoader extends StatefulWidget {
   final String userId;
@@ -52,7 +53,7 @@ class _UserInfoLoaderState extends State<UserInfoLoader> {
     } on AppException catch (e) {
       if (mounted) {
         setState(() => _error = e.toString());
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     }
   }

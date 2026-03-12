@@ -11,6 +11,7 @@ import '../services/tribe_cache.dart';
 import '../widgets/info.dart';
 import '../widgets/layout.dart';
 import '../widgets/topic_list.dart';
+import '../helpers/snackbar_helper.dart';
 
 class TopicsPage extends StatefulWidget {
   const TopicsPage({super.key});
@@ -74,7 +75,7 @@ class _TopicsPageState extends State<TopicsPage> {
       }
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     }
   }
@@ -91,7 +92,7 @@ class _TopicsPageState extends State<TopicsPage> {
       }
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     }
   }

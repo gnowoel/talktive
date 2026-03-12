@@ -213,30 +213,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           await ref.read(blockedUsersProvider.notifier).block(widget.userId);
         }
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isBlocked ? 'User unblocked.' : 'User blocked.',
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: isBlocked
-                  ? AppTheme.duoGreen
-                  : AppTheme.errorColor,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+          SnackBarHelper.showSuccess(
+            context,
+            isBlocked ? 'User unblocked.' : 'User blocked.',
           );
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: AppTheme.errorColor,
-            ),
-          );
+          SnackBarHelper.showError(context, e);
         }
       }
     }
@@ -422,25 +406,20 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 .read(userLikesProvider.notifier)
                 .unlikeUser(widget.userId);
             if (mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Vouch removed.')));
+              SnackBarHelper.showInfo(context, 'Vouch removed.');
             }
           } else {
             await ref.read(userLikesProvider.notifier).likeUser(widget.userId);
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('User vouched! Trust Score increased.'),
-                ),
+              SnackBarHelper.showSuccess(
+                context,
+                'User vouched! Trust Score increased.',
               );
             }
           }
         } catch (e) {
           if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Error: $e')));
+            SnackBarHelper.showError(context, e);
           }
         }
       },
@@ -845,9 +824,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             onPressed: () async {
               final reason = reasonController.text.trim();
               if (reason.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please add a reason.')),
-                );
+                SnackBarHelper.showError(context, 'Please add a reason.');
                 return;
               }
               Navigator.pop(context);
@@ -858,15 +835,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                   reason: reason,
                 );
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Report submitted securely.')),
+                  SnackBarHelper.showSuccess(
+                    context,
+                    'Report submitted securely.',
                   );
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  SnackBarHelper.showError(context, e);
                 }
               }
             },

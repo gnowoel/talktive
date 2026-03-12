@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../helpers/exception.dart';
 import '../services/fireauth.dart';
 import '../widgets/layout.dart';
+import '../helpers/snackbar_helper.dart';
 
 class BackupAccountPage extends StatefulWidget {
   const BackupAccountPage({super.key});
@@ -37,7 +38,7 @@ class _BackupAccountPageState extends State<BackupAccountPage> {
       }
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     } finally {
       if (mounted) {

@@ -117,12 +117,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to send message: $e'),
-            backgroundColor: AppTheme.duoRed,
-          ),
-        );
+        SnackBarHelper.showError(context, e);
       }
     }
   }

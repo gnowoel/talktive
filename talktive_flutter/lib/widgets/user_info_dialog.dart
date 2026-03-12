@@ -10,6 +10,7 @@ import '../services/server_clock.dart';
 import '../services/user_cache.dart';
 import '../theme.dart';
 import 'tag.dart';
+import '../helpers/snackbar_helper.dart';
 
 class UserInfoDialog extends StatefulWidget {
   final String photoURL;
@@ -83,7 +84,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
       Navigator.of(context).pop();
     } on AppException catch (e) {
       if (!mounted) return;
-      ErrorHandler.showSnackBarMessage(context, e);
+      SnackBarHelper.showError(context, e);
     } catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(
@@ -113,7 +114,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
       Navigator.of(context).pop();
     } on AppException catch (e) {
       if (!mounted) return;
-      ErrorHandler.showSnackBarMessage(context, e);
+      SnackBarHelper.showError(context, e);
     } catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../helpers/helpers.dart';
 import '../../services/fireauth.dart';
+import '../../helpers/snackbar_helper.dart';
 
 class WelcomeStep extends StatefulWidget {
   final VoidCallback onNext;
@@ -32,7 +33,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
       widget.onNext();
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     } finally {
       if (mounted) {
@@ -51,7 +52,7 @@ class _WelcomeStepState extends State<WelcomeStep> {
       widget.onNext();
     } on AppException catch (e) {
       if (mounted) {
-        ErrorHandler.showSnackBarMessage(context, e);
+        SnackBarHelper.showError(context, e);
       }
     } finally {
       if (mounted) {

@@ -30,8 +30,17 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         'Channel ID',
       ).throwIfInvalid();
 
-      if (content != null) {
+      if (content != null && content.trim().isNotEmpty) {
         InputValidationService.validateMessageContent(content).throwIfInvalid();
+      }
+
+      if ((content == null || content.trim().isEmpty) &&
+          (imageUrl == null || imageUrl.trim().isEmpty) &&
+          (mediaUrl == null || mediaUrl.trim().isEmpty)) {
+        throw protocol.TalktiveException(
+          message: 'Message cannot be empty',
+          code: 'VALIDATION_ERROR',
+        );
       }
 
       if (imageUrl != null) {

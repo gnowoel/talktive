@@ -18,6 +18,7 @@ import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
+import 'group_profile_screen.dart';
 
 /// Loader for deep linking into GroupChatScreen without the Group model
 class GroupChatLoader extends ConsumerWidget {
@@ -30,7 +31,14 @@ class GroupChatLoader extends ConsumerWidget {
     return groupAsync.when(
       data: (membership) {
         if (membership?.group != null) {
-          return GroupChatScreen(group: membership!.group);
+          if (membership!.membershipStatus == ChannelMemberStatus.joined) {
+            return GroupChatScreen(group: membership.group);
+          } else {
+            return GroupProfileScreen(
+              groupId: groupId,
+              initialGroup: membership.group,
+            );
+          }
         }
         return const Scaffold(body: Center(child: Text('Group not found')));
       },

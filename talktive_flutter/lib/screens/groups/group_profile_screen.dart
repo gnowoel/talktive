@@ -495,9 +495,22 @@ class GroupProfileScreen extends ConsumerWidget {
             child: DuoButton(
               text: 'Decline',
               color: AppTheme.duoRed,
-              onPressed: () => ref
-                  .read(groupListProvider.notifier)
-                  .respondToInvite(group.id!, false),
+              onPressed: () async {
+                HapticFeedback.lightImpact();
+                try {
+                  await ref
+                      .read(groupListProvider.notifier)
+                      .respondToInvite(group.id!, false);
+                  if (context.mounted) {
+                    SnackBarHelper.showInfo(context, 'Invitation declined.');
+                    Navigator.pop(context);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    SnackBarHelper.showError(context, 'Failed to decline: $e');
+                  }
+                }
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -505,9 +518,23 @@ class GroupProfileScreen extends ConsumerWidget {
             child: DuoButton(
               text: 'Accept',
               color: AppTheme.duoGreen,
-              onPressed: () => ref
-                  .read(groupListProvider.notifier)
-                  .respondToInvite(group.id!, true),
+              onPressed: () async {
+                HapticFeedback.lightImpact();
+                try {
+                  await ref
+                      .read(groupListProvider.notifier)
+                      .respondToInvite(group.id!, true);
+                  if (context.mounted) {
+                    SnackBarHelper.showSuccess(context, 'Invitation accepted!');
+                    // Instead of popping, we just invalidate and let the view refresh
+                    ref.invalidate(groupWithMembershipProvider(group.id!));
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    SnackBarHelper.showError(context, 'Failed to accept: $e');
+                  }
+                }
+              },
             ),
           ),
         ],

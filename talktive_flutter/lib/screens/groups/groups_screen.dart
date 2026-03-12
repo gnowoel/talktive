@@ -154,6 +154,20 @@ class GroupsScreen extends ConsumerWidget {
       group: group,
       onTap: () {
         HapticFeedback.lightImpact();
+        if (isInvite) {
+          SnackBarHelper.showInfo(
+            context,
+            'Please accept the invitation to join this group.',
+          );
+          return;
+        }
+        if (isApplied) {
+          SnackBarHelper.showInfo(
+            context,
+            'Your application is pending approval.',
+          );
+          return;
+        }
         context.push('/groups/chat/${group.id!}', extra: group);
       },
       trailing: (isInvite || isApplied)
@@ -168,9 +182,27 @@ class GroupsScreen extends ConsumerWidget {
                       text: 'Decline',
                       color: AppTheme.duoRed,
                       isSecondary: true,
-                      onPressed: () => ref
-                          .read(groupListProvider.notifier)
-                          .respondToInvite(group.id!, false),
+                      onPressed: () async {
+                        HapticFeedback.lightImpact();
+                        try {
+                          await ref
+                              .read(groupListProvider.notifier)
+                              .respondToInvite(group.id!, false);
+                          if (context.mounted) {
+                            SnackBarHelper.showInfo(
+                              context,
+                              'Invitation declined.',
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            SnackBarHelper.showError(
+                              context,
+                              'Failed to decline: $e',
+                            );
+                          }
+                        }
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -178,9 +210,27 @@ class GroupsScreen extends ConsumerWidget {
                     child: DuoButton(
                       text: 'Accept',
                       color: AppTheme.duoGreen,
-                      onPressed: () => ref
-                          .read(groupListProvider.notifier)
-                          .respondToInvite(group.id!, true),
+                      onPressed: () async {
+                        HapticFeedback.lightImpact();
+                        try {
+                          await ref
+                              .read(groupListProvider.notifier)
+                              .respondToInvite(group.id!, true);
+                          if (context.mounted) {
+                            SnackBarHelper.showSuccess(
+                              context,
+                              'Invitation accepted!',
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            SnackBarHelper.showError(
+                              context,
+                              'Failed to accept: $e',
+                            );
+                          }
+                        }
+                      },
                     ),
                   ),
                 ],

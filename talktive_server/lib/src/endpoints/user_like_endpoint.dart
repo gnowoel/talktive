@@ -10,14 +10,14 @@ class UserLikeEndpoint extends Endpoint {
     InputValidationService.validateUuid(targetUserId).throwIfInvalid();
     final callerIdentifier = session.authenticated?.userIdentifier;
     if (callerIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final callerUuid = UuidValue.fromString(callerIdentifier);
     final targetUuid = UuidValue.fromString(targetUserId);
 
     if (callerUuid == targetUuid) {
-      throw Exception('You cannot like yourself.');
+      throw protocol.TalktiveException(message: 'You cannot like yourself.');
     }
 
     // Fetch caller
@@ -26,7 +26,7 @@ class UserLikeEndpoint extends Endpoint {
       where: (t) => t.userInfoId.equals(callerUuid),
     );
     if (caller == null) {
-      throw Exception('Caller profile not found');
+      throw protocol.TalktiveException(message: 'Caller profile not found');
     }
 
     // Fetch target
@@ -35,7 +35,7 @@ class UserLikeEndpoint extends Endpoint {
       where: (t) => t.userInfoId.equals(targetUuid),
     );
     if (target == null) {
-      throw Exception('Target user not found');
+      throw protocol.TalktiveException(message: 'Target user not found');
     }
 
     // One-Vote Rule: Check if already liked
@@ -45,7 +45,7 @@ class UserLikeEndpoint extends Endpoint {
           t.senderId.equals(callerUuid) & t.receiverId.equals(targetUuid),
     );
     if (existingLike != null) {
-      throw Exception('You have already vouched for this user.');
+      throw protocol.TalktiveException(message: 'You have already vouched for this user.');
     }
 
     // One-Vote Rule: Check if already reported
@@ -55,7 +55,7 @@ class UserLikeEndpoint extends Endpoint {
           t.reporterId.equals(callerUuid) & t.targetId.equals(targetUuid),
     );
     if (existingReport != null) {
-      throw Exception('You cannot vouch for a user you have reported.');
+      throw protocol.TalktiveException(message: 'You cannot vouch for a user you have reported.');
     }
 
     // Insert to UserLike
@@ -81,7 +81,7 @@ class UserLikeEndpoint extends Endpoint {
     InputValidationService.validateUuid(targetUserId).throwIfInvalid();
     final callerIdentifier = session.authenticated?.userIdentifier;
     if (callerIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final callerUuid = UuidValue.fromString(callerIdentifier);
@@ -93,7 +93,7 @@ class UserLikeEndpoint extends Endpoint {
       where: (t) => t.userInfoId.equals(targetUuid),
     );
     if (target == null) {
-      throw Exception('Target user not found');
+      throw protocol.TalktiveException(message: 'Target user not found');
     }
 
     // Check if like exists
@@ -103,7 +103,7 @@ class UserLikeEndpoint extends Endpoint {
           t.senderId.equals(callerUuid) & t.receiverId.equals(targetUuid),
     );
     if (existingLike == null) {
-      throw Exception('Like not found');
+      throw protocol.TalktiveException(message: 'Like not found');
     }
 
     // Remove from UserLike
@@ -122,7 +122,7 @@ class UserLikeEndpoint extends Endpoint {
   Future<List<String>> getMyLikedUserIds(Session session) async {
     final callerIdentifier = session.authenticated?.userIdentifier;
     if (callerIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final callerUuid = UuidValue.fromString(callerIdentifier);

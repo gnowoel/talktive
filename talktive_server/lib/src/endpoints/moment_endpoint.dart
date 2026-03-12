@@ -372,12 +372,12 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     final comment = await MomentComment.db.findById(session, commentId);
 
     if (comment == null) {
-      throw Exception('Comment not found');
+      throw TalktiveException(message: 'Comment not found');
     }
 
     // Check if user is the author
     if (comment.userId != userId) {
-      throw Exception('You can only delete your own comments');
+      throw TalktiveException(message: 'You can only delete your own comments');
     }
 
     await MomentComment.db.deleteRow(session, comment);

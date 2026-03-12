@@ -40,7 +40,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Cannot report yourself
     if (reporterUuid == targetUuid) {
-      throw Exception('You cannot report yourself.');
+      throw protocol.TalktiveException(message: 'You cannot report yourself.');
     }
 
     // Fetch reporter
@@ -49,9 +49,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
     // Effective floor ≥ 1 required to report (prevents abuse from new
     // accounts and from trustScore-restricted users)
     if (ApartmentService.computeEffectiveFloor(reporter) < 1) {
-      throw Exception(
-        'You must reach Floor 1 to report users. Keep chatting and maintain good trustScore!',
-      );
+      throw protocol.TalktiveException(message: 'You must reach Floor 1 to report users. Keep chatting and maintain good trustScore!',);
     }
 
     // Fetch target
@@ -60,7 +58,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) => t.userInfoId.equals(targetUuid),
     );
     if (target == null) {
-      throw Exception('Target user not found');
+      throw protocol.TalktiveException(message: 'Target user not found');
     }
 
     final now = DateTime.now();
@@ -74,7 +72,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
           t.reporterId.equals(reporterUuid) & t.targetId.equals(targetUuid),
     );
     if (existingReport != null) {
-      throw Exception('You have already reported this user.');
+      throw protocol.TalktiveException(message: 'You have already reported this user.');
     }
 
     // Check if they liked the user EVER (One-Vote Rule)
@@ -84,9 +82,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
           t.senderId.equals(reporterUuid) & t.receiverId.equals(targetUuid),
     );
     if (existingLike != null) {
-      throw Exception(
-        'You cannot report a user you have vouched for. Please unlike them first.',
-      );
+      throw protocol.TalktiveException(message: 'You cannot report a user you have vouched for. Please unlike them first.',);
     }
 
     // Check cooldown (30 minutes between any reports)
@@ -99,9 +95,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
     );
     if (recentReport != null) {
       final minutesLeft = 30 - now.difference(recentReport.createdAt).inMinutes;
-      throw Exception(
-        'Please wait $minutesLeft minutes before reporting again.',
-      );
+      throw protocol.TalktiveException(message: 'Please wait $minutesLeft minutes before reporting again.',);
     }
 
     // Check daily report limit (3 per day)
@@ -111,7 +105,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
           t.reporterId.equals(reporterUuid) & (t.createdAt > oneDayAgo),
     );
     if (todayReports >= 3) {
-      throw Exception('Daily report limit reached (3 reports per day).');
+      throw protocol.TalktiveException(message: 'Daily report limit reached (3 reports per day).');
     }
 
     // Create report
@@ -222,7 +216,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
-      throw Exception('Report not found');
+      throw protocol.TalktiveException(message: 'Report not found');
     }
 
     report.status = approved
@@ -245,7 +239,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
-      throw Exception('Report not found');
+      throw protocol.TalktiveException(message: 'Report not found');
     }
 
     // Get reporter info

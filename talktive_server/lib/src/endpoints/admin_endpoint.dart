@@ -143,7 +143,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
-      throw Exception('Report not found');
+      throw protocol.TalktiveException(message: 'Report not found');
     }
 
     report.status = status;
@@ -169,7 +169,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (resident == null) {
-      throw Exception('User not found');
+      throw protocol.TalktiveException(message: 'User not found');
     }
 
     resident.suspended = true;
@@ -194,7 +194,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (resident == null) {
-      throw Exception('User not found');
+      throw protocol.TalktiveException(message: 'User not found');
     }
 
     resident.suspended = false;
@@ -220,7 +220,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (resident == null) {
-      throw Exception('User not found');
+      throw protocol.TalktiveException(message: 'User not found');
     }
 
     resident.trustScore = 100;
@@ -241,7 +241,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
     final message = await protocol.Message.db.findById(session, messageId);
     if (message == null) {
-      throw Exception('Message not found');
+      throw protocol.TalktiveException(message: 'Message not found');
     }
 
     await protocol.Message.db.deleteRow(session, message);
@@ -259,7 +259,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
     final moment = await protocol.Moment.db.findById(session, momentId);
     if (moment == null) {
-      throw Exception('Moment not found');
+      throw protocol.TalktiveException(message: 'Moment not found');
     }
 
     // Delete associated likes and comments
@@ -475,7 +475,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (resident == null) {
-      throw Exception('User not found');
+      throw protocol.TalktiveException(message: 'User not found');
     }
 
     resident.isAdmin = true;
@@ -499,7 +499,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (resident == null) {
-      throw Exception('User not found');
+      throw protocol.TalktiveException(message: 'User not found');
     }
 
     resident.isAdmin = false;
@@ -523,7 +523,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (resident == null) {
-      throw Exception('User not found');
+      throw protocol.TalktiveException(message: 'User not found');
     }
 
     // Get recent messages

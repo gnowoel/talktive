@@ -242,7 +242,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -258,12 +258,12 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     if (!group.isPublic) {
-      throw Exception('Cannot apply to a private group');
+      throw protocol.TalktiveException(message: 'Cannot apply to a private group');
     }
 
     // Check if group is full
     if (group.memberCount >= group.maxMembers) {
-      throw Exception('Group is full');
+      throw protocol.TalktiveException(message: 'Group is full');
     }
 
     // Fetch current resident profile for safety checks
@@ -272,12 +272,12 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) => t.userInfoId.equals(currentUserId),
     );
     if (currentResident == null) {
-      throw Exception('User profile not found');
+      throw protocol.TalktiveException(message: 'User profile not found');
     }
 
     // Safety: muted or suspended users cannot apply to groups
     if (ApartmentService.isMuted(currentResident)) {
-      throw Exception(ApartmentService.getMuteReason(currentResident));
+      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(currentResident));
     }
 
     // Check if user is already a member or has already applied
@@ -290,10 +290,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     if (existingMember != null) {
       if (existingMember.status == protocol.ChannelMemberStatus.joined) {
-        throw Exception('Already a member of this group');
+        throw protocol.TalktiveException(message: 'Already a member of this group');
       } else if (existingMember.status ==
           protocol.ChannelMemberStatus.applied) {
-        throw Exception('Already applied to this group');
+        throw protocol.TalktiveException(message: 'Already applied to this group');
       }
 
       // Update status if previously left or declined
@@ -324,14 +324,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
     if (currentUserId == targetUserId) {
-      throw Exception('Cannot invite yourself');
+      throw protocol.TalktiveException(message: 'Cannot invite yourself');
     }
 
     // Get the group
@@ -355,7 +355,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         );
 
     if (currentUserMemberResult == null) {
-      throw Exception('You are not a member of this group');
+      throw protocol.TalktiveException(message: 'You are not a member of this group');
     }
 
     // Check if target is already in the group
@@ -368,9 +368,9 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     if (targetMember != null) {
       if (targetMember.status == protocol.ChannelMemberStatus.joined) {
-        throw Exception('User is already a member');
+        throw protocol.TalktiveException(message: 'User is already a member');
       } else if (targetMember.status == protocol.ChannelMemberStatus.invited) {
-        throw Exception('User is already invited');
+        throw protocol.TalktiveException(message: 'User is already invited');
       }
 
       targetMember.status = protocol.ChannelMemberStatus.invited;
@@ -439,7 +439,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null) {
-      throw Exception('No pending invitation found');
+      throw protocol.TalktiveException(message: 'No pending invitation found');
     }
 
     if (!accept) {
@@ -452,7 +452,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     // If they were invited by the creator (host), they bypass approval and join instantly.
     if (member.invitedBy == group.creatorId) {
       if (group.memberCount >= group.maxMembers) {
-        throw Exception('Group is full');
+        throw protocol.TalktiveException(message: 'Group is full');
       }
       member.status = protocol.ChannelMemberStatus.joined;
       await protocol.ChannelMember.db.updateRow(session, member);
@@ -494,7 +494,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Enforce creator access control
     if (group.creatorId != currentUserId) {
-      throw Exception('Only the creator can approve applications');
+      throw protocol.TalktiveException(message: 'Only the creator can approve applications');
     }
 
     final pendingMember = await protocol.ChannelMember.db.findFirstRow(
@@ -506,7 +506,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (pendingMember == null) {
-      throw Exception('No pending application found for this user');
+      throw protocol.TalktiveException(message: 'No pending application found for this user');
     }
 
     if (!approve) {
@@ -517,7 +517,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Approve user
     if (group.memberCount >= group.maxMembers) {
-      throw Exception('Group is full');
+      throw protocol.TalktiveException(message: 'Group is full');
     }
 
     pendingMember.status = protocol.ChannelMemberStatus.joined;
@@ -543,14 +543,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
     if (currentUserId == targetUserId) {
-      throw Exception('You cannot kick yourself. Use leaveGroup instead.');
+      throw protocol.TalktiveException(message: 'You cannot kick yourself. Use leaveGroup instead.');
     }
 
     final group = await protocol.Group.db.findById(session, groupId);
@@ -563,7 +563,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     if (group.creatorId != currentUserId) {
-      throw Exception('Only the creator can kick members');
+      throw protocol.TalktiveException(message: 'Only the creator can kick members');
     }
 
     final member = await protocol.ChannelMember.db.findFirstRow(
@@ -575,7 +575,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null) {
-      throw Exception('User is not a member of the group');
+      throw protocol.TalktiveException(message: 'User is not a member of the group');
     }
 
     member.status = protocol.ChannelMemberStatus.left;
@@ -591,7 +591,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -616,7 +616,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null) {
-      throw Exception('Not a member of this group');
+      throw protocol.TalktiveException(message: 'Not a member of this group');
     }
 
     // Update member status
@@ -656,7 +656,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null) {
-      throw Exception('Not a member of this group');
+      throw protocol.TalktiveException(message: 'Not a member of this group');
     }
 
     member.isMuted = isMuted;
@@ -723,7 +723,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -737,7 +737,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     if (group.creatorId != currentUserId) {
-      throw Exception('Only the creator can view pending applications');
+      throw protocol.TalktiveException(message: 'Only the creator can view pending applications');
     }
 
     // Get all applied members

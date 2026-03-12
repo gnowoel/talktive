@@ -26,7 +26,7 @@ class ImageEndpoint extends Endpoint {
     final userIdentifier = authenticationInfo?.userIdentifier;
 
     if (userIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw TalktiveException(message: 'Not authenticated');
     }
 
     final userUuid = UuidValue.fromString(userIdentifier);
@@ -38,12 +38,12 @@ class ImageEndpoint extends Endpoint {
     );
 
     if (resident == null) {
-      throw Exception('Resident not found');
+      throw TalktiveException(message: 'Resident not found');
     }
 
     // Check if user is muted
     if (ApartmentService.isMuted(resident)) {
-      throw Exception(ApartmentService.getMuteReason(resident));
+      throw TalktiveException(message: ApartmentService.getMuteReason(resident));
     }
 
     // Convert ByteData to Uint8List
@@ -60,7 +60,7 @@ class ImageEndpoint extends Endpoint {
     );
 
     if (validationError != null) {
-      throw Exception(validationError);
+      throw TalktiveException(message: validationError);
     }
 
     // Generate unique filename
@@ -95,7 +95,7 @@ class ImageEndpoint extends Endpoint {
     final userIdentifier = authenticationInfo?.userIdentifier;
 
     if (userIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw TalktiveException(message: 'Not authenticated');
     }
 
     final userUuid = UuidValue.fromString(userIdentifier);
@@ -105,7 +105,7 @@ class ImageEndpoint extends Endpoint {
 
     // Check if user owns this image (filename starts with their UUID)
     if (!fileName.startsWith(userUuid.toString())) {
-      throw Exception('You can only delete your own images.');
+      throw TalktiveException(message: 'You can only delete your own images.');
     }
 
     // Delete file
@@ -116,7 +116,7 @@ class ImageEndpoint extends Endpoint {
       await file.delete();
       session.log('Image deleted: $imageUrl');
     } else {
-      throw Exception('Image not found');
+      throw TalktiveException(message: 'Image not found');
     }
   }
 }

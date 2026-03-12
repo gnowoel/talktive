@@ -19,7 +19,7 @@ class NotificationEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -45,7 +45,7 @@ class NotificationEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     await NotificationService.markAsRead(session, notificationIds);
@@ -57,7 +57,7 @@ class NotificationEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -75,7 +75,7 @@ class NotificationEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);

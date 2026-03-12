@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import '../generated/protocol.dart' as protocol;
 import '../utils/endpoint_auth_mixin.dart';
 import '../services/apartment_service.dart';
 
@@ -15,17 +16,17 @@ class StorageEndpoint extends Endpoint with EndpointAuthMixin {
     // Safety: Users must be Floor 1+ to upload media
     final floor = ApartmentService.computeEffectiveFloor(resident);
     if (floor < 1) {
-      throw Exception('You must reach Floor 1 to upload media.');
+      throw protocol.TalktiveException(message: 'You must reach Floor 1 to upload media.');
     }
 
     // Check if muted
     if (ApartmentService.isMuted(resident)) {
-      throw Exception(ApartmentService.getMuteReason(resident));
+      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(resident));
     }
 
     // Basic path validation
     if (path.contains('..') || path.startsWith('/')) {
-      throw Exception('Invalid path');
+      throw protocol.TalktiveException(message: 'Invalid path');
     }
 
     return await session.storage.createDirectFileUploadDescription(

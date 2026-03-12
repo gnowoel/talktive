@@ -268,7 +268,7 @@ class SearchEndpoint extends Endpoint {
 
     final userIdentifier = session.authenticated?.userIdentifier;
     if (userIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final userId = UuidValue.fromString(userIdentifier);
@@ -337,7 +337,7 @@ class SearchEndpoint extends Endpoint {
 
     final userIdentifier = session.authenticated?.userIdentifier;
     if (userIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final userId = UuidValue.fromString(userIdentifier);

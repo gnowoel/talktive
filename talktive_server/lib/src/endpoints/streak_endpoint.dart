@@ -10,7 +10,7 @@ class StreakEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -24,7 +24,7 @@ class StreakEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -38,7 +38,7 @@ class StreakEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -59,7 +59,7 @@ class StreakEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);

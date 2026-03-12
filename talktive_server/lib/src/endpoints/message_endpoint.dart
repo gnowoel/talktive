@@ -246,7 +246,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   Stream<protocol.Message> subscribe(Session session, int channelId) async* {
     final authenticationInfo = session.authenticated;
     if (authenticationInfo == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     // 1. Verify access (optional: check if user is member of channel)

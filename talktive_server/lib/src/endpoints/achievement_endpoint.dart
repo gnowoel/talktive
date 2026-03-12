@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import '../generated/protocol.dart' as protocol;
 import '../services/achievement_service.dart';
 import '../services/input_validation_service.dart';
 
@@ -11,7 +12,7 @@ class AchievementEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
@@ -35,7 +36,7 @@ class AchievementEndpoint extends Endpoint {
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
     if (currentUserIdentifier == null) {
-      throw Exception('Not authenticated');
+      throw protocol.TalktiveException(message: 'Not authenticated');
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);

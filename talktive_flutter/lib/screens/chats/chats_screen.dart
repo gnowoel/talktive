@@ -175,6 +175,10 @@ class ChatsScreen extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingSmall),
       onTap: () {
         HapticFeedback.lightImpact();
+        if (chatItem.currentMemberStatus == ChannelMemberStatus.invited) {
+          context.push('/chats/peephole', extra: chatItem);
+          return;
+        }
         context.push('/chats/thread/${chat.channelId}');
       },
       child: Padding(

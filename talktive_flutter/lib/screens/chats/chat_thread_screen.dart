@@ -14,6 +14,7 @@ import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import '../../providers/private_chat_provider.dart';
+import 'package:go_router/go_router.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -123,8 +124,21 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       privateChatDetailsProvider(widget.channelId),
     );
 
+
     return chatDetailsAsync.when(
       data: (details) {
+        if (details.currentMemberStatus == ChannelMemberStatus.invited) {
+          // Instead of redirecting inside build, we can just return PeepholeScreen inline, or schedule a GoRouter push
+          // But since it's a deep link, it's safe to just show the peephole view if they haven't accepted
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/chats'); // We shouldn't stay here
+              context.push('/chats/peephole', extra: details);
+            }
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
         final otherResident = details.otherResident;
         final otherName = details.otherUserName ?? 'Resident';
         final otherAvatar = details.otherUserAvatar;

@@ -173,7 +173,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   Widget _buildImage(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('/moments/gallery', extra: widget.moment.imageUrl);
+        context.push('/gallery', extra: widget.moment.imageUrl);
       },
       child: Container(
         width: double.infinity,

@@ -69,14 +69,14 @@ GoRouter router(Ref ref) {
               return MomentDetailScreen(moment: moment);
             },
           ),
-          GoRoute(
-            path: 'gallery',
-            builder: (context, state) {
-              final imageUrl = state.extra as String;
-              return ImageGalleryScreen(imageUrl: imageUrl);
-            },
-          ),
         ],
+      ),
+      GoRoute(
+        path: '/gallery',
+        builder: (context, state) {
+          final imageUrl = state.extra as String;
+          return ImageGalleryScreen(imageUrl: imageUrl);
+        },
       ),
       GoRoute(
         path: '/chats',

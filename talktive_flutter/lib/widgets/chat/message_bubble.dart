@@ -152,7 +152,7 @@ class MessageBubble extends ConsumerWidget {
                         ),
                         child: GestureDetector(
                           onTap: () {
-                            context.push('/moments/gallery', extra: message.imageUrl);
+                            context.push('/gallery', extra: message.imageUrl);
                           },
                           child: Hero(
                             tag: 'moment_image_${message.imageUrl.hashCode}',

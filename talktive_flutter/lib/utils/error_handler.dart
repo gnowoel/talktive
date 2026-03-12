@@ -1,3 +1,4 @@
+import 'package:talktive_client/talktive_client.dart';
 import 'package:flutter/material.dart';
 
 /// Centralized error handling utility for the Flutter app.
@@ -105,7 +106,13 @@ class ErrorHandler {
 
   /// Extracts a user-friendly error message from various error types.
   static String getErrorMessage(Object error) {
-    if (error is Exception) {
+    if (error is TalktiveException) {
+      return error.message;
+    } else if (error is ServerpodClientException) {
+      return (error.message == 'Internal server error' && error.statusCode == 500)
+          ? 'Something went wrong on our end. Please try again later.'
+          : error.message;
+    } else if (error is Exception) {
       final message = error.toString();
       if (message.startsWith('Exception: ')) {
         return message.substring(11);

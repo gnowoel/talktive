@@ -13,9 +13,13 @@ class UserNotifications extends _$UserNotifications {
 
   Future<List<UserNotification>> _fetchNotifications() async {
     try {
-      final notifications = await client.notification.getUserNotifications(limit: 50, offset: 0, unreadOnly: false);
+      final notifications = await client.notification.getUserNotifications(
+        limit: 50,
+        offset: 0,
+        unreadOnly: false,
+      );
       return notifications;
-    } catch (e, st) {
+    } catch (e) {
       throw Exception('Failed to load activity: $e');
     }
   }

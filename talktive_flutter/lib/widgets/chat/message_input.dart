@@ -94,7 +94,9 @@ class MessageInput extends StatelessWidget {
                         ],
                       )
                     : null,
-                color: enabled ? null : AppTheme.textSecondary.withValues(alpha: 0.3),
+                color: enabled
+                    ? null
+                    : AppTheme.textSecondary.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
                 boxShadow: enabled
                     ? [

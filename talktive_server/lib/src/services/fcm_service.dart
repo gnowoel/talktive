@@ -150,7 +150,10 @@ class FCMService {
         return false;
       }
     } catch (e) {
-      session.log('FCM DEBUG: Failed to send FCM notification: $e', level: LogLevel.error);
+      session.log(
+        'FCM DEBUG: Failed to send FCM notification: $e',
+        level: LogLevel.error,
+      );
       return false;
     }
   }

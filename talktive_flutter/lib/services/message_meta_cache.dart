@@ -91,7 +91,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (!_isValidMessageId(messageId)) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Invalid messageId provided to isMessageRecalled: "$messageId"');
+          'MessageMetaCache: Invalid messageId provided to isMessageRecalled: "$messageId"',
+        );
       }
       return false;
     }
@@ -99,7 +100,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (_disposed) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Accessed after disposal, returning false');
+          'MessageMetaCache: Accessed after disposal, returning false',
+        );
       }
       return false;
     }
@@ -112,7 +114,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (!_isValidMessageId(messageId)) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Invalid messageId provided to isMessageRecalledWithFallback: "$messageId"');
+          'MessageMetaCache: Invalid messageId provided to isMessageRecalledWithFallback: "$messageId"',
+        );
       }
       return fallbackValue;
     }
@@ -121,7 +124,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (_disposed) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Accessed after disposal, returning fallback value');
+          'MessageMetaCache: Accessed after disposal, returning fallback value',
+        );
       }
       return fallbackValue;
     }
@@ -134,7 +138,8 @@ class MessageMetaCache extends ChangeNotifier {
       // Cache miss - use fallback and log for debugging
       if (kDebugMode && fallbackValue && _currentCollectionId != null) {
         debugPrint(
-            'MessageMetaCache: Cache miss for message $messageId in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue');
+          'MessageMetaCache: Cache miss for message $messageId in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue',
+        );
       }
       return fallbackValue;
     }
@@ -145,7 +150,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (!_isValidMessageId(messageId)) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Invalid messageId provided to getMessageReportCount: "$messageId"');
+          'MessageMetaCache: Invalid messageId provided to getMessageReportCount: "$messageId"',
+        );
       }
       return 0;
     }
@@ -165,7 +171,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (!_isValidMessageId(messageId)) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Invalid messageId provided to getMessageReportCountWithFallback: "$messageId"');
+          'MessageMetaCache: Invalid messageId provided to getMessageReportCountWithFallback: "$messageId"',
+        );
       }
       return fallbackValue;
     }
@@ -174,7 +181,8 @@ class MessageMetaCache extends ChangeNotifier {
     if (_disposed) {
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache: Accessed after disposal, returning fallback value');
+          'MessageMetaCache: Accessed after disposal, returning fallback value',
+        );
       }
       return fallbackValue;
     }
@@ -187,7 +195,8 @@ class MessageMetaCache extends ChangeNotifier {
       // Cache miss - use fallback and log for debugging
       if (kDebugMode && fallbackValue > 0 && _currentCollectionId != null) {
         debugPrint(
-            'MessageMetaCache: Cache miss for message $messageId report count in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue');
+          'MessageMetaCache: Cache miss for message $messageId report count in $_currentCollectionType $_currentCollectionId, using fallback value: $fallbackValue',
+        );
       }
       return fallbackValue;
     }
@@ -223,13 +232,15 @@ class MessageMetaCache extends ChangeNotifier {
     // Validate parameters with more detailed error handling
     if (collectionId.isEmpty || collectionType.isEmpty) {
       debugPrint(
-          'MessageMetaCache: Invalid parameters - collectionId: "$collectionId", type: "$collectionType"');
+        'MessageMetaCache: Invalid parameters - collectionId: "$collectionId", type: "$collectionType"',
+      );
       return;
     }
 
     if (!['chat', 'topic'].contains(collectionType)) {
       debugPrint(
-          'MessageMetaCache: Invalid collection type: "$collectionType". Must be "chat" or "topic"');
+        'MessageMetaCache: Invalid collection type: "$collectionType". Must be "chat" or "topic"',
+      );
       return;
     }
 
@@ -253,18 +264,20 @@ class MessageMetaCache extends ChangeNotifier {
           .collection(collectionPath)
           .snapshots()
           .listen(
-        _handleMessageMetaUpdate,
-        onError: (error) {
-          debugPrint(
-              'MessageMetaCache: Error listening to $collectionPath: $error');
-          // Attempt to recover by clearing current state
-          _handleSubscriptionError(error, collectionPath);
-        },
-        cancelOnError: false, // Don't cancel on error, allow recovery
-      );
+            _handleMessageMetaUpdate,
+            onError: (error) {
+              debugPrint(
+                'MessageMetaCache: Error listening to $collectionPath: $error',
+              );
+              // Attempt to recover by clearing current state
+              _handleSubscriptionError(error, collectionPath);
+            },
+            cancelOnError: false, // Don't cancel on error, allow recovery
+          );
     } catch (e) {
       debugPrint(
-          'MessageMetaCache: Failed to subscribe to $collectionType $collectionId: $e');
+        'MessageMetaCache: Failed to subscribe to $collectionType $collectionId: $e',
+      );
       // Reset state on subscription failure
       _currentCollectionId = null;
       _currentCollectionType = null;
@@ -288,7 +301,8 @@ class MessageMetaCache extends ChangeNotifier {
 
       if (kDebugMode && changes.isNotEmpty) {
         debugPrint(
-            'MessageMetaCache: Processing ${changes.length} changes for $_currentCollectionType $_currentCollectionId');
+          'MessageMetaCache: Processing ${changes.length} changes for $_currentCollectionType $_currentCollectionId',
+        );
       }
 
       for (final change in changes) {
@@ -328,17 +342,20 @@ class MessageMetaCache extends ChangeNotifier {
                             (messageMeta.reportCount != null &&
                                 messageMeta.reportCount! > 0))) {
                       debugPrint(
-                          'MessageMetaCache: Message $messageId marked as recalled');
+                        'MessageMetaCache: Message $messageId marked as recalled',
+                      );
                     }
                   }
                 } catch (e) {
                   debugPrint(
-                      'MessageMetaCache: Error parsing message meta for $messageId: $e');
+                    'MessageMetaCache: Error parsing message meta for $messageId: $e',
+                  );
                   errorsEncountered++;
                 }
               } else {
                 debugPrint(
-                    'MessageMetaCache: Null data for message $messageId');
+                  'MessageMetaCache: Null data for message $messageId',
+                );
                 errorsEncountered++;
               }
               break;
@@ -348,14 +365,16 @@ class MessageMetaCache extends ChangeNotifier {
                 changesProcessed++;
                 if (kDebugMode) {
                   debugPrint(
-                      'MessageMetaCache: Removed message meta for $messageId');
+                    'MessageMetaCache: Removed message meta for $messageId',
+                  );
                 }
               }
               break;
           }
         } catch (e) {
           debugPrint(
-              'MessageMetaCache: Error processing change for message $messageId: $e');
+            'MessageMetaCache: Error processing change for message $messageId: $e',
+          );
           errorsEncountered++;
         }
       }
@@ -367,17 +386,21 @@ class MessageMetaCache extends ChangeNotifier {
 
       if (kDebugMode && (changesProcessed > 0 || errorsEncountered > 0)) {
         debugPrint(
-            'MessageMetaCache: Processed $changesProcessed changes, $errorsEncountered errors from ${changes.length} total changes');
+          'MessageMetaCache: Processed $changesProcessed changes, $errorsEncountered errors from ${changes.length} total changes',
+        );
       }
     } catch (e) {
       debugPrint(
-          'MessageMetaCache: Critical error handling message meta update: $e');
+        'MessageMetaCache: Critical error handling message meta update: $e',
+      );
       // On critical errors, try to recover by clearing potentially corrupted state
       if (_messageMeta.length > _maxCacheSize ~/ 2) {
         debugPrint(
-            'MessageMetaCache: Attempting recovery by clearing half the cache');
-        final keysToRemove =
-            _messageMeta.keys.take(_messageMeta.length ~/ 2).toList();
+          'MessageMetaCache: Attempting recovery by clearing half the cache',
+        );
+        final keysToRemove = _messageMeta.keys
+            .take(_messageMeta.length ~/ 2)
+            .toList();
         for (final key in keysToRemove) {
           _messageMeta.remove(key);
         }
@@ -400,7 +423,8 @@ class MessageMetaCache extends ChangeNotifier {
   void unsubscribe() {
     if (_currentCollectionId != null) {
       debugPrint(
-          'MessageMetaCache: Unsubscribing from $_currentCollectionType $_currentCollectionId');
+        'MessageMetaCache: Unsubscribing from $_currentCollectionType $_currentCollectionId',
+      );
     }
     _subscription?.cancel();
     _subscription = null;
@@ -457,7 +481,8 @@ class MessageMetaCache extends ChangeNotifier {
     }
 
     debugPrint(
-        'MessageMetaCache: Cache size limit enforced, removed $entriesToRemove entries');
+      'MessageMetaCache: Cache size limit enforced, removed $entriesToRemove entries',
+    );
   }
 
   /// Get performance metrics for debugging
@@ -478,7 +503,8 @@ class MessageMetaCache extends ChangeNotifier {
   /// Handle subscription errors with recovery attempts
   void _handleSubscriptionError(Object error, String collectionPath) {
     debugPrint(
-        'MessageMetaCache: Subscription error for $collectionPath: $error');
+      'MessageMetaCache: Subscription error for $collectionPath: $error',
+    );
 
     // Clear potentially stale data on subscription errors
     if (_messageMeta.isNotEmpty) {
@@ -503,7 +529,8 @@ class MessageMetaCache extends ChangeNotifier {
   void dispose() {
     if (_disposed) {
       debugPrint(
-          'MessageMetaCache: Already disposed, ignoring duplicate dispose call');
+        'MessageMetaCache: Already disposed, ignoring duplicate dispose call',
+      );
       return;
     }
 
@@ -525,7 +552,8 @@ class MessageMetaCache extends ChangeNotifier {
       // Log final metrics in debug mode
       if (kDebugMode) {
         debugPrint(
-            'MessageMetaCache disposed. Final metrics: ${getMetrics()}, cleared $cacheSize cached items');
+          'MessageMetaCache disposed. Final metrics: ${getMetrics()}, cleared $cacheSize cached items',
+        );
       }
     } catch (e) {
       debugPrint('MessageMetaCache: Error during disposal: $e');

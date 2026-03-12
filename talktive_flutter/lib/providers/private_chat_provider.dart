@@ -24,10 +24,16 @@ class PrivateChatList extends _$PrivateChatList {
   }
 
   /// Creates or retrieves a private chat with another user.
-  Future<PrivateChat> getOrCreateChat(String otherUserId, {String? initialMessage}) async {
+  Future<PrivateChat> getOrCreateChat(
+    String otherUserId, {
+    String? initialMessage,
+  }) async {
     final client = ref.read(clientProvider);
     try {
-      final chat = await client.privateChat.getOrCreatePrivateChat(otherUserId, initialMessage: initialMessage);
+      final chat = await client.privateChat.getOrCreatePrivateChat(
+        otherUserId,
+        initialMessage: initialMessage,
+      );
 
       // Refresh the list to include the new chat
       ref.invalidateSelf();

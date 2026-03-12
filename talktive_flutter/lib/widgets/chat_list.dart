@@ -38,8 +38,9 @@ class _ChatListState extends State<ChatList> {
     if (widget.items != oldWidget.items) {
       final newItemIds = widget.items.map((e) => e.id).toSet();
 
-      final removedIdsNowGone =
-          _removedItemIds.where((id) => !newItemIds.contains(id)).toList();
+      final removedIdsNowGone = _removedItemIds
+          .where((id) => !newItemIds.contains(id))
+          .toList();
       for (final id in removedIdsNowGone) {
         _removedItemIds.remove(id);
         _undoTimers.remove(id)?.cancel();

@@ -34,7 +34,8 @@ class GroupChatLoader extends ConsumerWidget {
         }
         return const Scaffold(body: Center(child: Text('Group not found')));
       },
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }
@@ -130,7 +131,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(widget.group.channelId));
     final currentResident = ref.watch(currentResidentProvider).value;
-    final canSend = currentResident != null && !FloorUtils.isMuted(currentResident);
+    final canSend =
+        currentResident != null && !FloorUtils.isMuted(currentResident);
 
     return DuoChatInputLayout(
       appBar: AppBar(
@@ -200,7 +202,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           DuoRefreshButton(
             color: Colors.black,
             onRefresh: () {
-              ref.read(realtimeChatProvider(widget.group.channelId).notifier).refresh();
+              ref
+                  .read(realtimeChatProvider(widget.group.channelId).notifier)
+                  .refresh();
             },
           ),
           IconButton(
@@ -224,7 +228,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               } else if (value == 'edit') {
                 showDialog(
                   context: context,
-                  builder: (context) => CreateGroupDialog(existingGroup: widget.group),
+                  builder: (context) =>
+                      CreateGroupDialog(existingGroup: widget.group),
                 );
               } else if (value == 'leave') {
                 _confirmLeaveClub(context, ref);
@@ -233,15 +238,23 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               }
             },
             itemBuilder: (_) {
-              final isCreator = currentResident?.userInfoId == widget.group.creatorId;
+              final isCreator =
+                  currentResident?.userInfoId == widget.group.creatorId;
               return [
                 const PopupMenuItem(
                   value: 'profile',
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: AppTheme.duoBlue, size: 20),
+                      Icon(
+                        Icons.info_outline,
+                        color: AppTheme.duoBlue,
+                        size: 20,
+                      ),
                       SizedBox(width: 12),
-                      Text('Club Info', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'Club Info',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                 ),
@@ -252,7 +265,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       children: [
                         Icon(Icons.edit, color: AppTheme.duoBlue, size: 20),
                         SizedBox(width: 12),
-                        Text('Edit Club Info', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Edit Club Info',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                   ),
@@ -261,9 +277,19 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                     value: 'leave',
                     child: Row(
                       children: [
-                        Icon(Icons.exit_to_app, color: AppTheme.duoRed, size: 20),
+                        Icon(
+                          Icons.exit_to_app,
+                          color: AppTheme.duoRed,
+                          size: 20,
+                        ),
                         SizedBox(width: 12),
-                        Text('Leave Club', style: TextStyle(color: AppTheme.duoRed, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Leave Club',
+                          style: TextStyle(
+                            color: AppTheme.duoRed,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -272,9 +298,19 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete_forever, color: AppTheme.duoRed, size: 20),
+                        Icon(
+                          Icons.delete_forever,
+                          color: AppTheme.duoRed,
+                          size: 20,
+                        ),
                         SizedBox(width: 12),
-                        Text('Disband Club', style: TextStyle(color: AppTheme.duoRed, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Disband Club',
+                          style: TextStyle(
+                            color: AppTheme.duoRed,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -288,9 +324,11 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       onImagePick: _pickAndSendImage,
       enabled: canSend && !_isUploading,
       activeColor: AppTheme.duoBlue,
-      hintText: _isUploading 
-          ? 'Uploading image...' 
-          : (canSend ? 'Message the club...' : FloorUtils.getMuteInputHint(currentResident)),
+      hintText: _isUploading
+          ? 'Uploading image...'
+          : (canSend
+                ? 'Message the club...'
+                : FloorUtils.getMuteInputHint(currentResident)),
       content: chatState.when(
         data: (messages) => messages.isEmpty
             ? _buildEmptyState()
@@ -432,9 +470,12 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         title: const Text('Leave Club?'),
         content: const Text('Are you sure you want to leave this community?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true), 
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppTheme.duoRed),
             child: const Text('Leave'),
           ),
@@ -462,12 +503,20 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Disband Club?', style: TextStyle(color: AppTheme.duoRed)),
-        content: const Text('This will delete the club for everyone and all messages will be lost. This cannot be undone!'),
+        title: const Text(
+          'Disband Club?',
+          style: TextStyle(color: AppTheme.duoRed),
+        ),
+        content: const Text(
+          'This will delete the club for everyone and all messages will be lost. This cannot be undone!',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true), 
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppTheme.duoRed),
             child: const Text('DISBAND'),
           ),
@@ -482,7 +531,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         await client.group.deleteGroup(widget.group.id!);
         if (context.mounted) {
           ref.invalidate(groupListProvider);
-          Navigator.pop(context); 
+          Navigator.pop(context);
           SnackBarHelper.showSuccess(context, 'The club has been disbanded.');
         }
       } catch (e) {

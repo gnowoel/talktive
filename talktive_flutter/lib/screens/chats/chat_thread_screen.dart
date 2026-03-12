@@ -19,10 +19,7 @@ import '../../providers/private_chat_provider.dart';
 class ChatThreadScreen extends ConsumerStatefulWidget {
   final int channelId;
 
-  const ChatThreadScreen({
-    super.key,
-    required this.channelId,
-  });
+  const ChatThreadScreen({super.key, required this.channelId});
 
   @override
   ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
@@ -127,160 +124,207 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatDetailsAsync = ref.watch(privateChatDetailsProvider(widget.channelId));
+    final chatDetailsAsync = ref.watch(
+      privateChatDetailsProvider(widget.channelId),
+    );
 
     return chatDetailsAsync.when(
       data: (details) {
-        final privateChat = details.chat;
         final otherResident = details.otherResident;
         final otherName = details.otherUserName ?? 'Resident';
         final otherAvatar = details.otherUserAvatar;
         final otherFloor = FloorUtils.computeFloor(otherResident);
         final otherMood = details.otherUserMood;
-    
-        final chatState = ref.watch(
-          realtimeChatProvider(widget.channelId),
-        );
 
-        final canSend = _currentResident != null && !FloorUtils.isMuted(_currentResident!);
-        final hintText = (_currentResident != null && FloorUtils.isMuted(_currentResident!))
+        final chatState = ref.watch(realtimeChatProvider(widget.channelId));
+
+        final canSend =
+            _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+        final hintText =
+            (_currentResident != null && FloorUtils.isMuted(_currentResident!))
             ? FloorUtils.getMuteInputHint(_currentResident!)
             : 'Type a message...';
 
-    return DuoChatInputLayout(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context);
-          },
-        ),
-        title: Row(
-          children: [
-            DuoAvatar(
-              imageUrl: otherAvatar,
-              size: 36,
-              mood: otherMood,
-              showRing: true,
-              floorLevel: otherFloor,
+        return DuoChatInputLayout(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                Navigator.pop(context);
+              },
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    otherName,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'Online', // TODO: Implement real presence status
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppTheme.duoGreen),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          DuoRefreshButton(
-            color: Colors.black,
-            onRefresh: () {
-              ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
-            },
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
-            onSelected: (value) async {
-              if (value == 'leave') {
-                 final confirm = await showDialog<bool>(
-                   context: context,
-                   builder: (ctx) => AlertDialog(
-                     title: const Text('Leave Chat?'),
-                     content: const Text('Are you sure you want to leave this chat? You won\'t be able to receive messages until you\'re invited back.'),
-                     actions: [
-                       TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
-                       TextButton(
-                         onPressed: () => Navigator.pop(ctx, true), 
-                         child: const Text('Leave', style: TextStyle(color: AppTheme.duoRed)),
-                       ),
-                     ],
-                   )
-                 );
-                 if (confirm == true && mounted) {
-                    try {
-                      await ref.read(privateChatListProvider.notifier).leaveChat(widget.channelId);
-                      if (mounted) {
-                        Navigator.pop(context); // Go back to chats list
-                      }
-                    } catch (e) {
-                      if (mounted) SnackBarHelper.showError(context, 'Failed to leave chat');
-                    }
-                 }
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem<String>(
-                  value: 'leave',
-                  child: Row(
+            title: Row(
+              children: [
+                DuoAvatar(
+                  imageUrl: otherAvatar,
+                  size: 36,
+                  mood: otherMood,
+                  showRing: true,
+                  floorLevel: otherFloor,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.exit_to_app, color: AppTheme.duoRed, size: 20),
-                      SizedBox(width: 8),
-                      Text('Leave Chat', style: TextStyle(color: AppTheme.duoRed)),
+                      Text(
+                        otherName,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                      ),
+                      Text(
+                        'Online', // TODO: Implement real presence status
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.duoGreen,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ];
-            },
+              ],
+            ),
+            actions: [
+              DuoRefreshButton(
+                color: Colors.black,
+                onRefresh: () {
+                  ref
+                      .read(realtimeChatProvider(widget.channelId).notifier)
+                      .refresh();
+                },
+              ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.black),
+                onSelected: (value) async {
+                  if (value == 'leave') {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Leave Chat?'),
+                        content: const Text(
+                          'Are you sure you want to leave this chat? You won\'t be able to receive messages until you\'re invited back.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text(
+                              'Leave',
+                              style: TextStyle(color: AppTheme.duoRed),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true && context.mounted) {
+                      try {
+                        await ref
+                            .read(privateChatListProvider.notifier)
+                            .leaveChat(widget.channelId);
+                        if (context.mounted) {
+                          Navigator.pop(context); // Go back to chats list
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          SnackBarHelper.showError(
+                            context,
+                            'Failed to leave chat',
+                          );
+                        }
+                      }
+                    }
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    const PopupMenuItem<String>(
+                      value: 'leave',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.exit_to_app,
+                            color: AppTheme.duoRed,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Leave Chat',
+                            style: TextStyle(color: AppTheme.duoRed),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      controller: _messageController,
-      onSend: _sendMessage,
-      onImagePick: _pickAndSendImage,
-      enabled: canSend && !_isUploading,
-      activeColor: AppTheme.duoOrange,
-      hintText: _isUploading ? 'Sending image...' : hintText,
-      content: chatState.when(
-        data: (messages) => messages.isEmpty
-            ? _buildEmptyState()
-            : _buildMessagesList(messages),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
-        ),
-        error: (error, stack) => _buildErrorState(error),
-      ),
-    );
-        },
+          controller: _messageController,
+          onSend: _sendMessage,
+          onImagePick: _pickAndSendImage,
+          enabled: canSend && !_isUploading,
+          activeColor: AppTheme.duoOrange,
+          hintText: _isUploading ? 'Sending image...' : hintText,
+          content: chatState.when(
+            data: (messages) => messages.isEmpty
+                ? _buildEmptyState()
+                : _buildMessagesList(messages),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryColor),
+            ),
+            error: (error, stack) => _buildErrorState(error),
+          ),
+        );
+      },
       loading: () => Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(title: const Text('Loading Chat...'), elevation: 0, backgroundColor: Colors.white),
-        body: const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        appBar: AppBar(
+          title: const Text('Loading Chat...'),
+          elevation: 0,
+          backgroundColor: Colors.white,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
       ),
       error: (e, stack) => Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(title: const Text('Error'), elevation: 0, backgroundColor: Colors.white),
-        body: Center(child: Column(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: [
-             const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
-             const SizedBox(height: 16),
-             Text('Failed to load chat: $e', style: const TextStyle(color: Colors.grey), textAlign: TextAlign.center),
-             TextButton(
-               onPressed: () => ref.invalidate(privateChatDetailsProvider(widget.channelId)), 
-               child: const Text('Retry')
-             ),
-           ],
-        )),
+        appBar: AppBar(
+          title: const Text('Error'),
+          elevation: 0,
+          backgroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load chat: $e',
+                style: const TextStyle(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              TextButton(
+                onPressed: () => ref.invalidate(
+                  privateChatDetailsProvider(widget.channelId),
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -368,9 +412,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   Widget _buildMessagesList(List<Message> messages) {
     return RefreshIndicator(
       onRefresh: () async {
-        ref
-            .read(realtimeChatProvider(widget.channelId).notifier)
-            .refresh();
+        ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
       },
       color: AppTheme.primaryColor,
       child: ListView.builder(
@@ -396,6 +438,4 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       ),
     );
   }
-
-
 }

@@ -4,11 +4,7 @@ class MessageSeparator extends StatelessWidget {
   final String? label;
   final bool showDot;
 
-  const MessageSeparator({
-    super.key,
-    this.label,
-    this.showDot = true,
-  });
+  const MessageSeparator({super.key, this.label, this.showDot = true});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +39,7 @@ class MessageSeparator extends StatelessWidget {
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: separatorColor,
-                  width: 1,
-                ),
+                border: Border.all(color: separatorColor, width: 1),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

@@ -454,8 +454,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   Widget _buildUserCard(Map<String, dynamic> user) {
     final userName = user['userName'] as String;
     final floor = user['floor'] as int? ?? 0;
-    final reputation =
-        user['floor'] as int? ?? user['trustScore'] as int? ?? 0;
+    final reputation = user['floor'] as int? ?? user['trustScore'] as int? ?? 0;
     final isAdmin = user['isAdmin'] as bool;
     final isBanned = user['isBanned'] as bool;
     final messageCount = user['messageCount'] as int;
@@ -518,7 +517,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(

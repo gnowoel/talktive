@@ -110,14 +110,18 @@ class FCMManager extends _$FCMManager {
   void _handleForegroundMessage(RemoteMessage message) {
     debugPrint('FCM DEBUG: Incoming foreground message: ${message.data}');
     if (message.data['appVersion'] != 'serverpod') {
-      debugPrint('FCM DEBUG: Ignoring message (wrong appVersion: ${message.data['appVersion']})');
+      debugPrint(
+        'FCM DEBUG: Ignoring message (wrong appVersion: ${message.data['appVersion']})',
+      );
       return;
     }
 
     final route = message.data['route'] as String?;
     if (route != null) {
       final currentRoute = ref.read(routerProvider).location;
-      debugPrint('FCM DEBUG: currentRoute: $currentRoute, messageRoute: $route');
+      debugPrint(
+        'FCM DEBUG: currentRoute: $currentRoute, messageRoute: $route',
+      );
       if (currentRoute == route) {
         debugPrint('Silencing toast, user is actively on: $route');
         return;
@@ -129,25 +133,34 @@ class FCMManager extends _$FCMManager {
     final emoji = _getEmojiForType(message.data['type'] ?? '');
 
     debugPrint('FCM DEBUG: Showing DuoNotification: $title - $body');
-    ref.read(notificationProvider.notifier).show(
-      DuoNotification(
-        title: title,
-        message: body,
-        emoji: emoji,
-        onTap: () => _handleNotificationTap(message),
-      ),
-    );
+    ref
+        .read(notificationProvider.notifier)
+        .show(
+          DuoNotification(
+            title: title,
+            message: body,
+            emoji: emoji,
+            onTap: () => _handleNotificationTap(message),
+          ),
+        );
   }
 
   String _getEmojiForType(String type) {
     switch (type) {
-      case 'message': return '💬';
-      case 'moment_like': return '❤️';
-      case 'moment_comment': return '💬';
-      case 'achievement': return '🏆';
-      case 'streak': return '🔥';
-      case 'group_invite': return '🎫';
-      default: return '🔔';
+      case 'message':
+        return '💬';
+      case 'moment_like':
+        return '❤️';
+      case 'moment_comment':
+        return '💬';
+      case 'achievement':
+        return '🏆';
+      case 'streak':
+        return '🔥';
+      case 'group_invite':
+        return '🎫';
+      default:
+        return '🔔';
     }
   }
 

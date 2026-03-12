@@ -30,7 +30,9 @@ class _DuoInfoBannerState extends State<DuoInfoBanner> {
   }
 
   Future<void> _checkDismissedState() async {
-    final dismissed = await Prefs.getBool('banner_dismissed_${widget.bannerId}');
+    final dismissed = await Prefs.getBool(
+      'banner_dismissed_${widget.bannerId}',
+    );
     if (mounted) {
       setState(() {
         _isDismissed = dismissed;
@@ -84,7 +86,11 @@ class _DuoInfoBannerState extends State<DuoInfoBanner> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 18, color: AppTheme.accentColor),
+            icon: const Icon(
+              Icons.close,
+              size: 18,
+              color: AppTheme.accentColor,
+            ),
             onPressed: _dismiss,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),

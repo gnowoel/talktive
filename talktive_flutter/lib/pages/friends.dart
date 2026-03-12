@@ -41,15 +41,16 @@ class _FriendsPageState extends State<FriendsPage> {
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
       case 3: // Mutual Friends
-        _friends = followCache
-            .getMergedFriends()
-            .where((friend) => followCache.isMutualFriend(friend.id))
-            .toList()
-          ..sort((a, b) {
-            final aTime = followCache.getMutualFriendshipStartTime(a.id);
-            final bTime = followCache.getMutualFriendshipStartTime(b.id);
-            return bTime.compareTo(aTime);
-          });
+        _friends =
+            followCache
+                .getMergedFriends()
+                .where((friend) => followCache.isMutualFriend(friend.id))
+                .toList()
+              ..sort((a, b) {
+                final aTime = followCache.getMutualFriendshipStartTime(a.id);
+                final bTime = followCache.getMutualFriendshipStartTime(b.id);
+                return bTime.compareTo(aTime);
+              });
         break;
     }
   }

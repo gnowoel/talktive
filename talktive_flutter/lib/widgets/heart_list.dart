@@ -6,14 +6,9 @@ import 'heart_item.dart';
 class HeartList extends StatelessWidget {
   final Duration elapsed;
 
-  const HeartList({
-    super.key,
-    required this.elapsed,
-  });
+  const HeartList({super.key, required this.elapsed});
 
-  final _full = const HeartItem(
-    semanticLabel: 'Full heart',
-  );
+  final _full = const HeartItem(semanticLabel: 'Full heart');
   final _half = const HeartItem(
     icon: Icons.heart_broken,
     semanticLabel: 'Half heart',
@@ -34,47 +29,19 @@ class HeartList extends StatelessWidget {
 
     switch (elapsed.inMinutes) {
       case < (kDebugMode ? 1 : 60 * 12 * 1):
-        children = [
-          _full,
-          _full,
-          _full,
-        ];
+        children = [_full, _full, _full];
       case < (kDebugMode ? 2 : 60 * 12 * 2):
-        children = [
-          _half,
-          _full,
-          _full,
-        ];
+        children = [_half, _full, _full];
       case < (kDebugMode ? 3 : 60 * 12 * 3):
-        children = [
-          _empty,
-          _full,
-          _full,
-        ];
+        children = [_empty, _full, _full];
       case < (kDebugMode ? 4 : 60 * 12 * 4):
-        children = [
-          _empty,
-          _half,
-          _full,
-        ];
+        children = [_empty, _half, _full];
       case < (kDebugMode ? 5 : 60 * 12 * 5):
-        children = [
-          _empty,
-          _empty,
-          _full,
-        ];
+        children = [_empty, _empty, _full];
       case < (kDebugMode ? 6 : 60 * 12 * 6):
-        children = [
-          _empty,
-          _empty,
-          _half,
-        ];
+        children = [_empty, _empty, _half];
       default:
-        children = [
-          _grey,
-          _grey,
-          _grey,
-        ];
+        children = [_grey, _grey, _grey];
     }
 
     return Row(children: children);

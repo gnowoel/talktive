@@ -8,7 +8,8 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart' as jwt;
 class EmulatorFirebaseIdpConfig extends FirebaseIdpConfig {
   const EmulatorFirebaseIdpConfig({
     required super.credentials,
-    super.firebaseAccountDetailsValidation = FirebaseIdpConfig.validateFirebaseAccountDetails,
+    super.firebaseAccountDetailsValidation =
+        FirebaseIdpConfig.validateFirebaseAccountDetails,
   });
 
   @override
@@ -30,10 +31,10 @@ class EmulatorFirebaseIdpConfig extends FirebaseIdpConfig {
 class EmulatorFirebaseIdp implements FirebaseIdp {
   @override
   final FirebaseIdpConfig config;
-  
+
   @override
   final FirebaseIdpUtils utils;
-  
+
   @override
   final FirebaseIdpAdmin admin;
 
@@ -48,7 +49,9 @@ class EmulatorFirebaseIdp implements FirebaseIdp {
   }) : _tokenIssuer = tokenIssuer,
        _userProfiles = userProfiles,
        utils = EmulatorFirebaseIdpUtils(config: config, authUsers: authUsers),
-       admin = FirebaseIdpAdmin(utils: EmulatorFirebaseIdpUtils(config: config, authUsers: authUsers));
+       admin = FirebaseIdpAdmin(
+         utils: EmulatorFirebaseIdpUtils(config: config, authUsers: authUsers),
+       );
 
   @override
   Future<AuthSuccess> login(
@@ -144,18 +147,24 @@ class EmulatorFirebaseIdpUtils extends FirebaseIdpUtils {
     required String idToken,
   }) async {
     final String projectId = config.credentials.projectId;
-    
+
     try {
       // Decode the token without verification (safe for local emulator use)
       final unverified = jwt.JWT.decode(idToken);
       final payload = unverified.payload as Map<String, dynamic>;
-      
-      session.log('EmulatorAuth: Processing token for project $projectId', level: LogLevel.debug);
-      
+
+      session.log(
+        'EmulatorAuth: Processing token for project $projectId',
+        level: LogLevel.debug,
+      );
+
       // Basic claim validation
       final aud = payload['aud'];
       if (aud != projectId) {
-        session.log('EmulatorAuth: Project ID mismatch. Expected $projectId but got $aud', level: LogLevel.warning);
+        session.log(
+          'EmulatorAuth: Project ID mismatch. Expected $projectId but got $aud',
+          level: LogLevel.warning,
+        );
         // Sometimes the emulator uses a different project ID naming convention or "demo-..."
         // We can choose to be lenient here if desired, but let's stick to the confirmation for now.
       }
@@ -165,7 +174,9 @@ class EmulatorFirebaseIdpUtils extends FirebaseIdpUtils {
         userIdentifier: payload['sub'] as String,
         email: payload['email'] as String?,
         fullName: payload['name'] as String?,
-        image: payload['picture'] != null ? Uri.tryParse(payload['picture'] as String) : null,
+        image: payload['picture'] != null
+            ? Uri.tryParse(payload['picture'] as String)
+            : null,
         verifiedEmail: payload['email_verified'] as bool?,
         phone: payload['phone_number'] as String?,
       );
@@ -175,7 +186,10 @@ class EmulatorFirebaseIdpUtils extends FirebaseIdpUtils {
 
       return details;
     } catch (e) {
-      session.log('EmulatorAuth: Failed to decode/validate token: $e', level: LogLevel.error);
+      session.log(
+        'EmulatorAuth: Failed to decode/validate token: $e',
+        level: LogLevel.error,
+      );
       rethrow;
     }
   }

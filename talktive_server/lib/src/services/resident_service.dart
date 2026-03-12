@@ -7,7 +7,10 @@ import 'gamification_service.dart';
 /// Service for managing Resident profiles and synchronization with AuthUser.
 class ResidentService {
   /// Fetches a Resident by their userInfoId.
-  static Future<Resident?> getResident(Session session, UuidValue userId) async {
+  static Future<Resident?> getResident(
+    Session session,
+    UuidValue userId,
+  ) async {
     return await Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userId),
@@ -15,19 +18,30 @@ class ResidentService {
   }
 
   /// Fetches a Resident and performs passive updates (Trust Score, Daily Login).
-  static Future<Resident?> getActiveResident(Session session, UuidValue userId) async {
+  static Future<Resident?> getActiveResident(
+    Session session,
+    UuidValue userId,
+  ) async {
     final resident = await getResident(session, userId);
     if (resident == null) return null;
 
     bool needsSave = false;
 
     // Passively restore trustScore
-    if (await ApartmentService.restoreTrustScore(session, resident, save: false)) {
+    if (await ApartmentService.restoreTrustScore(
+      session,
+      resident,
+      save: false,
+    )) {
       needsSave = true;
     }
 
     // Check daily login
-    if (await GamificationService.checkDailyLogin(session, resident, save: false)) {
+    if (await GamificationService.checkDailyLogin(
+      session,
+      resident,
+      save: false,
+    )) {
       needsSave = true;
     }
 

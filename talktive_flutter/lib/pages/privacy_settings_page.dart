@@ -102,10 +102,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -140,10 +137,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -248,14 +242,13 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
               children: [
                 const Text(
                   'Privacy Status',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
@@ -314,10 +307,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
           children: [
             const Text(
               'Privacy Options',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -354,25 +344,34 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
           children: [
             const Text(
               'Ad Request Statistics (Admin)',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildStatRow('Total Requests',
-                _requestStats['totalRequests']?.toString() ?? '0'),
-            _buildStatRow('Blocked Requests',
-                _requestStats['blockedRequests']?.toString() ?? '0'),
-            _buildStatRow('Successful Loads',
-                _requestStats['successfulLoads']?.toString() ?? '0'),
-            _buildStatRow('Failed Loads',
-                _requestStats['failedLoads']?.toString() ?? '0'),
+            _buildStatRow(
+              'Total Requests',
+              _requestStats['totalRequests']?.toString() ?? '0',
+            ),
+            _buildStatRow(
+              'Blocked Requests',
+              _requestStats['blockedRequests']?.toString() ?? '0',
+            ),
+            _buildStatRow(
+              'Successful Loads',
+              _requestStats['successfulLoads']?.toString() ?? '0',
+            ),
+            _buildStatRow(
+              'Failed Loads',
+              _requestStats['failedLoads']?.toString() ?? '0',
+            ),
             const Divider(),
             _buildStatRow(
-                'Fill Rate', _requestStats['fillRate']?.toString() ?? '0%'),
+              'Fill Rate',
+              _requestStats['fillRate']?.toString() ?? '0%',
+            ),
             _buildStatRow(
-                'Block Rate', _requestStats['blockRate']?.toString() ?? '0%'),
+              'Block Rate',
+              _requestStats['blockRate']?.toString() ?? '0%',
+            ),
           ],
         ),
       ),
@@ -390,33 +389,32 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
           children: [
             const Text(
               'Debug Information (Admin)',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            ..._debugInfo.entries.map((entry) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: Text(
-                          '${entry.key}:',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
+            ..._debugInfo.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 150,
+                      child: Text(
+                        '${entry.key}:',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Expanded(
-                        child: Text(
-                          entry.value.toString(),
-                          style: const TextStyle(fontFamily: 'monospace'),
-                        ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        entry.value.toString(),
+                        style: const TextStyle(fontFamily: 'monospace'),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -443,10 +441,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -460,8 +455,9 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed:
-                _isLoading || _isUpdatingConsent ? null : _loadPrivacyInfo,
+            onPressed: _isLoading || _isUpdatingConsent
+                ? null
+                : _loadPrivacyInfo,
           ),
         ],
       ),

@@ -178,7 +178,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   }
 
   bool _handleScrollMetricsNotification(
-      ScrollMetricsNotification notification) {
+    ScrollMetricsNotification notification,
+  ) {
     // Only auto-scroll if we're sticky and the metrics changed due to new content
     if (_isSticky &&
         notification.metrics.maxScrollExtent > notification.metrics.pixels) {
@@ -271,7 +272,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     }
 
     debugPrint(
-        'PaginatedMessageList: Loading initial messages for topic ${widget.id}');
+      'PaginatedMessageList: Loading initial messages for topic ${widget.id}',
+    );
 
     _currentInitialLoadId = widget.id;
 
@@ -297,7 +299,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       });
 
       debugPrint(
-          'PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore');
+        'PaginatedMessageList: Initial load complete - ${_messages.length} messages, hasMore: $_hasMore',
+      );
       widget.updateMessageCount(_messages.length);
 
       // Ensure we scroll to bottom after initial load
@@ -333,7 +336,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
     if (_isLoading || !_hasMore || _messageService == null) return;
 
     debugPrint(
-        'PaginatedMessageList: Loading more messages for topic ${widget.id}');
+      'PaginatedMessageList: Loading more messages for topic ${widget.id}',
+    );
 
     // Save precise scroll metrics before loading
     if (widget.scrollController.hasClients) {
@@ -362,7 +366,8 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       });
 
       debugPrint(
-          'PaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore');
+        'PaginatedMessageList: Loaded more messages, total: ${_messages.length}, hasMore: $_hasMore',
+      );
       widget.updateMessageCount(_messages.length);
 
       _adjustScrollPosition();
@@ -433,9 +438,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
   @override
   Widget build(BuildContext context) {
     if (!_initialLoadComplete) {
-      return const Center(
-        child: CircularProgressIndicator(strokeWidth: 3),
-      );
+      return const Center(child: CircularProgressIndicator(strokeWidth: 3));
     }
 
     if (_errorMessage != null) {
@@ -500,9 +503,7 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
                 childCount: _getItemCount(),
               ),
             ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 16),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
           ],
         ),
       ),
@@ -516,8 +517,9 @@ class _PaginatedMessageListState extends State<PaginatedMessageList> {
       return const MessageSeparator(label: 'New messages');
     }
 
-    final messageIndex =
-        _shouldShowSeparator() && index > readCount ? index - 1 : index;
+    final messageIndex = _shouldShowSeparator() && index > readCount
+        ? index - 1
+        : index;
 
     if (messageIndex < 0 || messageIndex >= _messages.length) {
       return const SizedBox.shrink();

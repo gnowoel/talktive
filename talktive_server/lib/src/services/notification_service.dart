@@ -40,7 +40,8 @@ class NotificationService {
     }
 
     // Prepare FCM payload with dual-boot safety flag
-    final fcmData = data?.map((key, value) => MapEntry(key, value.toString())) ?? {};
+    final fcmData =
+        data?.map((key, value) => MapEntry(key, value.toString())) ?? {};
     fcmData['appVersion'] = 'serverpod';
 
     // Send FCM push notification to each token
@@ -84,8 +85,8 @@ class NotificationService {
       data: {
         'channelId': channelId,
         'channelType': channelType,
-        'route': channelType == 'private' 
-            ? '/chats/thread/$routeId' 
+        'route': channelType == 'private'
+            ? '/chats/thread/$routeId'
             : (channelType == 'plaza' ? '/plaza' : '/groups/chat/$routeId'),
       },
       saveToHistory: false,
@@ -188,7 +189,8 @@ class NotificationService {
       'Tap to join',
       data: {
         'groupId': groupId,
-        'route': '/groups/profile/$groupId', // Usually group invites go to the group profile to apply/join
+        'route':
+            '/groups/profile/$groupId', // Usually group invites go to the group profile to apply/join
       },
       saveToHistory: false,
     );

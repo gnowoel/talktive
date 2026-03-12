@@ -85,9 +85,7 @@ class _UsersPageState extends State<UsersPage> {
     _fetchUsers(noCache: noCache);
   }
 
-  Future<void> _fetchUsers({
-    bool noCache = false,
-  }) async {
+  Future<void> _fetchUsers({bool noCache = false}) async {
     final userId = fireauth.instance.currentUser!.uid;
     final serverNow = serverClock.now;
 
@@ -117,8 +115,9 @@ class _UsersPageState extends State<UsersPage> {
   void _restoreUser(User user) {
     setState(() {
       // Insert the user back at the correct position based on updatedAt
-      final insertIndex =
-          _users.indexWhere((u) => u.updatedAt < user.updatedAt);
+      final insertIndex = _users.indexWhere(
+        (u) => u.updatedAt < user.updatedAt,
+      );
       if (insertIndex == -1) {
         _users.add(user);
       } else {
@@ -195,15 +194,13 @@ class _UsersPageState extends State<UsersPage> {
                               child: CircularProgressIndicator(strokeWidth: 3),
                             )
                           : users.isEmpty
-                              ? const ScrollableCenter(
-                                  child: Info(lines: lines),
-                                )
-                              : UserList(
-                                  users: users,
-                                  seenUserIds: seenUserIds,
-                                  onRemove: _removeUser,
-                                  onRestore: _restoreUser,
-                                ),
+                          ? const ScrollableCenter(child: Info(lines: lines))
+                          : UserList(
+                              users: users,
+                              seenUserIds: seenUserIds,
+                              onRemove: _removeUser,
+                              onRestore: _restoreUser,
+                            ),
                     ),
                   ],
                 ),

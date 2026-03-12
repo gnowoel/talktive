@@ -14,10 +14,7 @@ class SimplePaginatedResult<T> {
   final List<T> items;
   final bool hasMore;
 
-  const SimplePaginatedResult({
-    required this.items,
-    required this.hasMore,
-  });
+  const SimplePaginatedResult({required this.items, required this.hasMore});
 }
 
 /// Simple pagination state for topics
@@ -68,7 +65,8 @@ class SimpleTopicPaginationState {
       final newestNew = sorted.last.createdAt;
 
       debugPrint(
-          'TopicState[$topicId]: New messages range: ${oldestNew.toDate()} - ${newestNew.toDate()}');
+        'TopicState[$topicId]: New messages range: ${oldestNew.toDate()} - ${newestNew.toDate()}',
+      );
 
       if (oldestTimestamp == null ||
           oldestNew.compareTo(oldestTimestamp!) < 0) {
@@ -81,7 +79,8 @@ class SimpleTopicPaginationState {
       }
 
       debugPrint(
-          'TopicState[$topicId]: Updated timestamps - oldest: ${oldestTimestamp?.toDate()}, newest: ${newestTimestamp?.toDate()}');
+        'TopicState[$topicId]: Updated timestamps - oldest: ${oldestTimestamp?.toDate()}, newest: ${newestTimestamp?.toDate()}',
+      );
     }
 
     // Clean up old messages if we exceed the limit
@@ -90,7 +89,8 @@ class SimpleTopicPaginationState {
     }
 
     debugPrint(
-        'TopicState[$topicId]: Total messages in memory: ${_messageMap.length}');
+      'TopicState[$topicId]: Total messages in memory: ${_messageMap.length}',
+    );
   }
 
   void _trimOldMessages() {
@@ -98,7 +98,8 @@ class SimpleTopicPaginationState {
     if (_messageMap.length <= maxMessagesInMemory) return;
 
     debugPrint(
-        'TopicState[$topicId]: Trimming messages from ${_messageMap.length} to $maxMessagesInMemory');
+      'TopicState[$topicId]: Trimming messages from ${_messageMap.length} to $maxMessagesInMemory',
+    );
 
     // Sort all messages to maintain proper order
     final sorted = messages; // This gets sorted messages
@@ -121,7 +122,8 @@ class SimpleTopicPaginationState {
     }
 
     debugPrint(
-        'TopicState[$topicId]: After trim - messages: ${_messageMap.length}');
+      'TopicState[$topicId]: After trim - messages: ${_messageMap.length}',
+    );
   }
 
   void reset() {
@@ -199,11 +201,13 @@ class PaginatedMessageService extends ChangeNotifier {
       final sortedEntries = _topicStates.entries.toList()
         ..sort((a, b) => a.value.lastAccessed.compareTo(b.value.lastAccessed));
 
-      final toRemove =
-          sortedEntries.take(_topicStates.length - _maxCachedStates);
+      final toRemove = sortedEntries.take(
+        _topicStates.length - _maxCachedStates,
+      );
       for (final entry in toRemove) {
         debugPrint(
-            'Removing old topic state: ${entry.key} (messages: ${entry.value.messages.length})');
+          'Removing old topic state: ${entry.key} (messages: ${entry.value.messages.length})',
+        );
         entry.value.subscription?.cancel();
         entry.value.dispose();
         _topicStates.remove(entry.key);
@@ -224,7 +228,9 @@ class PaginatedMessageService extends ChangeNotifier {
   SimpleTopicPaginationState _getTopicState(String topicId) {
     final isNewState = !_topicStates.containsKey(topicId);
     final state = _topicStates.putIfAbsent(
-        topicId, () => SimpleTopicPaginationState(topicId));
+      topicId,
+      () => SimpleTopicPaginationState(topicId),
+    );
 
     if (isNewState) {
       debugPrint('Creating new topic state for $topicId');
@@ -245,7 +251,9 @@ class PaginatedMessageService extends ChangeNotifier {
 
     if (state.isLoading) {
       return SimplePaginatedResult(
-          items: state.messages, hasMore: state.hasMore);
+        items: state.messages,
+        hasMore: state.hasMore,
+      );
     }
 
     state.isLoading = true;
@@ -297,12 +305,15 @@ class PaginatedMessageService extends ChangeNotifier {
 
   // Load more older topic messages for pagination
   Future<SimplePaginatedResult<TopicMessage>> loadMoreTopicMessages(
-      String topicId) async {
+    String topicId,
+  ) async {
     final state = _getTopicState(topicId);
 
     if (state.isLoading || !state.hasMore || state.oldestTimestamp == null) {
       return SimplePaginatedResult(
-          items: state.messages, hasMore: state.hasMore);
+        items: state.messages,
+        hasMore: state.hasMore,
+      );
     }
 
     state.isLoading = true;
@@ -347,16 +358,20 @@ class PaginatedMessageService extends ChangeNotifier {
 
     state.subscription = _firestore
         .subscribeToTopicMessages(state.topicId, newestTimestampMs)
-        .listen((newMessages) {
-      if (newMessages.isNotEmpty) {
-        debugPrint(
-            'Topic[${state.topicId}]: Received ${newMessages.length} new messages');
-        state.addMessages(newMessages);
-        _safeNotifyListeners();
-      }
-    }, onError: (error) {
-      debugPrint('Topic subscription error: $error');
-    });
+        .listen(
+          (newMessages) {
+            if (newMessages.isNotEmpty) {
+              debugPrint(
+                'Topic[${state.topicId}]: Received ${newMessages.length} new messages',
+              );
+              state.addMessages(newMessages);
+              _safeNotifyListeners();
+            }
+          },
+          onError: (error) {
+            debugPrint('Topic subscription error: $error');
+          },
+        );
   }
 
   // Reset topic pagination state to initial conditions

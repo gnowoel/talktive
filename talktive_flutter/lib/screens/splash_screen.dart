@@ -33,6 +33,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // Initialize notification service via Riverpod FCMManager
     ref.read(fCMManagerProvider.notifier).initialize().catchError((error) {
       debugPrint('Error initializing notifications: $error');
+      return null;
     });
   }
 
@@ -164,7 +165,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                   fontSize: 60,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withValues(alpha: 0.1),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       offset: const Offset(2, 2),
                                       blurRadius: 4,
                                     ),

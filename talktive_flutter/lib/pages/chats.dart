@@ -189,7 +189,9 @@ class _ChatsPageState extends State<ChatsPage> {
         child: _items.isEmpty
             ? Center(
                 child: Info(
-                    lines: ['You have no active', 'conversations yet.', '']))
+                  lines: ['You have no active', 'conversations yet.', ''],
+                ),
+              )
             : Layout(
                 child: Column(
                   children: [

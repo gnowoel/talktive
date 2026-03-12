@@ -212,22 +212,24 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: _getStatusColor(
-                            _consentDebugInfo!['consentStatus'] ?? 'unknown')
-                        .withValues(alpha: 0.1),
+                      _consentDebugInfo!['consentStatus'] ?? 'unknown',
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _getStatusColor(
-                              _consentDebugInfo!['consentStatus'] ?? 'unknown')
-                          .withValues(alpha: 0.3),
+                        _consentDebugInfo!['consentStatus'] ?? 'unknown',
+                      ).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         _getStatusIcon(
-                            _consentDebugInfo!['consentStatus'] ?? 'unknown'),
+                          _consentDebugInfo!['consentStatus'] ?? 'unknown',
+                        ),
                         color: _getStatusColor(
-                            _consentDebugInfo!['consentStatus'] ?? 'unknown'),
+                          _consentDebugInfo!['consentStatus'] ?? 'unknown',
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -236,8 +238,9 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                           children: [
                             Text(
                               'Consent Status: ${_consentDebugInfo!['consentStatus'] ?? 'Unknown'}',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             if (_consentStatusMessage != null)
                               Text(
@@ -305,9 +308,9 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                                 : Icons.cancel,
                             color:
                                 _consentDebugInfo!['canShowPersonalizedAds'] ==
-                                        true
-                                    ? Colors.green
-                                    : Colors.red,
+                                    true
+                                ? Colors.green
+                                : Colors.red,
                             size: 16,
                           ),
                           const SizedBox(width: 8),
@@ -322,8 +325,8 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                                     true
                                 ? Icons.check_circle
                                 : Icons.cancel,
-                            color: _consentDebugInfo![
-                                        'canShowNonPersonalizedAds'] ==
+                            color:
+                                _consentDebugInfo!['canShowNonPersonalizedAds'] ==
                                     true
                                 ? Colors.green
                                 : Colors.red,
@@ -361,31 +364,33 @@ class _ConsentDebugWidgetState extends State<ConsentDebugWidget> {
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           const SizedBox(height: 8),
-                          ..._consentDebugInfo!.entries.map((entry) => Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 2),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: Text(
-                                        '${entry.key}:',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500),
+                          ..._consentDebugInfo!.entries.map(
+                            (entry) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 120,
+                                    child: Text(
+                                      '${entry.key}:',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        '${entry.value}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
-                                      ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${entry.value}',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
                                     ),
-                                  ],
-                                ),
-                              )),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -503,18 +508,11 @@ class _ConsentStatusIndicatorState extends State<ConsentStatusIndicator> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.privacy_tip,
-            size: 16,
-            color: Colors.blue.shade700,
-          ),
+          Icon(Icons.privacy_tip, size: 16, color: Colors.blue.shade700),
           const SizedBox(width: 4),
           Text(
             _statusMessage!,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.blue.shade700,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
           ),
         ],
       ),

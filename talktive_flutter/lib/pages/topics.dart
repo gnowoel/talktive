@@ -168,8 +168,9 @@ class _TopicsPageState extends State<TopicsPage> {
   void _restoreTopic(Topic topic) {
     setState(() {
       // Insert the topic back at the correct position based on createdAt
-      final insertIndex =
-          _topics.indexWhere((t) => t.createdAt < topic.createdAt);
+      final insertIndex = _topics.indexWhere(
+        (t) => t.createdAt < topic.createdAt,
+      );
       if (insertIndex == -1) {
         _topics.add(topic);
       } else {
@@ -336,15 +337,17 @@ class _TopicsPageState extends State<TopicsPage> {
                                             tribe.name,
                                             style: theme.textTheme.labelMedium!
                                                 .copyWith(
-                                              color: isSelected
-                                                  ? theme.colorScheme
-                                                      .onPrimaryContainer
-                                                  : theme.colorScheme
-                                                      .onSecondaryContainer,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.w600
-                                                  : FontWeight.normal,
-                                            ),
+                                                  color: isSelected
+                                                      ? theme
+                                                            .colorScheme
+                                                            .onPrimaryContainer
+                                                      : theme
+                                                            .colorScheme
+                                                            .onSecondaryContainer,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
+                                                ),
                                             textAlign: TextAlign.center,
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 2,
@@ -389,46 +392,46 @@ class _TopicsPageState extends State<TopicsPage> {
                           ),
                         )
                       : _topics.isEmpty
-                          ? SingleChildScrollView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              child: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.6,
-                                child: Center(
-                                  child: _selectedTribe?.description != null
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(32.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                _selectedTribe!.description!,
-                                                style: theme.textTheme.bodyLarge
-                                                    ?.copyWith(
-                                                  color: theme.colorScheme
+                      ? SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: Center(
+                              child: _selectedTribe?.description != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(32.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            _selectedTribe!.description!,
+                                            style: theme.textTheme.bodyLarge
+                                                ?.copyWith(
+                                                  color: theme
+                                                      .colorScheme
                                                       .onSurfaceVariant,
                                                   height: 1.5,
                                                 ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const SizedBox(height: 16),
-                                            ],
+                                            textAlign: TextAlign.center,
                                           ),
-                                        )
-                                      : Info(lines: lines),
-                                ),
-                              ),
-                            )
-                          : TopicList(
-                              topics: _topics,
-                              joinedTopicIds: joinedTopicIds,
-                              seenTopicIds: seenTopicIds,
-                              showTribeTags: _selectedTribe == null,
-                              onTribeSelected: _selectTribe,
-                              onRemove: _removeTopic,
-                              onRestore: _restoreTopic,
+                                          const SizedBox(height: 16),
+                                        ],
+                                      ),
+                                    )
+                                  : Info(lines: lines),
                             ),
+                          ),
+                        )
+                      : TopicList(
+                          topics: _topics,
+                          joinedTopicIds: joinedTopicIds,
+                          seenTopicIds: seenTopicIds,
+                          showTribeTags: _selectedTribe == null,
+                          onTribeSelected: _selectTribe,
+                          onRemove: _removeTopic,
+                          onRestore: _restoreTopic,
+                        ),
                 ),
               ],
             ),

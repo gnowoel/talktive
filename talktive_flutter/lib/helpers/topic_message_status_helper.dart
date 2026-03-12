@@ -12,27 +12,34 @@ class TopicMessageStatusHelper {
 
   /// Check if a message is from a blocked user
   static bool isFromBlockedUser(
-      TopicMessage message, TopicFollowersCache followersCache) {
+    TopicMessage message,
+    TopicFollowersCache followersCache,
+  ) {
     return followersCache.isUserBlocked(message.userId);
   }
 
   /// Check if a topic message is hidden but can be revealed
   static bool isHiddenButRevealable(TopicMessage message) {
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     return status == 'hidden';
   }
 
   /// Check if a topic message is removed (severe)
   static bool isRemoved(TopicMessage message) {
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     return status == 'severe';
   }
 
   /// Check if a topic message should be visible to regular users
-  static bool shouldShowMessage(TopicMessage message,
-      {bool isAdmin = false, TopicFollowersCache? followersCache}) {
+  static bool shouldShowMessage(
+    TopicMessage message, {
+    bool isAdmin = false,
+    TopicFollowersCache? followersCache,
+  }) {
     // Blocked users' messages are always hidden (except for admins)
     if (followersCache != null &&
         !isAdmin &&
@@ -54,8 +61,9 @@ class TopicMessageStatusHelper {
   /// Get replacement content for hidden topic messages
   static String getHiddenMessageContent(TopicMessage message) {
     final title = message is TopicImageMessage ? 'Image' : 'Message';
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     switch (status) {
       case 'hidden':
         return '- $title hidden -';
@@ -67,16 +75,20 @@ class TopicMessageStatusHelper {
   }
 
   /// Get content for copying (original for hidden, replacement for removed)
-  static String getCopyContent(TopicMessage message, String originalContent,
-      {TopicFollowersCache? followersCache}) {
+  static String getCopyContent(
+    TopicMessage message,
+    String originalContent, {
+    TopicFollowersCache? followersCache,
+  }) {
     // Blocked users' content cannot be copied
     if (followersCache != null &&
         followersCache.isUserBlocked(message.userId)) {
       return getBlockedUserMessageContent(message);
     }
 
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     switch (status) {
       case 'hidden':
         return originalContent; // Copy original content for hidden messages
@@ -89,9 +101,12 @@ class TopicMessageStatusHelper {
 
   /// Get the background color for topic messages based on status
   static Color? getMessageBackgroundColor(
-      TopicMessage message, ThemeData theme) {
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    TopicMessage message,
+    ThemeData theme,
+  ) {
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     if (status == null) return null;
 
     switch (status) {
@@ -108,8 +123,9 @@ class TopicMessageStatusHelper {
 
   /// Get border color for topic messages based on status
   static Color? getMessageBorderColor(TopicMessage message, ThemeData theme) {
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     if (status == null) return null;
 
     switch (status) {
@@ -137,8 +153,9 @@ class TopicMessageStatusHelper {
   /// Check if the report option should be available in context menu
   static bool shouldShowReportOption(TopicMessage message, bool isAuthor) {
     if (isAuthor) return false;
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     return status != 'severe'; // Hide report option for removed messages
   }
 
@@ -179,8 +196,10 @@ class TopicMessageStatusHelper {
 
   /// Get content for copying reported topic messages (always return original for text)
   static String getReportedCopyContent(
-      TopicMessage message, String originalContent,
-      {TopicFollowersCache? followersCache}) {
+    TopicMessage message,
+    String originalContent, {
+    TopicFollowersCache? followersCache,
+  }) {
     // Blocked users' content cannot be copied
     if (followersCache != null &&
         followersCache.isUserBlocked(message.userId)) {
@@ -223,8 +242,9 @@ class TopicMessageStatusHelper {
     }
 
     // Reporting actions
-    final status =
-        MessageReportConfig.getReportStatus(message.reportCount ?? 0);
+    final status = MessageReportConfig.getReportStatus(
+      message.reportCount ?? 0,
+    );
     if (!isAuthor && status != 'severe') {
       actions.add('Report');
     }
@@ -244,7 +264,8 @@ class TopicMessageStatusHelper {
   /// Check if a topic message should show a content warning
   static bool shouldShowContentWarning(TopicMessage message) {
     return MessageReportConfig.shouldShowContentWarning(
-        message.reportCount ?? 0);
+      message.reportCount ?? 0,
+    );
   }
 
   /// Create a content warning widget for topic messages
@@ -258,18 +279,12 @@ class TopicMessageStatusHelper {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.orange.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.warning_amber,
-            color: Colors.orange.shade700,
-            size: 24,
-          ),
+          Icon(Icons.warning_amber, color: Colors.orange.shade700, size: 24),
           const SizedBox(height: 8),
           Text(
             'Content Warning',

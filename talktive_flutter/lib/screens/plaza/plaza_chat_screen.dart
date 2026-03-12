@@ -23,8 +23,7 @@ class PlazaChatScreen extends ConsumerStatefulWidget {
   const PlazaChatScreen({super.key});
 
   @override
-  ConsumerState<PlazaChatScreen> createState() =>
-      _PlazaChatScreenState();
+  ConsumerState<PlazaChatScreen> createState() => _PlazaChatScreenState();
 }
 
 class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
@@ -45,7 +44,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
 
     final floor = FloorUtils.computeFloor(currentResident);
     if (floor < 2) {
-      SnackBarHelper.showError(context, 'You need to be Floor 2+ to send images in Plaza! 🏢');
+      SnackBarHelper.showError(
+        context,
+        'You need to be Floor 2+ to send images in Plaza! 🏢',
+      );
       return;
     }
 
@@ -93,7 +95,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
 
     try {
-      await ref.read(realtimeChatProvider(1).notifier).sendMessage(content, imageUrl: imageUrl);
+      await ref
+          .read(realtimeChatProvider(1).notifier)
+          .sendMessage(content, imageUrl: imageUrl);
       _messageController.clear();
       HapticFeedback.lightImpact();
 
@@ -116,7 +120,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     final chatState = ref.watch(realtimeChatProvider(1));
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
-    final canSend = currentResident != null && !FloorUtils.isMuted(currentResident);
+    final canSend =
+        currentResident != null && !FloorUtils.isMuted(currentResident);
 
     return DuoChatInputLayout(
       appBar: AppBar(
@@ -165,17 +170,21 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
       header: DuoInfoBanner(
         bannerId: 'plaza_image_rules',
-        text: currentResident != null && FloorUtils.computeFloor(currentResident) >= 2 
-          ? '📸 You can now share images in the Global Lounge!' 
-          : 'Text only. Floor 2+ residents can share images.',
+        text:
+            currentResident != null &&
+                FloorUtils.computeFloor(currentResident) >= 2
+            ? '📸 You can now share images in the Global Lounge!'
+            : 'Text only. Floor 2+ residents can share images.',
       ),
       controller: _messageController,
       onSend: _sendMessage,
       onImagePick: _pickAndSendImage,
       enabled: canSend && !_isUploading,
-      hintText: _isUploading 
-          ? 'Uploading image...' 
-          : (canSend ? 'Type a message...' : FloorUtils.getMuteInputHint(currentResident)),
+      hintText: _isUploading
+          ? 'Uploading image...'
+          : (canSend
+                ? 'Type a message...'
+                : FloorUtils.getMuteInputHint(currentResident)),
       content: chatState.when(
         data: (messages) {
           if (messages.isEmpty) {
@@ -242,6 +251,4 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
     );
   }
-
-
 }

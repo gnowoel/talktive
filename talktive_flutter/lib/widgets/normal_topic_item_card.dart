@@ -95,8 +95,8 @@ class _NormalTopicItemCardState extends State<NormalTopicItemCard> {
     final textColor = colorScheme.onSurface;
 
     final newMessageCount = widget.topic.unreadCount;
-    final lastMessageContent =
-        (widget.topic.lastMessageContent ?? '').replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent = (widget.topic.lastMessageContent ?? '')
+        .replaceAll(RegExp(r'\s+'), ' ');
 
     final topic = widget.topic;
     final creator = topic.creator;

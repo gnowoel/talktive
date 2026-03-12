@@ -15,7 +15,8 @@ extension TopicMessageReportHelper on TopicMessage {
       if (messageMetaCache == null) {
         if (kDebugMode) {
           debugPrint(
-              'TopicMessage: No messageMetaCache available, using original reportCount field: $originalCount');
+            'TopicMessage: No messageMetaCache available, using original reportCount field: $originalCount',
+          );
         }
         return originalCount;
       }
@@ -24,17 +25,21 @@ extension TopicMessageReportHelper on TopicMessage {
       if (!MessageReportHelper.isValidMessageId(messageId)) {
         if (kDebugMode) {
           debugPrint(
-              'TopicMessage: Invalid messageId "$messageId", using original reportCount field: $originalCount');
+            'TopicMessage: Invalid messageId "$messageId", using original reportCount field: $originalCount',
+          );
         }
         return originalCount;
       }
 
       return messageMetaCache.getMessageReportCountWithFallback(
-          messageId, originalCount);
+        messageId,
+        originalCount,
+      );
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking report count for message ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking report count for message ${id ?? 'null'}: $e',
+        );
       }
       return reportCount ?? 0;
     }
@@ -48,7 +53,8 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message is flagged for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message is flagged for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -62,7 +68,8 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message is hidden for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message is hidden for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -75,7 +82,8 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message is severe for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message is severe for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -88,7 +96,8 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message is reported for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message is reported for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -101,36 +110,44 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error getting report status for ${id ?? 'null'}: $e');
+          'TopicMessage: Error getting report status for ${id ?? 'null'}: $e',
+        );
       }
       return null;
     }
   }
 
   String getReportStatusDescriptionWithCache(
-      MessageMetaCache? messageMetaCache) {
+    MessageMetaCache? messageMetaCache,
+  ) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
       return MessageReportConfig.getStatusDescription(currentReportCount);
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error getting report status description for ${id ?? 'null'}: $e');
+          'TopicMessage: Error getting report status description for ${id ?? 'null'}: $e',
+        );
       }
       return 'No reports';
     }
   }
 
-  bool shouldShowWithCache(MessageMetaCache? messageMetaCache,
-      {bool isAdmin = false}) {
+  bool shouldShowWithCache(
+    MessageMetaCache? messageMetaCache, {
+    bool isAdmin = false,
+  }) {
     try {
       final currentReportCount = getReportCountWithCache(messageMetaCache);
-      return MessageReportConfig.shouldShowMessage(currentReportCount,
-          isAdmin: isAdmin);
+      return MessageReportConfig.shouldShowMessage(
+        currentReportCount,
+        isAdmin: isAdmin,
+      );
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message should show for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message should show for ${id ?? 'null'}: $e',
+        );
       }
       return true;
     }
@@ -143,7 +160,8 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking content warning for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking content warning for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -157,7 +175,8 @@ extension TopicMessageReportHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message is reported but revealable for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message is reported but revealable for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -183,14 +202,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return 0;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error getting message report count: $e');
+          'MessageReportHelper: Error getting message report count: $e',
+        );
       }
       return 0;
     }
@@ -207,14 +228,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error checking if message is flagged: $e');
+          'MessageReportHelper: Error checking if message is flagged: $e',
+        );
       }
       return false;
     }
@@ -231,14 +254,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error checking if message is hidden: $e');
+          'MessageReportHelper: Error checking if message is hidden: $e',
+        );
       }
       return false;
     }
@@ -255,14 +280,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error checking if message is severe: $e');
+          'MessageReportHelper: Error checking if message is severe: $e',
+        );
       }
       return false;
     }
@@ -279,14 +306,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error checking if message is reported: $e');
+          'MessageReportHelper: Error checking if message is reported: $e',
+        );
       }
       return false;
     }
@@ -303,14 +332,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error checking if message is reported but revealable: $e');
+          'MessageReportHelper: Error checking if message is reported but revealable: $e',
+        );
       }
       return false;
     }
@@ -327,14 +358,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return null;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error getting message report status: $e');
+          'MessageReportHelper: Error getting message report status: $e',
+        );
       }
       return null;
     }
@@ -351,14 +384,16 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return 'No reports';
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error getting message report status description: $e');
+          'MessageReportHelper: Error getting message report status description: $e',
+        );
       }
       return 'No reports';
     }
@@ -376,7 +411,8 @@ class MessageReportHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error validating message ID "$messageId": $e');
+          'MessageReportHelper: Error validating message ID "$messageId": $e',
+        );
       }
       return false;
     }
@@ -390,7 +426,8 @@ class MessageReportHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageReportHelper: Unknown message type: ${message.runtimeType}');
+            'MessageReportHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return null;
       }
@@ -414,7 +451,8 @@ class MessageReportHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error checking report functionality availability: $e');
+          'MessageReportHelper: Error checking report functionality availability: $e',
+        );
       }
       return false;
     }
@@ -449,8 +487,10 @@ class MessageReportHelper {
         'cacheValue': messageId != null && messageMetaCache != null
             ? messageMetaCache.getMessageReportCount(messageId)
             : null,
-        'reportFunctionalityAvailable':
-            isReportFunctionalityAvailable(message, messageMetaCache),
+        'reportFunctionalityAvailable': isReportFunctionalityAvailable(
+          message,
+          messageMetaCache,
+        ),
         'timestamp': DateTime.now().toIso8601String(),
       };
     } catch (e) {
@@ -471,7 +511,8 @@ class MessageReportHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageReportHelper: Error getting original reportCount field: $e');
+          'MessageReportHelper: Error getting original reportCount field: $e',
+        );
       }
       return null;
     }

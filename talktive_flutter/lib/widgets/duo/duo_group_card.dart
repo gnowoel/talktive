@@ -41,7 +41,9 @@ class DuoGroupCard extends StatelessWidget {
                 if (trailing != null) trailing!,
               ],
             ),
-            if (showInterests && group.interests != null && group.interests!.isNotEmpty) ...[
+            if (showInterests &&
+                group.interests != null &&
+                group.interests!.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildInterests(),
             ],
@@ -73,10 +75,7 @@ class DuoGroupCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
       ),
       child: Center(
-        child: Text(
-          group.emoji ?? '👥',
-          style: const TextStyle(fontSize: 28),
-        ),
+        child: Text(group.emoji ?? '👥', style: const TextStyle(fontSize: 28)),
       ),
     );
   }
@@ -90,7 +89,9 @@ class DuoGroupCard extends StatelessWidget {
             Expanded(
               child: Text(
                 group.name,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -105,7 +106,9 @@ class DuoGroupCard extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               '${group.memberCount}/${group.maxMembers}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -134,20 +137,36 @@ class DuoGroupCard extends StatelessWidget {
     return Wrap(
       spacing: 6,
       runSpacing: -6,
-      children: group.interests!.take(maxInterests).map((interest) => Chip(
-        label: Text('#$interest', style: const TextStyle(fontSize: 10, color: AppTheme.duoBlue, fontWeight: FontWeight.bold)),
-        padding: EdgeInsets.zero,
-        backgroundColor: AppTheme.duoBlue.withValues(alpha: 0.1),
-        side: BorderSide.none,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      )).toList(),
+      children: group.interests!
+          .take(maxInterests)
+          .map(
+            (interest) => Chip(
+              label: Text(
+                '#$interest',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppTheme.duoBlue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              padding: EdgeInsets.zero,
+              backgroundColor: AppTheme.duoBlue.withValues(alpha: 0.1),
+              side: BorderSide.none,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
   Widget _buildDescription(BuildContext context) {
     return Text(
       group.description!,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[800]),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[800]),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );

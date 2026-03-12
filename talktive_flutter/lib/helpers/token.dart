@@ -15,17 +15,15 @@ class RecoveryToken {
   factory RecoveryToken.generate() {
     final random = Random.secure();
 
-    final emailPart =
-        List.generate(
-          _emailLength,
-          (index) => _chars[random.nextInt(_chars.length)],
-        ).join();
+    final emailPart = List.generate(
+      _emailLength,
+      (index) => _chars[random.nextInt(_chars.length)],
+    ).join();
 
-    final passwordPart =
-        List.generate(
-          _passwordLength,
-          (index) => _chars[random.nextInt(_chars.length)],
-        ).join();
+    final passwordPart = List.generate(
+      _passwordLength,
+      (index) => _chars[random.nextInt(_chars.length)],
+    ).join();
 
     return RecoveryToken._('$emailPart$_domain', passwordPart);
   }

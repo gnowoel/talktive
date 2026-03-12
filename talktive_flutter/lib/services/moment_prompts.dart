@@ -129,7 +129,7 @@ class MomentPrompts {
       'i achieved',
       'i overcame',
       'happened to me',
-      'i experienced'
+      'i experienced',
     ];
 
     for (final indicator in personalIndicators) {

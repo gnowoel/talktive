@@ -209,16 +209,16 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                                         'Tell your story... What happened? How did it make you feel?',
                                     suffixIcon:
                                         _messageController.text.isNotEmpty
-                                            ? IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _messageController.clear();
-                                                  });
-                                                },
-                                                icon: const Icon(Icons.clear),
-                                                tooltip: 'Clear text',
-                                              )
-                                            : null,
+                                        ? IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _messageController.clear();
+                                              });
+                                            },
+                                            icon: const Icon(Icons.clear),
+                                            tooltip: 'Clear text',
+                                          )
+                                        : null,
                                   ),
                                   validator: _validateMessage,
                                   // minLines: 3,

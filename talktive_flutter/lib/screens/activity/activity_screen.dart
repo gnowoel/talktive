@@ -31,7 +31,8 @@ class ActivityScreen extends ConsumerWidget {
       ),
       hasBackButton: true,
       body: activityAsync.when(
-        data: (notifications) => _buildActivityList(context, ref, notifications),
+        data: (notifications) =>
+            _buildActivityList(context, ref, notifications),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppTheme.duoBlue),
         ),
@@ -55,16 +56,16 @@ class ActivityScreen extends ConsumerWidget {
             Text(
               'No activity yet',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
             ),
             const SizedBox(height: AppTheme.duoSpacingSmall),
             Text(
               'Meaningful events will appear here',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[500],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
             ),
           ],
         ).animate().fadeIn().slideY(begin: 0.2),
@@ -94,19 +95,22 @@ class ActivityScreen extends ConsumerWidget {
     UserNotification notification,
   ) {
     final emoji = _getEmojiForType(notification.type);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
       child: GestureDetector(
         onTap: () {
           HapticFeedback.lightImpact();
           if (notification.id != null && !notification.read) {
-            ref.read(userNotificationsProvider.notifier).markAsRead([notification.id!]);
+            ref.read(userNotificationsProvider.notifier).markAsRead([
+              notification.id!,
+            ]);
           }
 
           if (notification.data != null) {
             try {
-              final data = jsonDecode(notification.data!) as Map<String, dynamic>;
+              final data =
+                  jsonDecode(notification.data!) as Map<String, dynamic>;
               final route = data['route'] as String?;
               if (route != null) {
                 context.push(route);
@@ -117,7 +121,9 @@ class ActivityScreen extends ConsumerWidget {
           }
         },
         child: DuoCard(
-          color: notification.read ? Colors.white : AppTheme.duoBlue.withValues(alpha: 0.1),
+          color: notification.read
+              ? Colors.white
+              : AppTheme.duoBlue.withValues(alpha: 0.1),
           child: Padding(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             child: Row(
@@ -152,8 +158,11 @@ class ActivityScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               notification.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: notification.read ? FontWeight.w600 : FontWeight.bold,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: notification.read
+                                        ? FontWeight.w600
+                                        : FontWeight.bold,
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -161,9 +170,8 @@ class ActivityScreen extends ConsumerWidget {
                           ),
                           Text(
                             timeago.format(notification.createdAt),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[500],
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[500]),
                           ),
                         ],
                       ),
@@ -171,8 +179,8 @@ class ActivityScreen extends ConsumerWidget {
                       Text(
                         notification.body,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[700],
-                            ),
+                          color: Colors.grey[700],
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -189,13 +197,20 @@ class ActivityScreen extends ConsumerWidget {
 
   String _getEmojiForType(String type) {
     switch (type) {
-      case 'message': return '💬';
-      case 'moment_like': return '❤️';
-      case 'moment_comment': return '💬';
-      case 'achievement': return '🏆';
-      case 'streak': return '🔥';
-      case 'group_invite': return '🎫';
-      default: return '🔔';
+      case 'message':
+        return '💬';
+      case 'moment_like':
+        return '❤️';
+      case 'moment_comment':
+        return '💬';
+      case 'achievement':
+        return '🏆';
+      case 'streak':
+        return '🔥';
+      case 'group_invite':
+        return '🎫';
+      default:
+        return '🔔';
     }
   }
 
@@ -208,7 +223,9 @@ class ActivityScreen extends ConsumerWidget {
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load activity',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppTheme.duoSpacingSmall),
           DuoRefreshButton(
@@ -220,4 +237,3 @@ class ActivityScreen extends ConsumerWidget {
     );
   }
 }
-

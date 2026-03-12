@@ -26,13 +26,14 @@ class SnackBarHelper {
     } else if (error is TalktiveException) {
       message = error.message;
     } else if (error is ServerpodClientException) {
-      message = (error.message == 'Internal server error' && error.statusCode == 500)
+      message =
+          (error.message == 'Internal server error' && error.statusCode == 500)
           ? 'Something went wrong on our end. Please try again later.'
           : error.message;
     } else {
       final errorStr = error.toString();
-      message = errorStr.contains('Exception: ') 
-          ? errorStr.split('Exception: ')[1] 
+      message = errorStr.contains('Exception: ')
+          ? errorStr.split('Exception: ')[1]
           : errorStr;
     }
 

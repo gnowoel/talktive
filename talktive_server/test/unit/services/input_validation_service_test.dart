@@ -33,8 +33,14 @@ void main() {
       test('valid genders return success', () {
         expect(InputValidationService.validateGender('male').isValid, isTrue);
         expect(InputValidationService.validateGender('female').isValid, isTrue);
-        expect(InputValidationService.validateGender('non-binary').isValid, isTrue);
-        expect(InputValidationService.validateGender('prefer-not-to-say').isValid, isTrue);
+        expect(
+          InputValidationService.validateGender('non-binary').isValid,
+          isTrue,
+        );
+        expect(
+          InputValidationService.validateGender('prefer-not-to-say').isValid,
+          isTrue,
+        );
       });
 
       test('invalid gender returns error', () {
@@ -46,7 +52,9 @@ void main() {
 
     group('validateMessageContent', () {
       test('valid message returns success', () {
-        final result = InputValidationService.validateMessageContent('Hello world');
+        final result = InputValidationService.validateMessageContent(
+          'Hello world',
+        );
         expect(result.isValid, isTrue);
       });
 
@@ -57,42 +65,71 @@ void main() {
 
       test('overly long message returns error', () {
         final longMessage = 'M' * 2001;
-        final result = InputValidationService.validateMessageContent(longMessage);
+        final result = InputValidationService.validateMessageContent(
+          longMessage,
+        );
         expect(result.isValid, isFalse);
       });
     });
 
     group('validatePagination', () {
       test('valid pagination returns success', () {
-        final result = InputValidationService.validatePagination(limit: 20, offset: 0);
+        final result = InputValidationService.validatePagination(
+          limit: 20,
+          offset: 0,
+        );
         expect(result.isValid, isTrue);
       });
 
       test('invalid limit returns error', () {
-        expect(InputValidationService.validatePagination(limit: 0, offset: 0).isValid, isFalse);
-        expect(InputValidationService.validatePagination(limit: 101, offset: 0).isValid, isFalse);
+        expect(
+          InputValidationService.validatePagination(
+            limit: 0,
+            offset: 0,
+          ).isValid,
+          isFalse,
+        );
+        expect(
+          InputValidationService.validatePagination(
+            limit: 101,
+            offset: 0,
+          ).isValid,
+          isFalse,
+        );
       });
 
       test('negative offset returns error', () {
-        final result = InputValidationService.validatePagination(limit: 20, offset: -1);
+        final result = InputValidationService.validatePagination(
+          limit: 20,
+          offset: -1,
+        );
         expect(result.isValid, isFalse);
       });
     });
 
     group('validateStringList', () {
       test('valid list returns success', () {
-        final result = InputValidationService.validateStringList(['gaming', 'coding'], 'Interests');
+        final result = InputValidationService.validateStringList([
+          'gaming',
+          'coding',
+        ], 'Interests');
         expect(result.isValid, isTrue);
       });
 
       test('list with empty items returns error', () {
-        final result = InputValidationService.validateStringList(['gaming', ''], 'Interests');
+        final result = InputValidationService.validateStringList([
+          'gaming',
+          '',
+        ], 'Interests');
         expect(result.isValid, isFalse);
       });
 
       test('too many items returns error', () {
         final items = List.generate(11, (i) => 'Item $i');
-        final result = InputValidationService.validateStringList(items, 'Interests');
+        final result = InputValidationService.validateStringList(
+          items,
+          'Interests',
+        );
         expect(result.isValid, isFalse);
       });
     });

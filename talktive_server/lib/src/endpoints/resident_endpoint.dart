@@ -7,7 +7,7 @@ import '../services/resident_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
-  /// Checks if the authenticated user has a Resident profile and 
+  /// Checks if the authenticated user has a Resident profile and
   /// performs standard background tasks (daily login bonus, etc.).
   Future<Resident?> getResident(Session session) async {
     final auth = session.authenticated;
@@ -44,8 +44,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
-    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
-    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    InputValidationService.validateStringList(
+      interests,
+      'Interests',
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      languages,
+      'Languages',
+    ).throwIfInvalid();
 
     final senderUuid = await getUserId(session);
 
@@ -114,8 +120,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
-    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
-    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    InputValidationService.validateStringList(
+      interests,
+      'Interests',
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      languages,
+      'Languages',
+    ).throwIfInvalid();
 
     final resident = await getAuthenticatedResident(session);
     final senderUuid = resident.userInfoId;

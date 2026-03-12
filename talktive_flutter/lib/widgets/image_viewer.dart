@@ -19,21 +19,18 @@ class ImageViewer extends StatelessWidget {
             imageProvider: imageProvider,
             minScale: PhotoViewComputedScale.contained,
             maxScale: PhotoViewComputedScale.covered * 2,
-            loadingBuilder:
-                (context, event) => Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(
-                      value:
-                          event?.expectedTotalBytes != null
-                              ? event!.cumulativeBytesLoaded /
-                                  event.expectedTotalBytes!
-                              : null,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
+            loadingBuilder: (context, event) => Center(
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(
+                  value: event?.expectedTotalBytes != null
+                      ? event!.cumulativeBytesLoaded / event.expectedTotalBytes!
+                      : null,
+                  color: theme.colorScheme.primary,
                 ),
+              ),
+            ),
           ),
           Positioned(
             top: 40,

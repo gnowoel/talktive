@@ -101,10 +101,10 @@ class _TopicItemState extends State<TopicItem> {
         )
         .closed
         .then((reason) {
-      if (reason == SnackBarClosedReason.timeout) {
-        _unlistTopic();
-      }
-    });
+          if (reason == SnackBarClosedReason.timeout) {
+            _unlistTopic();
+          }
+        });
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
@@ -264,12 +264,13 @@ class _TopicItemState extends State<TopicItem> {
       cardColor = widget.hasJoined
           ? colorScheme.surfaceContainerHigh
           : (widget.hasSeen
-              ? colorScheme.surfaceContainerHigh
-              : colorScheme.secondaryContainer);
+                ? colorScheme.surfaceContainerHigh
+                : colorScheme.secondaryContainer);
     }
 
     final currentUser = userCache.user;
-    final canUnlist = (byMe || (currentUser?.isAdminOrModerator == true)) &&
+    final canUnlist =
+        (byMe || (currentUser?.isAdminOrModerator == true)) &&
         widget.onRemove != null &&
         widget.onRestore != null;
 
@@ -345,9 +346,7 @@ class _TopicItemState extends State<TopicItem> {
           children: [
             const SizedBox(height: 4),
             Text(
-              formatText(
-                widget.topic.lastMessageContent,
-              ),
+              formatText(widget.topic.lastMessageContent),
               overflow: TextOverflow.ellipsis,
               style: TextStyle(height: 1.2),
               maxLines: 3,
@@ -431,10 +430,13 @@ class _TopicItemState extends State<TopicItem> {
         children: [
           Icon(Icons.visibility_off, color: colorScheme.onErrorContainer),
           const SizedBox(width: 8),
-          Text('Unlist',
-              style: TextStyle(
-                  color: colorScheme.onErrorContainer,
-                  fontWeight: FontWeight.bold)),
+          Text(
+            'Unlist',
+            style: TextStyle(
+              color: colorScheme.onErrorContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

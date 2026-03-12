@@ -11,7 +11,10 @@ class NotificationEndpoint extends Endpoint {
     int offset = 0,
     bool unreadOnly = false,
   }) async {
-    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -93,4 +96,3 @@ class NotificationEndpoint extends Endpoint {
     await NotificationService.unregisterDeviceToken(session, token);
   }
 }
-

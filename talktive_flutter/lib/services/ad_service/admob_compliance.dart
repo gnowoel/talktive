@@ -117,7 +117,8 @@ class AdMobCompliance {
       // In debug mode, log that consent is being bypassed if applicable
       if (kDebugMode) {
         safeLog(
-            'Ad compliance validated: Ads can be requested (debug mode may bypass consent)');
+          'Ad compliance validated: Ads can be requested (debug mode may bypass consent)',
+        );
       } else {
         safeLog('Ad compliance validated: Ads can be requested');
       }
@@ -147,13 +148,13 @@ class AdMobCompliance {
 
   /// Get test ad unit IDs for different platforms and ad types
   static Map<String, String> get testAdUnitIds => {
-        'banner_android': 'ca-app-pub-3940256099942544/6300978111',
-        'banner_ios': 'ca-app-pub-3940256099942544/2934735716',
-        'interstitial_android': 'ca-app-pub-3940256099942544/1033173712',
-        'interstitial_ios': 'ca-app-pub-3940256099942544/4411468910',
-        'rewarded_android': 'ca-app-pub-3940256099942544/5224354917',
-        'rewarded_ios': 'ca-app-pub-3940256099942544/1712485313',
-      };
+    'banner_android': 'ca-app-pub-3940256099942544/6300978111',
+    'banner_ios': 'ca-app-pub-3940256099942544/2934735716',
+    'interstitial_android': 'ca-app-pub-3940256099942544/1033173712',
+    'interstitial_ios': 'ca-app-pub-3940256099942544/4411468910',
+    'rewarded_android': 'ca-app-pub-3940256099942544/5224354917',
+    'rewarded_ios': 'ca-app-pub-3940256099942544/1712485313',
+  };
 
   /// Initialize compliance checking (call this when user logs in or app starts)
   static Future<void> initialize() async {
@@ -170,7 +171,8 @@ class AdMobCompliance {
       safeLog('Warning: Failed to initialize consent service: $e');
       if (kDebugMode) {
         safeLog(
-            'Debug mode: Consent service failure is non-blocking for test ads');
+          'Debug mode: Consent service failure is non-blocking for test ads',
+        );
       }
     }
 
@@ -255,8 +257,9 @@ class AdMobCompliance {
       // In debug mode, provide additional context about consent bypass
       if (kDebugMode) {
         safeLog(
-            'Debug mode: If this is a consent issue, it may be bypassed for test ads',
-            forceLog: true);
+          'Debug mode: If this is a consent issue, it may be bypassed for test ads',
+          forceLog: true,
+        );
       }
       return false;
     }

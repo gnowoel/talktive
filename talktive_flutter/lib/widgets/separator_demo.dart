@@ -7,9 +7,7 @@ class SeparatorDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Message Separator Demo'),
-      ),
+      appBar: AppBar(title: const Text('Message Separator Demo')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -19,18 +17,17 @@ class SeparatorDemo extends StatelessWidget {
               Text(
                 'Message Separators',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Subtle visual dividers to separate read and unread messages',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.7),
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -39,9 +36,7 @@ class SeparatorDemo extends StatelessWidget {
                 context,
                 title: 'With Label and Dot',
                 description: 'The standard separator with "New messages" label',
-                child: const MessageSeparator(
-                  label: 'New messages',
-                ),
+                child: const MessageSeparator(label: 'New messages'),
               ),
 
               const SizedBox(height: 32),
@@ -51,9 +46,7 @@ class SeparatorDemo extends StatelessWidget {
                 context,
                 title: 'Custom Label',
                 description: 'Separator with custom text',
-                child: const MessageSeparator(
-                  label: 'Unread',
-                ),
+                child: const MessageSeparator(label: 'Unread'),
               ),
 
               const SizedBox(height: 32),
@@ -85,16 +78,14 @@ class SeparatorDemo extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
-                        .withValues(alpha: 0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -103,8 +94,8 @@ class SeparatorDemo extends StatelessWidget {
                     Text(
                       'In Context',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -114,17 +105,21 @@ class SeparatorDemo extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // Mock message
-                    _buildMockMessage(context, 'Last read message',
-                        isRead: true),
-
-                    // Separator
-                    const MessageSeparator(
-                      label: 'New messages',
+                    _buildMockMessage(
+                      context,
+                      'Last read message',
+                      isRead: true,
                     ),
 
+                    // Separator
+                    const MessageSeparator(label: 'New messages'),
+
                     // Mock message
-                    _buildMockMessage(context, 'First unread message',
-                        isRead: false),
+                    _buildMockMessage(
+                      context,
+                      'First unread message',
+                      isRead: false,
+                    ),
                   ],
                 ),
               ),
@@ -146,19 +141,18 @@ class SeparatorDemo extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           description,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.7),
-              ),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         const SizedBox(height: 12),
         Container(
@@ -168,8 +162,9 @@ class SeparatorDemo extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color:
-                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: child,
@@ -178,8 +173,11 @@ class SeparatorDemo extends StatelessWidget {
     );
   }
 
-  Widget _buildMockMessage(BuildContext context, String text,
-      {required bool isRead}) {
+  Widget _buildMockMessage(
+    BuildContext context,
+    String text, {
+    required bool isRead,
+  }) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -192,10 +190,9 @@ class SeparatorDemo extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: !isRead
               ? Border.all(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondary
-                      .withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.3),
                 )
               : null,
         ),

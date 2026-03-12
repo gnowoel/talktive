@@ -21,7 +21,10 @@ class GoRouterRoomHelper {
   /// Navigate to a chat room with potential ad display
   /// Uses context.go() for tab-level navigation
   static Future<void> goToChat(
-      BuildContext context, String chatId, String chatCreatedAt) async {
+    BuildContext context,
+    String chatId,
+    String chatCreatedAt,
+  ) async {
     await _navigateToRoom(
       context: context,
       destination: encodeChatRoute(chatId, chatCreatedAt),
@@ -32,7 +35,10 @@ class GoRouterRoomHelper {
   /// Navigate to a topic room with potential ad display
   /// Uses context.go() for tab-level navigation
   static Future<void> goToTopic(
-      BuildContext context, String topicId, String topicCreatorId) async {
+    BuildContext context,
+    String topicId,
+    String topicCreatorId,
+  ) async {
     await _navigateToRoom(
       context: context,
       destination: encodeTopicRoute(topicId, topicCreatorId),
@@ -43,7 +49,10 @@ class GoRouterRoomHelper {
   /// Push to a chat room with potential ad display
   /// Uses context.push() for modal/overlay navigation
   static Future<T?> pushToChat<T>(
-      BuildContext context, String chatId, String chatCreatedAt) async {
+    BuildContext context,
+    String chatId,
+    String chatCreatedAt,
+  ) async {
     return await _navigateToRoom<T>(
       context: context,
       destination: encodeChatRoute(chatId, chatCreatedAt),
@@ -54,7 +63,10 @@ class GoRouterRoomHelper {
   /// Push to a topic room with potential ad display
   /// Uses context.push() for modal/overlay navigation
   static Future<T?> pushToTopic<T>(
-      BuildContext context, String topicId, String topicCreatorId) async {
+    BuildContext context,
+    String topicId,
+    String topicCreatorId,
+  ) async {
     return await _navigateToRoom<T>(
       context: context,
       destination: encodeTopicRoute(topicId, topicCreatorId),
@@ -72,14 +84,16 @@ class GoRouterRoomHelper {
     _adManager.trackRoomTransition();
 
     AdMobCompliance.safeLog(
-        'Room transition tracked. Destination: $destination');
+      'Room transition tracked. Destination: $destination',
+    );
 
     // Validate compliance before attempting to show ads
     final isCompliant = await _adManager.validateCompliance();
     if (!isCompliant) {
       AdMobCompliance.safeLog(
-          'Compliance validation failed - skipping ad display',
-          forceLog: true);
+        'Compliance validation failed - skipping ad display',
+        forceLog: true,
+      );
       // Continue with navigation without ads
       if (!context.mounted) return null;
 
@@ -92,8 +106,10 @@ class GoRouterRoomHelper {
             return await context.push<T>(destination);
         }
       } catch (e) {
-        AdMobCompliance.safeLog('Navigation error to $destination: $e',
-            forceLog: true);
+        AdMobCompliance.safeLog(
+          'Navigation error to $destination: $e',
+          forceLog: true,
+        );
         return null;
       }
     }
@@ -103,7 +119,8 @@ class GoRouterRoomHelper {
 
     if (adShown) {
       AdMobCompliance.safeLog(
-          'Showed interstitial ad before navigation to $destination');
+        'Showed interstitial ad before navigation to $destination',
+      );
     } else {
       AdMobCompliance.safeLog('No ad shown. ${_adManager.getTimingMessage()}');
     }
@@ -111,7 +128,8 @@ class GoRouterRoomHelper {
     // Ensure context is still valid after potential ad display
     if (!context.mounted) {
       debugPrint(
-          'GoRouterRoomHelper: Context no longer mounted after potential ad display');
+        'GoRouterRoomHelper: Context no longer mounted after potential ad display',
+      );
       return null;
     }
 
@@ -147,7 +165,9 @@ class GoRouterRoomHelper {
 
   /// Push without ads (for non-room destinations)
   static Future<T?> pushWithoutAd<T>(
-      BuildContext context, String destination) async {
+    BuildContext context,
+    String destination,
+  ) async {
     if (context.mounted) {
       return await context.push<T>(destination);
     }
@@ -242,7 +262,8 @@ class GoRouterRoomHelper {
   /// Bypasses all timing and engagement restrictions
   static Future<bool> forceShowAdForTesting() async {
     AdMobCompliance.safeLog(
-        '🔧 Force show ad triggered from navigation helper');
+      '🔧 Force show ad triggered from navigation helper',
+    );
     return await _adManager.forceShowAdForTesting();
   }
 
@@ -298,7 +319,8 @@ class GoRouterRoomHelper {
         // Check if we should preload based on current ad readiness
         if (!_adManager.isAdReady && validateComplianceSync()) {
           AdMobCompliance.safeLog(
-              'Intelligently preloading ad after navigation');
+            'Intelligently preloading ad after navigation',
+          );
           _adManager.preloadAd();
         }
       }
@@ -326,7 +348,10 @@ extension GoRouterRoomExtensions on BuildContext {
   /// Push to topic with room transition ads
   Future<T?> pushToTopic<T>(String topicId, String topicCreatorId) async {
     return await GoRouterRoomHelper.pushToTopic<T>(
-        this, topicId, topicCreatorId);
+      this,
+      topicId,
+      topicCreatorId,
+    );
   }
 
   /// Navigate without ads (for non-room destinations)
@@ -381,10 +406,7 @@ extension GoRouterRoomExtensions on BuildContext {
 }
 
 /// Internal enum for navigation methods
-enum _NavigationMethod {
-  go,
-  push,
-}
+enum _NavigationMethod { go, push }
 
 /// Debug widget to show ad timing information and compliance status
 class RoomAdDebugInfo extends StatelessWidget {
@@ -421,9 +443,11 @@ class RoomAdDebugInfo extends StatelessWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(success
-                            ? 'Ad force shown successfully!'
-                            : 'Failed to show ad - check logs'),
+                        content: Text(
+                          success
+                              ? 'Ad force shown successfully!'
+                              : 'Failed to show ad - check logs',
+                        ),
                         backgroundColor: success ? Colors.green : Colors.red,
                         duration: Duration(seconds: 2),
                       ),
@@ -436,10 +460,7 @@ class RoomAdDebugInfo extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   minimumSize: Size(0, 0),
                 ),
-                child: Text(
-                  'Force Ad',
-                  style: TextStyle(fontSize: 10),
-                ),
+                child: Text('Force Ad', style: TextStyle(fontSize: 10)),
               ),
             ],
           ),
@@ -506,8 +527,9 @@ class RoomAdDebugInfo extends StatelessWidget {
                         Text(
                           'Ready: ${adManager.isAdReady}',
                           style: TextStyle(
-                            color:
-                                adManager.isAdReady ? Colors.green : Colors.red,
+                            color: adManager.isAdReady
+                                ? Colors.green
+                                : Colors.red,
                             fontSize: 10,
                           ),
                         ),
@@ -600,10 +622,11 @@ class RoomAdDebugInfo extends StatelessWidget {
                   Text(
                     'Highly Engaged: ${stats['isHighlyEngaged'] ? 'Yes' : 'No'}',
                     style: TextStyle(
-                        color: stats['isHighlyEngaged']
-                            ? Colors.green
-                            : Colors.grey,
-                        fontSize: 10),
+                      color: stats['isHighlyEngaged']
+                          ? Colors.green
+                          : Colors.grey,
+                      fontSize: 10,
+                    ),
                   ),
 
                   const SizedBox(height: 4),

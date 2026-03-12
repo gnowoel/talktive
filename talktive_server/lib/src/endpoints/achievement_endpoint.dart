@@ -53,4 +53,3 @@ class AchievementEndpoint extends Endpoint {
     await AchievementService.seedAchievements(session);
   }
 }
-

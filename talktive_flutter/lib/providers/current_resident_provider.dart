@@ -62,14 +62,18 @@ class CurrentResident extends _$CurrentResident {
       state = AsyncValue.data(resident);
 
       // Trigger level-up notification
-      if (oldResident != null && resident != null && resident.level > oldResident.level) {
-        ref.read(notificationProvider.notifier).show(
-          DuoNotification(
-            title: 'Level Up! 🏢',
-            message: "You've reached Floor ${resident.level}!",
-            emoji: '🎉',
-          ),
-        );
+      if (oldResident != null &&
+          resident != null &&
+          resident.level > oldResident.level) {
+        ref
+            .read(notificationProvider.notifier)
+            .show(
+              DuoNotification(
+                title: 'Level Up! 🏢',
+                message: "You've reached Floor ${resident.level}!",
+                emoji: '🎉',
+              ),
+            );
       }
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);

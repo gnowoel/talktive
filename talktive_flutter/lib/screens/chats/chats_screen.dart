@@ -39,8 +39,16 @@ class ChatsScreen extends ConsumerWidget {
             return _buildEmptyState(context);
           }
 
-          final pendingChats = chats.where((c) => c.currentMemberStatus == ChannelMemberStatus.invited).toList();
-          final activeChats = chats.where((c) => c.currentMemberStatus != ChannelMemberStatus.invited).toList();
+          final pendingChats = chats
+              .where(
+                (c) => c.currentMemberStatus == ChannelMemberStatus.invited,
+              )
+              .toList();
+          final activeChats = chats
+              .where(
+                (c) => c.currentMemberStatus != ChannelMemberStatus.invited,
+              )
+              .toList();
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -57,7 +65,10 @@ class ChatsScreen extends ConsumerWidget {
               children: [
                 if (pendingChats.isNotEmpty) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
                     child: Text(
                       "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...",
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -77,7 +88,10 @@ class ChatsScreen extends ConsumerWidget {
                   const SizedBox(height: AppTheme.duoSpacingLarge),
                   if (activeChats.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       child: Text(
                         '📬 Active Chats',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -88,7 +102,7 @@ class ChatsScreen extends ConsumerWidget {
                     ),
                   const SizedBox(height: AppTheme.duoSpacingSmall),
                 ],
-                
+
                 if (activeChats.isEmpty && pendingChats.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 40),
@@ -257,50 +271,54 @@ class ChatsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         child: Row(
           children: [
-             Hero(
-               tag: 'avatar_${chatItem.chat.id}',
-               child: DuoAvatar(
-                 imageUrl: otherUserAvatar,
-                 size: 56,
-                 mood: chatItem.otherUserMood,
-                 showRing: false,
-                 floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
-               ),
-             ),
-             const SizedBox(width: AppTheme.duoSpacingMedium),
-             Expanded(
-               child: Column(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   Text(
-                     otherUserName,
-                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                       fontWeight: FontWeight.bold,
-                       color: AppTheme.duoOrange, // Highlighted text
-                     ),
-                     overflow: TextOverflow.ellipsis,
-                   ),
-                   const SizedBox(height: 4),
-                   Text(
-                     'Tap to look through the peephole',
-                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                       color: Colors.grey[700],
-                       fontStyle: FontStyle.italic,
-                     ),
-                     overflow: TextOverflow.ellipsis,
-                   ),
-                 ],
-               ),
-             ),
-             Container(
-               width: 32,
-               height: 32,
-               decoration: BoxDecoration(
-                 color: AppTheme.duoOrange.withOpacity(0.2),
-                 shape: BoxShape.circle,
-               ),
-               child: const Icon(Icons.remove_red_eye_rounded, color: AppTheme.duoOrange, size: 20),
-             ),
+            Hero(
+              tag: 'avatar_${chatItem.chat.id}',
+              child: DuoAvatar(
+                imageUrl: otherUserAvatar,
+                size: 56,
+                mood: chatItem.otherUserMood,
+                showRing: false,
+                floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingMedium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    otherUserName,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.duoOrange, // Highlighted text
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tap to look through the peephole',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[700],
+                      fontStyle: FontStyle.italic,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppTheme.duoOrange.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.remove_red_eye_rounded,
+                color: AppTheme.duoOrange,
+                size: 20,
+              ),
+            ),
           ],
         ),
       ),

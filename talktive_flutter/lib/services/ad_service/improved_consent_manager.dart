@@ -55,7 +55,8 @@ class ImprovedConsentManager {
       for (int retry = 0; retry < _maxRetries && !success; retry++) {
         if (retry > 0) {
           _log(
-              'Retrying consent initialization (attempt ${retry + 1}/$_maxRetries)');
+            'Retrying consent initialization (attempt ${retry + 1}/$_maxRetries)',
+          );
           await Future.delayed(_retryDelay);
         }
 
@@ -100,7 +101,8 @@ class ImprovedConsentManager {
       }
 
       _log(
-          'Loaded cached values - Status: $_currentStatus, CanRequest: $_canRequestAds');
+        'Loaded cached values - Status: $_currentStatus, CanRequest: $_canRequestAds',
+      );
     } catch (e) {
       _logError('Failed to load cached values: $e');
     }
@@ -165,7 +167,8 @@ class ImprovedConsentManager {
       await _cacheValues();
 
       _log(
-          'Consent info updated - Status: $_currentStatus, CanRequest: $_canRequestAds');
+        'Consent info updated - Status: $_currentStatus, CanRequest: $_canRequestAds',
+      );
 
       // Check if we need to show consent form
       if (_shouldAutoShowConsentForm()) {
@@ -185,7 +188,9 @@ class ImprovedConsentManager {
       await prefs.setBool(_canRequestKey, _canRequestAds);
       if (_lastUpdateTime != null) {
         await prefs.setInt(
-            _lastUpdateKey, _lastUpdateTime!.millisecondsSinceEpoch);
+          _lastUpdateKey,
+          _lastUpdateTime!.millisecondsSinceEpoch,
+        );
       }
     } catch (e) {
       _logError('Failed to cache values: $e');
@@ -227,8 +232,8 @@ class ImprovedConsentManager {
   Future<bool> _showConsentForm() async {
     try {
       // Check if form is available
-      final isAvailable =
-          await ConsentInformation.instance.isConsentFormAvailable();
+      final isAvailable = await ConsentInformation.instance
+          .isConsentFormAvailable();
       if (!isAvailable) {
         _log('Consent form not available');
         return false;

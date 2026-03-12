@@ -1,0 +1,21 @@
+Analyzing talktive_flutter...                                   
+
+warning • The value of the local variable 'privateChat' isn't used • lib/screens/chats/chat_thread_screen.dart:133:15 • unused_local_variable
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/chats/chat_thread_screen.dart:237:41 • use_build_context_synchronously
+   info • Statements in an if should be enclosed in a block • lib/screens/chats/chat_thread_screen.dart:241:27 • curly_braces_in_flow_control_structures
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/chats/chat_thread_screen.dart:242:29 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/chats/chats_screen.dart:313:43 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/screens/groups/group_members_screen.dart:291:9 • curly_braces_in_flow_control_structures
+   info • Don't use 'BuildContext's across async gaps • lib/screens/moments/moment_detail_screen.dart:56:32 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/moments/moment_detail_screen.dart:70:21 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/moments/moment_detail_screen.dart:71:34 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/moments/moment_detail_screen.dart:73:32 • use_build_context_synchronously
+warning • The value of the local variable 'currentResident' isn't used • lib/screens/moments/moment_detail_screen.dart:82:11 • unused_local_variable
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile/user_profile_view_screen.dart:426:17 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile/user_profile_view_screen.dart:432:36 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile/user_profile_view_screen.dart:442:15 • use_build_context_synchronously
+warning • This 'onError' handler must return a value assignable to 'String?', but ends without returning a value • lib/screens/splash_screen.dart:34:75 • body_might_complete_normally_catch_error
+   info • Don't invoke 'print' in production code • lib/wrappers/initialize.dart:60:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/wrappers/initialize.dart:66:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/wrappers/initialize.dart:68:7 • avoid_print
+

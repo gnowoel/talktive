@@ -49,7 +49,7 @@ class DuoChatInput extends StatelessWidget {
               prefix!,
               const SizedBox(width: AppTheme.duoSpacingSmall),
             ],
-            
+
             // Image picker button (optional)
             if (onImagePick != null)
               GestureDetector(
@@ -69,8 +69,8 @@ class DuoChatInput extends StatelessWidget {
                   ),
                 ),
               ),
-            
-            if (onImagePick != null) 
+
+            if (onImagePick != null)
               const SizedBox(width: AppTheme.duoSpacingSmall),
 
             // Text input field
@@ -87,7 +87,7 @@ class DuoChatInput extends StatelessWidget {
                   maxLines: null,
                   textCapitalization: TextCapitalization.sentences,
                   style: const TextStyle(
-                    fontSize: 15, 
+                    fontSize: 15,
                     fontFamily: 'Rubik',
                     color: AppTheme.textPrimary,
                   ),
@@ -146,11 +146,7 @@ class DuoChatInput extends StatelessWidget {
                         ]
                       : null,
                 ),
-                child: const Icon(
-                  Icons.send, 
-                  color: Colors.white, 
-                  size: 20,
-                ),
+                child: const Icon(Icons.send, color: Colors.white, size: 20),
               ),
             ),
           ],

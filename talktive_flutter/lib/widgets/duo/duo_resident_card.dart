@@ -66,22 +66,28 @@ class DuoResidentCard extends StatelessWidget {
                           ),
                           if (isHost) ...[
                             const SizedBox(width: 8),
-                            _buildTag('HOST', Colors.orange, AppTheme.duoYellow),
+                            _buildTag(
+                              'HOST',
+                              Colors.orange,
+                              AppTheme.duoYellow,
+                            ),
                           ],
                           if (showBadge && badgeText != null) ...[
                             const SizedBox(width: 8),
                             _buildTag(
-                              badgeText!, 
+                              badgeText!,
                               badgeColor ?? AppTheme.primaryColor,
-                              (badgeColor ?? AppTheme.primaryColor).withValues(alpha: 0.1),
+                              (badgeColor ?? AppTheme.primaryColor).withValues(
+                                alpha: 0.1,
+                              ),
                             ),
                           ],
                         ],
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        subtitle ?? 
-                        'Floor ${FloorUtils.computeFloor(resident)} • ⭐ ${resident.trustScore}',
+                        subtitle ??
+                            'Floor ${FloorUtils.computeFloor(resident)} • ⭐ ${resident.trustScore}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppTheme.textSecondary,
@@ -92,18 +98,12 @@ class DuoResidentCard extends StatelessWidget {
                   ),
                 ),
                 if (onTap != null && (actions == null || actions!.isEmpty))
-                  const Icon(
-                    Icons.chevron_right, 
-                    color: AppTheme.textLight,
-                  ),
+                  const Icon(Icons.chevron_right, color: AppTheme.textLight),
               ],
             ),
             if (actions != null && actions!.isNotEmpty) ...[
               const SizedBox(height: AppTheme.duoSpacingMedium),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: actions!,
-              ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: actions!),
             ],
           ],
         ),

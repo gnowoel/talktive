@@ -81,7 +81,9 @@ class ServiceLocator {
           debugPrint(
             'ServiceLocator: Error recovery service initialization failed: $e',
           );
-          debugPrint('ServiceLocator: Continuing without error recovery service');
+          debugPrint(
+            'ServiceLocator: Continuing without error recovery service',
+          );
         }
         // Error recovery service is optional, continue without it
         _errorRecoveryService = null;

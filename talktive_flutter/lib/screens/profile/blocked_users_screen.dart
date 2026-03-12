@@ -128,8 +128,12 @@ class BlockedUsersScreen extends ConsumerWidget {
                     // Unblock button
                     DuoButton(
                       text: 'Unblock',
-                      onPressed: () =>
-                          _unblockUser(context, ref, userId, resident.userName ?? 'Resident'),
+                      onPressed: () => _unblockUser(
+                        context,
+                        ref,
+                        userId,
+                        resident.userName ?? 'Resident',
+                      ),
                       variant: DuoButtonVariant.secondary,
                       size: DuoButtonSize.small,
                       color: AppTheme.duoGreen,

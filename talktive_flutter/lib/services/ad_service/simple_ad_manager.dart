@@ -122,11 +122,14 @@ class SimpleAdManager {
                 _isAdReady = false;
                 // Load next ad after a delay
                 Future.delayed(
-                    const Duration(seconds: 10), _loadInterstitialAd);
+                  const Duration(seconds: 10),
+                  _loadInterstitialAd,
+                );
               },
               onAdFailedToShowFullScreenContent: (Ad ad, AdError error) {
                 debugPrint(
-                    '[SimpleAdManager] Ad failed to show: ${error.message}');
+                  '[SimpleAdManager] Ad failed to show: ${error.message}',
+                );
                 ad.dispose();
                 _interstitialAd = null;
                 _isAdReady = false;
@@ -159,13 +162,16 @@ class SimpleAdManager {
         : Duration(seconds: 60); // 1 minute base for regular users
 
     // Apply progressive multiplier based on how many ads shown
-    final multiplierIndex =
-        _adsShownCount.clamp(0, _intervalMultipliers.length - 1);
+    final multiplierIndex = _adsShownCount.clamp(
+      0,
+      _intervalMultipliers.length - 1,
+    );
     final multiplier = _intervalMultipliers[multiplierIndex];
 
     // Calculate actual interval
     final interval = Duration(
-        milliseconds: (baseInterval.inMilliseconds * multiplier).round());
+      milliseconds: (baseInterval.inMilliseconds * multiplier).round(),
+    );
 
     // Ensure we never go below minimum
     return interval.compareTo(_minTimeBetweenAds) > 0
@@ -212,7 +218,8 @@ class SimpleAdManager {
     final firstAdDelay = _getFirstAdDelay();
     if (timeSinceInit < firstAdDelay) {
       debugPrint(
-          '[SimpleAdManager] Too soon after init: ${timeSinceInit.inSeconds}s < ${firstAdDelay.inSeconds}s');
+        '[SimpleAdManager] Too soon after init: ${timeSinceInit.inSeconds}s < ${firstAdDelay.inSeconds}s',
+      );
       return false;
     }
 
@@ -222,7 +229,8 @@ class SimpleAdManager {
       final requiredInterval = _getAdInterval();
       if (timeSinceLastAd < requiredInterval) {
         debugPrint(
-            '[SimpleAdManager] Too soon since last ad: ${timeSinceLastAd.inSeconds}s < ${requiredInterval.inSeconds}s');
+          '[SimpleAdManager] Too soon since last ad: ${timeSinceLastAd.inSeconds}s < ${requiredInterval.inSeconds}s',
+        );
         return false;
       }
     }
@@ -246,7 +254,8 @@ class SimpleAdManager {
       _adsShownCount++;
 
       debugPrint(
-          '[SimpleAdManager] ✅ Ad shown successfully (total: $_adsShownCount)');
+        '[SimpleAdManager] ✅ Ad shown successfully (total: $_adsShownCount)',
+      );
       return true;
     } catch (e) {
       debugPrint('[SimpleAdManager] Failed to show ad: $e');
@@ -324,7 +333,8 @@ class SimpleAdAdapter {
   /// Track room transition (simplified - just for compatibility)
   void trackRoomTransition({String? destination}) {
     debugPrint(
-        '[SimpleAdAdapter] Room transition: ${destination ?? 'unknown'}');
+      '[SimpleAdAdapter] Room transition: ${destination ?? 'unknown'}',
+    );
     // No complex tracking needed
   }
 
@@ -430,7 +440,7 @@ class SimpleAdAdapter {
             '${SimpleAdManager._regularFirstAdDelay.inMinutes} minutes',
         'intervalStrategy': 'progressive',
         'adsShown': _adManager._adsShownCount,
-      }
+      },
     };
   }
 

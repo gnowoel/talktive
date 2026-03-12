@@ -30,9 +30,7 @@ class _NavigationState extends State<Navigation> {
   }
 
   void _refreshActiveItems() {
-    final nextTime = getNextTime(
-      topicCache.getTimeLeft(),
-    );
+    final nextTime = getNextTime(topicCache.getTimeLeft());
 
     if (nextTime == null) return;
 

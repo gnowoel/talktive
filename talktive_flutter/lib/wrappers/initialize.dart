@@ -57,15 +57,15 @@ class _InitializeState extends State<Initialize> {
 
   Future<void> _initializeEmulators(String host) async {
     try {
-      print('Initialize: Using Firebase Emulators at $host');
+      debugPrint('Initialize: Using Firebase Emulators at $host');
       FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
       FirebaseFirestore.instance.useFirestoreEmulator(host, 8088);
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       await FirebaseStorage.instance.useStorageEmulator(host, 9199);
       FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
-      print('Initialize: Firebase Emulators initialized successfully');
+      debugPrint('Initialize: Firebase Emulators initialized successfully');
     } catch (e) {
-      print('Initialize: Error setting up emulators: $e');
+      debugPrint('Initialize: Error setting up emulators: $e');
     }
   }
 

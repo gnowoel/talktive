@@ -33,162 +33,165 @@ class DuoMomentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DuoCard(
-      onTap: onTap,
-      margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Author Header
-          Padding(
-            padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-            child: Row(
-              children: [
-                DuoAvatar(
-                  imageUrl: moment.authorAvatar,
-                  size: 40,
-                  mood: moment.authorMood,
-                  floorLevel: moment.authorFloor,
-                  showRing: true,
-                  onTap: onAuthorTap,
-                ),
-                const SizedBox(width: AppTheme.duoSpacingSmall),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: onAuthorTap,
-                    behavior: HitTestBehavior.opaque,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          moment.authorName,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                        Text(
-                          formatTimestamp(moment.createdAt),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                            fontFamily: 'Rubik',
-                          ),
-                        ),
-                      ],
+          onTap: onTap,
+          margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
+          padding: EdgeInsets.zero,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Author Header
+              Padding(
+                padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                child: Row(
+                  children: [
+                    DuoAvatar(
+                      imageUrl: moment.authorAvatar,
+                      size: 40,
+                      mood: moment.authorMood,
+                      floorLevel: moment.authorFloor,
+                      showRing: true,
+                      onTap: onAuthorTap,
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Photo
-          if (moment.imageUrl.isNotEmpty)
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppTheme.duoRadiusMedium),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(
-                      minHeight: 200,
-                      maxHeight: 450,
-                    ),
-                    color: AppTheme.lightBackground,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Blurred background
-                        Positioned.fill(
-                          child: ImageFiltered(
-                            imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                            child: Image.network(
-                              UrlHelper.resolve(moment.imageUrl),
-                              fit: BoxFit.cover,
-                              opacity: const AlwaysStoppedAnimation(0.3),
+                    const SizedBox(width: AppTheme.duoSpacingSmall),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: onAuthorTap,
+                        behavior: HitTestBehavior.opaque,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              moment.authorName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins',
+                              ),
                             ),
-                          ),
+                            Text(
+                              formatTimestamp(moment.createdAt),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.textSecondary,
+                                fontFamily: 'Rubik',
+                              ),
+                            ),
+                          ],
                         ),
-                        // Main sharp image
-                        Hero(
-                          tag: 'moment_image_${moment.id}',
-                          child: Image.network(
-                            UrlHelper.resolve(moment.imageUrl),
-                            width: double.infinity,
-                            fit: BoxFit.contain, // Preserve aspect ratio
-                            errorBuilder: (_, _, _) => Container(
-                              height: 300,
-                              color: AppTheme.lightBackground,
-                              child: const Center(
-                                child: Icon(
-                                  Icons.broken_image,
-                                  size: 64,
-                                  color: AppTheme.textLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Photo
+              if (moment.imageUrl.isNotEmpty)
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(AppTheme.duoRadiusMedium),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(
+                          minHeight: 200,
+                          maxHeight: 450,
+                        ),
+                        color: AppTheme.lightBackground,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Blurred background
+                            Positioned.fill(
+                              child: ImageFiltered(
+                                imageFilter: ImageFilter.blur(
+                                  sigmaX: 20,
+                                  sigmaY: 20,
+                                ),
+                                child: Image.network(
+                                  UrlHelper.resolve(moment.imageUrl),
+                                  fit: BoxFit.cover,
+                                  opacity: const AlwaysStoppedAnimation(0.3),
                                 ),
                               ),
                             ),
-                          ),
+                            // Main sharp image
+                            Hero(
+                              tag: 'moment_image_${moment.id}',
+                              child: Image.network(
+                                UrlHelper.resolve(moment.imageUrl),
+                                width: double.infinity,
+                                fit: BoxFit.contain, // Preserve aspect ratio
+                                errorBuilder: (_, _, _) => Container(
+                                  height: 300,
+                                  color: AppTheme.lightBackground,
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      size: 64,
+                                      color: AppTheme.textLight,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ),
+                  ],
+                ),
+
+              // Caption
+              if (moment.caption != null && moment.caption!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                  child: Text(
+                    moment.caption!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: AppTheme.textPrimary,
+                      fontFamily: 'Rubik',
+                      height: 1.4,
                     ),
                   ),
                 ),
-              ],
-            ),
-            
-          // Caption
-          if (moment.caption != null && moment.caption!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-              child: Text(
-                moment.caption!,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: AppTheme.textPrimary,
-                  fontFamily: 'Rubik',
-                  height: 1.4,
+
+              // Actions
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.duoSpacingMedium,
+                  vertical: AppTheme.duoSpacingSmall,
+                ),
+                child: Row(
+                  children: [
+                    _buildActionButton(
+                      icon: Icons.favorite_border,
+                      activeIcon: Icons.favorite,
+                      count: moment.likesCount,
+                      isActive: isLiked,
+                      onTap: onLike,
+                      color: AppTheme.duoRed,
+                    ),
+                    const SizedBox(width: AppTheme.duoSpacingMedium),
+                    _buildActionButton(
+                      icon: Icons.chat_bubble_outline,
+                      activeIcon: Icons.chat_bubble,
+                      count: moment.commentsCount,
+                      isActive: false,
+                      onTap: onComment,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            
-          // Actions
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.duoSpacingMedium,
-              vertical: AppTheme.duoSpacingSmall,
-            ),
-            child: Row(
-              children: [
-                _buildActionButton(
-                  icon: Icons.favorite_border,
-                  activeIcon: Icons.favorite,
-                  count: moment.likesCount,
-                  isActive: isLiked,
-                  onTap: onLike,
-                  color: AppTheme.duoRed,
-                ),
-                const SizedBox(width: AppTheme.duoSpacingMedium),
-                _buildActionButton(
-                  icon: Icons.chat_bubble_outline,
-                  activeIcon: Icons.chat_bubble,
-                  count: moment.commentsCount,
-                  isActive: false,
-                  onTap: onComment,
-                  color: AppTheme.primaryColor,
-                ),
-              ],
-            ),
+            ],
           ),
-        ],
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: index * 50)).slideX(
-      begin: -0.1,
-      end: 0,
-    );
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: index * 50))
+        .slideX(begin: -0.1, end: 0);
   }
 
   Widget _buildActionButton({

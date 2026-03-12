@@ -35,7 +35,6 @@ class UserProfileEndpoint extends Endpoint with EndpointAuthMixin {
         blockedId: viewerId,
       );
 
-
       // Get stats
       final messageCount = await protocol.Message.db.count(
         session,

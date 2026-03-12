@@ -27,7 +27,8 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
     if (effectiveFloor < 2) {
       throw TalktiveException(
-        message: 'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+        message:
+            'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
         code: 'FLOOR_TOO_LOW',
       );
     }
@@ -66,7 +67,7 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       'Posted moment',
       save: false,
     );
-    
+
     // Final single save for resident
     await Resident.db.updateRow(session, resident);
 

@@ -104,7 +104,7 @@ class GroupList extends _$GroupList {
     final client = ref.read(clientProvider);
     try {
       await client.group.respondToGroupInvite(groupId, accept);
-      
+
       // Refresh the list
       ref.invalidateSelf();
     } catch (e) {
@@ -165,7 +165,10 @@ Future<Group> groupDetails(Ref ref, int groupId) async {
 
 /// Provider for getting members of a group with their profiles.
 @riverpod
-Future<List<GroupMemberWithProfile>> groupMembersWithProfiles(Ref ref, int groupId) async {
+Future<List<GroupMemberWithProfile>> groupMembersWithProfiles(
+  Ref ref,
+  int groupId,
+) async {
   final client = ref.read(clientProvider);
   try {
     return await client.group.getGroupMembersWithProfiles(groupId);
@@ -177,7 +180,10 @@ Future<List<GroupMemberWithProfile>> groupMembersWithProfiles(Ref ref, int group
 
 /// Provider for getting pending applications of a group.
 @riverpod
-Future<List<GroupMemberWithProfile>> pendingApplications(Ref ref, int groupId) async {
+Future<List<GroupMemberWithProfile>> pendingApplications(
+  Ref ref,
+  int groupId,
+) async {
   final client = ref.read(clientProvider);
   try {
     return await client.group.getPendingApplicationsWithProfiles(groupId);

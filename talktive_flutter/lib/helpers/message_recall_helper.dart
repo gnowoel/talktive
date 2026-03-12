@@ -15,7 +15,8 @@ extension TopicMessageRecallHelper on TopicMessage {
       if (messageMetaCache == null) {
         if (kDebugMode) {
           debugPrint(
-              'TopicMessage: No messageMetaCache available, using original recalled field: $recalledValue');
+            'TopicMessage: No messageMetaCache available, using original recalled field: $recalledValue',
+          );
         }
         return recalledValue;
       }
@@ -24,17 +25,21 @@ extension TopicMessageRecallHelper on TopicMessage {
       if (!MessageRecallHelper.isValidMessageId(messageId)) {
         if (kDebugMode) {
           debugPrint(
-              'TopicMessage: Invalid messageId "$messageId", using original recalled field: $recalledValue');
+            'TopicMessage: Invalid messageId "$messageId", using original recalled field: $recalledValue',
+          );
         }
         return recalledValue;
       }
 
       return messageMetaCache.isMessageRecalledWithFallback(
-          messageId, recalledValue);
+        messageId,
+        recalledValue,
+      );
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking recall status for message ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking recall status for message ${id ?? 'null'}: $e',
+        );
       }
       return recalled ?? false;
     }
@@ -53,7 +58,8 @@ extension TopicMessageRecallHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error checking if message can be recalled for ${id ?? 'null'}: $e');
+          'TopicMessage: Error checking if message can be recalled for ${id ?? 'null'}: $e',
+        );
       }
       return false;
     }
@@ -70,7 +76,8 @@ extension TopicMessageRecallHelper on TopicMessage {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'TopicMessage: Error getting recall status text for ${id ?? 'null'}: $e');
+          'TopicMessage: Error getting recall status text for ${id ?? 'null'}: $e',
+        );
       }
       return content;
     }
@@ -99,14 +106,16 @@ class MessageRecallHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageRecallHelper: Unknown message type: ${message.runtimeType}');
+            'MessageRecallHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error checking if message is recalled: $e');
+          'MessageRecallHelper: Error checking if message is recalled: $e',
+        );
       }
       return false;
     }
@@ -125,14 +134,16 @@ class MessageRecallHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageRecallHelper: Unknown message type: ${message.runtimeType}');
+            'MessageRecallHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error checking if message can be recalled: $e');
+          'MessageRecallHelper: Error checking if message can be recalled: $e',
+        );
       }
       return false;
     }
@@ -151,14 +162,16 @@ class MessageRecallHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageRecallHelper: Unknown message type: ${message.runtimeType}');
+            'MessageRecallHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return message?.content ?? '';
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error getting message recall status text: $e');
+          'MessageRecallHelper: Error getting message recall status text: $e',
+        );
       }
       return message?.content ?? '';
     }
@@ -181,7 +194,8 @@ class MessageRecallHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error validating message ID "$messageId": $e');
+          'MessageRecallHelper: Error validating message ID "$messageId": $e',
+        );
       }
       return false;
     }
@@ -197,7 +211,8 @@ class MessageRecallHelper {
       } else {
         if (kDebugMode) {
           debugPrint(
-              'MessageRecallHelper: Unknown message type: ${message.runtimeType}');
+            'MessageRecallHelper: Unknown message type: ${message.runtimeType}',
+          );
         }
         return null;
       }
@@ -222,7 +237,8 @@ class MessageRecallHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error checking recall functionality availability: $e');
+          'MessageRecallHelper: Error checking recall functionality availability: $e',
+        );
       }
       return false;
     }
@@ -250,8 +266,10 @@ class MessageRecallHelper {
         'cacheValue': messageId != null && messageMetaCache != null
             ? messageMetaCache.isMessageRecalled(messageId)
             : null,
-        'recallFunctionalityAvailable':
-            isRecallFunctionalityAvailable(message, messageMetaCache),
+        'recallFunctionalityAvailable': isRecallFunctionalityAvailable(
+          message,
+          messageMetaCache,
+        ),
         'timestamp': DateTime.now().toIso8601String(),
       };
     } catch (e) {
@@ -273,7 +291,8 @@ class MessageRecallHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error getting original recalled field: $e');
+          'MessageRecallHelper: Error getting original recalled field: $e',
+        );
       }
       return null;
     }
@@ -307,7 +326,8 @@ class MessageRecallHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            'MessageRecallHelper: Error in batch check recall status: $e');
+          'MessageRecallHelper: Error in batch check recall status: $e',
+        );
       }
     }
 
@@ -342,8 +362,9 @@ class MessageRecallHelper {
         'validMessages': validMessages,
         'recalledMessages': recalledMessages,
         'invalidIds': invalidIds,
-        'recallRate':
-            validMessages > 0 ? (recalledMessages / validMessages) : 0.0,
+        'recallRate': validMessages > 0
+            ? (recalledMessages / validMessages)
+            : 0.0,
         'cacheAvailable': messageMetaCache != null,
         'timestamp': DateTime.now().toIso8601String(),
       };

@@ -8,10 +8,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
- import '../../providers/moments_provider.dart';
- import '../../helpers/snackbar_helper.dart';
+import '../../providers/moments_provider.dart';
+import '../../helpers/snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
- import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -71,7 +71,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     if (effectiveFloor < 2) {
       DuoFloorRequirementDialog.show(
         context,
-        message: 'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
+        message:
+            'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
         requiredFloor: 2,
       );
       return;
@@ -87,7 +88,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
 
     final caption = _captionController.text.trim();
-    
+
     debugPrint('Moments: [UI] Starting post process...');
     setModalState(() {
       _isUploading = true;
@@ -99,10 +100,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     try {
       // 1. Upload image to storage
       debugPrint('Moments: [UI] Uploading image to Firebase...');
-      final imageUrl = await ref.read(mediaServiceProvider).uploadFile(
-        _selectedImage!, 
-        'moments',
-      );
+      final imageUrl = await ref
+          .read(mediaServiceProvider)
+          .uploadFile(_selectedImage!, 'moments');
 
       if (imageUrl == null) {
         throw Exception('Failed to upload image. URL was null.');
@@ -112,19 +112,16 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       // 2. Post moment to backend
       debugPrint('Moments: [UI] Sending post request to Serverpod...');
       final client = ref.read(clientProvider);
-      await client.moment.postMoment(
-        imageUrl: imageUrl, 
-        caption: caption,
-      );
+      await client.moment.postMoment(imageUrl: imageUrl, caption: caption);
       debugPrint('Moments: [UI] Status: Post successful on server.');
 
       if (mounted) {
         debugPrint('Moments: [UI] Closing dialog...');
         Navigator.of(context).pop();
-        
+
         // Refresh the feed in the background
         ref.read(momentsProvider.notifier).refresh();
-        
+
         _captionController.clear();
         if (mounted) {
           setState(() {
@@ -160,7 +157,6 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
   }
 
-
   void _showCreateDialog() {
     showModalBottomSheet(
       context: context,
@@ -169,7 +165,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           height: MediaQuery.of(context).size.height * 0.8,
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(
@@ -225,26 +223,45 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                     children: [
                       // Image selector
                       GestureDetector(
-                        onTap: _isUploading ? null : () => _pickImage(setModalState),
+                        onTap: _isUploading
+                            ? null
+                            : () => _pickImage(setModalState),
                         child: Container(
                           width: double.infinity,
                           height: 200,
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                            border: Border.all(color: Colors.grey[300]!, width: 2, style: BorderStyle.solid),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.duoRadiusMedium,
+                            ),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 2,
+                              style: BorderStyle.solid,
+                            ),
                           ),
                           child: _selectedImage != null
                               ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium - 2),
-                                  child: _imageBytes != null 
-                                    ? Image.memory(_imageBytes!, fit: BoxFit.cover)
-                                    : const Center(child: CircularProgressIndicator()),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.duoRadiusMedium - 2,
+                                  ),
+                                  child: _imageBytes != null
+                                      ? Image.memory(
+                                          _imageBytes!,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
                                 )
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.add_a_photo, size: 48, color: Colors.grey[400]),
+                                    Icon(
+                                      Icons.add_a_photo,
+                                      size: 48,
+                                      color: Colors.grey[400],
+                                    ),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Select photo',
@@ -367,7 +384,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           return const DuoEmptyState(
             emoji: '🙈',
             title: 'No moments to show',
-            subtitle: 'The only moments available are from users you have blocked.',
+            subtitle:
+                'The only moments available are from users you have blocked.',
           );
         }
 
@@ -391,7 +409,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 moment: moment,
                 index: index,
                 isLiked: likedMoments.contains(moment.id),
-                onLike: () => _toggleLike(moment, likedMoments.contains(moment.id)),
+                onLike: () =>
+                    _toggleLike(moment, likedMoments.contains(moment.id)),
                 onComment: () {
                   HapticFeedback.lightImpact();
                   context.push('/moments/detail', extra: moment);
@@ -415,7 +434,11 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: AppTheme.errorColor, size: 48),
+              const Icon(
+                Icons.error_outline,
+                color: AppTheme.errorColor,
+                size: 48,
+              ),
               const SizedBox(height: AppTheme.duoSpacingMedium),
               Text(
                 'Error: $error',
@@ -424,7 +447,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
               ),
               const SizedBox(height: AppTheme.duoSpacingMedium),
               DuoButton(
-                text: 'Retry', 
+                text: 'Retry',
                 onPressed: () => ref.invalidate(momentsProvider),
               ),
             ],
@@ -436,12 +459,14 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
   Future<void> _toggleLike(Moment moment, bool currentlyLiked) async {
     if (moment.id == null) return;
-    
+
     // Use optimistic UI update
     ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
-    
+
     try {
-      await ref.read(momentsProvider.notifier).toggleLike(moment.id!, currentlyLiked);
+      await ref
+          .read(momentsProvider.notifier)
+          .toggleLike(moment.id!, currentlyLiked);
     } catch (e) {
       // Revert if error
       ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);

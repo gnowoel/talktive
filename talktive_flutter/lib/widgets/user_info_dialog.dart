@@ -87,7 +87,9 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     } catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(
-          context, AppException('Failed to follow user: ${e.toString()}'));
+        context,
+        AppException('Failed to follow user: ${e.toString()}'),
+      );
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -115,7 +117,9 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
     } catch (e) {
       if (!mounted) return;
       ErrorHandler.showSnackBarMessage(
-          context, AppException('Failed to unfollow user: ${e.toString()}'));
+        context,
+        AppException('Failed to unfollow user: ${e.toString()}'),
+      );
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -310,8 +314,9 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 icon: const Icon(Icons.grade),
                 label: const Text('Unfollow'),
                 style: FilledButton.styleFrom(
-                  backgroundColor:
-                      theme.colorScheme.errorContainer.withValues(alpha: 0.7),
+                  backgroundColor: theme.colorScheme.errorContainer.withValues(
+                    alpha: 0.7,
+                  ),
                   foregroundColor: theme.colorScheme.onErrorContainer,
                   elevation: 0,
                 ),

@@ -82,36 +82,37 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
 
     final userId = fireauth.instance.currentUser!.uid;
 
-    topicSubscription =
-        firestore.subscribeToTopic(userId, widget.topicId).listen((topic) {
-      if (!mounted) return;
+    topicSubscription = firestore
+        .subscribeToTopic(userId, widget.topicId)
+        .listen((topic) {
+          if (!mounted) return;
 
-      if (topic.isDummy) {
-        setState(() {
-          if (_topic == null) {
-            _topic = topic.copyWith(id: widget.topicId);
+          if (topic.isDummy) {
+            setState(() {
+              if (_topic == null) {
+                _topic = topic.copyWith(id: widget.topicId);
+              } else {
+                _topic = _topic!.copyWith(updatedAt: 0);
+              }
+            });
+            if (mounted) {
+              ErrorHandler.showSnackBarMessage(
+                context,
+                AppException('The moment has been deleted.'),
+                severe: true,
+              );
+            }
           } else {
-            _topic = _topic!.copyWith(updatedAt: 0);
+            setState(() => _topic = topic);
+            // Sync total message count with pagination service first
+            paginatedMessageService.updateTopicTotalMessageCount(
+              widget.topicId,
+              topic.messageCount,
+            );
+            // Then update topic cache with the latest data
+            topicCache.updateTopic(topic);
           }
         });
-        if (mounted) {
-          ErrorHandler.showSnackBarMessage(
-            context,
-            AppException('The moment has been deleted.'),
-            severe: true,
-          );
-        }
-      } else {
-        setState(() => _topic = topic);
-        // Sync total message count with pagination service first
-        paginatedMessageService.updateTopicTotalMessageCount(
-          widget.topicId,
-          topic.messageCount,
-        );
-        // Then update topic cache with the latest data
-        topicCache.updateTopic(topic);
-      }
-    });
 
     // Subscribe to topic followers for real-time blocking updates
     topicFollowersCache.subscribeToTopic(widget.topicId);
@@ -218,8 +219,9 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
       _messageCount = count;
 
       // Always sync with the total count from pagination service
-      final totalCount =
-          paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      final totalCount = paginatedMessageService.getTopicTotalMessageCount(
+        widget.topicId,
+      );
       if (totalCount != null && _topic != null) {
         // Update the local topic object with the accurate count if different
         if (totalCount != _topic!.messageCount) {
@@ -281,8 +283,10 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
 
     try {
       final userId = fireauth.instance.currentUser!.uid;
-      final result =
-          await firestore.inviteFollowersToTopic(userId, widget.topicId);
+      final result = await firestore.inviteFollowersToTopic(
+        userId,
+        widget.topicId,
+      );
 
       if (mounted) {
         final invitedCount = (result['invitedCount'] as num).toInt();
@@ -295,8 +299,9 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
                   ? 'Invited $invitedCount followers to join this moment!'
                   : message,
             ),
-            backgroundColor:
-                invitedCount > 0 ? theme.colorScheme.primary : null,
+            backgroundColor: invitedCount > 0
+                ? theme.colorScheme.primary
+                : null,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -433,8 +438,8 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
       if (selfId == null || _topic == null) return;
 
       // Use the latest message count from pagination service
-      final latestTotalCount =
-          paginatedMessageService.getTopicTotalMessageCount(widget.topicId);
+      final latestTotalCount = paginatedMessageService
+          .getTopicTotalMessageCount(widget.topicId);
       final count = latestTotalCount ?? _messageCount;
 
       // Skip if no change needed
@@ -668,9 +673,11 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
                                 )
                               : const Icon(Icons.lock, size: 18),
                           const SizedBox(width: 8),
-                          Text(_isMakingPrivate
-                              ? 'Making Private...'
-                              : 'Make Private'),
+                          Text(
+                            _isMakingPrivate
+                                ? 'Making Private...'
+                                : 'Make Private',
+                          ),
                         ],
                       ),
                     ),
@@ -695,9 +702,11 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
                                 )
                               : const Icon(Icons.public, size: 18),
                           const SizedBox(width: 8),
-                          Text(_isMakingPublic
-                              ? 'Making Public...'
-                              : 'Make Public'),
+                          Text(
+                            _isMakingPublic
+                                ? 'Making Public...'
+                                : 'Make Public',
+                          ),
                         ],
                       ),
                     ),
@@ -714,9 +723,7 @@ class _NormalTopicPageState extends State<NormalTopicPage> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
-                if (_shouldShowWelcomeMessage()) ...[
-                  _buildWelcomeMessageBox(),
-                ],
+                if (_shouldShowWelcomeMessage()) ...[_buildWelcomeMessageBox()],
                 if (_shouldShowTopicCreatorNotice()) ...[
                   _buildTopicCreatorNotice(),
                 ],

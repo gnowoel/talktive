@@ -427,7 +427,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                     height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(colors: AppTheme.primaryGradient),
+                      gradient: const LinearGradient(
+                        colors: AppTheme.primaryGradient,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: AppTheme.primaryColor.withValues(alpha: 0.3),
@@ -447,11 +449,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     itemCount: _popularAvatars.length,
                     itemBuilder: (context, index) {
                       final avatar = _popularAvatars[index];
@@ -467,7 +470,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                             Container(
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppTheme.primaryColor.withValues(alpha: 0.2)
+                                    ? AppTheme.primaryColor.withValues(
+                                        alpha: 0.2,
+                                      )
                                     : Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
@@ -553,7 +558,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   TextField(
                     controller: _nameController,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Enter your name',
                       hintStyle: const TextStyle(
@@ -568,7 +576,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -586,19 +597,29 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                     spacing: 8,
                     runSpacing: 8,
                     alignment: WrapAlignment.center,
-                    children: ['Mystic', 'Phoenix', 'Luna', 'Star', 'Sky', 'Nova'].map((
-                      name,
-                    ) {
-                      return ActionChip(
-                        label: Text(name),
-                        onPressed: () {
-                          _nameController.text = name;
-                          HapticFeedback.selectionClick();
-                        },
-                        backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                        labelStyle: const TextStyle(color: AppTheme.primaryColor),
-                      );
-                    }).toList(),
+                    children:
+                        [
+                          'Mystic',
+                          'Phoenix',
+                          'Luna',
+                          'Star',
+                          'Sky',
+                          'Nova',
+                        ].map((name) {
+                          return ActionChip(
+                            label: Text(name),
+                            onPressed: () {
+                              _nameController.text = name;
+                              HapticFeedback.selectionClick();
+                            },
+                            backgroundColor: AppTheme.primaryColor.withValues(
+                              alpha: 0.1,
+                            ),
+                            labelStyle: const TextStyle(
+                              color: AppTheme.primaryColor,
+                            ),
+                          );
+                        }).toList(),
                   ).animate().fadeIn(delay: 300.ms),
                   const SizedBox(height: 32),
                 ],
@@ -638,36 +659,46 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   const SizedBox(height: 24),
                   Text(
                     'Gender',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(child: _buildGenderOption('male', '♂️', 'Male')),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildGenderOption('female', '♀️', 'Female')),
+                      Expanded(
+                        child: _buildGenderOption('female', '♀️', 'Female'),
+                      ),
                     ],
                   ).animate().fadeIn(delay: 200.ms),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
-                        child: _buildGenderOption('non-binary', '⚧️', 'Non-binary'),
+                        child: _buildGenderOption(
+                          'non-binary',
+                          '⚧️',
+                          'Non-binary',
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildGenderOption('prefer-not-to-say', '🔒', 'Private'),
+                        child: _buildGenderOption(
+                          'prefer-not-to-say',
+                          '🔒',
+                          'Private',
+                        ),
                       ),
                     ],
                   ).animate().fadeIn(delay: 300.ms),
                   const SizedBox(height: 48),
                   Text(
                     'Country',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   InkWell(
@@ -678,7 +709,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade300, width: 1),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -743,7 +777,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   const SizedBox(height: 16),
                   // Selected count
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.duoGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -762,12 +799,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 3,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 3,
+                        ),
                     itemCount: AppLanguages.all.length,
                     itemBuilder: (context, index) {
                       final language = AppLanguages.all[index];
@@ -806,7 +844,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(flag, style: const TextStyle(fontSize: 20)),
+                                  Text(
+                                    flag,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     name,
@@ -882,7 +923,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -896,7 +940,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   const SizedBox(height: 24),
                   const Text(
                     'Need inspiration? Try these:',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -921,7 +968,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                               }
                               HapticFeedback.selectionClick();
                             },
-                            backgroundColor: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                            backgroundColor: AppTheme.secondaryColor.withValues(
+                              alpha: 0.1,
+                            ),
                             labelStyle: const TextStyle(
                               color: AppTheme.secondaryColor,
                               fontSize: 12,
@@ -965,7 +1014,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                 children: [
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.accentColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -982,12 +1034,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 3,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 3,
+                        ),
                     itemCount: AppInterests.all.length,
                     itemBuilder: (context, index) {
                       final interest = AppInterests.all[index];
@@ -1007,7 +1060,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                             Container(
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppTheme.accentColor.withValues(alpha: 0.2)
+                                    ? AppTheme.accentColor.withValues(
+                                        alpha: 0.2,
+                                      )
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
@@ -1088,18 +1143,22 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       ),
                     ),
                     child: Center(
-                      child: Text(_selectedMood, style: const TextStyle(fontSize: 50)),
+                      child: Text(
+                        _selectedMood,
+                        style: const TextStyle(fontSize: 50),
+                      ),
                     ),
                   ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
                   const SizedBox(height: 32),
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
                     itemCount: _moods.length,
                     itemBuilder: (context, index) {
                       final mood = _moods[index];

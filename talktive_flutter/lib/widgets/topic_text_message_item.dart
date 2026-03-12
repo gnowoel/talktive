@@ -89,7 +89,8 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     }
 
     // Check if current user can block others (admin/moderator or topic creator)
-    final canBlock = !byMe &&
+    final canBlock =
+        !byMe &&
         (userCache.user?.isAdminOrModerator == true ||
             currentUser.uid == widget.topicCreatorId);
 
@@ -98,9 +99,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     if (!byMe && hasReportPermission && widget.message.id != null) {
       canShowReport =
           await TopicMessageStatusHelper.shouldShowReportOptionWithCache(
-        widget.message,
-        byMe,
-      );
+            widget.message,
+            byMe,
+          );
     }
 
     // Build menu after async operations are complete
@@ -193,16 +194,21 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
       contentToCopy = widget.message.getRecallStatusText(messageMetaCache);
     } else {
       // Check if message is recently reported
-      final isReported =
-          await TopicMessageStatusHelper.isRecentlyReported(widget.message);
+      final isReported = await TopicMessageStatusHelper.isRecentlyReported(
+        widget.message,
+      );
       if (isReported) {
         contentToCopy = TopicMessageStatusHelper.getReportedCopyContent(
-            widget.message, widget.message.content,
-            followersCache: topicFollowersCache);
+          widget.message,
+          widget.message.content,
+          followersCache: topicFollowersCache,
+        );
       } else {
         contentToCopy = TopicMessageStatusHelper.getCopyContent(
-            widget.message, widget.message.content,
-            followersCache: topicFollowersCache);
+          widget.message,
+          widget.message.content,
+          followersCache: topicFollowersCache,
+        );
       }
     }
 
@@ -327,9 +333,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -390,9 +394,7 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -401,8 +403,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
     return Consumer<MessageMetaCache>(
       builder: (context, cache, child) {
         return FutureBuilder<bool>(
-          future:
-              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
+          future: TopicMessageStatusHelper.isReportedButRevealable(
+            widget.message,
+          ),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
             final isHidden = widget.message.isHiddenWithCache(cache);
@@ -416,11 +419,12 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             }
 
             // Determine which toggle state to use
-            final isRevealed =
-                isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+            final isRevealed = isReportedButRevealable
+                ? _isReportedRevealed
+                : _isRevealed;
             final toggleAction = isReportedButRevealable
                 ? () =>
-                    setState(() => _isReportedRevealed = !_isReportedRevealed)
+                      setState(() => _isReportedRevealed = !_isReportedRevealed)
                 : () => setState(() => _isRevealed = !_isRevealed);
 
             return Padding(
@@ -431,24 +435,28 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
                   onTap: toggleAction,
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           isRevealed ? Icons.visibility_off : Icons.visibility,
                           size: 14,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           isRevealed ? 'Hide' : 'Show',
                           style: TextStyle(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                         ),
                       ],
@@ -479,8 +487,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
         }
 
         return FutureBuilder<bool>(
-          future:
-              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
+          future: TopicMessageStatusHelper.isReportedButRevealable(
+            widget.message,
+          ),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
 
@@ -494,24 +503,29 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
             if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
               displayContent =
                   TopicMessageStatusHelper.getBlockedUserMessageContent(
-                      widget.message);
+                    widget.message,
+                  );
             } else if (isReportedButRevealable) {
               // Recently reported message - show placeholder or original based on toggle
               displayContent = _isReportedRevealed
                   ? content
                   : TopicMessageStatusHelper.getReportedMessageContent(
-                      widget.message);
+                      widget.message,
+                    );
             } else if (shouldShow) {
               displayContent = content;
             } else if (TopicMessageStatusHelper.isHiddenButRevealable(
-                widget.message)) {
+              widget.message,
+            )) {
               displayContent = _isRevealed
                   ? content
                   : TopicMessageStatusHelper.getHiddenMessageContent(
-                      widget.message);
+                      widget.message,
+                    );
             } else {
               displayContent = TopicMessageStatusHelper.getHiddenMessageContent(
-                  widget.message);
+                widget.message,
+              );
             }
 
             // Check if this message mentions the current user
@@ -596,8 +610,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       ],
@@ -656,8 +671,9 @@ class _TopicTextMessageItemState extends State<TopicTextMessageItem> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       ],

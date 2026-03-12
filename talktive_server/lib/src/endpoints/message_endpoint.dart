@@ -29,11 +29,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         channelId,
         'Channel ID',
       ).throwIfInvalid();
-      
+
       if (content != null) {
         InputValidationService.validateMessageContent(content).throwIfInvalid();
       }
-      
+
       if (imageUrl != null) {
         InputValidationService.validateUrl(imageUrl).throwIfInvalid();
       }
@@ -43,7 +43,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       final senderUuid = await getUserId(session);
-      
+
       // 1. Fetch sender resident data
       final sender = await getResidentProfile(session, senderUuid);
 
@@ -62,7 +62,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       // 3. User info and floor Computation
       final senderName = sender.userName;
       final senderAvatar = sender.avatar;
-      final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(sender);
+      final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(
+        sender,
+      );
 
       // 4. Safety Checks (Muted / Suspended)
       if (ApartmentService.isMuted(sender)) {
@@ -118,7 +120,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       // 7. Floor-based content restrictions
-      final hasMedia = (imageUrl != null && imageUrl.isNotEmpty) || (mediaUrl != null && mediaUrl.isNotEmpty);
+      final hasMedia =
+          (imageUrl != null && imageUrl.isNotEmpty) ||
+          (mediaUrl != null && mediaUrl.isNotEmpty);
       if (channel.type == protocol.ChannelType.plaza && hasMedia) {
         // Plaza restrictions: images allowed only for Floor 2+
         if (senderEffectiveFloor < 2) {
@@ -128,7 +132,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           );
         }
       }
-
 
       // 8. Create Message object
       final message = protocol.Message(
@@ -148,7 +151,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       );
 
       // 9. Database Updates (Single transaction if possible or batched saves)
-      final savedMessage = await protocol.Message.db.insertRow(session, message);
+      final savedMessage = await protocol.Message.db.insertRow(
+        session,
+        message,
+      );
 
       // Update lastMessageAt for private chats (Bubbling up)
       if (channel.type == protocol.ChannelType.private) {
@@ -178,7 +184,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       if (channel.type != protocol.ChannelType.plaza) {
         final members = await protocol.ChannelMember.db.find(
           session,
-          where: (t) => t.channelId.equals(channelId) & t.userInfoId.notEquals(senderUuid) & t.isMuted.equals(false),
+          where: (t) =>
+              t.channelId.equals(channelId) &
+              t.userInfoId.notEquals(senderUuid) &
+              t.isMuted.equals(false),
         );
 
         for (final member in members) {
@@ -202,8 +211,12 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         save: false,
       );
       sender.experienceMessageCount += 1;
-      await GamificationService.updateMessageStreak(session, sender, save: false);
-      
+      await GamificationService.updateMessageStreak(
+        session,
+        sender,
+        save: false,
+      );
+
       // FINAL SINGLE SAVE for the resident object
       await protocol.Resident.db.updateRow(session, sender);
 
@@ -213,9 +226,12 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         sender.userInfoId,
         ['first_message', 'conversationalist', 'chatterbox'],
       );
-      
+
       // Secondary checks
-      await AchievementService.checkTimeBasedAchievements(session, sender.userInfoId);
+      await AchievementService.checkTimeBasedAchievements(
+        session,
+        sender.userInfoId,
+      );
       await StreakService.updateStreak(session, sender.userInfoId);
 
       return savedMessage;
@@ -302,7 +318,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         );
       }
     }
-
 
     // 2. Fetch messages
     return await protocol.Message.db.find(

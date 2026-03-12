@@ -188,8 +188,10 @@ class ContentFilter {
   }
 
   /// Get personalization suggestions for generic content
-  PersonalizationSuggestion getPersonalizationSuggestion(String title,
-      {String? message}) {
+  PersonalizationSuggestion getPersonalizationSuggestion(
+    String title, {
+    String? message,
+  }) {
     if (!isGenericDiscussion(title, message: message)) {
       return PersonalizationSuggestion.none();
     }

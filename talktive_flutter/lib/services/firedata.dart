@@ -90,9 +90,7 @@ class Firedata {
       final ref = instance.ref('users/$userId');
       final serverTimestamp = ServerValue.timestamp;
 
-      final updates = <String, dynamic>{
-        'updatedAt': serverTimestamp,
-      };
+      final updates = <String, dynamic>{'updatedAt': serverTimestamp};
 
       if (role != null) {
         updates['role'] = role;

@@ -21,7 +21,10 @@ class InputValidationService {
   static const int maxOffset = 10000;
 
   /// Validates a user name or group name.
-  static ValidationResult validateName(String name, {String fieldName = 'Name'}) {
+  static ValidationResult validateName(
+    String name, {
+    String fieldName = 'Name',
+  }) {
     if (name.trim().isEmpty) {
       return ValidationResult(
         isValid: false,

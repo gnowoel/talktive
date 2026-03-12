@@ -44,10 +44,7 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: separatorColor,
-                width: 1,
-              ),
+              border: Border.all(color: separatorColor, width: 1),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -60,10 +57,12 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
                     child: InkWell(
                       onTap: onTapUp,
                       borderRadius: BorderRadius.circular(16),
-                      splashColor:
-                          theme.colorScheme.primary.withValues(alpha: 0.1),
-                      highlightColor:
-                          theme.colorScheme.primary.withValues(alpha: 0.05),
+                      splashColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.1,
+                      ),
+                      highlightColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.05,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Icon(
@@ -92,10 +91,12 @@ class SkippedMessagesPlaceholder extends StatelessWidget {
                     child: InkWell(
                       onTap: onTapDown,
                       borderRadius: BorderRadius.circular(16),
-                      splashColor:
-                          theme.colorScheme.primary.withValues(alpha: 0.1),
-                      highlightColor:
-                          theme.colorScheme.primary.withValues(alpha: 0.05),
+                      splashColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.1,
+                      ),
+                      highlightColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.05,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Icon(

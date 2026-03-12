@@ -43,7 +43,11 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     setState(() => _isLoading = true);
     try {
       final client = ref.read(clientProvider);
-      final results = await client.group.searchPublicGroups('', limit: 10, offset: 0);
+      final results = await client.group.searchPublicGroups(
+        '',
+        limit: 10,
+        offset: 0,
+      );
       if (mounted) {
         setState(() {
           _results = results;
@@ -65,7 +69,11 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     setState(() => _isLoading = true);
     try {
       final client = ref.read(clientProvider);
-      final results = await client.group.searchPublicGroups(query, limit: 20, offset: 0);
+      final results = await client.group.searchPublicGroups(
+        query,
+        limit: 20,
+        offset: 0,
+      );
       if (mounted) {
         setState(() {
           _results = results;
@@ -106,8 +114,8 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
         body: _isLoading
             ? const Center(child: DuoLoadingIndicator())
             : _results.isEmpty
-                ? _buildEmptyState()
-                : _buildResultsList(),
+            ? _buildEmptyState()
+            : _buildResultsList(),
       ),
     );
   }
@@ -130,7 +138,9 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
             ),
           ),
         ],
-        ..._results.asMap().entries.map((entry) => _buildSearchResultCard(entry.value, entry.key)),
+        ..._results.asMap().entries.map(
+          (entry) => _buildSearchResultCard(entry.value, entry.key),
+        ),
       ],
     );
   }
@@ -141,10 +151,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
       showInterests: true,
       onTap: () {
         HapticFeedback.lightImpact();
-        context.push(
-          '/groups/profile/${group.id!}',
-          extra: group,
-        );
+        context.push('/groups/profile/${group.id!}', extra: group);
       },
       bottomActions: [
         SizedBox(
@@ -153,7 +160,9 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
             text: 'Apply to Join',
             onPressed: () async {
               try {
-                await ref.read(groupListProvider.notifier).applyToGroup(group.id!);
+                await ref
+                    .read(groupListProvider.notifier)
+                    .applyToGroup(group.id!);
                 if (mounted) {
                   SnackBarHelper.showSuccess(context, 'Application sent!');
                 }
@@ -177,4 +186,3 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     );
   }
 }
-

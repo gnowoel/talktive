@@ -135,4 +135,3 @@ class UserLikeEndpoint extends Endpoint {
     return likes.map((e) => e.receiverId.toString()).toList();
   }
 }
-

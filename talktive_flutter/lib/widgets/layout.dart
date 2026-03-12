@@ -26,9 +26,7 @@ class Layout extends StatelessWidget {
           );
         } else {
           return Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-            ),
+            decoration: BoxDecoration(color: theme.colorScheme.surface),
             child: child,
           );
         }

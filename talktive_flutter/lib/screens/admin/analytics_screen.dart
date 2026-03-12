@@ -326,7 +326,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
+              gradient: LinearGradient(
+                colors: [color, color.withValues(alpha: 0.7)],
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(

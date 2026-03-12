@@ -1,5 +1,4 @@
 import 'package:talktive_client/talktive_client.dart';
-import 'package:serverpod_client/serverpod_client.dart';
 
 void main() async {
   var client = Client('http://localhost:8080/');

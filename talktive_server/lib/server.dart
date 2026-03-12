@@ -38,16 +38,18 @@ void run(List<String> args) async {
           ? EmulatorFirebaseIdpConfig(
               credentials: FirebaseServiceAccountCredentials.fromJson(
                 jsonDecode(
-                  File('config/firebase_service_account_key.json')
-                      .readAsStringSync(),
+                  File(
+                    'config/firebase_service_account_key.json',
+                  ).readAsStringSync(),
                 ),
               ),
             )
           : FirebaseIdpConfig(
               credentials: FirebaseServiceAccountCredentials.fromJson(
                 jsonDecode(
-                  File('config/firebase_service_account_key.json')
-                      .readAsStringSync(),
+                  File(
+                    'config/firebase_service_account_key.json',
+                  ).readAsStringSync(),
                 ),
               ),
             ),

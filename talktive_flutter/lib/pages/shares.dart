@@ -6,12 +6,8 @@ class SharesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shares'),
-      ),
-      body: const Center(
-        child: Text('Shares'),
-      ),
+      appBar: AppBar(title: const Text('Shares')),
+      body: const Center(child: Text('Shares')),
     );
   }
 }

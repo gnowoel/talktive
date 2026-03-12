@@ -56,8 +56,9 @@ class EdgeToEdgeManager {
       SystemUiOverlayStyle(
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
     );
   }
@@ -82,16 +83,12 @@ class EdgeToEdgeManager {
 
   /// Hide system UI for immersive experience (like fullscreen media)
   Future<void> hideSystemUI() async {
-    await SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.immersive,
-    );
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   }
 
   /// Show system UI after hiding it
   Future<void> showSystemUI() async {
-    await SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-    );
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
   /// Configure system UI for modal or dialog
@@ -104,8 +101,9 @@ class EdgeToEdgeManager {
       SystemUiOverlayStyle(
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
     );
   }
@@ -132,10 +130,7 @@ class EdgeToEdgeManager {
   /// Get the recommended padding for content to avoid system UI
   EdgeInsets getContentPadding(BuildContext context) {
     final safeArea = getSafeAreaInsets(context);
-    return EdgeInsets.only(
-      top: safeArea.top,
-      bottom: safeArea.bottom,
-    );
+    return EdgeInsets.only(top: safeArea.top, bottom: safeArea.bottom);
   }
 
   /// Apply edge-to-edge styling to an AppBar
@@ -162,14 +157,14 @@ class EdgeToEdgeManager {
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
-      iconTheme: appBar.iconTheme ??
-          IconThemeData(
-            color: theme.colorScheme.onSurface,
-          ),
-      titleTextStyle: appBar.titleTextStyle ??
+      iconTheme:
+          appBar.iconTheme ?? IconThemeData(color: theme.colorScheme.onSurface),
+      titleTextStyle:
+          appBar.titleTextStyle ??
           TextStyle(
             color: theme.colorScheme.onSurface,
             fontSize: 20,
@@ -187,8 +182,9 @@ class EdgeToEdgeManager {
     return SystemUiOverlayStyle(
       statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
       statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      systemNavigationBarIconBrightness:
-          isDark ? Brightness.light : Brightness.dark,
+      systemNavigationBarIconBrightness: isDark
+          ? Brightness.light
+          : Brightness.dark,
     );
   }
 }

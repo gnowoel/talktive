@@ -10,7 +10,6 @@ import '../screens/chats/chat_thread_screen.dart';
 import '../screens/chats/peephole_screen.dart';
 import '../screens/activity/activity_screen.dart';
 
-
 import '../screens/profile/user_profile_view_screen.dart';
 import '../screens/plaza/plaza_chat_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
@@ -20,7 +19,6 @@ import '../screens/groups/group_search_screen.dart';
 import '../screens/groups/group_profile_screen.dart';
 import '../screens/groups/group_chat_screen.dart';
 import '../screens/groups/group_members_screen.dart';
-
 
 part 'router_provider.g.dart';
 
@@ -162,7 +160,7 @@ GoRouter router(Ref ref) {
         routes: [
           GoRoute(
             path: 'moments',
-             builder: (context, state) {
+            builder: (context, state) {
               final userId = state.pathParameters['userId']!;
               final userName = state.uri.queryParameters['name'] ?? 'Resident';
               return UserMomentsScreen(userId: userId, userName: userName);
@@ -177,7 +175,9 @@ GoRouter router(Ref ref) {
 extension GoRouterExtension on GoRouter {
   String get location {
     final RouteMatch lastMatch = routerDelegate.currentConfiguration.last;
-    final RouteMatchList matchList = lastMatch is ImperativeRouteMatch ? lastMatch.matches : routerDelegate.currentConfiguration;
+    final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+        ? lastMatch.matches
+        : routerDelegate.currentConfiguration;
     return matchList.uri.toString();
   }
 }

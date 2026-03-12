@@ -181,7 +181,9 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         where: (t) => t.userInfoId.equals(currentUserId!),
       );
 
-      if (resident != null && resident.interests != null && resident.interests!.isNotEmpty) {
+      if (resident != null &&
+          resident.interests != null &&
+          resident.interests!.isNotEmpty) {
         // Find public groups
         final allPublicGroups = await protocol.Group.db.find(
           session,
@@ -191,10 +193,21 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
         // Sort by interest match count
         allPublicGroups.sort((a, b) {
-          final aMatch = a.interests?.where((i) => resident.interests!.contains(i)).length ?? 0;
-          final bMatch = b.interests?.where((i) => resident.interests!.contains(i)).length ?? 0;
-          if (aMatch != bMatch) return bMatch.compareTo(aMatch); // More matches first
-          return b.memberCount.compareTo(a.memberCount); // Then more members first
+          final aMatch =
+              a.interests
+                  ?.where((i) => resident.interests!.contains(i))
+                  .length ??
+              0;
+          final bMatch =
+              b.interests
+                  ?.where((i) => resident.interests!.contains(i))
+                  .length ??
+              0;
+          if (aMatch != bMatch)
+            return bMatch.compareTo(aMatch); // More matches first
+          return b.memberCount.compareTo(
+            a.memberCount,
+          ); // Then more members first
         });
 
         return allPublicGroups.skip(offset).take(limit).toList();
@@ -278,10 +291,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     if (existingMember != null) {
       if (existingMember.status == protocol.ChannelMemberStatus.joined) {
         throw Exception('Already a member of this group');
-      } else if (existingMember.status == protocol.ChannelMemberStatus.applied) {
+      } else if (existingMember.status ==
+          protocol.ChannelMemberStatus.applied) {
         throw Exception('Already applied to this group');
       }
-      
+
       // Update status if previously left or declined
       existingMember.status = protocol.ChannelMemberStatus.applied;
       existingMember.joinedAt = DateTime.now();
@@ -301,7 +315,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Invites a user to a group (by any current member or creator).
-  Future<void> inviteUserToGroup(Session session, int groupId, String targetUserIdString) async {
+  Future<void> inviteUserToGroup(
+    Session session,
+    int groupId,
+    String targetUserIdString,
+  ) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -327,10 +345,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Verify current user is a joined member
-    final currentUserMemberResult = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) => t.channelId.equals(group.channelId) & t.userInfoId.equals(currentUserId) & t.status.equals(protocol.ChannelMemberStatus.joined),
-    );
+    final currentUserMemberResult = await protocol.ChannelMember.db
+        .findFirstRow(
+          session,
+          where: (t) =>
+              t.channelId.equals(group.channelId) &
+              t.userInfoId.equals(currentUserId) &
+              t.status.equals(protocol.ChannelMemberStatus.joined),
+        );
 
     if (currentUserMemberResult == null) {
       throw Exception('You are not a member of this group');
@@ -350,7 +372,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       } else if (targetMember.status == protocol.ChannelMemberStatus.invited) {
         throw Exception('User is already invited');
       }
-      
+
       targetMember.status = protocol.ChannelMemberStatus.invited;
       targetMember.invitedBy = currentUserId;
       targetMember.joinedAt = DateTime.now();
@@ -374,7 +396,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         session,
         where: (t) => t.userInfoId.equals(currentUserId),
       );
-      
+
       if (inviter != null) {
         await NotificationService.sendGroupInviteNotification(
           session,
@@ -391,7 +413,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Responds to a group invite (accept or decline).
-  Future<void> respondToGroupInvite(Session session, int groupId, bool accept) async {
+  Future<void> respondToGroupInvite(
+    Session session,
+    int groupId,
+    bool accept,
+  ) async {
     final currentUserId = await getUserId(session);
 
     // Get the group
@@ -422,7 +448,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       return;
     }
 
-    // The user accepted. 
+    // The user accepted.
     // If they were invited by the creator (host), they bypass approval and join instantly.
     if (member.invitedBy == group.creatorId) {
       if (group.memberCount >= group.maxMembers) {
@@ -430,7 +456,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       }
       member.status = protocol.ChannelMemberStatus.joined;
       await protocol.ChannelMember.db.updateRow(session, member);
-      
+
       group.memberCount += 1;
       await protocol.Group.db.updateRow(session, group);
 
@@ -447,7 +473,12 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Approves or rejects a pending group application (creator only).
-  Future<void> approveGroupApplication(Session session, int groupId, String targetUserIdString, bool approve) async {
+  Future<void> approveGroupApplication(
+    Session session,
+    int groupId,
+    String targetUserIdString,
+    bool approve,
+  ) async {
     final currentUserId = await getUserId(session);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
@@ -503,7 +534,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Kicks a member from the group (creator only).
-  Future<void> kickMember(Session session, int groupId, String targetUserIdString) async {
+  Future<void> kickMember(
+    Session session,
+    int groupId,
+    String targetUserIdString,
+  ) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -594,7 +629,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Gets all members of a group with their profiles.
-  Future<void> toggleMuteGroup(Session session, int groupId, bool isMuted) async {
+  Future<void> toggleMuteGroup(
+    Session session,
+    int groupId,
+    bool isMuted,
+  ) async {
     final currentUserId = await getUserId(session);
 
     // Get the group
@@ -660,12 +699,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     for (final member in members) {
       final resident = profileMap[member.userInfoId];
       if (resident != null) {
-        results.add(protocol.GroupMemberWithProfile(
-          resident: resident,
-          status: member.status,
-          role: member.role,
-          joinedAt: member.joinedAt,
-        ));
+        results.add(
+          protocol.GroupMemberWithProfile(
+            resident: resident,
+            status: member.status,
+            role: member.role,
+            joinedAt: member.joinedAt,
+          ),
+        );
       }
     }
 
@@ -673,7 +714,8 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Gets all pending applications for a group (creator only).
-  Future<List<protocol.GroupMemberWithProfile>> getPendingApplicationsWithProfiles(
+  Future<List<protocol.GroupMemberWithProfile>>
+  getPendingApplicationsWithProfiles(
     Session session,
     int groupId,
   ) async {
@@ -720,12 +762,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     for (final member in members) {
       final resident = profileMap[member.userInfoId];
       if (resident != null) {
-        results.add(protocol.GroupMemberWithProfile(
-          resident: resident,
-          status: member.status,
-          role: member.role,
-          joinedAt: member.joinedAt,
-        ));
+        results.add(
+          protocol.GroupMemberWithProfile(
+            resident: resident,
+            status: member.status,
+            role: member.role,
+            joinedAt: member.joinedAt,
+          ),
+        );
       }
     }
     return results;
@@ -812,10 +856,14 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       InputValidationService.validateGroupName(name).throwIfInvalid();
     }
     if (description != null) {
-      InputValidationService.validateGroupDescription(description).throwIfInvalid();
+      InputValidationService.validateGroupDescription(
+        description,
+      ).throwIfInvalid();
     }
     if (maxMembers != null) {
-      InputValidationService.validateGroupMemberLimit(maxMembers).throwIfInvalid();
+      InputValidationService.validateGroupMemberLimit(
+        maxMembers,
+      ).throwIfInvalid();
     }
 
     // Update fields

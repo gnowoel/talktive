@@ -10,7 +10,6 @@ import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/date_formatter.dart';
 
 class MessageBubble extends ConsumerWidget {
-
   final Message message;
   final bool isCurrentUser;
   final Resident? currentResident;
@@ -32,7 +31,9 @@ class MessageBubble extends ConsumerWidget {
 
     if (message.isSystem == true) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppTheme.duoSpacingMedium),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppTheme.duoSpacingMedium,
+        ),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -136,9 +137,9 @@ class MessageBubble extends ConsumerWidget {
                               ),
                             ),
                             ...[
-                            const SizedBox(width: 6),
-                            DuoFloorBadge(floor: senderFloor),
-                          ],
+                              const SizedBox(width: 6),
+                              DuoFloorBadge(floor: senderFloor),
+                            ],
                           ],
                         ),
                       ),
@@ -209,7 +210,8 @@ class MessageBubble extends ConsumerWidget {
               imageUrl: currentResident?.avatar,
               size: 36,
               trustScore: currentResident?.trustScore,
-              showRing: true, // Show the ring for current user too to reflect their status
+              showRing:
+                  true, // Show the ring for current user too to reflect their status
             ),
           ],
         ],
@@ -218,7 +220,6 @@ class MessageBubble extends ConsumerWidget {
   }
 
   void _showMessageOptions(
-
     BuildContext context,
     WidgetRef ref,
     String senderName,

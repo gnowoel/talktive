@@ -47,10 +47,7 @@ class EdgeToEdgeWrapper extends StatelessWidget {
 /// A more granular wrapper that gives direct access to system insets
 /// without automatically applying SafeArea
 class SystemInsetsWrapper extends StatelessWidget {
-  const SystemInsetsWrapper({
-    super.key,
-    required this.builder,
-  });
+  const SystemInsetsWrapper({super.key, required this.builder});
 
   /// Builder function that receives system insets and builds the UI
   final Widget Function(BuildContext context, EdgeInsets systemInsets) builder;

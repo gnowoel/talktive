@@ -112,9 +112,7 @@ class _UserItemState extends State<UserItem> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final oneDayFromNow = now + (24 * 60 * 60 * 1000);
 
-      final updatedUser = widget.user.copyWith(
-        revivedAt: oneDayFromNow,
-      );
+      final updatedUser = widget.user.copyWith(revivedAt: oneDayFromNow);
 
       // Update the Firestore cache directly
       firestore.updateUserInCache(updatedUser);
@@ -147,12 +145,12 @@ class _UserItemState extends State<UserItem> {
         )
         .closed
         .then((reason) {
-      // Only unlist the user if the SnackBar was closed by timeout
-      // and not by user action (pressing undo)
-      if (reason == SnackBarClosedReason.timeout) {
-        _unlistUser();
-      }
-    });
+          // Only unlist the user if the SnackBar was closed by timeout
+          // and not by user action (pressing undo)
+          if (reason == SnackBarClosedReason.timeout) {
+            _unlistUser();
+          }
+        });
   }
 
   Future<void> _doAction(Future<void> Function() action) async {
@@ -308,7 +306,8 @@ class _UserItemState extends State<UserItem> {
     final userStatus = widget.user.status;
 
     final currentUser = userCache.user;
-    final canUnlist = (currentUser?.isAdminOrModerator == true) &&
+    final canUnlist =
+        (currentUser?.isAdminOrModerator == true) &&
         currentUser?.id != widget.user.id &&
         widget.onRemove != null &&
         widget.onRestore != null;

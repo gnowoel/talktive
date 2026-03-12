@@ -17,8 +17,6 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     }
   }
 
-
-
   // Helper to get user info removed: using Resident natively
 
   /// Get all pending reports with pagination
@@ -27,7 +25,10 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 20,
     int offset = 0,
   }) async {
-    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
     await getAdminProfile(session);
 
     final reports = await protocol.Report.db.find(
@@ -62,7 +63,9 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'target': {
           'userId': report.targetId.uuid,
           'userName': target?.userName ?? 'Unknown',
-          'floor': target != null ? ApartmentService.computeEffectiveFloor(target) : 0,
+          'floor': target != null
+              ? ApartmentService.computeEffectiveFloor(target)
+              : 0,
           'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
         },
@@ -79,7 +82,10 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 50,
     int offset = 0,
   }) async {
-    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
     await getAdminProfile(session);
 
     final reports = await protocol.Report.db.find(
@@ -113,7 +119,9 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'target': {
           'userId': report.targetId.uuid,
           'userName': target?.userName ?? 'Unknown',
-          'floor': target != null ? ApartmentService.computeEffectiveFloor(target) : 0,
+          'floor': target != null
+              ? ApartmentService.computeEffectiveFloor(target)
+              : 0,
           'trustScore': target?.trustScore ?? 0,
           'level': target?.level ?? 0,
         },
@@ -380,7 +388,10 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required String query,
     int limit = 20,
   }) async {
-    InputValidationService.validatePagination(limit: limit, offset: 0).throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: 0,
+    ).throwIfInvalid();
     await getAdminProfile(session);
 
     // Try to parse as UUID first
@@ -401,7 +412,6 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
     final result = <Map<String, dynamic>>[];
     for (final resident in residents) {
-
       // Filter by name if searching by name
       if (searchUuid == null && resident.userName != null) {
         if (!resident.userName!.toLowerCase().contains(query.toLowerCase())) {
@@ -420,7 +430,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       // Count moments
       final momentCount = await protocol.Moment.db.count(
         session,
-        where: (t) => t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
+        where: (t) =>
+            t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
       );
 
       // Count reports against this user
@@ -441,7 +452,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'messageCount': messageCount,
         'momentCount': momentCount,
         'reportCount': reportCount,
-        'createdAt': DateTime.now().toIso8601String(), // Optional: could fetch Profile creation
+        'createdAt': DateTime.now()
+            .toIso8601String(), // Optional: could fetch Profile creation
       });
     }
 
@@ -523,7 +535,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
     final recentMoments = await protocol.Moment.db.find(
       session,
-      where: (t) => t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
+      where: (t) =>
+          t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: 10,

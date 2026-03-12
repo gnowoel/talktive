@@ -47,20 +47,27 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Safety: Check blocking (both ways)
-    if (await ResidentService.isBlocked(session, blockerId: currentUserId, blockedId: otherUserUuid)) {
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: currentUserId,
+      blockedId: otherUserUuid,
+    )) {
       throw protocol.TalktiveException(
         message: 'You have blocked this user.',
         code: 'USER_BLOCKED',
       );
     }
 
-    if (await ResidentService.isBlocked(session, blockerId: otherUserUuid, blockedId: currentUserId)) {
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: otherUserUuid,
+      blockedId: currentUserId,
+    )) {
       throw protocol.TalktiveException(
         message: 'This user has blocked you.',
         code: 'BLOCKED_BY_USER',
       );
     }
-
 
     // Order participants consistently (smaller UUID first) to avoid duplicates
     final participant1 = currentUserId.uuid.compareTo(otherUserUuid.uuid) < 0
@@ -85,14 +92,20 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       // Handle re-inviting
       var currentMember = await protocol.ChannelMember.db.findFirstRow(
         session,
-        where: (t) => t.channelId.equals(privateChat!.channelId) & t.userInfoId.equals(currentUserId),
+        where: (t) =>
+            t.channelId.equals(privateChat!.channelId) &
+            t.userInfoId.equals(currentUserId),
       );
       var otherMember = await protocol.ChannelMember.db.findFirstRow(
         session,
-        where: (t) => t.channelId.equals(privateChat!.channelId) & t.userInfoId.equals(otherUserUuid),
+        where: (t) =>
+            t.channelId.equals(privateChat!.channelId) &
+            t.userInfoId.equals(otherUserUuid),
       );
 
-      if (currentMember != null && (currentMember.status == protocol.ChannelMemberStatus.left || currentMember.status == protocol.ChannelMemberStatus.declined)) {
+      if (currentMember != null &&
+          (currentMember.status == protocol.ChannelMemberStatus.left ||
+              currentMember.status == protocol.ChannelMemberStatus.declined)) {
         currentMember.status = protocol.ChannelMemberStatus.joined;
         await protocol.ChannelMember.db.updateRow(session, currentMember);
       }
@@ -100,7 +113,8 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       if (otherMember != null) {
         if (otherMember.status == protocol.ChannelMemberStatus.invited) {
           isCurrentlyInvited = true;
-        } else if (otherMember.status == protocol.ChannelMemberStatus.left || otherMember.status == protocol.ChannelMemberStatus.declined) {
+        } else if (otherMember.status == protocol.ChannelMemberStatus.left ||
+            otherMember.status == protocol.ChannelMemberStatus.declined) {
           otherMember.status = protocol.ChannelMemberStatus.invited;
           otherMember.invitedBy = currentUserId;
           await protocol.ChannelMember.db.updateRow(session, otherMember);
@@ -115,7 +129,10 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         createdAt: DateTime.now(),
       );
 
-      final savedChannel = await protocol.Channel.db.insertRow(session, channel);
+      final savedChannel = await protocol.Channel.db.insertRow(
+        session,
+        channel,
+      );
 
       // Create the private chat record
       privateChat = protocol.PrivateChat(
@@ -158,10 +175,10 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         currentUserId,
         'private_chat',
       );
-      
+
       wasJustInvited = true;
     }
-    
+
     if (initialMessage != null && initialMessage.trim().isNotEmpty) {
       try {
         if (isCurrentlyInvited && !wasJustInvited) {
@@ -169,7 +186,9 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
           // Overwrite our last message instead of spamming duplicates.
           var lastMessageRows = await protocol.Message.db.find(
             session,
-            where: (t) => t.channelId.equals(privateChat!.channelId) & t.senderId.equals(currentUserId),
+            where: (t) =>
+                t.channelId.equals(privateChat!.channelId) &
+                t.senderId.equals(currentUserId),
             orderBy: (t) => t.createdAt,
             orderDescending: true,
             limit: 1,
@@ -181,15 +200,26 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
             await protocol.Message.db.updateRow(session, lastMessage);
           } else {
             final messageEndpoint = MessageEndpoint();
-            await messageEndpoint.sendMessage(session, privateChat.channelId, content: initialMessage);
+            await messageEndpoint.sendMessage(
+              session,
+              privateChat.channelId,
+              content: initialMessage,
+            );
           }
         } else {
           // It's a brand new invite, or they are joined/re-invited
           final messageEndpoint = MessageEndpoint();
-          await messageEndpoint.sendMessage(session, privateChat.channelId, content: initialMessage);
+          await messageEndpoint.sendMessage(
+            session,
+            privateChat.channelId,
+            content: initialMessage,
+          );
         }
       } catch (e) {
-        session.log('Warning: Failed to send initial message: $e', level: LogLevel.warning);
+        session.log(
+          'Warning: Failed to send initial message: $e',
+          level: LogLevel.warning,
+        );
       }
     }
 
@@ -307,7 +337,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     // Get the other participant's resident info
     final otherResident = await getResidentProfile(session, otherUserId);
 
-
     // Include the user info fallback if the resident data lacks name/avatar
     final userInfo = await UserInfo.db.findFirstRow(
       session,
@@ -345,7 +374,10 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int privateChatId,
   ) async {
-    InputValidationService.validateId(privateChatId, 'Private Chat ID').throwIfInvalid();
+    InputValidationService.validateId(
+      privateChatId,
+      'Private Chat ID',
+    ).throwIfInvalid();
     final privateChat = await protocol.PrivateChat.db.findById(
       session,
       privateChatId,
@@ -374,8 +406,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(channelId) &
-          t.userInfoId.equals(currentUserId),
+          t.channelId.equals(channelId) & t.userInfoId.equals(currentUserId),
     );
 
     if (member == null) {
@@ -384,7 +415,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         code: 'NOT_A_MEMBER',
       );
     }
-
 
     if (member.status != protocol.ChannelMemberStatus.invited) {
       // Ignore if not invited (already joined, left, declined)
@@ -399,13 +429,16 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     if (!accept) {
       try {
         await MessageEndpoint().sendMessage(
-          session, 
-          channelId, 
+          session,
+          channelId,
           content: "I'm not available to chat right now.",
           isSystem: true,
         );
       } catch (e) {
-        session.log('Warning: Failed to send decline message: $e', level: LogLevel.warning);
+        session.log(
+          'Warning: Failed to send decline message: $e',
+          level: LogLevel.warning,
+        );
       }
     }
   }
@@ -421,8 +454,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(channelId) &
-          t.userInfoId.equals(currentUserId),
+          t.channelId.equals(channelId) & t.userInfoId.equals(currentUserId),
     );
 
     if (member == null) {
@@ -439,13 +471,16 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     // Send a message before leaving
     try {
       await MessageEndpoint().sendMessage(
-        session, 
-        channelId, 
+        session,
+        channelId,
         content: "I've left the chat.",
         isSystem: true,
       );
     } catch (e) {
-      session.log('Warning: Failed to send leave message: $e', level: LogLevel.warning);
+      session.log(
+        'Warning: Failed to send leave message: $e',
+        level: LogLevel.warning,
+      );
     }
 
     member.status = protocol.ChannelMemberStatus.left;

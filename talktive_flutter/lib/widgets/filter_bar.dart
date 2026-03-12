@@ -99,10 +99,7 @@ class FilterBar extends StatelessWidget {
           items: items.map((item) {
             return DropdownMenuItem(
               value: item['value'],
-              child: Text(
-                item['label']!,
-                style: const TextStyle(fontSize: 14),
-              ),
+              child: Text(item['label']!, style: const TextStyle(fontSize: 14)),
             );
           }).toList(),
           onChanged: onChanged,

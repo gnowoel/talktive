@@ -4,11 +4,7 @@ import 'package:flutter/scheduler.dart';
 import '../helpers/exception.dart';
 
 class ErrorPage extends StatefulWidget {
-  const ErrorPage({
-    super.key,
-    required this.message,
-    required this.refresh,
-  });
+  const ErrorPage({super.key, required this.message, required this.refresh});
 
   final String message;
   final VoidCallback refresh;
@@ -49,14 +45,8 @@ class _ErrorPageState extends State<ErrorPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                '\u{1f641}',
-                style: TextStyle(fontSize: 64),
-              ),
-              TextButton(
-                onPressed: widget.refresh,
-                child: const Text('Retry'),
-              ),
+              const Text('\u{1f641}', style: TextStyle(fontSize: 64)),
+              TextButton(onPressed: widget.refresh, child: const Text('Retry')),
             ],
           ),
         ),

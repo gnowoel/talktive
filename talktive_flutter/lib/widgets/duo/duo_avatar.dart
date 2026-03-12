@@ -12,14 +12,14 @@ class DuoAvatar extends StatelessWidget {
   final String? mood;
   final Color? ringColor;
   final bool showRing;
-  
+
   /// Whether to show the floor level badge on the avatar itself.
   /// Defaults to false to avoid clutter in chat threads.
   final bool showFloor;
-  
+
   /// Whether to show the mood emoji overlay on the avatar.
   final bool showMood;
-  
+
   final VoidCallback? onTap;
 
   const DuoAvatar({
@@ -61,8 +61,11 @@ class DuoAvatar extends StatelessWidget {
         : (imageUrl?.isNotEmpty == true ? imageUrl : '👤');
 
     // Determine ring color from trustScore or explicit ringColor
-    final effectiveRingColor = ringColor ?? 
-        (trustScore != null ? TrustScoreUtils.getTrustColor(trustScore!) : AppTheme.primaryColor);
+    final effectiveRingColor =
+        ringColor ??
+        (trustScore != null
+            ? TrustScoreUtils.getTrustColor(trustScore!)
+            : AppTheme.primaryColor);
 
     Widget avatar = Container(
       width: size,
@@ -82,7 +85,7 @@ class DuoAvatar extends StatelessWidget {
         color: isEmoji ? Colors.white : null,
         image: hasImageUrl
             ? DecorationImage(
-                image: NetworkImage(UrlHelper.resolve(imageUrl!)), 
+                image: NetworkImage(UrlHelper.resolve(imageUrl!)),
                 fit: BoxFit.cover,
               )
             : null,
@@ -188,9 +191,7 @@ class DuoAvatar extends StatelessWidget {
                 child: Center(
                   child: Text(
                     mood!,
-                    style: TextStyle(
-                      fontSize: badgeSize * 0.7,
-                    ),
+                    style: TextStyle(fontSize: badgeSize * 0.7),
                   ),
                 ),
               ),

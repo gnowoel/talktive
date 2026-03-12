@@ -56,12 +56,11 @@ ThemeData getTheme(BuildContext context) {
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
-      iconTheme: IconThemeData(
-        color: colorScheme.onSurface,
-      ),
+      iconTheme: IconThemeData(color: colorScheme.onSurface),
       titleTextStyle: TextStyle(
         color: colorScheme.onSurface,
         fontSize: 20,

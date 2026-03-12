@@ -32,11 +32,7 @@ class DuoFloorBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.apartment,
-            size: 10,
-            color: Colors.white,
-          ),
+          const Icon(Icons.apartment, size: 10, color: Colors.white),
           const SizedBox(width: 2),
           Text(
             '$floor',

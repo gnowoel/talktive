@@ -80,7 +80,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         ),
         error: (error, stack) => _buildErrorState(error.toString()),
       ),
-      bottomNavigationBar: isBlocked || profileAsync.isLoading || profileAsync.hasError
+      bottomNavigationBar:
+          isBlocked || profileAsync.isLoading || profileAsync.hasError
           ? null
           : _buildBottomBar(context, ref),
     );
@@ -259,16 +260,20 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         children: [
           // Avatar and basic info
           Center(
-              child: DuoAvatar(
-              imageUrl: avatar,
-              size: 110,
-              floorLevel: floor,
-              mood: profile?.userMood,
-              trustScore: profile?.trustScore,
-              showRing: true,
-              showFloor: true,
-              showMood: true,
-            ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),
+            child:
+                DuoAvatar(
+                      imageUrl: avatar,
+                      size: 110,
+                      floorLevel: floor,
+                      mood: profile?.userMood,
+                      trustScore: profile?.trustScore,
+                      showRing: true,
+                      showFloor: true,
+                      showMood: true,
+                    )
+                    .animate()
+                    .fadeIn(delay: 100.ms)
+                    .scale(begin: const Offset(0.8, 0.8)),
           ),
           const SizedBox(height: 16),
           Text(
@@ -291,15 +296,19 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
           ],
-          
+
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Action Button (Vouch)
-          _buildVouchButton(profile).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+          _buildVouchButton(
+            profile,
+          ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: AppTheme.duoSpacingMedium),
 
           // Moments Button (New style)
-          _buildMomentsButton(profile).animate().fadeIn(delay: 270.ms).slideY(begin: 0.1, end: 0),
+          _buildMomentsButton(
+            profile,
+          ).animate().fadeIn(delay: 270.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Stats Grid
@@ -390,7 +399,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       width: double.infinity,
       onPressed: () {
         final userName = profile?.userName ?? widget.userName ?? 'Resident';
-        context.push('/user/${widget.userId}/moments?name=${Uri.encodeComponent(userName)}');
+        context.push(
+          '/user/${widget.userId}/moments?name=${Uri.encodeComponent(userName)}',
+        );
       },
     );
   }
@@ -407,15 +418,17 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       onPressed: () async {
         try {
           if (isLiked) {
-            await ref.read(userLikesProvider.notifier).unlikeUser(widget.userId);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Vouch removed.')),
-              );
+            await ref
+                .read(userLikesProvider.notifier)
+                .unlikeUser(widget.userId);
+            if (mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Vouch removed.')));
             }
           } else {
             await ref.read(userLikesProvider.notifier).likeUser(widget.userId);
-            if (context.mounted) {
+            if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('User vouched! Trust Score increased.'),
@@ -424,8 +437,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             }
           }
         } catch (e) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Error: $e')));
           }
         }
       },
@@ -454,10 +469,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             _getTrustColor(actualTrustScore).withValues(alpha: 0.7),
           ],
         ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
-        _buildXPCard(profile)
-            .animate()
-            .fadeIn(delay: 350.ms)
-            .scale(begin: const Offset(0.8, 0.8)),
+        _buildXPCard(
+          profile,
+        ).animate().fadeIn(delay: 350.ms).scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
           icon: Icons.apartment,
           value: '$floor',
@@ -486,7 +500,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   Widget _buildXPCard(UserProfileView? profile) {
     final xp = profile?.xp ?? 0;
-    
+
     var xpDisplay = '0/50';
     if (profile != null) {
       final progress = FloorUtils.getXPProgressFromProfile(profile);
@@ -501,7 +515,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       gradientColors: [AppTheme.duoYellow, Colors.orange],
     );
   }
-
 
   Widget _buildInfoCard(String title, List<Widget> children) {
     return Container(
@@ -538,7 +551,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         children: [
           Icon(icon, size: 20, color: AppTheme.textSecondary),
           const SizedBox(width: 12),
-          Text(text, style: const TextStyle(fontSize: 16, fontFamily: 'Rubik', color: AppTheme.textPrimary)),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              fontFamily: 'Rubik',
+              color: AppTheme.textPrimary,
+            ),
+          ),
         ],
       ),
     );
@@ -599,18 +619,25 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Knock on Door', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Knock on Door',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Leave an optional message to let them know why you are knocking.'),
+            const Text(
+              'Leave an optional message to let them know why you are knocking.',
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: messageController,
               maxLines: 2,
               decoration: InputDecoration(
                 hintText: 'Say hi...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -636,10 +663,17 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     );
   }
 
-  void _performKnock(BuildContext context, WidgetRef ref, String initialMessage) {
+  void _performKnock(
+    BuildContext context,
+    WidgetRef ref,
+    String initialMessage,
+  ) {
     final chatList = ref.read(privateChatListProvider.notifier);
     chatList
-        .getOrCreateChat(widget.userId, initialMessage: initialMessage.isNotEmpty ? initialMessage : null)
+        .getOrCreateChat(
+          widget.userId,
+          initialMessage: initialMessage.isNotEmpty ? initialMessage : null,
+        )
         .then((chat) {
           if (context.mounted) {
             // Unconditionally use a strict path anchor
@@ -655,10 +689,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   }
 
   void _showInviteBottomSheet(BuildContext context, WidgetRef ref) async {
-    final groupsState = await ref.read(groupListProvider.notifier).fetchGroups();
-    
+    final groupsState = await ref
+        .read(groupListProvider.notifier)
+        .fetchGroups();
+
     // Only show groups where the user is actually joined
-    final activeGroups = groupsState.where((g) => g.membershipStatus == ChannelMemberStatus.joined).toList();
+    final activeGroups = groupsState
+        .where((g) => g.membershipStatus == ChannelMemberStatus.joined)
+        .toList();
 
     if (!context.mounted) return;
 
@@ -720,10 +758,15 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                       final group = activeGroups[index].group;
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: AppTheme.duoYellow.withValues(alpha: 0.2),
+                          backgroundColor: AppTheme.duoYellow.withValues(
+                            alpha: 0.2,
+                          ),
                           child: Text(group.emoji ?? '👥'),
                         ),
-                        title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text(
+                          group.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         subtitle: Text('${group.memberCount} members'),
                         trailing: DuoButton(
                           text: 'Invite',
@@ -733,9 +776,15 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                             Navigator.pop(context); // Close sheet immediately
                             try {
                               final client = ref.read(clientProvider);
-                              await client.group.inviteUserToGroup(group.id!, widget.userId);
+                              await client.group.inviteUserToGroup(
+                                group.id!,
+                                widget.userId,
+                              );
                               if (context.mounted) {
-                                SnackBarHelper.showSuccess(context, 'Flyer slipped under the door!');
+                                SnackBarHelper.showSuccess(
+                                  context,
+                                  'Flyer slipped under the door!',
+                                );
                               }
                             } catch (e) {
                               if (context.mounted) {
@@ -761,7 +810,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Report User', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Report User',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -774,7 +826,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'Reason for report',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],

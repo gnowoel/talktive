@@ -17,7 +17,6 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
-import '../activity/activity_screen.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
 
@@ -98,7 +97,7 @@ class ProfileScreen extends ConsumerWidget {
                     .fadeIn(delay: 100.ms)
                     .scale(begin: const Offset(0.8, 0.8)),
           ),
-          
+
           if (resident?.userName != null && resident!.userName!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text(
@@ -110,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ).animate().fadeIn(delay: 110.ms).slideY(begin: 0.1, end: 0),
           ],
-          
+
           if (resident?.bio != null && resident!.bio!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Padding(
@@ -127,7 +126,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ).animate().fadeIn(delay: 120.ms).slideY(begin: 0.1, end: 0),
           ],
-          
+
           if (resident?.mood != null && resident!.mood!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Container(
@@ -167,7 +166,11 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: AppTheme.duoSpacingMedium),
 
           // Moments Button (Prominent placement)
-          _buildMomentsButton(context, ref, resident).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+          _buildMomentsButton(
+            context,
+            ref,
+            resident,
+          ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
 
           // Stats grid
           _buildStatsGrid(context, ref, resident),
@@ -263,9 +266,13 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMomentsButton(BuildContext context, WidgetRef ref, Resident? resident) {
-    final profileView = resident != null 
-        ? ref.watch(userProfileProvider(resident.userInfoId.toString())).value 
+  Widget _buildMomentsButton(
+    BuildContext context,
+    WidgetRef ref,
+    Resident? resident,
+  ) {
+    final profileView = resident != null
+        ? ref.watch(userProfileProvider(resident.userInfoId.toString())).value
         : null;
     final momentsCount = profileView?.totalMoments ?? 0;
 
@@ -280,14 +287,20 @@ class ProfileScreen extends ConsumerWidget {
         onPressed: () {
           if (resident != null) {
             final userName = resident.userName ?? 'Me';
-            context.push('/user/${resident.userInfoId}/moments?name=${Uri.encodeComponent(userName)}');
+            context.push(
+              '/user/${resident.userInfoId}/moments?name=${Uri.encodeComponent(userName)}',
+            );
           }
         },
       ),
     );
   }
 
-  Widget _buildStatsGrid(BuildContext context, WidgetRef ref, Resident? resident) {
+  Widget _buildStatsGrid(
+    BuildContext context,
+    WidgetRef ref,
+    Resident? resident,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppTheme.duoSpacingLarge,
@@ -398,55 +411,55 @@ class ProfileScreen extends ConsumerWidget {
       child: SizedBox(
         width: double.infinity,
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Languages',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins',
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Languages',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
             ),
-          ),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: languages.map((code) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.duoGreen.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: AppTheme.duoGreen.withValues(alpha: 0.3),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: languages.map((code) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      AppLanguages.getFlag(code),
-                      style: const TextStyle(fontSize: 16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.duoGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppTheme.duoGreen.withValues(alpha: 0.3),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      AppLanguages.getName(code),
-                      style: const TextStyle(
-                        color: AppTheme.duoGreen,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        AppLanguages.getFlag(code),
+                        style: const TextStyle(fontSize: 16),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+                      const SizedBox(width: 4),
+                      Text(
+                        AppLanguages.getName(code),
+                        style: const TextStyle(
+                          color: AppTheme.duoGreen,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       ),
     ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0);
@@ -467,45 +480,45 @@ class ProfileScreen extends ConsumerWidget {
       child: SizedBox(
         width: double.infinity,
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Interests',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins',
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Interests',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
             ),
-          ),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: interests.map((interest) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: AppTheme.accentColor.withValues(alpha: 0.3),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: interests.map((interest) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
                   ),
-                ),
-                child: Text(
-                  interest,
-                  style: const TextStyle(
-                    color: AppTheme.accentColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppTheme.accentColor.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+                  child: Text(
+                    interest,
+                    style: const TextStyle(
+                      color: AppTheme.accentColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       ),
     ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1, end: 0);
@@ -596,8 +609,8 @@ class ProfileScreen extends ConsumerWidget {
                                 color: AppTheme.primaryColor,
                                 size: 24,
                               ),
-                              const SizedBox(height: 4),
-                              const Text(
+                              SizedBox(height: 4),
+                              Text(
                                 'View All',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -721,10 +734,7 @@ class ProfileScreen extends ConsumerWidget {
         width: double.infinity,
         onPressed: () {
           if (resident != null) {
-            context.push(
-              '/profile-setup',
-              extra: {'resident': resident},
-            );
+            context.push('/profile-setup', extra: {'resident': resident});
           }
         },
       ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),

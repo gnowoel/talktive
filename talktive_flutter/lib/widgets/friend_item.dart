@@ -75,7 +75,8 @@ class _FriendItemState extends State<FriendItem> {
       // Validate user data before attempting to greet
       if (self.description == null || self.description!.trim().isEmpty) {
         throw AppException(
-            'Please add a description to your profile before starting a conversation.');
+          'Please add a description to your profile before starting a conversation.',
+        );
       }
 
       if (other.id.isEmpty) {

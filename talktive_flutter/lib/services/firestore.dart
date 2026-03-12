@@ -215,30 +215,30 @@ class Firestore {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((event) {
-      for (final change in event.docChanges) {
-        final follow = Follow.fromJson({
-          'id': change.doc.id,
-          ...change.doc.data()!,
+          for (final change in event.docChanges) {
+            final follow = Follow.fromJson({
+              'id': change.doc.id,
+              ...change.doc.data()!,
+            });
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                _followeesCache[follow.id] = follow;
+                break;
+              case DocumentChangeType.modified:
+                _followeesCache[follow.id] = follow;
+                break;
+              case DocumentChangeType.removed:
+                _followeesCache.removeWhere((id, _) => id == follow.id);
+                break;
+            }
+          }
+
+          final followees = _followeesCache.values.toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+          _followeesController?.add(followees);
         });
-
-        switch (change.type) {
-          case DocumentChangeType.added:
-            _followeesCache[follow.id] = follow;
-            break;
-          case DocumentChangeType.modified:
-            _followeesCache[follow.id] = follow;
-            break;
-          case DocumentChangeType.removed:
-            _followeesCache.removeWhere((id, _) => id == follow.id);
-            break;
-        }
-      }
-
-      final followees = _followeesCache.values.toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      _followeesController?.add(followees);
-    });
 
     return _followeesController!.stream;
   }
@@ -262,30 +262,30 @@ class Firestore {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((event) {
-      for (final change in event.docChanges) {
-        final follow = Follow.fromJson({
-          'id': change.doc.id,
-          ...change.doc.data()!,
+          for (final change in event.docChanges) {
+            final follow = Follow.fromJson({
+              'id': change.doc.id,
+              ...change.doc.data()!,
+            });
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                _followersCache[follow.id] = follow;
+                break;
+              case DocumentChangeType.modified:
+                _followersCache[follow.id] = follow;
+                break;
+              case DocumentChangeType.removed:
+                _followersCache.removeWhere((id, _) => id == follow.id);
+                break;
+            }
+          }
+
+          final followers = _followersCache.values.toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+          _followersController?.add(followers);
         });
-
-        switch (change.type) {
-          case DocumentChangeType.added:
-            _followersCache[follow.id] = follow;
-            break;
-          case DocumentChangeType.modified:
-            _followersCache[follow.id] = follow;
-            break;
-          case DocumentChangeType.removed:
-            _followersCache.removeWhere((id, _) => id == follow.id);
-            break;
-        }
-      }
-
-      final followers = _followersCache.values.toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      _followersController?.add(followers);
-    });
 
     return _followersController!.stream;
   }
@@ -847,14 +847,14 @@ class Firestore {
           .doc(topicId)
           .snapshots()
           .map((doc) {
-        if (!doc.exists) {
-          return Topic.dummy();
-        }
-        return Topic.fromJson(
-          doc.id,
-          Map<String, dynamic>.from(doc.data()!),
-        );
-      });
+            if (!doc.exists) {
+              return Topic.dummy();
+            }
+            return Topic.fromJson(
+              doc.id,
+              Map<String, dynamic>.from(doc.data()!),
+            );
+          });
     } catch (e) {
       throw AppException(e.toString());
     }
@@ -942,13 +942,13 @@ class Firestore {
           .doc(topicId)
           .collection('messages')
           .add({
-        'type': 'text',
-        'userId': userId,
-        'userDisplayName': userDisplayName,
-        'userPhotoURL': userPhotoURL,
-        'content': content,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+            'type': 'text',
+            'userId': userId,
+            'userDisplayName': userDisplayName,
+            'userPhotoURL': userPhotoURL,
+            'content': content,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       throw AppException(e.toString());
     }
@@ -967,14 +967,14 @@ class Firestore {
           .doc(topicId)
           .collection('messages')
           .add({
-        'type': 'image',
-        'userId': userId,
-        'userDisplayName': userDisplayName,
-        'userPhotoURL': userPhotoURL,
-        'content': '[Image]',
-        'uri': uri,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+            'type': 'image',
+            'userId': userId,
+            'userDisplayName': userDisplayName,
+            'userPhotoURL': userPhotoURL,
+            'content': '[Image]',
+            'uri': uri,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       throw AppException(e.toString());
     }
@@ -1275,13 +1275,10 @@ class Firestore {
           return;
         }
 
-        transaction.set(
-            userTopicRef,
-            {
-              'readMessageCount': readMessageCount,
-              'updatedAt': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true));
+        transaction.set(userTopicRef, {
+          'readMessageCount': readMessageCount,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       });
     } catch (e) {
       throw AppException(e.toString());

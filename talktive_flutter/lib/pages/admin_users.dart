@@ -49,9 +49,9 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       // });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading users: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading users: $e')));
       }
     } finally {
       if (mounted) {
@@ -64,12 +64,14 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
 
   List<User> get _filteredUsers {
     var filtered = _users.where((user) {
-      final matchesSearch = user.displayName
-              ?.toLowerCase()
-              .contains(_searchQuery.toLowerCase()) ??
+      final matchesSearch =
+          user.displayName?.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ??
           false;
 
-      final matchesRole = _selectedRoleFilter == 'all' ||
+      final matchesRole =
+          _selectedRoleFilter == 'all' ||
           (_selectedRoleFilter == 'admin' && user.isAdmin) ||
           (_selectedRoleFilter == 'moderator' && user.isModerator) ||
           (_selectedRoleFilter == 'user' && user.role == null);
@@ -144,9 +146,9 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating user role: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating user role: $e')));
       }
     } finally {
       if (mounted) {
@@ -160,10 +162,8 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
   void _showRoleUpdateDialog(User user) {
     showDialog(
       context: context,
-      builder: (context) => _RoleUpdateDialog(
-        user: user,
-        onRoleUpdate: _updateUserRole,
-      ),
+      builder: (context) =>
+          _RoleUpdateDialog(user: user, onRoleUpdate: _updateUserRole),
     );
   }
 
@@ -176,9 +176,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     // Check if current user is admin
     if (currentUser?.isAdmin != true) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Access Denied'),
-        ),
+        appBar: AppBar(title: const Text('Access Denied')),
         body: const Center(
           child: Text('You do not have permission to access this page.'),
         ),
@@ -238,11 +236,17 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                           items: const [
                             DropdownMenuItem(value: 'all', child: Text('All')),
                             DropdownMenuItem(
-                                value: 'admin', child: Text('Admins')),
+                              value: 'admin',
+                              child: Text('Admins'),
+                            ),
                             DropdownMenuItem(
-                                value: 'moderator', child: Text('Moderators')),
+                              value: 'moderator',
+                              child: Text('Moderators'),
+                            ),
                             DropdownMenuItem(
-                                value: 'user', child: Text('Users')),
+                              value: 'user',
+                              child: Text('Users'),
+                            ),
                           ],
                         ),
                       ],
@@ -256,18 +260,18 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : _filteredUsers.isEmpty
-                        ? const Center(child: Text('No users found'))
-                        : ListView.builder(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _filteredUsers.length,
-                            itemBuilder: (context, index) {
-                              final user = _filteredUsers[index];
-                              return _UserCard(
-                                user: user,
-                                onRoleUpdate: () => _showRoleUpdateDialog(user),
-                              );
-                            },
-                          ),
+                    ? const Center(child: Text('No users found'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _filteredUsers.length,
+                        itemBuilder: (context, index) {
+                          final user = _filteredUsers[index];
+                          return _UserCard(
+                            user: user,
+                            onRoleUpdate: () => _showRoleUpdateDialog(user),
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -281,10 +285,7 @@ class _UserCard extends StatelessWidget {
   final User user;
   final VoidCallback onRoleUpdate;
 
-  const _UserCard({
-    required this.user,
-    required this.onRoleUpdate,
-  });
+  const _UserCard({required this.user, required this.onRoleUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -359,10 +360,7 @@ class _RoleUpdateDialog extends StatefulWidget {
   final User user;
   final Future<void> Function(User user, String? role) onRoleUpdate;
 
-  const _RoleUpdateDialog({
-    required this.user,
-    required this.onRoleUpdate,
-  });
+  const _RoleUpdateDialog({required this.user, required this.onRoleUpdate});
 
   @override
   State<_RoleUpdateDialog> createState() => _RoleUpdateDialogState();

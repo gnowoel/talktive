@@ -19,7 +19,10 @@ mixin EndpointAuthMixin {
 
   /// Retrieves the Resident record for a specific user ID.
   /// Throws a TalktiveException if the resident is not found.
-  Future<protocol.Resident> getResidentProfile(Session session, UuidValue userId) async {
+  Future<protocol.Resident> getResidentProfile(
+    Session session,
+    UuidValue userId,
+  ) async {
     final resident = await ResidentService.getResident(session, userId);
     if (resident == null) {
       throw protocol.TalktiveException(

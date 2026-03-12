@@ -95,8 +95,8 @@ class _TwoPersonTopicItemCardState extends State<TwoPersonTopicItemCard> {
     final textColor = colorScheme.onTertiaryContainer;
 
     final newMessageCount = widget.topic.unreadCount;
-    final lastMessageContent =
-        (widget.topic.lastMessageContent ?? '').replaceAll(RegExp(r'\s+'), ' ');
+    final lastMessageContent = (widget.topic.lastMessageContent ?? '')
+        .replaceAll(RegExp(r'\s+'), ' ');
 
     final topic = widget.topic;
     final creator = topic.creator;
@@ -204,14 +204,14 @@ class _TwoPersonTopicItemCardState extends State<TwoPersonTopicItemCard> {
                       if (userStatus == 'warning') {
                         return [
                           const SizedBox(width: 4),
-                          Tag(status: 'warning')
+                          Tag(status: 'warning'),
                         ];
                       } else if (userStatus == 'alert') {
                         return [const SizedBox(width: 4), Tag(status: 'alert')];
                       } else if (userStatus == 'newcomer') {
                         return [
                           const SizedBox(width: 4),
-                          Tag(status: 'newcomer')
+                          Tag(status: 'newcomer'),
                         ];
                       }
                       return <Widget>[];

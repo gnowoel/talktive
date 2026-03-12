@@ -229,7 +229,7 @@ class AchievementService {
     if (userAchievement.progress >= achievement.targetValue) {
       userAchievement.unlockedAt = DateTime.now();
       userAchievement.notified = false; // Will be notified on next fetch
-      
+
       try {
         await NotificationService.sendAchievementNotification(
           session,
@@ -272,12 +272,14 @@ class AchievementService {
     // 2. Fetch existing user progress for these achievements in one query
     final existingProgress = await protocol.UserAchievement.db.find(
       session,
-      where: (t) => t.userId.equals(userId) & t.achievementId.inSet(achievementIds.toSet()),
+      where: (t) =>
+          t.userId.equals(userId) &
+          t.achievementId.inSet(achievementIds.toSet()),
     );
 
     final progressMap = {for (var p in existingProgress) p.achievementId: p};
     final now = DateTime.now();
-    
+
     final toInsert = <protocol.UserAchievement>[];
     final toUpdate = <protocol.UserAchievement>[];
 
@@ -294,7 +296,7 @@ class AchievementService {
           unlockedAt: increment >= achievement.targetValue ? now : null,
           notified: false,
         );
-        
+
         if (userAchievement.unlockedAt != null) {
           try {
             await NotificationService.sendAchievementNotification(
@@ -308,7 +310,7 @@ class AchievementService {
             session.log('Failed to send batch achievement notification: $e');
           }
         }
-        
+
         toInsert.add(userAchievement);
         result.add(userAchievement);
       } else {
@@ -325,7 +327,7 @@ class AchievementService {
         if (userAchievement.progress >= achievement.targetValue) {
           userAchievement.unlockedAt = now;
           userAchievement.notified = false;
-          
+
           try {
             await NotificationService.sendAchievementNotification(
               session,
@@ -338,7 +340,7 @@ class AchievementService {
             session.log('Failed to send batch achievement notification: $e');
           }
         }
-        
+
         toUpdate.add(userAchievement);
         result.add(userAchievement);
       }
@@ -348,7 +350,7 @@ class AchievementService {
     if (toInsert.isNotEmpty) {
       await protocol.UserAchievement.db.insert(session, toInsert);
     }
-    
+
     if (toUpdate.isNotEmpty) {
       await protocol.UserAchievement.db.update(session, toUpdate);
     }

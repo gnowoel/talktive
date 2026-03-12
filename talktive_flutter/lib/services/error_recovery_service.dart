@@ -78,20 +78,23 @@ class ErrorRecoveryService extends ChangeNotifier {
         return fallbackValue;
       }
       throw CircuitBreakerException(
-          'Service temporarily unavailable: $operationId');
+        'Service temporarily unavailable: $operationId',
+      );
     }
 
     // Check if offline and should queue
     if (!_isOnline && queueIfOffline) {
-      _queueOperation(FailedOperation(
-        id: _generateOperationId(),
-        operationId: operationId,
-        operation: operation,
-        fallbackMessage: fallbackMessage,
-        fallbackValue: fallbackValue,
-        useCache: useCache,
-        queuedAt: DateTime.now(),
-      ));
+      _queueOperation(
+        FailedOperation(
+          id: _generateOperationId(),
+          operationId: operationId,
+          operation: operation,
+          fallbackMessage: fallbackMessage,
+          fallbackValue: fallbackValue,
+          useCache: useCache,
+          queuedAt: DateTime.now(),
+        ),
+      );
 
       if (fallbackValue != null) {
         return fallbackValue;
@@ -171,8 +174,9 @@ class ErrorRecoveryService extends ChangeNotifier {
         .fold(0, (sum, count) => sum + count);
 
     final queuedOperations = _operationQueue.length;
-    final activeCircuitBreakers =
-        _circuitBreakers.values.where((cb) => cb.isOpen).length;
+    final activeCircuitBreakers = _circuitBreakers.values
+        .where((cb) => cb.isOpen)
+        .length;
 
     return ErrorRecoveryStats(
       totalErrors: totalErrors,
@@ -278,7 +282,8 @@ class ErrorRecoveryService extends ChangeNotifier {
 
           if (kDebugMode) {
             debugPrint(
-                'Retrying $operationId in ${delay.inSeconds}s (attempt ${attempt + 1}/$maxRetries)');
+              'Retrying $operationId in ${delay.inSeconds}s (attempt ${attempt + 1}/$maxRetries)',
+            );
           }
 
           await Future.delayed(delay);
@@ -294,7 +299,9 @@ class ErrorRecoveryService extends ChangeNotifier {
     }
 
     throw RetryExhaustedException(
-        'Operation failed after $maxRetries retries: $operationId', lastError);
+      'Operation failed after $maxRetries retries: $operationId',
+      lastError,
+    );
   }
 
   Duration _calculateRetryDelay(int attempt) {
@@ -305,7 +312,8 @@ class ErrorRecoveryService extends ChangeNotifier {
     final totalDelay = exponentialDelay + jitter;
 
     return Duration(
-        milliseconds: min(totalDelay.toInt(), _maxRetryDelay.inMilliseconds));
+      milliseconds: min(totalDelay.toInt(), _maxRetryDelay.inMilliseconds),
+    );
   }
 
   ErrorTracker _getOrCreateErrorTracker(String operationId) {
@@ -361,20 +369,20 @@ class ErrorRecoveryService extends ChangeNotifier {
       final results = await _connectivity.checkConnectivity();
       _isOnline = !results.contains(ConnectivityResult.none);
 
-      _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-        (List<ConnectivityResult> results) {
-          final wasOnline = _isOnline;
-          _isOnline = !results.contains(ConnectivityResult.none);
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+        List<ConnectivityResult> results,
+      ) {
+        final wasOnline = _isOnline;
+        _isOnline = !results.contains(ConnectivityResult.none);
 
-          if (!wasOnline && _isOnline) {
-            _onConnectivityRestored();
-          } else if (wasOnline && !_isOnline) {
-            _onConnectivityLost();
-          }
+        if (!wasOnline && _isOnline) {
+          _onConnectivityRestored();
+        } else if (wasOnline && !_isOnline) {
+          _onConnectivityLost();
+        }
 
-          notifyListeners();
-        },
-      );
+        notifyListeners();
+      });
     } catch (e) {
       debugPrint('Failed to initialize connectivity monitoring: $e');
       _isOnline = true; // Assume online if we can't check
@@ -434,7 +442,7 @@ class ErrorRecoveryService extends ChangeNotifier {
       'firestore',
       'realtime_database',
       'storage',
-      'functions'
+      'functions',
     ];
     for (final service in services) {
       _getOrCreateCircuitBreaker(service);
@@ -461,9 +469,13 @@ class ErrorRecoveryService extends ChangeNotifier {
     await prefs.setBool('${_prefsPrefix}offline_mode', _useOfflineMode);
     await prefs.setInt('${_prefsPrefix}max_concurrent', _maxConcurrentRetries);
     await prefs.setDouble(
-        '${_prefsPrefix}cb_threshold', _circuitBreakerThreshold);
+      '${_prefsPrefix}cb_threshold',
+      _circuitBreakerThreshold,
+    );
     await prefs.setInt(
-        '${_prefsPrefix}cb_timeout', _circuitBreakerTimeout.inMilliseconds);
+      '${_prefsPrefix}cb_timeout',
+      _circuitBreakerTimeout.inMilliseconds,
+    );
   }
 
   @override
@@ -488,14 +500,19 @@ class ErrorTracker {
 
   int get totalErrors => errors.length;
 
-  void addError(Exception error,
-      {String? context, Map<String, dynamic>? metadata}) {
-    errors.add(ErrorRecord(
-      error: error,
-      timestamp: DateTime.now(),
-      context: context,
-      metadata: metadata,
-    ));
+  void addError(
+    Exception error, {
+    String? context,
+    Map<String, dynamic>? metadata,
+  }) {
+    errors.add(
+      ErrorRecord(
+        error: error,
+        timestamp: DateTime.now(),
+        context: context,
+        metadata: metadata,
+      ),
+    );
     lastError = DateTime.now();
     totalRetries++;
 
@@ -513,8 +530,9 @@ class ErrorTracker {
     if (errors.isEmpty) return 0.0;
 
     final recentCutoff = DateTime.now().subtract(const Duration(minutes: 30));
-    final recentErrors =
-        errors.where((e) => e.timestamp.isAfter(recentCutoff)).length;
+    final recentErrors = errors
+        .where((e) => e.timestamp.isAfter(recentCutoff))
+        .length;
 
     return recentErrors / 30.0; // Errors per minute
   }
@@ -602,8 +620,9 @@ class ServiceHealth {
 
   void _calculateErrorRate() {
     // Simplified error rate calculation
-    errorRate =
-        consecutiveErrors > 0 ? min(consecutiveErrors / 10.0, 1.0) : 0.0;
+    errorRate = consecutiveErrors > 0
+        ? min(consecutiveErrors / 10.0, 1.0)
+        : 0.0;
   }
 }
 

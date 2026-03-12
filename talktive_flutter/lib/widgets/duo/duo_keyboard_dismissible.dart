@@ -4,17 +4,15 @@ import 'package:flutter/material.dart';
 class DuoKeyboardDismissible extends StatelessWidget {
   final Widget child;
 
-  const DuoKeyboardDismissible({
-    super.key,
-    required this.child,
-  });
+  const DuoKeyboardDismissible({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         final currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+        if (!currentFocus.hasPrimaryFocus &&
+            currentFocus.focusedChild != null) {
           currentFocus.unfocus();
         }
       },

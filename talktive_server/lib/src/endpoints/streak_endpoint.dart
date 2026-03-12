@@ -51,7 +51,10 @@ class StreakEndpoint extends Endpoint {
     Session session, {
     int limit = 30,
   }) async {
-    InputValidationService.validatePagination(limit: limit, offset: 0).throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: 0,
+    ).throwIfInvalid();
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -68,4 +71,3 @@ class StreakEndpoint extends Endpoint {
     );
   }
 }
-

@@ -13,9 +13,7 @@ class ServerpodApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      child: _ServerpodAppContent(onExit: onExit),
-    );
+    return ProviderScope(child: _ServerpodAppContent(onExit: onExit));
   }
 }
 

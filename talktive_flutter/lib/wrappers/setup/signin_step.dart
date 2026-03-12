@@ -113,16 +113,15 @@ class _SigninStepState extends State<SigninStep> {
                           const SizedBox(height: 32),
                           FilledButton(
                             onPressed: _isProcessing ? null : _submit,
-                            child:
-                                _isProcessing
-                                    ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 3,
-                                      ),
-                                    )
-                                    : const Text('Restore Account'),
+                            child: _isProcessing
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Text('Restore Account'),
                           ),
                         ],
                       ),

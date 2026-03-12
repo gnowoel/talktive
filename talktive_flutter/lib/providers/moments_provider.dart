@@ -29,7 +29,6 @@ class Moments extends _$Moments {
     }
   }
 
-
   /// Toggles like on a moment
   Future<void> toggleLike(int momentId, bool currentlyLiked) async {
     final client = ref.read(clientProvider);

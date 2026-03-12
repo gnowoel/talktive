@@ -60,7 +60,8 @@ class UserMomentsScreen extends ConsumerWidget {
               child: DuoEmptyState(
                 emoji: '🏜️',
                 title: 'No moments yet',
-                subtitle: 'This resident hasn\'t shared any snippets of their life yet.',
+                subtitle:
+                    'This resident hasn\'t shared any snippets of their life yet.',
               ),
             );
           }
@@ -88,11 +89,18 @@ class UserMomentsScreen extends ConsumerWidget {
                   onLike: () {
                     HapticFeedback.lightImpact();
                     // Optimistic UI update
-                    ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
-                    ref.read(momentsProvider.notifier).toggleLike(moment.id!, isLiked).catchError((_) {
-                      // Revert on error
-                      ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
-                    });
+                    ref
+                        .read(momentLikesProvider.notifier)
+                        .toggleLike(moment.id!);
+                    ref
+                        .read(momentsProvider.notifier)
+                        .toggleLike(moment.id!, isLiked)
+                        .catchError((_) {
+                          // Revert on error
+                          ref
+                              .read(momentLikesProvider.notifier)
+                              .toggleLike(moment.id!);
+                        });
                   },
                   onComment: () {
                     HapticFeedback.lightImpact();
@@ -101,7 +109,7 @@ class UserMomentsScreen extends ConsumerWidget {
                   onAuthorTap: () {
                     // Already on the user's collection, but we can navigate to profile
                     if (userId != moment.authorId.toString()) {
-                       context.push('/user/${moment.authorId}');
+                      context.push('/user/${moment.authorId}');
                     }
                   },
                   onTap: () {
@@ -120,7 +128,11 @@ class UserMomentsScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, color: AppTheme.errorColor, size: 48),
+                const Icon(
+                  Icons.error_outline,
+                  color: AppTheme.errorColor,
+                  size: 48,
+                ),
                 const SizedBox(height: AppTheme.duoSpacingMedium),
                 Text('Error: $error'),
                 const SizedBox(height: AppTheme.duoSpacingMedium),

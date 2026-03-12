@@ -13,7 +13,11 @@ class DuoFloorRequirementDialog extends StatelessWidget {
     this.requiredFloor = 0,
   });
 
-  static void show(BuildContext context, {required String message, int requiredFloor = 0}) {
+  static void show(
+    BuildContext context, {
+    required String message,
+    int requiredFloor = 0,
+  }) {
     showDialog(
       context: context,
       builder: (context) => DuoFloorRequirementDialog(

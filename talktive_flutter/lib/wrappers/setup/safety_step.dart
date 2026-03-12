@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class SafetyStep extends StatelessWidget {
   final VoidCallback onNext;
 
-  const SafetyStep({
-    super.key,
-    required this.onNext,
-  });
+  const SafetyStep({super.key, required this.onNext});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +14,7 @@ class SafetyStep extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            '🛡️',
-            style: TextStyle(fontSize: 64),
-          ),
+          const Text('🛡️', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 32),
           Text(
             'Your Safety Matters',
@@ -49,10 +43,7 @@ class SafetyStep extends StatelessWidget {
             'Never share personal information with strangers.',
           ),
           const SizedBox(height: 48),
-          FilledButton(
-            onPressed: onNext,
-            child: const Text('I Understand'),
-          ),
+          FilledButton(onPressed: onNext, child: const Text('I Understand')),
         ],
       ),
     );
@@ -68,9 +59,7 @@ class SafetyStep extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          height: 1.5,
-        ),
+        style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
       ),
     );
   }

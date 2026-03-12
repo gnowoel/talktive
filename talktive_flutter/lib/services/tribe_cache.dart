@@ -58,7 +58,8 @@ class TribeCache extends ChangeNotifier {
   // Get tribe by name, useful for predefined tribes
   Tribe? getTribeByName(String name) {
     return _tribes.firstWhereOrNull(
-        (tribe) => tribe.name.toLowerCase() == name.toLowerCase());
+      (tribe) => tribe.name.toLowerCase() == name.toLowerCase(),
+    );
   }
 
   // Get a tribe by ID, fetching if needed

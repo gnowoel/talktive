@@ -94,7 +94,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     }
 
     // Check if current user can block others (admin/moderator or topic creator)
-    final canBlock = !byMe &&
+    final canBlock =
+        !byMe &&
         (userCache.user?.isAdminOrModerator == true ||
             currentUser.uid == widget.topicCreatorId);
 
@@ -103,9 +104,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     if (!byMe && hasReportPermission && widget.message.id != null) {
       canShowReport =
           await TopicMessageStatusHelper.shouldShowReportOptionWithCache(
-        widget.message,
-        byMe,
-      );
+            widget.message,
+            byMe,
+          );
     }
 
     // Build menu after async operations are complete
@@ -221,9 +222,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -288,9 +287,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -351,9 +348,7 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -362,8 +357,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
     return Consumer<MessageMetaCache>(
       builder: (context, cache, child) {
         return FutureBuilder<bool>(
-          future:
-              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
+          future: TopicMessageStatusHelper.isReportedButRevealable(
+            widget.message,
+          ),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
             final isHidden = widget.message.isHiddenWithCache(cache);
@@ -377,11 +373,12 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             }
 
             // Determine which toggle state to use
-            final isRevealed =
-                isReportedButRevealable ? _isReportedRevealed : _isRevealed;
+            final isRevealed = isReportedButRevealable
+                ? _isReportedRevealed
+                : _isRevealed;
             final toggleAction = isReportedButRevealable
                 ? () =>
-                    setState(() => _isReportedRevealed = !_isReportedRevealed)
+                      setState(() => _isReportedRevealed = !_isReportedRevealed)
                 : () => setState(() => _isRevealed = !_isRevealed);
 
             return Padding(
@@ -392,24 +389,28 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                   onTap: toggleAction,
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           isRevealed ? Icons.visibility_off : Icons.visibility,
                           size: 14,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           isRevealed ? 'Hide' : 'Show',
                           style: TextStyle(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                         ),
                       ],
@@ -444,8 +445,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
         final isMentioned = false;
 
         return FutureBuilder<bool>(
-          future:
-              TopicMessageStatusHelper.isReportedButRevealable(widget.message),
+          future: TopicMessageStatusHelper.isReportedButRevealable(
+            widget.message,
+          ),
           builder: (context, reportedSnapshot) {
             final isReportedButRevealable = reportedSnapshot.data ?? false;
 
@@ -459,12 +461,14 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
             if (topicFollowersCache.isUserBlocked(widget.message.userId)) {
               final blockedContent =
                   TopicMessageStatusHelper.getBlockedUserMessageContent(
-                      widget.message);
+                    widget.message,
+                  );
               contentWidget = Bubble(
-                  content: blockedContent,
-                  byMe: byMe,
-                  byOp: byOp,
-                  isMentioned: isMentioned);
+                content: blockedContent,
+                byMe: byMe,
+                byOp: byOp,
+                isMentioned: isMentioned,
+              );
             } else if (isReportedButRevealable) {
               // Recently reported image - show placeholder or original based on toggle
               if (_isReportedRevealed) {
@@ -472,38 +476,45 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
               } else {
                 final reportedContent =
                     TopicMessageStatusHelper.getReportedMessageContent(
-                        widget.message);
+                      widget.message,
+                    );
                 contentWidget = Bubble(
-                    content: reportedContent,
-                    byMe: byMe,
-                    byOp: byOp,
-                    isMentioned: isMentioned);
+                  content: reportedContent,
+                  byMe: byMe,
+                  byOp: byOp,
+                  isMentioned: isMentioned,
+                );
               }
             } else if (shouldShow) {
               contentWidget = _buildCachedImage(context, constraints);
             } else if (TopicMessageStatusHelper.isHiddenButRevealable(
-                widget.message)) {
+              widget.message,
+            )) {
               if (_isRevealed) {
                 contentWidget = _buildCachedImage(context, constraints);
               } else {
                 final hiddenContent =
                     TopicMessageStatusHelper.getHiddenMessageContent(
-                        widget.message);
+                      widget.message,
+                    );
                 contentWidget = Bubble(
-                    content: hiddenContent,
-                    byMe: byMe,
-                    byOp: byOp,
-                    isMentioned: isMentioned);
+                  content: hiddenContent,
+                  byMe: byMe,
+                  byOp: byOp,
+                  isMentioned: isMentioned,
+                );
               }
             } else {
               final hiddenContent =
                   TopicMessageStatusHelper.getHiddenMessageContent(
-                      widget.message);
+                    widget.message,
+                  );
               contentWidget = Bubble(
-                  content: hiddenContent,
-                  byMe: byMe,
-                  byOp: byOp,
-                  isMentioned: isMentioned);
+                content: hiddenContent,
+                byMe: byMe,
+                byOp: byOp,
+                isMentioned: isMentioned,
+              );
             }
 
             // Add gesture detector for context menu
@@ -543,8 +554,8 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                 getImagePlaceholder(color: theme.colorScheme.primary),
             errorWidget: (context, url, error) => getImageErrorWidget(),
             cacheKey: widget.message.uri,
-            memCacheWidth:
-                (halfWidth * MediaQuery.of(context).devicePixelRatio).round(),
+            memCacheWidth: (halfWidth * MediaQuery.of(context).devicePixelRatio)
+                .round(),
           ),
         ),
       ),
@@ -605,8 +616,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       ],
@@ -670,8 +682,9 @@ class _TopicImageMessageItemState extends State<TopicImageMessageItem> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       ],

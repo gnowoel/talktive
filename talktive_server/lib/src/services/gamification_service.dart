@@ -46,7 +46,7 @@ class GamificationService {
         'User ${resident.userInfoId} leveled up to ${resident.level}! Reason: $reason',
       );
     }
-    
+
     return true; // Returns true indicating changes were made
   }
 
@@ -85,13 +85,25 @@ class GamificationService {
 
     if (lastLogin == null || lastLogin.isBefore(today)) {
       // Award login bonus (don't save yet, we batch it)
-      await awardXP(session, resident, XP_PER_LOGIN, 'Daily login', save: false);
+      await awardXP(
+        session,
+        resident,
+        XP_PER_LOGIN,
+        'Daily login',
+        save: false,
+      );
 
       // Update login date
       resident.lastLoginDate = now;
 
       // Update streak (don't save yet)
-      await _updateLoginStreak(session, resident, lastLogin, today, save: false);
+      await _updateLoginStreak(
+        session,
+        resident,
+        lastLogin,
+        today,
+        save: false,
+      );
 
       if (save) {
         await Resident.db.updateRow(session, resident);
@@ -134,11 +146,29 @@ class GamificationService {
 
       // Award streak bonuses
       if (resident.currentStreak == 3) {
-        await awardXP(session, resident, XP_STREAK_3_DAYS, '3-day streak', save: save);
+        await awardXP(
+          session,
+          resident,
+          XP_STREAK_3_DAYS,
+          '3-day streak',
+          save: save,
+        );
       } else if (resident.currentStreak == 7) {
-        await awardXP(session, resident, XP_STREAK_7_DAYS, '7-day streak', save: save);
+        await awardXP(
+          session,
+          resident,
+          XP_STREAK_7_DAYS,
+          '7-day streak',
+          save: save,
+        );
       } else if (resident.currentStreak == 30) {
-        await awardXP(session, resident, XP_STREAK_30_DAYS, '30-day streak', save: save);
+        await awardXP(
+          session,
+          resident,
+          XP_STREAK_30_DAYS,
+          '30-day streak',
+          save: save,
+        );
       }
     } else if (lastLoginDay != today) {
       // Streak broken

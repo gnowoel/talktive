@@ -36,7 +36,10 @@ class GroupProfileScreen extends ConsumerWidget {
         if (group == null) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Not Found', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Not Found',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               backgroundColor: Colors.white,
               elevation: 0,
               foregroundColor: Colors.black,
@@ -60,7 +63,13 @@ class GroupProfileScreen extends ConsumerWidget {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+            title: Text(
+              group.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
             backgroundColor: Colors.white,
             elevation: 0,
             surfaceTintColor: Colors.transparent,
@@ -80,7 +89,12 @@ class GroupProfileScreen extends ConsumerWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, AppTheme.contentBottomPadding),
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              AppTheme.contentBottomPadding,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -88,20 +102,32 @@ class GroupProfileScreen extends ConsumerWidget {
                 Center(
                   child: Column(
                     children: [
-                      Text(group.emoji ?? '👥', style: const TextStyle(fontSize: 64)),
+                      Text(
+                        group.emoji ?? '👥',
+                        style: const TextStyle(fontSize: 64),
+                      ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: (group.isPublic ? AppTheme.duoGreen : AppTheme.duoOrange).withValues(alpha: 0.1),
+                          color:
+                              (group.isPublic
+                                      ? AppTheme.duoGreen
+                                      : AppTheme.duoOrange)
+                                  .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           group.isPublic ? 'PUBLIC CLUB' : 'PRIVATE PARTY',
                           style: TextStyle(
-                            fontSize: 12, 
-                            fontWeight: FontWeight.bold, 
-                            color: group.isPublic ? AppTheme.duoGreen : AppTheme.duoOrange,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: group.isPublic
+                                ? AppTheme.duoGreen
+                                : AppTheme.duoOrange,
                             letterSpacing: 1.1,
                           ),
                         ),
@@ -109,23 +135,25 @@ class GroupProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
 
                 // Status Card
                 _buildStatusCard(context, group, isJoined),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Creator section
                 _buildCreatorSection(context, ref, group.creatorId),
 
                 const SizedBox(height: 24),
-                
+
                 // Description
                 Text(
                   'About this Club',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 DuoCard(
@@ -135,43 +163,70 @@ class GroupProfileScreen extends ConsumerWidget {
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Interests
                 if (group.interests != null && group.interests!.isNotEmpty) ...[
                   Text(
                     'Interests',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: group.interests!.map((interest) => Chip(
-                      label: Text(interest, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoBlue)),
-                      backgroundColor: AppTheme.duoBlue.withValues(alpha: 0.1),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    )).toList(),
+                    children: group.interests!
+                        .map(
+                          (interest) => Chip(
+                            label: Text(
+                              interest,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.duoBlue,
+                              ),
+                            ),
+                            backgroundColor: AppTheme.duoBlue.withValues(
+                              alpha: 0.1,
+                            ),
+                            side: BorderSide.none,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                   const SizedBox(height: 24),
                 ],
-                
+
                 // Actions
                 const SizedBox(height: 16),
-                _buildActionArea(context, ref, membership?.isMuted ?? false, group, isJoined, isApplied, isInvited),
+                _buildActionArea(
+                  context,
+                  ref,
+                  membership?.isMuted ?? false,
+                  group,
+                  isJoined,
+                  isApplied,
+                  isInvited,
+                ),
               ],
             ),
           ),
         );
       },
-      loading: () => initialGroup != null 
+      loading: () => initialGroup != null
           ? _buildWithInitialData(context, ref, initialGroup!, currentResident)
           : const Scaffold(body: Center(child: DuoLoadingIndicator())),
       error: (err, stack) => Scaffold(
         appBar: AppBar(
-          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            'Error',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           backgroundColor: Colors.white,
           elevation: 0,
           foregroundColor: Colors.black,
@@ -182,19 +237,31 @@ class GroupProfileScreen extends ConsumerWidget {
             title: 'Clubhouse Trouble',
             subtitle: err.toString(),
             buttonText: 'Retry',
-            onButtonPressed: () => ref.invalidate(groupWithMembershipProvider(groupId)),
+            onButtonPressed: () =>
+                ref.invalidate(groupWithMembershipProvider(groupId)),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildWithInitialData(BuildContext context, WidgetRef ref, Group group, Resident? currentResident) {
+  Widget _buildWithInitialData(
+    BuildContext context,
+    WidgetRef ref,
+    Group group,
+    Resident? currentResident,
+  ) {
     // Partial view while loading full membership state
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+        title: Text(
+          group.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -210,16 +277,15 @@ class GroupProfileScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStatItem(
-            context, 
-            group.memberCount.toString(), 
+            context,
+            group.memberCount.toString(),
             'Members',
-            onTap: isJoined ? () {
-               HapticFeedback.lightImpact();
-               context.push(
-                 '/groups/members/${group.id!}',
-                 extra: group,
-               );
-            } : null,
+            onTap: isJoined
+                ? () {
+                    HapticFeedback.lightImpact();
+                    context.push('/groups/members/${group.id!}', extra: group);
+                  }
+                : null,
           ),
           Container(width: 1, height: 40, color: Colors.grey[200]),
           _buildStatItem(context, group.maxMembers.toString(), 'Capacity'),
@@ -230,17 +296,23 @@ class GroupProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String value, String label, {VoidCallback? onTap}) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String value,
+    String label, {
+    VoidCallback? onTap,
+  }) {
     final content = Column(
       children: [
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.duoBlue),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.duoBlue,
+          ),
         ),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
 
@@ -258,7 +330,11 @@ class GroupProfileScreen extends ConsumerWidget {
     return content;
   }
 
-  Widget _buildCreatorSection(BuildContext context, WidgetRef ref, UuidValue creatorId) {
+  Widget _buildCreatorSection(
+    BuildContext context,
+    WidgetRef ref,
+    UuidValue creatorId,
+  ) {
     final creatorAsync = ref.watch(userProfileProvider(creatorId.toString()));
 
     return Column(
@@ -266,7 +342,9 @@ class GroupProfileScreen extends ConsumerWidget {
       children: [
         Text(
           'Club Host',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         creatorAsync.when(
@@ -294,11 +372,17 @@ class GroupProfileScreen extends ConsumerWidget {
                         children: [
                           Text(
                             profile.userName ?? 'Resident',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                           Text(
                             'Floor ${profile.floor}',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -317,13 +401,13 @@ class GroupProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildActionArea(
-    BuildContext context, 
-    WidgetRef ref, 
+    BuildContext context,
+    WidgetRef ref,
     bool isMuted,
-    Group group, 
-    bool isJoined, 
-    bool isApplied, 
-    bool isInvited
+    Group group,
+    bool isJoined,
+    bool isApplied,
+    bool isInvited,
   ) {
     if (isJoined) {
       return Column(
@@ -341,15 +425,23 @@ class GroupProfileScreen extends ConsumerWidget {
                   children: [
                     Icon(Icons.notifications_off_outlined, color: Colors.grey),
                     SizedBox(width: 12),
-                    Text('Mute Notifications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      'Mute Notifications',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ],
                 ),
                 Switch(
                   value: isMuted,
-                  activeColor: AppTheme.primaryColor,
+                  activeThumbColor: AppTheme.primaryColor,
                   onChanged: (val) {
                     HapticFeedback.lightImpact();
-                    ref.read(groupListProvider.notifier).toggleMuteGroup(group.id!, val);
+                    ref
+                        .read(groupListProvider.notifier)
+                        .toggleMuteGroup(group.id!, val);
                   },
                 ),
               ],
@@ -385,7 +477,10 @@ class GroupProfileScreen extends ConsumerWidget {
             Expanded(
               child: Text(
                 'Application pending. The host is reviewing your request.',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoBlue),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.duoBlue,
+                ),
               ),
             ),
           ],
@@ -400,7 +495,9 @@ class GroupProfileScreen extends ConsumerWidget {
             child: DuoButton(
               text: 'Decline',
               color: AppTheme.duoRed,
-              onPressed: () => ref.read(groupListProvider.notifier).respondToInvite(group.id!, false),
+              onPressed: () => ref
+                  .read(groupListProvider.notifier)
+                  .respondToInvite(group.id!, false),
             ),
           ),
           const SizedBox(width: 12),
@@ -408,7 +505,9 @@ class GroupProfileScreen extends ConsumerWidget {
             child: DuoButton(
               text: 'Accept',
               color: AppTheme.duoGreen,
-              onPressed: () => ref.read(groupListProvider.notifier).respondToInvite(group.id!, true),
+              onPressed: () => ref
+                  .read(groupListProvider.notifier)
+                  .respondToInvite(group.id!, true),
             ),
           ),
         ],

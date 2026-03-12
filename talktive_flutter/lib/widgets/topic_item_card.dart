@@ -7,25 +7,15 @@ class TopicItemCard extends StatelessWidget {
   final Topic topic;
   final Function(Topic) onRemove;
 
-  const TopicItemCard({
-    super.key,
-    required this.topic,
-    required this.onRemove,
-  });
+  const TopicItemCard({super.key, required this.topic, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
     // Route to appropriate card based on topic type
     if (topic.isTwoPersonTopic) {
-      return TwoPersonTopicItemCard(
-        topic: topic,
-        onRemove: onRemove,
-      );
+      return TwoPersonTopicItemCard(topic: topic, onRemove: onRemove);
     } else {
-      return NormalTopicItemCard(
-        topic: topic,
-        onRemove: onRemove,
-      );
+      return NormalTopicItemCard(topic: topic, onRemove: onRemove);
     }
   }
 }

@@ -86,7 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     setState(() {
                       _currentIndex = index;
                     });
-                    
+
                     // Refresh target list when switching to a dynamic tab
                     if (index == 2) {
                       ref.read(privateChatListProvider.notifier).refresh();

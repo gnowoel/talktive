@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class Info extends StatelessWidget {
   final List<String> lines;
 
-  const Info({
-    super.key,
-    required this.lines,
-  });
+  const Info({super.key, required this.lines});
 
   @override
   Widget build(BuildContext context) {

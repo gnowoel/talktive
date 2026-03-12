@@ -4,11 +4,7 @@ class EmptyPage extends StatelessWidget {
   final bool hasAppBar;
   final Widget? child;
 
-  const EmptyPage({
-    super.key,
-    this.hasAppBar = true,
-    this.child,
-  });
+  const EmptyPage({super.key, this.hasAppBar = true, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +15,7 @@ class EmptyPage extends StatelessWidget {
       appBar: hasAppBar
           ? AppBar(backgroundColor: theme.colorScheme.surfaceContainerLow)
           : null,
-      body: SafeArea(
-        child: Center(
-          child: child,
-        ),
-      ),
+      body: SafeArea(child: Center(child: child)),
     );
   }
 }

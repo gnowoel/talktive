@@ -54,7 +54,7 @@ class DuoChatInputLayout extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget? header;
   final Color? backgroundColor;
-  
+
   // DuoChatInput parameters
   final TextEditingController controller;
   final VoidCallback onSend;

@@ -61,7 +61,11 @@ class GroupsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGroupList(BuildContext context, WidgetRef ref, List<GroupWithMembership> groups) {
+  Widget _buildGroupList(
+    BuildContext context,
+    WidgetRef ref,
+    List<GroupWithMembership> groups,
+  ) {
     if (groups.isEmpty) {
       return DuoEmptyState(
         emoji: '🏢',
@@ -73,14 +77,17 @@ class GroupsScreen extends ConsumerWidget {
     }
 
     // Sort: Invites/Applications first, then Active groups
-    final pending = groups.where((g) => 
-      g.membershipStatus == ChannelMemberStatus.invited || 
-      g.membershipStatus == ChannelMemberStatus.applied
-    ).toList();
-    
-    final joined = groups.where((g) => 
-      g.membershipStatus == ChannelMemberStatus.joined
-    ).toList();
+    final pending = groups
+        .where(
+          (g) =>
+              g.membershipStatus == ChannelMemberStatus.invited ||
+              g.membershipStatus == ChannelMemberStatus.applied,
+        )
+        .toList();
+
+    final joined = groups
+        .where((g) => g.membershipStatus == ChannelMemberStatus.joined)
+        .toList();
 
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(groupListProvider),
@@ -89,15 +96,19 @@ class GroupsScreen extends ConsumerWidget {
         children: [
           if (pending.isNotEmpty) ...[
             _buildSectionHeader(context, '🎫 The Doorstep'),
-            ...pending.asMap().entries.map((entry) => _buildGroupCard(context, ref, entry.value, entry.key)),
+            ...pending.asMap().entries.map(
+              (entry) => _buildGroupCard(context, ref, entry.value, entry.key),
+            ),
             const SizedBox(height: 32),
           ],
-          
+
           if (joined.isNotEmpty) ...[
             _buildSectionHeader(context, '🛋️ My Lounges'),
-            ...joined.asMap().entries.map((entry) => _buildGroupCard(context, ref, entry.value, entry.key)),
+            ...joined.asMap().entries.map(
+              (entry) => _buildGroupCard(context, ref, entry.value, entry.key),
+            ),
           ],
-          
+
           const SizedBox(height: 32),
           Center(
             child: DuoButton(
@@ -128,7 +139,12 @@ class GroupsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGroupCard(BuildContext context, WidgetRef ref, GroupWithMembership groupWithMembership, int index) {
+  Widget _buildGroupCard(
+    BuildContext context,
+    WidgetRef ref,
+    GroupWithMembership groupWithMembership,
+    int index,
+  ) {
     final group = groupWithMembership.group;
     final status = groupWithMembership.membershipStatus;
     final isInvite = status == ChannelMemberStatus.invited;
@@ -140,31 +156,37 @@ class GroupsScreen extends ConsumerWidget {
         HapticFeedback.lightImpact();
         context.push('/groups/chat/${group.id!}', extra: group);
       },
-      trailing: (isInvite || isApplied) 
+      trailing: (isInvite || isApplied)
           ? _buildStatusBadge(context, isInvite ? 'INVITED' : 'APPLIED')
           : const Icon(Icons.chevron_right, color: Colors.grey),
-      bottomActions: isInvite ? [
-        Row(
-          children: [
-            Expanded(
-              child: DuoButton(
-                text: 'Decline',
-                color: AppTheme.duoRed,
-                isSecondary: true,
-                onPressed: () => ref.read(groupListProvider.notifier).respondToInvite(group.id!, false),
+      bottomActions: isInvite
+          ? [
+              Row(
+                children: [
+                  Expanded(
+                    child: DuoButton(
+                      text: 'Decline',
+                      color: AppTheme.duoRed,
+                      isSecondary: true,
+                      onPressed: () => ref
+                          .read(groupListProvider.notifier)
+                          .respondToInvite(group.id!, false),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DuoButton(
+                      text: 'Accept',
+                      color: AppTheme.duoGreen,
+                      onPressed: () => ref
+                          .read(groupListProvider.notifier)
+                          .respondToInvite(group.id!, true),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: DuoButton(
-                text: 'Accept',
-                color: AppTheme.duoGreen,
-                onPressed: () => ref.read(groupListProvider.notifier).respondToInvite(group.id!, true),
-              ),
-            ),
-          ],
-        ),
-      ] : null,
+            ]
+          : null,
     ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: -0.1, end: 0);
   }
 
@@ -177,19 +199,26 @@ class GroupsScreen extends ConsumerWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.duoBlue),
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: AppTheme.duoBlue,
+        ),
       ),
     );
   }
 
   void _showCreateDialog(BuildContext context, WidgetRef ref) {
     HapticFeedback.lightImpact();
-    
+
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
     if (FloorUtils.isMuted(currentResident)) {
-      SnackBarHelper.showError(context, FloorUtils.getMuteReason(currentResident));
+      SnackBarHelper.showError(
+        context,
+        FloorUtils.getMuteReason(currentResident),
+      );
       return;
     }
 

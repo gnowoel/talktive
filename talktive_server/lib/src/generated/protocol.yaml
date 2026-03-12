@@ -56,9 +56,6 @@ health:
   - ready:
   - live:
   - metrics:
-image:
-  - uploadImage:
-  - deleteImage:
 message:
   - sendMessage:
   - subscribe:
@@ -110,10 +107,6 @@ search:
   - discoverUsersByInterests:
   - discoverUsersByLanguages:
   - getDiscoveryFeed:
-storage:
-  - getUploadDescription:
-  - verifyUpload:
-  - getPublicUrl:
 streak:
   - getUserStreak:
   - canClaimDailyReward:

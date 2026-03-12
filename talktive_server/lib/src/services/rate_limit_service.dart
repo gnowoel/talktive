@@ -1,11 +1,10 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart';
-import 'apartment_service.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
-/// Smart rate limiting service that adjusts limits based on user floor level.
+/// Enhanced rate limiting service using Redis (Serverpod cache) for high performance.
+/// Detects user floor level to adjust limits.
 class RateLimitService {
-  /// Rate limit configuration based on floor level.
-  /// Higher floors get more generous limits.
+  /// Rate limit configuration based on floor level
   static const Map<int, RateLimitConfig> floorLimits = {
     0: RateLimitConfig(
       messagesPerMinute: 5,
@@ -22,104 +21,139 @@ class RateLimitService {
       messagesPerHour: 500,
       minSecondsBetweenMessages: 0,
     ),
-    // Floor 3+ has no practical limits
   };
 
-  /// Default config for floors 3 and above.
   static const RateLimitConfig unlimitedConfig = RateLimitConfig(
     messagesPerMinute: 1000,
     messagesPerHour: 10000,
     minSecondsBetweenMessages: 0,
   );
 
-  /// Checks if a user can send a message based on their floor level.
-  /// Returns null if allowed, or an error message if rate limited.
+  /// Check rate limit using Redis cache (falling back to database/memory via Serverpod).
   static Future<String?> checkRateLimit(
     Session session,
-    Resident resident,
+    String userId,
     int channelId,
+    int floor,
   ) async {
+    final config = _getConfigForFloor(floor);
     final now = DateTime.now();
-    final config = _getConfigForFloor(
-      ApartmentService.computeEffectiveFloor(resident),
-    );
 
-    // Get or create rate limit record
-    var rateLimit = await RateLimit.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.userInfoId.equals(resident.userInfoId) &
-          t.channelId.equals(channelId),
-    );
+    try {
+      // Redis keys for rate limiting - using simple counters with TTL
+      final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
+      final hourKey = 'ratelimit:$userId:$channelId:hour:${now.hour}';
+      final lastMessageKey = 'ratelimit:$userId:$channelId:last';
 
-    if (rateLimit == null) {
-      // First message in this channel
-      rateLimit = RateLimit(
-        userInfoId: resident.userInfoId,
-        channelId: channelId,
-        messageCount: 1,
-        windowStart: now,
-        lastMessageAt: now,
+      // Check last message time (minimum interval)
+      final lastMessageEntry = await session.caches.global.get<CacheString>(
+        lastMessageKey,
       );
-      await RateLimit.db.insertRow(session, rateLimit);
-      return null;
-    }
+      if (lastMessageEntry != null) {
+        final lastMessage = DateTime.parse(lastMessageEntry.value);
+        final secondsSince = now.difference(lastMessage).inSeconds;
 
-    // Check minimum time between messages
-    final secondsSinceLastMessage = now
-        .difference(rateLimit.lastMessageAt)
-        .inSeconds;
-    if (secondsSinceLastMessage < config.minSecondsBetweenMessages) {
-      return 'Please wait ${config.minSecondsBetweenMessages - secondsSinceLastMessage} seconds before sending another message.';
-    }
-
-    // Check if we need to reset the window (1 hour)
-    final hoursSinceWindowStart = now.difference(rateLimit.windowStart).inHours;
-    if (hoursSinceWindowStart >= 1) {
-      // Reset window
-      rateLimit.windowStart = now;
-      rateLimit.messageCount = 1;
-      rateLimit.lastMessageAt = now;
-      await RateLimit.db.updateRow(session, rateLimit);
-      return null;
-    }
-
-    // Check hourly limit
-    if (rateLimit.messageCount >= config.messagesPerHour) {
-      final minutesUntilReset =
-          60 - now.difference(rateLimit.windowStart).inMinutes;
-      return 'Hourly message limit reached. Try again in $minutesUntilReset minutes.';
-    }
-
-    // Check per-minute limit
-    final minutesSinceWindowStart = now
-        .difference(rateLimit.windowStart)
-        .inMinutes;
-    if (minutesSinceWindowStart == 0) {
-      // Still in the first minute
-      if (rateLimit.messageCount >= config.messagesPerMinute) {
-        return 'Sending too fast. Please wait a moment.';
+        if (secondsSince < config.minSecondsBetweenMessages) {
+          return 'Please wait ${config.minSecondsBetweenMessages - secondsSince} seconds.';
+        }
       }
+
+      // Check minute limit
+      final minuteEntry = await session.caches.global.get<CacheInt>(minuteKey);
+      final minuteCount = minuteEntry?.value ?? 0;
+
+      if (minuteCount >= config.messagesPerMinute) {
+        return 'Rate limit: ${config.messagesPerMinute} messages per minute. Please slow down.';
+      }
+
+      // Check hour limit
+      final hourEntry = await session.caches.global.get<CacheInt>(hourKey);
+      final hourCount = hourEntry?.value ?? 0;
+
+      if (hourCount >= config.messagesPerHour) {
+        return 'Rate limit: ${config.messagesPerHour} messages per hour. Take a break!';
+      }
+
+      // Increment counters and update TTL
+      await session.caches.global.put(
+        minuteKey,
+        CacheInt(value: minuteCount + 1),
+        lifetime: const Duration(minutes: 2),
+      );
+
+      await session.caches.global.put(
+        hourKey,
+        CacheInt(value: hourCount + 1),
+        lifetime: const Duration(hours: 2),
+      );
+
+      await session.caches.global.put(
+        lastMessageKey,
+        CacheString(value: now.toIso8601String()),
+        lifetime: const Duration(minutes: 5),
+      );
+
+      return null; // No rate limit hit
+    } catch (e) {
+      session.log('Rate limit check error: $e', level: LogLevel.warning);
+      // Fallback to allowing the message if cache fails (availability over restriction)
+      return null;
     }
-
-    // Update rate limit
-    rateLimit.messageCount += 1;
-    rateLimit.lastMessageAt = now;
-    await RateLimit.db.updateRow(session, rateLimit);
-
-    return null;
   }
 
-  /// Gets the rate limit configuration for a given floor.
   static RateLimitConfig _getConfigForFloor(int floor) {
-    if (floor >= 3) {
-      return unlimitedConfig;
-    }
+    if (floor >= 3) return unlimitedConfig;
     return floorLimits[floor] ?? floorLimits[0]!;
+  }
+
+  /// Get current rate limit status for a user
+  static Future<Map<String, dynamic>> getRateLimitStatus(
+    Session session,
+    String userId,
+    int channelId,
+  ) async {
+    try {
+      final now = DateTime.now();
+      final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
+      final hourKey = 'ratelimit:$userId:$channelId:hour:${now.hour}';
+
+      final minuteEntry = await session.caches.global.get<CacheInt>(minuteKey);
+      final hourEntry = await session.caches.global.get<CacheInt>(hourKey);
+
+      return {
+        'messagesThisMinute': minuteEntry?.value ?? 0,
+        'messagesThisHour': hourEntry?.value ?? 0,
+      };
+    } catch (e) {
+      return {
+        'messagesThisMinute': 0,
+        'messagesThisHour': 0,
+      };
+    }
+  }
+
+  /// Clear rate limits for a user (admin function)
+  static Future<void> clearRateLimits(
+    Session session,
+    String userId,
+    int channelId,
+  ) async {
+    try {
+      final now = DateTime.now();
+      final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
+      final hourKey = 'ratelimit:$userId:$channelId:hour:${now.hour}';
+      final lastMessageKey = 'ratelimit:$userId:$channelId:last';
+
+      await session.caches.global.invalidateKey(minuteKey);
+      await session.caches.global.invalidateKey(hourKey);
+      await session.caches.global.invalidateKey(lastMessageKey);
+    } catch (e) {
+      session.log('Error clearing rate limits: $e', level: LogLevel.warning);
+    }
   }
 }
 
-/// Configuration for rate limiting.
+/// Rate limit configuration
 class RateLimitConfig {
   final int messagesPerMinute;
   final int messagesPerHour;

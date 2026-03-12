@@ -4,7 +4,7 @@ import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
-import '../services/redis_rate_limit_service.dart';
+import '../services/rate_limit_service.dart';
 import '../services/content_filter_service.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
@@ -114,8 +114,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         filteredContent = validation.filteredContent ?? content;
       }
 
-      // 6. Check rate limiting with Redis (faster than database)
-      final rateLimitError = await RedisRateLimitService.checkRateLimit(
+      // 6. Check rate limiting (faster than database)
+      final rateLimitError = await RateLimitService.checkRateLimit(
         session,
         senderUuid.toString(),
         channelId,

@@ -4,6 +4,20 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 13, 2026 - Image Handling & Architectural Refinement 🖼️
+ 
+### Image Handling & UI
+- **Dev Environment Visibility**: Fixed an issue where images uploaded from Android emulators (`10.0.2.2`) were not visible on other platforms (`localhost`) by implemented an automated URL resolution helper in `MessageBubble`.
+- **Full-Screen Chat Gallery**: Added `Hero` animations and `GestureDetector` to chat image messages, allowing users to tap and view images in a full-screen gallery.
+- **Unified Routing**: Refactored the `/moments/gallery` route into a top-level `/gallery` path, enabling shared use across both Moments and Chat views.
+ 
+### Architectural Consolidation
+- **Consolidated Rate Limiting**: Merged the redundant database-backed and Redis-backed rate limiters into a single, high-performance `RateLimitService` using Serverpod's global cache.
+- **Dead Code Removal**: Removed unused `ImageEndpoint` and `StorageEndpoint` along with their associated services and protocol definitions to simplify the server implementation and reduce maintenance overhead.
+- **Protocol Cleanup**: Regenerated Serverpod code and removed obsolete `rate_limit` database tables.
+ 
+---
+ 
 ## March 12, 2026 - Code Review and Consolidation 🛠️
 
 ### Code Cleanup & Lint Fixes

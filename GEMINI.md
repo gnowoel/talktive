@@ -114,6 +114,8 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Notification Edge Case Fix (Mar 2026)**: Fixed FCM push notifications deep link exceptions by linking `sendMessageNotification` to correctly route group chats dynamically to `GroupChatLoader` with fallback if the cache is empty. Enabled missed trigger bindings to execute `sendAchievementNotification` and `sendGroupInviteNotification` systematically.
 - **Notification Fix (Mar 2026)**: Fixed in-app popups by correcting FCM payload v1 (invalid `priority` field), triggering notifications in `MessageEndpoint`, and improving route resolution.
 - **Activity Renaming (Mar 2026)**: Renamed "Achievements" to "Activity" hub for comprehensive notification-based interaction history.
+- **Image Handling & Dev Visibility (Mar 2026)**: Fixed group image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
+- **Architectural Refinement (Mar 2026)**: Consolidated rate limiting into a unified Redis-based (Serverpod cache) service and removed redundant database-backed rate limit tables. Removed unused `ImageEndpoint` and `StorageEndpoint` to simplify server implementation.
 
 ## Useful Commands
 

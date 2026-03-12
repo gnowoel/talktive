@@ -150,27 +150,35 @@ class MessageBubble extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(
                           AppTheme.duoRadiusSmall,
                         ),
-                        child: CachedNetworkImage(
-                          imageUrl: UrlHelper.resolve(message.imageUrl!),
-                          placeholder: (context, url) => Container(
-                            width: 200,
-                            height: 200,
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppTheme.primaryColor,
+                        child: GestureDetector(
+                          onTap: () {
+                            context.push('/moments/gallery', extra: message.imageUrl);
+                          },
+                          child: Hero(
+                            tag: 'moment_image_${message.imageUrl.hashCode}',
+                            child: CachedNetworkImage(
+                              imageUrl: UrlHelper.resolve(message.imageUrl!),
+                              placeholder: (context, url) => Container(
+                                width: 200,
+                                height: 200,
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                ),
                               ),
+                              errorWidget: (context, url, error) => Container(
+                                width: 200,
+                                height: 200,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.error),
+                              ),
+                              fit: BoxFit.cover,
+                              width: 200,
                             ),
                           ),
-                          errorWidget: (context, url, error) => Container(
-                            width: 200,
-                            height: 200,
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.error),
-                          ),
-                          fit: BoxFit.cover,
-                          width: 200,
                         ),
                       ),
                       const SizedBox(height: 8),

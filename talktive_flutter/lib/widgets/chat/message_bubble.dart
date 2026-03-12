@@ -8,6 +8,7 @@ import '../../providers/blocked_users_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/date_formatter.dart';
+import '../../helpers/url_helper.dart';
 
 class MessageBubble extends ConsumerWidget {
   final Message message;
@@ -150,7 +151,7 @@ class MessageBubble extends ConsumerWidget {
                           AppTheme.duoRadiusSmall,
                         ),
                         child: CachedNetworkImage(
-                          imageUrl: message.imageUrl!,
+                          imageUrl: UrlHelper.resolve(message.imageUrl!),
                           placeholder: (context, url) => Container(
                             width: 200,
                             height: 200,

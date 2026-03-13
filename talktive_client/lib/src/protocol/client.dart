@@ -799,6 +799,14 @@ class EndpointMessage extends _i2.EndpointRef {
       'offset': offset,
     },
   );
+
+  /// Marks all messages in a channel as read for the current user.
+  _i3.Future<void> markChannelAsRead(int channelId) =>
+      caller.callServerEndpoint<void>(
+        'message',
+        'markChannelAsRead',
+        {'channelId': channelId},
+      );
 }
 
 /// {@category Endpoint}

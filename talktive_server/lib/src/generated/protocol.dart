@@ -309,6 +309,13 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'bool',
           columnDefault: 'false',
         ),
+        _i2.ColumnDefinition(
+          name: 'lastReadAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'CURRENT_TIMESTAMP',
+        ),
       ],
       foreignKeys: [],
       indexes: [

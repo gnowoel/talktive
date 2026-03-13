@@ -1,21 +1,21 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart';
+import '../generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
 
 class ChatService {
   /// Initiates a private chat between two residents.
   /// Checks floor rules and block status.
-  static Future<Channel?> createPrivateChat(
+  static Future<protocol.Channel?> createPrivateChat(
     Session session, {
     required UuidValue senderId,
     required UuidValue receiverId,
   }) async {
     // 1. Fetch Residents details
-    final sender = await Resident.db.findFirstRow(
+    final sender = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(senderId),
     );
-    final receiver = await Resident.db.findFirstRow(
+    final receiver = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(receiverId),
     );
@@ -30,7 +30,7 @@ class ChatService {
     }
 
     // 3. Check Block Status
-    final isBlocked = await Block.db.findFirstRow(
+    final isBlocked = await protocol.Block.db.findFirstRow(
       session,
       where: (t) =>
           t.blockerId.equals(receiverId) & t.blockedId.equals(senderId),
@@ -40,7 +40,7 @@ class ChatService {
     }
 
     // Check if sender blocked receiver? (Usually prevents interaction too)
-    final hasBlocked = await Block.db.findFirstRow(
+    final hasBlocked = await protocol.Block.db.findFirstRow(
       session,
       where: (t) =>
           t.blockerId.equals(senderId) & t.blockedId.equals(receiverId),
@@ -51,32 +51,32 @@ class ChatService {
 
     // 4. Create Channel
     // Simplified: Create new channel
-    final channel = Channel(
-      type: ChannelType.private,
+    final channel = protocol.Channel(
+      type: protocol.ChannelType.private,
       createdAt: DateTime.now(),
       name: null, // Private 1on1 often has no name
     );
-    final validChannel = await Channel.db.insertRow(session, channel);
+    final validChannel = await protocol.Channel.db.insertRow(session, channel);
 
     // 5. Add Members
-    await ChannelMember.db.insertRow(
+    await protocol.ChannelMember.db.insertRow(
       session,
-      ChannelMember(
+      protocol.ChannelMember(
         channelId: validChannel.id!,
         userInfoId: senderId,
         joinedAt: DateTime.now(),
-        status: ChannelMemberStatus.joined, // Sender joins immediately
+        status: protocol.ChannelMemberStatus.joined, // Sender joins immediately
         role: 'owner',
       ),
     );
 
-    await ChannelMember.db.insertRow(
+    await protocol.ChannelMember.db.insertRow(
       session,
-      ChannelMember(
+      protocol.ChannelMember(
         channelId: validChannel.id!,
         userInfoId: receiverId,
         joinedAt: DateTime.now(),
-        status: ChannelMemberStatus.invited, // Receiver is invited
+        status: protocol.ChannelMemberStatus.invited, // Receiver is invited
         role: 'member',
       ),
     );
@@ -89,13 +89,38 @@ class ChatService {
     UuidValue blockerId,
     UuidValue blockedId,
   ) async {
-    await Block.db.insertRow(
+    await protocol.Block.db.insertRow(
       session,
-      Block(
+      protocol.Block(
         blockerId: blockerId,
         blockedId: blockedId,
         createdAt: DateTime.now(),
       ),
     );
+  }
+
+  static Future<int> getUnreadCount(
+    Session session,
+    int channelId,
+    UuidValue userId,
+  ) async {
+    // 1. Get the membership record to find lastReadAt
+    final membership = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(userId),
+    );
+
+    if (membership == null) return 0;
+
+    // 2. Count messages created after lastReadAt, excluding messages from the user themselves
+    final count = await protocol.Message.db.count(
+      session,
+      where: (t) =>
+          t.channelId.equals(channelId) &
+          (t.createdAt > membership.lastReadAt) &
+          t.senderId.notEquals(userId),
+    );
+
+    return count;
   }
 }

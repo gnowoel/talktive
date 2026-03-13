@@ -22,13 +22,15 @@ abstract class GroupWithMembership
     this.membershipStatus,
     this.membershipRole,
     this.isMuted,
-  });
+    int? unreadCount,
+  }) : unreadCount = unreadCount ?? 0;
 
   factory GroupWithMembership({
     required _i2.Group group,
     _i3.ChannelMemberStatus? membershipStatus,
     String? membershipRole,
     bool? isMuted,
+    int? unreadCount,
   }) = _GroupWithMembershipImpl;
 
   factory GroupWithMembership.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -43,6 +45,7 @@ abstract class GroupWithMembership
       isMuted: jsonSerialization['isMuted'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isMuted']),
+      unreadCount: jsonSerialization['unreadCount'] as int?,
     );
   }
 
@@ -54,6 +57,8 @@ abstract class GroupWithMembership
 
   bool? isMuted;
 
+  int unreadCount;
+
   /// Returns a shallow copy of this [GroupWithMembership]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -62,6 +67,7 @@ abstract class GroupWithMembership
     _i3.ChannelMemberStatus? membershipStatus,
     String? membershipRole,
     bool? isMuted,
+    int? unreadCount,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -72,6 +78,7 @@ abstract class GroupWithMembership
         'membershipStatus': membershipStatus?.toJson(),
       if (membershipRole != null) 'membershipRole': membershipRole,
       if (isMuted != null) 'isMuted': isMuted,
+      'unreadCount': unreadCount,
     };
   }
 
@@ -84,6 +91,7 @@ abstract class GroupWithMembership
         'membershipStatus': membershipStatus?.toJson(),
       if (membershipRole != null) 'membershipRole': membershipRole,
       if (isMuted != null) 'isMuted': isMuted,
+      'unreadCount': unreadCount,
     };
   }
 
@@ -101,11 +109,13 @@ class _GroupWithMembershipImpl extends GroupWithMembership {
     _i3.ChannelMemberStatus? membershipStatus,
     String? membershipRole,
     bool? isMuted,
+    int? unreadCount,
   }) : super._(
          group: group,
          membershipStatus: membershipStatus,
          membershipRole: membershipRole,
          isMuted: isMuted,
+         unreadCount: unreadCount,
        );
 
   /// Returns a shallow copy of this [GroupWithMembership]
@@ -117,6 +127,7 @@ class _GroupWithMembershipImpl extends GroupWithMembership {
     Object? membershipStatus = _Undefined,
     Object? membershipRole = _Undefined,
     Object? isMuted = _Undefined,
+    int? unreadCount,
   }) {
     return GroupWithMembership(
       group: group ?? this.group.copyWith(),
@@ -127,6 +138,7 @@ class _GroupWithMembershipImpl extends GroupWithMembership {
           ? membershipRole
           : this.membershipRole,
       isMuted: isMuted is bool? ? isMuted : this.isMuted,
+      unreadCount: unreadCount ?? this.unreadCount,
     );
   }
 }

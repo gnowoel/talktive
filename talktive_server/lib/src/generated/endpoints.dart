@@ -1328,6 +1328,25 @@ class Endpoints extends _i1.EndpointDispatch {
                     offset: params['offset'],
                   ),
         ),
+        'markChannelAsRead': _i1.MethodConnector(
+          name: 'markChannelAsRead',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['message'] as _i9.MessageEndpoint)
+                  .markChannelAsRead(
+                    session,
+                    params['channelId'],
+                  ),
+        ),
         'subscribe': _i1.MethodStreamConnector(
           name: 'subscribe',
           params: {

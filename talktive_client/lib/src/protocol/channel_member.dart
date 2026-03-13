@@ -23,7 +23,9 @@ abstract class ChannelMember implements _i1.SerializableModel {
     required this.status,
     this.invitedBy,
     bool? isMuted,
-  }) : isMuted = isMuted ?? false;
+    DateTime? lastReadAt,
+  }) : isMuted = isMuted ?? false,
+       lastReadAt = lastReadAt ?? DateTime.now();
 
   factory ChannelMember({
     int? id,
@@ -34,6 +36,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
     bool? isMuted,
+    DateTime? lastReadAt,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -56,6 +59,9 @@ abstract class ChannelMember implements _i1.SerializableModel {
       isMuted: jsonSerialization['isMuted'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isMuted']),
+      lastReadAt: jsonSerialization['lastReadAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastReadAt']),
     );
   }
 
@@ -78,6 +84,8 @@ abstract class ChannelMember implements _i1.SerializableModel {
 
   bool isMuted;
 
+  DateTime lastReadAt;
+
   /// Returns a shallow copy of this [ChannelMember]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -90,6 +98,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
     _i2.ChannelMemberStatus? status,
     _i1.UuidValue? invitedBy,
     bool? isMuted,
+    DateTime? lastReadAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -103,6 +112,7 @@ abstract class ChannelMember implements _i1.SerializableModel {
       'status': status.toJson(),
       if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
       'isMuted': isMuted,
+      'lastReadAt': lastReadAt.toJson(),
     };
   }
 
@@ -124,6 +134,7 @@ class _ChannelMemberImpl extends ChannelMember {
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
     bool? isMuted,
+    DateTime? lastReadAt,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -133,6 +144,7 @@ class _ChannelMemberImpl extends ChannelMember {
          status: status,
          invitedBy: invitedBy,
          isMuted: isMuted,
+         lastReadAt: lastReadAt,
        );
 
   /// Returns a shallow copy of this [ChannelMember]
@@ -148,6 +160,7 @@ class _ChannelMemberImpl extends ChannelMember {
     _i2.ChannelMemberStatus? status,
     Object? invitedBy = _Undefined,
     bool? isMuted,
+    DateTime? lastReadAt,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
@@ -158,6 +171,7 @@ class _ChannelMemberImpl extends ChannelMember {
       status: status ?? this.status,
       invitedBy: invitedBy is _i1.UuidValue? ? invitedBy : this.invitedBy,
       isMuted: isMuted ?? this.isMuted,
+      lastReadAt: lastReadAt ?? this.lastReadAt,
     );
   }
 }

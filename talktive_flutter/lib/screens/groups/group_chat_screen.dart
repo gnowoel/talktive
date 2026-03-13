@@ -67,6 +67,19 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   @override
   void initState() {
     super.initState();
+    _markAsRead();
+  }
+
+  Future<void> _markAsRead() async {
+    try {
+      final client = ref.read(clientProvider);
+      await client.message.markChannelAsRead(widget.group.channelId);
+      // Invalidate lists to update unread counts
+      ref.invalidate(privateChatListProvider);
+      ref.invalidate(groupListProvider);
+    } catch (e) {
+      debugPrint('Error marking group as read: $e');
+    }
   }
 
   @override

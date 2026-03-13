@@ -25,7 +25,8 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     this.otherUserMood,
     this.currentMemberStatus,
     this.otherMemberStatus,
-  });
+    int? unreadCount,
+  }) : unreadCount = unreadCount ?? 0;
 
   factory PrivateChatWithProfile({
     required _i2.PrivateChat chat,
@@ -35,6 +36,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     String? otherUserMood,
     _i4.ChannelMemberStatus? currentMemberStatus,
     _i4.ChannelMemberStatus? otherMemberStatus,
+    int? unreadCount,
   }) = _PrivateChatWithProfileImpl;
 
   factory PrivateChatWithProfile.fromJson(
@@ -60,6 +62,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
           : _i4.ChannelMemberStatus.fromJson(
               (jsonSerialization['otherMemberStatus'] as String),
             ),
+      unreadCount: jsonSerialization['unreadCount'] as int?,
     );
   }
 
@@ -77,6 +80,8 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
 
   _i4.ChannelMemberStatus? otherMemberStatus;
 
+  int unreadCount;
+
   /// Returns a shallow copy of this [PrivateChatWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -88,6 +93,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     String? otherUserMood,
     _i4.ChannelMemberStatus? currentMemberStatus,
     _i4.ChannelMemberStatus? otherMemberStatus,
+    int? unreadCount,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -102,6 +108,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
         'currentMemberStatus': currentMemberStatus?.toJson(),
       if (otherMemberStatus != null)
         'otherMemberStatus': otherMemberStatus?.toJson(),
+      'unreadCount': unreadCount,
     };
   }
 
@@ -122,6 +129,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     String? otherUserMood,
     _i4.ChannelMemberStatus? currentMemberStatus,
     _i4.ChannelMemberStatus? otherMemberStatus,
+    int? unreadCount,
   }) : super._(
          chat: chat,
          otherResident: otherResident,
@@ -130,6 +138,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
          otherUserMood: otherUserMood,
          currentMemberStatus: currentMemberStatus,
          otherMemberStatus: otherMemberStatus,
+         unreadCount: unreadCount,
        );
 
   /// Returns a shallow copy of this [PrivateChatWithProfile]
@@ -144,6 +153,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     Object? otherUserMood = _Undefined,
     Object? currentMemberStatus = _Undefined,
     Object? otherMemberStatus = _Undefined,
+    int? unreadCount,
   }) {
     return PrivateChatWithProfile(
       chat: chat ?? this.chat.copyWith(),
@@ -163,6 +173,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
       otherMemberStatus: otherMemberStatus is _i4.ChannelMemberStatus?
           ? otherMemberStatus
           : this.otherMemberStatus,
+      unreadCount: unreadCount ?? this.unreadCount,
     );
   }
 }

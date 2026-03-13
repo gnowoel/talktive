@@ -36,6 +36,19 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   void initState() {
     super.initState();
     _loadCurrentResident();
+    _markAsRead();
+  }
+
+  Future<void> _markAsRead() async {
+    try {
+      final client = ref.read(clientProvider);
+      await client.message.markChannelAsRead(widget.channelId);
+      // Invalidate both lists to update unread counts immediately
+      ref.invalidate(privateChatListProvider);
+      ref.invalidate(groupListProvider);
+    } catch (e) {
+      debugPrint('Error marking channel as read: $e');
+    }
   }
 
   @override

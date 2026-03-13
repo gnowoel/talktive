@@ -246,6 +246,22 @@ class ChatsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingSmall),
+            if (chatItem.unreadCount > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.duoRed,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  chatItem.unreadCount.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),

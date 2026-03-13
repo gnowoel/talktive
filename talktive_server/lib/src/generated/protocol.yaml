@@ -60,6 +60,7 @@ message:
   - sendMessage:
   - subscribe:
   - listMessages:
+  - markChannelAsRead:
 moment:
   - postMoment:
   - listMoments:

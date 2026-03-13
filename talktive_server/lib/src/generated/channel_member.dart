@@ -24,7 +24,9 @@ abstract class ChannelMember
     required this.status,
     this.invitedBy,
     bool? isMuted,
-  }) : isMuted = isMuted ?? false;
+    DateTime? lastReadAt,
+  }) : isMuted = isMuted ?? false,
+       lastReadAt = lastReadAt ?? DateTime.now();
 
   factory ChannelMember({
     int? id,
@@ -35,6 +37,7 @@ abstract class ChannelMember
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
     bool? isMuted,
+    DateTime? lastReadAt,
   }) = _ChannelMemberImpl;
 
   factory ChannelMember.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -57,6 +60,9 @@ abstract class ChannelMember
       isMuted: jsonSerialization['isMuted'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isMuted']),
+      lastReadAt: jsonSerialization['lastReadAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastReadAt']),
     );
   }
 
@@ -81,6 +87,8 @@ abstract class ChannelMember
 
   bool isMuted;
 
+  DateTime lastReadAt;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -96,6 +104,7 @@ abstract class ChannelMember
     _i2.ChannelMemberStatus? status,
     _i1.UuidValue? invitedBy,
     bool? isMuted,
+    DateTime? lastReadAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -109,6 +118,7 @@ abstract class ChannelMember
       'status': status.toJson(),
       if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
       'isMuted': isMuted,
+      'lastReadAt': lastReadAt.toJson(),
     };
   }
 
@@ -124,6 +134,7 @@ abstract class ChannelMember
       'status': status.toJson(),
       if (invitedBy != null) 'invitedBy': invitedBy?.toJson(),
       'isMuted': isMuted,
+      'lastReadAt': lastReadAt.toJson(),
     };
   }
 
@@ -169,6 +180,7 @@ class _ChannelMemberImpl extends ChannelMember {
     required _i2.ChannelMemberStatus status,
     _i1.UuidValue? invitedBy,
     bool? isMuted,
+    DateTime? lastReadAt,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -178,6 +190,7 @@ class _ChannelMemberImpl extends ChannelMember {
          status: status,
          invitedBy: invitedBy,
          isMuted: isMuted,
+         lastReadAt: lastReadAt,
        );
 
   /// Returns a shallow copy of this [ChannelMember]
@@ -193,6 +206,7 @@ class _ChannelMemberImpl extends ChannelMember {
     _i2.ChannelMemberStatus? status,
     Object? invitedBy = _Undefined,
     bool? isMuted,
+    DateTime? lastReadAt,
   }) {
     return ChannelMember(
       id: id is int? ? id : this.id,
@@ -203,6 +217,7 @@ class _ChannelMemberImpl extends ChannelMember {
       status: status ?? this.status,
       invitedBy: invitedBy is _i1.UuidValue? ? invitedBy : this.invitedBy,
       isMuted: isMuted ?? this.isMuted,
+      lastReadAt: lastReadAt ?? this.lastReadAt,
     );
   }
 }
@@ -251,6 +266,12 @@ class ChannelMemberUpdateTable extends _i1.UpdateTable<ChannelMemberTable> {
     table.isMuted,
     value,
   );
+
+  _i1.ColumnValue<DateTime, DateTime> lastReadAt(DateTime value) =>
+      _i1.ColumnValue(
+        table.lastReadAt,
+        value,
+      );
 }
 
 class ChannelMemberTable extends _i1.Table<int?> {
@@ -287,6 +308,11 @@ class ChannelMemberTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    lastReadAt = _i1.ColumnDateTime(
+      'lastReadAt',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final ChannelMemberUpdateTable updateTable;
@@ -305,6 +331,8 @@ class ChannelMemberTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool isMuted;
 
+  late final _i1.ColumnDateTime lastReadAt;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -315,6 +343,7 @@ class ChannelMemberTable extends _i1.Table<int?> {
     status,
     invitedBy,
     isMuted,
+    lastReadAt,
   ];
 }
 

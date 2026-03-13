@@ -4,6 +4,7 @@ import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/notification_service.dart';
+import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class GroupEndpoint extends Endpoint with EndpointAuthMixin {
@@ -135,15 +136,20 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       orderDescending: true,
     );
 
-    return groups.map((g) {
+    return Future.wait(groups.map((g) async {
       final member = membershipMap[g.channelId];
       return protocol.GroupWithMembership(
         group: g,
         membershipStatus: member?.status ?? protocol.ChannelMemberStatus.left,
         membershipRole: member?.role,
         isMuted: member?.isMuted,
+        unreadCount: await ChatService.getUnreadCount(
+          session,
+          g.channelId,
+          currentUserId,
+        ),
       );
-    }).toList();
+    }));
   }
 
   /// Gets details about a specific group.

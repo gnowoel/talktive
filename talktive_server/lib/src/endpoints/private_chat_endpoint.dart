@@ -5,6 +5,7 @@ import '../services/achievement_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
+import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import 'message_endpoint.dart';
 
@@ -291,6 +292,11 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
             otherUserMood: otherResident.mood,
             currentMemberStatus: currentMember?.status,
             otherMemberStatus: otherMember?.status,
+            unreadCount: await ChatService.getUnreadCount(
+              session,
+              chat.channelId,
+              currentUserId,
+            ),
           ),
         );
       }
@@ -366,6 +372,11 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       otherUserMood: otherResident.mood,
       currentMemberStatus: currentMember?.status,
       otherMemberStatus: otherMember?.status,
+      unreadCount: await ChatService.getUnreadCount(
+        session,
+        privateChat.channelId,
+        currentUserId,
+      ),
     );
   }
 

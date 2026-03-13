@@ -9,6 +9,7 @@ import '../groups/groups_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
+import '../../providers/unread_counts_provider.dart';
 
 import '../../config/theme.dart';
 
@@ -57,9 +58,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       extendBody: false,
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: IndexedStack(index: _currentIndex, children: _screens),
+  body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildDuoBottomNav(),
     );
+  }
+
+  int _getUnreadCount(int index) {
+    final unreadCounts = ref.watch(totalUnreadCountsProvider);
+    if (index == 2) return unreadCounts.privateChats;
+    if (index == 3) return unreadCounts.lounges;
+    return 0;
   }
 
   Widget _buildDuoBottomNav() {
@@ -118,7 +126,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Emoji icon
-                        AnimatedOpacity(
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            AnimatedOpacity(
                               duration: 150.ms,
                               opacity: isSelected ? 1.0 : 0.5,
                               child: ColorFiltered(
@@ -128,26 +139,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         BlendMode.dst,
                                       )
                                     : const ColorFilter.matrix(<double>[
-                                        0.2126,
-                                        0.7152,
-                                        0.0722,
-                                        0,
-                                        0,
-                                        0.2126,
-                                        0.7152,
-                                        0.0722,
-                                        0,
-                                        0,
-                                        0.2126,
-                                        0.7152,
-                                        0.0722,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        1,
-                                        0,
+                                        0.2126, 0.7152, 0.0722, 0, 0,
+                                        0.2126, 0.7152, 0.0722, 0, 0,
+                                        0.2126, 0.7152, 0.0722, 0, 0,
+                                        0, 0, 0, 1, 0,
                                       ]),
                                 child: Text(
                                   item.emoji,
@@ -162,6 +157,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               duration: 150.ms,
                               curve: Curves.easeOutBack,
                             ),
+                            
+                            // Badge
+                            if (_getUnreadCount(index) > 0)
+                              Positioned(
+                                right: -4,
+                                top: -4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.duoRed,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.1),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      _getUnreadCount(index) > 9 ? '9+' : _getUnreadCount(index).toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ).animate().scale(curve: Curves.easeOutBack),
+                              ),
+                          ],
+                        ),
                         const SizedBox(height: 2),
                         // Label
                         Text(

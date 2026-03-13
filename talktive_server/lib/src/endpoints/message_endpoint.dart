@@ -165,6 +165,16 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         message,
       );
 
+      // 9.1 Update sender's lastReadAt to current time
+      final senderMembership = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(senderUuid),
+      );
+      if (senderMembership != null) {
+        senderMembership.lastReadAt = savedMessage.createdAt;
+        await protocol.ChannelMember.db.updateRow(session, senderMembership);
+      }
+
       // Update lastMessageAt for private chats (Bubbling up)
       if (channel.type == protocol.ChannelType.private) {
         final privateChat = await protocol.PrivateChat.db.findFirstRow(
@@ -337,5 +347,22 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       limit: limit,
       offset: offset,
     );
+  }
+
+  /// Marks all messages in a channel as read for the current user.
+  Future<void> markChannelAsRead(Session session, int channelId) async {
+    final userUuid = await getUserId(session);
+
+    // Find the membership record
+    final membership = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(channelId) & t.userInfoId.equals(userUuid),
+    );
+
+    if (membership != null) {
+      membership.lastReadAt = DateTime.now();
+      await protocol.ChannelMember.db.updateRow(session, membership);
+    }
   }
 }

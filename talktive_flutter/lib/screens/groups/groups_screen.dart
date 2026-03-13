@@ -188,7 +188,29 @@ class GroupsScreen extends ConsumerWidget {
       },
       trailing: (isInvite || isApplied)
           ? _buildStatusBadge(context, isInvite ? 'INVITED' : 'APPLIED')
-          : const Icon(Icons.chevron_right, color: Colors.grey),
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (groupWithMembership.unreadCount > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.duoRed,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      groupWithMembership.unreadCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                const Icon(Icons.chevron_right, color: Colors.grey),
+              ],
+            ),
       bottomActions: isInvite
           ? [
               Row(

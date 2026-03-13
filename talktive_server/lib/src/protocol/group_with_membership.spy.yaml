@@ -4,3 +4,4 @@ fields:
   membershipStatus: ChannelMemberStatus?
   membershipRole: String?
   isMuted: bool?
+  unreadCount: int, default=0

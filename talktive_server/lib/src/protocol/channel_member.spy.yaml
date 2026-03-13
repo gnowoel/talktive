@@ -8,6 +8,7 @@ fields:
   status: ChannelMemberStatus
   invitedBy: UuidValue?
   isMuted: bool, default=false
+  lastReadAt: DateTime, default=now
 indexes:
   channel_user_idx:
     fields: channelId, userInfoId

@@ -2138,6 +2138,37 @@ class _MessageEndpoint {
       }
     });
   }
+
+  _i3.Future<void> markChannelAsRead(
+    _i1.TestSessionBuilder sessionBuilder,
+    int channelId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'message',
+            method: 'markChannelAsRead',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'message',
+          methodName: 'markChannelAsRead',
+          parameters: _i1.testObjectToJson({'channelId': channelId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _MomentEndpoint {

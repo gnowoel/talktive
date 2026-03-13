@@ -230,19 +230,9 @@ class ProfileScreen extends ConsumerWidget {
                     .claimReward();
 
                 if (context.mounted && reward != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '🎉 Claimed ${reward.rewardAmount} credits!',
-                      ),
-                      backgroundColor: AppTheme.duoGreen,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.duoRadiusMedium,
-                        ),
-                      ),
-                    ),
+                  SnackBarHelper.showSuccess(
+                    context,
+                    '🎉 Claimed ${reward.rewardAmount} credits!',
                   );
 
                   // Refresh resident data to show updated credits

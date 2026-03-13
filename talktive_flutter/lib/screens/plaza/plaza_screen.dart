@@ -17,7 +17,7 @@ class PlazaScreen extends ConsumerWidget {
     return DuoPageScaffold(
       emoji: '🏛️',
       title: 'The Plaza',
-      subtitle: 'YOUR DIGITAL APARTMENT LOBBY',
+      subtitle: 'Your digital apartment lobby',
       gradient: AppTheme.primaryGradient,
       body: ListView(
         padding: const EdgeInsets.only(

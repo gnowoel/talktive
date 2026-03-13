@@ -70,12 +70,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
     final isEditing = widget.existingGroup != null;
 
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a group name'),
-          backgroundColor: AppTheme.duoRed,
-        ),
-      );
+      SnackBarHelper.showError(context, 'Please enter a lounge name');
       return;
     }
 
@@ -116,14 +111,11 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
       if (mounted) {
         HapticFeedback.mediumImpact();
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isEditing ? 'Group updated!' : 'Group "$name" created!',
-            ),
-            backgroundColor: AppTheme.duoGreen,
-          ),
-        );
+        if (isEditing) {
+          SnackBarHelper.showSuccess(context, 'Lounge updated!');
+        } else {
+          SnackBarHelper.showSuccess(context, 'Lounge "$name" created!');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -170,8 +162,8 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                     Expanded(
                       child: Text(
                         widget.existingGroup != null
-                            ? 'Edit Club'
-                            : 'Create New Club',
+                            ? 'Edit Lounge'
+                            : 'Create New Lounge',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -197,16 +189,14 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Emoji Section
-                    _buildSectionHeader('Emoji', 'Pick an icon for your club'),
+                    _buildSectionHeader('Emoji', 'Pick an icon for your lounge'),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
-                    SizedBox(
-                      height: 56,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _emojiOptions.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          final emoji = _emojiOptions[index];
+                    Center(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.center,
+                        children: _emojiOptions.map((emoji) {
                           final isSelected = emoji == _selectedEmoji;
                           return GestureDetector(
                             onTap: () {
@@ -239,13 +229,13 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                               ),
                             ),
                           );
-                        },
+                        }).toList(),
                       ),
                     ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
                     // Name Section
-                    _buildSectionHeader('Club Name', 'Give it a catchy name'),
+                    _buildSectionHeader('Lounge Name', 'Give it a catchy name'),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
                     DuoInput(
                       controller: _nameController,
@@ -260,7 +250,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                     const SizedBox(height: AppTheme.duoSpacingSmall),
                     DuoInput(
                       controller: _descriptionController,
-                      hintText: 'Share what makes this club special...',
+                      hintText: 'Share what makes this lounge special...',
                       maxLines: 3,
                       maxLength: 200,
                       enabled: !_isCreating,
@@ -404,7 +394,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                   width: double.infinity,
                   text: widget.existingGroup != null
                       ? 'Save Changes'
-                      : 'Create Club',
+                      : 'Create Lounge',
                   icon:
                       widget.existingGroup != null ? Icons.save : Icons.add_circle,
                   onPressed: _isCreating ? null : _saveGroup,

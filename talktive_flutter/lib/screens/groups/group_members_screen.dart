@@ -48,7 +48,7 @@ class GroupMembersScreen extends ConsumerWidget {
         return DuoPageScaffold(
           emoji: '👥',
           title: group.name,
-          subtitle: '${group.memberCount} MEMBERS',
+          subtitle: '${group.memberCount} members',
           gradient: AppTheme.duoBlueGradient,
           hasBackButton: true,
           body: membersAsync.when(
@@ -116,7 +116,7 @@ class GroupMembersScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Text(
-        title.toUpperCase(),
+        title,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: Colors.grey[600],
           fontWeight: FontWeight.bold,
@@ -229,7 +229,7 @@ class GroupMembersScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Kick resident?'),
         content: Text(
-          'Are you sure you want to remove ${resident.userName} from this club?',
+          'Are you sure you want to remove ${resident.userName} from this lounge?',
         ),
         actions: [
           TextButton(

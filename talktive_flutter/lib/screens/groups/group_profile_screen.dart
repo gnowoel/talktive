@@ -49,7 +49,7 @@ class GroupProfileScreen extends ConsumerWidget {
               child: DuoEmptyState(
                 emoji: '🕵️',
                 title: 'Group Not Found',
-                subtitle: 'This clubhouse might have been disbanded.',
+                subtitle: 'This lounge might have been disbanded.',
               ),
             ),
           );
@@ -64,7 +64,7 @@ class GroupProfileScreen extends ConsumerWidget {
         return DuoPageScaffold(
           emoji: group.emoji ?? '👥',
           title: group.name,
-          subtitle: group.isPublic ? 'PUBLIC CLUB' : 'PRIVATE PARTY',
+          subtitle: group.isPublic ? 'Public lounge' : 'Private lounge',
           gradient: group.isPublic
               ? AppTheme.duoBlueGradient
               : AppTheme.duoOrangeGradient,

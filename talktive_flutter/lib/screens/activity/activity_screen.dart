@@ -23,7 +23,7 @@ class ActivityScreen extends ConsumerWidget {
 
     return DuoPageScaffold(
       title: 'Activity',
-      subtitle: 'NOTIFICATIONS & HISTORY',
+      subtitle: 'Notifications & history',
       emoji: '🔔',
       gradient: AppTheme.duoBlueGradient,
       trailingHeader: DuoRefreshButton(

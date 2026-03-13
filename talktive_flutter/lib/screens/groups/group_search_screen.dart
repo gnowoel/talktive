@@ -95,7 +95,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     return DuoPageScaffold(
       emoji: '🔍',
       title: 'Discovery',
-      subtitle: 'FIND YOUR PEOPLE',
+      subtitle: 'Find your people',
       gradient: AppTheme.duoBlueGradient,
       hasBackButton: true,
       body: _isLoading && _results.isEmpty

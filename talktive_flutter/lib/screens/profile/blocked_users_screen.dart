@@ -24,7 +24,7 @@ class BlockedUsersScreen extends ConsumerWidget {
     return DuoPageScaffold(
       emoji: '🚫',
       title: 'Blocked Users',
-      subtitle: 'PEACE & QUIET',
+      subtitle: 'Peace & quiet',
       gradient: AppTheme.duoOrangeGradient,
       hasBackButton: true,
       body: blockedUsersAsync.when(

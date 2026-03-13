@@ -26,7 +26,7 @@ class ChatsScreen extends ConsumerWidget {
     return DuoPageScaffold(
       emoji: '💬',
       title: 'Chats',
-      subtitle: 'PRIVATE CONVERSATIONS',
+      subtitle: 'Private conversations',
       trailingHeader: DuoRefreshButton(
         onRefresh: () async {
           await ref.read(privateChatListProvider.notifier).refresh();
@@ -70,12 +70,11 @@ class ChatsScreen extends ConsumerWidget {
                       vertical: 8,
                     ),
                       child: Text(
-                        "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...".toUpperCase(),
+                        "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...",
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
-                          letterSpacing: 1.1,
                         ),
                       ),
                     ),
@@ -95,12 +94,11 @@ class ChatsScreen extends ConsumerWidget {
                           vertical: 4,
                         ),
                         child: Text(
-                          '📬 ACTIVE CHATS',
+                          '📬 Active Chats',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',
-                            letterSpacing: 1.1,
                           ),
                         ),
                       ),

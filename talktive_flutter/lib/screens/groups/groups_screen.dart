@@ -29,7 +29,7 @@ class GroupsScreen extends ConsumerWidget {
     return DuoPageScaffold(
       emoji: '🏘️',
       title: 'Lounges',
-      subtitle: 'JOIN THE COMMUNITY CLUBHOUSE',
+      subtitle: 'Join the community clubhouse',
       gradient: AppTheme.duoBlueGradient,
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
@@ -144,7 +144,7 @@ class GroupsScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Text(
-        title.toUpperCase(),
+        title,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: Colors.grey[600],
           fontWeight: FontWeight.bold,

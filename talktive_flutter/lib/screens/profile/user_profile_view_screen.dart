@@ -55,7 +55,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     return DuoPageScaffold(
       emoji: '👤',
       title: widget.userName ?? 'Resident',
-      subtitle: 'NEIGHBOR',
+      subtitle: 'Neighbor',
       gradient: AppTheme.duoBlueGradient,
       hasBackButton: true,
       trailingHeader: _buildTrailingMenu(isBlocked),

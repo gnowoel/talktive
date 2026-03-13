@@ -13,6 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
 
+import '../../helpers/snackbar_helper.dart';
 import 'package:talktive_client/talktive_client.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
@@ -218,14 +219,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    SnackBarHelper.showError(context, message);
   }
 
   Future<void> _completeSetup() async {

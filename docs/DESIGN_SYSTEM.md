@@ -7,7 +7,7 @@ Talktive is not just a chat app; it is a digital residence. This metaphor guides
 *   **Plaza (Lobby)**: Public, bustling, and open. High activity.
 *   **Moments (Bulletin Board)**: Visual, community-driven, and shared.
 *   **Chats (Private Units)**: Intimate, secure, and personal.
-*   **Groups (Clubhouse)**: Interest-based, community-led, and moderated.
+*   **Lounges (Clubhouse)**: Interest-based, community-led, and moderated. Also referred to as "Clubs".
 *   **Profile (My Unit)**: Your personal identity and sanctuary.
 
 ---
@@ -30,6 +30,7 @@ We embrace a playful, high-energy aesthetic that makes interaction feel like a g
 We use a dual-font approach to balance brand playfulness with readability:
 *   **Poppins (Sans-Serif)**: Used for titles, headers, and primary buttons. Provides a bold, geometric, and modern feel.
 *   **Rubik (Sans-Serif)**: Used for body text, subtitles, and input fields. Offers excellent legibility with slightly rounded shapes that complement the icon-heavy design.
+*   **Header Casing**: We favor **Sentence Case** or **Title Case** over all-caps for headers and titles. This creates a softer, more approachable, and "youthful" feel that aligns with modern social apps. All-caps is reserved for extremely critical, tactical labels only.
 
 ---
 
@@ -77,3 +78,4 @@ Talktive should feel alive.
 *   **Haptics**: Always provide `lightImpact` for taps and `medium/heavyImpact` for significant actions (sending messages, joining groups).
 *   **Celebrations**: Use the `ConfettiAnimation` for level-ups or significant achievements.
 *   **Satisfying States**: Buttons should visibly "press down" (built into `DuoButton`).
+*   **Aesthetic Feedback**: SnackBars (via `SnackBarHelper`) must be **floating**, with rounded corners and consistent padding, ensuring they don't block core navigation while providing satisfying visual reinforcement.

@@ -8,18 +8,19 @@ This project is a migration of the "Talktive" chat app from Firebase to Serverpo
 
 - **Plaza (Lobby)**: Public encounters.
 - **Moments (Bulletin Board)**: Visual sharing.
-- **Chats (Private Units)**: Private conversations.
-- **Groups (Clubhouse)**: Community discussions.
+- **Private Chats (Private Units)**: Intense conversations.
+- **Lounges (Clubhouse)**: Community discussions (interest-based).
 - **Profile (My Unit)**: Personal identity.
 
 **Duolingo-Inspired UI/UX**: The app has been completely redesigned with a clean, dynamic, and playful aesthetic inspired by Duolingo. The previous glassmorphism design has been replaced with:
 
-- **Playful & Friendly**: Emoji-first design, rounded corners, vibrant colors
-- **Gamified Experience**: Streaks, XP, levels, achievements, and celebrations
-- **Clear Visual Hierarchy**: Bold typography, generous spacing, obvious CTAs
-- **Micro-interactions**: Haptic feedback, smooth animations, satisfying transitions
-- **Progressive Disclosure**: Information revealed step-by-step
-- **Celebration-Driven**: Confetti animations and positive reinforcement
+- **Playful & Friendly**: Emoji-first design, rounded corners, vibrant colors, and **soft headers** (Title Case).
+- **Gamified Experience**: Streaks, XP, levels, achievements, and celebrations.
+- **Clear Visual Hierarchy**: Bold typography, generous spacing, obvious CTAs.
+- **Micro-interactions**: Haptic feedback, smooth animations, satisfying transitions.
+- **Progressive Disclosure**: Information revealed step-by-step.
+- **Celebration-Driven**: Confetti animations and positive reinforcement.
+- **Polished Visuals**: Floating SnackBars with consistent padding and rounded corners.
 
 ### Design Implementation
 

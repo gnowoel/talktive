@@ -184,7 +184,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      _getUnreadCount(index) > 9 ? '9+' : _getUnreadCount(index).toString(),
+                                      _getUnreadCount(unreadCounts, index) > 9 ? '9+' : _getUnreadCount(unreadCounts, index).toString(),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 9,

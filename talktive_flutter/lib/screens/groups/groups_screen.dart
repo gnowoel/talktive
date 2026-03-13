@@ -47,6 +47,31 @@ class GroupsScreen extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.duoBlue,
+              AppTheme.duoBlue.withValues(alpha: 0.8),
+            ],
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.duoBlue.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          heroTag: 'groups_fab',
+          onPressed: () => _showCreateDialog(context, ref),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: const Icon(Icons.group_add, color: Colors.white),
+        ),
+      ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: groupsAsync.when(
         data: (groups) => _buildGroupList(context, ref, groups),
         loading: () => const DuoLoadingIndicator(),
@@ -109,16 +134,6 @@ class GroupsScreen extends ConsumerWidget {
             ),
           ],
 
-          const SizedBox(height: 32),
-          Center(
-            child: DuoButton(
-              onPressed: () => _showCreateDialog(context, ref),
-              icon: Icons.add,
-              text: 'Create New Club',
-              variant: DuoButtonVariant.ghost,
-              color: AppTheme.duoBlue,
-            ),
-          ),
           const SizedBox(height: AppTheme.contentBottomPadding),
         ],
       ),
@@ -281,8 +296,10 @@ class GroupsScreen extends ConsumerWidget {
       return;
     }
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const CreateGroupDialog(),
     );
   }

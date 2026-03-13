@@ -9,9 +9,10 @@ import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_group_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import '../../widgets/duo/duo_keyboard_dismissible.dart';
 import '../../helpers/snackbar_helper.dart';
 
 class GroupSearchScreen extends ConsumerStatefulWidget {
@@ -91,32 +92,42 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DuoKeyboardDismissible(
-      child: Scaffold(
-        backgroundColor: AppTheme.lightBackground,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: TextField(
+    return DuoPageScaffold(
+      emoji: '🔍',
+      title: 'Discovery',
+      subtitle: 'Find your people',
+      gradient: AppTheme.duoBlueGradient,
+      hasBackButton: true,
+      body: _isLoading && _results.isEmpty
+          ? const Center(child: DuoLoadingIndicator())
+          : _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return Column(
+      children: [
+        // Search Header
+        Container(
+          padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+          color: Colors.white,
+          child: DuoInput(
             controller: _searchController,
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'Search Clubs...',
-              border: InputBorder.none,
-            ),
+            hintText: 'Search by club name or interests...',
+            prefixIcon: Icons.search,
+            iconColor: AppTheme.duoBlue,
             onChanged: (val) => _performSearch(val),
+            autofocus: true,
           ),
         ),
-        body: _isLoading
-            ? const Center(child: DuoLoadingIndicator())
-            : _results.isEmpty
-            ? _buildEmptyState()
-            : _buildResultsList(),
-      ),
+        
+        // Results
+        Expanded(
+          child: _results.isEmpty
+              ? _buildEmptyState()
+              : _buildResultsList(),
+        ),
+      ],
     );
   }
 

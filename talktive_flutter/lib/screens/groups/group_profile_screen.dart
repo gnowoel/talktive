@@ -563,8 +563,10 @@ class GroupProfileScreen extends ConsumerWidget {
   }
 
   void _showEditDialog(BuildContext context, Group group) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => CreateGroupDialog(existingGroup: group),
     );
   }

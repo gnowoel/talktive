@@ -229,8 +229,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   extra: widget.group,
                 );
               } else if (value == 'edit') {
-                showDialog(
+                showModalBottomSheet(
                   context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
                   builder: (context) =>
                       CreateGroupDialog(existingGroup: widget.group),
                 );

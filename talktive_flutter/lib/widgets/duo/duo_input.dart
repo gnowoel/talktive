@@ -15,7 +15,9 @@ class DuoInput extends StatelessWidget {
   final bool enabled;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+  final Color? iconColor;
   final FocusNode? focusNode;
+  final bool autofocus;
 
   const DuoInput({
     super.key,
@@ -31,7 +33,9 @@ class DuoInput extends StatelessWidget {
     this.enabled = true,
     this.onChanged,
     this.onSubmitted,
+    this.iconColor,
     this.focusNode,
+    this.autofocus = false,
   });
 
   @override
@@ -68,6 +72,7 @@ class DuoInput extends StatelessWidget {
           child: TextField(
             controller: controller,
             focusNode: focusNode,
+            autofocus: autofocus,
             obscureText: obscureText,
             keyboardType: keyboardType,
             maxLines: maxLines,
@@ -87,7 +92,11 @@ class DuoInput extends StatelessWidget {
                 fontFamily: 'Rubik',
               ),
               prefixIcon: prefixIcon != null
-                  ? Icon(prefixIcon, color: AppTheme.primaryColor, size: 20)
+                  ? Icon(
+                      prefixIcon,
+                      color: iconColor ?? AppTheme.primaryColor,
+                      size: 20,
+                    )
                   : null,
               suffixIcon: suffixIcon,
               border: OutlineInputBorder(
@@ -100,8 +109,8 @@ class DuoInput extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                borderSide: const BorderSide(
-                  color: AppTheme.primaryColor,
+                borderSide: BorderSide(
+                  color: iconColor ?? AppTheme.primaryColor,
                   width: 2,
                 ),
               ),

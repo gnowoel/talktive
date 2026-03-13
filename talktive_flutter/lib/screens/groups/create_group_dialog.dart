@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
@@ -136,253 +137,310 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
-      ),
-      child: DuoKeyboardDismissible(
-        child: Container(
-          padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
+    return DuoKeyboardDismissible(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppTheme.duoRadiusLarge),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: AppTheme.duoBlueGradient,
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppTheme.duoRadiusLarge),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Row(
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
-                            AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
-                          ],
-                        ),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text('✨', style: TextStyle(fontSize: 24)),
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.duoSpacingMedium),
+                    const Text('✨', style: TextStyle(fontSize: 28)),
+                    const SizedBox(width: AppTheme.duoSpacingSmall),
                     Expanded(
                       child: Text(
                         widget.existingGroup != null
-                            ? 'Edit Group'
-                            : 'Create Group',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                            ? 'Edit Club'
+                            : 'Create New Club',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Icons.close, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppTheme.duoSpacingLarge),
+              ),
+            ),
 
-                // Emoji selector
-                Text(
-                  'Choose an emoji',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppTheme.duoSpacingSmall),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _emojiOptions.map((emoji) {
-                    final isSelected = emoji == _selectedEmoji;
-                    return GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          _selectedEmoji = emoji;
-                        });
-                      },
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.primaryColor.withValues(alpha: 0.2)
-                              : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.duoRadiusSmall,
-                          ),
-                          border: isSelected
-                              ? Border.all(
-                                  color: AppTheme.primaryColor,
-                                  width: 2,
-                                )
-                              : null,
-                        ),
-                        child: Center(
-                          child: Text(
-                            emoji,
-                            style: const TextStyle(fontSize: 24),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: AppTheme.duoSpacingLarge),
-
-                // Group name
-                Text(
-                  'Group name',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppTheme.duoSpacingSmall),
-                DuoInput(
-                  controller: _nameController,
-                  hintText: 'Enter group name',
-                  maxLength: 50,
-                ),
-                const SizedBox(height: AppTheme.duoSpacingMedium),
-
-                // Description
-                Text(
-                  'Description (optional)',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppTheme.duoSpacingSmall),
-                DuoInput(
-                  controller: _descriptionController,
-                  hintText: 'What is this group about?',
-                  maxLines: 3,
-                  maxLength: 200,
-                ),
-                const SizedBox(height: AppTheme.duoSpacingMedium),
-
-                // Interests
-                Text(
-                  'Add Interest Tags',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppTheme.duoSpacingSmall),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: AppInterests.all.map((interest) {
-                    final isSelected = _selectedInterests.contains(interest);
-                    return FilterChip(
-                      label: Text(
-                        interest,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          if (selected) {
-                            if (_selectedInterests.length < 5) {
-                              _selectedInterests.add(interest);
-                            }
-                          } else {
-                            _selectedInterests.remove(interest);
-                          }
-                        });
-                      },
-                      selectedColor: AppTheme.duoBlue,
-                      checkmarkColor: Colors.white,
-                      backgroundColor: Colors.grey[100],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: BorderSide.none,
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: AppTheme.duoSpacingMedium),
-
-                // Public/Private toggle
-                Row(
+            // Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Public group',
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                    // Emoji Section
+                    _buildSectionHeader('Emoji', 'Pick an icon for your club'),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    SizedBox(
+                      height: 56,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _emojiOptions.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final emoji = _emojiOptions[index];
+                          final isSelected = emoji == _selectedEmoji;
+                          return GestureDetector(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              setState(() => _selectedEmoji = emoji);
+                            },
+                            child: AnimatedContainer(
+                              duration: 150.ms,
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.duoBlue.withValues(alpha: 0.2)
+                                    : Colors.grey[100],
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.duoRadiusMedium,
+                                ),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.duoBlue
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  emoji,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Name Section
+                    _buildSectionHeader('Club Name', 'Give it a catchy name'),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    DuoInput(
+                      controller: _nameController,
+                      hintText: 'e.g. Pixel Artists, Morning Coffee...',
+                      maxLength: 50,
+                      enabled: !_isCreating,
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Description Section
+                    _buildSectionHeader('Description', 'What happens here?'),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    DuoInput(
+                      controller: _descriptionController,
+                      hintText: 'Share what makes this club special...',
+                      maxLines: 3,
+                      maxLength: 200,
+                      enabled: !_isCreating,
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Interests Section
+                    _buildSectionHeader('Interests', 'Help others find you'),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: AppInterests.all.map((interest) {
+                        final isSelected = _selectedInterests.contains(interest);
+                        return FilterChip(
+                          label: Text(
+                            interest,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
                           ),
-                          Text(
-                            'Anyone can discover and join',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey[600]),
+                          selected: isSelected,
+                          onSelected: _isCreating
+                              ? null
+                              : (selected) {
+                                  HapticFeedback.lightImpact();
+                                  setState(() {
+                                    if (selected) {
+                                      if (_selectedInterests.length < 5) {
+                                        _selectedInterests.add(interest);
+                                      }
+                                    } else {
+                                      _selectedInterests.remove(interest);
+                                    }
+                                  });
+                                },
+                          selectedColor: AppTheme.duoBlue,
+                          checkmarkColor: Colors.white,
+                          backgroundColor: Colors.grey[100],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          side: BorderSide.none,
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Visibility Section
+                    _buildSectionHeader('Public Group', 'Discoverability'),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.duoRadiusMedium,
+                        ),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _isPublic ? Icons.public : Icons.public_off,
+                            color: _isPublic ? AppTheme.duoBlue : Colors.grey,
+                          ),
+                          const SizedBox(width: AppTheme.duoSpacingMedium),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _isPublic ? 'Visible' : 'Hidden',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _isPublic
+                                      ? 'Anyone can find and apply to join.'
+                                      : 'Only invited members can join.',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _isPublic,
+                            activeThumbColor: AppTheme.duoBlue,
+                            onChanged: _isCreating
+                                ? null
+                                : (val) {
+                                    HapticFeedback.lightImpact();
+                                    setState(() => _isPublic = val);
+                                  },
                           ),
                         ],
                       ),
                     ),
-                    Switch(
-                      value: _isPublic,
-                      onChanged: (value) {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          _isPublic = value;
-                        });
-                      },
-                      activeThumbColor: AppTheme.duoGreen,
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Max Members Section
+                    _buildSectionHeader(
+                      'Capacity',
+                      'Max members: $_maxMembers',
                     ),
+                    Slider(
+                      value: _maxMembers.toDouble(),
+                      min: 2,
+                      max: 500,
+                      divisions: 49,
+                      activeColor: AppTheme.duoBlue,
+                      onChanged: _isCreating
+                          ? null
+                          : (value) {
+                              setState(() => _maxMembers = value.toInt());
+                            },
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Bottom Padding for FAB safety
+                    const SizedBox(height: 80),
                   ],
                 ),
-                const SizedBox(height: AppTheme.duoSpacingMedium),
-
-                // Max members slider
-                Text(
-                  'Max members: $_maxMembers',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                Slider(
-                  value: _maxMembers.toDouble(),
-                  min: 2,
-                  max: 500,
-                  divisions: 49,
-                  activeColor: AppTheme.primaryColor,
-                  onChanged: (value) {
-                    setState(() {
-                      _maxMembers = value.toInt();
-                    });
-                  },
-                ),
-                const SizedBox(height: AppTheme.duoSpacingLarge),
-
-                // Create button
-                SizedBox(
-                  width: double.infinity,
-                  child: DuoButton(
-                    text: widget.existingGroup != null
-                        ? 'Save Changes'
-                        : 'Create Group',
-                    onPressed: _isCreating ? null : _saveGroup,
-                    isLoading: _isCreating,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+
+            // Action Button
+            Padding(
+              padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+              child: SafeArea(
+                top: false,
+                child: DuoButton(
+                  width: double.infinity,
+                  text: widget.existingGroup != null
+                      ? 'Save Changes'
+                      : 'Create Club',
+                  icon:
+                      widget.existingGroup != null ? Icons.save : Icons.add_circle,
+                  onPressed: _isCreating ? null : _saveGroup,
+                  isLoading: _isCreating,
+                  color: AppTheme.duoBlue,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
+    ).animate().slideY(begin: 1.0, end: 0.0, duration: 400.ms, curve: Curves.easeOutCubic);
+  }
+
+  Widget _buildSectionHeader(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: AppTheme.duoBlue,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
     );
   }
 }

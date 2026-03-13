@@ -322,7 +322,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     return DuoPageScaffold(
       emoji: '📸',
       title: 'Moments',
-      subtitle: 'Share your day',
+      subtitle: 'SHARE YOUR DAY',
       trailingHeader: DuoRefreshButton(
         onRefresh: () async {
           ref.invalidate(momentsProvider);

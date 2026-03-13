@@ -26,7 +26,7 @@ class ChatsScreen extends ConsumerWidget {
     return DuoPageScaffold(
       emoji: '💬',
       title: 'Chats',
-      subtitle: 'Private conversations',
+      subtitle: 'PRIVATE CONVERSATIONS',
       trailingHeader: DuoRefreshButton(
         onRefresh: () async {
           await ref.read(privateChatListProvider.notifier).refresh();
@@ -69,37 +69,41 @@ class ChatsScreen extends ConsumerWidget {
                       horizontal: 8,
                       vertical: 8,
                     ),
-                    child: Text(
-                      "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  ...pendingChats.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final chat = entry.value;
-                    return _buildPendingCard(context, ref, chat, index)
-                        .animate(delay: Duration(milliseconds: index * 50))
-                        .fadeIn(duration: 300.ms)
-                        .slideX(begin: -0.1, end: 0);
-                  }),
-                  const SizedBox(height: AppTheme.duoSpacingLarge),
-                  if (activeChats.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
                       child: Text(
-                        '📬 Active Chats',
+                        "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...".toUpperCase(),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.white70,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          letterSpacing: 1.1,
                         ),
                       ),
                     ),
+                    ...pendingChats.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final chat = entry.value;
+                      return _buildPendingCard(context, ref, chat, index)
+                          .animate(delay: Duration(milliseconds: index * 50))
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: -0.1, end: 0);
+                    }),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+                    if (activeChats.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          '📬 ACTIVE CHATS',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                      ),
                   const SizedBox(height: AppTheme.duoSpacingSmall),
                 ],
 

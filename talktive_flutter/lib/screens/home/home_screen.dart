@@ -54,24 +54,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCounts = ref.watch(totalUnreadCountsProvider);
-
     return Scaffold(
       extendBody: false,
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: _buildDuoBottomNav(unreadCounts),
+      bottomNavigationBar: _buildDuoBottomNav(),
     );
   }
 
-  int _getUnreadCount(UnreadCounts counts, int index) {
-    if (index == 2) return counts.privateChats;
-    if (index == 3) return counts.lounges;
-    return 0;
-  }
-
-  Widget _buildDuoBottomNav(UnreadCounts unreadCounts) {
+  Widget _buildDuoBottomNav() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -160,40 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                             
                             // Badge
-                            if (_getUnreadCount(unreadCounts, index) > 0)
-                              Positioned(
-                                right: -4,
-                                top: -4,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.duoRed,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 16,
-                                    minHeight: 16,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _getUnreadCount(unreadCounts, index) > 9 ? '9+' : _getUnreadCount(unreadCounts, index).toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ).animate().scale(curve: Curves.easeOutBack),
-                              ),
+                            _DuoBottomNavBadge(index: index),
                           ],
                         ),
                         const SizedBox(height: 2),
@@ -234,4 +193,52 @@ class _NavItem {
     required this.label,
     required this.color,
   });
+}
+
+class _DuoBottomNavBadge extends ConsumerWidget {
+  final int index;
+
+  const _DuoBottomNavBadge({required this.index});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Only Chats (2) and Lounges (3) have badges
+    if (index != 2 && index != 3) return const SizedBox.shrink();
+
+    final unreadCounts = ref.watch(totalUnreadCountsProvider);
+    final count = index == 2 ? unreadCounts.privateChats : unreadCounts.lounges;
+
+    if (count <= 0) return const SizedBox.shrink();
+
+    return Positioned(
+      right: -4,
+      top: -4,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppTheme.duoRed,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+        child: Center(
+          child: Text(
+            count > 9 ? '9+' : count.toString(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    ).animate().scale(curve: Curves.easeOutBack);
+  }
 }

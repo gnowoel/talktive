@@ -146,9 +146,10 @@ class FCMManager extends _$FCMManager {
           ),
         );
 
-    // Invalidate chat list providers to update unread counts immediately
-    ref.invalidate(privateChatListProvider);
-    ref.invalidate(groupListProvider);
+    // Explicitly refresh providers to ensure unread counts update immediately
+    debugPrint('FCM DEBUG: Refreshing chat and group lists...');
+    ref.read(privateChatListProvider.notifier).refresh();
+    ref.read(groupListProvider.notifier).refresh();
   }
 
   String _getEmojiForType(String type) {

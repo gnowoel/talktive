@@ -147,12 +147,14 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
+                    fontFamily: 'Poppins',
                   ),
                 ),
                 Text(
                   'Chat with everyone',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.textSecondary,
+                    fontFamily: 'Rubik',
                   ),
                 ),
               ],

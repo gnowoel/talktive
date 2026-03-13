@@ -187,13 +187,15 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     Text(
                       '${widget.group.memberCount} members',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontFamily: 'Rubik',
+                      ),
                     ),
                   ],
                 ),

@@ -16,6 +16,7 @@ class DuoPageScaffold extends StatelessWidget {
   final Widget body;
   final Widget? trailingHeader;
   final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
   final List<Color> gradient;
   final bool resizeToAvoidBottomInset;
   final bool hasBackButton;
@@ -30,6 +31,7 @@ class DuoPageScaffold extends StatelessWidget {
     this.subtitle,
     this.trailingHeader,
     this.floatingActionButton,
+    this.bottomNavigationBar,
     this.resizeToAvoidBottomInset = true,
     this.hasBackButton = false,
     this.textColor,
@@ -52,6 +54,7 @@ class DuoPageScaffold extends StatelessWidget {
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         backgroundColor: gradient.first, // Fallback
         floatingActionButton: floatingActionButton,
+        bottomNavigationBar: bottomNavigationBar,
         body: Stack(
           children: [
             // 1. Full-screen Gradient Background (for bounce effect)

@@ -90,7 +90,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       appBar: AppBar(
         title: const Text(
           'Moment',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
         ),
         backgroundColor: Colors.white,
         elevation: 0,

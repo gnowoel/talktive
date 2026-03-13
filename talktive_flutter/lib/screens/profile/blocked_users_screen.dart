@@ -6,6 +6,7 @@ import '../../providers/blocked_users_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
@@ -20,30 +21,16 @@ class BlockedUsersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'Blocked Users',
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+    return DuoPageScaffold(
+      emoji: '🚫',
+      title: 'Blocked Users',
+      subtitle: 'PEACE & QUIET',
+      gradient: AppTheme.duoOrangeGradient,
+      hasBackButton: true,
       body: blockedUsersAsync.when(
         data: (blockedUserIds) {
           if (blockedUserIds.isEmpty) {
-            return DuoEmptyState(
+            return const DuoEmptyState(
               emoji: '🚫',
               title: 'No blocked users',
               subtitle: 'You haven\'t blocked anyone yet',
@@ -70,6 +57,7 @@ class BlockedUsersScreen extends ConsumerWidget {
       ),
     );
   }
+
 
   Widget _buildBlockedUserCard(
     BuildContext context,

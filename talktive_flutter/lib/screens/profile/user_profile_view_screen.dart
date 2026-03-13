@@ -17,6 +17,7 @@ import '../../helpers/snackbar_helper.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../utils/trust_score_utils.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -51,26 +52,13 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final isBlocked = blockedIds.contains(widget.userId);
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          widget.userName ?? 'Resident',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontFamily: 'Poppins',
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [_buildTrailingMenu(isBlocked)],
-      ),
+    return DuoPageScaffold(
+      emoji: '👤',
+      title: widget.userName ?? 'Resident',
+      subtitle: 'NEIGHBOR',
+      gradient: AppTheme.duoBlueGradient,
+      hasBackButton: true,
+      trailingHeader: _buildTrailingMenu(isBlocked),
       body: profileAsync.when(
         data: (profile) => _buildProfileContent(isBlocked, profile),
         loading: () => const Center(
@@ -85,6 +73,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           ? null
           : _buildBottomBar(context, ref),
     );
+
   }
 
   Widget _buildErrorState(String error) {

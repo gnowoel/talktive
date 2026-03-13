@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/snackbar_helper.dart';
+import '../../widgets/duo/duo_page_scaffold.dart';
 import 'create_group_dialog.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
@@ -60,84 +61,25 @@ class GroupProfileScreen extends ConsumerWidget {
         final isApplied = status == ChannelMemberStatus.applied;
         final isInvited = status == ChannelMemberStatus.invited;
 
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text(
-              group.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-              ),
-            ),
-            backgroundColor: Colors.white,
-            elevation: 0,
-            surfaceTintColor: Colors.transparent,
-            foregroundColor: Colors.black,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
-            ),
-            actions: [
-              if (isCreator)
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    _showEditDialog(context, group);
-                  },
-                ),
-            ],
-          ),
+        return DuoPageScaffold(
+          emoji: group.emoji ?? '👥',
+          title: group.name,
+          subtitle: group.isPublic ? 'PUBLIC CLUB' : 'PRIVATE PARTY',
+          gradient: group.isPublic
+              ? AppTheme.duoBlueGradient
+              : AppTheme.duoOrangeGradient,
+          hasBackButton: true,
+          trailingHeader: isCreator
+              ? IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  onPressed: () => _showEditDialog(context, group),
+                )
+              : null,
           body: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              AppTheme.contentBottomPadding,
-            ),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with Emoji and Type
-                Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        group.emoji ?? '👥',
-                        style: const TextStyle(fontSize: 64),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              (group.isPublic
-                                      ? AppTheme.duoGreen
-                                      : AppTheme.duoOrange)
-                                  .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          group.isPublic ? 'PUBLIC CLUB' : 'PRIVATE PARTY',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: group.isPublic
-                                ? AppTheme.duoGreen
-                                : AppTheme.duoOrange,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
                 // Status Card
                 _buildStatusCard(context, group, isJoined),
 
@@ -213,6 +155,7 @@ class GroupProfileScreen extends ConsumerWidget {
                   isApplied,
                   isInvited,
                 ),
+                const SizedBox(height: 40),
               ],
             ),
           ),

@@ -181,16 +181,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                     children: [
                       Text(
                         otherName,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
                       Text(
                         'Online', // TODO: Implement real presence status
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppTheme.duoGreen,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ],

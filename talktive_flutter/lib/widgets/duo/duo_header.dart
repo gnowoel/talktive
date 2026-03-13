@@ -70,11 +70,13 @@ class DuoHeader extends StatelessWidget {
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    subtitle!,
+                    subtitle!.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 14,
-                      color: textColor.withValues(alpha: 0.8),
-                      fontFamily: 'Rubik',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: textColor.withValues(alpha: 0.9),
+                      fontFamily: 'Poppins',
+                      letterSpacing: 1.1,
                     ),
                   ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1, end: 0),
                 ],

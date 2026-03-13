@@ -124,7 +124,8 @@ class DuoResidentCard extends StatelessWidget {
           fontSize: 10,
           fontWeight: FontWeight.bold,
           color: textColor,
-          fontFamily: 'Rubik',
+          fontFamily: 'Poppins',
+          letterSpacing: 0.5,
         ),
       ),
     );

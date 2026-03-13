@@ -61,7 +61,8 @@ The application has been successfully migrated from **Firebase** to **Serverpod*
 - Automatic data archival
 
 ### Documentation
-- 📜 **[PRODUCT_SPECS.md](docs/PRODUCT_SPECS.md)** - Full feature spec and architecture overview.
+- 📜 **[docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** - Visual identity, typography, and structural patterns.
+- 📜 **[docs/PRODUCT_SPECS.md](docs/PRODUCT_SPECS.md)** - Full feature spec and architecture overview.
 - 📈 **[CHANGELOG.md](CHANGELOG.md)** - Historical development milestones and phase history.
 - 🚀 **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production and development deployment guide.
 - 🧠 **[GEMINI.md](GEMINI.md)** - Persistent context and roadmap for AI assistants.

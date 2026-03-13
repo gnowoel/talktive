@@ -27,7 +27,9 @@ This project is a migration of the "Talktive" chat app from Firebase to Serverpo
 - **Bottom Navigation**: Floating pill-shaped bar with emoji + text labels, colored background pills for active state
 - **Component Library**: New `lib/widgets/duo/` directory with reusable Duolingo-style components (DuoButton, DuoCard, DuoAvatar, DuoInput, DuoEmptyState, DuoHeader, DuoStatCard)
 - **Screens Redesigned**: All five main screens (Plaza, Moments, Chats, Groups, Profile) follow the Duolingo aesthetic
-- **Animations**: Entrance animations, staggered list items, tap feedback, smooth transitions using flutter_animate
+- **Animations**: Entrance animations, staggered list items, tap feedback, smooth animations, satisfying transitions using flutter_animate
+
+**The "Destinations vs. Actions" Pattern**: We distinguish between "Places" (Profiles, Labs) which use the immersive `DuoPageScaffold`, and "Utility" screens (Chat Threads, Detail views) which use a lightweight `AppBar` structure. See [DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) for full details.
 
 **The Interest Taxonomy**: To facilitate meaningful connections, we use a centralized interest system (`AppInterests`) that categorizes users and groups. This taxonomy is used for:
 - **Discovery**: Ranking groups based on shared interests with the user.

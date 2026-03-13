@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'client_provider.dart';
 import 'notification_provider.dart';
 import 'router_provider.dart';
+import 'private_chat_provider.dart';
+import 'group_provider.dart';
 
 part 'fcm_provider.g.dart';
 
@@ -143,6 +145,10 @@ class FCMManager extends _$FCMManager {
             onTap: () => _handleNotificationTap(message),
           ),
         );
+
+    // Invalidate chat list providers to update unread counts immediately
+    ref.invalidate(privateChatListProvider);
+    ref.invalidate(groupListProvider);
   }
 
   String _getEmojiForType(String type) {

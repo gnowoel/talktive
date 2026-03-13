@@ -14,6 +14,8 @@ import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import '../../providers/private_chat_provider.dart';
+import '../../providers/client_provider.dart';
+import '../../providers/group_provider.dart';
 import 'package:go_router/go_router.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
@@ -53,6 +55,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   @override
   void dispose() {
+    _markAsRead(); // Final mark as read when leaving
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
@@ -136,6 +139,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final chatDetailsAsync = ref.watch(
       privateChatDetailsProvider(widget.channelId),
     );
+
+    // Listen for real-time updates to mark as read if user is viewing
+    ref.listen(realtimeChatProvider(widget.channelId), (previous, next) {
+      if (next.hasValue && next.value != null) {
+        final prevLength = previous?.value?.length ?? 0;
+        final nextLength = next.value?.length ?? 0;
+        if (nextLength > prevLength) {
+          _markAsRead();
+        }
+      }
+    });
 
 
     return chatDetailsAsync.when(

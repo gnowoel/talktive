@@ -15,36 +15,51 @@ class UnreadCounts {
   });
 
   int get total => privateChats + lounges;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UnreadCounts &&
+          runtimeType == other.runtimeType &&
+          privateChats == other.privateChats &&
+          lounges == other.lounges;
+
+  @override
+  int get hashCode => privateChats.hashCode ^ lounges.hashCode;
 }
 
 @riverpod
 class TotalUnreadCounts extends _$TotalUnreadCounts {
+  int _lastPrivateCount = 0;
+  int _lastLoungeCount = 0;
+
   @override
   UnreadCounts build() {
     final privateChats = ref.watch(privateChatListProvider);
     final lounges = ref.watch(groupListProvider);
 
-    int privateCount = 0;
-    int loungeCount = 0;
-
     privateChats.whenData((chats) {
+      int count = 0;
       for (final chat in chats) {
-        privateCount += chat.unreadCount;
+        count += (chat.unreadCount as num).toInt();
       }
+      _lastPrivateCount = count;
     });
 
     lounges.whenData((groups) {
+      int count = 0;
       for (final group in groups) {
         // Requirement 2: total unread message count for group chats, except for muted lounges
         if (group.isMuted != true) {
-          loungeCount += group.unreadCount;
+          count += (group.unreadCount as num).toInt();
         }
       }
+      _lastLoungeCount = count;
     });
 
     return UnreadCounts(
-      privateChats: privateCount,
-      lounges: loungeCount,
+      privateChats: _lastPrivateCount,
+      lounges: _lastLoungeCount,
     );
   }
 }

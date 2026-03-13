@@ -54,23 +54,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final unreadCounts = ref.watch(totalUnreadCountsProvider);
+
     return Scaffold(
       extendBody: false,
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-  body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: _buildDuoBottomNav(),
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: _buildDuoBottomNav(unreadCounts),
     );
   }
 
-  int _getUnreadCount(int index) {
-    final unreadCounts = ref.watch(totalUnreadCountsProvider);
-    if (index == 2) return unreadCounts.privateChats;
-    if (index == 3) return unreadCounts.lounges;
+  int _getUnreadCount(UnreadCounts counts, int index) {
+    if (index == 2) return counts.privateChats;
+    if (index == 3) return counts.lounges;
     return 0;
   }
 
-  Widget _buildDuoBottomNav() {
+  Widget _buildDuoBottomNav(UnreadCounts unreadCounts) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -159,7 +160,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                             
                             // Badge
-                            if (_getUnreadCount(index) > 0)
+                            if (_getUnreadCount(unreadCounts, index) > 0)
                               Positioned(
                                 right: -4,
                                 top: -4,

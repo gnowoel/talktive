@@ -36,7 +36,7 @@ final class GroupListProvider
   GroupList create() => GroupList();
 }
 
-String _$groupListHash() => r'd35a2cd44305dbc84d51f1b2450397db0407638b';
+String _$groupListHash() => r'c665c7d2b634b813e86cdcb985d32fd32998e6a2';
 
 /// Provider for listing all groups.
 

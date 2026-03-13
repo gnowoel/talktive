@@ -19,6 +19,7 @@ import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import 'group_profile_screen.dart';
+import '../../providers/private_chat_provider.dart';
 
 /// Loader for deep linking into GroupChatScreen without the Group model
 class GroupChatLoader extends ConsumerWidget {
@@ -84,6 +85,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
 
   @override
   void dispose() {
+    _markAsRead(); // Final mark as read when leaving
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
@@ -145,6 +147,17 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen for real-time updates to mark as read if user is viewing
+    ref.listen(realtimeChatProvider(widget.group.channelId), (previous, next) {
+      if (next.hasValue && next.value != null) {
+        final prevLength = previous?.value?.length ?? 0;
+        final nextLength = next.value?.length ?? 0;
+        if (nextLength > prevLength) {
+          _markAsRead();
+        }
+      }
+    });
+
     final chatState = ref.watch(realtimeChatProvider(widget.group.channelId));
     final currentResident = ref.watch(currentResidentProvider).value;
     final canSend =

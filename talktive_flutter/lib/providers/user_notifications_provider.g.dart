@@ -33,7 +33,7 @@ final class UserNotificationsProvider
   UserNotifications create() => UserNotifications();
 }
 
-String _$userNotificationsHash() => r'ec636def5c7c52f5059e36d488683d1db00af2ae';
+String _$userNotificationsHash() => r'd6310a0a599a947c9fa75f4390e49ae76f2973ab';
 
 abstract class _$UserNotifications
     extends $AsyncNotifier<List<UserNotification>> {

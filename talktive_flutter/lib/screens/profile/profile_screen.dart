@@ -64,7 +64,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 Text(
                   error.toString(),
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: AppTheme.errorColor),
                 ),
               ],
             ),
@@ -378,7 +378,7 @@ class ProfileScreen extends ConsumerWidget {
       icon: Icons.stars,
       value: '$xp',
       label: 'XP • $xpDisplay',
-      gradientColors: [AppTheme.duoYellow, Colors.orange],
+      gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
     );
   }
 

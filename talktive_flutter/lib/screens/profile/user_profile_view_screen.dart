@@ -480,7 +480,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       icon: Icons.stars,
       value: '$xp',
       label: 'XP • $xpDisplay',
-      gradientColors: [AppTheme.duoYellow, Colors.orange],
+      gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
     );
   }
 

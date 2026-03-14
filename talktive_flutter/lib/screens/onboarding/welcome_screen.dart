@@ -66,7 +66,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
       title: 'Safe & Secure',
       subtitle:
           'Auto-delete old chats, rate users for trust, and stay in control of your data.',
-      backgroundColor: const Color(0xFF9C27B0),
+      backgroundColor: AppTheme.primaryColor,
       features: [
         'Auto-cleanup inactive chats',
         'User rating system',

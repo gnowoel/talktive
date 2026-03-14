@@ -215,6 +215,17 @@ class NotificationService {
       groupId = group.id;
     }
 
+    // Resolve route based on channel type
+    String route = '/groups';
+    if (groupId != null) {
+      route = '/groups/chat/$groupId';
+    } else {
+      final channel = await protocol.Channel.db.findById(session, channelId);
+      if (channel?.type == protocol.ChannelType.private) {
+        route = '/chats/thread/$channelId';
+      }
+    }
+
     // Mentions are recorded in history and bypass mute
     await sendNotification(
       session,
@@ -226,7 +237,7 @@ class NotificationService {
         'channelId': channelId,
         'groupName': groupName,
         'groupId': groupId,
-        'route': groupId != null ? '/groups/chat/$groupId' : '/groups',
+        'route': route,
       },
       saveToHistory: true,
     );

@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_floor_badge.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
+import '../../providers/blocked_users_provider.dart';
 
 final _peepholeMessageProvider = FutureProvider.family<Message?, int>((
   ref,
@@ -339,17 +340,62 @@ class PeepholeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppTheme.duoSpacingLarge),
                   TextButton.icon(
-                    onPressed: () {
-                      SnackBarHelper.showInfo(
-                        context,
-                        'Reporting & Blocking coming soon',
+                    onPressed: () async {
+                      HapticFeedback.mediumImpact();
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text(
+                            '🛡️ Block & Decline',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          content: Text(
+                            'Block $otherUserName? They won\'t be able to contact you again and this request will be declined.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppTheme.duoRed,
+                              ),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Block & Decline'),
+                            ),
+                          ],
+                        ),
                       );
+                      if (confirmed == true && context.mounted) {
+                        try {
+                          // Block the user
+                          await ref
+                              .read(blockedUsersProvider.notifier)
+                              .block(otherUserId);
+                          // Decline the chat invite
+                          await ref
+                              .read(privateChatListProvider.notifier)
+                              .respondToInvite(chatItem.chat.channelId, false);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            SnackBarHelper.showSuccess(
+                              context,
+                              '$otherUserName has been blocked.',
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            SnackBarHelper.showError(context, 'Action failed: $e');
+                          }
+                        }
+                      }
                     },
-                    icon: const Icon(Icons.security, color: Colors.grey),
+                    icon: const Icon(Icons.shield_outlined, color: AppTheme.duoRed),
                     label: const Text(
-                      'Call Security',
+                      'Block & Decline',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: AppTheme.duoRed,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

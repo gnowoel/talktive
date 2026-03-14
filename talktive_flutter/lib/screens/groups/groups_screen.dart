@@ -142,15 +142,28 @@ class GroupsScreen extends ConsumerWidget {
 
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: Colors.grey[600],
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-          fontFamily: 'Poppins',
-        ),
+      padding: const EdgeInsets.only(bottom: 12, left: 4, top: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 16,
+            decoration: BoxDecoration(
+              color: AppTheme.duoBlue,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: AppTheme.duoBlue,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
       ),
     );
   }

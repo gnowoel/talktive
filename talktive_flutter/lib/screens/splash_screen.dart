@@ -269,11 +269,77 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   List<Widget> _buildBackgroundElements() {
-    // Simplified background elements for now, removed complex animate() chaining
-    // to reduce dependency complexity if flutter_animate versions mismatch or behave differently
-    // but the user wanted "dynamic look", so I'll try to keep them or simplify slightly.
-    // I'll return empty list for now to ensure compilation, then add back if needed or use simple AnimatedWidgets
-    // actually, let's keep it simple to ensure it builds.
-    return [];
+    return [
+      // Top-left bubble
+      Positioned(
+        top: -40,
+        left: -40,
+        child: Container(
+          width: 160,
+          height: 160,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+        ),
+      ),
+      // Top-right bubble
+      Positioned(
+        top: 60,
+        right: -30,
+        child: Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.06),
+          ),
+        ),
+      ),
+      // Bottom-left bubble
+      Positioned(
+        bottom: 100,
+        left: -20,
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
+      // Bottom-right bubble
+      Positioned(
+        bottom: -20,
+        right: -20,
+        child: Container(
+          width: 180,
+          height: 180,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.07),
+          ),
+        ),
+      ),
+      // Floating emoji - top center
+      Positioned(
+        top: 80,
+        left: 40,
+        child: Opacity(
+          opacity: 0.3,
+          child: Text('💬', style: TextStyle(fontSize: 36)),
+        ),
+      ),
+      // Floating emoji - bottom area
+      Positioned(
+        bottom: 160,
+        right: 40,
+        child: Opacity(
+          opacity: 0.25,
+          child: Text('✨', style: TextStyle(fontSize: 28)),
+        ),
+      ),
+    ];
   }
 }

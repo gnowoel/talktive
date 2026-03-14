@@ -196,11 +196,11 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   String _displayName(Resident? resident) {
-    final id = resident?.userInfoId.uuid;
-    if (id == null || id.isEmpty) {
-      return 'Anonymous';
+    final name = resident?.userName;
+    if (name != null && name.isNotEmpty) {
+      return name;
     }
-    return 'Resident';
+    return 'Your Profile';
   }
 
   Widget _buildStreakCard(BuildContext context, WidgetRef ref) {

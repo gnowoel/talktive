@@ -215,9 +215,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         ),
                       ),
                       Text(
-                        'Online', // TODO: Implement real presence status
+                        otherFloor > 0 ? 'Floor $otherFloor' : 'New Resident',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.duoGreen,
+                          color: AppTheme.textSecondary,
                           fontFamily: 'Rubik',
                         ),
                       ),

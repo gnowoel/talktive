@@ -64,44 +64,26 @@ class ChatsScreen extends ConsumerWidget {
               ),
               children: [
                 if (pendingChats.isNotEmpty) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
+                  _buildSectionHeader(
+                    context,
+                    '🚪  ${pendingChats.length} ${pendingChats.length == 1 ? 'Person is' : 'People are'} Knocking...',
+                    AppTheme.duoOrange,
+                  ),
+                  ...pendingChats.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final chat = entry.value;
+                    return _buildPendingCard(context, ref, chat, index)
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: -0.1, end: 0);
+                  }),
+                  const SizedBox(height: AppTheme.duoSpacingLarge),
+                  if (activeChats.isNotEmpty)
+                    _buildSectionHeader(
+                      context,
+                      '📬  Active Chats',
+                      AppTheme.textSecondary,
                     ),
-                      child: Text(
-                        "🚪 ${pendingChats.length} ${pendingChats.length == 1 ? 'person is' : 'people are'} knocking...",
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    ),
-                    ...pendingChats.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final chat = entry.value;
-                      return _buildPendingCard(context, ref, chat, index)
-                          .animate(delay: Duration(milliseconds: index * 50))
-                          .fadeIn(duration: 300.ms)
-                          .slideX(begin: -0.1, end: 0);
-                    }),
-                    const SizedBox(height: AppTheme.duoSpacingLarge),
-                    if (activeChats.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: Text(
-                          '📬 Active Chats',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ),
                   const SizedBox(height: AppTheme.duoSpacingSmall),
                 ],
 
@@ -161,6 +143,42 @@ class ChatsScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, left: 4, top: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 16,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getLastMessagePreview(PrivateChatWithProfile chatItem) {
+    final lastAt = chatItem.chat.lastMessageAt;
+    if (lastAt != null) {
+      return 'Last message: ${formatTimestamp(lastAt)}';
+    }
+    return 'Start chatting! 👋';
   }
 
   Widget _buildChatCard(
@@ -236,11 +254,19 @@ class ChatsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Tap to open chat',
+                    _getLastMessagePreview(chatItem),
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    ).textTheme.bodyMedium?.copyWith(
+                      color: chatItem.unreadCount > 0
+                          ? AppTheme.textPrimary
+                          : Colors.grey[500],
+                      fontWeight: chatItem.unreadCount > 0
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ],
               ),

@@ -44,9 +44,9 @@ class DuoMentionHelper {
 
       if (matched) continue;
 
-      // 1.2 Match Other Members (Longest Match first for spaces)
+      // 1.2 Match Other Members (Whitelisted names only for reliability)
       if (otherMemberNames != null && otherMemberNames.isNotEmpty) {
-        // Sort otherMemberNames by length DESC to match "Leo Smith" before "Leo"
+        // Sort by length DESC to match "Leo Smith" before "Leo"
         final sortedNames = List<String>.from(otherMemberNames)
           ..sort((a, b) => b.length.compareTo(a.length));
 
@@ -58,15 +58,6 @@ class DuoMentionHelper {
             break;
           }
         }
-      }
-
-      if (matched) continue;
-
-      // 1.3 Generic match (Single word) if no specific match found (for Plaza/Public)
-      final genericPattern = RegExp(r'^([a-zA-Z0-9_]{2,30})');
-      final match = genericPattern.firstMatch(chunk);
-      if (match != null) {
-        allMatches.add(_MentionMatch(index, index + 1 + match.group(1)!.length, isMe: false));
       }
     }
 

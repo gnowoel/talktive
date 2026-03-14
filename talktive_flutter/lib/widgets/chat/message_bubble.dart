@@ -16,7 +16,7 @@ class MessageBubble extends ConsumerWidget {
   final Message message;
   final bool isCurrentUser;
   final Resident? currentResident;
-  final Function(String, UuidValue)? onMention;
+  final Function(String)? onMention;
   final List<String>? otherMemberNames;
 
   const MessageBubble({
@@ -79,7 +79,7 @@ class MessageBubble extends ConsumerWidget {
               onLongPress: onMention != null
                   ? () {
                       HapticFeedback.mediumImpact();
-                      onMention!(senderName, message.senderId);
+                      onMention!(senderName);
                     }
                   : null,
               child: DuoAvatar(

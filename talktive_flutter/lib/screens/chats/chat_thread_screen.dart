@@ -107,6 +107,19 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     }
   }
 
+  void _addMention(String userName) {
+    final current = _messageController.text;
+    if (current.isEmpty || current.endsWith(' ')) {
+      _messageController.text = '$current@$userName ';
+    } else {
+      _messageController.text = '$current @$userName ';
+    }
+    // Move cursor to end
+    _messageController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _messageController.text.length),
+    );
+  }
+
   Future<void> _pickAndSendImage() async {
     final mediaService = ref.read(mediaServiceProvider);
     final image = await mediaService.pickImage();
@@ -316,7 +329,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           content: chatState.when(
             data: (messages) => messages.isEmpty
                 ? _buildEmptyState()
-                : _buildMessagesList(messages),
+                : _buildMessagesList(messages, otherName),
             loading: () => const Center(
               child: CircularProgressIndicator(color: AppTheme.primaryColor),
             ),
@@ -446,7 +459,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     );
   }
 
-  Widget _buildMessagesList(List<Message> messages) {
+  Widget _buildMessagesList(List<Message> messages, String otherName) {
     return RefreshIndicator(
       onRefresh: () async {
         ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
@@ -467,6 +480,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: _currentResident,
+                onMention: _addMention,
+                otherMemberNames: [otherName],
               )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)

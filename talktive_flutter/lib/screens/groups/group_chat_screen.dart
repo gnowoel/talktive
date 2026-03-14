@@ -145,6 +145,19 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     }
   }
 
+  void _addMention(String userName) {
+    final current = _messageController.text;
+    if (current.isEmpty || current.endsWith(' ')) {
+      _messageController.text = '$current@$userName ';
+    } else {
+      _messageController.text = '$current @$userName ';
+    }
+    // Move cursor to end
+    _messageController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _messageController.text.length),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Listen for real-time updates to mark as read if user is viewing
@@ -460,6 +473,14 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
+    
+    // Get member names for mention highlighting
+    final membersAsync = ref.watch(groupMembersProvider(widget.group.id!));
+    final memberNames = membersAsync.when(
+      data: (members) => members.map((m) => m.userName ?? '').where((n) => n.isNotEmpty).toList(),
+      loading: () => <String>[],
+      error: (_, __) => <String>[],
+    );
 
     final filteredMessages = messages.where((msg) {
       return !blockedUsers.contains(msg.senderId.toString());
@@ -487,6 +508,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: currentResident,
+                onMention: _addMention,
+                otherMemberNames: memberNames,
               )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)

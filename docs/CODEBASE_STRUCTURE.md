@@ -146,7 +146,9 @@ talktive_flutter/lib/
 - All files in `models/` - Data structures used by both
 
 **Helpers:**
-- All files in `helpers/` - Utility functions
+- `helpers/duo_mention_helper.dart` - [SERVERPOD] New mention logic
+- `helpers/mention_helper.dart` - [FIREBASE] Legacy mention logic
+- All other files in `helpers/` - Utility functions (Shared)
 
 **Services (Shared):**
 - `services/messaging.dart` - FCM for Firebase version
@@ -279,10 +281,14 @@ import '../helpers/helpers.dart';
 3. Use Riverpod for state management
 4. Update `serverpod_app.dart` with new routes
 
-**For Shared Features:**
-1. Add to appropriate shared directory (`helpers/`, `models/`, etc.)
-2. Ensure compatibility with both versions
-3. Avoid version-specific dependencies
+### Version-Based File Separation
+
+To ensure a smooth migration and prevent accidental regressions, we follow these rules for shared logic:
+
+1. **Avoid Logic Mixing**: Do not add version-specific conditional logic (`if (isServerpod) ...`) to shared files in `helpers/`, `services/`, or `widgets/`.
+2. **Duplicate and Separate**: If a shared utility needs significant changes for the Serverpod version, create a new version-specific file (e.g., `helpers/duo_mention_helper.dart`) instead of modifying the existing one.
+3. **Naming Convention**: Use the `duo_` prefix for helpers, items, and widgets that are specifically designed for the new Serverpod/Duolingo-styled version.
+4. **Clean Deprecation**: This separation allows the Firebase version to remain stable as "legacy" code, which can be deleted in its entirety once the migration is complete without leaving "orphaned" logic strings in shared files.
 
 ### Testing
 

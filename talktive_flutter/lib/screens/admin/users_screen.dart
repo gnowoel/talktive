@@ -8,7 +8,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 
 /// User management screen for admins
 class UsersScreen extends ConsumerStatefulWidget {
@@ -60,7 +60,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
         setState(() {
           _isLoading = false;
         });
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -202,7 +202,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -231,7 +231,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -260,7 +260,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -289,7 +289,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -318,7 +318,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }

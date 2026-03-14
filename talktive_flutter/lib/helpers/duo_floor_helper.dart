@@ -4,8 +4,8 @@ import 'package:talktive_client/talktive_client.dart';
 /// Utility functions for computing and displaying the Luxury High-Rise Floor.
 ///
 /// Floor = min(BaseFloor, TrustCap)
-class FloorUtils {
-  FloorUtils._(); // Prevent instantiation
+class DuoFloorHelper {
+  DuoFloorHelper._(); // Prevent instantiation
 
   // ---------------------------------------------------------------------------
   // Core Formula

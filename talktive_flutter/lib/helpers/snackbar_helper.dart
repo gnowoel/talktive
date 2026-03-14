@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:talktive_client/talktive_client.dart';
 import '../config/theme.dart';
 
 /// Helper class for showing consistent SnackBars across the app.
+/// This is the legacy version (Firebase). For Serverpod version, use DuoSnackBarHelper.
 class SnackBarHelper {
   /// Shows a success SnackBar with a green background.
   static void showSuccess(BuildContext context, String message) {
@@ -25,18 +25,10 @@ class SnackBarHelper {
   }
 
   /// Shows an error SnackBar with a red background.
-  /// Automatically handles TalktiveException, ServerpodClientException, and generic errors.
   static void showError(BuildContext context, dynamic error) {
     String message;
     if (error is String) {
       message = error;
-    } else if (error is TalktiveException) {
-      message = error.message;
-    } else if (error is ServerpodClientException) {
-      message =
-          (error.message == 'Internal server error' && error.statusCode == 500)
-          ? 'Something went wrong on our end. Please try again later.'
-          : error.message;
     } else {
       final errorStr = error.toString();
       message = errorStr.contains('Exception: ')

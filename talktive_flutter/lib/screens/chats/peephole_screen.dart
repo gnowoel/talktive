@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/private_chat_provider.dart';
-import '../../utils/floor_utils.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
@@ -92,7 +92,7 @@ class PeepholeScreen extends ConsumerWidget {
                       mood: chatItem.otherUserMood,
                       trustScore: otherResident.trustScore,
                       showRing: true,
-                      floorLevel: FloorUtils.computeFloor(otherResident),
+                      floorLevel: DuoFloorHelper.computeFloor(otherResident),
                       showFloor: true,
                       showMood: true,
                     ),
@@ -111,7 +111,7 @@ class PeepholeScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       DuoFloorBadge(
-                        floor: FloorUtils.computeFloor(otherResident),
+                        floor: DuoFloorHelper.computeFloor(otherResident),
                         fontSize: 14,
                         padding: 10,
                       ),
@@ -307,7 +307,7 @@ class PeepholeScreen extends ConsumerWidget {
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          SnackBarHelper.showError(
+                          DuoSnackBarHelper.showError(
                             context,
                             'Failed to open door',
                           );
@@ -330,7 +330,7 @@ class PeepholeScreen extends ConsumerWidget {
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          SnackBarHelper.showError(
+                          DuoSnackBarHelper.showError(
                             context,
                             'Failed to decline',
                           );
@@ -379,14 +379,14 @@ class PeepholeScreen extends ConsumerWidget {
                               .respondToInvite(chatItem.chat.channelId, false);
                           if (context.mounted) {
                             Navigator.pop(context);
-                            SnackBarHelper.showSuccess(
+                            DuoSnackBarHelper.showSuccess(
                               context,
                               '$otherUserName has been blocked.',
                             );
                           }
                         } catch (e) {
                           if (context.mounted) {
-                            SnackBarHelper.showError(context, 'Action failed: $e');
+                            DuoSnackBarHelper.showError(context, 'Action failed: $e');
                           }
                         }
                       }

@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
@@ -70,7 +70,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
     final isEditing = widget.existingGroup != null;
 
     if (name.isEmpty) {
-      SnackBarHelper.showError(context, 'Please enter a lounge name');
+      DuoSnackBarHelper.showError(context, 'Please enter a lounge name');
       return;
     }
 
@@ -112,9 +112,9 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
         HapticFeedback.mediumImpact();
         Navigator.pop(context);
         if (isEditing) {
-          SnackBarHelper.showSuccess(context, 'Lounge updated!');
+          DuoSnackBarHelper.showSuccess(context, 'Lounge updated!');
         } else {
-          SnackBarHelper.showSuccess(context, 'Lounge "$name" created!');
+          DuoSnackBarHelper.showSuccess(context, 'Lounge "$name" created!');
         }
       }
     } catch (e) {
@@ -122,7 +122,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
         setState(() {
           _isCreating = false;
         });
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }

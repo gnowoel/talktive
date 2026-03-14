@@ -13,7 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
 
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 import 'package:talktive_client/talktive_client.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
@@ -219,7 +219,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   }
 
   void _showError(String message) {
-    SnackBarHelper.showError(context, message);
+    DuoSnackBarHelper.showError(context, message);
   }
 
   Future<void> _completeSetup() async {

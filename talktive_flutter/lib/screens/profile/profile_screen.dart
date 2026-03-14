@@ -9,7 +9,7 @@ import '../../providers/achievement_provider.dart';
 import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
@@ -19,7 +19,7 @@ import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreen extends ConsumerWidget {
@@ -86,7 +86,7 @@ class ProfileScreen extends ConsumerWidget {
                       imageUrl: resident?.avatar,
                       size: 100,
                       floorLevel: resident != null
-                          ? FloorUtils.computeFloor(resident!)
+                          ? DuoFloorHelper.computeFloor(resident!)
                           : null,
                       mood: resident?.mood,
                       trustScore: resident?.trustScore,
@@ -230,7 +230,7 @@ class ProfileScreen extends ConsumerWidget {
                     .claimReward();
 
                 if (context.mounted && reward != null) {
-                  SnackBarHelper.showSuccess(
+                  DuoSnackBarHelper.showSuccess(
                     context,
                     '🎉 Claimed ${reward.rewardAmount} credits!',
                   );
@@ -240,7 +240,7 @@ class ProfileScreen extends ConsumerWidget {
                 }
               } catch (e) {
                 if (context.mounted) {
-                  SnackBarHelper.showError(context, e);
+                  DuoSnackBarHelper.showError(context, e);
                 }
               }
             },
@@ -326,7 +326,7 @@ class ProfileScreen extends ConsumerWidget {
           DuoStatCard(
             icon: Icons.apartment,
             value:
-                '${resident != null ? FloorUtils.computeFloor(resident) : 0}',
+                '${resident != null ? DuoFloorHelper.computeFloor(resident) : 0}',
             label: 'Floor',
             gradientColors: [
               AppTheme.primaryColor,
@@ -369,8 +369,8 @@ class ProfileScreen extends ConsumerWidget {
     // Default placeholder
     var xpDisplay = '0/50';
     if (resident != null) {
-      final progress = FloorUtils.getXPProgress(resident);
-      final needed = FloorUtils.getXPNeeded(resident);
+      final progress = DuoFloorHelper.getXPProgress(resident);
+      final needed = DuoFloorHelper.getXPNeeded(resident);
       xpDisplay = '$progress/$needed';
     }
 

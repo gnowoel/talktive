@@ -7,8 +7,8 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
-import '../../helpers/snackbar_helper.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
@@ -42,9 +42,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    final floor = FloorUtils.computeFloor(currentResident);
+    final floor = DuoFloorHelper.computeFloor(currentResident);
     if (floor < 2) {
-      SnackBarHelper.showError(
+      DuoSnackBarHelper.showError(
         context,
         'You need to be Floor 2+ to send images in Plaza! 🏢',
       );
@@ -66,7 +66,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'Failed to upload image: $e');
+        DuoSnackBarHelper.showError(context, 'Failed to upload image: $e');
       }
     } finally {
       if (mounted) {
@@ -86,7 +86,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     // Check reputation (mute check)
     if (currentResident != null && currentResident.trustScore <= 0) {
       if (mounted) {
-        SnackBarHelper.showError(
+        DuoSnackBarHelper.showError(
           context,
           'Your reputation is too low to send messages',
         );
@@ -110,7 +110,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e.toString());
+        DuoSnackBarHelper.showError(context, e.toString());
       }
     }
   }
@@ -121,7 +121,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
     final canSend =
-        currentResident != null && !FloorUtils.isMuted(currentResident);
+        currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     return DuoChatInputLayout(
       appBar: AppBar(
@@ -174,7 +174,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         bannerId: 'plaza_image_rules',
         text:
             currentResident != null &&
-                FloorUtils.computeFloor(currentResident) >= 2
+                DuoFloorHelper.computeFloor(currentResident) >= 2
             ? '📸 You can now share images in the Global Lounge!'
             : 'Text only. Floor 2+ residents can share images.',
       ),
@@ -186,7 +186,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ? 'Uploading image...'
           : (canSend
                 ? 'Type a message...'
-                : FloorUtils.getMuteInputHint(currentResident)),
+                : DuoFloorHelper.getMuteInputHint(currentResident)),
       content: chatState.when(
         data: (messages) {
           if (messages.isEmpty) {

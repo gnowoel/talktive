@@ -29,7 +29,6 @@ talktive_flutter/lib/
 ├── wrappers/                      # [MIXED] See breakdown below
 ├── widgets/                       # [MIXED] See breakdown below
 ├── config/                        # [SHARED] Configuration files
-├── utils/                         # [SERVERPOD] Serverpod utilities
 ├── models/                        # [SHARED] Data models
 ├── helpers/                       # [SHARED] Utility functions
 └── debug/                         # [SHARED] Debug utilities
@@ -72,6 +71,7 @@ talktive_flutter/lib/
 - `services/firedata.dartMap` - Firebase Realtime Database
 - `services/firestore.dart` - Firestore operations
 - `services/storage.dart` - Firebase Storage
+- `services/messaging.dart` - Legacy FCM Handler
 
 **Wrappers:**
 - `wrappers/initialize.dart` - Firebase initialization
@@ -117,9 +117,13 @@ talktive_flutter/lib/
 - `providers/achievement_provider.dart` - Achievements
 - `providers/user_likes_provider.dart` - User likes/vouches
 - `providers/user_profile_provider.dart` - External user profiles
+- `providers/fcm_provider.dart` - Serverpod FCM Manager
 
-**Services:**
-- `services/serverpod_notification_service.dart` - Serverpod notifications
+**Helpers:**
+- `helpers/duo_mention_helper.dart` - Mention parsing and highlighting
+- `helpers/duo_snackbar_helper.dart` - Duolingo-styled SnackBars
+- `helpers/duo_floor_helper.dart` - Floor and XP calculations
+- `helpers/duo_trust_score_helper.dart` - Trust score visualization
 
 **Widgets:**
 - `widgets/duo/` (all files) - Duolingo-style components
@@ -127,11 +131,6 @@ talktive_flutter/lib/
   - `duo_chat_layout.dart` - Standardized chat screen structure
   - `duo_floor_badge.dart` - Resident floor level status badge
 - `widgets/chat/` - Chat components (used by Serverpod screens)
-
-**Utils:**
-- `utils/floor_utils.dart` - Reputation & Floor calculations
-- `utils/trust_score_utils.dart` - Trust-based UI color mapping
-- `utils/error_handler.dart` - Error handling and recovery
 
 ---
 
@@ -146,12 +145,12 @@ talktive_flutter/lib/
 - All files in `models/` - Data structures used by both
 
 **Helpers:**
-- `helpers/duo_mention_helper.dart` - [SERVERPOD] New mention logic
-- `helpers/mention_helper.dart` - [FIREBASE] Legacy mention logic
+- `helpers/mention_helper.dart` - Legacy mention logic for Firebase
+- `helpers/snackbar_helper.dart` - Legacy SnackBar helper for Firebase
 - All other files in `helpers/` - Utility functions (Shared)
 
 **Services (Shared):**
-- `services/messaging.dart` - FCM for Firebase version
+- `services/background_messaging_handler.dart` - Central dispatcher for background notifications
 - `services/avatar.dart` - Avatar utilities
 - `services/settings.dart` - App settings
 - `services/service_locator.dart` - Service locator
@@ -209,7 +208,7 @@ import '../services/messaging.dart';
 import '../serverpod_client.dart';
 import '../providers/auth_provider.dart';
 import '../screens/home/home_screen.dart';
-import '../services/serverpod_notification_service.dart';
+import '../helpers/duo_snackbar_helper.dart';
 
 // Shared imports
 import '../config/theme.dart';

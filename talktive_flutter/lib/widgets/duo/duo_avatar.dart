@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
-import '../../utils/trust_score_utils.dart';
+import 'package:talktive_flutter/helpers/duo_trust_score_helper.dart';
 
 /// Duolingo-style avatar with gradient ring and optional mood or floor overlays.
 class DuoAvatar extends StatelessWidget {
@@ -64,7 +64,7 @@ class DuoAvatar extends StatelessWidget {
     final effectiveRingColor =
         ringColor ??
         (trustScore != null
-            ? TrustScoreUtils.getTrustColor(trustScore!)
+            ? DuoTrustScoreHelper.getTrustColor(trustScore!)
             : AppTheme.primaryColor);
 
     Widget avatar = Container(

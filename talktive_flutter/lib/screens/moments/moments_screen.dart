@@ -9,7 +9,7 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../providers/moments_provider.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_input.dart';
@@ -19,7 +19,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_moment_card.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
@@ -67,7 +67,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    final effectiveFloor = FloorUtils.computeFloor(currentResident);
+    final effectiveFloor = DuoFloorHelper.computeFloor(currentResident);
     if (effectiveFloor < 2) {
       DuoFloorRequirementDialog.show(
         context,
@@ -83,7 +83,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
   void _postMoment(StateSetter setModalState) async {
     if (_selectedImage == null) {
-      SnackBarHelper.showError(context, 'Please select an image first! 📸');
+      DuoSnackBarHelper.showError(context, 'Please select an image first! 📸');
       return;
     }
 
@@ -131,7 +131,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
           });
         }
         debugPrint('Moments: [UI] Dialog closed and state reset.');
-        SnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
+        DuoSnackBarHelper.showSuccess(context, 'Moment posted! 🎉');
       }
     } catch (e, stack) {
       debugPrint('Moments: [CRITICAL ERROR] Failed to post: $e');
@@ -141,7 +141,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         if (errorMessage.contains('Floor')) {
           DuoFloorRequirementDialog.show(context, message: errorMessage);
         } else {
-          SnackBarHelper.showError(context, e.toString());
+          DuoSnackBarHelper.showError(context, e.toString());
         }
       }
     } finally {
@@ -470,7 +470,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     } catch (e) {
       // Revert if error
       ref.read(momentLikesProvider.notifier).toggleLike(moment.id!);
-      if (mounted) SnackBarHelper.showError(context, e.toString());
+      if (mounted) DuoSnackBarHelper.showError(context, e.toString());
     }
   }
 }

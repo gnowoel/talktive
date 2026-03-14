@@ -7,8 +7,8 @@ import '../../widgets/duo/duo_chat_layout.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
-import '../../helpers/snackbar_helper.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
@@ -102,7 +102,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -136,7 +136,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'Failed to upload image: $e');
+        DuoSnackBarHelper.showError(context, 'Failed to upload image: $e');
       }
     } finally {
       if (mounted) {
@@ -182,16 +182,16 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         final otherResident = details.otherResident;
         final otherName = details.otherUserName ?? 'Resident';
         final otherAvatar = details.otherUserAvatar;
-        final otherFloor = FloorUtils.computeFloor(otherResident);
+        final otherFloor = DuoFloorHelper.computeFloor(otherResident);
         final otherMood = details.otherUserMood;
 
         final chatState = ref.watch(realtimeChatProvider(widget.channelId));
 
         final canSend =
-            _currentResident != null && !FloorUtils.isMuted(_currentResident!);
+            _currentResident != null && !DuoFloorHelper.isMuted(_currentResident!);
         final hintText =
-            (_currentResident != null && FloorUtils.isMuted(_currentResident!))
-            ? FloorUtils.getMuteInputHint(_currentResident!)
+            (_currentResident != null && DuoFloorHelper.isMuted(_currentResident!))
+            ? DuoFloorHelper.getMuteInputHint(_currentResident!)
             : 'Type a message...';
 
         return DuoChatInputLayout(
@@ -287,7 +287,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          SnackBarHelper.showError(
+                          DuoSnackBarHelper.showError(
                             context,
                             'Failed to leave chat',
                           );

@@ -10,8 +10,8 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../helpers/snackbar_helper.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 
 /// Screen to manage blocked users
 class BlockedUsersScreen extends ConsumerWidget {
@@ -83,7 +83,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                       imageUrl: resident.avatar,
                       size: 48,
                       mood: resident.mood,
-                      floorLevel: FloorUtils.computeFloor(resident),
+                      floorLevel: DuoFloorHelper.computeFloor(resident),
                       showRing: false,
                     ),
                     const SizedBox(width: 12),
@@ -103,7 +103,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Floor ${FloorUtils.computeFloor(resident)} • ⭐ ${resident.trustScore}',
+                            'Floor ${DuoFloorHelper.computeFloor(resident)} • ⭐ ${resident.trustScore}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.textSecondary,
@@ -152,11 +152,11 @@ class BlockedUsersScreen extends ConsumerWidget {
       await ref.read(blockedUsersProvider.notifier).unblock(userId);
       if (context.mounted) {
         HapticFeedback.mediumImpact();
-        SnackBarHelper.showSuccess(context, '$userName has been unblocked');
+        DuoSnackBarHelper.showSuccess(context, '$userName has been unblocked');
       }
     } catch (e) {
       if (context.mounted) {
-        SnackBarHelper.showError(context, 'Failed to unblock user: $e');
+        DuoSnackBarHelper.showError(context, 'Failed to unblock user: $e');
       }
     }
   }

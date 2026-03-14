@@ -13,7 +13,7 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 
 class GroupSearchScreen extends ConsumerStatefulWidget {
   const GroupSearchScreen({super.key});
@@ -85,7 +85,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        SnackBarHelper.showError(context, 'Search failed: $e');
+        DuoSnackBarHelper.showError(context, 'Search failed: $e');
       }
     }
   }
@@ -175,11 +175,11 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
                     .read(groupListProvider.notifier)
                     .applyToGroup(group.id!);
                 if (mounted) {
-                  SnackBarHelper.showSuccess(context, 'Application sent!');
+                  DuoSnackBarHelper.showSuccess(context, 'Application sent!');
                 }
               } catch (e) {
                 if (mounted) {
-                  SnackBarHelper.showError(context, 'Failed to apply: $e');
+                  DuoSnackBarHelper.showError(context, 'Failed to apply: $e');
                 }
               }
             },

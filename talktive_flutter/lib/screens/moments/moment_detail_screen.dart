@@ -12,7 +12,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../helpers/date_formatter.dart';
 import '../../helpers/url_helper.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 
 class MomentDetailScreen extends ConsumerStatefulWidget {
   final Moment moment;
@@ -53,7 +53,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       HapticFeedback.mediumImpact();
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'Failed to update like: $e');
+        DuoSnackBarHelper.showError(context, 'Failed to update like: $e');
       }
     } finally {
       if (mounted) setState(() => _isLiking = false);
@@ -70,11 +70,11 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       HapticFeedback.lightImpact();
       if (mounted) {
         FocusScope.of(context).unfocus();
-        SnackBarHelper.showSuccess(context, 'Comment posted! 💬');
+        DuoSnackBarHelper.showSuccess(context, 'Comment posted! 💬');
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'Failed to post comment: $e');
+        DuoSnackBarHelper.showError(context, 'Failed to post comment: $e');
       }
     }
   }

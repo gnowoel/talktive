@@ -8,7 +8,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 
 /// Reports moderation screen for admins
 class ReportsScreen extends ConsumerStatefulWidget {
@@ -88,7 +88,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     } catch (e) {
       debugPrint('Error resolving report: $e');
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }

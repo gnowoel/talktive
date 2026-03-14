@@ -12,7 +12,7 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import 'create_group_dialog.dart';
 
@@ -445,12 +445,12 @@ class GroupProfileScreen extends ConsumerWidget {
                       .read(groupListProvider.notifier)
                       .respondToInvite(group.id!, false);
                   if (context.mounted) {
-                    SnackBarHelper.showInfo(context, 'Invitation declined.');
+                    DuoSnackBarHelper.showInfo(context, 'Invitation declined.');
                     Navigator.pop(context);
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    SnackBarHelper.showError(context, 'Failed to decline: $e');
+                    DuoSnackBarHelper.showError(context, 'Failed to decline: $e');
                   }
                 }
               },
@@ -468,13 +468,13 @@ class GroupProfileScreen extends ConsumerWidget {
                       .read(groupListProvider.notifier)
                       .respondToInvite(group.id!, true);
                   if (context.mounted) {
-                    SnackBarHelper.showSuccess(context, 'Invitation accepted!');
+                    DuoSnackBarHelper.showSuccess(context, 'Invitation accepted!');
                     // Instead of popping, we just invalidate and let the view refresh
                     ref.invalidate(groupWithMembershipProvider(group.id!));
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    SnackBarHelper.showError(context, 'Failed to accept: $e');
+                    DuoSnackBarHelper.showError(context, 'Failed to accept: $e');
                   }
                 }
               },
@@ -493,11 +493,11 @@ class GroupProfileScreen extends ConsumerWidget {
           try {
             await ref.read(groupListProvider.notifier).applyToGroup(group.id!);
             if (context.mounted) {
-              SnackBarHelper.showSuccess(context, 'Application sent!');
+              DuoSnackBarHelper.showSuccess(context, 'Application sent!');
             }
           } catch (e) {
             if (context.mounted) {
-              SnackBarHelper.showError(context, 'Failed to apply');
+              DuoSnackBarHelper.showError(context, 'Failed to apply');
             }
           }
         },

@@ -7,12 +7,12 @@ import 'package:go_router/go_router.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_resident_card.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 
 class GroupMembersScreen extends ConsumerWidget {
   final int groupId;
@@ -149,7 +149,7 @@ class GroupMembersScreen extends ConsumerWidget {
           extra: {
             'userName': resident.userName,
             'userAvatar': resident.avatar,
-            'userFloor': FloorUtils.computeFloor(resident),
+            'userFloor': DuoFloorHelper.computeFloor(resident),
           },
         );
       },
@@ -208,13 +208,13 @@ class GroupMembersScreen extends ConsumerWidget {
       ref.invalidate(groupListProvider);
 
       if (context.mounted) {
-        SnackBarHelper.showSuccess(
+        DuoSnackBarHelper.showSuccess(
           context,
           approved ? 'Member accepted!' : 'Application ignored.',
         );
       }
     } catch (e) {
-      if (context.mounted) SnackBarHelper.showError(context, e.toString());
+      if (context.mounted) DuoSnackBarHelper.showError(context, e.toString());
     }
   }
 
@@ -264,10 +264,10 @@ class GroupMembersScreen extends ConsumerWidget {
       ref.invalidate(groupListProvider);
 
       if (context.mounted) {
-        SnackBarHelper.showSuccess(context, 'Resident removed from club.');
+        DuoSnackBarHelper.showSuccess(context, 'Resident removed from club.');
       }
     } catch (e) {
-      if (context.mounted) SnackBarHelper.showError(context, e.toString());
+      if (context.mounted) DuoSnackBarHelper.showError(context, e.toString());
     }
   }
 

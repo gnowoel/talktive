@@ -6,7 +6,7 @@ import 'package:talktive_client/talktive_client.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
@@ -217,7 +217,7 @@ class ChatsScreen extends ConsumerWidget {
                   size: 56,
                   mood: chatItem.otherUserMood,
                   showRing: true,
-                  floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
+                  floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
                 ),
                 Positioned(
                   right: 0,
@@ -331,7 +331,7 @@ class ChatsScreen extends ConsumerWidget {
                 size: 56,
                 mood: chatItem.otherUserMood,
                 showRing: false,
-                floorLevel: FloorUtils.computeFloor(chatItem.otherResident),
+                floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),

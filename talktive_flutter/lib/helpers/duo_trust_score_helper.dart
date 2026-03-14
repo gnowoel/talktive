@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 
-class TrustScoreUtils {
+class DuoTrustScoreHelper {
   /// Returns the appropriate color for a given trust score.
   static Color getTrustColor(int trustScore) {
     if (trustScore >= 50) {

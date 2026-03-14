@@ -8,11 +8,11 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../widgets/chat/message_bubble.dart';
 
 import 'create_group_dialog.dart';
-import '../../helpers/snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
@@ -107,7 +107,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'Failed to upload image: $e');
+        DuoSnackBarHelper.showError(context, 'Failed to upload image: $e');
       }
     } finally {
       if (mounted) {
@@ -140,7 +140,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, e);
+        DuoSnackBarHelper.showError(context, e);
       }
     }
   }
@@ -174,7 +174,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final chatState = ref.watch(realtimeChatProvider(widget.group.channelId));
     final currentResident = ref.watch(currentResidentProvider).value;
     final canSend =
-        currentResident != null && !FloorUtils.isMuted(currentResident);
+        currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     return DuoChatInputLayout(
       appBar: AppBar(
@@ -374,7 +374,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           ? 'Uploading image...'
           : (canSend
                 ? 'Message the club...'
-                : FloorUtils.getMuteInputHint(currentResident)),
+                : DuoFloorHelper.getMuteInputHint(currentResident)),
       content: chatState.when(
         data: (messages) => messages.isEmpty
             ? _buildEmptyState()
@@ -545,11 +545,11 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         await ref.read(groupListProvider.notifier).leaveGroup(widget.group.id!);
         if (context.mounted) {
           Navigator.pop(context); // Go back to Groups screen
-          SnackBarHelper.showSuccess(context, 'You left the club.');
+          DuoSnackBarHelper.showSuccess(context, 'You left the club.');
         }
       } catch (e) {
         if (context.mounted) {
-          SnackBarHelper.showError(context, e.toString());
+          DuoSnackBarHelper.showError(context, e.toString());
         }
       }
     }
@@ -588,11 +588,11 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         if (context.mounted) {
           ref.invalidate(groupListProvider);
           Navigator.pop(context);
-          SnackBarHelper.showSuccess(context, 'The club has been disbanded.');
+          DuoSnackBarHelper.showSuccess(context, 'The club has been disbanded.');
         }
       } catch (e) {
         if (context.mounted) {
-          SnackBarHelper.showError(context, e.toString());
+          DuoSnackBarHelper.showError(context, e.toString());
         }
       }
     }

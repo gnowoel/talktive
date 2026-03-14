@@ -14,8 +14,8 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import 'create_group_dialog.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
-import '../../helpers/snackbar_helper.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import '../../providers/current_resident_provider.dart';
 
 /// Duolingo-style Groups screen - Community discussions
@@ -184,14 +184,14 @@ class GroupsScreen extends ConsumerWidget {
       onTap: () {
         HapticFeedback.lightImpact();
         if (isInvite) {
-          SnackBarHelper.showInfo(
+          DuoSnackBarHelper.showInfo(
             context,
             'Please accept the invitation to join this group.',
           );
           return;
         }
         if (isApplied) {
-          SnackBarHelper.showInfo(
+          DuoSnackBarHelper.showInfo(
             context,
             'Your application is pending approval.',
           );
@@ -240,14 +240,14 @@ class GroupsScreen extends ConsumerWidget {
                               .read(groupListProvider.notifier)
                               .respondToInvite(group.id!, false);
                           if (context.mounted) {
-                            SnackBarHelper.showInfo(
+                            DuoSnackBarHelper.showInfo(
                               context,
                               'Invitation declined.',
                             );
                           }
                         } catch (e) {
                           if (context.mounted) {
-                            SnackBarHelper.showError(
+                            DuoSnackBarHelper.showError(
                               context,
                               'Failed to decline: $e',
                             );
@@ -268,14 +268,14 @@ class GroupsScreen extends ConsumerWidget {
                               .read(groupListProvider.notifier)
                               .respondToInvite(group.id!, true);
                           if (context.mounted) {
-                            SnackBarHelper.showSuccess(
+                            DuoSnackBarHelper.showSuccess(
                               context,
                               'Invitation accepted!',
                             );
                           }
                         } catch (e) {
                           if (context.mounted) {
-                            SnackBarHelper.showError(
+                            DuoSnackBarHelper.showError(
                               context,
                               'Failed to accept: $e',
                             );
@@ -315,15 +315,15 @@ class GroupsScreen extends ConsumerWidget {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    if (FloorUtils.isMuted(currentResident)) {
-      SnackBarHelper.showError(
+    if (DuoFloorHelper.isMuted(currentResident)) {
+      DuoSnackBarHelper.showError(
         context,
-        FloorUtils.getMuteReason(currentResident),
+        DuoFloorHelper.getMuteReason(currentResident),
       );
       return;
     }
 
-    if (FloorUtils.computeFloor(currentResident) < 1) {
+    if (DuoFloorHelper.computeFloor(currentResident) < 1) {
       DuoFloorRequirementDialog.show(
         context,
         message: 'You must reach Floor 1 to create a club. Keep chatting!',

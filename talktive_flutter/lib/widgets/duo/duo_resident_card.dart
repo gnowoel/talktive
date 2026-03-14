@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
-import '../../utils/floor_utils.dart';
+import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
 import 'duo_card.dart';
 import 'duo_avatar.dart';
 
@@ -43,7 +43,7 @@ class DuoResidentCard extends StatelessWidget {
                   imageUrl: resident.avatar,
                   size: 48,
                   mood: resident.mood,
-                  floorLevel: FloorUtils.computeFloor(resident),
+                  floorLevel: DuoFloorHelper.computeFloor(resident),
                   showRing: true,
                 ),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
@@ -87,7 +87,7 @@ class DuoResidentCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         subtitle ??
-                            'Floor ${FloorUtils.computeFloor(resident)} • ⭐ ${resident.trustScore}',
+                            'Floor ${DuoFloorHelper.computeFloor(resident)} • ⭐ ${resident.trustScore}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppTheme.textSecondary,

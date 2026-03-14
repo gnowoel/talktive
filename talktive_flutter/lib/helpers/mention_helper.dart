@@ -3,121 +3,124 @@ import '../config/theme.dart';
 
 class MentionHelper {
   /// Parses message content and returns a TextSpan with highlighted mentions.
-  /// Supports usernames with spaces by matching against the current resident's name
-  /// and other common mention formats.
+  /// 
+  /// [currentUserName] is the name of the recipient (the user reading the message).
+  /// [otherMemberNames] is an optional list of other people in the conversation to highlight.
   static TextSpan buildMessageSpan({
     required String content,
     required TextStyle baseStyle,
     required Color mentionColor,
     String? currentUserName,
+    List<String>? otherMemberNames,
+    bool isCurrentUserSender = false,
   }) {
     if (!content.contains('@')) {
       return TextSpan(text: content, style: baseStyle);
     }
 
     final spans = <TextSpan>[];
+    final allMatches = <_MentionMatch>[];
     
-    // If we have the current user's name, we prioritize finding that specific mention
-    // to apply the 'me' styling.
-    String remainingContent = content;
-    
-    // We'll use a simple approach: find all occurrences of @Name and wrap them.
-    // To handle names with spaces effectively, we'd ideally have a list of all members,
-    // but on the client, we usually at least know the currentUser.
-    
-    // Regex for current user mention (supports spaces if we escape it)
-    RegExp? meRegex;
+    // 1. Add current user match (prioritized, high visibility)
     if (currentUserName != null && currentUserName.isNotEmpty) {
-      meRegex = RegExp(
+      final mePattern = RegExp(
         '@' + RegExp.escape(currentUserName) + r'(?=\s|$|[^\w])',
         caseSensitive: false,
       );
-    }
-
-    // General regex for other mentions (stops at space/punctuation for generic ones)
-    final generalMentionRegex = RegExp(r'@[a-zA-Z0-9_]+');
-
-    int lastIndex = 0;
-    
-    // This is a simplified parser. For full space support for OTHERS, we'd need more info.
-    // But for the CURRENT user (the most important highlight), this works perfectly.
-    
-    void addSegment(String text, bool isMention, bool isMe) {
-      if (text.isEmpty) return;
-      spans.add(TextSpan(
-        text: text,
-        style: isMention 
-          ? baseStyle.copyWith(
-              color: isMe ? AppTheme.accentColor : mentionColor,
-              fontWeight: FontWeight.bold,
-              backgroundColor: isMe ? AppTheme.accentColor.withValues(alpha: 0.1) : null,
-            )
-          : baseStyle,
-      ));
-    }
-
-    // Find all mentions
-    final allMatches = <_MentionMatch>[];
-    
-    if (meRegex != null) {
-      for (final match in meRegex.allMatches(content)) {
-        allMatches.add(_MentionMatch(match.start, match.end, true));
+      for (final match in mePattern.allMatches(content)) {
+        allMatches.add(_MentionMatch(match.start, match.end, isMe: true));
       }
     }
     
-    for (final match in generalMentionRegex.allMatches(content)) {
-      // Only add if not already covered by a 'me' match
-      if (!allMatches.any((m) => m.start <= match.start && m.end >= match.end)) {
-        allMatches.add(_MentionMatch(match.start, match.end, false));
+    // 2. Add other participants matches (optional, standard color)
+    if (otherMemberNames != null) {
+      for (final name in otherMemberNames) {
+        if (name.isEmpty) continue;
+        if (currentUserName != null && name.toLowerCase() == currentUserName.toLowerCase()) continue;
+        
+        final pattern = RegExp(
+          '@' + RegExp.escape(name) + r'(?=\s|$|[^\w])',
+          caseSensitive: false,
+        );
+        for (final match in pattern.allMatches(content)) {
+          // Only add if not already covered by a "me" match
+          if (!allMatches.any((m) => m.start <= match.start && m.end >= match.end)) {
+            allMatches.add(_MentionMatch(match.start, match.end, isMe: false));
+          }
+        }
       }
     }
-    
+
+    // Sort matches by position
     allMatches.sort((a, b) => a.start.compareTo(b.start));
 
     int currentPos = 0;
     for (final match in allMatches) {
-      // Add text before match
+      // Add text before the mention
       if (match.start > currentPos) {
-        addSegment(content.substring(currentPos, match.start), false, false);
+        spans.add(TextSpan(
+          text: content.substring(currentPos, match.start),
+          style: baseStyle,
+        ));
       }
-      // Add the mention
-      addSegment(content.substring(match.start, match.end), true, match.isMe);
+      
+      final mentionText = content.substring(match.start, match.end);
+      
+      if (match.isMe) {
+        // Highly visible highlight for the user themselves
+        spans.add(TextSpan(
+          text: mentionText,
+          style: baseStyle.copyWith(
+            color: isCurrentUserSender ? Colors.white : AppTheme.accentColor,
+            fontWeight: FontWeight.bold,
+            // Use subtle background highlights with good contrast
+            backgroundColor: isCurrentUserSender 
+                ? Colors.white.withValues(alpha: 0.2) // On purple
+                : AppTheme.accentColor.withValues(alpha: 0.15), // On white
+          ),
+        ));
+      } else {
+        // Standard highlight for other people
+        spans.add(TextSpan(
+          text: mentionText,
+          style: baseStyle.copyWith(
+            color: isCurrentUserSender ? Colors.white : mentionColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ));
+      }
       currentPos = match.end;
     }
     
     // Add remaining text
     if (currentPos < content.length) {
-      addSegment(content.substring(currentPos), false, false);
+      spans.add(TextSpan(
+        text: content.substring(currentPos),
+        style: baseStyle,
+      ));
     }
 
     return TextSpan(children: spans);
   }
 
-  /// Checks if a message contains a mention of the given display name.
+  /// Check if a message mentions a specific user
   static bool containsMention(String messageContent, String displayName) {
-    if (displayName.isEmpty || messageContent.isEmpty) {
-      return false;
-    }
-    final mention = '@$displayName';
-    return messageContent.toLowerCase().contains(mention.toLowerCase());
-  }
-
-  /// Checks if a message contains a mention of the current user, using refined boundary logic.
-  static bool containsExactMention(String messageContent, String displayName) {
-    if (displayName.isEmpty || messageContent.isEmpty) {
-      return false;
-    }
+    if (displayName.isEmpty || messageContent.isEmpty) return false;
     final pattern = RegExp(
-      r'@' + RegExp.escape(displayName) + r'(?=\s|$|[^\w])',
+      '@' + RegExp.escape(displayName) + r'(?=\s|$|[^\w])',
       caseSensitive: false,
     );
     return pattern.hasMatch(messageContent);
   }
+
+  /// Alias for containsMention
+  static bool containsExactMention(String messageContent, String displayName) =>
+      containsMention(messageContent, displayName);
 }
 
 class _MentionMatch {
   final int start;
   final int end;
   final bool isMe;
-  _MentionMatch(this.start, this.end, this.isMe);
+  _MentionMatch(this.start, this.end, {required this.isMe});
 }

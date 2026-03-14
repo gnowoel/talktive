@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,12 +16,16 @@ class MessageBubble extends ConsumerWidget {
   final Message message;
   final bool isCurrentUser;
   final Resident? currentResident;
+  final Function(String)? onMention;
+  final List<String>? otherMemberNames;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isCurrentUser,
     required this.currentResident,
+    this.onMention,
+    this.otherMemberNames,
   });
 
   @override
@@ -71,13 +76,18 @@ class MessageBubble extends ConsumerWidget {
               onTap: () {
                 context.push('/user/${message.senderId}');
               },
+              onLongPress: onMention != null
+                  ? () {
+                      HapticFeedback.mediumImpact();
+                      onMention!(senderName);
+                    }
+                  : null,
               child: DuoAvatar(
                 imageUrl: senderAvatar,
                 size: 36,
                 mood: message.senderMood,
                 trustScore: message.senderTrustScore,
                 showRing: true,
-                // floorLevel removed here to hide it on avatar
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingSmall),
@@ -224,6 +234,8 @@ class MessageBubble extends ConsumerWidget {
                               ? Colors.white 
                               : AppTheme.primaryColor,
                           currentUserName: currentResident?.userName,
+                          otherMemberNames: otherMemberNames,
+                          isCurrentUserSender: isCurrentUser,
                         ),
                       ),
                       const SizedBox(height: 4),

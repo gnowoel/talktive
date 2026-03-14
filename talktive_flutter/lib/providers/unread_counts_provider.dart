@@ -2,19 +2,22 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'private_chat_provider.dart';
 import 'group_provider.dart';
+import 'user_notifications_provider.dart';
 
 part 'unread_counts_provider.g.dart';
 
 class UnreadCounts {
   final int privateChats;
   final int lounges;
+  final int activity;
 
   UnreadCounts({
     required this.privateChats,
     required this.lounges,
+    required this.activity,
   });
 
-  int get total => privateChats + lounges;
+  int get total => privateChats + lounges + activity;
 
   @override
   bool operator ==(Object other) =>
@@ -22,16 +25,18 @@ class UnreadCounts {
       other is UnreadCounts &&
           runtimeType == other.runtimeType &&
           privateChats == other.privateChats &&
-          lounges == other.lounges;
+          lounges == other.lounges &&
+          activity == other.activity;
 
   @override
-  int get hashCode => privateChats.hashCode ^ lounges.hashCode;
+  int get hashCode => privateChats.hashCode ^ lounges.hashCode ^ activity.hashCode;
 }
 
 @riverpod
 class TotalUnreadCounts extends _$TotalUnreadCounts {
   int _lastPrivateCount = 0;
   int _lastLoungeCount = 0;
+  int _lastActivityCount = 0;
 
   @override
   UnreadCounts build() {
@@ -45,11 +50,9 @@ class TotalUnreadCounts extends _$TotalUnreadCounts {
       }
       _lastPrivateCount = count;
     });
-
     lounges.whenData((groups) {
       int count = 0;
       for (final group in groups) {
-        // Requirement 2: total unread message count for group chats, except for muted lounges
         if (group.isMuted != true) {
           count += (group.unreadCount as num).toInt();
         }
@@ -57,9 +60,15 @@ class TotalUnreadCounts extends _$TotalUnreadCounts {
       _lastLoungeCount = count;
     });
 
+    final activity = ref.watch(userNotificationsProvider);
+    activity.whenData((notifications) {
+      _lastActivityCount = notifications.where((n) => !n.read).length;
+    });
+
     return UnreadCounts(
       privateChats: _lastPrivateCount,
       lounges: _lastLoungeCount,
+      activity: _lastActivityCount,
     );
   }
 }

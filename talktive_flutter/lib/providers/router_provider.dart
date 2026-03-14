@@ -11,6 +11,7 @@ import '../screens/chats/peephole_screen.dart';
 import '../screens/activity/activity_screen.dart';
 
 import '../screens/profile/user_profile_view_screen.dart';
+import '../screens/profile/profile_screen.dart';
 import '../screens/plaza/plaza_chat_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
@@ -140,6 +141,10 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const HomeScreen(initialIndex: 4),
+      ),
+      GoRoute(
+        path: '/my-profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
         path: '/activity',

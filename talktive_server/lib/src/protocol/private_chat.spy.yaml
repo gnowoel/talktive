@@ -6,6 +6,7 @@ fields:
   participant2Id: UuidValue
   createdAt: DateTime
   lastMessageAt: DateTime?
+  lastMessage: String?
 indexes:
   private_chat_channel_idx:
     fields: channelId

@@ -1798,25 +1798,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['channelId'],
                   ),
         ),
-        'updateLastMessageTime': _i1.MethodConnector(
-          name: 'updateLastMessageTime',
-          params: {
-            'privateChatId': _i1.ParameterDescription(
-              name: 'privateChatId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['privateChat'] as _i12.PrivateChatEndpoint)
-                  .updateLastMessageTime(
-                    session,
-                    params['privateChatId'],
-                  ),
-        ),
         'respondToChatInvite': _i1.MethodConnector(
           name: 'respondToChatInvite',
           params: {

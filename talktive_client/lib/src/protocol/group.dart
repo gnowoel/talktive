@@ -25,6 +25,8 @@ abstract class Group implements _i1.SerializableModel {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    this.lastMessageAt,
+    this.lastMessage,
     this.interests,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
@@ -41,6 +43,8 @@ abstract class Group implements _i1.SerializableModel {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    DateTime? lastMessageAt,
+    String? lastMessage,
     List<String>? interests,
   }) = _GroupImpl;
 
@@ -62,6 +66,12 @@ abstract class Group implements _i1.SerializableModel {
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPublic']),
       maxMembers: jsonSerialization['maxMembers'] as int?,
+      lastMessageAt: jsonSerialization['lastMessageAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['lastMessageAt'],
+            ),
+      lastMessage: jsonSerialization['lastMessage'] as String?,
       interests: jsonSerialization['interests'] == null
           ? null
           : _i2.Protocol().deserialize<List<String>>(
@@ -93,6 +103,10 @@ abstract class Group implements _i1.SerializableModel {
 
   int maxMembers;
 
+  DateTime? lastMessageAt;
+
+  String? lastMessage;
+
   List<String>? interests;
 
   /// Returns a shallow copy of this [Group]
@@ -109,6 +123,8 @@ abstract class Group implements _i1.SerializableModel {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    DateTime? lastMessageAt,
+    String? lastMessage,
     List<String>? interests,
   });
   @override
@@ -125,6 +141,8 @@ abstract class Group implements _i1.SerializableModel {
       'memberCount': memberCount,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
+      if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
     };
   }
@@ -149,6 +167,8 @@ class _GroupImpl extends Group {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    DateTime? lastMessageAt,
+    String? lastMessage,
     List<String>? interests,
   }) : super._(
          id: id,
@@ -161,6 +181,8 @@ class _GroupImpl extends Group {
          memberCount: memberCount,
          isPublic: isPublic,
          maxMembers: maxMembers,
+         lastMessageAt: lastMessageAt,
+         lastMessage: lastMessage,
          interests: interests,
        );
 
@@ -179,6 +201,8 @@ class _GroupImpl extends Group {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    Object? lastMessageAt = _Undefined,
+    Object? lastMessage = _Undefined,
     Object? interests = _Undefined,
   }) {
     return Group(
@@ -192,6 +216,10 @@ class _GroupImpl extends Group {
       memberCount: memberCount ?? this.memberCount,
       isPublic: isPublic ?? this.isPublic,
       maxMembers: maxMembers ?? this.maxMembers,
+      lastMessageAt: lastMessageAt is DateTime?
+          ? lastMessageAt
+          : this.lastMessageAt,
+      lastMessage: lastMessage is String? ? lastMessage : this.lastMessage,
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),

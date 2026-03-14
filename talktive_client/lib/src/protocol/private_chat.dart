@@ -20,6 +20,7 @@ abstract class PrivateChat implements _i1.SerializableModel {
     required this.participant2Id,
     required this.createdAt,
     this.lastMessageAt,
+    this.lastMessage,
   });
 
   factory PrivateChat({
@@ -29,6 +30,7 @@ abstract class PrivateChat implements _i1.SerializableModel {
     required _i1.UuidValue participant2Id,
     required DateTime createdAt,
     DateTime? lastMessageAt,
+    String? lastMessage,
   }) = _PrivateChatImpl;
 
   factory PrivateChat.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -49,6 +51,7 @@ abstract class PrivateChat implements _i1.SerializableModel {
           : _i1.DateTimeJsonExtension.fromJson(
               jsonSerialization['lastMessageAt'],
             ),
+      lastMessage: jsonSerialization['lastMessage'] as String?,
     );
   }
 
@@ -67,6 +70,8 @@ abstract class PrivateChat implements _i1.SerializableModel {
 
   DateTime? lastMessageAt;
 
+  String? lastMessage;
+
   /// Returns a shallow copy of this [PrivateChat]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -77,6 +82,7 @@ abstract class PrivateChat implements _i1.SerializableModel {
     _i1.UuidValue? participant2Id,
     DateTime? createdAt,
     DateTime? lastMessageAt,
+    String? lastMessage,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -88,6 +94,7 @@ abstract class PrivateChat implements _i1.SerializableModel {
       'participant2Id': participant2Id.toJson(),
       'createdAt': createdAt.toJson(),
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
+      if (lastMessage != null) 'lastMessage': lastMessage,
     };
   }
 
@@ -107,6 +114,7 @@ class _PrivateChatImpl extends PrivateChat {
     required _i1.UuidValue participant2Id,
     required DateTime createdAt,
     DateTime? lastMessageAt,
+    String? lastMessage,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -114,6 +122,7 @@ class _PrivateChatImpl extends PrivateChat {
          participant2Id: participant2Id,
          createdAt: createdAt,
          lastMessageAt: lastMessageAt,
+         lastMessage: lastMessage,
        );
 
   /// Returns a shallow copy of this [PrivateChat]
@@ -127,6 +136,7 @@ class _PrivateChatImpl extends PrivateChat {
     _i1.UuidValue? participant2Id,
     DateTime? createdAt,
     Object? lastMessageAt = _Undefined,
+    Object? lastMessage = _Undefined,
   }) {
     return PrivateChat(
       id: id is int? ? id : this.id,
@@ -137,6 +147,7 @@ class _PrivateChatImpl extends PrivateChat {
       lastMessageAt: lastMessageAt is DateTime?
           ? lastMessageAt
           : this.lastMessageAt,
+      lastMessage: lastMessage is String? ? lastMessage : this.lastMessage,
     );
   }
 }

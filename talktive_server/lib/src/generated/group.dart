@@ -25,6 +25,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    this.lastMessageAt,
+    this.lastMessage,
     this.interests,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
@@ -41,6 +43,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    DateTime? lastMessageAt,
+    String? lastMessage,
     List<String>? interests,
   }) = _GroupImpl;
 
@@ -62,6 +66,12 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPublic']),
       maxMembers: jsonSerialization['maxMembers'] as int?,
+      lastMessageAt: jsonSerialization['lastMessageAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['lastMessageAt'],
+            ),
+      lastMessage: jsonSerialization['lastMessage'] as String?,
       interests: jsonSerialization['interests'] == null
           ? null
           : _i2.Protocol().deserialize<List<String>>(
@@ -95,6 +105,10 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   int maxMembers;
 
+  DateTime? lastMessageAt;
+
+  String? lastMessage;
+
   List<String>? interests;
 
   @override
@@ -114,6 +128,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    DateTime? lastMessageAt,
+    String? lastMessage,
     List<String>? interests,
   });
   @override
@@ -130,6 +146,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'memberCount': memberCount,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
+      if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
     };
   }
@@ -148,6 +166,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'memberCount': memberCount,
       'isPublic': isPublic,
       'maxMembers': maxMembers,
+      if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
+      if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
     };
   }
@@ -196,6 +216,8 @@ class _GroupImpl extends Group {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    DateTime? lastMessageAt,
+    String? lastMessage,
     List<String>? interests,
   }) : super._(
          id: id,
@@ -208,6 +230,8 @@ class _GroupImpl extends Group {
          memberCount: memberCount,
          isPublic: isPublic,
          maxMembers: maxMembers,
+         lastMessageAt: lastMessageAt,
+         lastMessage: lastMessage,
          interests: interests,
        );
 
@@ -226,6 +250,8 @@ class _GroupImpl extends Group {
     int? memberCount,
     bool? isPublic,
     int? maxMembers,
+    Object? lastMessageAt = _Undefined,
+    Object? lastMessage = _Undefined,
     Object? interests = _Undefined,
   }) {
     return Group(
@@ -239,6 +265,10 @@ class _GroupImpl extends Group {
       memberCount: memberCount ?? this.memberCount,
       isPublic: isPublic ?? this.isPublic,
       maxMembers: maxMembers ?? this.maxMembers,
+      lastMessageAt: lastMessageAt is DateTime?
+          ? lastMessageAt
+          : this.lastMessageAt,
+      lastMessage: lastMessage is String? ? lastMessage : this.lastMessage,
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
@@ -297,6 +327,17 @@ class GroupUpdateTable extends _i1.UpdateTable<GroupTable> {
     value,
   );
 
+  _i1.ColumnValue<DateTime, DateTime> lastMessageAt(DateTime? value) =>
+      _i1.ColumnValue(
+        table.lastMessageAt,
+        value,
+      );
+
+  _i1.ColumnValue<String, String> lastMessage(String? value) => _i1.ColumnValue(
+    table.lastMessage,
+    value,
+  );
+
   _i1.ColumnValue<List<String>, List<String>> interests(List<String>? value) =>
       _i1.ColumnValue(
         table.interests,
@@ -346,6 +387,14 @@ class GroupTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    lastMessageAt = _i1.ColumnDateTime(
+      'lastMessageAt',
+      this,
+    );
+    lastMessage = _i1.ColumnString(
+      'lastMessage',
+      this,
+    );
     interests = _i1.ColumnSerializable<List<String>>(
       'interests',
       this,
@@ -372,6 +421,10 @@ class GroupTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt maxMembers;
 
+  late final _i1.ColumnDateTime lastMessageAt;
+
+  late final _i1.ColumnString lastMessage;
+
   late final _i1.ColumnSerializable<List<String>> interests;
 
   @override
@@ -386,6 +439,8 @@ class GroupTable extends _i1.Table<int?> {
     memberCount,
     isPublic,
     maxMembers,
+    lastMessageAt,
+    lastMessage,
     interests,
   ];
 }

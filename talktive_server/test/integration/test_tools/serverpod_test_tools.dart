@@ -2826,37 +2826,6 @@ class _PrivateChatEndpoint {
     });
   }
 
-  _i3.Future<void> updateLastMessageTime(
-    _i1.TestSessionBuilder sessionBuilder,
-    int privateChatId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'privateChat',
-            method: 'updateLastMessageTime',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'privateChat',
-          methodName: 'updateLastMessageTime',
-          parameters: _i1.testObjectToJson({'privateChatId': privateChatId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
   _i3.Future<void> respondToChatInvite(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId,

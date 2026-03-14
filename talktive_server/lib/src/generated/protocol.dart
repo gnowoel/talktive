@@ -594,6 +594,18 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: '50',
         ),
         _i2.ColumnDefinition(
+          name: 'lastMessageAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'lastMessage',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
           name: 'interests',
           columnType: _i2.ColumnType.json,
           isNullable: true,
@@ -1213,6 +1225,12 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.timestampWithoutTimeZone,
           isNullable: true,
           dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'lastMessage',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
         ),
       ],
       foreignKeys: [],

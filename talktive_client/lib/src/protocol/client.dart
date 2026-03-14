@@ -1031,14 +1031,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
     {'channelId': channelId},
   );
 
-  /// Updates the lastMessageAt timestamp for a private chat.
-  _i3.Future<void> updateLastMessageTime(int privateChatId) =>
-      caller.callServerEndpoint<void>(
-        'privateChat',
-        'updateLastMessageTime',
-        {'privateChatId': privateChatId},
-      );
-
   /// Accepts or declines a private chat invitation
   _i3.Future<void> respondToChatInvite(
     int channelId,

@@ -83,7 +83,6 @@ privateChat:
   - getOrCreatePrivateChat:
   - listPrivateChats:
   - getPrivateChatDetails:
-  - updateLastMessageTime:
   - respondToChatInvite:
   - leaveChat:
 report:

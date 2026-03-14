@@ -205,6 +205,16 @@ class NotificationService {
     int channelId,
     String groupName,
   ) async {
+    // Resolve groupId from channelId
+    int? groupId;
+    final group = await protocol.Group.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
+    if (group != null) {
+      groupId = group.id;
+    }
+
     // Mentions are recorded in history and bypass mute
     await sendNotification(
       session,
@@ -215,7 +225,8 @@ class NotificationService {
       data: {
         'channelId': channelId,
         'groupName': groupName,
-        'route': '/groups/chat/$channelId',
+        'groupId': groupId,
+        'route': groupId != null ? '/groups/chat/$groupId' : '/groups',
       },
       saveToHistory: true,
     );

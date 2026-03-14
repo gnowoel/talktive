@@ -132,7 +132,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final groups = await protocol.Group.db.find(
       session,
       where: (t) => t.channelId.inSet(membershipMap.keys.toSet()),
-      orderBy: (t) => t.createdAt,
+      orderBy: (t) => t.lastMessageAt,
       orderDescending: true,
     );
 

@@ -9,6 +9,7 @@ import '../services/content_filter_service.dart';
 import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import '../services/notification_service.dart';
 
@@ -175,16 +176,16 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         await protocol.ChannelMember.db.updateRow(session, senderMembership);
       }
 
-      // Update lastMessageAt for private chats (Bubbling up)
-      if (channel.type == protocol.ChannelType.private) {
-        final privateChat = await protocol.PrivateChat.db.findFirstRow(
+      // 9.2 Update lastMessage denormalized fields (Bubbling up)
+      if (channel.type != protocol.ChannelType.plaza) {
+        await ChatService.updateLastMessage(
           session,
-          where: (t) => t.channelId.equals(channelId),
+          channelId,
+          channelType: channel.type,
+          content: filteredContent,
+          imageUrl: imageUrl,
+          mediaUrl: mediaUrl,
         );
-        if (privateChat != null) {
-          privateChat.lastMessageAt = DateTime.now();
-          await protocol.PrivateChat.db.updateRow(session, privateChat);
-        }
       }
 
       // 10. Distribute via Streaming (Real-time)

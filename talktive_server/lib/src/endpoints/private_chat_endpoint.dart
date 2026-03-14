@@ -380,31 +380,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Updates the lastMessageAt timestamp for a private chat.
-  Future<void> updateLastMessageTime(
-    Session session,
-    int privateChatId,
-  ) async {
-    InputValidationService.validateId(
-      privateChatId,
-      'Private Chat ID',
-    ).throwIfInvalid();
-    final privateChat = await protocol.PrivateChat.db.findById(
-      session,
-      privateChatId,
-    );
-
-    if (privateChat == null) {
-      throw protocol.TalktiveException(
-        message: 'Private chat not found',
-        code: 'CHAT_NOT_FOUND',
-      );
-    }
-
-    privateChat.lastMessageAt = DateTime.now();
-    await protocol.PrivateChat.db.updateRow(session, privateChat);
-  }
-
   /// Accepts or declines a private chat invitation
   Future<void> respondToChatInvite(
     Session session,

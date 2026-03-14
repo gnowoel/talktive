@@ -123,4 +123,52 @@ class ChatService {
 
     return count;
   }
+
+  /// Updates the denormalized 'last message' fields for a channel.
+  static Future<void> updateLastMessage(
+    Session session,
+    int channelId, {
+    required protocol.ChannelType channelType,
+    String? content,
+    String? imageUrl,
+    String? mediaUrl,
+  }) async {
+    final now = DateTime.now();
+
+    // Determine the preview text
+    String? previewText;
+    if (content != null && content.trim().isNotEmpty) {
+      previewText = content.trim();
+      // Truncate if too long (good for DB index performance)
+      if (previewText.length > 100) {
+        previewText = '${previewText.substring(0, 97)}...';
+      }
+    } else if (imageUrl != null && imageUrl.isNotEmpty) {
+      previewText = '📷 Photo';
+    } else if (mediaUrl != null && mediaUrl.isNotEmpty) {
+      previewText = '🎥 Video';
+    }
+
+    if (channelType == protocol.ChannelType.private) {
+      final privateChat = await protocol.PrivateChat.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      if (privateChat != null) {
+        privateChat.lastMessageAt = now;
+        privateChat.lastMessage = previewText;
+        await protocol.PrivateChat.db.updateRow(session, privateChat);
+      }
+    } else if (channelType == protocol.ChannelType.group) {
+      final group = await protocol.Group.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      if (group != null) {
+        group.lastMessageAt = now;
+        group.lastMessage = previewText;
+        await protocol.Group.db.updateRow(session, group);
+      }
+    }
+  }
 }

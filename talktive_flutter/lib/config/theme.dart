@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppTheme {
-  // Brand Colors - Vibrant and Youthful
-  static const Color primaryColor = Color(0xFF6C63FF);
-  static const Color secondaryColor = Color(0xFFFF6584);
-  static const Color accentColor = Color(0xFF00D9FF);
+  // ─── Core Duolingo-Inspired Colors (defined first – used as aliases below) ──
+  static const Color duoGreen  = Color(0xFF58CC02);  // Signature green   → success, profile
+  static const Color duoYellow = Color(0xFFFFD93D);  // Cheerful yellow    → streaks, XP
+  static const Color duoRed    = Color(0xFFFF4B4B);  // Friendly red       → danger, unread badges
+  static const Color duoOrange = Color(0xFFFF9600);  // Vibrant orange     → chats
+  static const Color duoBlue   = Color(0xFF1CB0F6);  // Deep cheerful blue → lounges, links
 
-  // Gradient Colors
+  // ─── Brand Colors ────────────────────────────────────────────────────────────
+  static const Color primaryColor   = Color(0xFF6C63FF); // Purple (main brand)
+  static const Color duoPurple      = primaryColor;       // Alias for primaryColor
+  static const Color secondaryColor = Color(0xFFFF6584); // Pink (Moments)
+  // accentColor is aliased to duoBlue for a consistent, accessible palette.
+  // Prefer using duoBlue directly to make semantic intent explicit.
+  static const Color accentColor = duoBlue;
+
+  // ─── Gradient Collections ─────────────────────────────────────────────────
   static const List<Color> primaryGradient = [
     Color(0xFF6C63FF),
     Color(0xFF8B80FF),
@@ -18,10 +28,8 @@ class AppTheme {
     Color(0xFFFF8FA3),
   ];
 
-  static const List<Color> accentGradient = [
-    Color(0xFF00D9FF),
-    Color(0xFF00F5FF),
-  ];
+  // accentGradient == duoBlueGradient for palette consistency.
+  static const List<Color> accentGradient = duoBlueGradient;
 
   static const List<Color> duoGreenGradient = [
     Color(0xFF58CC02),
@@ -38,6 +46,11 @@ class AppTheme {
     Color(0xFFFFB038),
   ];
 
+  static const List<Color> duoPurpleGradient = [
+    Color(0xFF6C63FF),
+    Color(0xFF8B80FF),
+  ];
+
   static const List<Color> duoBlueGradient = [
     Color(0xFF1CB0F6),
     Color(0xFF49C0F8),
@@ -48,18 +61,18 @@ class AppTheme {
     Color(0xFFFF6B6B),
   ];
 
-  // Duolingo-Inspired Colors
-  static const Color duoGreen = Color(0xFF58CC02); // Duolingo's signature green
-  static const Color duoYellow = Color(0xFFFFD93D); // Bright, cheerful yellow
-  static const Color duoRed = Color(0xFFFF4B4B); // Friendly red
-  static const Color duoOrange = Color(0xFFFF9600); // Vibrant orange
-  static const Color duoBlue = Color(0xFF1CB0F6); // Deep cheerful blue
+  // ─── Semantic Palette ─────────────────────────────────────────────────────
+  // Plaza   → primaryGradient   (purple)
+  // Moments → secondaryGradient (pink)
+  // Chats   → duoOrangeGradient (orange)
+  // Lounges → duoBlueGradient   (blue)
+  // Profile → duoGreenGradient  (green)
 
-  // Fun Color Palette
+  // Functional Colors
   static const Color successColor = duoGreen;
   static const Color warningColor = duoYellow;
-  static const Color errorColor = duoRed;
-  static const Color infoColor = Color(0xFF29B6F6);
+  static const Color errorColor   = duoRed;
+  static const Color infoColor    = duoBlue;
 
   // Mood Colors (for user moods)
   static const Color happyColor = Color(0xFFFFD93D);

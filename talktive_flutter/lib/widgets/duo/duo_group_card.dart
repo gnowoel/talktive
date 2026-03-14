@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
+import '../../helpers/date_formatter.dart';
 import 'duo_card.dart';
 
 class DuoGroupCard extends StatelessWidget {
@@ -110,8 +111,39 @@ class DuoGroupCard extends StatelessWidget {
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
+            if (group.lastMessageAt != null) ...[
+              const SizedBox(width: 8),
+              Icon(Icons.access_time, size: 14, color: Colors.grey[400]),
+              const SizedBox(width: 2),
+              Text(
+                formatTimestamp(group.lastMessageAt!),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
+              ),
+            ],
           ],
         ),
+        if (group.lastMessage != null && group.lastMessage!.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.chat_bubble_outline, size: 14, color: AppTheme.duoBlue),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  group.lastMessage!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.duoBlue,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

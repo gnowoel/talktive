@@ -174,9 +174,14 @@ class ChatsScreen extends ConsumerWidget {
   }
 
   String _getLastMessagePreview(PrivateChatWithProfile chatItem) {
+    final lastMsg = chatItem.chat.lastMessage;
+    if (lastMsg != null && lastMsg.isNotEmpty) {
+      return lastMsg;
+    }
+    
     final lastAt = chatItem.chat.lastMessageAt;
     if (lastAt != null) {
-      return 'Last message: ${formatTimestamp(lastAt)}';
+      return 'Activity: ${formatTimestamp(lastAt)}';
     }
     return 'Start chatting! 👋';
   }

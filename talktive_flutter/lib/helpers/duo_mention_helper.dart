@@ -21,33 +21,52 @@ class DuoMentionHelper {
     final spans = <TextSpan>[];
     final allMatches = <_MentionMatch>[];
     
-    // 1. Add current user match (prioritized, high visibility)
-    if (currentUserName != null && currentUserName.isNotEmpty) {
-      final mePattern = RegExp(
-        '@' + RegExp.escape(currentUserName) + r'(?=\s|$|[^\w])',
-        caseSensitive: false,
-      );
-      for (final match in mePattern.allMatches(content)) {
-        allMatches.add(_MentionMatch(match.start, match.end, isMe: true));
-      }
+    // 1. Split by @ to find potential mention starts
+    final atIndices = <int>[];
+    for (int i = 0; i < content.length; i++) {
+      if (content[i] == '@') atIndices.add(i);
     }
-    
-    // 2. Add other participants matches (optional, standard color)
-    if (otherMemberNames != null) {
-      for (final name in otherMemberNames) {
-        if (name.isEmpty) continue;
-        if (currentUserName != null && name.toLowerCase() == currentUserName.toLowerCase()) continue;
-        
-        final pattern = RegExp(
-          '@' + RegExp.escape(name) + r'(?=\s|$|[^\w])',
-          caseSensitive: false,
-        );
-        for (final match in pattern.allMatches(content)) {
-          // Only add if not already covered by a "me" match
-          if (!allMatches.any((m) => m.start <= match.start && m.end >= match.end)) {
-            allMatches.add(_MentionMatch(match.start, match.end, isMe: false));
+
+    for (final index in atIndices) {
+      final remaining = content.substring(index + 1);
+      final chunk = remaining.length > 50 ? remaining.substring(0, 50) : remaining;
+      if (chunk.isEmpty) continue;
+
+      bool matched = false;
+
+      // 1.1 Match Current User (Me) prioritized
+      if (currentUserName != null && currentUserName.isNotEmpty) {
+        if (chunk.toLowerCase().startsWith(currentUserName.toLowerCase())) {
+          allMatches.add(_MentionMatch(index, index + 1 + currentUserName.length, isMe: true));
+          matched = true;
+        }
+      }
+
+      if (matched) continue;
+
+      // 1.2 Match Other Members (Longest Match first for spaces)
+      if (otherMemberNames != null && otherMemberNames.isNotEmpty) {
+        // Sort otherMemberNames by length DESC to match "Leo Smith" before "Leo"
+        final sortedNames = List<String>.from(otherMemberNames)
+          ..sort((a, b) => b.length.compareTo(a.length));
+
+        for (final name in sortedNames) {
+          if (name.isEmpty) continue;
+          if (chunk.toLowerCase().startsWith(name.toLowerCase())) {
+            allMatches.add(_MentionMatch(index, index + 1 + name.length, isMe: false));
+            matched = true;
+            break;
           }
         }
+      }
+
+      if (matched) continue;
+
+      // 1.3 Generic match (Single word) if no specific match found (for Plaza/Public)
+      final genericPattern = RegExp(r'^([a-zA-Z0-9_]{2,30})');
+      final match = genericPattern.firstMatch(chunk);
+      if (match != null) {
+        allMatches.add(_MentionMatch(index, index + 1 + match.group(1)!.length, isMe: false));
       }
     }
 

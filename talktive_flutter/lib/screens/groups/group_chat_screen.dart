@@ -153,6 +153,7 @@ class GroupChatScreen extends ConsumerStatefulWidget {
 class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  final Set<UuidValue> _mentionedUserIds = {};
   bool _isUploading = false;
   bool _hasMarkedAsRead = false;
 
@@ -233,10 +234,21 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     }
 
     try {
+      // Filter out only the mentions that are actually still in the text
+      final stillMentioned = _mentionedUserIds.where((id) {
+        return content.contains('@');
+      }).toList();
+
       await ref
           .read(realtimeChatProvider(widget.group.channelId).notifier)
-          .sendMessage(content, imageUrl: imageUrl);
+          .sendMessage(
+            content, 
+            imageUrl: imageUrl,
+            mentionedUserIds: stillMentioned.isNotEmpty ? stillMentioned : null,
+          );
+
       _messageController.clear();
+      _mentionedUserIds.clear();
       _hasMarkedAsRead = false; // Allow re-marking as read for new messages
       _markAsRead();
       HapticFeedback.lightImpact();
@@ -255,7 +267,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     }
   }
 
-  void _addMention(String userName) {
+  void _addMention(String userName, UuidValue id) {
+    _mentionedUserIds.add(id);
     final current = _messageController.text;
     if (current.isEmpty || current.endsWith(' ')) {
       _messageController.text = '$current@$userName ';

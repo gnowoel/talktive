@@ -104,7 +104,7 @@ class RealtimeChat extends _$RealtimeChat {
   }
 
   /// Sends a message to the channel.
-  Future<void> sendMessage(String content, {String? imageUrl}) async {
+  Future<void> sendMessage(String content, {String? imageUrl, List<UuidValue>? mentionedUserIds}) async {
     if (content.trim().isEmpty && imageUrl == null) return;
 
     final client = ref.read(clientProvider);
@@ -115,6 +115,7 @@ class RealtimeChat extends _$RealtimeChat {
         _channelId,
         content: content.trim(),
         imageUrl: imageUrl,
+        mentionedUserIds: mentionedUserIds,
         isSystem: false,
       );
 

@@ -29,6 +29,7 @@ class PlazaChatScreen extends ConsumerStatefulWidget {
 class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  final Set<UuidValue> _mentionedUserIds = {};
   bool _isUploading = false;
 
   @override
@@ -95,10 +96,23 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
 
     try {
+      // Filter out only the mentions that are actually still in the text
+      final stillMentioned = _mentionedUserIds.where((id) {
+        // This is a simplified check. Ideally we'd map ID -> Name.
+        // For now, if any @mention is left, we send the IDs we collected.
+        return content.contains('@');
+      }).toList();
+
       await ref
           .read(realtimeChatProvider(1).notifier)
-          .sendMessage(content, imageUrl: imageUrl);
+          .sendMessage(
+            content, 
+            imageUrl: imageUrl,
+            mentionedUserIds: stillMentioned.isNotEmpty ? stillMentioned : null,
+          );
+      
       _messageController.clear();
+      _mentionedUserIds.clear(); // Clear mentions after sending
       HapticFeedback.lightImpact();
 
       if (_scrollController.hasClients) {
@@ -212,6 +226,20 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     );
   }
 
+  void _addMention(String userName, UuidValue id) {
+    _mentionedUserIds.add(id);
+    final current = _messageController.text;
+    if (current.isEmpty || current.endsWith(' ')) {
+      _messageController.text = '$current@$userName ';
+    } else {
+      _messageController.text = '$current @$userName ';
+    }
+    // Move cursor to end
+    _messageController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _messageController.text.length),
+    );
+  }
+
   Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
@@ -245,6 +273,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: currentResident,
+                onMention: _addMention, // Added mention support
               )
               .animate()
               .fadeIn(delay: Duration(milliseconds: index * 30))

@@ -4,6 +4,8 @@ This project is a migration of the "Talktive" chat app from Firebase to Serverpo
 
 ## Design Philosophy
 
+**Persona over Profile**: Talktive is unique because it's about the **persona, not the profile**. The system protects the ephemeral and anonymous soul of the app by eschewing unique handles (which stick like serial numbers) in favor of flexible personas. If a resident wants to be "Leo" today in the Basketball Club and "Quiet Reader" tomorrow in the Library Lounge, they can.
+
 **The Apartment Building Metaphor**: Talktive is modeled after a digital apartment building.
 
 - **Plaza (Lobby)**: Public encounters.

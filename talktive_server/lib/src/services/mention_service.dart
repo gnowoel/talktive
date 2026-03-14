@@ -12,80 +12,61 @@ class MentionService {
   ) async {
     if (!content.contains('@')) return [];
 
-    final mentionedIds = <UuidValue>{};
     final channel = await protocol.Channel.db.findById(session, channelId);
-    if (channel == null) return [];
-    
-    final isPlaza = channel.type == protocol.ChannelType.plaza;
+    if (channel == null || channel.type == protocol.ChannelType.plaza) {
+      // Mentions are disabled in the public Plaza to ensure reliability and performance.
+      return [];
+    }
 
-    // 1. Split by @ to find potential mention starts
-    // We use a regex to find all @ indices manually to handle overlapping potential chunks
+    // 1. Fetch all members of this channel to use as a "whitelist" for parsing
+    // This solves the "@Rick Novak this morning" ambiguity because we only look for actual names.
+    final members = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) => t.channelId.equals(channelId) & t.status.equals(protocol.ChannelMemberStatus.joined),
+    );
+    if (members.isEmpty) return [];
+
+    // Map names to IDs for easier lookup
+    final nameMap = <String, Set<UuidValue>>{};
+    for (final member in members) {
+      // We'll need to fetch the Resident data to get the names
+      // Optimization: Fetch residents in one go
+    }
+
+    final memberIds = members.map((m) => m.userInfoId).toSet();
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(memberIds),
+    );
+
+    for (final resident in residents) {
+      final name = resident.userName?.toLowerCase();
+      if (name == null || name.isEmpty) continue;
+      nameMap.putIfAbsent(name, () => {}).add(resident.userInfoId);
+    }
+
     final atIndices = <int>[];
     for (int i = 0; i < content.length; i++) {
       if (content[i] == '@') atIndices.add(i);
     }
 
-    if (atIndices.isEmpty) return [];
+    final detectedIds = <UuidValue>{};
+    final sortedNames = nameMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
 
     for (final index in atIndices) {
-      // 2. Extract a chunk of text after the @ (up to max name length)
-      final remaining = content.substring(index + 1);
-      final chunk = remaining.length > 50 ? remaining.substring(0, 50) : remaining;
+      final chunk = content.substring(index + 1).toLowerCase();
       if (chunk.isEmpty) continue;
 
-      // 3. Simple heuristic: Grab the first "word" to narrow down search
-      final firstWord = chunk.split(RegExp(r'\s|[.,!?;:]')).first;
-      if (firstWord.length < 2) continue;
-
-      // 4. Query residents whose names START with the first word
-      // This allows us to find "Leo Smith" if we search for "Leo"
-      final residents = await protocol.Resident.db.find(
-        session,
-        where: (t) => t.userName.ilike('$firstWord%'),
-      );
-
-      if (residents.isEmpty) continue;
-
-      // 5. Greedy matching: find the resident whose name matches the longest part of our chunk
-      protocol.Resident? bestMatch;
-      int longestMatchLength = 0;
-
-      for (final resident in residents) {
-        final name = resident.userName;
-        if (name == null || name.isEmpty) continue;
-
-        // Case-insensitive check for full name match at start of chunk
-        if (chunk.toLowerCase().startsWith(name.toLowerCase())) {
-          // If names are identical, we have a tie (duplicate names)
-          // We'll filter these by membership shortly.
-          if (name.length > longestMatchLength) {
-            longestMatchLength = name.length;
-            bestMatch = resident;
-          }
-        }
-      }
-
-      if (bestMatch != null) {
-        // 6. Handle Duplicates & Membership
-        // If it's a private group, we only care about the one in the group
-        if (!isPlaza) {
-          final members = await protocol.ChannelMember.db.find(
-            session,
-            where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(bestMatch!.userInfoId),
-          );
-          if (members.isNotEmpty) {
-            mentionedIds.add(bestMatch.userInfoId);
-          }
-        } else {
-          // In Plaza, if names are duplicates, it's ambiguous.
-          // For now, we notify the one found. 
-          // (In a future version, residents should have unique handles).
-          mentionedIds.add(bestMatch.userInfoId);
+      for (final name in sortedNames) {
+        if (chunk.startsWith(name)) {
+          // Found a match! Add all users with this name in the channel
+          detectedIds.addAll(nameMap[name]!);
+          break; // Longest match wins
         }
       }
     }
 
-    return mentionedIds.toList();
+    return detectedIds.toList();
   }
 
   /// Checks if a specific user is mentioned in the content.

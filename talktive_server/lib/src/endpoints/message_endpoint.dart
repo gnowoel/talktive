@@ -23,7 +23,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
-    List<UuidValue>? mentionedUserIds,
     bool isSystem = false,
   }) async {
     try {
@@ -160,7 +159,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         senderMood: sender.mood,
         senderFloor: senderEffectiveFloor,
         senderTrustScore: sender.trustScore,
-        mentionedUserIds: mentionedUserIds,
       );
 
       // 9. Database Updates (Single transaction if possible or batched saves)
@@ -206,19 +204,20 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       final isPlaza = channel.type == protocol.ChannelType.plaza;
 
       if (filteredContent != null) {
-        // Precise mentions provided by the client
-        final mentionNotifications = <UuidValue>{};
-        if (mentionedUserIds != null && mentionedUserIds.isNotEmpty) {
-           mentionNotifications.addAll(mentionedUserIds);
-        }
+        // Detect mentions using reliable server-side member resolution (skips Plaza)
+        final mentionedUserIds = await MentionService.getMentionedUserIds(
+          session,
+          channelId,
+          filteredContent,
+        );
 
         // Remove sender to avoid notifying self
-        mentionNotifications.remove(senderUuid);
+        mentionedUserIds.remove(senderUuid);
 
         final groupName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
 
         // Priority 1: Notify mentioned users (Bypasses mute, saves to history)
-        for (final mentionedId in mentionNotifications) {
+        for (final mentionedId in mentionedUserIds) {
           await NotificationService.sendMentionNotification(
             session,
             mentionedId,
@@ -231,6 +230,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
         // Priority 2: Standard Message Notifications (Groups/Private only, not Plaza)
         if (!isPlaza) {
+          final mentionIdSet = mentionedUserIds.toSet();
+
           // Fetch all other active members (exclude sender)
           final otherMembers = await protocol.ChannelMember.db.find(
             session,
@@ -242,7 +243,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
           for (final member in otherMembers) {
             // Skip if already notified via mention
-            if (mentionNotifications.contains(member.userInfoId)) continue;
+            if (mentionIdSet.contains(member.userInfoId)) continue;
 
             if (!member.isMuted) {
               await NotificationService.sendMessageNotification(

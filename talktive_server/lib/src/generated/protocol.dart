@@ -747,12 +747,6 @@ class Protocol extends _i1.SerializationManagerServer {
           isNullable: false,
           dartType: 'int',
         ),
-        _i2.ColumnDefinition(
-          name: 'mentionedUserIds',
-          columnType: _i2.ColumnType.json,
-          isNullable: true,
-          dartType: 'List<UuidValue>?',
-        ),
       ],
       foreignKeys: [],
       indexes: [
@@ -2253,18 +2247,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<List<String>?>()) {
       return (data != null
               ? (data as List).map((e) => deserialize<String>(e)).toList()
-              : null)
-          as T;
-    }
-    if (t == List<_i1.UuidValue>) {
-      return (data as List).map((e) => deserialize<_i1.UuidValue>(e)).toList()
-          as T;
-    }
-    if (t == _i1.getType<List<_i1.UuidValue>?>()) {
-      return (data != null
-              ? (data as List)
-                    .map((e) => deserialize<_i1.UuidValue>(e))
-                    .toList()
               : null)
           as T;
     }

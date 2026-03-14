@@ -22,30 +22,120 @@ import 'group_profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 
 /// Loader for deep linking into GroupChatScreen without the Group model
-class GroupChatLoader extends ConsumerWidget {
+class GroupChatLoader extends ConsumerStatefulWidget {
   final int groupId;
   const GroupChatLoader({super.key, required this.groupId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final groupAsync = ref.watch(groupWithMembershipProvider(groupId));
-    return groupAsync.when(
-      data: (membership) {
-        if (membership?.group != null) {
-          if (membership!.membershipStatus == ChannelMemberStatus.joined) {
-            return GroupChatScreen(group: membership.group);
-          } else {
-            return GroupProfileScreen(
-              groupId: groupId,
-              initialGroup: membership.group,
-            );
-          }
-        }
-        return const Scaffold(body: Center(child: Text('Group not found')));
-      },
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
+  ConsumerState<GroupChatLoader> createState() => _GroupChatLoaderState();
+}
+
+class _GroupChatLoaderState extends ConsumerState<GroupChatLoader> {
+  GroupWithMembership? _membership;
+  bool _isLoading = true;
+  Object? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGroup();
+  }
+
+  Future<void> _loadGroup() async {
+    try {
+      final membership =
+          await ref.read(groupWithMembershipProvider(widget.groupId).future);
+      if (mounted) {
+        setState(() {
+          _membership = membership;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: AppTheme.duoBlue),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Text(
+              'Error: $_error',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.duoRed),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_membership?.group != null) {
+      if (_membership!.membershipStatus == ChannelMemberStatus.joined) {
+        return GroupChatScreen(group: _membership!.group);
+      } else {
+        return GroupProfileScreen(
+          groupId: widget.groupId,
+          initialGroup: _membership!.group,
+        );
+      }
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          'Chat',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+      ),
+      body: const Center(
+        child: Text(
+          'Group not found',
+          style: TextStyle(fontSize: 18, color: Colors.grey),
+        ),
+      ),
     );
   }
 }
@@ -64,6 +154,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   bool _isUploading = false;
+  bool _hasMarkedAsRead = false;
 
   @override
   void initState() {
@@ -72,12 +163,20 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   }
 
   Future<void> _markAsRead() async {
+    if (!mounted || _hasMarkedAsRead) return;
+    
     try {
       final client = ref.read(clientProvider);
-      await client.message.markChannelAsRead(widget.group.channelId);
-      // Invalidate lists to update unread counts
-      ref.invalidate(privateChatListProvider);
-      ref.invalidate(groupListProvider);
+      final channelId = widget.group.channelId;
+      
+      await client.message.markChannelAsRead(channelId);
+      
+      if (mounted) {
+        _hasMarkedAsRead = true;
+        // Invalidate lists to update unread counts
+        ref.invalidate(privateChatListProvider);
+        ref.invalidate(groupListProvider);
+      }
     } catch (e) {
       debugPrint('Error marking group as read: $e');
     }
@@ -85,7 +184,16 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
 
   @override
   void dispose() {
-    _markAsRead(); // Final mark as read when leaving
+    // Final mark as read when leaving - capture client and ID synchronously
+    try {
+      final client = ref.read(clientProvider);
+      final channelId = widget.group.channelId;
+      // Fire and forget, no longer using 'ref' inside the async part
+      client.message.markChannelAsRead(channelId).catchError((e) => debugPrint(e));
+    } catch (e) {
+      debugPrint('Error in dispose mark read: $e');
+    }
+
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
@@ -129,6 +237,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           .read(realtimeChatProvider(widget.group.channelId).notifier)
           .sendMessage(content, imageUrl: imageUrl);
       _messageController.clear();
+      _hasMarkedAsRead = false; // Allow re-marking as read for new messages
+      _markAsRead();
       HapticFeedback.lightImpact();
 
       if (_scrollController.hasClients) {
@@ -162,10 +272,11 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   Widget build(BuildContext context) {
     // Listen for real-time updates to mark as read if user is viewing
     ref.listen(realtimeChatProvider(widget.group.channelId), (previous, next) {
-      if (next.hasValue && next.value != null) {
-        final prevLength = previous?.value?.length ?? 0;
+      if (previous != null && next.hasValue && next.value != null) {
+        final prevLength = previous.value?.length ?? 0;
         final nextLength = next.value?.length ?? 0;
         if (nextLength > prevLength) {
+          _hasMarkedAsRead = false; // Reset to allow marking new messages as read
           _markAsRead();
         }
       }

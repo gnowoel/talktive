@@ -209,5 +209,15 @@ Future<List<Resident>> groupMembers(Ref ref, int groupId) async {
 @riverpod
 Future<GroupWithMembership?> groupWithMembership(Ref ref, int groupId) async {
   final groups = await ref.watch(groupListProvider.future);
-  return groups.where((g) => g.group.id == groupId).firstOrNull;
+  final memberGroup = groups.where((g) => g.group.id == groupId).firstOrNull;
+
+  if (memberGroup != null) {
+    return memberGroup;
+  }
+
+  // Fallback: If not found in list (e.g. deep link to a group not in main list),
+  // we could try to fetch individual details, but GroupWithMembership
+  // is usually only returned from the listMyGroups endpoint for the current user.
+  // Let's at least try to see if it's there by refreshing or just returning null.
+  return null;
 }

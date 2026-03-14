@@ -33,6 +33,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final TextEditingController _messageController = TextEditingController();
   Resident? _currentResident;
   bool _isUploading = false;
+  bool _hasMarkedAsRead = false;
 
   @override
   void initState() {
@@ -42,12 +43,16 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   }
 
   Future<void> _markAsRead() async {
+    if (!mounted || _hasMarkedAsRead) return;
     try {
       final client = ref.read(clientProvider);
       await client.message.markChannelAsRead(widget.channelId);
-      // Invalidate both lists to update unread counts immediately
-      ref.invalidate(privateChatListProvider);
-      ref.invalidate(groupListProvider);
+      if (mounted) {
+        _hasMarkedAsRead = true;
+        // Invalidate both lists to update unread counts immediately
+        ref.invalidate(privateChatListProvider);
+        ref.invalidate(groupListProvider);
+      }
     } catch (e) {
       debugPrint('Error marking channel as read: $e');
     }
@@ -55,7 +60,15 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   @override
   void dispose() {
-    _markAsRead(); // Final mark as read when leaving
+    // Final mark as read when leaving - capture client synchronously
+    try {
+      final client = ref.read(clientProvider);
+      final channelId = widget.channelId;
+      client.message.markChannelAsRead(channelId).catchError((e) => debugPrint(e));
+    } catch (e) {
+      debugPrint('Error in dispose mark read: $e');
+    }
+
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
@@ -91,6 +104,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             .sendMessage(content);
       }
       _messageController.clear();
+      _hasMarkedAsRead = false;
+      _markAsRead();
       HapticFeedback.lightImpact();
 
       if (_scrollController.hasClients) {
@@ -155,10 +170,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
     // Listen for real-time updates to mark as read if user is viewing
     ref.listen(realtimeChatProvider(widget.channelId), (previous, next) {
-      if (next.hasValue && next.value != null) {
-        final prevLength = previous?.value?.length ?? 0;
+      if (previous != null && next.hasValue && next.value != null) {
+        final prevLength = previous.value?.length ?? 0;
         final nextLength = next.value?.length ?? 0;
         if (nextLength > prevLength) {
+          _hasMarkedAsRead = false;
           _markAsRead();
         }
       }

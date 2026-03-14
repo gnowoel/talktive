@@ -26,11 +26,35 @@ class ActivityScreen extends ConsumerWidget {
       subtitle: 'Notifications & history',
       emoji: '🔔',
       gradient: AppTheme.duoBlueGradient,
-      trailingHeader: DuoRefreshButton(
-        color: Colors.white,
-        onRefresh: () async => ref.refresh(userNotificationsProvider),
+      trailingHeader: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DuoRefreshButton(
+            color: Colors.white,
+            onRefresh: () async => ref.refresh(userNotificationsProvider),
+          ),
+          const SizedBox(width: AppTheme.duoSpacingSmall),
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/my-profile');
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.person_outline_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+        ],
       ),
-      hasBackButton: true,
+      hasBackButton: false,
       body: activityAsync.when(
         data: (notifications) =>
             _buildActivityList(context, ref, notifications),

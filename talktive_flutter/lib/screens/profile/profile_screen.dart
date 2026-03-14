@@ -35,6 +35,7 @@ class ProfileScreen extends ConsumerWidget {
       title: 'Profile',
       subtitle: _displayName(resident),
       gradient: AppTheme.duoGreenGradient,
+      hasBackButton: true,
       body: residentAsync.when(
         data: (resident) => _buildProfileContent(context, ref, resident),
         loading: () => const Center(
@@ -539,7 +540,7 @@ class ProfileScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Activity',
+                    'Achievements',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

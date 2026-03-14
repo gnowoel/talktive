@@ -6,10 +6,12 @@ import '../plaza/plaza_screen.dart';
 import '../moments/moments_screen.dart';
 import '../chats/chats_screen.dart';
 import '../groups/groups_screen.dart';
+import '../activity/activity_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/unread_counts_provider.dart';
+import '../../providers/user_notifications_provider.dart';
 
 import '../../config/theme.dart';
 
@@ -41,7 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     const MomentsScreen(),
     const ChatsScreen(),
     const GroupsScreen(),
-    const ProfileScreen(),
+    const ActivityScreen(),
   ];
 
   final List<_NavItem> _navItems = const [
@@ -49,7 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
     _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
     _NavItem(emoji: '🏘️', label: 'Lounges', color: AppTheme.duoBlue),
-    _NavItem(emoji: '👤', label: 'Profile', color: AppTheme.duoGreen),
+    _NavItem(emoji: '🔔', label: 'Activity', color: AppTheme.duoGreen),
   ];
 
   @override
@@ -93,6 +95,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ref.read(privateChatListProvider.notifier).refresh();
                     } else if (index == 3) {
                       ref.read(groupListProvider.notifier).refresh();
+                    } else if (index == 4) {
+                      ref.refresh(userNotificationsProvider);
                     }
                   },
                   child: AnimatedContainer(
@@ -202,11 +206,15 @@ class _DuoBottomNavBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Only Chats (2) and Lounges (3) have badges
-    if (index != 2 && index != 3) return const SizedBox.shrink();
+    // Only Chats (2), Lounges (3), and Activity (4) have badges
+    if (index != 2 && index != 3 && index != 4) return const SizedBox.shrink();
 
     final unreadCounts = ref.watch(totalUnreadCountsProvider);
-    final count = index == 2 ? unreadCounts.privateChats : unreadCounts.lounges;
+    final count = index == 2
+        ? unreadCounts.privateChats
+        : index == 3
+            ? unreadCounts.lounges
+            : unreadCounts.activity;
 
     if (count <= 0) return const SizedBox.shrink();
 

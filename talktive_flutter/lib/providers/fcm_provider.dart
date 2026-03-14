@@ -155,6 +155,8 @@ class FCMManager extends _$FCMManager {
         return '🏆';
       case 'streak':
         return '🔥';
+      case 'mention':
+        return '🏷️';
       case 'group_invite':
         return '🎫';
       default:

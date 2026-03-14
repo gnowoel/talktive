@@ -16,6 +16,7 @@ fields:
   senderMood: String?
   senderFloor: int
   senderTrustScore: int
+  mentionedUserIds: List<UuidValue>?
 indexes:
   message_channel_idx:
     fields: channelId

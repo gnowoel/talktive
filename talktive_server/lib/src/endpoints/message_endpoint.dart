@@ -23,6 +23,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    List<UuidValue>? mentionedUserIds,
     bool isSystem = false,
   }) async {
     try {
@@ -159,6 +160,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         senderMood: sender.mood,
         senderFloor: senderEffectiveFloor,
         senderTrustScore: sender.trustScore,
+        mentionedUserIds: mentionedUserIds,
       );
 
       // 9. Database Updates (Single transaction if possible or batched saves)
@@ -202,51 +204,56 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       final isPlaza = channel.type == protocol.ChannelType.plaza;
-      final isGroup = channel.type == protocol.ChannelType.group;
 
-      if (!isPlaza && filteredContent != null) {
-        // Handle @Mentions (Group chats only as per requirement)
-        final mentionedUserIds = isGroup 
-            ? await MentionService.getMentionedUserIds(session, channelId, filteredContent) 
-            : <UuidValue>[];
-        
-        // Remove sender from mentioned list to avoid notifying self
-        mentionedUserIds.removeWhere((id) => id == senderUuid);
+      if (filteredContent != null) {
+        // Precise mentions provided by the client
+        final mentionNotifications = <UuidValue>{};
+        if (mentionedUserIds != null && mentionedUserIds.isNotEmpty) {
+           mentionNotifications.addAll(mentionedUserIds);
+        }
 
-        // Fetch all other active members (exclude sender)
-        final otherMembers = await protocol.ChannelMember.db.find(
-          session,
-          where: (t) =>
-              t.channelId.equals(channelId) &
-              t.userInfoId.notEquals(senderUuid) &
-              t.status.equals(protocol.ChannelMemberStatus.joined),
-        );
+        // Remove sender to avoid notifying self
+        mentionNotifications.remove(senderUuid);
 
-        final groupName = channel.name ?? 'Group';
+        final groupName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
 
-        for (final member in otherMembers) {
-          final isMentioned = mentionedUserIds.contains(member.userInfoId);
-          
-          if (isMentioned) {
-            // Priority 1: Mention Notification (Bypasses mute, saves to history)
-            await NotificationService.sendMentionNotification(
-              session,
-              member.userInfoId,
-              senderName ?? 'Resident',
-              filteredContent,
-              channelId,
-              groupName,
-            );
-          } else if (!member.isMuted) {
-            // Priority 2: Standard Message Notification (Only if not muted)
-            await NotificationService.sendMessageNotification(
-              session,
-              member.userInfoId,
-              senderName ?? 'Resident',
-              filteredContent,
-              channelId,
-              channelTypeStr,
-            );
+        // Priority 1: Notify mentioned users (Bypasses mute, saves to history)
+        for (final mentionedId in mentionNotifications) {
+          await NotificationService.sendMentionNotification(
+            session,
+            mentionedId,
+            senderName ?? 'Resident',
+            filteredContent,
+            channelId,
+            groupName,
+          );
+        }
+
+        // Priority 2: Standard Message Notifications (Groups/Private only, not Plaza)
+        if (!isPlaza) {
+          // Fetch all other active members (exclude sender)
+          final otherMembers = await protocol.ChannelMember.db.find(
+            session,
+            where: (t) =>
+                t.channelId.equals(channelId) &
+                t.userInfoId.notEquals(senderUuid) &
+                t.status.equals(protocol.ChannelMemberStatus.joined),
+          );
+
+          for (final member in otherMembers) {
+            // Skip if already notified via mention
+            if (mentionNotifications.contains(member.userInfoId)) continue;
+
+            if (!member.isMuted) {
+              await NotificationService.sendMessageNotification(
+                session,
+                member.userInfoId,
+                senderName ?? 'Resident',
+                filteredContent,
+                channelId,
+                channelTypeStr,
+              );
+            }
           }
         }
       }

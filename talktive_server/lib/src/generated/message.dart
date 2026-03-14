@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
+import 'package:talktive_server/src/generated/protocol.dart' as _i2;
 
 abstract class Message
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
@@ -29,6 +30,7 @@ abstract class Message
     this.senderMood,
     required this.senderFloor,
     required this.senderTrustScore,
+    this.mentionedUserIds,
   });
 
   factory Message({
@@ -46,6 +48,7 @@ abstract class Message
     String? senderMood,
     required int senderFloor,
     required int senderTrustScore,
+    List<_i1.UuidValue>? mentionedUserIds,
   }) = _MessageImpl;
 
   factory Message.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -68,6 +71,11 @@ abstract class Message
       senderMood: jsonSerialization['senderMood'] as String?,
       senderFloor: jsonSerialization['senderFloor'] as int,
       senderTrustScore: jsonSerialization['senderTrustScore'] as int,
+      mentionedUserIds: jsonSerialization['mentionedUserIds'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<_i1.UuidValue>>(
+              jsonSerialization['mentionedUserIds'],
+            ),
     );
   }
 
@@ -104,6 +112,8 @@ abstract class Message
 
   int senderTrustScore;
 
+  List<_i1.UuidValue>? mentionedUserIds;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -125,6 +135,7 @@ abstract class Message
     String? senderMood,
     int? senderFloor,
     int? senderTrustScore,
+    List<_i1.UuidValue>? mentionedUserIds,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -144,6 +155,10 @@ abstract class Message
       if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
       'senderTrustScore': senderTrustScore,
+      if (mentionedUserIds != null)
+        'mentionedUserIds': mentionedUserIds?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
     };
   }
 
@@ -165,6 +180,10 @@ abstract class Message
       if (senderMood != null) 'senderMood': senderMood,
       'senderFloor': senderFloor,
       'senderTrustScore': senderTrustScore,
+      if (mentionedUserIds != null)
+        'mentionedUserIds': mentionedUserIds?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
     };
   }
 
@@ -216,6 +235,7 @@ class _MessageImpl extends Message {
     String? senderMood,
     required int senderFloor,
     required int senderTrustScore,
+    List<_i1.UuidValue>? mentionedUserIds,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -231,6 +251,7 @@ class _MessageImpl extends Message {
          senderMood: senderMood,
          senderFloor: senderFloor,
          senderTrustScore: senderTrustScore,
+         mentionedUserIds: mentionedUserIds,
        );
 
   /// Returns a shallow copy of this [Message]
@@ -252,6 +273,7 @@ class _MessageImpl extends Message {
     Object? senderMood = _Undefined,
     int? senderFloor,
     int? senderTrustScore,
+    Object? mentionedUserIds = _Undefined,
   }) {
     return Message(
       id: id is int? ? id : this.id,
@@ -268,6 +290,9 @@ class _MessageImpl extends Message {
       senderMood: senderMood is String? ? senderMood : this.senderMood,
       senderFloor: senderFloor ?? this.senderFloor,
       senderTrustScore: senderTrustScore ?? this.senderTrustScore,
+      mentionedUserIds: mentionedUserIds is List<_i1.UuidValue>?
+          ? mentionedUserIds
+          : this.mentionedUserIds?.map((e0) => e0).toList(),
     );
   }
 }
@@ -342,6 +367,13 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
     table.senderTrustScore,
     value,
   );
+
+  _i1.ColumnValue<List<_i1.UuidValue>, List<_i1.UuidValue>> mentionedUserIds(
+    List<_i1.UuidValue>? value,
+  ) => _i1.ColumnValue(
+    table.mentionedUserIds,
+    value,
+  );
 }
 
 class MessageTable extends _i1.Table<int?> {
@@ -399,6 +431,10 @@ class MessageTable extends _i1.Table<int?> {
       'senderTrustScore',
       this,
     );
+    mentionedUserIds = _i1.ColumnSerializable<List<_i1.UuidValue>>(
+      'mentionedUserIds',
+      this,
+    );
   }
 
   late final MessageUpdateTable updateTable;
@@ -429,6 +465,8 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt senderTrustScore;
 
+  late final _i1.ColumnSerializable<List<_i1.UuidValue>> mentionedUserIds;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -445,6 +483,7 @@ class MessageTable extends _i1.Table<int?> {
     senderMood,
     senderFloor,
     senderTrustScore,
+    mentionedUserIds,
   ];
 }
 

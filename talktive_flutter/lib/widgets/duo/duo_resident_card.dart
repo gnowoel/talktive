@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
-import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 import 'duo_card.dart';
 import 'duo_avatar.dart';
 

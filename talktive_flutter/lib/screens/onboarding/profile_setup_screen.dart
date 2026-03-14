@@ -13,7 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
 
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive_client/talktive_client.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {

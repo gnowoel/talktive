@@ -7,8 +7,8 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
-import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';

@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';

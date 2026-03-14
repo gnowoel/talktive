@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 /// Analytics dashboard for admins
 class AnalyticsScreen extends ConsumerStatefulWidget {

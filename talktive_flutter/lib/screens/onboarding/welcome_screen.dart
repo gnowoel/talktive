@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth/google_sign_in_button.dart';
 import '../../widgets/duo/duo_button.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});

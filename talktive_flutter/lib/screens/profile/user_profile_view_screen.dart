@@ -9,14 +9,14 @@ import '../../widgets/duo/duo_button.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/user_likes_provider.dart';
-import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
-import 'package:talktive_flutter/helpers/duo_trust_score_helper.dart';
+import 'package:talktive/helpers/duo_trust_score_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 
 /// Simple user profile view screen

@@ -9,7 +9,7 @@ import '../../providers/achievement_provider.dart';
 import '../../providers/streak_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
-import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
@@ -19,7 +19,7 @@ import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreen extends ConsumerWidget {

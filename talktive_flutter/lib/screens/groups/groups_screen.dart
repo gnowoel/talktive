@@ -14,8 +14,8 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import 'create_group_dialog.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
-import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../providers/current_resident_provider.dart';
 
 /// Duolingo-style Groups screen - Community discussions

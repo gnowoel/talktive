@@ -12,7 +12,7 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import 'create_group_dialog.dart';
 

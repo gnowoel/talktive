@@ -6,7 +6,7 @@ import 'package:talktive_client/talktive_client.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../config/theme.dart';
-import 'package:talktive_flutter/helpers/duo_floor_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_avatar.dart';

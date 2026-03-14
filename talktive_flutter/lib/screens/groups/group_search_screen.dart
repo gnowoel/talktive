@@ -13,7 +13,7 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
-import 'package:talktive_flutter/helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 class GroupSearchScreen extends ConsumerStatefulWidget {
   const GroupSearchScreen({super.key});

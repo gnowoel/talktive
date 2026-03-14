@@ -9,6 +9,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/date_formatter.dart';
 import '../../helpers/url_helper.dart';
+import '../../helpers/mention_helper.dart';
 
 class MessageBubble extends ConsumerWidget {
   final Message message;
@@ -111,6 +112,11 @@ class MessageBubble extends ConsumerWidget {
                       : null,
                   color: isCurrentUser ? null : Colors.white,
                   borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                  border: (!isCurrentUser && 
+                          message.content != null && 
+                          MentionHelper.containsMention(message.content!, currentResident?.userName ?? ''))
+                      ? Border.all(color: AppTheme.accentColor, width: 2)
+                      : null,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -140,6 +146,24 @@ class MessageBubble extends ConsumerWidget {
                             ...[
                               const SizedBox(width: 6),
                               DuoFloorBadge(floor: senderFloor),
+                            ],
+                            if (message.content != null && MentionHelper.containsMention(message.content!, currentResident?.userName ?? '')) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.accentColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'MENTION',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.accentColor,
+                                  ),
+                                ),
+                              ),
                             ],
                           ],
                         ),
@@ -185,15 +209,21 @@ class MessageBubble extends ConsumerWidget {
                     ],
                     if (message.content != null &&
                         message.content!.isNotEmpty) ...[
-                      Text(
-                        message.content!,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: isCurrentUser
-                              ? Colors.white
-                              : AppTheme.textPrimary,
-                          fontFamily: 'Rubik',
-                          height: 1.4,
+                      RichText(
+                        text: MentionHelper.buildMessageSpan(
+                          content: message.content!,
+                          baseStyle: TextStyle(
+                            fontSize: 15,
+                            color: isCurrentUser
+                                ? Colors.white
+                                : AppTheme.textPrimary,
+                            fontFamily: 'Rubik',
+                            height: 1.4,
+                          ),
+                          mentionColor: isCurrentUser 
+                              ? Colors.white 
+                              : AppTheme.primaryColor,
+                          currentUserName: currentResident?.userName,
                         ),
                       ),
                       const SizedBox(height: 4),

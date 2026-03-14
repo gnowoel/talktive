@@ -196,6 +196,31 @@ class NotificationService {
     );
   }
 
+  /// Sends a mention notification.
+  static Future<void> sendMentionNotification(
+    Session session,
+    UuidValue recipientId,
+    String senderName,
+    String messagePreview,
+    int channelId,
+    String groupName,
+  ) async {
+    // Mentions are recorded in history and bypass mute
+    await sendNotification(
+      session,
+      recipientId,
+      'mention',
+      'Mentioned by $senderName',
+      '@$senderName: $messagePreview',
+      data: {
+        'channelId': channelId,
+        'groupName': groupName,
+        'route': '/groups/chat/$channelId',
+      },
+      saveToHistory: true,
+    );
+  }
+
   /// Gets user's notifications.
   static Future<List<protocol.UserNotification>> getUserNotifications(
     Session session,

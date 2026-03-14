@@ -210,6 +210,8 @@ class ActivityScreen extends ConsumerWidget {
         return '🔥';
       case 'group_invite':
         return '🎫';
+      case 'mention':
+        return '📧'; // Or '@' but emoji like 📧 or 🎯
       default:
         return '🔔';
     }

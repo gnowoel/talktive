@@ -10,6 +10,7 @@ import '../services/achievement_service.dart';
 import '../services/streak_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/chat_service.dart';
+import '../services/mention_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import '../services/notification_service.dart';
 
@@ -200,25 +201,53 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         channelTypeStr = 'group';
       }
 
-      // Only notify if not Plaza (or if you want to notify even in Plaza, though it might be spammy)
-      if (channel.type != protocol.ChannelType.plaza) {
-        final members = await protocol.ChannelMember.db.find(
+      final isPlaza = channel.type == protocol.ChannelType.plaza;
+      final isGroup = channel.type == protocol.ChannelType.group;
+
+      if (!isPlaza && filteredContent != null) {
+        // Handle @Mentions (Group chats only as per requirement)
+        final mentionedUserIds = isGroup 
+            ? await MentionService.getMentionedUserIds(session, channelId, filteredContent) 
+            : <UuidValue>[];
+        
+        // Remove sender from mentioned list to avoid notifying self
+        mentionedUserIds.removeWhere((id) => id == senderUuid);
+
+        // Fetch all other active members (exclude sender)
+        final otherMembers = await protocol.ChannelMember.db.find(
           session,
           where: (t) =>
               t.channelId.equals(channelId) &
               t.userInfoId.notEquals(senderUuid) &
-              t.isMuted.equals(false),
+              t.status.equals(protocol.ChannelMemberStatus.joined),
         );
 
-        for (final member in members) {
-          await NotificationService.sendMessageNotification(
-            session,
-            member.userInfoId,
-            senderName ?? 'Resident',
-            filteredContent ?? 'Sent a media',
-            channelId,
-            channelTypeStr,
-          );
+        final groupName = channel.name ?? 'Group';
+
+        for (final member in otherMembers) {
+          final isMentioned = mentionedUserIds.contains(member.userInfoId);
+          
+          if (isMentioned) {
+            // Priority 1: Mention Notification (Bypasses mute, saves to history)
+            await NotificationService.sendMentionNotification(
+              session,
+              member.userInfoId,
+              senderName ?? 'Resident',
+              filteredContent,
+              channelId,
+              groupName,
+            );
+          } else if (!member.isMuted) {
+            // Priority 2: Standard Message Notification (Only if not muted)
+            await NotificationService.sendMessageNotification(
+              session,
+              member.userInfoId,
+              senderName ?? 'Resident',
+              filteredContent,
+              channelId,
+              channelTypeStr,
+            );
+          }
         }
       }
 

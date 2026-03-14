@@ -9,13 +9,8 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'firebase_options.dart';
 import 'serverpod_client.dart';
 import 'services/edge_to_edge_manager.dart';
-import 'services/messaging.dart';
+import 'services/background_messaging_handler.dart';
 import 'version_selector.dart';
-
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Messaging.handleMessage(message);
-}
 
 Future<void> main() async {
   debugRepaintRainbowEnabled = false;
@@ -42,7 +37,7 @@ Future<void> main() async {
   }
 
   // Background message handler needs to be registered early
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onBackgroundMessage(backgroundMessagingHandler);
 
   runApp(const VersionSelector());
 }

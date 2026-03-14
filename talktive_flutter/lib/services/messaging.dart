@@ -141,6 +141,11 @@ class Messaging {
 
   static Future<void> handleMessage(RemoteMessage message) async {
     final data = message.data;
+    if (data['appVersion'] == 'serverpod') {
+      debugPrint('Messaging (Legacy): Ignoring serverpod message');
+      return;
+    }
+
     final title = data['title'];
     final body = data['body'];
 
@@ -184,6 +189,11 @@ class Messaging {
   }
 
   void _handleNotificationData(Map<String, dynamic> data) {
+    if (data['appVersion'] == 'serverpod') {
+      debugPrint('Messaging (Legacy): Ignoring serverpod notification tap');
+      return;
+    }
+
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
 

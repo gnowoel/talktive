@@ -9,15 +9,8 @@ import 'group_provider.dart';
 
 part 'fcm_provider.g.dart';
 
-/// Background message handler (must be top-level function)
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  if (message.data['appVersion'] != 'serverpod') return;
-  debugPrint('Handling background message: ${message.messageId}');
-  // Handle background notification
-}
-
-/// Provider for Firebase Cloud Messaging.
+/// Provider for Firebase Cloud Messaging for the Serverpod version.
+/// Background messages are handled centrally in background_messaging_handler.dart.
 @riverpod
 class FCMManager extends _$FCMManager {
   FirebaseMessaging? _messaging;
@@ -60,10 +53,8 @@ class FCMManager extends _$FCMManager {
         _registerToken(newToken);
       });
 
-      // Set up background message handler
-      FirebaseMessaging.onBackgroundMessage(
-        _firebaseMessagingBackgroundHandler,
-      );
+      // FCMManager ignores background message registration here as it's handled in main.dart
+      // via background_messaging_handler.dart to avoid isolate conflicts.
 
       // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {

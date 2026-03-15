@@ -9,7 +9,6 @@ import '../../providers/group_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_group_card.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -92,12 +91,25 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DuoPageScaffold(
-      emoji: '🔍',
-      title: 'Discovery',
-      subtitle: 'Find your people',
-      gradient: AppTheme.duoBlueGradient,
-      hasBackButton: true,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          'Discovery',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: AppTheme.textPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: _isLoading && _results.isEmpty
           ? const Center(child: DuoLoadingIndicator())
           : _buildBody(),

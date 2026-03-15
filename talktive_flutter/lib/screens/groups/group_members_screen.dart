@@ -8,7 +8,6 @@ import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_resident_card.dart';
 import '../../widgets/duo/duo_button.dart';
@@ -45,12 +44,25 @@ class GroupMembersScreen extends ConsumerWidget {
             ? ref.watch(pendingApplicationsProvider(groupId))
             : const AsyncValue.data(<GroupMemberWithProfile>[]);
 
-        return DuoPageScaffold(
-          emoji: '👥',
-          title: group.name,
-          subtitle: '${group.memberCount} members',
-          gradient: AppTheme.duoBlueGradient,
-          hasBackButton: true,
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(
+              group.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            foregroundColor: AppTheme.textPrimary,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => context.pop(),
+            ),
+          ),
           body: membersAsync.when(
             data: (members) => pendingAsync.when(
               data: (pending) =>

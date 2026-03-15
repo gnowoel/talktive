@@ -5,20 +5,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../providers/gamification_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
-import '../../widgets/duo/duo_badge.dart';
-import '../../widgets/duo/duo_streak_card.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
-import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreen extends ConsumerWidget {
@@ -27,7 +22,6 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final residentAsync = ref.watch(currentResidentProvider);
-    final resident = residentAsync.value;
 
     return Scaffold(
       backgroundColor: Colors.white,

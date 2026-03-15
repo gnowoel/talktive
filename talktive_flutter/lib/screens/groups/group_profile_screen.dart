@@ -13,7 +13,6 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import 'create_group_dialog.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
@@ -61,20 +60,32 @@ class GroupProfileScreen extends ConsumerWidget {
         final isApplied = status == ChannelMemberStatus.applied;
         final isInvited = status == ChannelMemberStatus.invited;
 
-        return DuoPageScaffold(
-          emoji: group.emoji ?? '👥',
-          title: group.name,
-          subtitle: group.isPublic ? 'Public lounge' : 'Private lounge',
-          gradient: group.isPublic
-              ? AppTheme.duoBlueGradient
-              : AppTheme.duoOrangeGradient,
-          hasBackButton: true,
-          trailingHeader: isCreator
-              ? IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(
+              group.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            foregroundColor: AppTheme.textPrimary,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => context.pop(),
+            ),
+            actions: [
+              if (isCreator)
+                IconButton(
+                  icon: const Icon(Icons.edit),
                   onPressed: () => _showEditDialog(context, group),
-                )
-              : null,
+                ),
+            ],
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(

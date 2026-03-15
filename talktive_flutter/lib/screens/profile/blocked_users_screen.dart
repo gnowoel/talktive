@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,7 +7,6 @@ import '../../providers/blocked_users_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
@@ -21,12 +21,25 @@ class BlockedUsersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
 
-    return DuoPageScaffold(
-      emoji: '🚫',
-      title: 'Blocked Users',
-      subtitle: 'Peace & quiet',
-      gradient: AppTheme.duoOrangeGradient,
-      hasBackButton: true,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          'Blocked Users',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: AppTheme.textPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: blockedUsersAsync.when(
         data: (blockedUserIds) {
           if (blockedUserIds.isEmpty) {

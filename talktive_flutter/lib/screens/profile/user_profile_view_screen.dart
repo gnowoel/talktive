@@ -17,7 +17,6 @@ import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
 import 'package:talktive/helpers/duo_trust_score_helper.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -52,13 +51,28 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final isBlocked = blockedIds.contains(widget.userId);
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
-    return DuoPageScaffold(
-      emoji: '👤',
-      title: widget.userName ?? 'Resident',
-      subtitle: 'Neighbor',
-      gradient: AppTheme.duoBlueGradient,
-      hasBackButton: true,
-      trailingHeader: _buildTrailingMenu(isBlocked),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          widget.userName ?? 'Resident',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: AppTheme.textPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          onPressed: () => context.pop(),
+        ),
+        actions: [
+          _buildTrailingMenu(isBlocked),
+        ],
+      ),
       body: profileAsync.when(
         data: (profile) => _buildProfileContent(isBlocked, profile),
         loading: () => const Center(
@@ -70,8 +84,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       ),
       bottomNavigationBar:
           isBlocked || profileAsync.isLoading || profileAsync.hasError
-          ? null
-          : _buildBottomBar(context, ref),
+              ? null
+              : _buildBottomBar(context, ref),
     );
 
   }

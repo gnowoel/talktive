@@ -143,9 +143,9 @@ class ActivityScreen extends ConsumerWidget {
                       IconButton(
                         onPressed: () => _showMarkAllAsReadConfirmation(context, ref, notifications),
                         icon: Icon(
-                          Icons.cleaning_services_rounded,
+                          Icons.clear_all_rounded,
                           color: Colors.grey[600],
-                          size: 20,
+                          size: 24,
                         ),
                         tooltip: 'Mark all as read',
                       ),

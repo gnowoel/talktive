@@ -117,11 +117,18 @@ class ApartmentService {
   }
 
   /// Award a trustScore bonus to [target] when their content is liked.
-  /// Bonus is a flat +10 to Trust Score.
+  /// Bonus is a flat +10 to Trust Score, capped at 1000.
   static void awardVouch({
     required Resident target,
   }) {
-    target.trustScore += 10;
+    target.trustScore = min(1000, target.trustScore + 10);
+  }
+
+  /// Remove a trustScore bonus from [target] when a vouch is removed.
+  static void removeVouch({
+    required Resident target,
+  }) {
+    target.trustScore = max(0, target.trustScore - 10);
   }
 
   // ---------------------------------------------------------------------------

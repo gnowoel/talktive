@@ -99,12 +99,11 @@ class GamificationService {
       resident.lastLoginDate = now;
 
       // Update streak (don't save yet)
-      await updateLoginStreak(
+      _updateStreakInternal(
         session,
         resident,
         lastLogin,
         today,
-        save: false,
       );
 
       if (save) {
@@ -115,16 +114,14 @@ class GamificationService {
     return false;
   }
 
-  /// Update login streak
-  static Future<void> updateLoginStreak(
+  /// Internal streak update logic (no save)
+  static void _updateStreakInternal(
     Session session,
     Resident resident,
     DateTime? lastLogin,
-    DateTime today, {
-    bool save = true,
-  }) async {
+    DateTime today,
+  ) async {
     if (lastLogin == null) {
-      // First login
       resident.currentStreak = 1;
       resident.longestStreak = 1;
     } else {
@@ -136,46 +133,43 @@ class GamificationService {
       );
 
       if (lastLoginDay == yesterday) {
-        // Consecutive day
         resident.currentStreak += 1;
-
-        // Update longest streak
         if (resident.currentStreak > resident.longestStreak) {
           resident.longestStreak = resident.currentStreak;
         }
 
-        // Award streak bonuses
+        // Award streak bonuses (batching saves)
+        int bonus = 0;
+        String? reason;
         if (resident.currentStreak == 3) {
-          await awardXP(
-            session,
-            resident,
-            XP_STREAK_3_DAYS,
-            '3-day streak',
-            save: false,
-          );
+          bonus = XP_STREAK_3_DAYS;
+          reason = '3-day streak';
         } else if (resident.currentStreak == 7) {
-          await awardXP(
-            session,
-            resident,
-            XP_STREAK_7_DAYS,
-            '7-day streak',
-            save: false,
-          );
+          bonus = XP_STREAK_7_DAYS;
+          reason = '7-day streak';
         } else if (resident.currentStreak == 30) {
-          await awardXP(
-            session,
-            resident,
-            XP_STREAK_30_DAYS,
-            '30-day streak',
-            save: false,
-          );
+          bonus = XP_STREAK_30_DAYS;
+          reason = '30-day streak';
+        }
+
+        if (bonus > 0) {
+          await awardXP(session, resident, bonus, reason!, save: false);
         }
       } else if (lastLoginDay != today) {
-        // Streak broken
         resident.currentStreak = 1;
       }
     }
+  }
 
+  /// Update login streak (Public version with save)
+  static Future<void> updateLoginStreak(
+    Session session,
+    Resident resident, {
+    bool save = true,
+  }) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    _updateStreakInternal(session, resident, resident.lastLoginDate, today);
     if (save) {
       await Resident.db.updateRow(session, resident);
     }
@@ -246,7 +240,8 @@ class GamificationService {
     final savedReward = await DailyReward.db.insertRow(session, reward);
 
     // Award trustScore to resident (daily reward)
-    resident.trustScore = (resident.trustScore + rewardAmount).clamp(0, 100);
+    // Fix: Clamp to 1000, not 100, as trust score can go high.
+    resident.trustScore = (resident.trustScore + rewardAmount).clamp(0, 1000);
     await Resident.db.updateRow(session, resident);
 
     return savedReward;
@@ -425,55 +420,13 @@ class GamificationService {
     String achievementKey, {
     int increment = 1,
   }) async {
-    final achievement = await Achievement.db.findFirstRow(
+    final results = await trackMultipleProgress(
       session,
-      where: (t) => t.key.equals(achievementKey),
+      userId,
+      [achievementKey],
+      increment: increment,
     );
-
-    if (achievement == null) return null;
-
-    var userAchievement = await UserAchievement.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.userId.equals(userId) & t.achievementId.equals(achievement.id!),
-    );
-
-    if (userAchievement == null) {
-      userAchievement = UserAchievement(
-        userId: userId,
-        achievementId: achievement.id!,
-        progress: 0,
-        unlockedAt: null,
-        notified: false,
-      );
-      userAchievement = await UserAchievement.db.insertRow(
-        session,
-        userAchievement,
-      );
-    }
-
-    if (userAchievement.unlockedAt != null) return userAchievement;
-
-    userAchievement.progress += increment;
-
-    if (userAchievement.progress >= achievement.targetValue) {
-      userAchievement.unlockedAt = DateTime.now();
-      userAchievement.notified = false;
-
-      try {
-        await NotificationService.sendAchievementNotification(
-          session,
-          userId,
-          achievement.name ?? achievement.key,
-          achievement.emoji ?? '🏆',
-          achievement.points,
-        );
-      } catch (e) {
-        session.log('Failed to send achievement notification: $e');
-      }
-    }
-
-    return await UserAchievement.db.updateRow(session, userAchievement);
+    return results.isNotEmpty ? results.first : null;
   }
 
   /// Tracks progress for multiple achievements in a single database round-trip.

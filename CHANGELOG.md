@@ -4,6 +4,25 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 16, 2026 - Resident Profile Consolidation & Gamification Reliability 🏗️
+
+### Backend Architectural Refinement
+- **Consolidated Profile View**: Centralized the computation of `UserProfileView` (stats, social states, computed floor) into `ResidentService.getResidentProfileView`. This removes redundant code from `ResidentEndpoint` and `AdminEndpoint`.
+- **Unified Social State**: Added `isLiked` status directly to the `UserProfileView` protocol, allowing the frontend to determine vouching status in a single request.
+- **Improved Vouch Logic**: Centralized trust score adjustments for vouches in `ApartmentService` (added `removeVouch`) and updated `ResidentEndpoint` to ensure consistent state management.
+
+### Gamification & Reliability
+- **Trust Score Fix**: Fixed a critical bug in `claimDailyReward` where trust score was incorrectly clamped to 100 instead of 1000, which potentially penalized high-trust users.
+- **Consolidated Achievement Tracking**: Refactored `GamificationService` to use a single `trackMultipleProgress` core for all achievement updates, improving maintainability and ensuring consistent notification triggering.
+- **Streak Optimization**: Simplified the internal streak update logic to be more efficient and easier to verify.
+
+### Frontend Reactive Polish
+- **Reactive User Profiles**: Refactored the `UserProfile` provider using `riverpod_annotation` to be fully reactive to block/like events.
+- **Unified Profile UI**: Re-implemented `ProfileScreen` and `UserProfileViewScreen` to use the same reactive `UserProfile` provider, ensuring message/moment counts and social buttons are always in sync.
+- **Refresh Synchronization**: Updated `CurrentResident` manual refresh to automatically invalidate and reload the associated profile view stats.
+
+---
+
 ## March 15, 2026 - Structural Layout Harmonization & Design System Update 🎨
 
 ### UI/UX Refinement: Destinations vs. Utilities

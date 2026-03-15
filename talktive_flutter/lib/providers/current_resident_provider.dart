@@ -75,6 +75,11 @@ class CurrentResident extends _$CurrentResident {
               ),
             );
       }
+
+      // Also invalidate the profile view for the current user to refresh stats
+      if (resident != null) {
+        ref.invalidate(userProfileProvider(resident.userInfoId.toString()));
+      }
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

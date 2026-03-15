@@ -231,9 +231,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         session,
         sender.userInfoId,
       );
-      // Streak is already updated in checkDailyLogin via awardXP, 
-      // but we can update message streak explicitly too.
-      await GamificationService.updateMessageStreak(session, sender);
 
       return savedMessage;
     } catch (e, stack) {

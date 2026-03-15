@@ -126,64 +126,16 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     return await protocol.Resident.db.updateRow(session, resident);
   }
 
-  // --- Profile Viewing ---
-
   /// Get a user's profile view (with stats)
   Future<protocol.UserProfileView?> getUserProfile(Session session, String userId) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
     final viewerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
-    final resident = await ResidentService.getResident(session, targetId);
-    if (resident == null) return null;
-
-    final isBlocked = await ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId);
-    final hasBlockedMe = await ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId);
-
-    // Stats
-    final messageCount = await protocol.Message.db.count(session, where: (t) => t.senderId.equals(targetId));
-    final momentCount = await protocol.Moment.db.count(session, where: (t) => t.authorId.equals(targetId));
-    final achievements = await protocol.UserAchievement.db.count(session, where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null));
-
-    // Recent moments
-    final recentMoments = await protocol.Moment.db.find(
+    return await ResidentService.getResidentProfileView(
       session,
-      where: (t) => t.authorId.equals(targetId),
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
-      limit: 6,
-    );
-
-    // Mutual groups
-    final viewerGroups = await protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId));
-    final targetGroups = await protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId));
-    final viewerGroupIds = viewerGroups.map((g) => g.channelId).toSet();
-    final targetGroupIds = targetGroups.map((g) => g.channelId).toSet();
-    final mutualGroupsCount = viewerGroupIds.intersection(targetGroupIds).length;
-
-    return protocol.UserProfileView(
-      userId: userId,
-      userName: resident.userName ?? 'Resident',
-      userAvatar: resident.avatar ?? '👤',
-      userMood: resident.mood,
-      floor: ApartmentService.computeEffectiveFloor(resident),
-      trustScore: resident.trustScore,
-      level: resident.level,
-      xp: resident.xp,
-      totalMessages: messageCount,
-      totalMoments: momentCount,
-      achievementsUnlocked: achievements,
-      currentStreak: resident.currentStreak,
-      longestStreak: resident.longestStreak,
-      isBlocked: isBlocked,
-      hasBlockedMe: hasBlockedMe,
-      mutualGroups: mutualGroupsCount,
-      recentMoments: recentMoments,
-      interests: resident.interests,
-      languages: resident.languages,
-      gender: resident.gender,
-      country: resident.country,
-      bio: resident.bio,
+      targetId,
+      viewerId: viewerId,
     );
   }
 
@@ -215,12 +167,16 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     await protocol.UserLike.db.insertRow(session, protocol.UserLike(senderId: callerId, receiverId: targetId, createdAt: DateTime.now()));
 
-    // Trust Score Increase
-    target.trustScore = min(100, target.trustScore + 10);
+    // Trust Score Increase & XP Reward
+    ApartmentService.awardVouch(target: target);
+    await GamificationService.awardXP(
+      session,
+      target,
+      GamificationService.XP_USER_VOUCH,
+      'Vouched by another resident',
+      save: false,
+    );
     await protocol.Resident.db.updateRow(session, target);
-    
-    // XP Reward for the target (optional, but good for engagement)
-    await GamificationService.awardXP(session, target, GamificationService.XP_USER_VOUCH, 'Vouched by another resident');
   }
 
   /// Remove a Vouch/Like.
@@ -240,7 +196,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     await protocol.UserLike.db.deleteRow(session, existingLike);
 
-    target.trustScore = max(0, target.trustScore - 10);
+    ApartmentService.removeVouch(target: target);
     await protocol.Resident.db.updateRow(session, target);
   }
 

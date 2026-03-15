@@ -210,11 +210,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        if (isBlocked) {
-          await ref.read(blockedUsersProvider.notifier).unblock(widget.userId);
-        } else {
-          await ref.read(blockedUsersProvider.notifier).block(widget.userId);
-        }
+        await ref.read(userProfileProvider(widget.userId).notifier).toggleBlock();
         if (context.mounted) {
           DuoSnackBarHelper.showSuccess(
             context,
@@ -394,8 +390,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   }
 
   Widget _buildVouchButton(UserProfileView? profile) {
-    final likedIds = ref.watch(userLikesProvider).value ?? [];
-    final isLiked = likedIds.contains(widget.userId);
+    if (profile == null) return const SizedBox();
+    final isLiked = profile.isLiked;
 
     return DuoButton(
       text: isLiked ? 'Vouched' : '❤️ Vouch for Resident',
@@ -403,27 +399,12 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       isSecondary: isLiked,
       width: double.infinity,
       onPressed: () async {
-        try {
-          if (isLiked) {
-            await ref
-                .read(userLikesProvider.notifier)
-                .unlikeUser(widget.userId);
-            if (mounted) {
-              DuoSnackBarHelper.showInfo(context, 'Vouch removed.');
-            }
-          } else {
-            await ref.read(userLikesProvider.notifier).likeUser(widget.userId);
-            if (mounted) {
-              DuoSnackBarHelper.showSuccess(
-                context,
-                'User vouched! Trust Score increased.',
-              );
-            }
-          }
-        } catch (e) {
-          if (mounted) {
-            DuoSnackBarHelper.showError(context, e);
-          }
+        await ref.read(userProfileProvider(widget.userId).notifier).toggleLike();
+        if (mounted) {
+           DuoSnackBarHelper.showSuccess(
+            context,
+            isLiked ? 'Vouch removed.' : 'User vouched! Trust Score increased.',
+          );
         }
       },
     );

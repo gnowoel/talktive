@@ -237,6 +237,10 @@ class ProfileScreen extends ConsumerWidget {
     WidgetRef ref,
     Resident? resident,
   ) {
+    if (resident == null) return const SizedBox();
+
+    final profileAsync = ref.watch(userProfileProvider(resident.userInfoId.toString()));
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppTheme.duoSpacingLarge,
@@ -244,83 +248,77 @@ class ProfileScreen extends ConsumerWidget {
         AppTheme.duoSpacingLarge,
         AppTheme.duoSpacingLarge,
       ),
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: AppTheme.duoSpacingMedium,
-        crossAxisSpacing: AppTheme.duoSpacingMedium,
-        childAspectRatio: 1.1,
-        children: [
-          // Trust Score
-          DuoStatCard(
+      child: profileAsync.when(
+        data: (profile) {
+          final trustScore = profile?.trustScore ?? 100;
+          final floor = profile?.floor ?? 1;
+          final messages = profile?.totalMessages ?? 0;
+          final xp = profile?.xp ?? 0;
+
+          return GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: AppTheme.duoSpacingMedium,
+            crossAxisSpacing: AppTheme.duoSpacingMedium,
+            childAspectRatio: 1.1,
+            children: [
+              // Trust Score
+              DuoStatCard(
                 icon: Icons.shield,
-                value: '${resident?.trustScore ?? 100}',
+                value: '$trustScore',
                 label: 'Trust Score',
                 gradientColors: [
-                  _getTrustColor(resident?.trustScore ?? 100),
-                  _getTrustColor(
-                    resident?.trustScore ?? 100,
-                  ).withValues(alpha: 0.7),
+                  DuoTrustScoreHelper.getTrustColor(trustScore),
+                  DuoTrustScoreHelper.getTrustColor(trustScore).withValues(alpha: 0.7),
                 ],
-              )
-              .animate()
-              .fadeIn(delay: 300.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-          // XP (Experience Points)
-          _buildXPCard(context, resident)
-              .animate()
-              .fadeIn(delay: 350.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-          // Floor (Computed from XP and Trust)
-          DuoStatCard(
-            icon: Icons.apartment,
-            value:
-                '${resident != null ? DuoFloorHelper.computeFloor(resident) : 0}',
-            label: 'Floor',
-            gradientColors: [
-              AppTheme.primaryColor,
-              AppTheme.primaryColor.withValues(alpha: 0.7),
-            ],
-          ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
-          // Messages
-          DuoStatCard(
+              ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
+              
+              // XP (Experience Points)
+              _buildXPCard(context, profile)
+                  .animate()
+                  .fadeIn(delay: 350.ms)
+                  .scale(begin: const Offset(0.8, 0.8)),
+              
+              // Floor (Computed from XP and Trust)
+              DuoStatCard(
+                icon: Icons.apartment,
+                value: '$floor',
+                label: 'Floor',
+                gradientColors: [
+                  AppTheme.primaryColor,
+                  AppTheme.primaryColor.withValues(alpha: 0.7),
+                ],
+              ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
+              
+              // Messages
+              DuoStatCard(
                 icon: Icons.message,
-                value: '${resident?.experienceMessageCount ?? 0}',
+                value: '$messages',
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,
                   AppTheme.accentColor.withValues(alpha: 0.7),
                 ],
-              )
-              .animate()
-              .fadeIn(delay: 450.ms)
-              .scale(begin: const Offset(0.8, 0.8)),
-        ],
+              ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Text('Error loading stats'),
       ),
     );
   }
 
-  /// Get color based on reputation value
-  Color _getTrustColor(int reputation) {
-    if (reputation > 50) {
-      return AppTheme.duoGreen; // Good standing
-    } else if (reputation >= 20) {
-      return AppTheme.duoYellow; // Warning
-    } else {
-      return AppTheme.duoRed; // Danger
-    }
-  }
-
   /// Build XP card with progress indicator
-  Widget _buildXPCard(BuildContext context, Resident? resident) {
-    final xp = resident?.xp ?? 0;
+  Widget _buildXPCard(BuildContext context, UserProfileView? profile) {
+    final xp = profile?.xp ?? 0;
 
     // Default placeholder
     var xpDisplay = '0/50';
-    if (resident != null) {
-      final progress = DuoFloorHelper.getXPProgress(resident);
-      final needed = DuoFloorHelper.getXPNeeded(resident);
+    if (profile != null) {
+      final progress = DuoFloorHelper.getXPProgressFromProfile(profile);
+      final needed = DuoFloorHelper.getXPNeededFromProfile(profile);
       xpDisplay = '$progress/$needed';
     }
 

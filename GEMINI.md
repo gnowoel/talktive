@@ -109,6 +109,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **Profile View Consolidation (Mar 2026)**: Centralized `UserProfileView` generation into `ResidentService` and implemented reactive `UserProfileProvider` in the frontend. This unified "My Profile" and "Resident Profile" views with consistent stats and real-time social state (block/like) synchronization.
 - **Consolidation & Simplification (Mar 2026)**: Merged `AchievementService` and `StreakService` into `GamificationService`, and consolidated `UserProfileEndpoint` and `UserLikeEndpoint` into `ResidentEndpoint`. Rationalized frontend providers by merging achievement, streak, and notification state management.
 - **500 Error (Feb 2026)**: Caused by `int` vs `UUID` mismatch in `Resident`. Fixed by:
   1. Migrating `Resident.userInfoId` to `UuidValue`.

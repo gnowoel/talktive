@@ -94,4 +94,96 @@ class ResidentService {
     );
     return block != null;
   }
+
+  /// Builds a comprehensive UserProfileView for a resident.
+  static Future<UserProfileView?> getResidentProfileView(
+    Session session,
+    UuidValue targetId, {
+    UuidValue? viewerId,
+  }) async {
+    final resident = await getResident(session, targetId);
+    if (resident == null) return null;
+
+    final isBlocked = viewerId != null
+        ? await ResidentService.isBlocked(session,
+            blockerId: viewerId, blockedId: targetId)
+        : false;
+    final hasBlockedMe = viewerId != null
+        ? await ResidentService.isBlocked(session,
+            blockerId: targetId, blockedId: viewerId)
+        : false;
+
+    final isLiked = viewerId != null
+        ? await UserLike.db.findFirstRow(session,
+                where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)) !=
+            null
+        : false;
+
+    // Optimized Stats
+    // We can run these in parallel if needed, but for now simple queries are fine
+    final messageCount = await Message.db.count(
+      session,
+      where: (t) => t.senderId.equals(targetId),
+    );
+    final momentCount = await Moment.db.count(
+      session,
+      where: (t) => t.authorId.equals(targetId),
+    );
+    final achievements = await UserAchievement.db.count(
+      session,
+      where: (t) =>
+          t.userId.equals(targetId) & t.unlockedAt.notEquals(null),
+    );
+
+    // Recent moments
+    final recentMoments = await Moment.db.find(
+      session,
+      where: (t) => t.authorId.equals(targetId),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+      limit: 6,
+    );
+
+    // Mutual groups (only if viewer is provided)
+    int mutualGroupsCount = 0;
+    if (viewerId != null) {
+      final viewerGroups = await ChannelMember.db.find(
+        session,
+        where: (t) => t.userInfoId.equals(viewerId),
+      );
+      final targetGroups = await ChannelMember.db.find(
+        session,
+        where: (t) => t.userInfoId.equals(targetId),
+      );
+      final viewerGroupIds = viewerGroups.map((g) => g.channelId).toSet();
+      final targetGroupIds = targetGroups.map((g) => g.channelId).toSet();
+      mutualGroupsCount = viewerGroupIds.intersection(targetGroupIds).length;
+    }
+
+    return UserProfileView(
+      userId: targetId.toString(),
+      userName: resident.userName ?? 'Resident',
+      userAvatar: resident.avatar ?? '👤',
+      userMood: resident.mood,
+      floor: ApartmentService.computeEffectiveFloor(resident),
+      trustScore: resident.trustScore,
+      level: resident.level,
+      xp: resident.xp,
+      totalMessages: messageCount,
+      totalMoments: momentCount,
+      achievementsUnlocked: achievements,
+      currentStreak: resident.currentStreak,
+      longestStreak: resident.longestStreak,
+      isBlocked: isBlocked,
+      hasBlockedMe: hasBlockedMe,
+      isLiked: isLiked,
+      mutualGroups: mutualGroupsCount,
+      recentMoments: recentMoments,
+      interests: resident.interests,
+      languages: resident.languages,
+      gender: resident.gender,
+      country: resident.country,
+      bio: resident.bio,
+    );
+  }
 }

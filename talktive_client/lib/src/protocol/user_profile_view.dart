@@ -30,6 +30,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required this.longestStreak,
     required this.isBlocked,
     required this.hasBlockedMe,
+    required this.isLiked,
     required this.mutualGroups,
     this.recentMoments,
     this.level,
@@ -55,6 +56,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required int longestStreak,
     required bool isBlocked,
     required bool hasBlockedMe,
+    required bool isLiked,
     required int mutualGroups,
     List<_i2.Moment>? recentMoments,
     int? level,
@@ -83,6 +85,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       hasBlockedMe: _i1.BoolJsonExtension.fromJson(
         jsonSerialization['hasBlockedMe'],
       ),
+      isLiked: _i1.BoolJsonExtension.fromJson(jsonSerialization['isLiked']),
       mutualGroups: jsonSerialization['mutualGroups'] as int,
       recentMoments: jsonSerialization['recentMoments'] == null
           ? null
@@ -133,6 +136,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
 
   bool hasBlockedMe;
 
+  bool isLiked;
+
   int mutualGroups;
 
   List<_i2.Moment>? recentMoments;
@@ -168,6 +173,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     int? longestStreak,
     bool? isBlocked,
     bool? hasBlockedMe,
+    bool? isLiked,
     int? mutualGroups,
     List<_i2.Moment>? recentMoments,
     int? level,
@@ -195,6 +201,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       'longestStreak': longestStreak,
       'isBlocked': isBlocked,
       'hasBlockedMe': hasBlockedMe,
+      'isLiked': isLiked,
       'mutualGroups': mutualGroups,
       if (recentMoments != null)
         'recentMoments': recentMoments?.toJson(valueToJson: (v) => v.toJson()),
@@ -231,6 +238,7 @@ class _UserProfileViewImpl extends UserProfileView {
     required int longestStreak,
     required bool isBlocked,
     required bool hasBlockedMe,
+    required bool isLiked,
     required int mutualGroups,
     List<_i2.Moment>? recentMoments,
     int? level,
@@ -254,6 +262,7 @@ class _UserProfileViewImpl extends UserProfileView {
          longestStreak: longestStreak,
          isBlocked: isBlocked,
          hasBlockedMe: hasBlockedMe,
+         isLiked: isLiked,
          mutualGroups: mutualGroups,
          recentMoments: recentMoments,
          level: level,
@@ -283,6 +292,7 @@ class _UserProfileViewImpl extends UserProfileView {
     int? longestStreak,
     bool? isBlocked,
     bool? hasBlockedMe,
+    bool? isLiked,
     int? mutualGroups,
     Object? recentMoments = _Undefined,
     Object? level = _Undefined,
@@ -307,6 +317,7 @@ class _UserProfileViewImpl extends UserProfileView {
       longestStreak: longestStreak ?? this.longestStreak,
       isBlocked: isBlocked ?? this.isBlocked,
       hasBlockedMe: hasBlockedMe ?? this.hasBlockedMe,
+      isLiked: isLiked ?? this.isLiked,
       mutualGroups: mutualGroups ?? this.mutualGroups,
       recentMoments: recentMoments is List<_i2.Moment>?
           ? recentMoments

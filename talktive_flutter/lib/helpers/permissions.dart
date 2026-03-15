@@ -37,7 +37,7 @@ bool canSendPublicPicture(User? user) {
   return _isAdvanced(user);
 }
 
-// Levels
+// Floors
 
 bool _isBeginner(User? user) {
   if (user == null) return false;
@@ -49,7 +49,7 @@ bool _isIntermediate(User? user) {
 
   return _withoutWarning(user) &&
       _hasDecentReputation(user) &&
-      _hasIntermediateLevelExperience(user);
+      _hasIntermediateFloorExperience(user);
 }
 
 bool _isAdvanced(User? user) {
@@ -57,7 +57,7 @@ bool _isAdvanced(User? user) {
 
   return _withoutWarning(user) &&
       _hasGoodReputation(user) &&
-      _hasHighLevelExperience(user);
+      _hasHighFloorExperience(user);
 }
 
 // Utilities
@@ -72,12 +72,12 @@ bool _hasGoodReputation(User? user) {
   return user.hasGoodReputation;
 }
 
-bool _hasIntermediateLevelExperience(User? user) {
+bool _hasIntermediateFloorExperience(User? user) {
   if (user == null) return false;
   return user.level >= 4; // 27 messages
 }
 
-bool _hasHighLevelExperience(User? user) {
+bool _hasHighFloorExperience(User? user) {
   if (user == null) return false;
   return user.level >= 6; // 244 messages
 }

@@ -180,9 +180,9 @@ class _TwoPersonTopicItemCardState extends State<TwoPersonTopicItemCard> {
                     ),
                     const SizedBox(width: 4),
                     Tag(
-                      tooltip: 'Experience Level',
+                      tooltip: 'Floor',
                       child: Text(
-                        'L${creator.level}',
+                        'F${creator.level}',
                         style: TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),

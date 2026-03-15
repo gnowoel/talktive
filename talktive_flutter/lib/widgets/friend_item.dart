@@ -166,7 +166,7 @@ class _FriendItemState extends State<FriendItem> {
       title = 'Female Protection';
       content = [
         Text(
-          'Sorry, you need level 5, good reputatioin and no restrictions to chat with new female users.',
+          'Sorry, you need floor 5, decent reputation and no restrictions to chat with new female users.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),

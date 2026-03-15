@@ -33,7 +33,7 @@ class ActivityScreen extends ConsumerWidget {
       title: 'Activity',
       subtitle: 'Progress & Updates',
       emoji: '🏆',
-      gradient: AppTheme.duoBlueGradient,
+      gradient: AppTheme.duoGreenGradient,
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -65,7 +65,7 @@ class ActivityScreen extends ConsumerWidget {
         data: (notifications) =>
             _buildActivityContent(context, ref, notifications, gamificationAsync),
         loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.duoBlue),
+          child: CircularProgressIndicator(color: AppTheme.duoGreen),
         ),
         error: (error, stack) => _buildErrorState(context, ref, error),
       ),
@@ -104,7 +104,7 @@ class ActivityScreen extends ConsumerWidget {
         await ref.read(activityHistoryProvider.notifier).refresh();
         await ref.read(gamificationProvider.notifier).refresh();
       },
-      color: AppTheme.duoBlue,
+      color: AppTheme.duoGreen,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -209,7 +209,7 @@ class ActivityScreen extends ConsumerWidget {
                 Expanded(
                   child: _buildMiniStat(
                     context,
-                    label: 'Level',
+                    label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
                     emoji: '🏠',
                     color: AppTheme.duoPurple,
@@ -285,7 +285,7 @@ class ActivityScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.duoBlue,
+                      color: AppTheme.duoGreen,
                       fontFamily: 'Rubik',
                     ),
                   ),
@@ -429,7 +429,7 @@ class ActivityScreen extends ConsumerWidget {
           borderWidth: notification.read ? 2 : 3,
           borderColor: notification.read 
               ? Colors.grey[200]! 
-              : AppTheme.duoBlue.withValues(alpha: 0.5),
+              : AppTheme.duoGreen.withValues(alpha: 0.5),
           child: Padding(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             child: Row(
@@ -444,7 +444,7 @@ class ActivityScreen extends ConsumerWidget {
                         : LinearGradient(
                             colors: [
                               Colors.white,
-                              AppTheme.duoBlue.withValues(alpha: 0.1),
+                              AppTheme.duoGreen.withValues(alpha: 0.1),
                             ],
                           ),
                     color: notification.read ? Colors.grey[50] : null,
@@ -477,7 +477,7 @@ class ActivityScreen extends ConsumerWidget {
                                     fontWeight: notification.read
                                         ? FontWeight.w600
                                         : FontWeight.w800,
-                                    color: notification.read ? Colors.grey[800] : AppTheme.duoBlue,
+                                    color: notification.read ? Colors.grey[800] : AppTheme.duoGreen,
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -511,7 +511,7 @@ class ActivityScreen extends ConsumerWidget {
                     height: 10,
                     margin: const EdgeInsets.only(left: 8),
                     decoration: const BoxDecoration(
-                      color: AppTheme.duoBlue,
+                      color: AppTheme.duoGreen,
                       shape: BoxShape.circle,
                     ),
                   ).animate(onPlay: (c) => c.repeat(reverse: true))
@@ -560,7 +560,7 @@ class ActivityScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppTheme.duoSpacingSmall),
           DuoRefreshButton(
-            color: AppTheme.duoBlue,
+            color: AppTheme.duoGreen,
             onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
           ),
         ],

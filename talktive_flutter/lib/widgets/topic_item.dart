@@ -367,9 +367,9 @@ class _TopicItemState extends State<TopicItem> {
                   ),
                   const SizedBox(width: 4),
                   Tag(
-                    tooltip: 'Experience Level',
+                    tooltip: 'Floor',
                     child: Text(
-                      'L${widget.topic.creator.level}',
+                      'F${widget.topic.creator.level}',
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),

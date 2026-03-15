@@ -233,7 +233,7 @@ class _UserItemState extends State<UserItem> {
       title = 'Female Protection';
       content = [
         Text(
-          'Sorry, you need level 5, good reputatioin and no restrictions to chat with new female users.',
+          'Sorry, you need floor 5, decent reputation and no restrictions to chat with new female users.',
           style: TextStyle(height: 1.5, color: colorScheme.error),
         ),
         const SizedBox(height: 16),
@@ -374,9 +374,9 @@ class _UserItemState extends State<UserItem> {
                   ),
                   const SizedBox(width: 4),
                   Tag(
-                    tooltip: 'Experience Level',
+                    tooltip: 'Floor',
                     child: Text(
-                      'L${widget.user.level}',
+                      'F${widget.user.level}',
                       style: TextStyle(fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),

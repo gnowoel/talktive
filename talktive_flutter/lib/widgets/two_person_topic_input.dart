@@ -137,7 +137,7 @@ class TwoPersonTopicInputState extends State<TwoPersonTopicInput> {
     const title = 'Cannot Send Picture';
     final content = [
       Text(
-        'Sorry, you need level 4, decent reputation and no restrictions to send pictures.',
+        'Sorry, you need floor 4, decent reputation and no restrictions to send pictures.',
         style: TextStyle(height: 1.5, color: colorScheme.error),
       ),
       const SizedBox(height: 16),

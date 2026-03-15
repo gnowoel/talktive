@@ -8,18 +8,25 @@ import 'dart:convert';
 import 'package:talktive_client/talktive_client.dart';
 
 import '../../providers/notification_provider.dart';
+import '../../providers/gamification_provider.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
+import '../../widgets/duo/duo_streak_card.dart';
+import '../../widgets/duo/duo_stat_card.dart';
+import '../../helpers/duo_snackbar_helper.dart';
+import 'package:talktive/helpers/duo_floor_helper.dart';
 
-/// Activity screen showing significant notification history
+/// Activity screen showing significant notification history and gamification progress
 class ActivityScreen extends ConsumerWidget {
   const ActivityScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activityAsync = ref.watch(activityHistoryProvider);
+    final gamificationAsync = ref.watch(gamificationProvider);
 
     return DuoPageScaffold(
       title: 'Activity',
@@ -31,33 +38,32 @@ class ActivityScreen extends ConsumerWidget {
         children: [
           DuoRefreshButton(
             color: Colors.white,
-            onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
+            onRefresh: () async {
+              await ref.read(activityHistoryProvider.notifier).refresh();
+              await ref.read(gamificationProvider.notifier).refresh();
+            },
           ),
           const SizedBox(width: AppTheme.duoSpacingSmall),
-          GestureDetector(
+          _buildHeaderIcon(
+            context,
+            icon: Icons.person_outline_rounded,
+            onTap: () => context.push('/my-profile'),
+          ),
+          const SizedBox(width: AppTheme.duoSpacingSmall),
+          _buildHeaderIcon(
+            context,
+            icon: Icons.settings_outlined,
             onTap: () {
-              HapticFeedback.lightImpact();
+              // Settings can be a section in profile or its own page
               context.push('/my-profile');
             },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.person_outline_rounded,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
           ),
         ],
       ),
       hasBackButton: false,
       body: activityAsync.when(
         data: (notifications) =>
-            _buildActivityList(context, ref, notifications),
+            _buildActivityContent(context, ref, notifications, gamificationAsync),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppTheme.duoBlue),
         ),
@@ -66,51 +72,224 @@ class ActivityScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActivityList(
+  Widget _buildHeaderIcon(BuildContext context, {required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 22,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityContent(
     BuildContext context,
     WidgetRef ref,
     List<UserNotification> notifications,
+    AsyncValue<GamificationData?> gamificationAsync,
   ) {
-    if (notifications.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('📭', style: TextStyle(fontSize: 64)),
-            const SizedBox(height: AppTheme.duoSpacingMedium),
-            Text(
-              'No activity yet',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref.read(activityHistoryProvider.notifier).refresh();
+        await ref.read(gamificationProvider.notifier).refresh();
+      },
+      color: AppTheme.duoBlue,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          // Gamification / Progress Section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+              child: _buildGamificationSection(context, ref, gamificationAsync),
+            ),
+          ),
+
+          // Activity Header
+          if (notifications.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.duoSpacingLarge,
+                  vertical: AppTheme.duoSpacingSmall,
+                ),
+                child: Text(
+                  'Recent Updates',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                ).animate().fadeIn().slideX(begin: -0.1),
               ),
             ),
-            const SizedBox(height: AppTheme.duoSpacingSmall),
-            Text(
-              'Meaningful events will appear here',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
-            ),
-          ],
-        ).animate().fadeIn().slideY(begin: 0.2),
-      );
-    }
 
-    return RefreshIndicator(
-      onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
-      color: AppTheme.duoBlue,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
-          return _buildNotificationCard(context, ref, notification)
-              .animate(delay: Duration(milliseconds: 50 * index))
-              .fadeIn(duration: 300.ms)
-              .slideX(begin: 0.1, end: 0);
-        },
+          // List or Empty State
+          if (notifications.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildEmptyState(context),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingMedium),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final notification = notifications[index];
+                    return _buildNotificationCard(context, ref, notification)
+                        .animate(delay: Duration(milliseconds: 50 * index))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: 0.1, end: 0);
+                  },
+                  childCount: notifications.length,
+                ),
+              ),
+            ),
+            
+          const SliverToBoxAdapter(
+            child: SizedBox(height: AppTheme.contentBottomPadding),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildGamificationSection(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<GamificationData?> gamificationAsync,
+  ) {
+    return gamificationAsync.when(
+      data: (data) {
+        if (data == null) return const SizedBox.shrink();
+        final resident = data.resident;
+
+        return Column(
+          children: [
+            DuoStreakCard(
+              currentStreak: resident.currentStreak,
+              longestStreak: resident.longestStreak,
+              canClaimReward: data.canClaimReward,
+              onClaimReward: () async {
+                try {
+                  final reward = await ref
+                      .read(gamificationProvider.notifier)
+                      .claimDailyReward();
+                  if (context.mounted && reward != null) {
+                    DuoSnackBarHelper.showSuccess(
+                      context,
+                      '🎉 Claimed ${reward.rewardAmount} credits!',
+                    );
+                    ref.invalidate(currentResidentProvider);
+                  }
+                } catch (e) {
+                  if (context.mounted) DuoSnackBarHelper.showError(context, e);
+                }
+              },
+            ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9)),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMiniStat(
+                    context,
+                    label: 'Level',
+                    value: '${DuoFloorHelper.computeFloor(resident)}',
+                    emoji: '🏠',
+                    color: AppTheme.duoPurple,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.duoSpacingSmall),
+                Expanded(
+                  child: _buildMiniStat(
+                    context,
+                    label: 'Experience',
+                    value: '${resident.xp}',
+                    emoji: '✨',
+                    color: AppTheme.duoYellow,
+                  ),
+                ),
+              ],
+            ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1),
+          ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildMiniStat(BuildContext context, {
+    required String label,
+    required String value,
+    required String emoji,
+    required Color color,
+  }) {
+    return DuoCard(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      borderWidth: 2,
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  fontFamily: 'Rubik',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('📭', style: TextStyle(fontSize: 64)),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+          Text(
+            'No activity yet',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
+          ),
+          const SizedBox(height: AppTheme.duoSpacingSmall),
+          Text(
+            'Meaningful events will appear here',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+          ),
+        ],
+      ).animate().fadeIn().slideY(begin: 0.2),
     );
   }
 
@@ -148,17 +327,29 @@ class ActivityScreen extends ConsumerWidget {
         child: DuoCard(
           color: notification.read
               ? Colors.white
-              : AppTheme.duoBlue.withValues(alpha: 0.1),
+              : Colors.blue[50]?.withValues(alpha: 0.5),
+          borderWidth: notification.read ? 2 : 3,
+          borderColor: notification.read 
+              ? Colors.grey[200]! 
+              : AppTheme.duoBlue.withValues(alpha: 0.5),
           child: Padding(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    gradient: notification.read 
+                        ? null 
+                        : LinearGradient(
+                            colors: [
+                              Colors.white,
+                              AppTheme.duoBlue.withValues(alpha: 0.1),
+                            ],
+                          ),
+                    color: notification.read ? Colors.grey[50] : null,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -169,13 +360,14 @@ class ActivityScreen extends ConsumerWidget {
                     ],
                   ),
                   child: Center(
-                    child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                    child: Text(emoji, style: const TextStyle(fontSize: 26)),
                   ),
                 ),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,35 +375,49 @@ class ActivityScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               notification.title,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: notification.read
                                         ? FontWeight.w600
-                                        : FontWeight.bold,
+                                        : FontWeight.w800,
+                                    color: notification.read ? Colors.grey[800] : AppTheme.duoBlue,
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
-                            timeago.format(notification.createdAt),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey[500]),
+                            timeago.format(notification.createdAt, locale: 'en_short'),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         notification.body,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[700],
-                        ),
+                              color: Colors.grey[700],
+                              height: 1.3,
+                            ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
+                if (!notification.read)
+                  Container(
+                    width: 10,
+                    height: 10,
+                    margin: const EdgeInsets.only(left: 8),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.duoBlue,
+                      shape: BoxShape.circle,
+                    ),
+                  ).animate(onPlay: (c) => c.repeat(reverse: true))
+                   .scale(duration: 1000.ms, begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2)),
               ],
             ),
           ),

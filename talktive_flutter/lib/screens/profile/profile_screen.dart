@@ -161,17 +161,12 @@ class ProfileScreen extends ConsumerWidget {
             ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
           ],
 
-          // Streak card
-          _buildStreakCard(context, ref),
-
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-
           // Moments Button (Prominent placement)
           _buildMomentsButton(
             context,
             ref,
             resident,
-          ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
 
           // Stats grid
           _buildStatsGrid(context, ref, resident),
@@ -203,56 +198,6 @@ class ProfileScreen extends ConsumerWidget {
     return 'Your Profile';
   }
 
-  Widget _buildStreakCard(BuildContext context, WidgetRef ref) {
-    final gamificationAsync = ref.watch(gamificationProvider);
-
-    return gamificationAsync.when(
-      data: (data) {
-        if (data == null) {
-          return const SizedBox.shrink();
-        }
-
-        final resident = data.resident;
-
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.duoSpacingLarge,
-            AppTheme.duoSpacingMedium,
-            AppTheme.duoSpacingLarge,
-            0,
-          ),
-          child: DuoStreakCard(
-            currentStreak: resident.currentStreak,
-            longestStreak: resident.longestStreak,
-            canClaimReward: data.canClaimReward,
-            onClaimReward: () async {
-              try {
-                final reward = await ref
-                    .read(gamificationProvider.notifier)
-                    .claimDailyReward();
-
-                if (context.mounted && reward != null) {
-                  DuoSnackBarHelper.showSuccess(
-                    context,
-                    '🎉 Claimed ${reward.rewardAmount} credits!',
-                  );
-
-                  // Refresh resident data to show updated credits
-                  ref.invalidate(currentResidentProvider);
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  DuoSnackBarHelper.showError(context, e);
-                }
-              }
-            },
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.1, end: 0),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-    );
-  }
 
   Widget _buildMomentsButton(
     BuildContext context,

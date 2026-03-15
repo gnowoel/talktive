@@ -31,6 +31,7 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
 class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   bool _isUploading = false;
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
@@ -70,6 +71,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
     _scrollController.dispose();
     _messageController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -84,7 +86,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     try {
       await _sendMessageInternal(content: content);
     } finally {
-      if (mounted) setState(() => _isSending = false);
+      if (mounted) {
+        setState(() => _isSending = false);
+        // Regain focus after the field is re-enabled
+        _focusNode.requestFocus();
+      }
     }
   }
 
@@ -347,6 +353,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           onSend: _sendMessage,
           onImagePick: _pickAndSendImage,
           enabled: canSend && !_isSending,
+          focusNode: _focusNode,
           activeColor: AppTheme.duoOrange,
           hintText: hintText,
           content: chatState.when(

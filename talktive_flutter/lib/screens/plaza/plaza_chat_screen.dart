@@ -29,12 +29,15 @@ class PlazaChatScreen extends ConsumerStatefulWidget {
 class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   bool _isUploading = false;
+  bool _isSending = false;
 
   @override
   void dispose() {
     _scrollController.dispose();
     _messageController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -57,6 +60,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
 
     setState(() {
       _isUploading = true;
+      _isSending = true;
     });
 
     try {
@@ -72,6 +76,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       if (mounted) {
         setState(() {
           _isUploading = false;
+          _isSending = false;
         });
       }
     }
@@ -94,6 +99,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       return;
     }
 
+    setState(() => _isSending = true);
     try {
       await ref
           .read(realtimeChatProvider(1).notifier)
@@ -115,6 +121,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     } catch (e) {
       if (mounted) {
         DuoSnackBarHelper.showError(context, e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+        _focusNode.requestFocus();
       }
     }
   }
@@ -185,12 +196,15 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       controller: _messageController,
       onSend: _sendMessage,
       onImagePick: _pickAndSendImage,
-      enabled: canSend && !_isUploading,
-      hintText: _isUploading
-          ? 'Uploading image...'
-          : (canSend
-                ? 'Type a message...'
-                : DuoFloorHelper.getMuteInputHint(currentResident)),
+      enabled: canSend && !_isSending,
+      focusNode: _focusNode,
+      hintText: currentResidentAsync.isLoading
+          ? 'Loading profile...'
+          : (_isSending
+              ? 'Sending...'
+              : (canSend
+                  ? 'Type a message...'
+                  : DuoFloorHelper.getMuteInputHint(currentResident))),
       content: chatState.when(
         data: (messages) {
           if (messages.isEmpty) {

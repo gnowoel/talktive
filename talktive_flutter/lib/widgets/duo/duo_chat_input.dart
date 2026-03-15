@@ -11,6 +11,7 @@ class DuoChatInput extends StatelessWidget {
   final VoidCallback? onImagePick;
   final Widget? prefix;
   final Color? activeColor;
+  final FocusNode? focusNode;
 
   const DuoChatInput({
     super.key,
@@ -21,6 +22,7 @@ class DuoChatInput extends StatelessWidget {
     this.onImagePick,
     this.prefix,
     this.activeColor,
+    this.focusNode,
   });
 
   @override
@@ -83,6 +85,7 @@ class DuoChatInput extends StatelessWidget {
                 ),
                 child: TextField(
                   controller: controller,
+                  focusNode: focusNode,
                   enabled: enabled,
                   maxLines: null,
                   textCapitalization: TextCapitalization.sentences,

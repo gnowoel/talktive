@@ -129,12 +129,38 @@ class ActivityScreen extends ConsumerWidget {
                   horizontal: AppTheme.duoSpacingLarge,
                   vertical: AppTheme.duoSpacingSmall,
                 ),
-                child: Text(
-                  'Recent Updates',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Updates',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                    ),
+                    if (notifications.any((n) => !n.read))
+                      TextButton(
+                        onPressed: () {
+                          final unreadIds = notifications
+                              .where((n) => !n.read)
+                              .map((n) => n.id)
+                              .toList();
+                          if (unreadIds.isNotEmpty) {
+                            ref
+                                .read(activityHistoryProvider.notifier)
+                                .markAsRead(unreadIds);
+                          }
+                        },
+                        child: const Text(
+                          'Mark all as read',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
+                  ],
                 ).animate().fadeIn().slideX(begin: -0.1),
               ),
             ),
@@ -425,11 +451,11 @@ class ActivityScreen extends ConsumerWidget {
         child: DuoCard(
           color: notification.read
               ? Colors.white
-              : Colors.blue[50]?.withValues(alpha: 0.5),
-          borderWidth: notification.read ? 2 : 3,
+              : AppTheme.duoGreen.withValues(alpha: 0.04),
+          borderWidth: 2,
           borderColor: notification.read 
               ? Colors.grey[200]! 
-              : AppTheme.duoGreen.withValues(alpha: 0.5),
+              : AppTheme.duoGreen.withValues(alpha: 0.3),
           child: Padding(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             child: Row(

@@ -206,8 +206,8 @@ class _DuoBottomNavBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Only Chats (2), Lounges (3), and Activity (4) have badges
-    if (index != 2 && index != 3 && index != 4) return const SizedBox.shrink();
+    // Only Chats (2) and Lounges (3) have badges
+    if (index != 2 && index != 3) return const SizedBox.shrink();
 
     final unreadCounts = ref.watch(totalUnreadCountsProvider);
     final count = index == 2

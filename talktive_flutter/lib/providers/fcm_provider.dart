@@ -169,8 +169,18 @@ class FCMManager extends _$FCMManager {
     if (message.data['appVersion'] != 'serverpod') return;
 
     final data = message.data;
-    final route = data['route'] as String?;
 
+    // Mark as read if notification history ID is present
+    final notificationIdStr = data['notificationId'] as String?;
+    if (notificationIdStr != null) {
+      final id = int.tryParse(notificationIdStr);
+      if (id != null) {
+        debugPrint('FCM DEBUG: Marking notification $id as read from tap');
+        ref.read(activityHistoryProvider.notifier).markAsRead([id]);
+      }
+    }
+
+    final route = data['route'] as String?;
     if (route != null) {
       debugPrint('Navigating to from notification: $route');
       ref.read(routerProvider).push(route);

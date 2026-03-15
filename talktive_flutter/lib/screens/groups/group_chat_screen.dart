@@ -243,9 +243,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             content, 
             imageUrl: imageUrl,
           );
-    } finally {
-      if (mounted) setState(() => _isSending = false);
-    }
 
       _messageController.clear();
       _hasMarkedAsRead = false; // Allow re-marking as read for new messages
@@ -263,6 +260,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       if (mounted) {
         DuoSnackBarHelper.showError(context, e);
       }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
     }
   }
 

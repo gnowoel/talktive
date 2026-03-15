@@ -15,6 +15,8 @@ class FCMService {
   static auth.ServiceAccountCredentials? _credentials;
   static String? _projectId;
   static bool _initialized = false;
+  static String? _cachedToken;
+  static DateTime? _tokenExpiry;
 
   /// Initialize FCM Service with service account credentials.
   static Future<void> initialize() async {
@@ -54,18 +56,27 @@ class FCMService {
     }
   }
 
-  /// Get an OAuth2 access token for FCM API.
+  /// Get an OAuth2 access token for FCM API with caching.
   static Future<String?> _getAccessToken() async {
     if (_credentials == null) return null;
+
+    // Return cached token if still valid (with 1-minute buffer)
+    if (_cachedToken != null && 
+        _tokenExpiry != null && 
+        _tokenExpiry!.isAfter(DateTime.now().add(const Duration(minutes: 1)))) {
+      return _cachedToken;
+    }
 
     try {
       final scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
       final client = await auth.clientViaServiceAccount(_credentials!, scopes);
 
-      final accessToken = client.credentials.accessToken.data;
+      _cachedToken = client.credentials.accessToken.data;
+      _tokenExpiry = client.credentials.accessToken.expiry;
+      
       client.close();
 
-      return accessToken;
+      return _cachedToken;
     } catch (e) {
       print('Failed to get FCM access token: $e');
       return null;

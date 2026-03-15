@@ -192,71 +192,14 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       final streamKey = 'channel_$channelId';
       await session.messages.postMessage(streamKey, savedMessage);
 
-      // 10.1 Trigger Notifications (FCM / Activity Hub)
-      String channelTypeStr = 'plaza';
-      if (channel.type == protocol.ChannelType.private) {
-        channelTypeStr = 'private';
-      } else if (channel.type == protocol.ChannelType.group) {
-        channelTypeStr = 'group';
-      }
-
-      final isPlaza = channel.type == protocol.ChannelType.plaza;
-
-      if (filteredContent != null) {
-        // Detect mentions using reliable server-side member resolution (skips Plaza)
-        final mentionedUserIds = await MentionService.getMentionedUserIds(
-          session,
-          channelId,
-          filteredContent,
-        );
-
-        // Remove sender to avoid notifying self
-        mentionedUserIds.remove(senderUuid);
-
-        final groupName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
-
-        // Priority 1: Notify mentioned users (Bypasses mute, saves to history)
-        for (final mentionedId in mentionedUserIds) {
-          await NotificationService.sendMentionNotification(
-            session,
-            mentionedId,
-            senderName ?? 'Resident',
-            filteredContent,
-            channelId,
-            groupName,
-          );
-        }
-
-        // Priority 2: Standard Message Notifications (Groups/Private only, not Plaza)
-        if (!isPlaza) {
-          final mentionIdSet = mentionedUserIds.toSet();
-
-          // Fetch all other active members (exclude sender)
-          final otherMembers = await protocol.ChannelMember.db.find(
-            session,
-            where: (t) =>
-                t.channelId.equals(channelId) &
-                t.userInfoId.notEquals(senderUuid) &
-                t.status.equals(protocol.ChannelMemberStatus.joined),
-          );
-
-          for (final member in otherMembers) {
-            // Skip if already notified via mention
-            if (mentionIdSet.contains(member.userInfoId)) continue;
-
-            if (!member.isMuted) {
-              await NotificationService.sendMessageNotification(
-                session,
-                member.userInfoId,
-                senderName ?? 'Resident',
-                filteredContent,
-                channelId,
-                channelTypeStr,
-              );
-            }
-          }
-        }
-      }
+      // 10.1 Trigger Notifications (FCM / Activity Hub) - DO NOT AWAIT
+      // We offload this to avoid blocking the sender's UI
+      _triggerNotifications(
+        session,
+        channel,
+        savedMessage,
+        sender,
+      ).catchError((e) => session.log('Notification error: $e', level: LogLevel.error));
 
       // 11. Gamification & Stats Batching
       await GamificationService.awardXP(
@@ -403,5 +346,75 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       membership.lastReadAt = DateTime.now();
       await protocol.ChannelMember.db.updateRow(session, membership);
     }
+  }
+
+  /// Internal helper to trigger notifications in the background.
+  Future<void> _triggerNotifications(
+    Session session,
+    protocol.Channel channel,
+    protocol.Message message,
+    protocol.Resident sender,
+  ) async {
+    final content = message.content;
+    if (content == null || content.isEmpty) return;
+
+    final channelId = channel.id!;
+    final senderUuid = sender.userInfoId;
+    final senderName = sender.userName ?? 'Resident';
+
+    // 1. Detect mentions
+    final mentionedUserIds = await MentionService.getMentionedUserIds(
+      session,
+      channelId,
+      content,
+    );
+
+    // Remove sender
+    mentionedUserIds.remove(senderUuid);
+
+    final isPlaza = channel.type == protocol.ChannelType.plaza;
+    final groupName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
+
+    // 2. Notify mentions (Parallel)
+    final mentionFutures = mentionedUserIds.map((mentionedId) =>
+        NotificationService.sendMentionNotification(
+          session,
+          mentionedId,
+          senderName,
+          content,
+          channelId,
+          groupName,
+        ));
+
+    // 3. Notify other members (Private/Group only)
+    List<Future> memberFutures = [];
+    if (!isPlaza) {
+      String channelTypeStr =
+          channel.type == protocol.ChannelType.private ? 'private' : 'group';
+      final mentionIdSet = mentionedUserIds.toSet();
+
+      final otherMembers = await protocol.ChannelMember.db.find(
+        session,
+        where: (t) =>
+            t.channelId.equals(channelId) &
+            t.userInfoId.notEquals(senderUuid) &
+            t.status.equals(protocol.ChannelMemberStatus.joined),
+      );
+
+      memberFutures = otherMembers
+          .where((m) => !m.isMuted && !mentionIdSet.contains(m.userInfoId))
+          .map((member) => NotificationService.sendMessageNotification(
+                session,
+                member.userInfoId,
+                senderName,
+                content,
+                channelId,
+                channelTypeStr,
+              ))
+          .toList();
+    }
+
+    // Run all notifications in parallel
+    await Future.wait([...mentionFutures, ...memberFutures]);
   }
 }

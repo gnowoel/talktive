@@ -46,16 +46,14 @@ class NotificationService {
       return; // User has no registered devices
     }
 
-    // Send FCM push notification to each token
-    for (final deviceToken in tokens) {
-      await FCMService.sendToToken(
-        session,
-        deviceToken.token,
-        title,
-        body,
-        data: fcmData,
-      );
-    }
+    // Send FCM push notification to all tokens in parallel
+    await Future.wait(tokens.map((deviceToken) => FCMService.sendToToken(
+          session,
+          deviceToken.token,
+          title,
+          body,
+          data: fcmData,
+        )));
   }
 
   /// Sends a message notification.

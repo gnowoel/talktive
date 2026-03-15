@@ -9,6 +9,8 @@ class DuoCard extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? color;
   final double? borderRadius;
+  final double? borderWidth;
+  final Color? borderColor;
 
   const DuoCard({
     super.key,
@@ -18,6 +20,8 @@ class DuoCard extends StatelessWidget {
     this.onTap,
     this.color,
     this.borderRadius,
+    this.borderWidth,
+    this.borderColor,
   });
 
   @override
@@ -30,6 +34,12 @@ class DuoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(
           borderRadius ?? AppTheme.duoRadiusLarge,
         ),
+        border: borderWidth != null
+            ? Border.all(
+                color: borderColor ?? Colors.grey[200]!,
+                width: borderWidth!,
+              )
+            : null,
         boxShadow: AppTheme.duoCardShadow,
       ),
       child: child,

@@ -140,25 +140,14 @@ class ActivityScreen extends ConsumerWidget {
                           ),
                     ),
                     if (notifications.any((n) => !n.read))
-                      TextButton(
-                        onPressed: () {
-                          final unreadIds = notifications
-                              .where((n) => !n.read && n.id != null)
-                              .map((n) => n.id!)
-                              .toList();
-                          if (unreadIds.isNotEmpty) {
-                            ref
-                                .read(activityHistoryProvider.notifier)
-                                .markAsRead(unreadIds);
-                          }
-                        },
-                        child: const Text(
-                          'Mark all as read',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      IconButton(
+                        onPressed: () => _showMarkAllAsReadConfirmation(context, ref, notifications),
+                        icon: Icon(
+                          Icons.cleaning_services_rounded,
+                          color: Colors.grey[600],
+                          size: 20,
                         ),
+                        tooltip: 'Mark all as read',
                       ),
                   ],
                 ).animate().fadeIn().slideX(begin: -0.1),
@@ -448,15 +437,15 @@ class ActivityScreen extends ConsumerWidget {
             }
           }
         },
-        child: DuoCard(
-          color: notification.read
-              ? Colors.white
-              : AppTheme.duoGreen.withValues(alpha: 0.04),
-          borderWidth: 2,
-          borderColor: notification.read 
-              ? Colors.grey[200]! 
-              : AppTheme.duoGreen.withValues(alpha: 0.3),
-          child: Padding(
+      child: DuoCard(
+        color: notification.read
+            ? Colors.white
+            : Colors.grey[50], // Very subtle highlight
+        borderWidth: 2,
+        borderColor: notification.read 
+            ? Colors.grey[200]! 
+            : Colors.grey[300]!, // Subtler border
+        child: Padding(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -465,15 +454,7 @@ class ActivityScreen extends ConsumerWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    gradient: notification.read 
-                        ? null 
-                        : LinearGradient(
-                            colors: [
-                              Colors.white,
-                              AppTheme.duoGreen.withValues(alpha: 0.1),
-                            ],
-                          ),
-                    color: notification.read ? Colors.grey[50] : null,
+                    color: notification.read ? Colors.grey[50] : Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -503,7 +484,7 @@ class ActivityScreen extends ConsumerWidget {
                                     fontWeight: notification.read
                                         ? FontWeight.w600
                                         : FontWeight.w800,
-                                    color: notification.read ? Colors.grey[800] : AppTheme.duoGreen,
+                                    color: Colors.grey[800],
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -537,7 +518,7 @@ class ActivityScreen extends ConsumerWidget {
                     height: 10,
                     margin: const EdgeInsets.only(left: 8),
                     decoration: const BoxDecoration(
-                      color: AppTheme.duoGreen,
+                      color: AppTheme.duoRed, // Changed from Green to Red for unread indicator
                       shape: BoxShape.circle,
                     ),
                   ).animate(onPlay: (c) => c.repeat(reverse: true))
@@ -590,6 +571,53 @@ class ActivityScreen extends ConsumerWidget {
             onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
           ),
         ],
+      ),
+    );
+  }
+  void _showMarkAllAsReadConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    List<UserNotification> notifications,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Mark all as read?',
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'This will mark all your recent updates as read.',
+          style: TextStyle(fontFamily: 'Rubik'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              final unreadIds = notifications
+                  .where((n) => !n.read && n.id != null)
+                  .map((n) => n.id!)
+                  .toList();
+              if (unreadIds.isNotEmpty) {
+                ref.read(activityHistoryProvider.notifier).markAsRead(unreadIds);
+              }
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'Confirm',
+              style: TextStyle(color: AppTheme.duoGreen, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+        ),
       ),
     );
   }

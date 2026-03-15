@@ -14,6 +14,11 @@ class NotificationService {
     Map<String, dynamic>? data,
     bool saveToHistory = true,
   }) async {
+    // Prepare FCM payload
+    final fcmData =
+        data?.map((key, value) => MapEntry(key, value.toString())) ?? {};
+    fcmData['appVersion'] = 'serverpod';
+
     // Create notification record
     if (saveToHistory) {
       final notification = protocol.UserNotification(
@@ -26,7 +31,9 @@ class NotificationService {
         createdAt: DateTime.now(),
       );
 
-      await protocol.UserNotification.db.insertRow(session, notification);
+      final inserted =
+          await protocol.UserNotification.db.insertRow(session, notification);
+      fcmData['notificationId'] = inserted.id.toString();
     }
 
     // Get user's device tokens
@@ -38,11 +45,6 @@ class NotificationService {
     if (tokens.isEmpty) {
       return; // User has no registered devices
     }
-
-    // Prepare FCM payload with dual-boot safety flag
-    final fcmData =
-        data?.map((key, value) => MapEntry(key, value.toString())) ?? {};
-    fcmData['appVersion'] = 'serverpod';
 
     // Send FCM push notification to each token
     for (final deviceToken in tokens) {

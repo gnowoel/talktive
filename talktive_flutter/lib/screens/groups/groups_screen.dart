@@ -47,30 +47,12 @@ class GroupsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.duoBlue,
-              AppTheme.duoBlue.withValues(alpha: 0.8),
-            ],
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.duoBlue.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: FloatingActionButton(
-          heroTag: 'groups_fab',
-          onPressed: () => _showCreateDialog(context, ref),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: const Icon(Icons.group_add, color: Colors.white),
-        ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'groups_fab',
+        onPressed: () => _showCreateDialog(context, ref),
+        backgroundColor: AppTheme.duoBlue,
+        elevation: 6,
+        child: const Icon(Icons.group_add, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: groupsAsync.when(
         data: (groups) => _buildGroupList(context, ref, groups),
@@ -309,13 +291,35 @@ class GroupsScreen extends ConsumerWidget {
     );
   }
 
-  void _showCreateDialog(BuildContext context, WidgetRef ref) {
+  void _showCreateDialog(BuildContext context, WidgetRef ref) async {
+    debugPrint('GroupsScreen: [_showCreateDialog] FAB tapped');
     HapticFeedback.lightImpact();
 
-    final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident == null) return;
+    Resident? currentResident = ref.read(currentResidentProvider).value;
+    
+    if (currentResident == null) {
+      debugPrint('GroupsScreen: currentResident is null, waiting for future...');
+      try {
+        currentResident = await ref.read(currentResidentProvider.future);
+      } catch (e) {
+        debugPrint('GroupsScreen: Error waiting for resident: $e');
+        if (context.mounted) {
+          DuoSnackBarHelper.showError(context, 'Failed to load profile.');
+        }
+        return;
+      }
+    }
+
+    if (currentResident == null) {
+      debugPrint('GroupsScreen: Resident still null after waiting');
+      if (context.mounted) {
+        DuoSnackBarHelper.showError(context, 'Resident profile not found.');
+      }
+      return;
+    }
 
     if (DuoFloorHelper.isMuted(currentResident)) {
+      debugPrint('GroupsScreen: Resident is muted');
       DuoSnackBarHelper.showError(
         context,
         DuoFloorHelper.getMuteReason(currentResident),
@@ -323,7 +327,10 @@ class GroupsScreen extends ConsumerWidget {
       return;
     }
 
-    if (DuoFloorHelper.computeFloor(currentResident) < 1) {
+    final effectiveFloor = DuoFloorHelper.computeFloor(currentResident);
+    debugPrint('GroupsScreen: Effective floor: $effectiveFloor');
+
+    if (effectiveFloor < 1) {
       DuoFloorRequirementDialog.show(
         context,
         message: 'You must reach Floor 1 to create a club. Keep chatting!',

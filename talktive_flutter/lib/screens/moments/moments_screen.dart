@@ -63,11 +63,42 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     }
   }
 
-  void _handleCreatePressed() {
-    final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident == null) return;
+  void _handleCreatePressed() async {
+    debugPrint('MomentsScreen: [_handleCreatePressed] FAB tapped');
+    HapticFeedback.lightImpact();
+
+    Resident? currentResident = ref.read(currentResidentProvider).value;
+    
+    if (currentResident == null) {
+      debugPrint('MomentsScreen: currentResident is null, waiting for future...');
+      try {
+        currentResident = await ref.read(currentResidentProvider.future);
+      } catch (e) {
+        debugPrint('MomentsScreen: Error waiting for resident: $e');
+        if (mounted) DuoSnackBarHelper.showError(context, 'Failed to load profile. Please try again.');
+        return;
+      }
+    }
+
+    if (currentResident == null) {
+      debugPrint('MomentsScreen: Resident still null after waiting');
+      if (mounted) DuoSnackBarHelper.showError(context, 'Resident profile not found.');
+      return;
+    }
+
+    // Mute check
+    if (DuoFloorHelper.isMuted(currentResident)) {
+      debugPrint('MomentsScreen: Resident is muted');
+      DuoSnackBarHelper.showError(
+        context,
+        DuoFloorHelper.getMuteReason(currentResident),
+      );
+      return;
+    }
 
     final effectiveFloor = DuoFloorHelper.computeFloor(currentResident);
+    debugPrint('MomentsScreen: Effective floor: $effectiveFloor');
+    
     if (effectiveFloor < 2) {
       DuoFloorRequirementDialog.show(
         context,
@@ -330,30 +361,12 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         },
       ),
       gradient: AppTheme.secondaryGradient,
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.secondaryColor,
-              AppTheme.secondaryColor.withValues(alpha: 0.8),
-            ],
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.secondaryColor.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: FloatingActionButton(
-          heroTag: 'moments_fab',
-          onPressed: _handleCreatePressed,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: const Icon(Icons.add_a_photo, color: Colors.white),
-        ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'moments_fab',
+        onPressed: _handleCreatePressed,
+        backgroundColor: AppTheme.secondaryColor,
+        elevation: 6,
+        child: const Icon(Icons.add_a_photo, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: _buildBody(),
     );

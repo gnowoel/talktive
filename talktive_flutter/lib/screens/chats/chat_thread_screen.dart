@@ -31,14 +31,13 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
 class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
-  Resident? _currentResident;
   bool _isUploading = false;
+  bool _isSending = false;
   bool _hasMarkedAsRead = false;
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentResident();
     _markAsRead();
   }
 
@@ -74,14 +73,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     super.dispose();
   }
 
-  Future<void> _loadCurrentResident() async {
-    final residentAsync = ref.read(currentResidentProvider);
-    if (residentAsync.hasValue) {
-      setState(() {
-        _currentResident = residentAsync.value;
-      });
-    }
-  }
 
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
@@ -89,7 +80,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       return;
     }
 
-    await _sendMessageInternal(content: content);
+    setState(() => _isSending = true);
+    try {
+      await _sendMessageInternal(content: content);
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
   }
 
   Future<void> _sendMessageInternal({String? content, String? imageUrl}) async {
@@ -142,6 +138,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
     setState(() {
       _isUploading = true;
+      _isSending = true;
     });
 
     try {
@@ -157,6 +154,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       if (mounted) {
         setState(() {
           _isUploading = false;
+          _isSending = false;
         });
       }
     }
@@ -202,13 +200,22 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         final otherMood = details.otherUserMood;
 
         final chatState = ref.watch(realtimeChatProvider(widget.channelId));
+        final currentResidentAsync = ref.watch(currentResidentProvider);
+        final currentResident = currentResidentAsync.value;
 
         final canSend =
-            _currentResident != null && !DuoFloorHelper.isMuted(_currentResident!);
-        final hintText =
-            (_currentResident != null && DuoFloorHelper.isMuted(_currentResident!))
-            ? DuoFloorHelper.getMuteInputHint(_currentResident!)
-            : 'Type a message...';
+            currentResident != null && !DuoFloorHelper.isMuted(currentResident);
+        
+        String hintText;
+        if (currentResidentAsync.isLoading) {
+          hintText = 'Loading profile...';
+        } else if (_isSending) {
+          hintText = 'Sending...';
+        } else if (canSend) {
+          hintText = 'Type a message...';
+        } else {
+          hintText = DuoFloorHelper.getMuteInputHint(currentResident);
+        }
 
         return DuoChatInputLayout(
           appBar: AppBar(
@@ -339,13 +346,13 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           controller: _messageController,
           onSend: _sendMessage,
           onImagePick: _pickAndSendImage,
-          enabled: canSend && !_isUploading,
+          enabled: canSend && !_isSending,
           activeColor: AppTheme.duoOrange,
-          hintText: _isUploading ? 'Sending image...' : hintText,
+          hintText: hintText,
           content: chatState.when(
             data: (messages) => messages.isEmpty
                 ? _buildEmptyState()
-                : _buildMessagesList(messages, otherName),
+                : _buildMessagesList(messages, otherName, currentResident),
             loading: () => const Center(
               child: CircularProgressIndicator(color: AppTheme.primaryColor),
             ),
@@ -475,7 +482,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     );
   }
 
-  Widget _buildMessagesList(List<Message> messages, String otherName) {
+  Widget _buildMessagesList(List<Message> messages, String otherName, Resident? currentResident) {
     return RefreshIndicator(
       onRefresh: () async {
         ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
@@ -489,13 +496,13 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         itemBuilder: (context, index) {
           final message = messages[index];
           final isCurrentUser =
-              _currentResident != null &&
-              message.senderId == _currentResident!.userInfoId;
+              currentResident != null &&
+              message.senderId == currentResident.userInfoId;
 
           return MessageBubble(
                 message: message,
                 isCurrentUser: isCurrentUser,
-                currentResident: _currentResident,
+                currentResident: currentResident,
                 onMention: _addMention,
                 otherMemberNames: [otherName],
               )

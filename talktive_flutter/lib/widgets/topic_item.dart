@@ -368,10 +368,17 @@ class _TopicItemState extends State<TopicItem> {
                   const SizedBox(width: 4),
                   Tag(
                     tooltip: 'Floor',
-                    child: Text(
-                      'F${widget.topic.creator.level}',
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.apartment, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          'F${widget.topic.creator.level}',
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
                 ] else ...[

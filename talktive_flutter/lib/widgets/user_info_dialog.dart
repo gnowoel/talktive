@@ -232,10 +232,17 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                 ),
                 Tag(
                   tooltip: 'Floor ${widget.user!.level}',
-                  child: Text(
-                    'F${widget.user!.level}',
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.apartment, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        'F${widget.user!.level}',
+                        style: const TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
                 Tag(

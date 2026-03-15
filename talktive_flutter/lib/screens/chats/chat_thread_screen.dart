@@ -88,8 +88,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
-        // Regain focus after the field is re-enabled
-        _focusNode.requestFocus();
       }
     }
   }
@@ -352,7 +350,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           controller: _messageController,
           onSend: _sendMessage,
           onImagePick: _pickAndSendImage,
-          enabled: canSend && !_isSending,
+          enabled: canSend,
+          isSending: _isSending,
           focusNode: _focusNode,
           activeColor: AppTheme.duoOrange,
           hintText: hintText,

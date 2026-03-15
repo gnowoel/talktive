@@ -265,8 +265,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
-        // Regain focus after field is re-enabled
-        _focusNode.requestFocus();
       }
     }
   }
@@ -507,7 +505,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       controller: _messageController,
       onSend: _sendMessage,
       onImagePick: _pickAndSendImage,
-      enabled: canSend && !_isSending,
+      enabled: canSend,
+      isSending: _isSending,
       focusNode: _focusNode,
       activeColor: AppTheme.duoBlue,
       hintText: hintText,

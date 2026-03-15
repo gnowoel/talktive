@@ -12,12 +12,14 @@ class DuoChatInput extends StatelessWidget {
   final Widget? prefix;
   final Color? activeColor;
   final FocusNode? focusNode;
+  final bool isSending;
 
   const DuoChatInput({
     super.key,
     required this.controller,
     required this.onSend,
     this.enabled = true,
+    this.isSending = false,
     this.hintText = 'Type a message...',
     this.onImagePick,
     this.prefix,
@@ -55,7 +57,7 @@ class DuoChatInput extends StatelessWidget {
             // Image picker button (optional)
             if (onImagePick != null)
               GestureDetector(
-                onTap: enabled ? onImagePick : null,
+                onTap: (enabled && !isSending) ? onImagePick : null,
                 child: Container(
                   width: 44,
                   height: 44,
@@ -67,7 +69,7 @@ class DuoChatInput extends StatelessWidget {
                   child: Icon(
                     Icons.add_a_photo,
                     size: 20,
-                    color: enabled ? themeColor : AppTheme.textLight,
+                    color: (enabled && !isSending) ? themeColor : AppTheme.textLight,
                   ),
                 ),
               ),
@@ -113,7 +115,7 @@ class DuoChatInput extends StatelessWidget {
                             size: 20,
                           ),
                   ),
-                  onSubmitted: enabled ? (_) => _handleSend() : null,
+                  onSubmitted: (enabled && !isSending) ? (_) => _handleSend() : null,
                 ),
               ),
             ),
@@ -122,12 +124,12 @@ class DuoChatInput extends StatelessWidget {
 
             // Send button
             GestureDetector(
-              onTap: enabled ? _handleSend : null,
+              onTap: (enabled && !isSending) ? _handleSend : null,
               child: Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  gradient: enabled
+                  gradient: (enabled && !isSending)
                       ? LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -137,9 +139,9 @@ class DuoChatInput extends StatelessWidget {
                           ],
                         )
                       : null,
-                  color: enabled ? null : Colors.grey.shade300,
+                  color: (enabled && !isSending) ? null : Colors.grey.shade300,
                   shape: BoxShape.circle,
-                  boxShadow: enabled
+                  boxShadow: (enabled && !isSending)
                       ? [
                           BoxShadow(
                             color: themeColor.withValues(alpha: 0.3),
@@ -159,7 +161,7 @@ class DuoChatInput extends StatelessWidget {
   }
 
   void _handleSend() {
-    if (controller.text.trim().isEmpty) return;
+    if (isSending || controller.text.trim().isEmpty) return;
     HapticFeedback.lightImpact();
     onSend();
   }

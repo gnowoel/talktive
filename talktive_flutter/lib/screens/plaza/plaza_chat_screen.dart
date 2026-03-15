@@ -125,7 +125,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
-        _focusNode.requestFocus();
       }
     }
   }
@@ -196,7 +195,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       controller: _messageController,
       onSend: _sendMessage,
       onImagePick: _pickAndSendImage,
-      enabled: canSend && !_isSending,
+      enabled: canSend,
+      isSending: _isSending,
       focusNode: _focusNode,
       hintText: currentResidentAsync.isLoading
           ? 'Loading profile...'

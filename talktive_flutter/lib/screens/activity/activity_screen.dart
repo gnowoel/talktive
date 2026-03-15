@@ -143,8 +143,8 @@ class ActivityScreen extends ConsumerWidget {
                       TextButton(
                         onPressed: () {
                           final unreadIds = notifications
-                              .where((n) => !n.read)
-                              .map((n) => n.id)
+                              .where((n) => !n.read && n.id != null)
+                              .map((n) => n.id!)
                               .toList();
                           if (unreadIds.isNotEmpty) {
                             ref

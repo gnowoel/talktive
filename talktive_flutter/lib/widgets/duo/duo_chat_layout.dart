@@ -63,6 +63,7 @@ class DuoChatInputLayout extends StatelessWidget {
   final VoidCallback? onImagePick;
   final Widget? prefix;
   final Color? activeColor;
+  final FocusNode? focusNode;
 
   const DuoChatInputLayout({
     super.key,
@@ -77,6 +78,7 @@ class DuoChatInputLayout extends StatelessWidget {
     this.onImagePick,
     this.prefix,
     this.activeColor,
+    this.focusNode,
   });
 
   @override
@@ -94,6 +96,7 @@ class DuoChatInputLayout extends StatelessWidget {
         onImagePick: onImagePick,
         prefix: prefix,
         activeColor: activeColor,
+        focusNode: focusNode,
       ),
     );
   }

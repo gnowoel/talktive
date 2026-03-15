@@ -39,22 +39,23 @@ We use a dual-font approach to balance brand playfulness with readability:
 To maintain consistency while optimizing for usability, we divide all screens into two categories:
 
 ### 1. Immersive Destinations
-Used for "Places" and "Entities" (e.g., Profiles, Search Pages, Member Lists).
+Used for primary hub screens and entry points (e.g., Plaza, Moments feed, Chat list, Lounges hub, Activity feed).
 *   **Widget**: `DuoPageScaffold`
 *   **Key Features**:
     *   Vibrant gradient header with a large thematic emoji.
-    *   Transparent white status bar logic.
+    *   Transparent status bar logic (light icons on dark gradients).
     *   The **"Immersive Curve"**: Content sits in a white sheet with large rounded top corners (`DuoRadiusLarge * 1.5`).
-    *   Supports `trailingHeader` for settings/actions and `bottomNavigationBar` for status-based controls (like invite bars).
+    *   Supports `trailingHeader` for settings and `bottomNavigationBar` for primary navigation.
 
-### 2. Focused Action Screens
-Used for high-throughput activity where content is king (e.g., Chat Threads, Moment Details).
-*   **Widget**: Standard `Scaffold` with custom `AppBar`.
+### 2. Focused Utility & Detail Screens
+Used for high-throughput activity (e.g., Chat Threads, Moment Details) or information-dense sub-screens (e.g., Resident Profiles, Lounge/Club Profiles, Search/Discovery, Member Lists).
+*   **Widget**: Standard `Scaffold` with a lightweight `AppBar`.
 *   **Key Features**:
-    *   Solid white backgrounds to minimize distraction.
-    *   Standard `AppBar` with **Poppins Bold** titles for brand consistency.
-    *   Maximized screen real-estate for messages or media.
-    *   Custom input layouts (e.g., `DuoChatInputLayout`).
+    *   Solid white backgrounds to improve readability and focus.
+    *   Standard `AppBar` with **Poppins Bold** titles and optional emojis.
+    *   Use of `close_rounded` or `arrow_back` based on navigation depth.
+    *   Maximized screen real-estate for messages, stats, or search results.
+    *   Custom input/utility layouts (e.g., `DuoChatInputLayout`).
 
 ---
 

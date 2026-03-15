@@ -4,6 +4,20 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 15, 2026 - Structural Layout Harmonization & Design System Update 🎨
+
+### UI/UX Refinement: Destinations vs. Utilities
+- **Lightweight Layout Refactor**: Migrated all functional sub-screens and utility pages from the immersive `DuoPageScaffold` to a focused `Scaffold` + `AppBar` architecture. This improves clarity, reduces visual clutter, and provides more room for content.
+- **Harmonized Profiles**: Realigned the `UserProfileViewScreen` (Others) to match the `ProfileScreen` (Self), ensuring a consistent "Resident Identity" experience with centered Poppins titles and clean white backgrounds.
+- **Utility Screen Optimization**: Applied the lightweight layout to `GroupSearchScreen` (Discovery), `GroupMembersScreen`, `GroupProfileScreen` (Lounges), and `BlockedUsersScreen`.
+- **Navigation Polish**: Standardized navigation depth indicators, replacing generic back arrows with `close_rounded` on top-level sub-discovery pages for a more "modal-like" feel that respects the app's hierarchy.
+
+### Design System & Documentation
+- **Updated `DESIGN_SYSTEM.md`**: Formalized the distinction between **Immersive Destinations** (Main tabs like Plaza, Moments, etc., which retain vibrant gradients) and **Focused Utility Screens** (Profiles, Search, Management, which use clean white layouts).
+- **Consistency Audit**: Verified that all list-based and detail-oriented sub-screens follow the new focused layout pattern, while keeping primary entry points high-energy and brand-immersive.
+
+---
+
 ## March 14, 2026 - Endpoint Consolidation & Unified Gamification 🛠️
 
 ### Consolidation & Simplification

@@ -4,6 +4,22 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 14, 2026 - Endpoint Consolidation & Unified Gamification 🛠️
+
+### Consolidation & Simplification
+- **Centralized Gamification**: Merged `AchievementService` and `StreakService` into a unified `GamificationService`. Consolidated `AchievementEndpoint` and `StreakEndpoint` into `GamificationEndpoint`.
+- **Integrated Resident Profile**: Merged `UserProfileEndpoint` and `UserLikeEndpoint` into `ResidentEndpoint`, centralizing all user-centric logic (profile viewing, blocking, liking, and initialization).
+- **Backend Code Cleanup**: Removed redundant `UserStreak` protocol and simplified logic in `ResidentService`, reducing architectural complexity and database overhead.
+- **Frontend Provider Consolidation**: Created `GamificationProvider` to manage all rewards, achievements, and streaks in a single reactive state. Merged `NotificationProvider` and `UserNotificationsProvider` into a unified notification management system.
+- **Dead Code Removal**: Removed unused `achievements` folder and redundant providers (`AchievementProvider`, `StreakProvider`, `UserNotificationsProvider`) from the Flutter codebase.
+
+### Robustness & Design
+- **Improved Type Safety**: Refactored `ResidentEndpoint` to use explicit `protocol.` prefixes for disambiguation and fixed ambiguous imports.
+- **Unified Activity Feed**: Standardized the use of `ActivityHistoryProvider` across the Home, Activity, and Unread Count components for consistent state management.
+- **Consolidated Snippets**: Updated `ProfileScreen`, `HomeScreen`, and `ActivityScreen` to work with the newly consolidated provider architecture.
+
+---
+
 ## March 13, 2026 - Image Handling & Architectural Refinement 🖼️
  
 ### Image Handling & UI

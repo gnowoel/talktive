@@ -9,7 +9,7 @@ class DuoNotificationToast extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notification = ref.watch(notificationProvider);
+    final notification = ref.watch(inAppNotificationProvider);
     if (notification != null) {
       debugPrint(
         'FCM DEBUG: DuoNotificationToast building for: ${notification.title}',
@@ -26,7 +26,7 @@ class DuoNotificationToast extends ConsumerWidget {
               GestureDetector(
                     onTap: () {
                       notification.onTap?.call();
-                      ref.read(notificationProvider.notifier).dismiss();
+                      ref.read(inAppNotificationProvider.notifier).dismiss();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(12),
@@ -81,7 +81,7 @@ class DuoNotificationToast extends ConsumerWidget {
                               color: AppTheme.textLight,
                             ),
                             onPressed: () => ref
-                                .read(notificationProvider.notifier)
+                                .read(inAppNotificationProvider.notifier)
                                 .dismiss(),
                           ),
                         ],

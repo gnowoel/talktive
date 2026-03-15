@@ -13,7 +13,7 @@ class BlockedUsers extends _$BlockedUsers {
   Future<List<String>> fetchBlockedUsers() async {
     try {
       final client = ref.read(clientProvider);
-      return await client.userProfile.getBlockedUserIds();
+      return await client.resident.getBlockedUserIds();
     } catch (e) {
       return [];
     }
@@ -21,13 +21,13 @@ class BlockedUsers extends _$BlockedUsers {
 
   Future<void> block(String userId) async {
     final client = ref.read(clientProvider);
-    await client.userProfile.blockUser(userId);
+    await client.resident.blockUser(userId);
     ref.invalidateSelf();
   }
 
   Future<void> unblock(String userId) async {
     final client = ref.read(clientProvider);
-    await client.userProfile.unblockUser(userId);
+    await client.resident.unblockUser(userId);
     ref.invalidateSelf();
   }
 }

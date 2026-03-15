@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:talktive_client/talktive_client.dart';
+import 'client_provider.dart';
 
 part 'notification_provider.g.dart';
 
+/// Represents an in-app popup notification.
 class DuoNotification {
   final String title;
   final String message;
@@ -19,8 +22,9 @@ class DuoNotification {
   });
 }
 
+/// Provider for the single current in-app popup notification.
 @riverpod
-class NotificationNotifier extends _$NotificationNotifier {
+class InAppNotification extends _$InAppNotification {
   @override
   DuoNotification? build() => null;
 
@@ -36,5 +40,54 @@ class NotificationNotifier extends _$NotificationNotifier {
 
   void dismiss() {
     state = null;
+  }
+}
+
+/// Provider for fetching and managing the persistent activity history (notifications).
+@riverpod
+class ActivityHistory extends _$ActivityHistory {
+  @override
+  Future<List<UserNotification>> build() async {
+    return _fetchNotifications();
+  }
+
+  Future<List<UserNotification>> _fetchNotifications() async {
+    final client = ref.read(clientProvider);
+    try {
+      final notifications = await client.notification.getUserNotifications(
+        limit: 50,
+        offset: 0,
+        unreadOnly: false,
+      );
+      return notifications;
+    } catch (e) {
+      throw Exception('Failed to load activity: $e');
+    }
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _fetchNotifications());
+  }
+
+  Future<void> markAsRead(List<int> ids) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.notification.markAsRead(ids);
+      // Refresh local state to reflect read status
+      final currentData = state.value;
+      if (currentData != null) {
+        state = AsyncValue.data(
+          currentData.map((n) {
+            if (ids.contains(n.id)) {
+              return n.copyWith(read: true); 
+            }
+            return n;
+          }).toList(),
+        );
+      }
+    } catch (e) {
+      // Ignore error for marking as read
+    }
   }
 }

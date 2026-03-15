@@ -5,8 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../providers/achievement_provider.dart';
-import '../../providers/streak_provider.dart';
+import '../../providers/gamification_provider.dart';
 import '../../config/theme.dart';
 import '../../config/languages.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
@@ -205,13 +204,15 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildStreakCard(BuildContext context, WidgetRef ref) {
-    final streakAsync = ref.watch(userStreakProvider);
+    final gamificationAsync = ref.watch(gamificationProvider);
 
-    return streakAsync.when(
-      data: (streakData) {
-        if (streakData == null || streakData.streak == null) {
+    return gamificationAsync.when(
+      data: (data) {
+        if (data == null) {
           return const SizedBox.shrink();
         }
+
+        final resident = data.resident;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(
@@ -221,14 +222,14 @@ class ProfileScreen extends ConsumerWidget {
             0,
           ),
           child: DuoStreakCard(
-            currentStreak: streakData.streak!.currentStreak,
-            longestStreak: streakData.streak!.longestStreak,
-            canClaimReward: streakData.canClaimReward,
+            currentStreak: resident.currentStreak,
+            longestStreak: resident.longestStreak,
+            canClaimReward: data.canClaimReward,
             onClaimReward: () async {
               try {
                 final reward = await ref
-                    .read(userStreakProvider.notifier)
-                    .claimReward();
+                    .read(gamificationProvider.notifier)
+                    .claimDailyReward();
 
                 if (context.mounted && reward != null) {
                   DuoSnackBarHelper.showSuccess(
@@ -512,10 +513,13 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildActivitySection(BuildContext context, WidgetRef ref) {
-    final achievementsAsync = ref.watch(userAchievementsProvider);
+    final gamificationAsync = ref.watch(gamificationProvider);
 
-    return achievementsAsync.when(
-      data: (achievements) {
+    return gamificationAsync.when(
+      data: (data) {
+        if (data == null) return const SizedBox.shrink();
+        final achievements = data.achievements;
+        
         final unlocked = achievements
             .where((a) => a['unlocked'] == true)
             .toList();
@@ -614,7 +618,7 @@ class ProfileScreen extends ConsumerWidget {
                     }
 
                     final achievement = preview[index];
-                    final achievementData = achievement['achievement'];
+                    final achievementData = achievement['achievement'] as Achievement;
                     return Padding(
                       padding: EdgeInsets.only(
                         left: index == 0 ? 0 : AppTheme.duoSpacingSmall,

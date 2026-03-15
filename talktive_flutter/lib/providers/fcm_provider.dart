@@ -127,7 +127,7 @@ class FCMManager extends _$FCMManager {
 
     debugPrint('FCM DEBUG: Showing DuoNotification: $title - $body');
     ref
-        .read(notificationProvider.notifier)
+        .read(inAppNotificationProvider.notifier)
         .show(
           DuoNotification(
             title: title,

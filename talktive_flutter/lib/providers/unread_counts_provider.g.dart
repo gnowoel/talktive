@@ -41,7 +41,7 @@ final class TotalUnreadCountsProvider
   }
 }
 
-String _$totalUnreadCountsHash() => r'989b89cc10b530747f2a6060362468d5376a233e';
+String _$totalUnreadCountsHash() => r'7447a23309377bf52703b6a4b23315ef65306f32';
 
 abstract class _$TotalUnreadCounts extends $Notifier<UnreadCounts> {
   UnreadCounts build();

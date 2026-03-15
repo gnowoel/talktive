@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'private_chat_provider.dart';
 import 'group_provider.dart';
-import 'user_notifications_provider.dart';
+import 'notification_provider.dart';
 
 part 'unread_counts_provider.g.dart';
 
@@ -60,7 +60,7 @@ class TotalUnreadCounts extends _$TotalUnreadCounts {
       _lastLoungeCount = count;
     });
 
-    final activity = ref.watch(userNotificationsProvider);
+    final activity = ref.watch(activityHistoryProvider);
     activity.whenData((notifications) {
       _lastActivityCount = notifications.where((n) => !n.read).length;
     });

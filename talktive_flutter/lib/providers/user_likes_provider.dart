@@ -13,7 +13,7 @@ class UserLikes extends _$UserLikes {
   Future<List<String>> fetchLikes() async {
     try {
       final client = ref.read(clientProvider);
-      return await client.userLike.getMyLikedUserIds();
+      return await client.resident.getMyLikedUserIds();
     } catch (e) {
       return [];
     }
@@ -21,7 +21,7 @@ class UserLikes extends _$UserLikes {
 
   Future<void> likeUser(String userId) async {
     final client = ref.read(clientProvider);
-    await client.userLike.likeUser(userId);
+    await client.resident.likeUser(userId);
 
     // Refresh the list from server to ensure accuracy
     ref.invalidateSelf();
@@ -30,7 +30,7 @@ class UserLikes extends _$UserLikes {
 
   Future<void> unlikeUser(String userId) async {
     final client = ref.read(clientProvider);
-    await client.userLike.unlikeUser(userId);
+    await client.resident.unlikeUser(userId);
 
     // Refresh the list from server to ensure accuracy
     ref.invalidateSelf();

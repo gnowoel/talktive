@@ -6,8 +6,7 @@ import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
 import '../services/rate_limit_service.dart';
 import '../services/content_filter_service.dart';
-import '../services/achievement_service.dart';
-import '../services/streak_service.dart';
+
 import '../services/input_validation_service.dart';
 import '../services/chat_service.dart';
 import '../services/mention_service.dart';
@@ -278,18 +277,20 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       await protocol.Resident.db.updateRow(session, sender);
 
       // 12. Achievement tracking (already uses batching internally)
-      await AchievementService.trackMultipleProgress(
+      await GamificationService.trackMultipleProgress(
         session,
         sender.userInfoId,
         ['first_message', 'conversationalist', 'chatterbox'],
       );
 
       // Secondary checks
-      await AchievementService.checkTimeBasedAchievements(
+      await GamificationService.checkTimeBasedAchievements(
         session,
         sender.userInfoId,
       );
-      await StreakService.updateStreak(session, sender.userInfoId);
+      // Streak is already updated in checkDailyLogin via awardXP, 
+      // but we can update message streak explicitly too.
+      await GamificationService.updateMessageStreak(session, sender);
 
       return savedMessage;
     } catch (e, stack) {

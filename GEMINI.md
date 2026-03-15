@@ -109,6 +109,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **Consolidation & Simplification (Mar 2026)**: Merged `AchievementService` and `StreakService` into `GamificationService`, and consolidated `UserProfileEndpoint` and `UserLikeEndpoint` into `ResidentEndpoint`. Rationalized frontend providers by merging achievement, streak, and notification state management.
 - **500 Error (Feb 2026)**: Caused by `int` vs `UUID` mismatch in `Resident`. Fixed by:
   1. Migrating `Resident.userInfoId` to `UuidValue`.
   2. Updating `ResidentEndpoint` to use `AuthServices.instance.authUsers.create`.

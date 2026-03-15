@@ -66,7 +66,7 @@ class CurrentResident extends _$CurrentResident {
           resident != null &&
           resident.level > oldResident.level) {
         ref
-            .read(notificationProvider.notifier)
+            .read(inAppNotificationProvider.notifier)
             .show(
               DuoNotification(
                 title: 'Level Up! 🏢',

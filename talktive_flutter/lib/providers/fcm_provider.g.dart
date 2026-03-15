@@ -8,15 +8,18 @@ part of 'fcm_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for Firebase Cloud Messaging.
+/// Provider for Firebase Cloud Messaging for the Serverpod version.
+/// Background messages are handled centrally in background_messaging_handler.dart.
 
 @ProviderFor(FCMManager)
 final fCMManagerProvider = FCMManagerProvider._();
 
-/// Provider for Firebase Cloud Messaging.
+/// Provider for Firebase Cloud Messaging for the Serverpod version.
+/// Background messages are handled centrally in background_messaging_handler.dart.
 final class FCMManagerProvider
     extends $AsyncNotifierProvider<FCMManager, String?> {
-  /// Provider for Firebase Cloud Messaging.
+  /// Provider for Firebase Cloud Messaging for the Serverpod version.
+  /// Background messages are handled centrally in background_messaging_handler.dart.
   FCMManagerProvider._()
     : super(
         from: null,
@@ -36,9 +39,10 @@ final class FCMManagerProvider
   FCMManager create() => FCMManager();
 }
 
-String _$fCMManagerHash() => r'f2c6a955f411cd42ecc12e99780620bcf3c72e89';
+String _$fCMManagerHash() => r'9a43c579d4482ed483c5c8ea28d2ad313460e1e2';
 
-/// Provider for Firebase Cloud Messaging.
+/// Provider for Firebase Cloud Messaging for the Serverpod version.
+/// Background messages are handled centrally in background_messaging_handler.dart.
 
 abstract class _$FCMManager extends $AsyncNotifier<String?> {
   FutureOr<String?> build();

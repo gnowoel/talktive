@@ -468,7 +468,7 @@ final class GroupWithMembershipProvider
 }
 
 String _$groupWithMembershipHash() =>
-    r'2cb4cb0b823ed10d8f7c872e8d16432af7af7613';
+    r'33efe5c04594862d3f46bc3551f50a5eb2056e01';
 
 /// Provider for getting a single group with membership from the current user.
 

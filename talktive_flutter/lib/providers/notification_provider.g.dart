@@ -8,29 +8,32 @@ part of 'notification_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider for the single current in-app popup notification.
 
-@ProviderFor(NotificationNotifier)
-final notificationProvider = NotificationNotifierProvider._();
+@ProviderFor(InAppNotification)
+final inAppNotificationProvider = InAppNotificationProvider._();
 
-final class NotificationNotifierProvider
-    extends $NotifierProvider<NotificationNotifier, DuoNotification?> {
-  NotificationNotifierProvider._()
+/// Provider for the single current in-app popup notification.
+final class InAppNotificationProvider
+    extends $NotifierProvider<InAppNotification, DuoNotification?> {
+  /// Provider for the single current in-app popup notification.
+  InAppNotificationProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'notificationProvider',
+        name: r'inAppNotificationProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$notificationNotifierHash();
+  String debugGetCreateSourceHash() => _$inAppNotificationHash();
 
   @$internal
   @override
-  NotificationNotifier create() => NotificationNotifier();
+  InAppNotification create() => InAppNotification();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(DuoNotification? value) {
@@ -41,10 +44,11 @@ final class NotificationNotifierProvider
   }
 }
 
-String _$notificationNotifierHash() =>
-    r'0218db970459b05f3a494d3dc3c76fd8efe3ee0d';
+String _$inAppNotificationHash() => r'058b0df13e3e316de8962baedb2551811a7829fa';
 
-abstract class _$NotificationNotifier extends $Notifier<DuoNotification?> {
+/// Provider for the single current in-app popup notification.
+
+abstract class _$InAppNotification extends $Notifier<DuoNotification?> {
   DuoNotification? build();
   @$mustCallSuper
   @override
@@ -55,6 +59,62 @@ abstract class _$NotificationNotifier extends $Notifier<DuoNotification?> {
             as $ClassProviderElement<
               AnyNotifier<DuoNotification?, DuoNotification?>,
               DuoNotification?,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+/// Provider for fetching and managing the persistent activity history (notifications).
+
+@ProviderFor(ActivityHistory)
+final activityHistoryProvider = ActivityHistoryProvider._();
+
+/// Provider for fetching and managing the persistent activity history (notifications).
+final class ActivityHistoryProvider
+    extends $AsyncNotifierProvider<ActivityHistory, List<UserNotification>> {
+  /// Provider for fetching and managing the persistent activity history (notifications).
+  ActivityHistoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activityHistoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activityHistoryHash();
+
+  @$internal
+  @override
+  ActivityHistory create() => ActivityHistory();
+}
+
+String _$activityHistoryHash() => r'7909049ba363ebd5d583df2157b9b3eaa9d1d51c';
+
+/// Provider for fetching and managing the persistent activity history (notifications).
+
+abstract class _$ActivityHistory
+    extends $AsyncNotifier<List<UserNotification>> {
+  FutureOr<List<UserNotification>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref =
+        this.ref
+            as $Ref<AsyncValue<List<UserNotification>>, List<UserNotification>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<UserNotification>>,
+                List<UserNotification>
+              >,
+              AsyncValue<List<UserNotification>>,
               Object?,
               Object?
             >;

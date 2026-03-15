@@ -7,7 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'dart:convert';
 import 'package:talktive_client/talktive_client.dart';
 
-import '../../providers/user_notifications_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
@@ -19,7 +19,7 @@ class ActivityScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activityAsync = ref.watch(userNotificationsProvider);
+    final activityAsync = ref.watch(activityHistoryProvider);
 
     return DuoPageScaffold(
       title: 'Activity',
@@ -31,7 +31,7 @@ class ActivityScreen extends ConsumerWidget {
         children: [
           DuoRefreshButton(
             color: Colors.white,
-            onRefresh: () async => ref.refresh(userNotificationsProvider),
+            onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
           ),
           const SizedBox(width: AppTheme.duoSpacingSmall),
           GestureDetector(
@@ -98,7 +98,7 @@ class ActivityScreen extends ConsumerWidget {
     }
 
     return RefreshIndicator(
-      onRefresh: () async => ref.refresh(userNotificationsProvider),
+      onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
       color: AppTheme.duoBlue,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -127,7 +127,7 @@ class ActivityScreen extends ConsumerWidget {
         onTap: () {
           HapticFeedback.lightImpact();
           if (notification.id != null && !notification.read) {
-            ref.read(userNotificationsProvider.notifier).markAsRead([
+            ref.read(activityHistoryProvider.notifier).markAsRead([
               notification.id!,
             ]);
           }
@@ -257,7 +257,7 @@ class ActivityScreen extends ConsumerWidget {
           const SizedBox(height: AppTheme.duoSpacingSmall),
           DuoRefreshButton(
             color: AppTheme.duoBlue,
-            onRefresh: () async => ref.refresh(userNotificationsProvider),
+            onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
           ),
         ],
       ),

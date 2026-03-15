@@ -1,7 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
-import '../services/achievement_service.dart';
-import '../services/streak_service.dart';
+
 import '../services/notification_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/apartment_service.dart';
@@ -72,14 +71,14 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     await Resident.db.updateRow(session, resident);
 
     // Track achievements (Batched)
-    await AchievementService.trackMultipleProgress(
+    await GamificationService.trackMultipleProgress(
       session,
       senderUuid,
       ['first_moment', 'photographer', 'influencer'],
     );
 
-    // Update streak
-    await StreakService.updateStreak(session, senderUuid);
+    // Update streak (already handled by checkDailyLogin in awardXP, but can add specifics here if needed)
+    // For now, awardXP handles the basic streak logic.
 
     return savedMoment;
   }

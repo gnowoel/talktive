@@ -40,7 +40,7 @@ import 'user_achievement.dart' as _i27;
 import 'user_like.dart' as _i28;
 import 'user_notification.dart' as _i29;
 import 'user_profile_view.dart' as _i30;
-import 'user_streak.dart' as _i31;
+import 'package:talktive_client/src/protocol/daily_reward.dart' as _i31;
 import 'package:talktive_client/src/protocol/group_with_membership.dart'
     as _i32;
 import 'package:talktive_client/src/protocol/group.dart' as _i33;
@@ -55,12 +55,11 @@ import 'package:talktive_client/src/protocol/user_notification.dart' as _i40;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i41;
 import 'package:talktive_client/src/protocol/report.dart' as _i42;
-import 'package:talktive_client/src/protocol/daily_reward.dart' as _i43;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i44;
+    as _i43;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i45;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i46;
+    as _i44;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i45;
 export 'achievement.dart';
 export 'block.dart';
 export 'cache_int.dart';
@@ -90,7 +89,6 @@ export 'user_achievement.dart';
 export 'user_like.dart';
 export 'user_notification.dart';
 export 'user_profile_view.dart';
-export 'user_streak.dart';
 export 'client.dart';
 
 class Protocol extends _i1.SerializationManager {
@@ -214,9 +212,6 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i30.UserProfileView) {
       return _i30.UserProfileView.fromJson(data) as T;
     }
-    if (t == _i31.UserStreak) {
-      return _i31.UserStreak.fromJson(data) as T;
-    }
     if (t == _i1.getType<_i2.Achievement?>()) {
       return (data != null ? _i2.Achievement.fromJson(data) : null) as T;
     }
@@ -309,9 +304,6 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i30.UserProfileView?>()) {
       return (data != null ? _i30.UserProfileView.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i31.UserStreak?>()) {
-      return (data != null ? _i31.UserStreak.fromJson(data) : null) as T;
-    }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
@@ -343,13 +335,19 @@ class Protocol extends _i1.SerializationManager {
           )
           as T;
     }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
-    }
     if (t == Map<String, int>) {
       return (data as Map).map(
             (k, v) => MapEntry(deserialize<String>(k), deserialize<int>(v)),
           )
+          as T;
+    }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_i31.DailyReward>) {
+      return (data as List)
+              .map((e) => deserialize<_i31.DailyReward>(e))
+              .toList()
           as T;
     }
     if (t == List<String>) {
@@ -424,20 +422,14 @@ class Protocol extends _i1.SerializationManager {
       return (data as List).map((e) => deserialize<_i42.Report>(e)).toList()
           as T;
     }
-    if (t == List<_i43.DailyReward>) {
-      return (data as List)
-              .map((e) => deserialize<_i43.DailyReward>(e))
-              .toList()
-          as T;
-    }
+    try {
+      return _i43.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i44.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i45.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
-    try {
-      return _i46.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -473,7 +465,6 @@ class Protocol extends _i1.SerializationManager {
       _i28.UserLike => 'UserLike',
       _i29.UserNotification => 'UserNotification',
       _i30.UserProfileView => 'UserProfileView',
-      _i31.UserStreak => 'UserStreak',
       _ => null,
     };
   }
@@ -546,18 +537,16 @@ class Protocol extends _i1.SerializationManager {
         return 'UserNotification';
       case _i30.UserProfileView():
         return 'UserProfileView';
-      case _i31.UserStreak():
-        return 'UserStreak';
     }
-    className = _i44.Protocol().getClassNameForObject(data);
+    className = _i43.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i45.Protocol().getClassNameForObject(data);
+    className = _i44.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
-    className = _i46.Protocol().getClassNameForObject(data);
+    className = _i45.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
@@ -657,20 +646,17 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'UserProfileView') {
       return deserialize<_i30.UserProfileView>(data['data']);
     }
-    if (dataClassName == 'UserStreak') {
-      return deserialize<_i31.UserStreak>(data['data']);
-    }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i44.Protocol().deserializeByClassName(data);
+      return _i43.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i45.Protocol().deserializeByClassName(data);
+      return _i44.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i46.Protocol().deserializeByClassName(data);
+      return _i45.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -685,13 +671,13 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
+      return _i43.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
       return _i44.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
       return _i45.Protocol().mapRecordToJson(record);
-    } catch (_) {}
-    try {
-      return _i46.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

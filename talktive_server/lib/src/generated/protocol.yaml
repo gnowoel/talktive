@@ -12,10 +12,6 @@ firebaseIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
-achievement:
-  - getUserAchievements:
-  - markAchievementsAsNotified:
-  - seedAchievements:
 admin:
   - isAdmin:
   - getPendingReports:
@@ -33,6 +29,14 @@ admin:
   - getUserDetails:
   - runArchival:
   - getArchivalStats:
+gamification:
+  - getUserAchievements:
+  - markAchievementsAsNotified:
+  - getGamificationData:
+  - canClaimDailyReward:
+  - claimDailyReward:
+  - getRewardHistory:
+  - seedAchievements:
 group:
   - createGroup:
   - listMyGroups:
@@ -96,6 +100,14 @@ resident:
   - getResidentById:
   - initializeResident:
   - updateResident:
+  - getUserProfile:
+  - likeUser:
+  - unlikeUser:
+  - getMyLikedUserIds:
+  - blockUser:
+  - unblockUser:
+  - isUserBlocked:
+  - getBlockedUserIds:
 search:
   - searchUsers:
   - searchGroups:
@@ -107,20 +119,5 @@ search:
   - discoverUsersByInterests:
   - discoverUsersByLanguages:
   - getDiscoveryFeed:
-streak:
-  - getUserStreak:
-  - canClaimDailyReward:
-  - claimDailyReward:
-  - getRewardHistory:
-userLike:
-  - likeUser:
-  - unlikeUser:
-  - getMyLikedUserIds:
-userProfile:
-  - getUserProfile:
-  - blockUser:
-  - unblockUser:
-  - isUserBlocked:
-  - getBlockedUserIds:
 greeting:
   - hello:

@@ -11,7 +11,7 @@ import '../profile/profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/unread_counts_provider.dart';
-import '../../providers/user_notifications_provider.dart';
+import '../../providers/notification_provider.dart';
 
 import '../../config/theme.dart';
 
@@ -96,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     } else if (index == 3) {
                       ref.read(groupListProvider.notifier).refresh();
                     } else if (index == 4) {
-                      ref.refresh(userNotificationsProvider);
+                      ref.read(activityHistoryProvider.notifier).refresh();
                     }
                   },
                   child: AnimatedContainer(

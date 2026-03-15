@@ -1,6 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart' as protocol;
-import '../services/achievement_service.dart';
+import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/notification_service.dart';
@@ -84,7 +84,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     // Track achievement
-    await AchievementService.trackProgress(
+    await GamificationService.trackProgress(
       session,
       currentUserId,
       'community_builder',
@@ -466,7 +466,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       group.memberCount += 1;
       await protocol.Group.db.updateRow(session, group);
 
-      await AchievementService.trackProgress(
+      await GamificationService.trackProgress(
         session,
         currentUserId,
         'social_butterfly',
@@ -532,7 +532,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     group.memberCount += 1;
     await protocol.Group.db.updateRow(session, group);
 
-    await AchievementService.trackProgress(
+    await GamificationService.trackProgress(
       session,
       targetUserId,
       'social_butterfly',

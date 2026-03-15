@@ -1,7 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart' as protocol;
-import '../services/achievement_service.dart';
+import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
@@ -171,7 +171,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       );
 
       // Track achievement for starting a private chat
-      await AchievementService.trackProgress(
+      await GamificationService.trackProgress(
         session,
         currentUserId,
         'private_chat',

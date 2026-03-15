@@ -11,7 +11,7 @@ final userProfileProvider = FutureProvider.family<UserProfileView?, String>((
 ) async {
   try {
     final client = ref.read(clientProvider);
-    final profile = await client.userProfile.getUserProfile(userId);
+    final profile = await client.resident.getUserProfile(userId);
     return profile;
   } catch (e) {
     debugPrint('Error loading user profile for $userId: $e');

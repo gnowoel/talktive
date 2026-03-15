@@ -46,7 +46,7 @@ import 'user_achievement.dart' as _i31;
 import 'user_like.dart' as _i32;
 import 'user_notification.dart' as _i33;
 import 'user_profile_view.dart' as _i34;
-import 'user_streak.dart' as _i35;
+import 'package:talktive_server/src/generated/daily_reward.dart' as _i35;
 import 'package:talktive_server/src/generated/group_with_membership.dart'
     as _i36;
 import 'package:talktive_server/src/generated/group.dart' as _i37;
@@ -61,7 +61,6 @@ import 'package:talktive_server/src/generated/user_notification.dart' as _i44;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
     as _i45;
 import 'package:talktive_server/src/generated/report.dart' as _i46;
-import 'package:talktive_server/src/generated/daily_reward.dart' as _i47;
 export 'achievement.dart';
 export 'block.dart';
 export 'cache_int.dart';
@@ -91,7 +90,6 @@ export 'user_achievement.dart';
 export 'user_like.dart';
 export 'user_notification.dart';
 export 'user_profile_view.dart';
-export 'user_streak.dart';
 
 class Protocol extends _i1.SerializationManagerServer {
   Protocol._();
@@ -1945,84 +1943,6 @@ class Protocol extends _i1.SerializationManagerServer {
       ],
       managed: true,
     ),
-    _i2.TableDefinition(
-      name: 'user_streaks',
-      dartName: 'UserStreak',
-      schema: 'public',
-      module: 'talktive',
-      columns: [
-        _i2.ColumnDefinition(
-          name: 'id',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'nextval(\'user_streaks_id_seq\'::regclass)',
-        ),
-        _i2.ColumnDefinition(
-          name: 'userId',
-          columnType: _i2.ColumnType.uuid,
-          isNullable: false,
-          dartType: 'UuidValue',
-        ),
-        _i2.ColumnDefinition(
-          name: 'currentStreak',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '0',
-        ),
-        _i2.ColumnDefinition(
-          name: 'longestStreak',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '0',
-        ),
-        _i2.ColumnDefinition(
-          name: 'lastActiveDate',
-          columnType: _i2.ColumnType.timestampWithoutTimeZone,
-          isNullable: true,
-          dartType: 'DateTime?',
-        ),
-        _i2.ColumnDefinition(
-          name: 'totalActiveDays',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '0',
-        ),
-      ],
-      foreignKeys: [],
-      indexes: [
-        _i2.IndexDefinition(
-          indexName: 'user_streaks_pkey',
-          tableSpace: null,
-          elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'id',
-            ),
-          ],
-          type: 'btree',
-          isUnique: true,
-          isPrimary: true,
-        ),
-        _i2.IndexDefinition(
-          indexName: 'user_unique',
-          tableSpace: null,
-          elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'userId',
-            ),
-          ],
-          type: 'btree',
-          isUnique: true,
-          isPrimary: false,
-        ),
-      ],
-      managed: true,
-    ),
     ..._i3.Protocol.targetTableDefinitions,
     ..._i4.Protocol.targetTableDefinitions,
     ..._i5.Protocol.targetTableDefinitions,
@@ -2143,9 +2063,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i34.UserProfileView) {
       return _i34.UserProfileView.fromJson(data) as T;
     }
-    if (t == _i35.UserStreak) {
-      return _i35.UserStreak.fromJson(data) as T;
-    }
     if (t == _i1.getType<_i6.Achievement?>()) {
       return (data != null ? _i6.Achievement.fromJson(data) : null) as T;
     }
@@ -2238,9 +2155,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i34.UserProfileView?>()) {
       return (data != null ? _i34.UserProfileView.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i35.UserStreak?>()) {
-      return (data != null ? _i35.UserStreak.fromJson(data) : null) as T;
-    }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
@@ -2272,13 +2186,19 @@ class Protocol extends _i1.SerializationManagerServer {
           )
           as T;
     }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
-    }
     if (t == Map<String, int>) {
       return (data as Map).map(
             (k, v) => MapEntry(deserialize<String>(k), deserialize<int>(v)),
           )
+          as T;
+    }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_i35.DailyReward>) {
+      return (data as List)
+              .map((e) => deserialize<_i35.DailyReward>(e))
+              .toList()
           as T;
     }
     if (t == List<String>) {
@@ -2353,12 +2273,6 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data as List).map((e) => deserialize<_i46.Report>(e)).toList()
           as T;
     }
-    if (t == List<_i47.DailyReward>) {
-      return (data as List)
-              .map((e) => deserialize<_i47.DailyReward>(e))
-              .toList()
-          as T;
-    }
     try {
       return _i3.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
@@ -2405,7 +2319,6 @@ class Protocol extends _i1.SerializationManagerServer {
       _i32.UserLike => 'UserLike',
       _i33.UserNotification => 'UserNotification',
       _i34.UserProfileView => 'UserProfileView',
-      _i35.UserStreak => 'UserStreak',
       _ => null,
     };
   }
@@ -2478,8 +2391,6 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'UserNotification';
       case _i34.UserProfileView():
         return 'UserProfileView';
-      case _i35.UserStreak():
-        return 'UserStreak';
     }
     className = _i2.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -2593,9 +2504,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'UserProfileView') {
       return deserialize<_i34.UserProfileView>(data['data']);
     }
-    if (dataClassName == 'UserStreak') {
-      return deserialize<_i35.UserStreak>(data['data']);
-    }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
       return _i2.Protocol().deserializeByClassName(data);
@@ -2676,8 +2584,6 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i32.UserLike.t;
       case _i33.UserNotification:
         return _i33.UserNotification.t;
-      case _i35.UserStreak:
-        return _i35.UserStreak.t;
     }
     return null;
   }

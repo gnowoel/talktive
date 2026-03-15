@@ -174,7 +174,7 @@ class PlazaScreen extends ConsumerWidget {
             const SizedBox(width: AppTheme.duoSpacingMedium),
             Expanded(
               child: _buildSmallCard(
-                emoji: '⭐',
+                icon: Icons.apartment,
                 title: 'Floors',
                 subtitle: 'Level up by chatting',
                 color: AppTheme.duoYellow,
@@ -187,7 +187,8 @@ class PlazaScreen extends ConsumerWidget {
   }
 
   Widget _buildSmallCard({
-    required String emoji,
+    String? emoji,
+    IconData? icon,
     required String title,
     required String subtitle,
     required Color color,
@@ -203,7 +204,9 @@ class PlazaScreen extends ConsumerWidget {
               color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
             ),
-            child: Text(emoji, style: const TextStyle(fontSize: 24)),
+            child: icon != null 
+              ? Icon(icon, color: color, size: 24)
+              : Text(emoji ?? '', style: const TextStyle(fontSize: 24)),
           ),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(

@@ -36,7 +36,11 @@ class DuoFloorRequirementDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('🏢', style: TextStyle(fontSize: 48)),
+            const Icon(
+              Icons.apartment_rounded,
+              size: 64,
+              color: AppTheme.primaryColor,
+            ),
             const SizedBox(height: AppTheme.duoSpacingMedium),
             const Text(
               'High-Rise Access Required',

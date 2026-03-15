@@ -226,7 +226,7 @@ class ActivityScreen extends ConsumerWidget {
                     context,
                     label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
-                    emoji: '🏠',
+                    icon: Icons.apartment,
                     color: AppTheme.duoPurple,
                   ),
                 ),
@@ -236,7 +236,7 @@ class ActivityScreen extends ConsumerWidget {
                     context,
                     label: 'Experience',
                     value: '${resident.xp}',
-                    emoji: '✨',
+                    icon: Icons.stars,
                     color: AppTheme.duoYellow,
                   ),
                 ),
@@ -346,7 +346,7 @@ class ActivityScreen extends ConsumerWidget {
   Widget _buildMiniStat(BuildContext context, {
     required String label,
     required String value,
-    required String emoji,
+    required IconData icon,
     required Color color,
   }) {
     return DuoCard(
@@ -354,7 +354,7 @@ class ActivityScreen extends ConsumerWidget {
       borderWidth: 2,
       child: Row(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
+          Icon(icon, color: color, size: 24),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

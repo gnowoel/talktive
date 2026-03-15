@@ -29,12 +29,25 @@ class ProfileScreen extends ConsumerWidget {
     final residentAsync = ref.watch(currentResidentProvider);
     final resident = residentAsync.value;
 
-    return DuoPageScaffold(
-      emoji: '👤',
-      title: 'Profile',
-      subtitle: _displayName(resident),
-      gradient: AppTheme.duoGreenGradient,
-      hasBackButton: true,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: AppTheme.textPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: residentAsync.when(
         data: (resident) => _buildProfileContent(context, ref, resident),
         loading: () => const Center(
@@ -174,10 +187,6 @@ class ProfileScreen extends ConsumerWidget {
           _buildLanguagesSection(resident),
           // Interests section
           _buildInterestsSection(resident),
-          // Activity & Achievements section
-          _buildActivitySection(context, ref),
-          // Info card
-          _buildInfoCard(),
           // Edit Profile button
           _buildEditProfileButton(context, ref, resident),
           // Blocked users menu
@@ -457,179 +466,7 @@ class ProfileScreen extends ConsumerWidget {
     ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildActivitySection(BuildContext context, WidgetRef ref) {
-    final gamificationAsync = ref.watch(gamificationProvider);
 
-    return gamificationAsync.when(
-      data: (data) {
-        if (data == null) return const SizedBox.shrink();
-        final achievements = data.achievements;
-        
-        final unlocked = achievements
-            .where((a) => a['unlocked'] == true)
-            .toList();
-        final totalPoints = unlocked.fold<int>(
-          0,
-          (sum, a) => sum + (a['achievement'].points as int),
-        );
-
-        // Show first 6 achievements
-        final preview = achievements.take(6).toList();
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.duoSpacingLarge,
-            vertical: AppTheme.duoSpacingMedium,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Achievements',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  Text(
-                    '${unlocked.length}/${achievements.length} • $totalPoints pts',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textSecondary,
-                      fontFamily: 'Rubik',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppTheme.duoSpacingMedium),
-              // Achievement badges
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: preview.length + 1, // +1 for "View All" button
-                  itemBuilder: (context, index) {
-                    if (index == preview.length) {
-                      // "View All" button
-                      return GestureDetector(
-                        onTap: () {
-                          context.push('/activity');
-                        },
-                        child: Container(
-                          width: 80,
-                          margin: const EdgeInsets.only(
-                            left: AppTheme.duoSpacingSmall,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.duoRadiusSmall,
-                            ),
-                            border: Border.all(
-                              color: AppTheme.primaryColor.withValues(
-                                alpha: 0.3,
-                              ),
-                              width: 2,
-                            ),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.arrow_forward,
-                                color: AppTheme.primaryColor,
-                                size: 24,
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'View All',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.primaryColor,
-                                  fontFamily: 'Rubik',
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    final achievement = preview[index];
-                    final achievementData = achievement['achievement'] as Achievement;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: index == 0 ? 0 : AppTheme.duoSpacingSmall,
-                      ),
-                      child: DuoBadge(
-                        emoji: achievementData.emoji,
-                        name: achievementData.name,
-                        isUnlocked: achievement['unlocked'] == true,
-                        isNew: achievement['isNew'] == true,
-                        onTap: () {
-                          context.push('/activity');
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0);
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-    );
-  }
-
-  Widget _buildInfoCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
-      child: DuoCard(
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.duoSpacingSmall),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryColor.withValues(alpha: 0.2),
-                    AppTheme.secondaryColor.withValues(alpha: 0.2),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
-              ),
-              child: const Icon(
-                Icons.info_outline,
-                color: AppTheme.primaryColor,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingMedium),
-            const Expanded(
-              child: Text(
-                'Earn XP by sending messages and posting moments. Level up to unlock new features!',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                  fontFamily: 'Rubik',
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
-    );
-  }
 
   Widget _buildBlockedUsersButton(BuildContext context) {
     return Padding(

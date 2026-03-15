@@ -51,7 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
     _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
     _NavItem(emoji: '🏘️', label: 'Lounges', color: AppTheme.duoBlue),
-    _NavItem(emoji: '🔔', label: 'Activity', color: AppTheme.duoGreen),
+    _NavItem(emoji: '🏆', label: 'Activity', color: AppTheme.duoBlue),
   ];
 
   @override

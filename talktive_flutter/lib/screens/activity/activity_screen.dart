@@ -16,6 +16,7 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import '../../widgets/duo/duo_stat_card.dart';
+import '../../widgets/duo/duo_badge.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 
@@ -30,8 +31,8 @@ class ActivityScreen extends ConsumerWidget {
 
     return DuoPageScaffold(
       title: 'Activity',
-      subtitle: 'Notifications & history',
-      emoji: '🔔',
+      subtitle: 'Progress & Updates',
+      emoji: '🏆',
       gradient: AppTheme.duoBlueGradient,
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
@@ -54,8 +55,7 @@ class ActivityScreen extends ConsumerWidget {
             context,
             icon: Icons.settings_outlined,
             onTap: () {
-              // Settings can be a section in profile or its own page
-              context.push('/my-profile');
+              DuoSnackBarHelper.showInfo(context, 'Settings coming soon! ⚙️');
             },
           ),
         ],
@@ -114,6 +114,11 @@ class ActivityScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
               child: _buildGamificationSection(context, ref, gamificationAsync),
             ),
+          ),
+
+          // Achievements Section
+          SliverToBoxAdapter(
+            child: _buildAchievementsSection(context, ref, gamificationAsync),
           ),
 
           // Activity Header
@@ -224,6 +229,99 @@ class ActivityScreen extends ConsumerWidget {
             ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1),
           ],
         );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildAchievementsSection(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<GamificationData?> gamificationAsync,
+  ) {
+    return gamificationAsync.when(
+      data: (data) {
+        if (data == null || data.achievements.isEmpty) return const SizedBox.shrink();
+
+        final achievements = data.achievements;
+        final unlocked = achievements.where((a) => a['unlocked'] == true).toList();
+        final totalPoints = achievements.fold<int>(0, (sum, a) {
+          final ach = a['achievement'] as Achievement;
+          return sum + (ach.points);
+        });
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(
+            AppTheme.duoSpacingMedium,
+            0,
+            AppTheme.duoSpacingMedium,
+            AppTheme.duoSpacingMedium,
+          ),
+          padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+            border: Border.all(color: Colors.grey[200]!, width: 2),
+            boxShadow: AppTheme.duoCardShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Badges',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  Text(
+                    '${unlocked.length}/${achievements.length}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.duoBlue,
+                      fontFamily: 'Rubik',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppTheme.duoSpacingSmall),
+              SizedBox(
+                height: 90,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: achievements.length,
+                  itemBuilder: (context, index) {
+                    final achievement = achievements[index];
+                    final achievementData = achievement['achievement'] as Achievement;
+
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        right: index == achievements.length - 1 ? 0 : AppTheme.duoSpacingSmall,
+                      ),
+                      child: DuoBadge(
+                        emoji: achievementData.emoji,
+                        name: achievementData.name,
+                        isUnlocked: achievement['unlocked'] == true,
+                        isNew: achievement['isNew'] == true,
+                        onTap: () {
+                          // Show detail maybe? For now just stay here
+                          HapticFeedback.selectionClick();
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1);
       },
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),

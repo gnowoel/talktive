@@ -88,7 +88,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
-        _focusNode.requestFocus();
+        // On Web, requesting focus needs to happen after the next frame to work reliably
+        Future.delayed(Duration.zero, () {
+          if (mounted) _focusNode.requestFocus();
+        });
       }
     }
   }

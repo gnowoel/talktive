@@ -165,18 +165,8 @@ class GroupsScreen extends ConsumerWidget {
       group: group,
       onTap: () {
         HapticFeedback.lightImpact();
-        if (isInvite) {
-          DuoSnackBarHelper.showInfo(
-            context,
-            'Please accept the invitation to join this group.',
-          );
-          return;
-        }
-        if (isApplied) {
-          DuoSnackBarHelper.showInfo(
-            context,
-            'Your application is pending approval.',
-          );
+        if (isInvite || isApplied) {
+          context.push('/groups/profile/${group.id!}', extra: group);
           return;
         }
         context.push('/groups/chat/${group.id!}', extra: group);

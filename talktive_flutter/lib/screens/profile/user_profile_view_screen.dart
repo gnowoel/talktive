@@ -773,10 +773,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                                 widget.userId,
                               );
                               if (context.mounted) {
-                                DuoSnackBarHelper.showSuccess(
-                                  context,
-                                  'Flyer slipped under the door!',
-                                );
+                                  DuoSnackBarHelper.showSuccess(
+                                    context,
+                                    'Flyer slipped under the door!',
+                                  );
                               }
                             } catch (e) {
                               if (context.mounted) {

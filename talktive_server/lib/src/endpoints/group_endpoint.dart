@@ -350,18 +350,49 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // Verify current user is a joined member
-    final currentUserMemberResult = await protocol.ChannelMember.db
-        .findFirstRow(
-          session,
-          where: (t) =>
-              t.channelId.equals(group.channelId) &
-              t.userInfoId.equals(currentUserId) &
-              t.status.equals(protocol.ChannelMemberStatus.joined),
-        );
+    // Verify current user is a joined member and not muted
+    final currentUserResident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(currentUserId),
+    );
+    if (currentUserResident == null) {
+      throw protocol.TalktiveException(message: 'User profile not found');
+    }
+
+    if (ApartmentService.isMuted(currentUserResident)) {
+      throw protocol.TalktiveException(
+        message: ApartmentService.getMuteReason(currentUserResident),
+      );
+    }
+
+    final currentUserMemberResult = await protocol.ChannelMember.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.channelId.equals(group.channelId) &
+          t.userInfoId.equals(currentUserId) &
+          t.status.equals(protocol.ChannelMemberStatus.joined),
+    );
 
     if (currentUserMemberResult == null) {
-      throw protocol.TalktiveException(message: 'You are not a member of this group');
+      throw protocol.TalktiveException(
+        message: 'You are not a member of this group',
+      );
+    }
+
+    // Check if group is full
+    if (group.memberCount >= group.maxMembers) {
+      throw protocol.TalktiveException(message: 'Group is full');
+    }
+
+    // Check if target has blocked inviter
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: targetUserId,
+      blockedId: currentUserId,
+    )) {
+      throw protocol.TalktiveException(
+        message: 'You cannot invite this user.',
+      );
     }
 
     // Check if target is already in the group

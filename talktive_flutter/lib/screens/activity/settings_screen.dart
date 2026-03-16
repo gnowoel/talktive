@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../helpers/duo_snackbar_helper.dart';
@@ -16,11 +16,25 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final residentAsync = ref.watch(currentResidentProvider);
 
-    return DuoPageScaffold(
-      title: 'Settings',
-      subtitle: 'Preferences & Premium',
-      emoji: '⚙️',
-      gradient: AppTheme.duoPurpleGradient,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          'Settings',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: AppTheme.textPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: residentAsync.when(
         data: (resident) {
           if (resident == null) return const Center(child: Text('Please log in'));
@@ -28,7 +42,7 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
-              _buildSectionHeader(context, 'Privacy'),
+              _buildSectionHeader(context, 'Privacy 🛡️'),
               DuoCard(
                 child: SwitchListTile(
                   title: const Text(
@@ -56,7 +70,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
-              _buildSectionHeader(context, 'Premium Features'),
+              _buildSectionHeader(context, 'Premium Features ✨'),
               _buildPremiumCard(context, ref, resident.isPremium),
               const SizedBox(height: AppTheme.duoSpacingMedium),
               _buildFeatureRow(

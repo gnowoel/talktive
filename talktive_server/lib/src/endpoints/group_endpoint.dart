@@ -4,6 +4,7 @@ import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/notification_service.dart';
+import '../services/resident_service.dart';
 import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 

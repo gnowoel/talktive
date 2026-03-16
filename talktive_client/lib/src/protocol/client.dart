@@ -1286,6 +1286,23 @@ class EndpointResident extends _i2.EndpointRef {
         'getBlockedUserIds',
         {},
       );
+
+  /// Updates privacy settings for online status.
+  _i3.Future<_i6.Resident> updateOnlineSettings({
+    required bool showOnlineStatus,
+  }) => caller.callServerEndpoint<_i6.Resident>(
+    'resident',
+    'updateOnlineSettings',
+    {'showOnlineStatus': showOnlineStatus},
+  );
+
+  /// Mocks a premium purchase.
+  _i3.Future<_i6.Resident> purchasePremium() =>
+      caller.callServerEndpoint<_i6.Resident>(
+        'resident',
+        'purchasePremium',
+        {},
+      );
 }
 
 /// {@category Endpoint}

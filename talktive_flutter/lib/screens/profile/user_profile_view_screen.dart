@@ -267,6 +267,34 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               fontFamily: 'Poppins',
             ),
           ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
+          
+          // Premium Feature: Online/Offline Status
+          if (ref.watch(currentResidentProvider).value?.isPremium ?? false)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: profile?.isOnline == true ? AppTheme.duoGreen : Colors.grey[400],
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    profile?.isOnline == true ? 'Online' : 'Away',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: profile?.isOnline == true ? AppTheme.duoGreen : Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(delay: 180.ms),
           if (bio != null && bio.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(

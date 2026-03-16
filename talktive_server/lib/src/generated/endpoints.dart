@@ -2292,6 +2292,35 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
                   .getBlockedUserIds(session),
         ),
+        'updateOnlineSettings': _i1.MethodConnector(
+          name: 'updateOnlineSettings',
+          params: {
+            'showOnlineStatus': _i1.ParameterDescription(
+              name: 'showOnlineStatus',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
+                  .updateOnlineSettings(
+                    session,
+                    showOnlineStatus: params['showOnlineStatus'],
+                  ),
+        ),
+        'purchasePremium': _i1.MethodConnector(
+          name: 'purchasePremium',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
+                  .purchasePremium(session),
+        ),
       },
     );
     connectors['search'] = _i1.EndpointConnector(

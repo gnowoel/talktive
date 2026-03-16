@@ -45,6 +45,10 @@ class ResidentService {
       needsSave = true;
     }
 
+    // Update lastSeen (Always update when active)
+    resident.lastSeen = DateTime.now();
+    needsSave = true;
+
     if (needsSave) {
       await Resident.db.updateRow(session, resident);
     }
@@ -184,6 +188,10 @@ class ResidentService {
       gender: resident.gender,
       country: resident.country,
       bio: resident.bio,
+      lastSeen: resident.lastSeen,
+      isOnline: resident.showOnlineStatus &&
+          resident.lastSeen != null &&
+          DateTime.now().difference(resident.lastSeen!).inMinutes < 5,
     );
   }
 }

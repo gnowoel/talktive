@@ -24,3 +24,5 @@ fields:
   gender: String?
   country: String?
   bio: String?
+  lastSeen: DateTime?
+  isOnline: bool, default=false

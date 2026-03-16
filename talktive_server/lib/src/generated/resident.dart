@@ -39,6 +39,9 @@ abstract class Resident
     this.languages,
     this.role,
     bool? isAdmin,
+    this.lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
        xp = xp ?? 0,
@@ -46,7 +49,9 @@ abstract class Resident
        currentStreak = currentStreak ?? 0,
        longestStreak = longestStreak ?? 0,
        experienceMessageCount = experienceMessageCount ?? 0,
-       isAdmin = isAdmin ?? false;
+       isAdmin = isAdmin ?? false,
+       isPremium = isPremium ?? false,
+       showOnlineStatus = showOnlineStatus ?? true;
 
   factory Resident({
     int? id,
@@ -72,6 +77,9 @@ abstract class Resident
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    DateTime? lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -129,6 +137,17 @@ abstract class Resident
       isAdmin: jsonSerialization['isAdmin'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
+      lastSeen: jsonSerialization['lastSeen'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastSeen']),
+      isPremium: jsonSerialization['isPremium'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
+      showOnlineStatus: jsonSerialization['showOnlineStatus'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOnlineStatus'],
+            ),
     );
   }
 
@@ -183,6 +202,12 @@ abstract class Resident
 
   bool isAdmin;
 
+  DateTime? lastSeen;
+
+  bool isPremium;
+
+  bool showOnlineStatus;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -213,6 +238,9 @@ abstract class Resident
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    DateTime? lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -242,6 +270,9 @@ abstract class Resident
       if (languages != null) 'languages': languages?.toJson(),
       if (role != null) 'role': role,
       'isAdmin': isAdmin,
+      if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
+      'isPremium': isPremium,
+      'showOnlineStatus': showOnlineStatus,
     };
   }
 
@@ -273,6 +304,9 @@ abstract class Resident
       if (languages != null) 'languages': languages?.toJson(),
       if (role != null) 'role': role,
       'isAdmin': isAdmin,
+      if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
+      'isPremium': isPremium,
+      'showOnlineStatus': showOnlineStatus,
     };
   }
 
@@ -333,6 +367,9 @@ class _ResidentImpl extends Resident {
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    DateTime? lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
@@ -357,6 +394,9 @@ class _ResidentImpl extends Resident {
          languages: languages,
          role: role,
          isAdmin: isAdmin,
+         lastSeen: lastSeen,
+         isPremium: isPremium,
+         showOnlineStatus: showOnlineStatus,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -387,6 +427,9 @@ class _ResidentImpl extends Resident {
     Object? languages = _Undefined,
     Object? role = _Undefined,
     bool? isAdmin,
+    Object? lastSeen = _Undefined,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
@@ -423,6 +466,9 @@ class _ResidentImpl extends Resident {
           : this.languages?.map((e0) => e0).toList(),
       role: role is String? ? role : this.role,
       isAdmin: isAdmin ?? this.isAdmin,
+      lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
+      isPremium: isPremium ?? this.isPremium,
+      showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
     );
   }
 }
@@ -548,6 +594,22 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     table.isAdmin,
     value,
   );
+
+  _i1.ColumnValue<DateTime, DateTime> lastSeen(DateTime? value) =>
+      _i1.ColumnValue(
+        table.lastSeen,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> isPremium(bool value) => _i1.ColumnValue(
+    table.isPremium,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> showOnlineStatus(bool value) => _i1.ColumnValue(
+    table.showOnlineStatus,
+    value,
+  );
 }
 
 class ResidentTable extends _i1.Table<int?> {
@@ -649,6 +711,20 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    lastSeen = _i1.ColumnDateTime(
+      'lastSeen',
+      this,
+    );
+    isPremium = _i1.ColumnBool(
+      'isPremium',
+      this,
+      hasDefault: true,
+    );
+    showOnlineStatus = _i1.ColumnBool(
+      'showOnlineStatus',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final ResidentUpdateTable updateTable;
@@ -697,6 +773,12 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool isAdmin;
 
+  late final _i1.ColumnDateTime lastSeen;
+
+  late final _i1.ColumnBool isPremium;
+
+  late final _i1.ColumnBool showOnlineStatus;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -722,6 +804,9 @@ class ResidentTable extends _i1.Table<int?> {
     languages,
     role,
     isAdmin,
+    lastSeen,
+    isPremium,
+    showOnlineStatus,
   ];
 }
 

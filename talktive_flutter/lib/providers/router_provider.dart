@@ -9,6 +9,7 @@ import '../screens/home/home_screen.dart';
 import '../screens/chats/chat_thread_screen.dart';
 import '../screens/chats/peephole_screen.dart';
 import '../screens/activity/activity_screen.dart';
+import '../screens/activity/settings_screen.dart';
 
 import '../screens/profile/user_profile_view_screen.dart';
 import '../screens/profile/profile_screen.dart';
@@ -149,6 +150,12 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/activity',
         builder: (context, state) => const ActivityScreen(),
+        routes: [
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/user/:userId',

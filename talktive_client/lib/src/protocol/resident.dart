@@ -38,6 +38,9 @@ abstract class Resident implements _i1.SerializableModel {
     this.languages,
     this.role,
     bool? isAdmin,
+    this.lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
        xp = xp ?? 0,
@@ -45,7 +48,9 @@ abstract class Resident implements _i1.SerializableModel {
        currentStreak = currentStreak ?? 0,
        longestStreak = longestStreak ?? 0,
        experienceMessageCount = experienceMessageCount ?? 0,
-       isAdmin = isAdmin ?? false;
+       isAdmin = isAdmin ?? false,
+       isPremium = isPremium ?? false,
+       showOnlineStatus = showOnlineStatus ?? true;
 
   factory Resident({
     int? id,
@@ -71,6 +76,9 @@ abstract class Resident implements _i1.SerializableModel {
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    DateTime? lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -128,6 +136,17 @@ abstract class Resident implements _i1.SerializableModel {
       isAdmin: jsonSerialization['isAdmin'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
+      lastSeen: jsonSerialization['lastSeen'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastSeen']),
+      isPremium: jsonSerialization['isPremium'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
+      showOnlineStatus: jsonSerialization['showOnlineStatus'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOnlineStatus'],
+            ),
     );
   }
 
@@ -180,6 +199,12 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool isAdmin;
 
+  DateTime? lastSeen;
+
+  bool isPremium;
+
+  bool showOnlineStatus;
+
   /// Returns a shallow copy of this [Resident]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -207,6 +232,9 @@ abstract class Resident implements _i1.SerializableModel {
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    DateTime? lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -236,6 +264,9 @@ abstract class Resident implements _i1.SerializableModel {
       if (languages != null) 'languages': languages?.toJson(),
       if (role != null) 'role': role,
       'isAdmin': isAdmin,
+      if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
+      'isPremium': isPremium,
+      'showOnlineStatus': showOnlineStatus,
     };
   }
 
@@ -272,6 +303,9 @@ class _ResidentImpl extends Resident {
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    DateTime? lastSeen,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
@@ -296,6 +330,9 @@ class _ResidentImpl extends Resident {
          languages: languages,
          role: role,
          isAdmin: isAdmin,
+         lastSeen: lastSeen,
+         isPremium: isPremium,
+         showOnlineStatus: showOnlineStatus,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -326,6 +363,9 @@ class _ResidentImpl extends Resident {
     Object? languages = _Undefined,
     Object? role = _Undefined,
     bool? isAdmin,
+    Object? lastSeen = _Undefined,
+    bool? isPremium,
+    bool? showOnlineStatus,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
@@ -362,6 +402,9 @@ class _ResidentImpl extends Resident {
           : this.languages?.map((e0) => e0).toList(),
       role: role is String? ? role : this.role,
       isAdmin: isAdmin ?? this.isAdmin,
+      lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
+      isPremium: isPremium ?? this.isPremium,
+      showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
     );
   }
 }

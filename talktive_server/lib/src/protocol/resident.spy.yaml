@@ -37,6 +37,11 @@ fields:
   role: String?
   isAdmin: bool, default=false
   
+  # Online & Subscription
+  lastSeen: DateTime?
+  isPremium: bool, default=false
+  showOnlineStatus: bool, default=true
+  
 indexes:
   resident_user_idx:
     fields: userInfoId

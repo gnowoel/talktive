@@ -247,4 +247,22 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final blocks = await protocol.Block.db.find(session, where: (t) => t.blockerId.equals(blockerId));
     return blocks.map((b) => b.blockedId.toString()).toList();
   }
+
+  /// Updates privacy settings for online status.
+  Future<protocol.Resident> updateOnlineSettings(
+    Session session, {
+    required bool showOnlineStatus,
+  }) async {
+    final resident = await getAuthenticatedResident(session);
+    resident.showOnlineStatus = showOnlineStatus;
+    return await protocol.Resident.db.updateRow(session, resident);
+  }
+
+  /// Mocks a premium purchase.
+  Future<protocol.Resident> purchasePremium(Session session) async {
+    final resident = await getAuthenticatedResident(session);
+    resident.isPremium = true;
+    // In a real app, we'd update a subscription table or verify with App Store/Play Store.
+    return await protocol.Resident.db.updateRow(session, resident);
+  }
 }

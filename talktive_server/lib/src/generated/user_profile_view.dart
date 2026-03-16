@@ -41,7 +41,9 @@ abstract class UserProfileView
     this.gender,
     this.country,
     this.bio,
-  });
+    this.lastSeen,
+    bool? isOnline,
+  }) : isOnline = isOnline ?? false;
 
   factory UserProfileView({
     required String userId,
@@ -67,6 +69,8 @@ abstract class UserProfileView
     String? gender,
     String? country,
     String? bio,
+    DateTime? lastSeen,
+    bool? isOnline,
   }) = _UserProfileViewImpl;
 
   factory UserProfileView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -108,6 +112,12 @@ abstract class UserProfileView
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
       bio: jsonSerialization['bio'] as String?,
+      lastSeen: jsonSerialization['lastSeen'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastSeen']),
+      isOnline: jsonSerialization['isOnline'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isOnline']),
     );
   }
 
@@ -157,6 +167,10 @@ abstract class UserProfileView
 
   String? bio;
 
+  DateTime? lastSeen;
+
+  bool isOnline;
+
   /// Returns a shallow copy of this [UserProfileView]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -184,6 +198,8 @@ abstract class UserProfileView
     String? gender,
     String? country,
     String? bio,
+    DateTime? lastSeen,
+    bool? isOnline,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -213,6 +229,8 @@ abstract class UserProfileView
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
+      if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
+      'isOnline': isOnline,
     };
   }
 
@@ -246,6 +264,8 @@ abstract class UserProfileView
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
+      if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
+      'isOnline': isOnline,
     };
   }
 
@@ -282,6 +302,8 @@ class _UserProfileViewImpl extends UserProfileView {
     String? gender,
     String? country,
     String? bio,
+    DateTime? lastSeen,
+    bool? isOnline,
   }) : super._(
          userId: userId,
          userName: userName,
@@ -306,6 +328,8 @@ class _UserProfileViewImpl extends UserProfileView {
          gender: gender,
          country: country,
          bio: bio,
+         lastSeen: lastSeen,
+         isOnline: isOnline,
        );
 
   /// Returns a shallow copy of this [UserProfileView]
@@ -336,6 +360,8 @@ class _UserProfileViewImpl extends UserProfileView {
     Object? gender = _Undefined,
     Object? country = _Undefined,
     Object? bio = _Undefined,
+    Object? lastSeen = _Undefined,
+    bool? isOnline,
   }) {
     return UserProfileView(
       userId: userId ?? this.userId,
@@ -367,6 +393,8 @@ class _UserProfileViewImpl extends UserProfileView {
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
       bio: bio is String? ? bio : this.bio,
+      lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
+      isOnline: isOnline ?? this.isOnline,
     );
   }
 }

@@ -210,29 +210,16 @@ class ChatsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         child: Row(
           children: [
-            Stack(
-              children: [
-                DuoAvatar(
-                  imageUrl: otherUserAvatar,
-                  size: 56,
-                  mood: chatItem.otherUserMood,
-                  showRing: true,
-                  floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: AppTheme.duoGreen,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                  ),
-                ),
-              ],
+            DuoAvatar(
+              imageUrl: otherUserAvatar,
+              size: 56,
+              mood: chatItem.otherUserMood,
+              showRing: true,
+              floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
+              isOnline: (ref.watch(currentResidentProvider).value?.isPremium ?? false) &&
+                  chatItem.otherResident.showOnlineStatus &&
+                  chatItem.otherResident.lastSeen != null &&
+                  DateTime.now().difference(chatItem.otherResident.lastSeen!).inMinutes < 5,
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),
             Expanded(

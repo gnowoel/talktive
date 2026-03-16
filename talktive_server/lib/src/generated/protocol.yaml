@@ -108,6 +108,8 @@ resident:
   - unblockUser:
   - isUserBlocked:
   - getBlockedUserIds:
+  - updateOnlineSettings:
+  - purchasePremium:
 search:
   - searchUsers:
   - searchGroups:

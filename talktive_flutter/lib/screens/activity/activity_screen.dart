@@ -92,9 +92,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               _buildHeaderIcon(
                 context,
                 icon: Icons.settings_outlined,
-                onTap: () {
-                  DuoSnackBarHelper.showInfo(context, 'Settings coming soon! ⚙️');
-                },
+                onTap: () => context.push('/activity/settings'),
               ),
             ],
           ),

@@ -20,6 +20,7 @@ class DuoAvatar extends StatelessWidget {
   /// Whether to show the mood emoji overlay on the avatar.
   final bool showMood;
 
+  final bool? isOnline;
   final VoidCallback? onTap;
 
   const DuoAvatar({
@@ -33,6 +34,7 @@ class DuoAvatar extends StatelessWidget {
     this.showRing = true,
     this.showFloor = false,
     this.showMood = true,
+    this.isOnline,
     this.onTap,
   });
 
@@ -196,6 +198,28 @@ class DuoAvatar extends StatelessWidget {
                 ),
               ),
             ),
+        ],
+      );
+    }
+
+    if (isOnline != null && isOnline!) {
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          avatar,
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              width: size * 0.3,
+              height: size * 0.3,
+              decoration: BoxDecoration(
+                color: AppTheme.duoGreen,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+            ),
+          ),
         ],
       );
     }

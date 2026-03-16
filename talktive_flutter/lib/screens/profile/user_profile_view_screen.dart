@@ -17,6 +17,7 @@ import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
 import 'package:talktive/helpers/duo_trust_score_helper.dart';
+import '../../providers/current_resident_provider.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar

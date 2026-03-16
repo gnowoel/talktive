@@ -14,6 +14,7 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../helpers/date_formatter.dart';
+import '../../providers/current_resident_provider.dart';
 
 /// Duolingo-style Chats screen - list of private conversations
 class ChatsScreen extends ConsumerWidget {

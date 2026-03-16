@@ -54,14 +54,14 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       result.add({
         'report': report.toJson(),
         'reporter': {
-          'userId': report.reporterId.uuid,
+          'userId': report.reporterId.toString(),
           'userName': reporter?.userName ?? 'Unknown',
           'floor': reporter != null
               ? ApartmentService.computeEffectiveFloor(reporter)
               : 0,
         },
         'target': {
-          'userId': report.targetId.uuid,
+          'userId': report.targetId.toString(),
           'userName': target?.userName ?? 'Unknown',
           'floor': target != null
               ? ApartmentService.computeEffectiveFloor(target)
@@ -110,14 +110,14 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       result.add({
         'report': report.toJson(),
         'reporter': {
-          'userId': report.reporterId.uuid,
+          'userId': report.reporterId.toString(),
           'userName': reporter?.userName ?? 'Unknown',
           'floor': reporter != null
               ? ApartmentService.computeEffectiveFloor(reporter)
               : 0,
         },
         'target': {
-          'userId': report.targetId.uuid,
+          'userId': report.targetId.toString(),
           'userName': target?.userName ?? 'Unknown',
           'floor': target != null
               ? ApartmentService.computeEffectiveFloor(target)
@@ -176,7 +176,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     resident.trustScore = 0;
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin suspended user: $userId. Reason: $reason');
+    session.log('ADMIN: User $userId suspended by admin. Reason: $reason');
   }
 
   /// Unsuspend a user (re-enable account)
@@ -201,7 +201,49 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     resident.trustScore = 50; // Restore some trustScore
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin unsuspended user: $userId');
+    session.log('ADMIN: User $userId unsuspended by admin.');
+  }
+
+  /// Manually mutes a user for a specified duration.
+  Future<void> muteUser(
+    Session session, {
+    required String userId,
+    required int durationHours,
+    required String reason,
+  }) async {
+    await getAdminProfile(session);
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+    InputValidationService.validateId(durationHours, 'Duration').throwIfInvalid();
+
+    final targetUuid = UuidValue.fromString(userId);
+    final target = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(targetUuid),
+    );
+    if (target == null) throw protocol.TalktiveException(message: 'User not found');
+
+    target.mutedUntil = DateTime.now().add(Duration(hours: durationHours));
+    await protocol.Resident.db.updateRow(session, target);
+    
+    session.log('ADMIN: User $userId muted for $durationHours hours by admin. Reason: $reason');
+  }
+
+  /// Manually unmutes a user.
+  Future<void> unmuteUser(Session session, String userId) async {
+    await getAdminProfile(session);
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+
+    final targetUuid = UuidValue.fromString(userId);
+    final target = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(targetUuid),
+    );
+    if (target == null) throw protocol.TalktiveException(message: 'User not found');
+
+    target.mutedUntil = null;
+    await protocol.Resident.db.updateRow(session, target);
+
+    session.log('ADMIN: User $userId unmuted by admin.');
   }
 
   /// Reset user trustScore to 100 (for appeals)
@@ -441,7 +483,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       );
 
       result.add({
-        'userId': resident.userInfoId.uuid,
+        'userId': resident.userInfoId.toString(),
         'userName': resident.userName ?? 'Unknown',
         'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,
@@ -508,6 +550,46 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     session.log('Admin demoted user from admin: $userId');
   }
 
+  // --- Group Moderation ---
+
+  /// Disbands a group immediately.
+  Future<void> disbandGroup(
+    Session session, {
+    required int groupId,
+    required String reason,
+  }) async {
+    await getAdminProfile(session);
+    InputValidationService.validateId(groupId, 'Group ID').throwIfInvalid();
+
+    final group = await protocol.Group.db.findById(session, groupId);
+    if (group == null) throw protocol.TalktiveException(message: 'Group not found');
+
+    // Delete group members first
+    await protocol.ChannelMember.db.deleteWhere(
+      session,
+      where: (t) => t.channelId.equals(groupId),
+    );
+
+    // Delete group
+    await protocol.Group.db.deleteRow(session, group);
+
+    session.log('ADMIN: Group $groupId disbanded by admin. Reason: $reason');
+  }
+
+  /// Forces a group to become private.
+  Future<void> makeGroupPrivate(Session session, int groupId) async {
+    await getAdminProfile(session);
+    InputValidationService.validateId(groupId, 'Group ID').throwIfInvalid();
+
+    final group = await protocol.Group.db.findById(session, groupId);
+    if (group == null) throw protocol.TalktiveException(message: 'Group not found');
+
+    group.isPublic = false;
+    await protocol.Group.db.updateRow(session, group);
+
+    session.log('ADMIN: Group $groupId set to PRIVATE by admin.');
+  }
+
   /// Get user details for admin view
   Future<Map<String, dynamic>> getUserDetails(
     Session session, {
@@ -562,7 +644,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
     return {
       'user': {
-        'userId': resident.userInfoId.uuid,
+        'userId': resident.userInfoId.toString(),
         'userName': resident.userName ?? 'Unknown',
         'floor': ApartmentService.computeEffectiveFloor(resident),
         'trustScore': resident.trustScore,

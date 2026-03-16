@@ -40,6 +40,13 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 - Users can Like/Report a unique target only **once**.
 - Daily report caps (3 per day) to prevent targeting.
 - **Doorbell System**: strangers must "Knock" and be accepted via the "Peephole" before sending messages.
+- **Privacy Hardening**: Blocking a user immediately restricts their ability to send private messages or trigger notifications, even in existing threads.
+
+### 🛡️ Advanced Moderation (The Admin Role)
+- **Moderation Powers**: Admins can manually mute users (temporary), suspend accounts (permanent), and disband inappropriate groups.
+- **Administrative Transparency**: All admin actions are logged to the platform logs with reasons for accountability.
+- **Group Governance**: Admins can force public groups to become private if they are found to be niche or borderline inappropriate, maintaining the public "Plaza" safety.
+- **Report Resolution**: Admins review and resolve reports from the community, with the ability to reset trustScores upon successful appeals.
 
 ---
 

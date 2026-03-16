@@ -143,6 +143,29 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         }
       }
 
+      // 7.1. Privacy Check: Blocked status (Private Chats)
+      if (channel.type == protocol.ChannelType.private) {
+        final members = await protocol.ChannelMember.db.find(
+          session,
+          where: (t) => t.channelId.equals(channelId) & t.userInfoId.notEquals(senderUuid),
+        );
+        if (members.isNotEmpty) {
+          final otherUserUuid = members.first.userInfoId;
+          // Check if the other user has blocked the sender
+          final isBlocked = await ResidentService.isBlocked(
+            session,
+            blockerId: otherUserUuid,
+            blockedId: senderUuid,
+          );
+          if (isBlocked) {
+            throw protocol.TalktiveException(
+              message: 'Message not delivered. You are currently restricted by this resident.',
+              code: 'PRIVACY_RESTRICTED',
+            );
+          }
+        }
+      }
+
       // 8. Create Message object
       final message = protocol.Message(
         channelId: channelId,
@@ -386,7 +409,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     // 3. Notify other members (Private/Group only)
     List<Future> memberFutures = [];
     if (!isPlaza) {
-      String channelTypeStr =
+      final String channelTypeStr =
           channel.type == protocol.ChannelType.private ? 'private' : 'group';
       final mentionIdSet = mentionedUserIds.toSet();
 
@@ -398,17 +421,26 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
             t.status.equals(protocol.ChannelMemberStatus.joined),
       );
 
-      memberFutures = otherMembers
-          .where((m) => !m.isMuted && !mentionIdSet.contains(m.userInfoId))
-          .map((member) => NotificationService.sendMessageNotification(
-                session,
-                member.userInfoId,
-                senderName,
-                content,
-                channelId,
-                channelTypeStr,
-              ))
-          .toList();
+      for (final member in otherMembers) {
+        if (member.isMuted || mentionIdSet.contains(member.userInfoId)) continue;
+        
+        // Check if the recipient has blocked the sender
+        final isRecipientBlockingSender = await ResidentService.isBlocked(
+          session,
+          blockerId: member.userInfoId,
+          blockedId: senderUuid,
+        );
+        if (isRecipientBlockingSender) continue;
+
+        memberFutures.add(NotificationService.sendMessageNotification(
+          session,
+          member.userInfoId,
+          senderName,
+          content,
+          channelId,
+          channelTypeStr,
+        ));
+      }
     }
 
     // Run all notifications in parallel

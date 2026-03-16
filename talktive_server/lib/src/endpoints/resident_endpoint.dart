@@ -159,6 +159,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     );
     if (existingLike != null) throw protocol.TalktiveException(message: 'You have already vouched for this user.');
 
+    final isBlocked = await ResidentService.isBlocked(session, blockerId: callerId, blockedId: targetId);
+    final hasBlockedMe = await ResidentService.isBlocked(session, blockerId: targetId, blockedId: callerId);
+    if (isBlocked || hasBlockedMe) {
+      throw protocol.TalktiveException(message: 'You cannot vouch for this resident due to privacy settings.');
+    }
+
     final existingReport = await protocol.Report.db.findFirstRow(
       session,
       where: (t) => t.reporterId.equals(callerId) & t.targetId.equals(targetId),

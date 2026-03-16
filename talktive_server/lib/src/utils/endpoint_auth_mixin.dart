@@ -45,6 +45,14 @@ mixin EndpointAuthMixin {
         code: 'RESIDENT_NOT_FOUND',
       );
     }
+
+    if (resident.suspended) {
+      throw protocol.TalktiveException(
+        message: 'Your account has been suspended for violating our community guidelines.',
+        code: 'ACCOUNT_SUSPENDED',
+      );
+    }
+
     return resident;
   }
 

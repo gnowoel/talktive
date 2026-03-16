@@ -471,6 +471,20 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         currentUserId,
         'social_butterfly',
       );
+
+      // Award XP for joining group
+      final resident = await protocol.Resident.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(currentUserId),
+      );
+      if (resident != null) {
+        await GamificationService.awardXP(
+          session,
+          resident,
+          25,
+          'Joined group',
+        );
+      }
     } else {
       // Invited by a regular member, they transition to "applied" and wait for the Host to approve.
       member.status = protocol.ChannelMemberStatus.applied;
@@ -537,6 +551,20 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       targetUserId,
       'social_butterfly',
     );
+
+    // Award XP to the approved user
+    final targetResident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(targetUserId),
+    );
+    if (targetResident != null) {
+      await GamificationService.awardXP(
+        session,
+        targetResident,
+        25,
+        'Application approved',
+      );
+    }
   }
 
   /// Kicks a member from the group (creator only).

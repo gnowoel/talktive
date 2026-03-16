@@ -7,6 +7,7 @@ import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
 import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
+import '../services/notification_service.dart';
 import 'message_endpoint.dart';
 
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
@@ -178,6 +179,20 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       );
 
       wasJustInvited = true;
+    }
+
+    if (wasJustInvited) {
+      // Notify the recipient of the doorbell knock
+      try {
+        await NotificationService.sendChatInviteNotification(
+          session,
+          otherUserUuid,
+          currentResident.userName ?? 'Someone',
+          privateChat!.channelId,
+        );
+      } catch (e) {
+        session.log('Failed to send chat invite notification: $e', level: LogLevel.error);
+      }
     }
 
     if (initialMessage != null && initialMessage.trim().isNotEmpty) {

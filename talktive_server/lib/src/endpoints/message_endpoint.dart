@@ -12,6 +12,7 @@ import '../services/chat_service.dart';
 import '../services/mention_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import '../services/notification_service.dart';
+import '../services/resident_service.dart';
 
 class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   /// Sends a message to a channel (Plaza, Group, or Private).

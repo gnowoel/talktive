@@ -32,7 +32,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isUploading = false;
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
 
@@ -145,7 +144,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     if (image == null) return;
 
     setState(() {
-      _isUploading = true;
       _isSending = true;
     });
 
@@ -161,7 +159,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isUploading = false;
           _isSending = false;
         });
       }
@@ -214,17 +211,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         final canSend =
             currentResident != null && !DuoFloorHelper.isMuted(currentResident);
         
-        String hintText;
-        if (currentResidentAsync.isLoading) {
-          hintText = 'Loading profile...';
-        } else if (_isSending) {
-          hintText = 'Sending...';
-        } else if (canSend) {
-          hintText = 'Type a message...';
-        } else {
-          hintText = DuoFloorHelper.getMuteInputHint(currentResident);
-        }
-
         return DuoChatInputLayout(
           appBar: AppBar(
             backgroundColor: Colors.white,
@@ -356,9 +342,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           onImagePick: _pickAndSendImage,
           enabled: canSend,
           isSending: _isSending,
+          isLoading: currentResidentAsync.isLoading,
           focusNode: _focusNode,
           activeColor: AppTheme.duoOrange,
-          hintText: hintText,
+          hintText: canSend
+              ? 'Type a message...'
+              : DuoFloorHelper.getMuteInputHint(currentResident),
           content: chatState.when(
             data: (messages) => messages.isEmpty
                 ? _buildEmptyState()

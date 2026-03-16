@@ -154,7 +154,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isUploading = false;
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
 
@@ -208,7 +207,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     if (image == null) return;
 
     setState(() {
-      _isUploading = true;
       _isSending = true;
     });
 
@@ -224,7 +222,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isUploading = false;
           _isSending = false;
         });
       }
@@ -305,17 +302,6 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final currentResident = currentResidentAsync.value;
     final canSend =
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
-
-    String hintText;
-    if (currentResidentAsync.isLoading) {
-      hintText = 'Loading profile...';
-    } else if (_isSending) {
-      hintText = 'Sending...';
-    } else if (canSend) {
-      hintText = 'Message the club...';
-    } else {
-      hintText = DuoFloorHelper.getMuteInputHint(currentResident);
-    }
 
     return DuoChatInputLayout(
       appBar: AppBar(
@@ -511,9 +497,12 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       onImagePick: _pickAndSendImage,
       enabled: canSend,
       isSending: _isSending,
+      isLoading: currentResidentAsync.isLoading,
       focusNode: _focusNode,
       activeColor: AppTheme.duoBlue,
-      hintText: hintText,
+      hintText: canSend
+          ? 'Message the club...'
+          : DuoFloorHelper.getMuteInputHint(currentResident),
       content: chatState.when(
         data: (messages) => messages.isEmpty
             ? _buildEmptyState()

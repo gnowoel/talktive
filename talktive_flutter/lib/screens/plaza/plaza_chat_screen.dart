@@ -30,7 +30,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isUploading = false;
   bool _isSending = false;
 
   @override
@@ -59,7 +58,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     if (image == null) return;
 
     setState(() {
-      _isUploading = true;
       _isSending = true;
     });
 
@@ -75,7 +73,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isUploading = false;
           _isSending = false;
         });
       }
@@ -200,15 +197,12 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       onSend: _sendMessage,
       onImagePick: _pickAndSendImage,
       enabled: canSend,
+      isLoading: currentResidentAsync.isLoading,
       isSending: _isSending,
       focusNode: _focusNode,
-      hintText: currentResidentAsync.isLoading
-          ? 'Loading profile...'
-          : (_isSending
-              ? 'Sending...'
-              : (canSend
-                  ? 'Type a message...'
-                  : DuoFloorHelper.getMuteInputHint(currentResident))),
+      hintText: canSend
+          ? 'Type a message...'
+          : DuoFloorHelper.getMuteInputHint(currentResident),
       content: chatState.when(
         data: (messages) {
           if (messages.isEmpty) {

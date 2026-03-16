@@ -6,6 +6,7 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
+import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
@@ -482,6 +483,13 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   }
 
   Widget _buildMessagesList(List<Message> messages, String otherName, Resident? currentResident) {
+    final blockedUsersAsync = ref.watch(blockedUsersProvider);
+    final blockedUsers = blockedUsersAsync.value ?? [];
+
+    final filteredMessages = messages.where((msg) {
+      return !blockedUsers.contains(msg.senderId.toString());
+    }).toList();
+
     return RefreshIndicator(
       onRefresh: () async {
         ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
@@ -491,9 +499,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         controller: _scrollController,
         reverse: true,
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-        itemCount: messages.length,
+        itemCount: filteredMessages.length,
         itemBuilder: (context, index) {
-          final message = messages[index];
+          final message = filteredMessages[index];
           final isCurrentUser =
               currentResident != null &&
               message.senderId == currentResident.userInfoId;

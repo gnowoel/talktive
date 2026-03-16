@@ -427,7 +427,23 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         : protocol.ChannelMemberStatus.declined;
     await protocol.ChannelMember.db.updateRow(session, member);
 
-    if (!accept) {
+    if (accept) {
+      // Award XP for making a new connection
+      final currentResident = await getAuthenticatedResident(session);
+      await GamificationService.awardXP(
+        session,
+        currentResident,
+        15, // +15 XP for accepting a chat invite
+        'Accepted chat invite',
+      );
+
+      // Track achievement progress
+      await GamificationService.trackProgress(
+        session,
+        currentUserId,
+        'private_chat',
+      );
+    } else {
       try {
         await MessageEndpoint().sendMessage(
           session,

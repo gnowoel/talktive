@@ -21,6 +21,12 @@ This document tracks the major development milestones and changes made during th
 - **Unified Profile UI**: Re-implemented `ProfileScreen` and `UserProfileViewScreen` to use the same reactive `UserProfile` provider, ensuring message/moment counts and social buttons are always in sync.
 - **Refresh Synchronization**: Updated `CurrentResident` manual refresh to automatically invalidate and reload the associated profile view stats.
 
+### Polish & Refinement Fixes
+- **Import Consolidation**: Resolved ambiguous `Message` import conflicts in `ResidentService` by hiding them from `serverpod`.
+- **Duo Display Helpers**: Consolidated trust score color computation into `DuoFloorHelper` for universal branding across all profile screens.
+- **Provider Reliability**: Fixed missing dependencies in `CurrentResident` provider to ensure real-time synchronization of shared profile stats.
+- **Auto-Syncing User Profiles**: Enabled fully-generated Riverpod providers for consistent state management across deep-linked profile views.
+
 ---
 
 ## March 15, 2026 - Structural Layout Harmonization & Design System Update 🎨

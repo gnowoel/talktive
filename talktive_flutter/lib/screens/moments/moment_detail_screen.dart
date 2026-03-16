@@ -26,6 +26,7 @@ class MomentDetailScreen extends ConsumerStatefulWidget {
 class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   final TextEditingController _commentController = TextEditingController();
   bool _isLiking = false;
+  bool _isSending = false;
 
   @override
   void dispose() {
@@ -62,6 +63,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
 
   Future<void> _postComment(String text) async {
     if (text.trim().isEmpty) return;
+    setState(() => _isSending = true);
     try {
       await ref
           .read(momentCommentsProvider(widget.moment.id!).notifier)
@@ -76,6 +78,8 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       if (mounted) {
         DuoSnackBarHelper.showError(context, 'Failed to post comment: $e');
       }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
@@ -98,6 +102,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       ),
       controller: _commentController,
       onSend: () => _postComment(_commentController.text),
+      isSending: _isSending,
       hintText: 'Add a comment...',
       content: CustomScrollView(
         slivers: [

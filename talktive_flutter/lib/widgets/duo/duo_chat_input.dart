@@ -13,6 +13,7 @@ class DuoChatInput extends StatelessWidget {
   final Color? activeColor;
   final FocusNode? focusNode;
   final bool isSending;
+  final bool isLoading;
 
   const DuoChatInput({
     super.key,
@@ -20,6 +21,7 @@ class DuoChatInput extends StatelessWidget {
     required this.onSend,
     this.enabled = true,
     this.isSending = false,
+    this.isLoading = false,
     this.hintText = 'Type a message...',
     this.onImagePick,
     this.prefix,
@@ -57,7 +59,7 @@ class DuoChatInput extends StatelessWidget {
             // Image picker button (optional)
             if (onImagePick != null)
               GestureDetector(
-                onTap: (enabled && !isSending) ? onImagePick : null,
+                onTap: (enabled && !isSending && !isLoading) ? onImagePick : null,
                 child: Container(
                   width: 44,
                   height: 44,
@@ -69,7 +71,7 @@ class DuoChatInput extends StatelessWidget {
                   child: Icon(
                     Icons.add_a_photo,
                     size: 20,
-                    color: (enabled && !isSending) ? themeColor : AppTheme.textLight,
+                    color: (enabled && !isSending && !isLoading) ? themeColor : AppTheme.textLight,
                   ),
                 ),
               ),
@@ -97,7 +99,7 @@ class DuoChatInput extends StatelessWidget {
                     color: AppTheme.textPrimary,
                   ),
                   decoration: InputDecoration(
-                    hintText: hintText,
+                    hintText: _effectiveHintText,
                     hintStyle: const TextStyle(
                       color: AppTheme.textLight,
                       fontFamily: 'Rubik',
@@ -107,15 +109,8 @@ class DuoChatInput extends StatelessWidget {
                       horizontal: AppTheme.duoSpacingMedium,
                       vertical: AppTheme.duoSpacingSmall,
                     ),
-                    prefixIcon: enabled
-                        ? null
-                        : const Icon(
-                            Icons.lock,
-                            color: AppTheme.textLight,
-                            size: 20,
-                          ),
                   ),
-                  onSubmitted: (enabled && !isSending) ? (_) => _handleSend() : null,
+                  onSubmitted: (enabled && !isSending && !isLoading) ? (_) => _handleSend() : null,
                 ),
               ),
             ),
@@ -124,12 +119,12 @@ class DuoChatInput extends StatelessWidget {
 
             // Send button
             GestureDetector(
-              onTap: (enabled && !isSending) ? _handleSend : null,
+              onTap: (enabled && !isSending && !isLoading) ? _handleSend : null,
               child: Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  gradient: (enabled && !isSending)
+                  gradient: (enabled && !isSending && !isLoading)
                       ? LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -139,9 +134,9 @@ class DuoChatInput extends StatelessWidget {
                           ],
                         )
                       : null,
-                  color: (enabled && !isSending) ? null : Colors.grey.shade300,
+                  color: (enabled && !isSending && !isLoading) ? null : Colors.grey.shade300,
                   shape: BoxShape.circle,
-                  boxShadow: (enabled && !isSending)
+                  boxShadow: (enabled && !isSending && !isLoading)
                       ? [
                           BoxShadow(
                             color: themeColor.withValues(alpha: 0.3),
@@ -160,8 +155,14 @@ class DuoChatInput extends StatelessWidget {
     );
   }
 
+  String get _effectiveHintText {
+    if (isLoading) return 'Loading profile...';
+    if (isSending) return 'Sending...';
+    return hintText;
+  }
+
   void _handleSend() {
-    if (isSending || controller.text.trim().isEmpty) return;
+    if (isSending || isLoading || controller.text.trim().isEmpty) return;
     HapticFeedback.lightImpact();
     onSend();
   }

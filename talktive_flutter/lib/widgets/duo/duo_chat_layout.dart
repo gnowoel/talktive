@@ -65,6 +65,7 @@ class DuoChatInputLayout extends StatelessWidget {
   final Color? activeColor;
   final FocusNode? focusNode;
   final bool isSending;
+  final bool isLoading;
 
   const DuoChatInputLayout({
     super.key,
@@ -81,6 +82,7 @@ class DuoChatInputLayout extends StatelessWidget {
     this.activeColor,
     this.focusNode,
     this.isSending = false,
+    this.isLoading = false,
   });
 
   @override
@@ -100,6 +102,7 @@ class DuoChatInputLayout extends StatelessWidget {
         activeColor: activeColor,
         focusNode: focusNode,
         isSending: isSending,
+        isLoading: isLoading,
       ),
     );
   }

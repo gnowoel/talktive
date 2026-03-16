@@ -69,6 +69,8 @@ Always prefer these components over standard Material widgets to maintain the br
 *   **DuoHeader**: Used inside `DuoPageScaffold` to present identity consistently.
 *   **DuoStatCard**: Compact, colorful cards for displaying XP, level, and trust metrics.
 *   **DuoPageScaffold**: The foundation for all destination screens.
+*   **DuoChatInputLayout**: The standardized layout for chat-based interactions, incorporating `DuoChatInput`.
+*   **Smart Chat Input**: A specialized input field that automatically handles "Loading" and "Sending" states via its internal logic. It prioritizes stability (keeping the keyboard open) over locking the UI, but prevents multiple submissions.
 
 ---
 

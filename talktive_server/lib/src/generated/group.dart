@@ -28,9 +28,11 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     this.lastMessageAt,
     this.lastMessage,
     this.interests,
+    bool? isAdminLocked,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
-       maxMembers = maxMembers ?? 50;
+       maxMembers = maxMembers ?? 50,
+       isAdminLocked = isAdminLocked ?? false;
 
   factory Group({
     int? id,
@@ -46,6 +48,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    bool? isAdminLocked,
   }) = _GroupImpl;
 
   factory Group.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -77,6 +80,9 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
           : _i2.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
+      isAdminLocked: jsonSerialization['isAdminLocked'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdminLocked']),
     );
   }
 
@@ -111,6 +117,8 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   List<String>? interests;
 
+  bool isAdminLocked;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -131,6 +139,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    bool? isAdminLocked,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -149,6 +158,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
       if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
+      'isAdminLocked': isAdminLocked,
     };
   }
 
@@ -169,6 +179,7 @@ abstract class Group implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
       if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
+      'isAdminLocked': isAdminLocked,
     };
   }
 
@@ -219,6 +230,7 @@ class _GroupImpl extends Group {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    bool? isAdminLocked,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -233,6 +245,7 @@ class _GroupImpl extends Group {
          lastMessageAt: lastMessageAt,
          lastMessage: lastMessage,
          interests: interests,
+         isAdminLocked: isAdminLocked,
        );
 
   /// Returns a shallow copy of this [Group]
@@ -253,6 +266,7 @@ class _GroupImpl extends Group {
     Object? lastMessageAt = _Undefined,
     Object? lastMessage = _Undefined,
     Object? interests = _Undefined,
+    bool? isAdminLocked,
   }) {
     return Group(
       id: id is int? ? id : this.id,
@@ -272,6 +286,7 @@ class _GroupImpl extends Group {
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
+      isAdminLocked: isAdminLocked ?? this.isAdminLocked,
     );
   }
 }
@@ -343,6 +358,11 @@ class GroupUpdateTable extends _i1.UpdateTable<GroupTable> {
         table.interests,
         value,
       );
+
+  _i1.ColumnValue<bool, bool> isAdminLocked(bool value) => _i1.ColumnValue(
+    table.isAdminLocked,
+    value,
+  );
 }
 
 class GroupTable extends _i1.Table<int?> {
@@ -399,6 +419,11 @@ class GroupTable extends _i1.Table<int?> {
       'interests',
       this,
     );
+    isAdminLocked = _i1.ColumnBool(
+      'isAdminLocked',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final GroupUpdateTable updateTable;
@@ -427,6 +452,8 @@ class GroupTable extends _i1.Table<int?> {
 
   late final _i1.ColumnSerializable<List<String>> interests;
 
+  late final _i1.ColumnBool isAdminLocked;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -442,6 +469,7 @@ class GroupTable extends _i1.Table<int?> {
     lastMessageAt,
     lastMessage,
     interests,
+    isAdminLocked,
   ];
 }
 

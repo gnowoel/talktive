@@ -364,6 +364,28 @@ class EndpointAdmin extends _i2.EndpointRef {
         {'userId': userId},
       );
 
+  /// Manually mutes a user for a specified duration.
+  _i3.Future<void> muteUser({
+    required String userId,
+    required int durationHours,
+    required String reason,
+  }) => caller.callServerEndpoint<void>(
+    'admin',
+    'muteUser',
+    {
+      'userId': userId,
+      'durationHours': durationHours,
+      'reason': reason,
+    },
+  );
+
+  /// Manually unmutes a user.
+  _i3.Future<void> unmuteUser(String userId) => caller.callServerEndpoint<void>(
+    'admin',
+    'unmuteUser',
+    {'userId': userId},
+  );
+
   /// Reset user trustScore to 100 (for appeals)
   _i3.Future<void> resetReputation({
     required String userId,
@@ -438,6 +460,27 @@ class EndpointAdmin extends _i2.EndpointRef {
         'admin',
         'demoteFromAdmin',
         {'userId': userId},
+      );
+
+  /// Disbands a group immediately.
+  _i3.Future<void> disbandGroup({
+    required int groupId,
+    required String reason,
+  }) => caller.callServerEndpoint<void>(
+    'admin',
+    'disbandGroup',
+    {
+      'groupId': groupId,
+      'reason': reason,
+    },
+  );
+
+  /// Forces a group to become private.
+  _i3.Future<void> makeGroupPrivate(int groupId) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'makeGroupPrivate',
+        {'groupId': groupId},
       );
 
   /// Get user details for admin view

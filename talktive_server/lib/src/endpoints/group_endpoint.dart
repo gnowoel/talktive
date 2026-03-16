@@ -946,6 +946,13 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     if (isPublic != null) {
+      if (isPublic && group.isAdminLocked) {
+        throw protocol.TalktiveException(
+          message:
+              'This lounge has been locked to private by an administrator and cannot be made public.',
+          code: 'ADMIN_LOCKED',
+        );
+      }
       group.isPublic = isPublic;
     }
 

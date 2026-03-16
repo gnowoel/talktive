@@ -408,6 +408,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                 _confirmLeaveClub(context, ref);
               } else if (value == 'delete') {
                 _confirmDeleteClub(context, ref);
+              } else if (value == 'admin_private') {
+                _confirmForcePrivate(context, ref);
+              } else if (value == 'admin_disband') {
+                _confirmAdminDisband(context, ref);
               }
             },
             itemBuilder: (_) {
@@ -425,7 +429,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       ),
                       SizedBox(width: 12),
                       Text(
-                        'Club Info',
+                        'Lounge Info',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -439,7 +443,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                         Icon(Icons.edit, color: AppTheme.duoBlue, size: 20),
                         SizedBox(width: 12),
                         Text(
-                          'Edit Club Info',
+                          'Edit Lounge Info',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -457,7 +461,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                         ),
                         SizedBox(width: 12),
                         Text(
-                          'Leave Club',
+                          'Leave Lounge',
                           style: TextStyle(
                             color: AppTheme.duoRed,
                             fontWeight: FontWeight.bold,
@@ -478,7 +482,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                         ),
                         SizedBox(width: 12),
                         Text(
-                          'Disband Club',
+                          'Disband Lounge',
                           style: TextStyle(
                             color: AppTheme.duoRed,
                             fontWeight: FontWeight.bold,
@@ -487,6 +491,54 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       ],
                     ),
                   ),
+                if (currentResident?.isAdmin ?? false) ...[
+                  const PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'admin_private',
+                    enabled: widget.group.isPublic,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.lock_outline,
+                          color: AppTheme.duoOrange,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          widget.group.isPublic
+                              ? 'Admin: Force Private'
+                              : 'Admin: Private (Locked)',
+                          style: TextStyle(
+                            color: widget.group.isPublic
+                                ? AppTheme.duoOrange
+                                : Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'admin_disband',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.gavel_rounded,
+                          color: AppTheme.duoRed,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Admin: Disband',
+                          style: TextStyle(
+                            color: AppTheme.duoRed,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ];
             },
           ),
@@ -501,7 +553,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       focusNode: _focusNode,
       activeColor: AppTheme.duoBlue,
       hintText: canSend
-          ? 'Message the club...'
+          ? 'Message the lounge...'
           : DuoFloorHelper.getMuteInputHint(currentResident),
       content: chatState.when(
         data: (messages) => messages.isEmpty
@@ -651,7 +703,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Leave Club?'),
+        title: const Text('Leave Lounge?'),
         content: const Text('Are you sure you want to leave this community?'),
         actions: [
           TextButton(
@@ -688,7 +740,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text(
-          'Disband Club?',
+          'Disband Lounge?',
           style: TextStyle(color: AppTheme.duoRed),
         ),
         content: const Text(
@@ -717,6 +769,94 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           ref.invalidate(groupListProvider);
           Navigator.pop(context);
           DuoSnackBarHelper.showSuccess(context, 'The club has been disbanded.');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          DuoSnackBarHelper.showError(context, e.toString());
+        }
+      }
+    }
+  }
+  void _confirmForcePrivate(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Admin Action: Force Private?'),
+        content: const Text(
+          'This will force the lounge to become private and lock it. The creator will NOT be able to make it public again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.duoOrange),
+            child: const Text('FORCE PRIVATE'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      HapticFeedback.mediumImpact();
+      try {
+        final client = ref.read(clientProvider);
+        await client.admin.makeGroupPrivate(widget.group.id!);
+        if (context.mounted) {
+          ref.invalidate(groupListProvider);
+          DuoSnackBarHelper.showSuccess(
+            context,
+            'Lounge has been forced to private.',
+          );
+          Navigator.pop(context); // Optional: leave screen or refresh
+        }
+      } catch (e) {
+        if (context.mounted) {
+          DuoSnackBarHelper.showError(context, e.toString());
+        }
+      }
+    }
+  }
+
+  void _confirmAdminDisband(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          'Admin Action: Disband Lounge?',
+          style: TextStyle(color: AppTheme.duoRed),
+        ),
+        content: const Text(
+          'As an administrator, you are deleting this lounge permanently for all members. This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.duoRed),
+            child: const Text('DISBAND PERMANENTLY'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      HapticFeedback.heavyImpact();
+      try {
+        final client = ref.read(clientProvider);
+        await client.admin.disbandGroup(
+          groupId: widget.group.id!,
+          reason: 'Administrative action',
+        );
+        if (context.mounted) {
+          ref.invalidate(groupListProvider);
+          Navigator.pop(context); // Go back to Groups screen
+          DuoSnackBarHelper.showSuccess(context, 'Lounge has been disbanded.');
         }
       } catch (e) {
         if (context.mounted) {

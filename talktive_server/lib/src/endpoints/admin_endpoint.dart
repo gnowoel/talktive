@@ -585,6 +585,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     if (group == null) throw protocol.TalktiveException(message: 'Group not found');
 
     group.isPublic = false;
+    group.isAdminLocked = true;
     await protocol.Group.db.updateRow(session, group);
 
     session.log('ADMIN: Group $groupId set to PRIVATE by admin.');

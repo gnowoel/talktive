@@ -512,6 +512,54 @@ class Endpoints extends _i1.EndpointDispatch {
                     userId: params['userId'],
                   ),
         ),
+        'muteUser': _i1.MethodConnector(
+          name: 'muteUser',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'durationHours': _i1.ParameterDescription(
+              name: 'durationHours',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'reason': _i1.ParameterDescription(
+              name: 'reason',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i5.AdminEndpoint).muteUser(
+                session,
+                userId: params['userId'],
+                durationHours: params['durationHours'],
+                reason: params['reason'],
+              ),
+        ),
+        'unmuteUser': _i1.MethodConnector(
+          name: 'unmuteUser',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i5.AdminEndpoint).unmuteUser(
+                session,
+                params['userId'],
+              ),
+        ),
         'resetReputation': _i1.MethodConnector(
           name: 'resetReputation',
           params: {
@@ -656,6 +704,49 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['admin'] as _i5.AdminEndpoint).demoteFromAdmin(
                     session,
                     userId: params['userId'],
+                  ),
+        ),
+        'disbandGroup': _i1.MethodConnector(
+          name: 'disbandGroup',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'reason': _i1.ParameterDescription(
+              name: 'reason',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i5.AdminEndpoint).disbandGroup(
+                session,
+                groupId: params['groupId'],
+                reason: params['reason'],
+              ),
+        ),
+        'makeGroupPrivate': _i1.MethodConnector(
+          name: 'makeGroupPrivate',
+          params: {
+            'groupId': _i1.ParameterDescription(
+              name: 'groupId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).makeGroupPrivate(
+                    session,
+                    params['groupId'],
                   ),
         ),
         'getUserDetails': _i1.MethodConnector(

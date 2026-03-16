@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
+import '../../providers/client_provider.dart';
 import 'create_group_dialog.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
@@ -79,6 +80,31 @@ class GroupProfileScreen extends ConsumerWidget {
               onPressed: () => context.pop(),
             ),
             actions: [
+              if (currentResident?.isAdmin ?? false)
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.gavel, color: AppTheme.duoRed),
+                  onSelected: (value) async {
+                    if (value == 'admin_private') {
+                      _confirmForceAdminPrivate(context, ref, group);
+                    } else if (value == 'admin_disband') {
+                      _confirmAdminDisband(context, ref, group);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'admin_private',
+                      enabled: group.isPublic,
+                      child: const Text('Admin: Force Private'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'admin_disband',
+                      child: Text(
+                        'Admin: Disband',
+                        style: TextStyle(color: AppTheme.duoRed),
+                      ),
+                    ),
+                  ],
+                ),
               if (isCreator)
                 IconButton(
                   icon: const Icon(Icons.edit),
@@ -103,7 +129,7 @@ class GroupProfileScreen extends ConsumerWidget {
 
                 // Description
                 Text(
-                  'About this Club',
+                  'About this Lounge',
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -188,7 +214,7 @@ class GroupProfileScreen extends ConsumerWidget {
         body: Center(
           child: DuoEmptyState(
             emoji: '🔥',
-            title: 'Clubhouse Trouble',
+            title: 'Lounge Trouble',
             subtitle: err.toString(),
             buttonText: 'Retry',
             onButtonPressed: () =>
@@ -295,7 +321,7 @@ class GroupProfileScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Club Host',
+          'Lounge Host',
           style: Theme.of(
             context,
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -405,7 +431,7 @@ class GroupProfileScreen extends ConsumerWidget {
           SizedBox(
             width: double.infinity,
             child: DuoButton(
-              text: 'Enter Clubhouse',
+              text: 'Enter Lounge',
               color: AppTheme.duoBlue,
               onPressed: () {
                 HapticFeedback.mediumImpact();
@@ -523,5 +549,93 @@ class GroupProfileScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => CreateGroupDialog(existingGroup: group),
     );
+  }
+
+  void _confirmForceAdminPrivate(
+    BuildContext context,
+    WidgetRef ref,
+    Group group,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Admin Action: Force Private?'),
+        content: Text(
+          'This will force "${group.name}" to become private and lock it permanently.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.duoOrange),
+            child: const Text('FORCE PRIVATE'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        final client = ref.read(clientProvider);
+        await client.admin.makeGroupPrivate(group.id!);
+        if (context.mounted) {
+          ref.invalidate(groupWithMembershipProvider(group.id!));
+          ref.invalidate(groupListProvider);
+          DuoSnackBarHelper.showSuccess(context, 'Lounge visibility locked.');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          DuoSnackBarHelper.showError(context, e.toString());
+        }
+      }
+    }
+  }
+
+  void _confirmAdminDisband(BuildContext context, WidgetRef ref, Group group) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          'Admin Action: Disband Lounge?',
+          style: TextStyle(color: AppTheme.duoRed),
+        ),
+        content: Text(
+          'Permanently delete "${group.name}" and all its content for everyone?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.duoRed),
+            child: const Text('DISBAND PERMANENTLY'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        final client = ref.read(clientProvider);
+        await client.admin.disbandGroup(
+          groupId: group.id!,
+          reason: 'Administrative action',
+        );
+        if (context.mounted) {
+          ref.invalidate(groupListProvider);
+          Navigator.pop(context);
+          DuoSnackBarHelper.showSuccess(context, 'Lounge has been disbanded.');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          DuoSnackBarHelper.showError(context, e.toString());
+        }
+      }
+    }
   }
 }

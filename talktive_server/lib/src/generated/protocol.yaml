@@ -19,6 +19,8 @@ admin:
   - resolveReport:
   - suspendUser:
   - unsuspendUser:
+  - muteUser:
+  - unmuteUser:
   - resetReputation:
   - deleteMessage:
   - deleteMoment:
@@ -26,6 +28,8 @@ admin:
   - searchUsers:
   - promoteToAdmin:
   - demoteFromAdmin:
+  - disbandGroup:
+  - makeGroupPrivate:
   - getUserDetails:
   - runArchival:
   - getArchivalStats:

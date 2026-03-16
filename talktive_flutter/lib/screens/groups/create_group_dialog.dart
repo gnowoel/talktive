@@ -347,7 +347,9 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                           Switch(
                             value: _isPublic,
                             activeThumbColor: AppTheme.duoBlue,
-                            onChanged: _isCreating
+                            onChanged: (_isCreating ||
+                                    (widget.existingGroup?.isAdminLocked ??
+                                        false))
                                 ? null
                                 : (val) {
                                     HapticFeedback.lightImpact();
@@ -357,6 +359,31 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                         ],
                       ),
                     ),
+                    if (widget.existingGroup?.isAdminLocked ?? false)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 4),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.lock_person,
+                              size: 14,
+                              color: AppTheme.duoRed,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                'This lounge visibility is locked by an administrator.',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.duoRed,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
                     // Max Members Section

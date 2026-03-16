@@ -73,8 +73,9 @@ Future<void> _privatize(Session session, int groupId) async {
     return;
   }
   group.isPublic = false;
+  group.isAdminLocked = true;
   await protocol.Group.db.updateRow(session, group);
-  print('SUCCESS: Group "${group.name}" (ID: $groupId) is now PRIVATE.');
+  print('SUCCESS: Group "${group.name}" (ID: $groupId) is now PRIVATE and LOCKED.');
 }
 
 Future<void> _listUsers(Session session) async {
@@ -87,6 +88,6 @@ Future<void> _listUsers(Session session) async {
 Future<void> _listGroups(Session session) async {
   final groups = await protocol.Group.db.find(session);
   for (var g in groups) {
-    print('- ${g.name} (ID: ${g.id}) [Public: ${g.isPublic}]');
+    print('- ${g.name} (ID: ${g.id}) [Public: ${g.isPublic}] [Locked: ${g.isAdminLocked}]');
   }
 }

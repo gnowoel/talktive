@@ -88,6 +88,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
+        _focusNode.requestFocus();
       }
     }
   }

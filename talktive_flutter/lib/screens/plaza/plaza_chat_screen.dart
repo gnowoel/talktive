@@ -125,6 +125,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
+        _focusNode.requestFocus();
       }
     }
   }

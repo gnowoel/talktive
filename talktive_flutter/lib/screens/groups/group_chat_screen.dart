@@ -265,6 +265,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
+        _focusNode.requestFocus();
       }
     }
   }

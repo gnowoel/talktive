@@ -172,6 +172,46 @@ class NotificationService {
     );
   }
 
+  /// Sends a level up notification.
+  static Future<void> sendLevelUpNotification(
+    Session session,
+    UuidValue userId,
+    int newLevel,
+  ) async {
+    await sendNotification(
+      session,
+      userId,
+      'level_up',
+      'Level Up! ✨',
+      'You just reached Floor $newLevel! Your reputation and access have increased.',
+      data: {
+        'level': newLevel,
+        'route': '/activity',
+      },
+    );
+  }
+
+  /// Sends a chat invite notification.
+  static Future<void> sendChatInviteNotification(
+    Session session,
+    UuidValue recipientId,
+    String inviterName,
+    int channelId,
+  ) async {
+    await sendNotification(
+      session,
+      recipientId,
+      'chat_invite',
+      '$inviterName knocked on your door 🚪',
+      'Wants to start a private chat with you.',
+      data: {
+        'channelId': channelId,
+        'route': '/chats/thread/$channelId',
+      },
+      saveToHistory: true, // Doorbell always shows in activity
+    );
+  }
+
   /// Sends a group invite notification.
   static Future<void> sendGroupInviteNotification(
     Session session,
@@ -190,9 +230,9 @@ class NotificationService {
       data: {
         'groupId': groupId,
         'route':
-            '/groups/profile/$groupId', // Usually group invites go to the group profile to apply/join
+            '/groups/profile/$groupId', 
       },
-      saveToHistory: false,
+      saveToHistory: true, // Now saved to history as per user request
     );
   }
 

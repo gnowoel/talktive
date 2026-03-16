@@ -47,6 +47,17 @@ class GamificationService {
       session.log(
         'User ${resident.userInfoId} leveled up to ${resident.level}! Reason: $reason',
       );
+      
+      // Notify user of level up
+      try {
+        await NotificationService.sendLevelUpNotification(
+          session,
+          resident.userInfoId,
+          resident.level,
+        );
+      } catch (e) {
+        session.log('Failed to send level up notification: $e', level: LogLevel.error);
+      }
     }
 
     return true; // Returns true indicating changes were made
@@ -239,9 +250,15 @@ class GamificationService {
 
     final savedReward = await DailyReward.db.insertRow(session, reward);
 
-    // Award trustScore to resident (daily reward)
-    // Fix: Clamp to 1000, not 100, as trust score can go high.
+    // Award trustScore and XP to resident (daily reward)
     resident.trustScore = (resident.trustScore + rewardAmount).clamp(0, 1000);
+    await awardXP(
+      session,
+      resident,
+      20, // 20 XP bonus for daily reward
+      'Daily reward claimed',
+      save: false,
+    );
     await Resident.db.updateRow(session, resident);
 
     return savedReward;

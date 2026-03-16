@@ -117,7 +117,7 @@ class DuoMentionHelper {
   static bool containsMention(String messageContent, String displayName) {
     if (displayName.isEmpty || messageContent.isEmpty) return false;
     final pattern = RegExp(
-      '@' + RegExp.escape(displayName) + r'(?=\s|$|[^\w])',
+      '@${RegExp.escape(displayName)}(?=\\s|\$|[^\\w])',
       caseSensitive: false,
     );
     return pattern.hasMatch(messageContent);

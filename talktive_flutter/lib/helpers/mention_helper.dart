@@ -6,7 +6,7 @@ class MentionHelper {
     // Regular expression to match @DisplayName specifically, 
     // ensuring it's not part of another word.
     final pattern = RegExp(
-      '@' + RegExp.escape(displayName) + r'(?=\s|$|[^\w])',
+      '@${RegExp.escape(displayName)}(?=\\s|\$|[^\\w])',
       caseSensitive: false,
     );
     return pattern.hasMatch(messageContent);

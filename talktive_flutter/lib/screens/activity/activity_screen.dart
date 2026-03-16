@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:confetti/confetti.dart';
 import 'dart:convert';
 import 'package:talktive_client/talktive_client.dart';
 
@@ -21,54 +22,115 @@ import '../../helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 
 /// Activity screen showing significant notification history and gamification progress
-class ActivityScreen extends ConsumerWidget {
+class ActivityScreen extends ConsumerStatefulWidget {
   const ActivityScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ActivityScreen> createState() => _ActivityScreenState();
+}
+
+class _ActivityScreenState extends ConsumerState<ActivityScreen> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void _checkAndCelebrate(List<UserNotification> notifications) {
+    final hasNewLevelUp =
+        notifications.any((n) => n.type == 'level_up' && !n.read);
+    if (hasNewLevelUp) {
+      _confettiController.play();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final activityAsync = ref.watch(activityHistoryProvider);
     final gamificationAsync = ref.watch(gamificationProvider);
 
-    return DuoPageScaffold(
-      title: 'Activity',
-      subtitle: 'Progress & Updates',
-      emoji: '🏆',
-      gradient: AppTheme.duoGreenGradient,
-      trailingHeader: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DuoRefreshButton(
-            color: Colors.white,
-            onRefresh: () async {
-              await ref.read(activityHistoryProvider.notifier).refresh();
-              await ref.read(gamificationProvider.notifier).refresh();
-            },
+    // Listen for data updates to trigger celebration
+    activityAsync.whenData((notifications) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _checkAndCelebrate(notifications);
+      });
+    });
+
+    return Stack(
+      children: [
+        DuoPageScaffold(
+          title: 'Activity',
+          subtitle: 'Progress & Updates',
+          emoji: '🏆',
+          gradient: AppTheme.duoGreenGradient,
+          trailingHeader: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DuoRefreshButton(
+                color: Colors.white,
+                onRefresh: () async {
+                  await ref.read(activityHistoryProvider.notifier).refresh();
+                  await ref.read(gamificationProvider.notifier).refresh();
+                },
+              ),
+              const SizedBox(width: AppTheme.duoSpacingSmall),
+              _buildHeaderIcon(
+                context,
+                icon: Icons.person_outline_rounded,
+                onTap: () => context.push('/my-profile'),
+              ),
+              const SizedBox(width: AppTheme.duoSpacingSmall),
+              _buildHeaderIcon(
+                context,
+                icon: Icons.settings_outlined,
+                onTap: () {
+                  DuoSnackBarHelper.showInfo(context, 'Settings coming soon! ⚙️');
+                },
+              ),
+            ],
           ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          _buildHeaderIcon(
-            context,
-            icon: Icons.person_outline_rounded,
-            onTap: () => context.push('/my-profile'),
+          hasBackButton: false,
+          body: activityAsync.when(
+            data: (notifications) => _buildActivityContent(
+              context,
+              ref,
+              notifications,
+              gamificationAsync,
+            ),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.duoGreen),
+            ),
+            error: (error, stack) => _buildErrorState(context, ref, error),
           ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-          _buildHeaderIcon(
-            context,
-            icon: Icons.settings_outlined,
-            onTap: () {
-              DuoSnackBarHelper.showInfo(context, 'Settings coming soon! ⚙️');
-            },
-          ),
-        ],
-      ),
-      hasBackButton: false,
-      body: activityAsync.when(
-        data: (notifications) =>
-            _buildActivityContent(context, ref, notifications, gamificationAsync),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.duoGreen),
         ),
-        error: (error, stack) => _buildErrorState(context, ref, error),
-      ),
+        // Confetti overlay
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            shouldLoop: false,
+            colors: const [
+              Colors.green,
+              Colors.blue,
+              Colors.pink,
+              Colors.orange,
+              Colors.purple,
+              Colors.yellow,
+            ],
+            gravity: 0.1,
+          ),
+        ),
+      ],
     );
   }
 
@@ -547,6 +609,10 @@ class ActivityScreen extends ConsumerWidget {
         return '🎫';
       case 'mention':
         return '🏷️';
+      case 'chat_invite':
+        return '🚪';
+      case 'level_up':
+        return '🆙';
       default:
         return '🔔';
     }

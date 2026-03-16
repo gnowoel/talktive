@@ -36,7 +36,7 @@ final class CurrentResidentProvider
   CurrentResident create() => CurrentResident();
 }
 
-String _$currentResidentHash() => r'39df371ffb331f41882a5ae03b47d425ec78896d';
+String _$currentResidentHash() => r'd49b7d8f4b4fb9b6fac01a5951eef4467c6a4211';
 
 /// Provider for the current logged-in resident's data.
 

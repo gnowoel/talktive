@@ -269,8 +269,8 @@ class ProfileScreen extends ConsumerWidget {
                 value: '$trustScore',
                 label: 'Trust Score',
                 gradientColors: [
-                  DuoTrustScoreHelper.getTrustColor(trustScore),
-                  DuoTrustScoreHelper.getTrustColor(trustScore).withValues(alpha: 0.7),
+                  DuoFloorHelper.getTrustColor(trustScore),
+                  DuoFloorHelper.getTrustColor(trustScore).withValues(alpha: 0.7),
                 ],
               ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
               

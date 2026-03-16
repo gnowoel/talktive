@@ -4,6 +4,7 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../providers/client_provider.dart'; // Retained as it's a dependency and not explicitly removed
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import 'user_profile_provider.dart';
 
 part 'current_resident_provider.g.dart';
 

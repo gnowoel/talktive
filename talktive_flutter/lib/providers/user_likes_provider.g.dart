@@ -33,7 +33,7 @@ final class UserLikesProvider
   UserLikes create() => UserLikes();
 }
 
-String _$userLikesHash() => r'3b8319fd6364ffb6e0a03592fc1b4b543d984ba5';
+String _$userLikesHash() => r'2dd55cfa028ac8fac952babec59a8f1828a36e0f';
 
 abstract class _$UserLikes extends $AsyncNotifier<List<String>> {
   FutureOr<List<String>> build();

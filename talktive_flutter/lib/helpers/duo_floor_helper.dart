@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:talktive_client/talktive_client.dart';
 
 /// Utility functions for computing and displaying the Luxury High-Rise Floor.
@@ -124,6 +125,18 @@ class DuoFloorHelper {
           'It restores at 5 points/hour.';
     }
     return '🔇 You are muted.';
+  }
+
+  /// Get color based on reputation value (trust score).
+  /// Uses Duolingo brand colors for consistency.
+  static Color getTrustColor(int trustScore) {
+    if (trustScore > 50) {
+      return const Color(0xFF58CC02); // duoGreen
+    } else if (trustScore >= 20) {
+      return const Color(0xFFFFD93D); // duoYellow
+    } else {
+      return const Color(0xFFFF4B4B); // duoRed
+    }
   }
 
   /// Returns a short input hint when muted.

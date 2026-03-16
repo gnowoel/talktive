@@ -33,7 +33,7 @@ final class BlockedUsersProvider
   BlockedUsers create() => BlockedUsers();
 }
 
-String _$blockedUsersHash() => r'53470368699f5e19eddf8c532d75b761dc75021d';
+String _$blockedUsersHash() => r'786bde9107adbbd4647b97913339063d8923fefd';
 
 abstract class _$BlockedUsers extends $AsyncNotifier<List<String>> {
   FutureOr<List<String>> build();

@@ -31,7 +31,7 @@ class UserProfile extends _$UserProfile {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final client = ref.read(clientProvider);
-      return await client.resident.getUserProfile(userId);
+      return await client.resident.getUserProfile(this.userId);
     });
   }
 
@@ -42,9 +42,9 @@ class UserProfile extends _$UserProfile {
 
     final blockedNotifier = ref.read(blockedUsersProvider.notifier);
     if (currentProfile.isBlocked) {
-      await blockedNotifier.unblock(userId);
+      await blockedNotifier.unblock(this.userId);
     } else {
-      await blockedNotifier.block(userId);
+      await blockedNotifier.block(this.userId);
     }
     
     // The provider will automatically rebuild because it watches blockedUsersProvider
@@ -56,10 +56,10 @@ class UserProfile extends _$UserProfile {
     if (currentProfile == null) return;
 
     final likesNotifier = ref.read(userLikesProvider.notifier);
-    if (ref.read(userLikesProvider).value?.contains(userId) ?? false) {
-      await likesNotifier.unlikeUser(userId);
+    if (ref.read(userLikesProvider).value?.contains(this.userId) ?? false) {
+      await likesNotifier.unlikeUser(this.userId);
     } else {
-      await likesNotifier.likeUser(userId);
+      await likesNotifier.likeUser(this.userId);
     }
     
     // The provider will automatically rebuild because it watches userLikesProvider

@@ -464,19 +464,19 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       child: GestureDetector(
         onTap: () {
           HapticFeedback.lightImpact();
+          // Always play confetti for celebratory types on tap, even if already read
+          if (notification.type == 'level_up' || 
+              notification.type == 'achievement' || 
+              notification.type == 'streak') {
+            _confettiController.play();
+          }
+
           if (notification.id != null && !notification.read) {
-            // Play confetti for celebratory types on tap
-            if (notification.type == 'level_up' || 
-                notification.type == 'achievement' || 
-                notification.type == 'streak') {
-              _confettiController.play();
-            }
-            
             ref.read(activityHistoryProvider.notifier).markAsRead([
               notification.id!,
             ]);
 
-            // Also refresh stats to ensure UI reflects new level/floor
+            // Refresh stats to ensure UI reflects new level/floor immediately on first read
             if (notification.type == 'level_up' || 
                 notification.type == 'achievement' || 
                 notification.type == 'streak') {

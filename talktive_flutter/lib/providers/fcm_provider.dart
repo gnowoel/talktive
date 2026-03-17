@@ -6,6 +6,7 @@ import 'notification_provider.dart';
 import 'router_provider.dart';
 import 'private_chat_provider.dart';
 import 'group_provider.dart';
+import 'gamification_provider.dart';
 
 part 'fcm_provider.g.dart';
 
@@ -141,6 +142,14 @@ class FCMManager extends _$FCMManager {
     debugPrint('FCM DEBUG: Refreshing chat and group lists...');
     ref.read(privateChatListProvider.notifier).refresh();
     ref.read(groupListProvider.notifier).refresh();
+
+    // Refresh gamification and activity for relevant events
+    final type = message.data['type'] as String?;
+    if (type == 'level_up' || type == 'achievement' || type == 'streak') {
+      debugPrint('FCM DEBUG: Refreshing gamification and activity status...');
+      ref.read(gamificationProvider.notifier).refresh();
+      ref.read(activityHistoryProvider.notifier).refresh();
+    }
   }
 
   String _getEmojiForType(String type) {
@@ -180,6 +189,14 @@ class FCMManager extends _$FCMManager {
         debugPrint('FCM DEBUG: Marking notification $id as read from tap');
         ref.read(activityHistoryProvider.notifier).markAsRead([id]);
       }
+    }
+
+    // Refresh gamification and activity if it was a milestone notification
+    final type = data['type'] as String?;
+    if (type == 'level_up' || type == 'achievement' || type == 'streak') {
+      debugPrint('FCM DEBUG: Tapped milestone, refreshing stats...');
+      ref.read(gamificationProvider.notifier).refresh();
+      ref.read(activityHistoryProvider.notifier).refresh();
     }
 
     final route = data['route'] as String?;

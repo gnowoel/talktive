@@ -475,6 +475,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             ref.read(activityHistoryProvider.notifier).markAsRead([
               notification.id!,
             ]);
+
+            // Also refresh stats to ensure UI reflects new level/floor
+            if (notification.type == 'level_up' || 
+                notification.type == 'achievement' || 
+                notification.type == 'streak') {
+              ref.read(gamificationProvider.notifier).refresh();
+            }
           }
 
           if (notification.data != null) {

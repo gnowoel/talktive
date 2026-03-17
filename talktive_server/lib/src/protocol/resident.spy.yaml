@@ -34,9 +34,7 @@ fields:
   languages: List<String>?
   
   # Admin
-  role: String?
-  isAdmin: bool, default=false
-  isModerator: bool, default=false
+  role: ResidentRole, default=user
   
   # Online & Subscription
   lastSeen: DateTime?

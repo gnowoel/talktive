@@ -13,7 +13,7 @@ fields:
   lastMessageAt: DateTime?
   lastMessage: String?
   interests: List<String>?
-  isAdminLocked: bool, default=false
+  isStaffLocked: bool, default=false
 indexes:
   group_channel_idx:
     fields: channelId

@@ -1,0 +1,5 @@
+enum: ResidentRole
+values:
+  - user
+  - moderator
+  - admin

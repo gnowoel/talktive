@@ -26,5 +26,4 @@ fields:
   bio: String?
   lastSeen: DateTime?
   isOnline: bool, default=false
-  isAdmin: bool, default=false
-  isModerator: bool, default=false
+  role: ResidentRole

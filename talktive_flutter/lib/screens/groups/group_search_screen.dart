@@ -125,7 +125,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
           color: Colors.white,
           child: DuoInput(
             controller: _searchController,
-            hintText: 'Search by club name or interests...',
+            hintText: 'Search by lounge name or interests...',
             prefixIcon: Icons.search,
             iconColor: AppTheme.duoBlue,
             onChanged: (val) => _performSearch(val),
@@ -204,7 +204,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
   Widget _buildEmptyState() {
     return const DuoEmptyState(
       emoji: '🔦',
-      title: 'No Clubs Found',
+      title: 'No Lounges Found',
       subtitle: 'Try a different name or interest tag!',
     );
   }

@@ -304,7 +304,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
                     // Visibility Section
-                    _buildSectionHeader('Public Group', 'Discoverability'),
+                    _buildSectionHeader('Public Lounge', 'Discoverability'),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
                     Container(
                       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),

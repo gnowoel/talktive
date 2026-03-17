@@ -153,7 +153,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                isBlocked ? 'Unblock user' : 'Block user',
+                isBlocked ? 'Unblock resident' : 'Block resident',
                 style: TextStyle(
                   color: isBlocked ? AppTheme.duoGreen : AppTheme.errorColor,
                   fontWeight: FontWeight.w600,
@@ -170,7 +170,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 Icon(Icons.flag_outlined, color: AppTheme.errorColor, size: 20),
                 const SizedBox(width: 12),
                 Text(
-                  'Report user',
+                  'Report resident',
                   style: TextStyle(
                     color: AppTheme.errorColor,
                     fontWeight: FontWeight.w600,
@@ -189,7 +189,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                     color: AppTheme.duoOrange, size: 20),
                 SizedBox(width: 12),
                 Text(
-                  'Staff: Mute User',
+                  'Staff: Mute Resident',
                   style: TextStyle(
                     color: AppTheme.duoOrange,
                     fontWeight: FontWeight.bold,
@@ -205,7 +205,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 Icon(Icons.gavel_rounded, color: AppTheme.duoRed, size: 20),
                 SizedBox(width: 12),
                 Text(
-                  'Staff: Suspend User',
+                  'Staff: Suspend Resident',
                   style: TextStyle(
                     color: AppTheme.duoRed,
                     fontWeight: FontWeight.bold,
@@ -225,7 +225,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          isBlocked ? 'Unblock user?' : 'Block user?',
+          isBlocked ? 'Unblock resident?' : 'Block resident?',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Text(
@@ -256,7 +256,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         if (context.mounted) {
           DuoSnackBarHelper.showSuccess(
             context,
-            isBlocked ? 'User unblocked.' : 'User blocked.',
+            isBlocked ? 'Resident unblocked.' : 'Resident blocked.',
           );
         }
       } catch (e) {
@@ -375,7 +375,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 _buildInfoRow(Icons.person, _formatGender(gender)),
               if (country != null) _buildInfoRow(Icons.flag, country),
               if (mutualGroups > 0)
-                _buildInfoRow(Icons.group, '$mutualGroups mutual groups'),
+                _buildInfoRow(Icons.group, '$mutualGroups mutual lounges'),
             ]),
 
           if (interests.isNotEmpty) ...[
@@ -473,7 +473,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         if (mounted) {
            DuoSnackBarHelper.showSuccess(
             context,
-            isLiked ? 'Vouch removed.' : 'User vouched! Trust Score increased.',
+            isLiked ? 'Vouch removed.' : 'Resident vouched! Trust Score increased.',
           );
         }
       },
@@ -635,7 +635,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             Expanded(
               flex: 3,
               child: DuoButton(
-                text: '🎟️ Group Invite',
+                text: '🎟️ Lounge Invite',
                 color: AppTheme.duoYellow,
                 onPressed: () => _showInviteBottomSheet(context, ref),
               ),
@@ -770,7 +770,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Invite them to one of your clubs',
+                'Invite them to one of your lounges',
                 style: TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),

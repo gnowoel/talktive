@@ -33,7 +33,7 @@ class GroupMembersScreen extends ConsumerWidget {
       data: (membership) {
         final group = membership?.group ?? initialGroup;
         if (group == null) {
-          return const Scaffold(body: Center(child: Text('Group not found')));
+          return const Scaffold(body: Center(child: Text('Lounge not found')));
         }
 
         final isCreator =
@@ -276,7 +276,7 @@ class GroupMembersScreen extends ConsumerWidget {
       ref.invalidate(groupListProvider);
 
       if (context.mounted) {
-        DuoSnackBarHelper.showSuccess(context, 'Resident removed from club.');
+        DuoSnackBarHelper.showSuccess(context, 'Resident removed from clubhouse.');
       }
     } catch (e) {
       if (context.mounted) DuoSnackBarHelper.showError(context, e.toString());

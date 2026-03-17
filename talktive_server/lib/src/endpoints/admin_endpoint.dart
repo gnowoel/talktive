@@ -363,6 +363,15 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) => t.createdAt >= sevenDaysAgo,
     );
 
+    final reportsLast7d = await protocol.Report.db.count(
+      session,
+      where: (t) => t.createdAt >= sevenDaysAgo,
+    );
+    final reportsLast30d = await protocol.Report.db.count(
+      session,
+      where: (t) => t.createdAt >= thirtyDaysAgo,
+    );
+
     // Monthly activity
     final messagesLast30d = await protocol.Message.db.count(
       session,
@@ -373,18 +382,28 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) => t.createdAt >= thirtyDaysAgo,
     );
 
-    // Active users (users who sent messages in last 7 days) - OPTIMIZED
-    // Limit to last 1000 messages to prevent memory issues
-    final recentMessages = await protocol.Message.db.find(
-      session,
-      where: (t) => t.createdAt >= sevenDaysAgo,
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
-      limit: 1000,
-    );
-    final activeUserIds = <UuidValue>{};
-    for (final message in recentMessages) {
-      activeUserIds.add(message.senderId);
+    // Active users (users who sent messages in period) - OPTIMIZED
+    int activeUsers24h = 0;
+    int activeUsers7d = 0;
+    int activeUsers30d = 0;
+    
+    try {
+      final active24hResult = await session.db.unsafeQuery(
+        'SELECT count(DISTINCT "senderId") FROM message WHERE "createdAt" >= \'$oneDayAgo\'',
+      );
+      activeUsers24h = int.tryParse(active24hResult.first.first.toString()) ?? 0;
+      
+      final active7dResult = await session.db.unsafeQuery(
+        'SELECT count(DISTINCT "senderId") FROM message WHERE "createdAt" >= \'$sevenDaysAgo\'',
+      );
+      activeUsers7d = int.tryParse(active7dResult.first.first.toString()) ?? 0;
+      
+      final active30dResult = await session.db.unsafeQuery(
+        'SELECT count(DISTINCT "senderId") FROM message WHERE "createdAt" >= \'$thirtyDaysAgo\'',
+      );
+      activeUsers30d = int.tryParse(active30dResult.first.first.toString()) ?? 0;
+    } catch (e) {
+      session.log('ADMIN Error counting active users: $e', level: LogLevel.error);
     }
 
     final stats = protocol.AdminStatistics(
@@ -400,19 +419,19 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         messages: messagesLast24h,
         moments: momentsLast24h,
         reports: reportsLast24h,
-        activeUsers: 0, // Not calculated for 24h in original, setting to 0
+        activeUsers: activeUsers24h,
       ),
       last7d: protocol.AdminActivity(
         messages: messagesLast7d,
         moments: momentsLast7d,
-        reports: 0, // Not calculated for 7d in original, setting to 0
-        activeUsers: activeUserIds.length,
+        reports: reportsLast7d,
+        activeUsers: activeUsers7d,
       ),
       last30d: protocol.AdminActivity(
         messages: messagesLast30d,
         moments: momentsLast30d,
-        reports: 0, // Not calculated for 30d in original, setting to 0
-        activeUsers: 0, // Not calculated for 30d in original, setting to 0
+        reports: reportsLast30d,
+        activeUsers: activeUsers30d,
       ),
     );
 
@@ -422,14 +441,16 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     return stats;
   }
 
-  /// Search users by name or ID
+  /// Search users by name or ID with pagination
   Future<List<protocol.AdminUserSummary>> searchUsers(
     Session session, {
     required String query,
     int limit = 20,
+    int offset = 0,
   }) async {
-    session.log('ADMIN: searchUsers called with query: "$query"');
+    session.log('ADMIN: searchUsers called with query: "$query", offset: $offset');
     try {
+      InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
       await getStaffProfile(session);
       
       // Try to parse as UUID first
@@ -444,7 +465,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
       List<protocol.Resident> residents;
       if (searchUuid != null) {
-        residents = await protocol.Resident.db.find(
+          residents = await protocol.Resident.db.find(
           session,
           where: (t) => t.userInfoId.equals(searchUuid),
           limit: 1,
@@ -454,65 +475,34 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
           session,
           where: (t) => t.userName.ilike('%$query%'),
           limit: limit,
+          offset: offset,
           orderBy: (t) => t.id,
         );
       } else {
         residents = await protocol.Resident.db.find(
           session,
           limit: limit,
+          offset: offset,
           orderBy: (t) => t.id,
         );
       }
 
+      // Batch fetch counts for performance
+      final userIds = residents.map((r) => r.userInfoId).toList();
+      final countsMap = await _getBatchUserCounts(session, userIds);
+
       final result = <protocol.AdminUserSummary>[];
       for (final r in residents) {
-        // Count messages
-        int messageCount = 0;
-        try {
-          messageCount = await protocol.Message.db.count(
-            session,
-            where: (t) => t.senderId.equals(r.userInfoId),
-          );
-        } catch (e) {
-          session.log('ADMIN Error counting messages for ${r.userInfoId}: $e');
-        }
+        final userIdStr = r.userInfoId.toString();
+        final userCounts = countsMap[userIdStr] ?? {'messages': 0, 'moments': 0, 'reports': 0};
 
-        // Count moments
-        int momentCount = 0;
-        try {
-          momentCount = await protocol.Moment.db.count(
-            session,
-            where: (t) => t.authorId.equals(r.userInfoId),
-          );
-        } catch (e) {
-          session.log('ADMIN Error counting moments for ${r.userInfoId}: $e');
-        }
-
-        // Count reports
-        int reportCount = 0;
-        try {
-          reportCount = await protocol.Report.db.count(
-            session,
-            where: (t) => t.targetId.equals(r.userInfoId),
-          );
-        } catch (e) {
-          session.log('ADMIN Error counting reports for ${r.userInfoId}: $e');
-        }
-
-        result.add(protocol.AdminUserSummary(
-          userId: r.userInfoId.toString(),
-          userName: r.userName,
-          floor: ApartmentService.computeEffectiveFloor(r),
-          trustScore: r.trustScore,
-          level: r.level,
-          xp: r.xp,
-          role: r.role,
-          suspended: r.suspended,
-          messageCount: messageCount,
-          momentCount: momentCount,
-          reportCount: reportCount,
-          createdAt: r.createdAt,
-          lastSeen: r.lastSeen,
+        result.add(await _getUserSummary(
+          session, 
+          r, 
+          userIdStr,
+          messageCount: userCounts['messages'],
+          momentCount: userCounts['moments'],
+          reportCount: userCounts['reports'],
         ));
       }
       
@@ -713,8 +703,19 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       limit: 10,
     );
 
+    // Get counts in batch
+    final countsMap = await _getBatchUserCounts(session, [userUuid]);
+    final userCounts = countsMap[userId] ?? {'messages': 0, 'moments': 0, 'reports': 0};
+
     return protocol.AdminUserDetails(
-      user: await _getUserSummary(session, resident, userId),
+      user: await _getUserSummary(
+        session, 
+        resident, 
+        userId,
+        messageCount: userCounts['messages'],
+        momentCount: userCounts['moments'],
+        reportCount: userCounts['reports'],
+      ),
       recentMessages: recentMessages,
       recentMoments: recentMoments,
       reportsAgainst: reportsAgainst,
@@ -722,7 +723,14 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  Future<protocol.AdminUserSummary> _getUserSummary(Session session, protocol.Resident? resident, String userId) async {
+  Future<protocol.AdminUserSummary> _getUserSummary(
+    Session session, 
+    protocol.Resident? resident, 
+    String userId, {
+    int? messageCount,
+    int? momentCount,
+    int? reportCount,
+  }) async {
     if (resident == null) {
       return protocol.AdminUserSummary(
         userId: userId,
@@ -739,6 +747,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
     
+    // Use provided counts or default to 0 (we don't want to fetch in a loop here)
     return protocol.AdminUserSummary(
       userId: resident.userInfoId.toString(),
       userName: resident.userName,
@@ -748,12 +757,68 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       xp: resident.xp,
       role: resident.role,
       suspended: resident.suspended,
-      messageCount: 0,
-      momentCount: 0,
-      reportCount: 0,
+      messageCount: messageCount ?? 0,
+      momentCount: momentCount ?? 0,
+      reportCount: reportCount ?? 0,
       createdAt: resident.createdAt,
       lastSeen: resident.lastSeen,
     );
+  }
+
+  /// Batch retrieve counts for multiple users in 3 efficient queries
+  Future<Map<String, Map<String, int>>> _getBatchUserCounts(
+    Session session,
+    List<UuidValue> userIds,
+  ) async {
+    if (userIds.isEmpty) return {};
+
+    final result = <String, Map<String, int>>{};
+    for (final id in userIds) {
+      result[id.toString()] = {
+        'messages': 0,
+        'moments': 0,
+        'reports': 0,
+      };
+    }
+
+    try {
+      // 1. Message counts
+      final messageCounts = await session.db.unsafeQuery(
+        'SELECT "senderId", count(*) as count FROM message WHERE "senderId" IN (${userIds.map((u) => "'$u'").join(',')}) GROUP BY "senderId"',
+      );
+      for (final row in messageCounts) {
+        final id = row[0].toString();
+        if (result.containsKey(id)) {
+          result[id]!['messages'] = int.tryParse(row[1].toString()) ?? 0;
+        }
+      }
+
+      // 2. Moment counts
+      final momentCounts = await session.db.unsafeQuery(
+        'SELECT "authorId", count(*) as count FROM moment WHERE "authorId" IN (${userIds.map((u) => "'$u'").join(',')}) GROUP BY "authorId"',
+      );
+      for (final row in momentCounts) {
+        final id = row[0].toString();
+        if (result.containsKey(id)) {
+          result[id]!['moments'] = int.tryParse(row[1].toString()) ?? 0;
+        }
+      }
+
+      // 3. Report counts (against the user)
+      final reportCounts = await session.db.unsafeQuery(
+        'SELECT "targetId", count(*) as count FROM report WHERE "targetId" IN (${userIds.map((u) => "'$u'").join(',')}) GROUP BY "targetId"',
+      );
+      for (final row in reportCounts) {
+        final id = row[0].toString();
+        if (result.containsKey(id)) {
+          result[id]!['reports'] = int.tryParse(row[1].toString()) ?? 0;
+        }
+      }
+    } catch (e) {
+      session.log('ADMIN Error in _getBatchUserCounts: $e', level: LogLevel.error);
+    }
+
+    return result;
   }
 
   /// Run data archival tasks (admin only).

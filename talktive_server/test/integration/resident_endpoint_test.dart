@@ -41,7 +41,7 @@ void main() {
           bio: 'Test bio',
           mood: '😊',
           avatar: '👨',
-          role: 'resident',
+          role: ResidentRole.user,
           interests: ['coding', 'music'],
           languages: ['en'],
         );
@@ -117,14 +117,14 @@ void main() {
           country: 'US',
           bio: 'Testing',
           avatar: '💰',
-          role: 'resident',
+          role: ResidentRole.user,
         );
         await Resident.db.insertRow(session, resident);
 
         expect(resident.level, 1);
         expect(resident.trustScore, 100);
         expect(resident.experienceMessageCount, 0);
-        expect(resident.isAdmin, false);
+        expect(resident.role, ResidentRole.user);
         expect(resident.suspended, false);
       });
 
@@ -314,7 +314,7 @@ void main() {
     });
 
     group('Admin and Ban Flags', () {
-      test('isAdmin defaults to false', () async {
+      test('role defaults to user', () async {
         final session = sessionBuilder.build();
 
         final resident = Resident(
@@ -327,7 +327,7 @@ void main() {
         );
         await Resident.db.insertRow(session, resident);
 
-        expect(resident.isAdmin, false);
+        expect(resident.role, ResidentRole.user);
       });
 
       test('suspended defaults to false', () async {
@@ -346,7 +346,7 @@ void main() {
         expect(resident.suspended, false);
       });
 
-      test('can set admin flag', () async {
+      test('can set admin role', () async {
         final session = sessionBuilder.build();
 
         final resident = Resident(
@@ -356,11 +356,11 @@ void main() {
           level: 1,
           trustScore: 100,
           experienceMessageCount: 0,
-          isAdmin: true,
+          role: ResidentRole.admin,
         );
         await Resident.db.insertRow(session, resident);
 
-        expect(resident.isAdmin, true);
+        expect(resident.role, ResidentRole.admin);
       });
 
       test('can set banned flag', () async {

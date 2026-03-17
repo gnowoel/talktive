@@ -28,7 +28,7 @@ Serverpod 3.3.1 defaults to **UUID-based** `AuthUser`. Always use `UuidValue` fo
 
 ### 3. Debugging Endpoints
 - **Try-Catch**: Wrap endpoint logic in `try-catch` blocks and print stack traces to debug 500 errors.
-- **TalktiveException**: Use `protocol.TalktiveException` for user-facing errors (Group not found, access denied, etc.). These are automatically parsed by the frontend's `SnackBarHelper`.
+- **TalktiveException**: Use `protocol.TalktiveException` for user-facing errors (Lounge not found, access denied, etc.). These are automatically parsed by the frontend's `SnackBarHelper`.
 
 ### 4. Client-Side Auth Initialization
 Order of operations for Firebase + Serverpod Auth:

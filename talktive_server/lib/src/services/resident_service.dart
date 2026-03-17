@@ -148,20 +148,20 @@ class ResidentService {
       limit: 6,
     );
 
-    // Mutual groups (only if viewer is provided)
-    int mutualGroupsCount = 0;
+    // Mutual lounges (only if viewer is provided)
+    int mutualLoungesCount = 0;
     if (viewerId != null) {
-      final viewerGroups = await ChannelMember.db.find(
+      final viewerLounges = await ChannelMember.db.find(
         session,
         where: (t) => t.userInfoId.equals(viewerId),
       );
-      final targetGroups = await ChannelMember.db.find(
+      final targetLounges = await ChannelMember.db.find(
         session,
         where: (t) => t.userInfoId.equals(targetId),
       );
-      final viewerGroupIds = viewerGroups.map((g) => g.channelId).toSet();
-      final targetGroupIds = targetGroups.map((g) => g.channelId).toSet();
-      mutualGroupsCount = viewerGroupIds.intersection(targetGroupIds).length;
+      final viewerLoungeIds = viewerLounges.map((g) => g.channelId).toSet();
+      final targetLoungeIds = targetLounges.map((g) => g.channelId).toSet();
+      mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
     }
 
     return UserProfileView(
@@ -181,7 +181,7 @@ class ResidentService {
       isBlocked: isBlocked,
       hasBlockedMe: hasBlockedMe,
       isLiked: isLiked,
-      mutualGroups: mutualGroupsCount,
+      mutualLounges: mutualLoungesCount,
       recentMoments: recentMoments,
       interests: resident.interests,
       languages: resident.languages,

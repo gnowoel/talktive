@@ -332,7 +332,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     final totalUsers = await protocol.Resident.db.count(session);
     final totalMessages = await protocol.Message.db.count(session);
     final totalMoments = await protocol.Moment.db.count(session);
-    final totalGroups = await protocol.Group.db.count(session);
+    final totalLounges = await protocol.Lounge.db.count(session);
     final totalReports = await protocol.Report.db.count(session);
     final pendingReports = await protocol.Report.db.count(
       session,
@@ -411,7 +411,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         users: totalUsers,
         messages: totalMessages,
         moments: totalMoments,
-        groups: totalGroups,
+        lounges: totalLounges,
         reports: totalReports,
         pendingReports: pendingReports,
       ),
@@ -609,45 +609,45 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     session.log('Admin demoted user from admin: $userId');
   }
 
-  // --- Group Moderation ---
+  // --- Lounge Moderation ---
 
-  /// Disbands a group immediately.
-  Future<void> disbandGroup(
+  /// Disbands a lounge immediately.
+  Future<void> disbandLounge(
     Session session, {
-    required int groupId,
+    required int loungeId,
     required String reason,
   }) async {
     await getStaffProfile(session);
-    InputValidationService.validateId(groupId, 'Group ID').throwIfInvalid();
+    InputValidationService.validateId(loungeId, 'Lounge ID').throwIfInvalid();
 
-    final group = await protocol.Group.db.findById(session, groupId);
-    if (group == null) throw protocol.TalktiveException(message: 'Group not found');
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
+    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
 
-    // Delete group members first
+    // Delete lounge members first
     await protocol.ChannelMember.db.deleteWhere(
       session,
-      where: (t) => t.channelId.equals(groupId),
+      where: (t) => t.channelId.equals(loungeId),
     );
 
-    // Delete group
-    await protocol.Group.db.deleteRow(session, group);
+    // Delete lounge
+    await protocol.Lounge.db.deleteRow(session, lounge);
 
-    session.log('ADMIN: Group $groupId disbanded by admin. Reason: $reason');
+    session.log('ADMIN: Lounge $loungeId disbanded by admin. Reason: $reason');
   }
 
-  /// Forces a group to become private.
-  Future<void> makeGroupPrivate(Session session, int groupId) async {
+  /// Forces a lounge to become private.
+  Future<void> makeLoungePrivate(Session session, int loungeId) async {
     await getStaffProfile(session);
-    InputValidationService.validateId(groupId, 'Group ID').throwIfInvalid();
+    InputValidationService.validateId(loungeId, 'Lounge ID').throwIfInvalid();
 
-    final group = await protocol.Group.db.findById(session, groupId);
-    if (group == null) throw protocol.TalktiveException(message: 'Group not found');
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
+    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
 
-    group.isPublic = false;
-    group.isStaffLocked = true;
-    await protocol.Group.db.updateRow(session, group);
+    lounge.isPublic = false;
+    lounge.isStaffLocked = true;
+    await protocol.Lounge.db.updateRow(session, lounge);
 
-    session.log('ADMIN: Group $groupId set to PRIVATE by admin.');
+    session.log('ADMIN: Lounge $loungeId set to PRIVATE by admin.');
   }
 
   /// Get user details for admin view

@@ -16,7 +16,7 @@ import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/client_provider.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import 'package:go_router/go_router.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
@@ -51,7 +51,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         _hasMarkedAsRead = true;
         // Invalidate both lists to update unread counts immediately
         ref.invalidate(privateChatListProvider);
-        ref.invalidate(groupListProvider);
+        ref.invalidate(loungeListProvider);
       }
     } catch (e) {
       debugPrint('Error marking channel as read: $e');

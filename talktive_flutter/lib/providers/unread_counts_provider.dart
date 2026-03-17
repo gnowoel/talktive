@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'private_chat_provider.dart';
-import 'group_provider.dart';
+import 'lounge_provider.dart';
 import 'notification_provider.dart';
 
 part 'unread_counts_provider.g.dart';
@@ -41,7 +41,7 @@ class TotalUnreadCounts extends _$TotalUnreadCounts {
   @override
   UnreadCounts build() {
     final privateChats = ref.watch(privateChatListProvider);
-    final lounges = ref.watch(groupListProvider);
+    final lounges = ref.watch(loungeListProvider);
 
     privateChats.whenData((chats) {
       int count = 0;
@@ -50,11 +50,11 @@ class TotalUnreadCounts extends _$TotalUnreadCounts {
       }
       _lastPrivateCount = count;
     });
-    lounges.whenData((groups) {
+    lounges.whenData((lounges) {
       int count = 0;
-      for (final group in groups) {
-        if (group.isMuted != true) {
-          count += (group.unreadCount as num).toInt();
+      for (final lounge in lounges) {
+        if (lounge.isMuted != true) {
+          count += (lounge.unreadCount as num).toInt();
         }
       }
       _lastLoungeCount = count;

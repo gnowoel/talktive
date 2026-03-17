@@ -10,31 +10,30 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:serverpod/serverpod.dart' as _i1;
+import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'resident.dart' as _i2;
 import 'channel_member_status.dart' as _i3;
-import 'package:talktive_server/src/generated/protocol.dart' as _i4;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i4;
 
-abstract class GroupMemberWithProfile
-    implements _i1.SerializableModel, _i1.ProtocolSerialization {
-  GroupMemberWithProfile._({
+abstract class LoungeMemberWithProfile implements _i1.SerializableModel {
+  LoungeMemberWithProfile._({
     required this.resident,
     required this.status,
     this.role,
     this.joinedAt,
   });
 
-  factory GroupMemberWithProfile({
+  factory LoungeMemberWithProfile({
     required _i2.Resident resident,
     required _i3.ChannelMemberStatus status,
     String? role,
     DateTime? joinedAt,
-  }) = _GroupMemberWithProfileImpl;
+  }) = _LoungeMemberWithProfileImpl;
 
-  factory GroupMemberWithProfile.fromJson(
+  factory LoungeMemberWithProfile.fromJson(
     Map<String, dynamic> jsonSerialization,
   ) {
-    return GroupMemberWithProfile(
+    return LoungeMemberWithProfile(
       resident: _i4.Protocol().deserialize<_i2.Resident>(
         jsonSerialization['resident'],
       ),
@@ -56,10 +55,10 @@ abstract class GroupMemberWithProfile
 
   DateTime? joinedAt;
 
-  /// Returns a shallow copy of this [GroupMemberWithProfile]
+  /// Returns a shallow copy of this [LoungeMemberWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  GroupMemberWithProfile copyWith({
+  LoungeMemberWithProfile copyWith({
     _i2.Resident? resident,
     _i3.ChannelMemberStatus? status,
     String? role,
@@ -68,19 +67,8 @@ abstract class GroupMemberWithProfile
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'GroupMemberWithProfile',
+      '__className__': 'LoungeMemberWithProfile',
       'resident': resident.toJson(),
-      'status': status.toJson(),
-      if (role != null) 'role': role,
-      if (joinedAt != null) 'joinedAt': joinedAt?.toJson(),
-    };
-  }
-
-  @override
-  Map<String, dynamic> toJsonForProtocol() {
-    return {
-      '__className__': 'GroupMemberWithProfile',
-      'resident': resident.toJsonForProtocol(),
       'status': status.toJson(),
       if (role != null) 'role': role,
       if (joinedAt != null) 'joinedAt': joinedAt?.toJson(),
@@ -95,8 +83,8 @@ abstract class GroupMemberWithProfile
 
 class _Undefined {}
 
-class _GroupMemberWithProfileImpl extends GroupMemberWithProfile {
-  _GroupMemberWithProfileImpl({
+class _LoungeMemberWithProfileImpl extends LoungeMemberWithProfile {
+  _LoungeMemberWithProfileImpl({
     required _i2.Resident resident,
     required _i3.ChannelMemberStatus status,
     String? role,
@@ -108,17 +96,17 @@ class _GroupMemberWithProfileImpl extends GroupMemberWithProfile {
          joinedAt: joinedAt,
        );
 
-  /// Returns a shallow copy of this [GroupMemberWithProfile]
+  /// Returns a shallow copy of this [LoungeMemberWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  GroupMemberWithProfile copyWith({
+  LoungeMemberWithProfile copyWith({
     _i2.Resident? resident,
     _i3.ChannelMemberStatus? status,
     Object? role = _Undefined,
     Object? joinedAt = _Undefined,
   }) {
-    return GroupMemberWithProfile(
+    return LoungeMemberWithProfile(
       resident: resident ?? this.resident.copyWith(),
       status: status ?? this.status,
       role: role is String? ? role : this.role,

@@ -12,7 +12,7 @@ import '../../providers/user_likes_provider.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/private_chat_provider.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
@@ -276,7 +276,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final country = profile?.country;
     final interests = profile?.interests ?? [];
     final languages = profile?.languages ?? [];
-    final mutualGroups = profile?.mutualGroups ?? 0;
+    final mutualLounges = profile?.mutualLounges ?? 0;
     final achievementCount = profile?.achievementsUnlocked ?? 0;
 
     return SingleChildScrollView(
@@ -374,8 +374,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               if (gender != null)
                 _buildInfoRow(Icons.person, _formatGender(gender)),
               if (country != null) _buildInfoRow(Icons.flag, country),
-              if (mutualGroups > 0)
-                _buildInfoRow(Icons.group, '$mutualGroups mutual lounges'),
+              if (mutualLounges > 0)
+                _buildInfoRow(Icons.meeting_room, '$mutualLounges mutual lounges'),
             ]),
 
           if (interests.isNotEmpty) ...[
@@ -722,12 +722,12 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
   }
 
   void _showInviteBottomSheet(BuildContext context, WidgetRef ref) async {
-    final groupsState = await ref
-        .read(groupListProvider.notifier)
-        .fetchGroups();
+    final loungesState = await ref
+        .read(loungeListProvider.notifier)
+        .fetchLounges();
 
-    // Only show groups where the user is actually joined
-    final activeGroups = groupsState
+    // Only show lounges where the user is actually joined
+    final activeLounges = loungesState
         .where((g) => g.membershipStatus == ChannelMemberStatus.joined)
         .toList();
 
@@ -774,11 +774,11 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 style: TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
-              if (activeGroups.isEmpty)
+              if (activeLounges.isEmpty)
                 const Expanded(
                   child: Center(
                     child: Text(
-                      'You are not a member of any clubs yet!',
+                      'You are not a member of any lounges yet!',
                       style: TextStyle(color: AppTheme.textSecondary),
                     ),
                   ),
@@ -786,21 +786,21 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               else
                 Expanded(
                   child: ListView.builder(
-                    itemCount: activeGroups.length,
+                    itemCount: activeLounges.length,
                     itemBuilder: (context, index) {
-                      final group = activeGroups[index].group;
+                      final lounge = activeLounges[index].lounge;
                       return ListTile(
                         leading: CircleAvatar(
                           backgroundColor: AppTheme.duoYellow.withValues(
                             alpha: 0.2,
                           ),
-                          child: Text(group.emoji ?? '👥'),
+                          child: Text(lounge.emoji ?? '👥'),
                         ),
                         title: Text(
-                          group.name,
+                          lounge.name,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text('${group.memberCount} members'),
+                        subtitle: Text('${lounge.memberCount} members'),
                         trailing: DuoButton(
                           text: 'Invite',
                           color: AppTheme.duoGreen,
@@ -809,8 +809,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                             Navigator.pop(context); // Close sheet immediately
                             try {
                               final client = ref.read(clientProvider);
-                              await client.group.inviteUserToGroup(
-                                group.id!,
+                              await client.lounge.inviteUserToLounge(
+                                lounge.id!,
                                 widget.userId,
                               );
                               if (context.mounted) {

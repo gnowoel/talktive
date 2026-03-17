@@ -49,7 +49,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final users = await client.admin.searchUsers(query: query, limit: 20);
+      final users = await client.admin.searchUsers(query: query, limit: 20, offset: 0);
 
       if (mounted) {
         setState(() {

@@ -5,11 +5,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../plaza/plaza_screen.dart';
 import '../moments/moments_screen.dart';
 import '../chats/chats_screen.dart';
-import '../groups/groups_screen.dart';
+import '../lounges/lounges_screen.dart';
 import '../activity/activity_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import '../../providers/unread_counts_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/gamification_provider.dart';
@@ -43,7 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     PlazaScreen(),
     const MomentsScreen(),
     const ChatsScreen(),
-    const GroupsScreen(),
+    const LoungesScreen(),
     const ActivityScreen(),
   ];
 
@@ -95,7 +95,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     if (index == 2) {
                       ref.read(privateChatListProvider.notifier).refresh();
                     } else if (index == 3) {
-                      ref.read(groupListProvider.notifier).refresh();
+                      ref.read(loungeListProvider.notifier).refresh();
                     } else if (index == 4) {
                       ref.read(activityHistoryProvider.notifier).refresh();
                       ref.read(gamificationProvider.notifier).refresh();

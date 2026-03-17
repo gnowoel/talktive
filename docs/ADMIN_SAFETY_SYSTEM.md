@@ -24,8 +24,8 @@ We have implemented a tiered moderation system for the Talktive platform. This e
   - Running data archival and system maintenance tasks.
 
 ### 3. Staff-Enforced Locking
-- **`isStaffLocked` Field**: Added to the `Group` model to track if a lounge's privacy has been set by staff (Admins or Moderators).
-- **Backend Enforcement**: The `updateGroup` endpoint now checks this flag. If a lounge is locked, non-staff users are strictly prevented from making it public again.
+- **`isStaffLocked` Field**: Added to the `Lounge` model to track if a lounge's privacy has been set by staff (Admins or Moderators).
+- **Backend Enforcement**: The `updateLounge` endpoint now checks this flag. If a lounge is locked, non-staff users are strictly prevented from making it public again.
 - **Staff Overrides**: Staff can use the `AdminEndpoint` to force a lounge private, which automatically sets the lock flag.
 
 ### 4. Immersive Moderation UI
@@ -44,7 +44,7 @@ Updated with staff management commands:
 - `demote <username>`: Remove Admin status.
 - `promote-mod <username>`: Make a user a Moderator.
 - `demote-mod <username>`: Remove Moderator status.
-- `privatize <groupId>`: Force a lounge to private/locked via CLI.
+- `privatize <loungeId>`: Force a lounge to private/locked via CLI.
 - `list-users`: Show all users with their roles (e.g., `[ADMIN]`, `[MODERATOR]`, or `[USER]`).
 
 ---
@@ -55,7 +55,7 @@ Updated with staff management commands:
 1.  **Staff View**: Sign in as an Admin or Moderator.
 2.  **Lounge Moderation**: Go to any Lounge. Use the Gavel icon to "Force Private" or "Disband".
 3.  **User Moderation**: Go to a User Profile. Use the menu to "Mute" (choose duration) or "Suspend" (requires typing 'SUSPEND').
-4.  **Content Moderation**: Long-press any message in Plaza or a Group to see the "Delete Message (Staff)" option.
+4.  **Content Moderation**: Long-press any message in Plaza or a Lounge to see the "Delete Message (Staff)" option.
 
 ### Via terminal (Admin Utility)
 ```bash
@@ -66,7 +66,7 @@ dart bin/admin_bootstrap.dart list-users
 dart bin/admin_bootstrap.dart promote-mod <username>
 
 # Check lounge status
-dart bin/admin_bootstrap.dart list-groups
+dart bin/admin_bootstrap.dart list-lounges
 ```
 
 ---
@@ -78,4 +78,4 @@ Updated relevant logic in:
 - `EndpointAuthMixin` (Staff auth checks)
 - `UserProfileViewScreen` (Mute/Suspend UI)
 - `MessageBubble` (Delete UI)
-- `GroupChatScreen` & `GroupProfileScreen` (Lounge moderation UI)
+- `LoungeChatScreen` & `LoungeProfileScreen` (Lounge moderation UI)

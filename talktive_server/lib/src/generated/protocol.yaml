@@ -32,8 +32,8 @@ admin:
   - promoteToModerator:
   - demoteFromModerator:
   - demoteFromAdmin:
-  - disbandGroup:
-  - makeGroupPrivate:
+  - disbandLounge:
+  - makeLoungePrivate:
   - getUserDetails:
   - runArchival:
   - getArchivalStats:
@@ -45,29 +45,29 @@ gamification:
   - claimDailyReward:
   - getRewardHistory:
   - seedAchievements:
-group:
-  - createGroup:
-  - listMyGroups:
-  - getGroup:
-  - searchPublicGroups:
-  - applyToGroup:
-  - inviteUserToGroup:
-  - respondToGroupInvite:
-  - approveGroupApplication:
-  - kickMember:
-  - leaveGroup:
-  - toggleMuteGroup:
-  - getGroupMembersWithProfiles:
-  - getPendingApplicationsWithProfiles:
-  - getGroupMembers:
-  - updateGroup:
-  - deleteGroup:
 health:
   - check:
   - detailed:
   - ready:
   - live:
   - metrics:
+lounge:
+  - createLounge:
+  - listMyLounges:
+  - getLounge:
+  - searchPublicLounges:
+  - applyToLounge:
+  - inviteUserToLounge:
+  - respondToLoungeInvite:
+  - approveLoungeApplication:
+  - kickMember:
+  - leaveLounge:
+  - toggleMuteLounge:
+  - getLoungeMembersWithProfiles:
+  - getPendingApplicationsWithProfiles:
+  - getLoungeMembers:
+  - updateLounge:
+  - deleteLounge:
 message:
   - sendMessage:
   - subscribe:
@@ -120,9 +120,9 @@ resident:
   - purchasePremium:
 search:
   - searchUsers:
-  - searchGroups:
+  - searchLounges:
   - getTrendingMoments:
-  - getPopularGroups:
+  - getPopularLounges:
   - getActiveUsers:
   - getRecentMoments:
   - searchAll:

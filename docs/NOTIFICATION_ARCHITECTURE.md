@@ -98,13 +98,13 @@ Each version has its own notification service implementation to maintain compati
 - `moment_comment` - Someone commented on your moment
 - `achievement` - Achievement unlocked
 - `streak` - Streak milestone or reminder
-- `group_invite` - Invited to a group
+- `lounge_invite` - Invited to a lounge
 
 **Routes:**
 - `/plaza` - Public chat (HomeScreen index 0)
 - `/moments` - Moments feed (HomeScreen index 1)
 - `/chats` - Private chats (HomeScreen index 2)
-- `/groups` - Group chats (HomeScreen index 3)
+- `/lounges` - Lounge chats (HomeScreen index 3)
 - `/profile` - User profile (HomeScreen index 4)
 - `/achievements` - Achievements screen
 
@@ -131,7 +131,7 @@ Each version has its own notification service implementation to maintain compati
   - `sendMomentCommentNotification()`
   - `sendAchievementNotification()`
   - `sendStreakReminderNotification()`
-  - `sendGroupInviteNotification()`
+  - `sendLoungeInviteNotification()`
 
 ### Endpoints
 - `NotificationEndpoint`
@@ -206,7 +206,7 @@ Each version has its own notification service implementation to maintain compati
 ### Phase 6.1 Remaining Tasks
 - [ ] Add badge counts for unread messages
 - [ ] Create notification preferences screen
-- [ ] Implement notification grouping
+- [ ] Implement notification loungeing
 - [ ] Add sound and vibration customization
 - [ ] Test on iOS devices
 

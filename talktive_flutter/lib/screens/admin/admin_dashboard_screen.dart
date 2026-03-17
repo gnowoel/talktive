@@ -233,8 +233,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             Expanded(
               child: _buildStatCard(
                 '👥',
-                'Groups',
-                totals.groups.toString(),
+                'Lounges',
+                totals.lounges.toString(),
                 AppTheme.duoOrange,
               ),
             ),

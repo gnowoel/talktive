@@ -7,7 +7,7 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 - **Plaza (Lobby)**: Public, real-time global chat. Highly moderated.
 - **Moments (Bulletin Board)**: Visual social feed for photo sharing.
 - **Chats (Private Units)**: Secure 1-on-1 conversations with "Doorbell" safety.
-- **Groups (Clubhouse)**: Community-managed interest hubs.
+- **Lounges (Clubhouse)**: Community-managed interest hubs.
 - **Profile (My Unit)**: Personal identity, stats, and achievements.
 
 ---
@@ -43,9 +43,9 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 - **Privacy Hardening**: Blocking a user immediately restricts their ability to send private messages or trigger notifications, even in existing threads.
 
 ### 🛡️ Advanced Moderation (The Admin Role)
-- **Moderation Powers**: Admins can manually mute users (temporary), suspend accounts (permanent), and disband inappropriate groups.
+- **Moderation Powers**: Admins can manually mute users (temporary), suspend accounts (permanent), and disband inappropriate lounges.
 - **Administrative Transparency**: All admin actions are logged to the platform logs with reasons for accountability.
-- **Group Governance**: Admins can force public groups to become private if they are found to be niche or borderline inappropriate, maintaining the public "Plaza" safety.
+- **Lounge Governance**: Admins can force public lounges to become private if they are found to be niche or borderline inappropriate, maintaining the public "Plaza" safety.
 - **Report Resolution**: Admins review and resolve reports from the community, with the ability to reset trustScores upon successful appeals.
 
 ---
@@ -58,7 +58,7 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 - **Achievements**: batch-tracked milestones (e.g., "Social Butterfly", "High-Rise Resident").
 
 ### Interest Taxonomy
-- Centralized `AppInterests` system for both users and groups.
+- Centralized `AppInterests` system for both users and lounges.
 - Personalized discovery ranking based on shared interest overlap.
 
 ---

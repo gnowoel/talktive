@@ -35,9 +35,9 @@ import 'channel_type.dart' as _i20;
 import 'daily_reward.dart' as _i21;
 import 'device_token.dart' as _i22;
 import 'greetings/greeting.dart' as _i23;
-import 'group.dart' as _i24;
-import 'group_member_with_profile.dart' as _i25;
-import 'group_with_membership.dart' as _i26;
+import 'lounge.dart' as _i24;
+import 'lounge_member_with_profile.dart' as _i25;
+import 'lounge_with_membership.dart' as _i26;
 import 'message.dart' as _i27;
 import 'moment.dart' as _i28;
 import 'moment_comment.dart' as _i29;
@@ -57,10 +57,10 @@ import 'package:talktive_server/src/generated/admin_report_summary.dart'
     as _i42;
 import 'package:talktive_server/src/generated/admin_user_summary.dart' as _i43;
 import 'package:talktive_server/src/generated/daily_reward.dart' as _i44;
-import 'package:talktive_server/src/generated/group_with_membership.dart'
+import 'package:talktive_server/src/generated/lounge_with_membership.dart'
     as _i45;
-import 'package:talktive_server/src/generated/group.dart' as _i46;
-import 'package:talktive_server/src/generated/group_member_with_profile.dart'
+import 'package:talktive_server/src/generated/lounge.dart' as _i46;
+import 'package:talktive_server/src/generated/lounge_member_with_profile.dart'
     as _i47;
 import 'package:talktive_server/src/generated/resident.dart' as _i48;
 import 'package:talktive_server/src/generated/message.dart' as _i49;
@@ -89,9 +89,9 @@ export 'channel_type.dart';
 export 'daily_reward.dart';
 export 'device_token.dart';
 export 'greetings/greeting.dart';
-export 'group.dart';
-export 'group_member_with_profile.dart';
-export 'group_with_membership.dart';
+export 'lounge.dart';
+export 'lounge_member_with_profile.dart';
+export 'lounge_with_membership.dart';
 export 'message.dart';
 export 'moment.dart';
 export 'moment_comment.dart';
@@ -539,8 +539,8 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
-      name: 'groups',
-      dartName: 'Group',
+      name: 'lounge',
+      dartName: 'Lounge',
       schema: 'public',
       module: 'talktive',
       columns: [
@@ -549,7 +549,7 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.bigint,
           isNullable: false,
           dartType: 'int?',
-          columnDefault: 'nextval(\'groups_id_seq\'::regclass)',
+          columnDefault: 'nextval(\'lounge_id_seq\'::regclass)',
         ),
         _i2.ColumnDefinition(
           name: 'channelId',
@@ -637,7 +637,7 @@ class Protocol extends _i1.SerializationManagerServer {
       foreignKeys: [],
       indexes: [
         _i2.IndexDefinition(
-          indexName: 'groups_pkey',
+          indexName: 'lounge_pkey',
           tableSpace: null,
           elements: [
             _i2.IndexElementDefinition(
@@ -650,7 +650,7 @@ class Protocol extends _i1.SerializationManagerServer {
           isPrimary: true,
         ),
         _i2.IndexDefinition(
-          indexName: 'group_channel_idx',
+          indexName: 'lounge_channel_idx',
           tableSpace: null,
           elements: [
             _i2.IndexElementDefinition(
@@ -663,7 +663,7 @@ class Protocol extends _i1.SerializationManagerServer {
           isPrimary: false,
         ),
         _i2.IndexDefinition(
-          indexName: 'group_creator_idx',
+          indexName: 'lounge_creator_idx',
           tableSpace: null,
           elements: [
             _i2.IndexElementDefinition(
@@ -2074,14 +2074,14 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i23.Greeting) {
       return _i23.Greeting.fromJson(data) as T;
     }
-    if (t == _i24.Group) {
-      return _i24.Group.fromJson(data) as T;
+    if (t == _i24.Lounge) {
+      return _i24.Lounge.fromJson(data) as T;
     }
-    if (t == _i25.GroupMemberWithProfile) {
-      return _i25.GroupMemberWithProfile.fromJson(data) as T;
+    if (t == _i25.LoungeMemberWithProfile) {
+      return _i25.LoungeMemberWithProfile.fromJson(data) as T;
     }
-    if (t == _i26.GroupWithMembership) {
-      return _i26.GroupWithMembership.fromJson(data) as T;
+    if (t == _i26.LoungeWithMembership) {
+      return _i26.LoungeWithMembership.fromJson(data) as T;
     }
     if (t == _i27.Message) {
       return _i27.Message.fromJson(data) as T;
@@ -2184,15 +2184,15 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i23.Greeting?>()) {
       return (data != null ? _i23.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i24.Group?>()) {
-      return (data != null ? _i24.Group.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.Lounge?>()) {
+      return (data != null ? _i24.Lounge.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i25.GroupMemberWithProfile?>()) {
-      return (data != null ? _i25.GroupMemberWithProfile.fromJson(data) : null)
+    if (t == _i1.getType<_i25.LoungeMemberWithProfile?>()) {
+      return (data != null ? _i25.LoungeMemberWithProfile.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i26.GroupWithMembership?>()) {
-      return (data != null ? _i26.GroupWithMembership.fromJson(data) : null)
+    if (t == _i1.getType<_i26.LoungeWithMembership?>()) {
+      return (data != null ? _i26.LoungeWithMembership.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i27.Message?>()) {
@@ -2316,19 +2316,19 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i45.GroupWithMembership>) {
+    if (t == List<_i45.LoungeWithMembership>) {
       return (data as List)
-              .map((e) => deserialize<_i45.GroupWithMembership>(e))
+              .map((e) => deserialize<_i45.LoungeWithMembership>(e))
               .toList()
           as T;
     }
-    if (t == List<_i46.Group>) {
-      return (data as List).map((e) => deserialize<_i46.Group>(e)).toList()
+    if (t == List<_i46.Lounge>) {
+      return (data as List).map((e) => deserialize<_i46.Lounge>(e)).toList()
           as T;
     }
-    if (t == List<_i47.GroupMemberWithProfile>) {
+    if (t == List<_i47.LoungeMemberWithProfile>) {
       return (data as List)
-              .map((e) => deserialize<_i47.GroupMemberWithProfile>(e))
+              .map((e) => deserialize<_i47.LoungeMemberWithProfile>(e))
               .toList()
           as T;
     }
@@ -2414,9 +2414,9 @@ class Protocol extends _i1.SerializationManagerServer {
       _i21.DailyReward => 'DailyReward',
       _i22.DeviceToken => 'DeviceToken',
       _i23.Greeting => 'Greeting',
-      _i24.Group => 'Group',
-      _i25.GroupMemberWithProfile => 'GroupMemberWithProfile',
-      _i26.GroupWithMembership => 'GroupWithMembership',
+      _i24.Lounge => 'Lounge',
+      _i25.LoungeMemberWithProfile => 'LoungeMemberWithProfile',
+      _i26.LoungeWithMembership => 'LoungeWithMembership',
       _i27.Message => 'Message',
       _i28.Moment => 'Moment',
       _i29.MomentComment => 'MomentComment',
@@ -2482,12 +2482,12 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'DeviceToken';
       case _i23.Greeting():
         return 'Greeting';
-      case _i24.Group():
-        return 'Group';
-      case _i25.GroupMemberWithProfile():
-        return 'GroupMemberWithProfile';
-      case _i26.GroupWithMembership():
-        return 'GroupWithMembership';
+      case _i24.Lounge():
+        return 'Lounge';
+      case _i25.LoungeMemberWithProfile():
+        return 'LoungeMemberWithProfile';
+      case _i26.LoungeWithMembership():
+        return 'LoungeWithMembership';
       case _i27.Message():
         return 'Message';
       case _i28.Moment():
@@ -2598,14 +2598,14 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'Greeting') {
       return deserialize<_i23.Greeting>(data['data']);
     }
-    if (dataClassName == 'Group') {
-      return deserialize<_i24.Group>(data['data']);
+    if (dataClassName == 'Lounge') {
+      return deserialize<_i24.Lounge>(data['data']);
     }
-    if (dataClassName == 'GroupMemberWithProfile') {
-      return deserialize<_i25.GroupMemberWithProfile>(data['data']);
+    if (dataClassName == 'LoungeMemberWithProfile') {
+      return deserialize<_i25.LoungeMemberWithProfile>(data['data']);
     }
-    if (dataClassName == 'GroupWithMembership') {
-      return deserialize<_i26.GroupWithMembership>(data['data']);
+    if (dataClassName == 'LoungeWithMembership') {
+      return deserialize<_i26.LoungeWithMembership>(data['data']);
     }
     if (dataClassName == 'Message') {
       return deserialize<_i27.Message>(data['data']);
@@ -2710,8 +2710,8 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i21.DailyReward.t;
       case _i22.DeviceToken:
         return _i22.DeviceToken.t;
-      case _i24.Group:
-        return _i24.Group.t;
+      case _i24.Lounge:
+        return _i24.Lounge.t;
       case _i27.Message:
         return _i27.Message.t;
       case _i28.Moment:

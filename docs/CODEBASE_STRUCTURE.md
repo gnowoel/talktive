@@ -98,7 +98,7 @@ talktive_flutter/lib/
 - `screens/home/home_screen.dart` - Main navigation
 - `screens/chat/chat_screen.dart` - Individual chat
 - `screens/chats/` - Private chats
-- `screens/groups/` - Group chats
+- `screens/lounges/` - Lounge chats
 - `screens/plaza/` - Public chat
 - `screens/moments/` - Photo feed
 - `screens/profile/` - User profile
@@ -109,7 +109,7 @@ talktive_flutter/lib/
 - `providers/auth_provider.dart` - Serverpod auth
 - `providers/chat_provider.dart` - Chat state
 - `providers/private_chat_provider.dart` - Private chats
-- `providers/group_provider.dart` - Groups
+- `providers/lounge_provider.dart` - Lounges
 - `providers/current_resident_provider.dart` - Current user data
 - `providers/realtime_chat_provider.dart` - Real-time messaging
 - `providers/notification_provider.dart` - Notifications

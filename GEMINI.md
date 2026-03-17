@@ -31,13 +31,13 @@ These areas are unified by an **inviting, friendly tone** that ensures the "Apar
 - **Color Palette**: Primary purple (#6C63FF), secondary pink (#FF6584), accent cyan (#00D9FF), plus Duolingo signature colors (green #58CC02, yellow #FFD93D, red #FF4B4B, orange #FF9600)
 - **Bottom Navigation**: Floating pill-shaped bar with emoji + text labels, colored background pills for active state
 - **Component Library**: New `lib/widgets/duo/` directory with reusable Duolingo-style components (DuoButton, DuoCard, DuoAvatar, DuoInput, DuoEmptyState, DuoHeader, DuoStatCard)
-- **Screens Redesigned**: All five main screens (Plaza, Moments, Chats, Groups, Profile) follow the Duolingo aesthetic
+- **Screens Redesigned**: All five main screens (Plaza, Moments, Chats, Lounges, Profile) follow the Duolingo aesthetic
 - **Animations**: Entrance animations, staggered list items, tap feedback, smooth animations, satisfying transitions using flutter_animate
 
 **The "Destinations vs. Actions" Pattern**: We distinguish between "Places" (Profiles, Labs) which use the immersive `DuoPageScaffold`, and "Utility" screens (Chat Threads, Detail views) which use a lightweight `AppBar` structure. See [DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) for full details.
 
-**The Interest Taxonomy**: To facilitate meaningful connections, we use a centralized interest system (`AppInterests`) that categorizes users and groups. This taxonomy is used for:
-- **Discovery**: Ranking groups based on shared interests with the user.
+**The Interest Taxonomy**: To facilitate meaningful connections, we use a centralized interest system (`AppInterests`) that categorizes users and lounges. This taxonomy is used for:
+- **Discovery**: Ranking lounges based on shared interests with the user.
 - **Identity**: Personalizing resident profiles with badges.
 - **Consistency**: Unified emojis and naming across all screens.
 
@@ -72,7 +72,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ### Completed (Phase 8 Refinement)
 - **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
-- **Privacy & Safety**: Privacy-first "Doorbell & Peephole" invite system; interest-based group discovery.
+- **Privacy & Safety**: Privacy-first "Doorbell & Peephole" invite system; interest-based lounge discovery.
 - **Social & Engagement**: Immersive Moments feed with direct Firebase uploads and XP rewards.
 - **Architectural Polish**: Query optimizations, batch database operations, and reactive profile providers.
 
@@ -111,7 +111,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
-- **Role System Refactoring (Mar 2026)**: Replaced boolean flags (`isAdmin`, `isModerator`) with a single `role` field using the `ResidentRole` enum. This simplifies role management, improves query performance, and provides a type-safe way to handle staff permissions. Renamed `isAdminLocked` to `isStaffLocked` in the `Group` model to reflect shared administrative oversight.
+- **Role System Refactoring (Mar 2026)**: Replaced boolean flags (`isAdmin`, `isModerator`) with a single `role` field using the `ResidentRole` enum. This simplifies role management, improves query performance, and provides a type-safe way to handle staff permissions. Renamed `isAdminLocked` to `isStaffLocked` in the `Lounge` model to reflect shared administrative oversight.
 - **Profile View Consolidation (Mar 2026)**: Centralized `UserProfileView` generation into `ResidentService` and implemented reactive `UserProfileProvider` in the frontend. This unified "My Profile" and "Resident Profile" views with consistent stats and real-time social state (block/like) synchronization.
 - **Consolidation & Simplification (Mar 2026)**: Merged `AchievementService` and `StreakService` into `GamificationService`, and consolidated `UserProfileEndpoint` and `UserLikeEndpoint` into `ResidentEndpoint`. Rationalized frontend providers by merging achievement, streak, and notification state management.
 - **500 Error (Feb 2026)**: Caused by `int` vs `UUID` mismatch in `Resident`. Fixed by:
@@ -121,10 +121,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Message Send Error (Feb 2026)**: `DatabaseQueryException` due to missing `senderName` columns. Fixed by:
   1. Creating migration `20260213141911093` to add denormalized columns (`senderName`, `senderAvatar`, `senderFloor`) to `message` table.
   2. Applied migration to ensure schema matches protocol.
-- **Notification Edge Case Fix (Mar 2026)**: Fixed FCM push notifications deep link exceptions by linking `sendMessageNotification` to correctly route group chats dynamically to `GroupChatLoader` with fallback if the cache is empty. Enabled missed trigger bindings to execute `sendAchievementNotification` and `sendGroupInviteNotification` systematically.
+- **Notification Edge Case Fix (Mar 2026)**: Fixed FCM push notifications deep link exceptions by linking `sendMessageNotification` to correctly route lounge chats dynamically to `LoungeChatLoader` with fallback if the cache is empty. Enabled missed trigger bindings to execute `sendAchievementNotification` and `sendLoungeInviteNotification` systematically.
 - **Notification Fix (Mar 2026)**: Fixed in-app popups by correcting FCM payload v1 (invalid `priority` field), triggering notifications in `MessageEndpoint`, and improving route resolution.
 - **Activity Renaming (Mar 2026)**: Renamed "Achievements" to "Activity" hub for comprehensive notification-based interaction history.
-- **Image Handling & Dev Visibility (Mar 2026)**: Fixed group image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
+- **Image Handling & Dev Visibility (Mar 2026)**: Fixed lounge image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
 - **Architectural Refinement (Mar 2026)**: Consolidated rate limiting into a unified Redis-based (Serverpod cache) service and removed redundant database-backed rate limit tables. Removed unused `ImageEndpoint` and `StorageEndpoint` to simplify server implementation.
 
 ## Useful Commands

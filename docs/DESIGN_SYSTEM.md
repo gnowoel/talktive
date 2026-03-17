@@ -21,7 +21,7 @@ We embrace a playful, high-energy aesthetic that makes interaction feel like a g
 ### 1. Color Palette
 *   **Primary Purple** (`#6C63FF`): The core brand color, used for primary actions and branding.
 *   **Secondary Pink** (`#FF6584`): Used for accents and "Moments" branding.
-*   **Accent Cyan** (`#00D9FF`): Used for highlights and "Groups" branding.
+*   **Accent Cyan** (`#00D9FF`): Used for highlights and "Lounges" branding.
 *   **Duo Signature Colors**:
     *   **Green** (`#58CC02`): Success, active states, and "Start" actions.
     *   **Red** (`#FF4B4B`): Errors, destructive actions, and alerts.
@@ -80,7 +80,7 @@ Always prefer these components over standard Material widgets to maintain the br
 
 Talktive should feel alive.
 *   **Animations**: Use `flutter_animate` for entrance transitions. Stagger list items slightly.
-*   **Haptics**: Always provide `lightImpact` for taps and `medium/heavyImpact` for significant actions (sending messages, joining groups).
+*   **Haptics**: Always provide `lightImpact` for taps and `medium/heavyImpact` for significant actions (sending messages, joining lounges).
 *   **Celebrations**: Use the `ConfettiAnimation` for level-ups or significant achievements.
 *   **Satisfying States**: Buttons should visibly "press down" (built into `DuoButton`).
 *   **Aesthetic Feedback**: SnackBars (via `SnackBarHelper`) must be **floating**, with rounded corners and consistent padding, ensuring they don't block core navigation while providing satisfying visual reinforcement.

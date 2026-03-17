@@ -135,7 +135,7 @@ class ApartmentService {
   // INVITE / SOCIAL RULES
   // ---------------------------------------------------------------------------
 
-  /// Returns true if [sender] is allowed to invite [receiver] to a chat or group.
+  /// Returns true if [sender] is allowed to invite [receiver] to a chat or lounge.
   ///
   /// Rules:
   ///   1. Sender must not be muted or suspended.

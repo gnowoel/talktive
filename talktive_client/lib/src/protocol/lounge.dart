@@ -13,8 +13,8 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'package:talktive_client/src/protocol/protocol.dart' as _i2;
 
-abstract class Group implements _i1.SerializableModel {
-  Group._({
+abstract class Lounge implements _i1.SerializableModel {
+  Lounge._({
     this.id,
     required this.channelId,
     required this.name,
@@ -34,7 +34,7 @@ abstract class Group implements _i1.SerializableModel {
        maxMembers = maxMembers ?? 50,
        isStaffLocked = isStaffLocked ?? false;
 
-  factory Group({
+  factory Lounge({
     int? id,
     required int channelId,
     required String name,
@@ -49,10 +49,10 @@ abstract class Group implements _i1.SerializableModel {
     String? lastMessage,
     List<String>? interests,
     bool? isStaffLocked,
-  }) = _GroupImpl;
+  }) = _LoungeImpl;
 
-  factory Group.fromJson(Map<String, dynamic> jsonSerialization) {
-    return Group(
+  factory Lounge.fromJson(Map<String, dynamic> jsonSerialization) {
+    return Lounge(
       id: jsonSerialization['id'] as int?,
       channelId: jsonSerialization['channelId'] as int,
       name: jsonSerialization['name'] as String,
@@ -117,10 +117,10 @@ abstract class Group implements _i1.SerializableModel {
 
   bool isStaffLocked;
 
-  /// Returns a shallow copy of this [Group]
+  /// Returns a shallow copy of this [Lounge]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  Group copyWith({
+  Lounge copyWith({
     int? id,
     int? channelId,
     String? name,
@@ -139,7 +139,7 @@ abstract class Group implements _i1.SerializableModel {
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'Group',
+      '__className__': 'Lounge',
       if (id != null) 'id': id,
       'channelId': channelId,
       'name': name,
@@ -165,8 +165,8 @@ abstract class Group implements _i1.SerializableModel {
 
 class _Undefined {}
 
-class _GroupImpl extends Group {
-  _GroupImpl({
+class _LoungeImpl extends Lounge {
+  _LoungeImpl({
     int? id,
     required int channelId,
     required String name,
@@ -198,11 +198,11 @@ class _GroupImpl extends Group {
          isStaffLocked: isStaffLocked,
        );
 
-  /// Returns a shallow copy of this [Group]
+  /// Returns a shallow copy of this [Lounge]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  Group copyWith({
+  Lounge copyWith({
     Object? id = _Undefined,
     int? channelId,
     String? name,
@@ -218,7 +218,7 @@ class _GroupImpl extends Group {
     Object? interests = _Undefined,
     bool? isStaffLocked,
   }) {
-    return Group(
+    return Lounge(
       id: id is int? ? id : this.id,
       channelId: channelId ?? this.channelId,
       name: name ?? this.name,

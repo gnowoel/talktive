@@ -3,6 +3,6 @@ fields:
   users: int
   messages: int
   moments: int
-  groups: int
+  lounges: int
   reports: int
   pendingReports: int

@@ -29,9 +29,9 @@ import 'channel_type.dart' as _i16;
 import 'daily_reward.dart' as _i17;
 import 'device_token.dart' as _i18;
 import 'greetings/greeting.dart' as _i19;
-import 'group.dart' as _i20;
-import 'group_member_with_profile.dart' as _i21;
-import 'group_with_membership.dart' as _i22;
+import 'lounge.dart' as _i20;
+import 'lounge_member_with_profile.dart' as _i21;
+import 'lounge_with_membership.dart' as _i22;
 import 'message.dart' as _i23;
 import 'moment.dart' as _i24;
 import 'moment_comment.dart' as _i25;
@@ -50,10 +50,10 @@ import 'user_profile_view.dart' as _i37;
 import 'package:talktive_client/src/protocol/admin_report_summary.dart' as _i38;
 import 'package:talktive_client/src/protocol/admin_user_summary.dart' as _i39;
 import 'package:talktive_client/src/protocol/daily_reward.dart' as _i40;
-import 'package:talktive_client/src/protocol/group_with_membership.dart'
+import 'package:talktive_client/src/protocol/lounge_with_membership.dart'
     as _i41;
-import 'package:talktive_client/src/protocol/group.dart' as _i42;
-import 'package:talktive_client/src/protocol/group_member_with_profile.dart'
+import 'package:talktive_client/src/protocol/lounge.dart' as _i42;
+import 'package:talktive_client/src/protocol/lounge_member_with_profile.dart'
     as _i43;
 import 'package:talktive_client/src/protocol/resident.dart' as _i44;
 import 'package:talktive_client/src/protocol/message.dart' as _i45;
@@ -87,9 +87,9 @@ export 'channel_type.dart';
 export 'daily_reward.dart';
 export 'device_token.dart';
 export 'greetings/greeting.dart';
-export 'group.dart';
-export 'group_member_with_profile.dart';
-export 'group_with_membership.dart';
+export 'lounge.dart';
+export 'lounge_member_with_profile.dart';
+export 'lounge_with_membership.dart';
 export 'message.dart';
 export 'moment.dart';
 export 'moment_comment.dart';
@@ -195,14 +195,14 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i19.Greeting) {
       return _i19.Greeting.fromJson(data) as T;
     }
-    if (t == _i20.Group) {
-      return _i20.Group.fromJson(data) as T;
+    if (t == _i20.Lounge) {
+      return _i20.Lounge.fromJson(data) as T;
     }
-    if (t == _i21.GroupMemberWithProfile) {
-      return _i21.GroupMemberWithProfile.fromJson(data) as T;
+    if (t == _i21.LoungeMemberWithProfile) {
+      return _i21.LoungeMemberWithProfile.fromJson(data) as T;
     }
-    if (t == _i22.GroupWithMembership) {
-      return _i22.GroupWithMembership.fromJson(data) as T;
+    if (t == _i22.LoungeWithMembership) {
+      return _i22.LoungeWithMembership.fromJson(data) as T;
     }
     if (t == _i23.Message) {
       return _i23.Message.fromJson(data) as T;
@@ -305,15 +305,15 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i19.Greeting?>()) {
       return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.Group?>()) {
-      return (data != null ? _i20.Group.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.Lounge?>()) {
+      return (data != null ? _i20.Lounge.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i21.GroupMemberWithProfile?>()) {
-      return (data != null ? _i21.GroupMemberWithProfile.fromJson(data) : null)
+    if (t == _i1.getType<_i21.LoungeMemberWithProfile?>()) {
+      return (data != null ? _i21.LoungeMemberWithProfile.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i22.GroupWithMembership?>()) {
-      return (data != null ? _i22.GroupWithMembership.fromJson(data) : null)
+    if (t == _i1.getType<_i22.LoungeWithMembership?>()) {
+      return (data != null ? _i22.LoungeWithMembership.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i23.Message?>()) {
@@ -437,19 +437,19 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == List<_i41.GroupWithMembership>) {
+    if (t == List<_i41.LoungeWithMembership>) {
       return (data as List)
-              .map((e) => deserialize<_i41.GroupWithMembership>(e))
+              .map((e) => deserialize<_i41.LoungeWithMembership>(e))
               .toList()
           as T;
     }
-    if (t == List<_i42.Group>) {
-      return (data as List).map((e) => deserialize<_i42.Group>(e)).toList()
+    if (t == List<_i42.Lounge>) {
+      return (data as List).map((e) => deserialize<_i42.Lounge>(e)).toList()
           as T;
     }
-    if (t == List<_i43.GroupMemberWithProfile>) {
+    if (t == List<_i43.LoungeMemberWithProfile>) {
       return (data as List)
-              .map((e) => deserialize<_i43.GroupMemberWithProfile>(e))
+              .map((e) => deserialize<_i43.LoungeMemberWithProfile>(e))
               .toList()
           as T;
     }
@@ -532,9 +532,9 @@ class Protocol extends _i1.SerializationManager {
       _i17.DailyReward => 'DailyReward',
       _i18.DeviceToken => 'DeviceToken',
       _i19.Greeting => 'Greeting',
-      _i20.Group => 'Group',
-      _i21.GroupMemberWithProfile => 'GroupMemberWithProfile',
-      _i22.GroupWithMembership => 'GroupWithMembership',
+      _i20.Lounge => 'Lounge',
+      _i21.LoungeMemberWithProfile => 'LoungeMemberWithProfile',
+      _i22.LoungeWithMembership => 'LoungeWithMembership',
       _i23.Message => 'Message',
       _i24.Moment => 'Moment',
       _i25.MomentComment => 'MomentComment',
@@ -600,12 +600,12 @@ class Protocol extends _i1.SerializationManager {
         return 'DeviceToken';
       case _i19.Greeting():
         return 'Greeting';
-      case _i20.Group():
-        return 'Group';
-      case _i21.GroupMemberWithProfile():
-        return 'GroupMemberWithProfile';
-      case _i22.GroupWithMembership():
-        return 'GroupWithMembership';
+      case _i20.Lounge():
+        return 'Lounge';
+      case _i21.LoungeMemberWithProfile():
+        return 'LoungeMemberWithProfile';
+      case _i22.LoungeWithMembership():
+        return 'LoungeWithMembership';
       case _i23.Message():
         return 'Message';
       case _i24.Moment():
@@ -712,14 +712,14 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'Greeting') {
       return deserialize<_i19.Greeting>(data['data']);
     }
-    if (dataClassName == 'Group') {
-      return deserialize<_i20.Group>(data['data']);
+    if (dataClassName == 'Lounge') {
+      return deserialize<_i20.Lounge>(data['data']);
     }
-    if (dataClassName == 'GroupMemberWithProfile') {
-      return deserialize<_i21.GroupMemberWithProfile>(data['data']);
+    if (dataClassName == 'LoungeMemberWithProfile') {
+      return deserialize<_i21.LoungeMemberWithProfile>(data['data']);
     }
-    if (dataClassName == 'GroupWithMembership') {
-      return deserialize<_i22.GroupWithMembership>(data['data']);
+    if (dataClassName == 'LoungeWithMembership') {
+      return deserialize<_i22.LoungeWithMembership>(data['data']);
     }
     if (dataClassName == 'Message') {
       return deserialize<_i23.Message>(data['data']);

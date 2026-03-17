@@ -145,8 +145,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             Expanded(
               child: _buildMetricCard(
                 '👥',
-                'Groups',
-                totals.groups.toString(),
+                'Lounges',
+                totals.lounges.toString(),
                 AppTheme.duoOrange,
               ),
             ),

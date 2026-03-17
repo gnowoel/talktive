@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../config/theme.dart';
@@ -15,27 +15,27 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/resident_ext.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/client_provider.dart';
-import 'create_group_dialog.dart';
+import 'create_lounge_dialog.dart';
 
-class GroupProfileScreen extends ConsumerWidget {
-  final int groupId;
-  final Group? initialGroup; // Used for immediate display
+class LoungeProfileScreen extends ConsumerWidget {
+  final int loungeId;
+  final Lounge? initialLounge; // Used for immediate display
 
-  const GroupProfileScreen({
+  const LoungeProfileScreen({
     super.key,
-    required this.groupId,
-    this.initialGroup,
+    required this.loungeId,
+    this.initialLounge,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final groupAsync = ref.watch(groupWithMembershipProvider(groupId));
+    final loungeAsync = ref.watch(loungeWithMembershipProvider(loungeId));
     final currentResident = ref.watch(currentResidentProvider).value;
 
-    return groupAsync.when(
+    return loungeAsync.when(
       data: (membership) {
-        final group = membership?.group ?? initialGroup;
-        if (group == null) {
+        final lounge = membership?.lounge ?? initialLounge;
+        if (lounge == null) {
           return Scaffold(
             appBar: AppBar(
               title: const Text(
@@ -49,14 +49,14 @@ class GroupProfileScreen extends ConsumerWidget {
             body: const Center(
               child: DuoEmptyState(
                 emoji: '🕵️',
-                title: 'Group Not Found',
+                title: 'Lounge Not Found',
                 subtitle: 'This lounge might have been disbanded.',
               ),
             ),
           );
         }
 
-        final isCreator = currentResident?.userInfoId == group.creatorId;
+        final isCreator = currentResident?.userInfoId == lounge.creatorId;
         final status = membership?.membershipStatus;
         final isJoined = status == ChannelMemberStatus.joined;
         final isApplied = status == ChannelMemberStatus.applied;
@@ -66,7 +66,7 @@ class GroupProfileScreen extends ConsumerWidget {
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: Text(
-              group.name,
+              lounge.name,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
@@ -86,17 +86,17 @@ class GroupProfileScreen extends ConsumerWidget {
                   icon: const Icon(Icons.gavel, color: AppTheme.duoRed),
                   onSelected: (value) async {
                     if (value == 'admin_private') {
-                      _confirmForceAdminPrivate(context, ref, group);
+                      _confirmForceAdminPrivate(context, ref, lounge);
                     } else if (value == 'admin_disband') {
-                      _confirmAdminDisband(context, ref, group);
+                      _confirmAdminDisband(context, ref, lounge);
                     }
                   },
                   itemBuilder: (context) => [
                     PopupMenuItem(
                       value: 'admin_private',
-                      enabled: group.isPublic && !group.isStaffLocked,
+                      enabled: lounge.isPublic && !lounge.isStaffLocked,
                       child: Text(
-                        group.isStaffLocked
+                        lounge.isStaffLocked
                             ? 'Lounge Locked'
                             : 'Force Private',
                       ),
@@ -113,7 +113,7 @@ class GroupProfileScreen extends ConsumerWidget {
               if (isCreator)
                 IconButton(
                   icon: const Icon(Icons.edit),
-                  onPressed: () => _showEditDialog(context, group),
+                  onPressed: () => _showEditDialog(context, lounge),
                 ),
             ],
           ),
@@ -123,12 +123,12 @@ class GroupProfileScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Status Card
-                _buildStatusCard(context, group, isJoined),
+                _buildStatusCard(context, lounge, isJoined),
 
                 const SizedBox(height: 24),
 
                 // Creator section
-                _buildCreatorSection(context, ref, group.creatorId),
+                _buildCreatorSection(context, ref, lounge.creatorId),
 
                 const SizedBox(height: 24),
 
@@ -143,7 +143,7 @@ class GroupProfileScreen extends ConsumerWidget {
                 DuoCard(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    group.description ?? 'No description provided.',
+                    lounge.description ?? 'No description provided.',
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                 ),
@@ -151,7 +151,7 @@ class GroupProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Interests
-                if (group.interests != null && group.interests!.isNotEmpty) ...[
+                if (lounge.interests != null && lounge.interests!.isNotEmpty) ...[
                   Text(
                     'Interests',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -162,7 +162,7 @@ class GroupProfileScreen extends ConsumerWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: group.interests!
+                    children: lounge.interests!
                         .map(
                           (interest) => Chip(
                             label: Text(
@@ -192,7 +192,7 @@ class GroupProfileScreen extends ConsumerWidget {
                   context,
                   ref,
                   membership?.isMuted ?? false,
-                  group,
+                  lounge,
                   isJoined,
                   isApplied,
                   isInvited,
@@ -203,8 +203,8 @@ class GroupProfileScreen extends ConsumerWidget {
           ),
         );
       },
-      loading: () => initialGroup != null
-          ? _buildWithInitialData(context, ref, initialGroup!, currentResident)
+      loading: () => initialLounge != null
+          ? _buildWithInitialData(context, ref, initialLounge!, currentResident)
           : const Scaffold(body: Center(child: DuoLoadingIndicator())),
       error: (err, stack) => Scaffold(
         appBar: AppBar(
@@ -223,7 +223,7 @@ class GroupProfileScreen extends ConsumerWidget {
             subtitle: err.toString(),
             buttonText: 'Retry',
             onButtonPressed: () =>
-                ref.invalidate(groupWithMembershipProvider(groupId)),
+                ref.invalidate(loungeWithMembershipProvider(loungeId)),
           ),
         ),
       ),
@@ -233,7 +233,7 @@ class GroupProfileScreen extends ConsumerWidget {
   Widget _buildWithInitialData(
     BuildContext context,
     WidgetRef ref,
-    Group group,
+    Lounge lounge,
     Resident? currentResident,
   ) {
     // Partial view while loading full membership state
@@ -241,7 +241,7 @@ class GroupProfileScreen extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          group.name,
+          lounge.name,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',
@@ -255,7 +255,7 @@ class GroupProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusCard(BuildContext context, Group group, bool isJoined) {
+  Widget _buildStatusCard(BuildContext context, Lounge lounge, bool isJoined) {
     return DuoCard(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -263,19 +263,19 @@ class GroupProfileScreen extends ConsumerWidget {
         children: [
           _buildStatItem(
             context,
-            group.memberCount.toString(),
+            lounge.memberCount.toString(),
             'Members',
             onTap: isJoined
                 ? () {
                     HapticFeedback.lightImpact();
-                    context.push('/groups/members/${group.id!}', extra: group);
+                    context.push('/lounges/members/${lounge.id!}', extra: lounge);
                   }
                 : null,
           ),
           Container(width: 1, height: 40, color: Colors.grey[200]),
-          _buildStatItem(context, group.maxMembers.toString(), 'Capacity'),
+          _buildStatItem(context, lounge.maxMembers.toString(), 'Capacity'),
           Container(width: 1, height: 40, color: Colors.grey[200]),
-          _buildStatItem(context, group.isPublic ? '🔓' : '🔒', 'Access'),
+          _buildStatItem(context, lounge.isPublic ? '🔓' : '🔒', 'Access'),
         ],
       ),
     );
@@ -389,7 +389,7 @@ class GroupProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     bool isMuted,
-    Group group,
+    Lounge lounge,
     bool isJoined,
     bool isApplied,
     bool isInvited,
@@ -425,8 +425,8 @@ class GroupProfileScreen extends ConsumerWidget {
                   onChanged: (val) {
                     HapticFeedback.lightImpact();
                     ref
-                        .read(groupListProvider.notifier)
-                        .toggleMuteGroup(group.id!, val);
+                        .read(loungeListProvider.notifier)
+                        .toggleMuteLounge(lounge.id!, val);
                   },
                 ),
               ],
@@ -484,8 +484,8 @@ class GroupProfileScreen extends ConsumerWidget {
                 HapticFeedback.lightImpact();
                 try {
                   await ref
-                      .read(groupListProvider.notifier)
-                      .respondToInvite(group.id!, false);
+                      .read(loungeListProvider.notifier)
+                      .respondToInvite(lounge.id!, false);
                   if (context.mounted) {
                     DuoSnackBarHelper.showInfo(context, 'Invitation declined.');
                     Navigator.pop(context);
@@ -507,12 +507,12 @@ class GroupProfileScreen extends ConsumerWidget {
                 HapticFeedback.lightImpact();
                 try {
                   await ref
-                      .read(groupListProvider.notifier)
-                      .respondToInvite(group.id!, true);
+                      .read(loungeListProvider.notifier)
+                      .respondToInvite(lounge.id!, true);
                   if (context.mounted) {
                     DuoSnackBarHelper.showSuccess(context, 'Invitation accepted!');
                     // Instead of popping, we just invalidate and let the view refresh
-                    ref.invalidate(groupWithMembershipProvider(group.id!));
+                    ref.invalidate(loungeWithMembershipProvider(lounge.id!));
                   }
                 } catch (e) {
                   if (context.mounted) {
@@ -529,11 +529,11 @@ class GroupProfileScreen extends ConsumerWidget {
     return SizedBox(
       width: double.infinity,
       child: DuoButton(
-        text: group.isPublic ? 'Apply to Join' : 'Request Invite',
+        text: lounge.isPublic ? 'Apply to Join' : 'Request Invite',
         onPressed: () async {
           HapticFeedback.mediumImpact();
           try {
-            await ref.read(groupListProvider.notifier).applyToGroup(group.id!);
+            await ref.read(loungeListProvider.notifier).applyToLounge(lounge.id!);
             if (context.mounted) {
               DuoSnackBarHelper.showSuccess(context, 'Application sent!');
             }
@@ -547,26 +547,26 @@ class GroupProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showEditDialog(BuildContext context, Group group) {
+  void _showEditDialog(BuildContext context, Lounge lounge) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CreateGroupDialog(existingGroup: group),
+      builder: (context) => CreateLoungeDialog(existingLounge: lounge),
     );
   }
 
   void _confirmForceAdminPrivate(
     BuildContext context,
     WidgetRef ref,
-    Group group,
+    Lounge lounge,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Admin Action: Force Private?'),
         content: Text(
-          'This will force "${group.name}" to become private and lock it permanently.',
+          'This will force "${lounge.name}" to become private and lock it permanently.',
         ),
         actions: [
           TextButton(
@@ -585,10 +585,10 @@ class GroupProfileScreen extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       try {
         final client = ref.read(clientProvider);
-        await client.admin.makeGroupPrivate(group.id!);
+        await client.admin.makeLoungePrivate(lounge.id!);
         if (context.mounted) {
-          ref.invalidate(groupWithMembershipProvider(group.id!));
-          ref.invalidate(groupListProvider);
+          ref.invalidate(loungeWithMembershipProvider(lounge.id!));
+          ref.invalidate(loungeListProvider);
           DuoSnackBarHelper.showSuccess(context, 'Lounge visibility locked.');
         }
       } catch (e) {
@@ -599,7 +599,7 @@ class GroupProfileScreen extends ConsumerWidget {
     }
   }
 
-  void _confirmAdminDisband(BuildContext context, WidgetRef ref, Group group) async {
+  void _confirmAdminDisband(BuildContext context, WidgetRef ref, Lounge lounge) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -608,7 +608,7 @@ class GroupProfileScreen extends ConsumerWidget {
           style: TextStyle(color: AppTheme.duoRed),
         ),
         content: Text(
-          'Permanently delete "${group.name}" and all its content for everyone?',
+          'Permanently delete "${lounge.name}" and all its content for everyone?',
         ),
         actions: [
           TextButton(
@@ -627,12 +627,12 @@ class GroupProfileScreen extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       try {
         final client = ref.read(clientProvider);
-        await client.admin.disbandGroup(
-          groupId: group.id!,
+        await client.admin.disbandLounge(
+          loungeId: lounge.id!,
           reason: 'Administrative action',
         );
         if (context.mounted) {
-          ref.invalidate(groupListProvider);
+          ref.invalidate(loungeListProvider);
           Navigator.pop(context);
           DuoSnackBarHelper.showSuccess(context, 'Lounge has been disbanded.');
         }

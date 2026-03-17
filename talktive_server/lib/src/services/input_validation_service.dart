@@ -8,19 +8,19 @@ class InputValidationService {
   static const int maxMessageLength = 2000;
   static const int maxCaptionLength = 500;
   static const int maxCommentLength = 500;
-  static const int maxGroupNameLength = 50;
+  static const int maxLoungeNameLength = 50;
   static const int maxNameLength = 50;
-  static const int maxGroupDescriptionLength = 500;
+  static const int maxLoungeDescriptionLength = 500;
   static const int maxReportReasonLength = 500;
   static const int maxBioLength = 500;
 
   // Numeric limits
-  static const int minGroupMembers = 2;
-  static const int maxGroupMembers = 500;
+  static const int minLoungeMembers = 2;
+  static const int maxLoungeMembers = 500;
   static const int maxListLimit = 100;
   static const int maxOffset = 10000;
 
-  /// Validates a user name or group name.
+  /// Validates a user name or lounge name.
   static ValidationResult validateName(
     String name, {
     String fieldName = 'Name',
@@ -99,31 +99,31 @@ class InputValidationService {
     return ValidationResult(isValid: true);
   }
 
-  /// Validates a group name.
-  static ValidationResult validateGroupName(String name) {
-    return validateName(name, fieldName: 'Group name');
+  /// Validates a lounge name.
+  static ValidationResult validateLoungeName(String name) {
+    return validateName(name, fieldName: 'Lounge name');
   }
 
-  /// Validates a group description.
-  static ValidationResult validateGroupDescription(String? description) {
-    if (description != null && description.length > maxGroupDescriptionLength) {
+  /// Validates a lounge description.
+  static ValidationResult validateLoungeDescription(String? description) {
+    if (description != null && description.length > maxLoungeDescriptionLength) {
       return ValidationResult(
         isValid: false,
         error:
-            'Group description must be $maxGroupDescriptionLength characters or less',
+            'Lounge description must be $maxLoungeDescriptionLength characters or less',
       );
     }
 
     return ValidationResult(isValid: true);
   }
 
-  /// Validates group member limits.
-  static ValidationResult validateGroupMemberLimit(int maxMembers) {
-    if (maxMembers < minGroupMembers || maxMembers > maxGroupMembers) {
+  /// Validates lounge member limits.
+  static ValidationResult validateLoungeMemberLimit(int maxMembers) {
+    if (maxMembers < minLoungeMembers || maxMembers > maxLoungeMembers) {
       return ValidationResult(
         isValid: false,
         error:
-            'Max members must be between $minGroupMembers and $maxGroupMembers',
+            'Max members must be between $minLoungeMembers and $maxLoungeMembers',
       );
     }
 

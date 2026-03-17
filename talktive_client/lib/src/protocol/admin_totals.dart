@@ -17,7 +17,7 @@ abstract class AdminTotals implements _i1.SerializableModel {
     required this.users,
     required this.messages,
     required this.moments,
-    required this.groups,
+    required this.lounges,
     required this.reports,
     required this.pendingReports,
   });
@@ -26,7 +26,7 @@ abstract class AdminTotals implements _i1.SerializableModel {
     required int users,
     required int messages,
     required int moments,
-    required int groups,
+    required int lounges,
     required int reports,
     required int pendingReports,
   }) = _AdminTotalsImpl;
@@ -36,7 +36,7 @@ abstract class AdminTotals implements _i1.SerializableModel {
       users: jsonSerialization['users'] as int,
       messages: jsonSerialization['messages'] as int,
       moments: jsonSerialization['moments'] as int,
-      groups: jsonSerialization['groups'] as int,
+      lounges: jsonSerialization['lounges'] as int,
       reports: jsonSerialization['reports'] as int,
       pendingReports: jsonSerialization['pendingReports'] as int,
     );
@@ -48,7 +48,7 @@ abstract class AdminTotals implements _i1.SerializableModel {
 
   int moments;
 
-  int groups;
+  int lounges;
 
   int reports;
 
@@ -61,7 +61,7 @@ abstract class AdminTotals implements _i1.SerializableModel {
     int? users,
     int? messages,
     int? moments,
-    int? groups,
+    int? lounges,
     int? reports,
     int? pendingReports,
   });
@@ -72,7 +72,7 @@ abstract class AdminTotals implements _i1.SerializableModel {
       'users': users,
       'messages': messages,
       'moments': moments,
-      'groups': groups,
+      'lounges': lounges,
       'reports': reports,
       'pendingReports': pendingReports,
     };
@@ -89,14 +89,14 @@ class _AdminTotalsImpl extends AdminTotals {
     required int users,
     required int messages,
     required int moments,
-    required int groups,
+    required int lounges,
     required int reports,
     required int pendingReports,
   }) : super._(
          users: users,
          messages: messages,
          moments: moments,
-         groups: groups,
+         lounges: lounges,
          reports: reports,
          pendingReports: pendingReports,
        );
@@ -109,7 +109,7 @@ class _AdminTotalsImpl extends AdminTotals {
     int? users,
     int? messages,
     int? moments,
-    int? groups,
+    int? lounges,
     int? reports,
     int? pendingReports,
   }) {
@@ -117,7 +117,7 @@ class _AdminTotalsImpl extends AdminTotals {
       users: users ?? this.users,
       messages: messages ?? this.messages,
       moments: moments ?? this.moments,
-      groups: groups ?? this.groups,
+      lounges: lounges ?? this.lounges,
       reports: reports ?? this.reports,
       pendingReports: pendingReports ?? this.pendingReports,
     );

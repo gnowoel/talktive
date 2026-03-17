@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/client_provider.dart';
@@ -13,42 +13,42 @@ import '../../widgets/duo/duo_resident_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
-class GroupMembersScreen extends ConsumerWidget {
-  final int groupId;
-  final Group? initialGroup;
+class LoungeMembersScreen extends ConsumerWidget {
+  final int loungeId;
+  final Lounge? initialLounge;
 
-  const GroupMembersScreen({
+  const LoungeMembersScreen({
     super.key,
-    required this.groupId,
-    this.initialGroup,
+    required this.loungeId,
+    this.initialLounge,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final groupAsync = ref.watch(groupWithMembershipProvider(groupId));
-    final membersAsync = ref.watch(groupMembersWithProfilesProvider(groupId));
+    final loungeAsync = ref.watch(loungeWithMembershipProvider(loungeId));
+    final membersAsync = ref.watch(loungeMembersWithProfilesProvider(loungeId));
     final currentResidentAsync = ref.watch(currentResidentProvider);
 
-    return groupAsync.when(
+    return loungeAsync.when(
       data: (membership) {
-        final group = membership?.group ?? initialGroup;
-        if (group == null) {
+        final lounge = membership?.lounge ?? initialLounge;
+        if (lounge == null) {
           return const Scaffold(body: Center(child: Text('Lounge not found')));
         }
 
         final isCreator =
-            currentResidentAsync.value?.userInfoId == group.creatorId;
+            currentResidentAsync.value?.userInfoId == lounge.creatorId;
 
         // Only fetch pending applications if user is creator
         final pendingAsync = isCreator
-            ? ref.watch(pendingApplicationsProvider(groupId))
-            : const AsyncValue.data(<GroupMemberWithProfile>[]);
+            ? ref.watch(pendingApplicationsProvider(loungeId))
+            : const AsyncValue.data(<LoungeMemberWithProfile>[]);
 
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: Text(
-              group.name,
+              lounge.name,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
@@ -66,7 +66,7 @@ class GroupMembersScreen extends ConsumerWidget {
           body: membersAsync.when(
             data: (members) => pendingAsync.when(
               data: (pending) =>
-                  _buildBody(context, ref, members, pending, isCreator, group),
+                  _buildBody(context, ref, members, pending, isCreator, lounge),
               loading: () => const DuoLoadingIndicator(),
               error: (error, stack) => _buildErrorState(context, error),
             ),
@@ -85,15 +85,15 @@ class GroupMembersScreen extends ConsumerWidget {
   Widget _buildBody(
     BuildContext context,
     WidgetRef ref,
-    List<GroupMemberWithProfile> members,
-    List<GroupMemberWithProfile> pending,
+    List<LoungeMemberWithProfile> members,
+    List<LoungeMemberWithProfile> pending,
     bool isCreator,
-    Group group,
+    Lounge lounge,
   ) {
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(groupMembersWithProfilesProvider(groupId));
-        if (isCreator) ref.invalidate(pendingApplicationsProvider(groupId));
+        ref.invalidate(loungeMembersWithProfilesProvider(loungeId));
+        if (isCreator) ref.invalidate(pendingApplicationsProvider(loungeId));
       },
       child: ListView(
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -109,7 +109,7 @@ class GroupMembersScreen extends ConsumerWidget {
                 ref,
                 m,
                 isCreator,
-                group,
+                lounge,
                 isPending: true,
               ),
             ),
@@ -117,7 +117,7 @@ class GroupMembersScreen extends ConsumerWidget {
           ],
           _buildSectionHeader(context, '👥 Residents (${members.length})'),
           ...members.map(
-            (m) => _buildMemberCard(context, ref, m, isCreator, group),
+            (m) => _buildMemberCard(context, ref, m, isCreator, lounge),
           ),
         ],
       ),
@@ -141,13 +141,13 @@ class GroupMembersScreen extends ConsumerWidget {
   Widget _buildMemberCard(
     BuildContext context,
     WidgetRef ref,
-    GroupMemberWithProfile memberProfile,
+    LoungeMemberWithProfile memberProfile,
     bool isCreator,
-    Group group, {
+    Lounge lounge, {
     bool isPending = false,
   }) {
     final resident = memberProfile.resident;
-    final isTargetCreator = resident.userInfoId == group.creatorId;
+    final isTargetCreator = resident.userInfoId == lounge.creatorId;
 
     return DuoResidentCard(
       resident: resident,
@@ -196,7 +196,7 @@ class GroupMembersScreen extends ConsumerWidget {
                   variant: DuoButtonVariant.secondary,
                   size: DuoButtonSize.small,
                   color: AppTheme.duoRed,
-                  onPressed: () => _confirmKick(context, ref, resident, group),
+                  onPressed: () => _confirmKick(context, ref, resident, lounge),
                 ),
               ],
             ]
@@ -213,11 +213,11 @@ class GroupMembersScreen extends ConsumerWidget {
     HapticFeedback.mediumImpact();
     try {
       final client = ref.read(clientProvider);
-      await client.group.approveGroupApplication(groupId, userId, approved);
+      await client.lounge.approveLoungeApplication(loungeId, userId, approved);
 
-      ref.invalidate(groupMembersWithProfilesProvider(groupId));
-      ref.invalidate(pendingApplicationsProvider(groupId));
-      ref.invalidate(groupListProvider);
+      ref.invalidate(loungeMembersWithProfilesProvider(loungeId));
+      ref.invalidate(pendingApplicationsProvider(loungeId));
+      ref.invalidate(loungeListProvider);
 
       if (context.mounted) {
         DuoSnackBarHelper.showSuccess(
@@ -234,7 +234,7 @@ class GroupMembersScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     Resident resident,
-    Group group,
+    Lounge lounge,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -270,10 +270,10 @@ class GroupMembersScreen extends ConsumerWidget {
     HapticFeedback.heavyImpact();
     try {
       final client = ref.read(clientProvider);
-      await client.group.kickMember(groupId, userId);
+      await client.lounge.kickMember(loungeId, userId);
 
-      ref.invalidate(groupMembersWithProfilesProvider(groupId));
-      ref.invalidate(groupListProvider);
+      ref.invalidate(loungeMembersWithProfilesProvider(loungeId));
+      ref.invalidate(loungeListProvider);
 
       if (context.mounted) {
         DuoSnackBarHelper.showSuccess(context, 'Resident removed from clubhouse.');

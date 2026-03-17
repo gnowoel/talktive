@@ -23,10 +23,10 @@ import 'package:talktive_server/src/generated/admin_user_summary.dart' as _i8;
 import 'package:talktive_server/src/generated/admin_user_details.dart' as _i9;
 import 'package:talktive_server/src/generated/resident.dart' as _i10;
 import 'package:talktive_server/src/generated/daily_reward.dart' as _i11;
-import 'package:talktive_server/src/generated/group.dart' as _i12;
-import 'package:talktive_server/src/generated/group_with_membership.dart'
+import 'package:talktive_server/src/generated/lounge.dart' as _i12;
+import 'package:talktive_server/src/generated/lounge_with_membership.dart'
     as _i13;
-import 'package:talktive_server/src/generated/group_member_with_profile.dart'
+import 'package:talktive_server/src/generated/lounge_member_with_profile.dart'
     as _i14;
 import 'package:talktive_server/src/generated/message.dart' as _i15;
 import 'package:talktive_server/src/generated/moment.dart' as _i16;
@@ -157,9 +157,9 @@ class TestEndpoints {
 
   late final _GamificationEndpoint gamification;
 
-  late final _GroupEndpoint group;
-
   late final _HealthEndpoint health;
+
+  late final _LoungeEndpoint lounge;
 
   late final _MessageEndpoint message;
 
@@ -205,11 +205,11 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
-    group = _GroupEndpoint(
+    health = _HealthEndpoint(
       endpoints,
       serializationManager,
     );
-    health = _HealthEndpoint(
+    lounge = _LoungeEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1112,6 +1112,7 @@ class _AdminEndpoint {
     _i1.TestSessionBuilder sessionBuilder, {
     required String query,
     required int limit,
+    required int offset,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1127,6 +1128,7 @@ class _AdminEndpoint {
           parameters: _i1.testObjectToJson({
             'query': query,
             'limit': limit,
+            'offset': offset,
           }),
           serializationManager: _serializationManager,
         );
@@ -1267,24 +1269,24 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<void> disbandGroup(
+  _i3.Future<void> disbandLounge(
     _i1.TestSessionBuilder sessionBuilder, {
-    required int groupId,
+    required int loungeId,
     required String reason,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'admin',
-            method: 'disbandGroup',
+            method: 'disbandLounge',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'admin',
-          methodName: 'disbandGroup',
+          methodName: 'disbandLounge',
           parameters: _i1.testObjectToJson({
-            'groupId': groupId,
+            'loungeId': loungeId,
             'reason': reason,
           }),
           serializationManager: _serializationManager,
@@ -1302,22 +1304,22 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<void> makeGroupPrivate(
+  _i3.Future<void> makeLoungePrivate(
     _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
+    int loungeId,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'admin',
-            method: 'makeGroupPrivate',
+            method: 'makeLoungePrivate',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'admin',
-          methodName: 'makeGroupPrivate',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
+          methodName: 'makeLoungePrivate',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -1648,572 +1650,6 @@ class _GamificationEndpoint {
   }
 }
 
-class _GroupEndpoint {
-  _GroupEndpoint(
-    this._endpointDispatch,
-    this._serializationManager,
-  );
-
-  final _i2.EndpointDispatch _endpointDispatch;
-
-  final _i2.SerializationManager _serializationManager;
-
-  _i3.Future<_i12.Group> createGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    String name, {
-    String? description,
-    String? emoji,
-    required bool isPublic,
-    required int maxMembers,
-    List<String>? interests,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'createGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'createGroup',
-          parameters: _i1.testObjectToJson({
-            'name': name,
-            'description': description,
-            'emoji': emoji,
-            'isPublic': isPublic,
-            'maxMembers': maxMembers,
-            'interests': interests,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<_i12.Group>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i13.GroupWithMembership>> listMyGroups(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required int limit,
-    required int offset,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'listMyGroups',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'listMyGroups',
-          parameters: _i1.testObjectToJson({
-            'limit': limit,
-            'offset': offset,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i13.GroupWithMembership>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<_i12.Group> getGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'getGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'getGroup',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<_i12.Group>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i12.Group>> searchPublicGroups(
-    _i1.TestSessionBuilder sessionBuilder,
-    String query, {
-    required int limit,
-    required int offset,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'searchPublicGroups',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'searchPublicGroups',
-          parameters: _i1.testObjectToJson({
-            'query': query,
-            'limit': limit,
-            'offset': offset,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i12.Group>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> applyToGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'applyToGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'applyToGroup',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> inviteUserToGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-    String targetUserIdString,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'inviteUserToGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'inviteUserToGroup',
-          parameters: _i1.testObjectToJson({
-            'groupId': groupId,
-            'targetUserIdString': targetUserIdString,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> respondToGroupInvite(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-    bool accept,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'respondToGroupInvite',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'respondToGroupInvite',
-          parameters: _i1.testObjectToJson({
-            'groupId': groupId,
-            'accept': accept,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> approveGroupApplication(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-    String targetUserIdString,
-    bool approve,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'approveGroupApplication',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'approveGroupApplication',
-          parameters: _i1.testObjectToJson({
-            'groupId': groupId,
-            'targetUserIdString': targetUserIdString,
-            'approve': approve,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> kickMember(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-    String targetUserIdString,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'kickMember',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'kickMember',
-          parameters: _i1.testObjectToJson({
-            'groupId': groupId,
-            'targetUserIdString': targetUserIdString,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> leaveGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'leaveGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'leaveGroup',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> toggleMuteGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-    bool isMuted,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'toggleMuteGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'toggleMuteGroup',
-          parameters: _i1.testObjectToJson({
-            'groupId': groupId,
-            'isMuted': isMuted,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i14.GroupMemberWithProfile>> getGroupMembersWithProfiles(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'getGroupMembersWithProfiles',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'getGroupMembersWithProfiles',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i14.GroupMemberWithProfile>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i14.GroupMemberWithProfile>>
-  getPendingApplicationsWithProfiles(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'getPendingApplicationsWithProfiles',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'getPendingApplicationsWithProfiles',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i14.GroupMemberWithProfile>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i10.Resident>> getGroupMembers(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'getGroupMembers',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'getGroupMembers',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i10.Resident>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<_i12.Group> updateGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId, {
-    String? name,
-    String? description,
-    String? emoji,
-    bool? isPublic,
-    int? maxMembers,
-    List<String>? interests,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'updateGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'updateGroup',
-          parameters: _i1.testObjectToJson({
-            'groupId': groupId,
-            'name': name,
-            'description': description,
-            'emoji': emoji,
-            'isPublic': isPublic,
-            'maxMembers': maxMembers,
-            'interests': interests,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<_i12.Group>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> deleteGroup(
-    _i1.TestSessionBuilder sessionBuilder,
-    int groupId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'group',
-            method: 'deleteGroup',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'group',
-          methodName: 'deleteGroup',
-          parameters: _i1.testObjectToJson({'groupId': groupId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-}
-
 class _HealthEndpoint {
   _HealthEndpoint(
     this._endpointDispatch,
@@ -2367,6 +1803,572 @@ class _HealthEndpoint {
                   _localCallContext.arguments,
                 )
                 as _i3.Future<Map<String, dynamic>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _LoungeEndpoint {
+  _LoungeEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i12.Lounge> createLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    String name, {
+    String? description,
+    String? emoji,
+    required bool isPublic,
+    required int maxMembers,
+    List<String>? interests,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'createLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'createLounge',
+          parameters: _i1.testObjectToJson({
+            'name': name,
+            'description': description,
+            'emoji': emoji,
+            'isPublic': isPublic,
+            'maxMembers': maxMembers,
+            'interests': interests,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i12.Lounge>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i13.LoungeWithMembership>> listMyLounges(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required int limit,
+    required int offset,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'listMyLounges',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'listMyLounges',
+          parameters: _i1.testObjectToJson({
+            'limit': limit,
+            'offset': offset,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i13.LoungeWithMembership>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i12.Lounge> getLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'getLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'getLounge',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i12.Lounge>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i12.Lounge>> searchPublicLounges(
+    _i1.TestSessionBuilder sessionBuilder,
+    String query, {
+    required int limit,
+    required int offset,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'searchPublicLounges',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'searchPublicLounges',
+          parameters: _i1.testObjectToJson({
+            'query': query,
+            'limit': limit,
+            'offset': offset,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i12.Lounge>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> applyToLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'applyToLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'applyToLounge',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> inviteUserToLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+    String targetUserIdString,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'inviteUserToLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'inviteUserToLounge',
+          parameters: _i1.testObjectToJson({
+            'loungeId': loungeId,
+            'targetUserIdString': targetUserIdString,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> respondToLoungeInvite(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+    bool accept,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'respondToLoungeInvite',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'respondToLoungeInvite',
+          parameters: _i1.testObjectToJson({
+            'loungeId': loungeId,
+            'accept': accept,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> approveLoungeApplication(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+    String targetUserIdString,
+    bool approve,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'approveLoungeApplication',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'approveLoungeApplication',
+          parameters: _i1.testObjectToJson({
+            'loungeId': loungeId,
+            'targetUserIdString': targetUserIdString,
+            'approve': approve,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> kickMember(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+    String targetUserIdString,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'kickMember',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'kickMember',
+          parameters: _i1.testObjectToJson({
+            'loungeId': loungeId,
+            'targetUserIdString': targetUserIdString,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> leaveLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'leaveLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'leaveLounge',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> toggleMuteLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+    bool isMuted,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'toggleMuteLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'toggleMuteLounge',
+          parameters: _i1.testObjectToJson({
+            'loungeId': loungeId,
+            'isMuted': isMuted,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i14.LoungeMemberWithProfile>> getLoungeMembersWithProfiles(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'getLoungeMembersWithProfiles',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'getLoungeMembersWithProfiles',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i14.LoungeMemberWithProfile>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i14.LoungeMemberWithProfile>>
+  getPendingApplicationsWithProfiles(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'getPendingApplicationsWithProfiles',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'getPendingApplicationsWithProfiles',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i14.LoungeMemberWithProfile>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i10.Resident>> getLoungeMembers(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'getLoungeMembers',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'getLoungeMembers',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i10.Resident>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i12.Lounge> updateLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId, {
+    String? name,
+    String? description,
+    String? emoji,
+    bool? isPublic,
+    int? maxMembers,
+    List<String>? interests,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'updateLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'updateLounge',
+          parameters: _i1.testObjectToJson({
+            'loungeId': loungeId,
+            'name': name,
+            'description': description,
+            'emoji': emoji,
+            'isPublic': isPublic,
+            'maxMembers': maxMembers,
+            'interests': interests,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i12.Lounge>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> deleteLounge(
+    _i1.TestSessionBuilder sessionBuilder,
+    int loungeId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'lounge',
+            method: 'deleteLounge',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'lounge',
+          methodName: 'deleteLounge',
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3953,7 +3955,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.Group>> searchGroups(
+  _i3.Future<List<_i12.Lounge>> searchLounges(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -3962,13 +3964,13 @@ class _SearchEndpoint {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'search',
-            method: 'searchGroups',
+            method: 'searchLounges',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'search',
-          methodName: 'searchGroups',
+          methodName: 'searchLounges',
           parameters: _i1.testObjectToJson({
             'query': query,
             'limit': limit,
@@ -3980,7 +3982,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i12.Group>>);
+                as _i3.Future<List<_i12.Lounge>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4019,7 +4021,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.Group>> getPopularGroups(
+  _i3.Future<List<_i12.Lounge>> getPopularLounges(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4027,13 +4029,13 @@ class _SearchEndpoint {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'search',
-            method: 'getPopularGroups',
+            method: 'getPopularLounges',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'search',
-          methodName: 'getPopularGroups',
+          methodName: 'getPopularLounges',
           parameters: _i1.testObjectToJson({'limit': limit}),
           serializationManager: _serializationManager,
         );
@@ -4042,7 +4044,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i12.Group>>);
+                as _i3.Future<List<_i12.Lounge>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../config/interests.dart';
@@ -11,16 +11,16 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
 
-class CreateGroupDialog extends ConsumerStatefulWidget {
-  final Group? existingGroup;
+class CreateLoungeDialog extends ConsumerStatefulWidget {
+  final Lounge? existingLounge;
 
-  const CreateGroupDialog({super.key, this.existingGroup});
+  const CreateLoungeDialog({super.key, this.existingLounge});
 
   @override
-  ConsumerState<CreateGroupDialog> createState() => _CreateGroupDialogState();
+  ConsumerState<CreateLoungeDialog> createState() => _CreateLoungeDialogState();
 }
 
-class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
+class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String _selectedEmoji = '👥';
@@ -47,8 +47,8 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
   @override
   void initState() {
     super.initState();
-    if (widget.existingGroup != null) {
-      final g = widget.existingGroup!;
+    if (widget.existingLounge != null) {
+      final g = widget.existingLounge!;
       _nameController.text = g.name;
       _descriptionController.text = g.description ?? '';
       _selectedEmoji = g.emoji ?? '👥';
@@ -65,9 +65,9 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
     super.dispose();
   }
 
-  Future<void> _saveGroup() async {
+  Future<void> _saveLounge() async {
     final name = _nameController.text.trim();
-    final isEditing = widget.existingGroup != null;
+    final isEditing = widget.existingLounge != null;
 
     if (name.isEmpty) {
       DuoSnackBarHelper.showError(context, 'Please enter a lounge name');
@@ -81,9 +81,9 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
     try {
       if (isEditing) {
         await ref
-            .read(groupListProvider.notifier)
-            .updateGroup(
-              widget.existingGroup!.id!,
+            .read(loungeListProvider.notifier)
+            .updateLounge(
+              widget.existingLounge!.id!,
               name: name,
               description: _descriptionController.text.trim().isEmpty
                   ? null
@@ -95,8 +95,8 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
             );
       } else {
         await ref
-            .read(groupListProvider.notifier)
-            .createGroup(
+            .read(loungeListProvider.notifier)
+            .createLounge(
               name,
               description: _descriptionController.text.trim().isEmpty
                   ? null
@@ -161,7 +161,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                     const SizedBox(width: AppTheme.duoSpacingSmall),
                     Expanded(
                       child: Text(
-                        widget.existingGroup != null
+                        widget.existingLounge != null
                             ? 'Edit Lounge'
                             : 'Create New Lounge',
                         style: const TextStyle(
@@ -348,7 +348,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                             value: _isPublic,
                             activeThumbColor: AppTheme.duoBlue,
                             onChanged: (_isCreating ||
-                                    (widget.existingGroup?.isStaffLocked ??
+                                    (widget.existingLounge?.isStaffLocked ??
                                         false))
                                 ? null
                                 : (val) {
@@ -359,7 +359,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                         ],
                       ),
                     ),
-                    if (widget.existingGroup?.isStaffLocked ?? false)
+                    if (widget.existingLounge?.isStaffLocked ?? false)
                       Padding(
                         padding: const EdgeInsets.only(top: 8, left: 4),
                         child: Row(
@@ -419,12 +419,12 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                 top: false,
                 child: DuoButton(
                   width: double.infinity,
-                  text: widget.existingGroup != null
+                  text: widget.existingLounge != null
                       ? 'Save Changes'
                       : 'Create Lounge',
                   icon:
-                      widget.existingGroup != null ? Icons.save : Icons.add_circle,
-                  onPressed: _isCreating ? null : _saveGroup,
+                      widget.existingLounge != null ? Icons.save : Icons.add_circle,
+                  onPressed: _isCreating ? null : _saveLounge,
                   isLoading: _isCreating,
                   color: AppTheme.duoBlue,
                 ),

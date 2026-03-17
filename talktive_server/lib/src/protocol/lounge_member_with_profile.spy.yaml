@@ -1,4 +1,4 @@
-class: GroupMemberWithProfile
+class: LoungeMemberWithProfile
 fields:
   resident: Resident
   status: ChannelMemberStatus

@@ -15,7 +15,7 @@ import '../services/notification_service.dart';
 import '../services/resident_service.dart';
 
 class MessageEndpoint extends Endpoint with EndpointAuthMixin {
-  /// Sends a message to a channel (Plaza, Group, or Private).
+  /// Sends a message to a channel (Plaza, Lounge, or Private).
   Future<protocol.Message> sendMessage(
     Session session,
     int channelId, {
@@ -313,7 +313,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // Check membership for private/group channels
+    // Check membership for private/lounge channels
     if (channel.type != protocol.ChannelType.plaza) {
       final userUuid = await getUserId(session);
 
@@ -394,7 +394,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     mentionedUserIds.remove(senderUuid);
 
     final isPlaza = channel.type == protocol.ChannelType.plaza;
-    final groupName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
+    final loungeName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
 
     // 2. Notify mentions (Parallel)
     final mentionFutures = mentionedUserIds.map((mentionedId) =>
@@ -404,14 +404,14 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           senderName,
           content,
           channelId,
-          groupName,
+          loungeName,
         ));
 
-    // 3. Notify other members (Private/Group only)
+    // 3. Notify other members (Private/Lounge only)
     List<Future> memberFutures = [];
     if (!isPlaza) {
       final String channelTypeStr =
-          channel.type == protocol.ChannelType.private ? 'private' : 'group';
+          channel.type == protocol.ChannelType.private ? 'private' : 'lounge';
       final mentionIdSet = mentionedUserIds.toSet();
 
       final otherMembers = await protocol.ChannelMember.db.find(

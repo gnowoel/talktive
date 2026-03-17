@@ -4,9 +4,9 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 17, 2026 - Admin Performance & Safety Refinements 🛡️
+## March 17, 2026 - Admin Performance, Safety & The Lounge Pivot 🛋️🛡️
 
-### Admin & Analytics Improvements
+### Admin & Analytics Improvements 🛡️
 - **Optimized User Search**: Refactored `AdminEndpoint.searchUsers` to utilize batch database queries for user statistics (messages, moments, reports). This reduces the database round-trips from one-per-user to a constant 3 queries, significantly improving performance for large search results.
 - **Enhanced Statistical Insights**: Updated `getStatistics` to compute active user counts (unique senders) for 24h, 7d, and 30d periods using optimized SQL queries.
 - **Complete Activity Tracking**: Expanded activity reporting to include counts for messages, moments, and reports across all time-bound dashboard widgets.
@@ -23,15 +23,23 @@ This document tracks the major development milestones and changes made during th
 - **Permission Tiering**: Refactored `AdminEndpoint` to distinguish between **Staff Actions** (accessible to both Admins and Moderators) and **Admin-only Actions** (promoting/demoting staff).
 - **Staff Auth Mixin**: Updated `EndpointAuthMixin` to use the new role system for authorization checks, standardizing staff-level access throughout the backend.
 
-### In-App Moderation Tools
-- **Staff-Enforced Locking**: Renamed `isAdminLocked` to `isStaffLocked` in the `Group` model to explicitly reflect that both Moderators and Admins can now lock a lounge's visibility.
+### Staff-Enforced Moderation
+- **Staff-Enforced Locking**: Renamed `isAdminLocked` to `isStaffLocked` in the `Lounge` model to explicitly reflect that both Moderators and Admins can now lock a lounge's visibility.
 - **User Moderation**: Integrated "Mute" and "Suspend" actions directly into the `UserProfileViewScreen` for staff members, featuring professional double-confirmation dialogs.
-- **Lounge Oversight**: Expanded the "Gavel" menu in Group Chats and Profiles to allow any Staff member to "Force Private" or disband problematic lounges.
+- **Lounge Oversight**: Expanded the "Gavel" menu in Lounge Chats and Profiles to allow any Staff member to "Force Private" or disband problematic lounges.
 - **Message Deletion**: Enabled long-press message deletion for staff members in the chat UI, providing immediate content moderation capabilities.
 
 ### Admin CLI Utility
 - **Role System Migration**: Updated `admin_bootstrap.dart` to support the new enum-based role field for all administrative commands (`promote`, `demote`, `promote-mod`, `demote-mod`).
-- **Enhanced Visibility**: Updated `list-users` and `list-groups` to use the unified role indicators and the renamed `isStaffLocked` property.
+- **Enhanced Visibility**: Updated `list-users` and `list-lounges` to use the unified role indicators and the renamed `isStaffLocked` property.
+
+### The Lounge Pivot: Terminology & Metaphor Realignment 🛋️
+- **Unified Lounge Terminology**: Successfully refactored the entire codebase (backend, client, and frontend) to replace all instances of "Lounges" and "Clubs" with "Lounges". This aligns with the "Apartment Building" metaphor, where community spaces are seen as relaxed clubhouses within the building.
+- **Protocol Migration**: Updated all Serverpod models (`Lounge`, `LoungeMemberWithProfile`, `LoungeWithMembership`) and regenerated the communication layer.
+- **Frontend Realignment**: Renamed all lounge-related screens, providers, and widgets (e.g., `LoungeChatScreen` -> `LoungeChatScreen`, `loungeListProvider` -> `loungeListProvider`).
+- **Global Lounge & Public Chat**: Re-established consistent terminology for the Plaza lobby as the "Global Lounge" for "Public Chat", reinforcing the idea that the Plaza is a special, shared community lounge.
+- **Inviting & Friendly Tone**: Systematic review of UI copy to ensure all labels, empty states, and error messages use a more welcoming tone (e.g., "Join the community clubhouse", "Slip a flyer under the door").
+- **Iconography Update**: Harmonized icons for lounges, using `Icons.meeting_room` and building-centric symbols to represent the clubhouse entrance.
 
 ---
 
@@ -65,7 +73,7 @@ This document tracks the major development milestones and changes made during th
 ### UI/UX Refinement: Destinations vs. Utilities
 - **Lightweight Layout Refactor**: Migrated all functional sub-screens and utility pages from the immersive `DuoPageScaffold` to a focused `Scaffold` + `AppBar` architecture. This improves clarity, reduces visual clutter, and provides more room for content.
 - **Harmonized Profiles**: Realigned the `UserProfileViewScreen` (Others) to match the `ProfileScreen` (Self), ensuring a consistent "Resident Identity" experience with centered Poppins titles and clean white backgrounds.
-- **Utility Screen Optimization**: Applied the lightweight layout to `GroupSearchScreen` (Discovery), `GroupMembersScreen`, `GroupProfileScreen` (Lounges), and `BlockedUsersScreen`.
+- **Utility Screen Optimization**: Applied the lightweight layout to `LoungeSearchScreen` (Discovery), `LoungeMembersScreen`, `LoungeProfileScreen` (Lounges), and `BlockedUsersScreen`.
 - **Navigation Polish**: Standardized navigation depth indicators, replacing generic back arrows with `close_rounded` on top-level sub-discovery pages for a more "modal-like" feel that respects the app's hierarchy.
 
 ### Design System & Documentation
@@ -120,7 +128,7 @@ This document tracks the major development milestones and changes made during th
 - **Declined Invite Re-engagement**: Fixed an edge case where users who had previously declined an invite could not subsequently re-initiate a knock to resume the chat due to a stale 'declined' database status.
 
 ### UI & UX Polish
-- **Groups Background Consistency**: Migrated the Groups tab away from the light `duoYellowGradient` towards the darker `duoBlueGradient` mapped specifically to ensure visually consistent dark headers with white textual overlay across all five primary tabs. Bottom navigation bar colors were reciprocally updated.
+- **Lounges Background Consistency**: Migrated the Lounges tab away from the light `duoYellowGradient` towards the darker `duoBlueGradient` mapped specifically to ensure visually consistent dark headers with white textual overlay across all five primary tabs. Bottom navigation bar colors were reciprocally updated.
 - **Web/Desktop Manual Refresh**: Created a conditional `DuoRefreshButton` injected into `AppBar` and `DuoPageScaffold` trailing headers universally on desktop and web targets to manually trigger data sync routines where native mobile pull-to-refresh gestures fail to translate natively.
 - **Moments Feed Padding**: Added missing top margin to `MomentsScreen` and `UserMomentsScreen` for visual separation from the header.
 - **Removed Floor Overlay**: Safely removed the explicit "Floor X" overlay from `DuoMomentCard` images since strict floor-based access restrictions have been lifted.
@@ -131,7 +139,7 @@ This document tracks the major development milestones and changes made during th
 
 ### Notification System & Activity Hub 🔔
 - **Renamed "Achievements" to "Activity"**: Updated the Profile tab to use the "Activity" label, broadening the scope from just badges to include notification history and social interactions.
-- **In-App Notification Fixes**: Resolved issues preventing `DuoNotificationToast` from appearing for private and group chat messages.
+- **In-App Notification Fixes**: Resolved issues preventing `DuoNotificationToast` from appearing for private and lounge chat messages.
 - **FCM Reliability**: Fixed an invalid `priority` field in the FCM v1 payload that caused Android delivery failures.
 - **Improved Life-cycle Management**: Ensured the `FCMManager` stays active by watching its provider in the root application widget.
 - **Route Resolution**: Fixed an issue in the Plaza where message routes were not correctly identified, ensuring notifications are properly suppressed when the user is already on the relevant screen.
@@ -156,13 +164,13 @@ This document tracks the major development milestones and changes made during th
 - **Trust-Score Avatar Rings**: Implemented dynamic avatar ring coloring based on a resident's Trust Score (Green for friendly/high trust, Red for suspicious/low trust).
 - **Avatar UI Refinement**: Streamlined resident avatars by moving Floor levels to a dedicated badge next to usernames, keeping only Mood emojis as overlays for a cleaner, more dynamic look.
 - **DuoFloorBadge**: Introduced a new color-coded floor level badge for consistent status display across chat bubbles, headers, and comments.
-- **Keyboard Dismissal**: Implemented "Tap Outside to Hide Keyboard" across all chat screens (Plaza, Private, Groups, Moments) and onboarding.
+- **Keyboard Dismissal**: Implemented "Tap Outside to Hide Keyboard" across all chat screens (Plaza, Private, Lounges, Moments) and onboarding.
 - **Consolidated Layouts**: Created `DuoChatLayout` and `DuoChatInputLayout` to standardize screen structure and reduce boilerplate.
 - **Improved Focus Management**: Integrated automatic keyboard dismissal into the standard chat navigation flow and profile setup.
 
 ### Architectural Polish
 - **Duo Component Expansion**: Added `DuoKeyboardDismissible` and `DuoChatLayout` widgets for rapid development of consistent chat-like screens.
-- **Structural Consolidation**: Refactored `PlazaChatScreen`, `ChatThreadScreen`, `GroupChatScreen`, and `MomentDetailScreen` to use unified layouts.
+- **Structural Consolidation**: Refactored `PlazaChatScreen`, `ChatThreadScreen`, `LoungeChatScreen`, and `MomentDetailScreen` to use unified layouts.
 
 ---
 
@@ -170,7 +178,7 @@ This document tracks the major development milestones and changes made during th
 
 ### Architectural Polish
 - **Duo Component Expansion**: Added `DuoFloorRequirementDialog` to centralize and standardize "High-Rise Access" restrictions.
-- **Structural Consolidation**: Refactored `MomentsScreen` and `GroupsScreen` to use unified permission gates, reducing code duplication.
+- **Structural Consolidation**: Refactored `MomentsScreen` and `LoungesScreen` to use unified permission gates, reducing code duplication.
 - **Client Synchronization**: Fixed missing imports and provider references in `MomentsScreen` and `UserProfileViewScreen` for stable compilation.
 
 ### Operational Success
@@ -182,11 +190,11 @@ This document tracks the major development milestones and changes made during th
 ## March 7-8, 2026 - Standardized Error Handling & UI Polish 💎
 
 ### Standardization & Resilience
-- **Protocol Error Handling**: Replaced generic 500 errors with `TalktiveException` across all endpoints (`Moment`, `Group`, `Chat`, `Resident`).
+- **Protocol Error Handling**: Replaced generic 500 errors with `TalktiveException` across all endpoints (`Moment`, `Lounge`, `Chat`, `Resident`).
 - **SnackBar Architecture**: Upgraded frontend to intelligently parse and display descriptive server exceptions.
 - **Input Validation**: Integrated `InputValidationService` into all core endpoints for strict data integrity.
-- **UI Consistency**: Migrated all standard buttons to `DuoButton` (Onboarding, Profiles, Admin, Groups).
-- **Reactive States**: Migrated user and group profiles to Riverpod providers for real-time UI updates.
+- **UI Consistency**: Migrated all standard buttons to `DuoButton` (Onboarding, Profiles, Admin, Lounges).
+- **Reactive States**: Migrated user and lounge profiles to Riverpod providers for real-time UI updates.
 
 ### Safety & Privacy (Phase 8.22)
 - **Universal Knocking**: Removed Floor restrictions for "Knocking". Anyone can knock on any door if not muted, relying on the **Peephole system** for mutual consent and safety.
@@ -205,11 +213,11 @@ This document tracks the major development milestones and changes made during th
 
 ### Clubhouse Mechanics (Phase 8.14-8.16)
 - **Apply/Invite Flow**: Replaced generic joining with application and approval flows.
-- **Personalized Discovery**: Interest-based group ranking and "Suggested for You" sorting.
-- **Group Creation**: Added animated interest tag selection to the creation dialog.
+- **Personalized Discovery**: Interest-based lounge ranking and "Suggested for You" sorting.
+- **Lounge Creation**: Added animated interest tag selection to the creation dialog.
 
 ### Core Optimizations (Phase 8.12-8.13)
-- **Query Reduction**: Eliminated N+1 overhead in chat messages and group member listings.
+- **Query Reduction**: Eliminated N+1 overhead in chat messages and lounge member listings.
 - **Name Denormalization**: Added `userName` directly to `Resident` model to reduce database lookups.
 - **Achievement Batching**: Coalesced progress updates into single transactions for high performance.
 

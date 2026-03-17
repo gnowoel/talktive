@@ -12,40 +12,40 @@ import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/chat/message_bubble.dart';
 
 import '../../helpers/resident_ext.dart';
-import 'create_group_dialog.dart';
+import 'create_lounge_dialog.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
-import 'group_profile_screen.dart';
+import 'lounge_profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 
-/// Loader for deep linking into GroupChatScreen without the Group model
-class GroupChatLoader extends ConsumerStatefulWidget {
-  final int groupId;
-  const GroupChatLoader({super.key, required this.groupId});
+/// Loader for deep linking into LoungeChatScreen without the Lounge model
+class LoungeChatLoader extends ConsumerStatefulWidget {
+  final int loungeId;
+  const LoungeChatLoader({super.key, required this.loungeId});
 
   @override
-  ConsumerState<GroupChatLoader> createState() => _GroupChatLoaderState();
+  ConsumerState<LoungeChatLoader> createState() => _LoungeChatLoaderState();
 }
 
-class _GroupChatLoaderState extends ConsumerState<GroupChatLoader> {
-  GroupWithMembership? _membership;
+class _LoungeChatLoaderState extends ConsumerState<LoungeChatLoader> {
+  LoungeWithMembership? _membership;
   bool _isLoading = true;
   Object? _error;
 
   @override
   void initState() {
     super.initState();
-    _loadGroup();
+    _loadLounge();
   }
 
-  Future<void> _loadGroup() async {
+  Future<void> _loadLounge() async {
     try {
       final membership =
-          await ref.read(groupWithMembershipProvider(widget.groupId).future);
+          await ref.read(loungeWithMembershipProvider(widget.loungeId).future);
       if (mounted) {
         setState(() {
           _membership = membership;
@@ -103,13 +103,13 @@ class _GroupChatLoaderState extends ConsumerState<GroupChatLoader> {
       );
     }
 
-    if (_membership?.group != null) {
+    if (_membership?.lounge != null) {
       if (_membership!.membershipStatus == ChannelMemberStatus.joined) {
-        return GroupChatScreen(group: _membership!.group);
+        return LoungeChatScreen(lounge: _membership!.lounge);
       } else {
-        return GroupProfileScreen(
-          groupId: widget.groupId,
-          initialGroup: _membership!.group,
+        return LoungeProfileScreen(
+          loungeId: widget.loungeId,
+          initialLounge: _membership!.lounge,
         );
       }
     }
@@ -133,7 +133,7 @@ class _GroupChatLoaderState extends ConsumerState<GroupChatLoader> {
       ),
       body: const Center(
         child: Text(
-          'Group not found',
+          'Lounge not found',
           style: TextStyle(fontSize: 18, color: Colors.grey),
         ),
       ),
@@ -141,17 +141,17 @@ class _GroupChatLoaderState extends ConsumerState<GroupChatLoader> {
   }
 }
 
-/// Group chat screen for multi-user conversations
-class GroupChatScreen extends ConsumerStatefulWidget {
-  final Group group;
+/// Lounge chat screen for multi-user conversations
+class LoungeChatScreen extends ConsumerStatefulWidget {
+  final Lounge lounge;
 
-  const GroupChatScreen({super.key, required this.group});
+  const LoungeChatScreen({super.key, required this.lounge});
 
   @override
-  ConsumerState<GroupChatScreen> createState() => _GroupChatScreenState();
+  ConsumerState<LoungeChatScreen> createState() => _LoungeChatScreenState();
 }
 
-class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
+class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -169,7 +169,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     
     try {
       final client = ref.read(clientProvider);
-      final channelId = widget.group.channelId;
+      final channelId = widget.lounge.channelId;
       
       await client.message.markChannelAsRead(channelId);
       
@@ -177,10 +177,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
         _hasMarkedAsRead = true;
         // Invalidate lists to update unread counts
         ref.invalidate(privateChatListProvider);
-        ref.invalidate(groupListProvider);
+        ref.invalidate(loungeListProvider);
       }
     } catch (e) {
-      debugPrint('Error marking group as read: $e');
+      debugPrint('Error marking lounge as read: $e');
     }
   }
 
@@ -189,7 +189,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     // Final mark as read when leaving - capture client and ID synchronously
     try {
       final client = ref.read(clientProvider);
-      final channelId = widget.group.channelId;
+      final channelId = widget.lounge.channelId;
       // Fire and forget, no longer using 'ref' inside the async part
       client.message.markChannelAsRead(channelId).catchError((e) => debugPrint(e));
     } catch (e) {
@@ -238,7 +238,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     setState(() => _isSending = true);
     try {
       await ref
-          .read(realtimeChatProvider(widget.group.channelId).notifier)
+          .read(realtimeChatProvider(widget.lounge.channelId).notifier)
           .sendMessage(
             content, 
             imageUrl: imageUrl,
@@ -287,7 +287,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
   @override
   Widget build(BuildContext context) {
     // Listen for real-time updates to mark as read if user is viewing
-    ref.listen(realtimeChatProvider(widget.group.channelId), (previous, next) {
+    ref.listen(realtimeChatProvider(widget.lounge.channelId), (previous, next) {
       if (previous != null && next.hasValue && next.value != null) {
         final prevLength = previous.value?.length ?? 0;
         final nextLength = next.value?.length ?? 0;
@@ -298,7 +298,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       }
     });
 
-    final chatState = ref.watch(realtimeChatProvider(widget.group.channelId));
+    final chatState = ref.watch(realtimeChatProvider(widget.lounge.channelId));
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
     final canSend =
@@ -319,8 +319,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           onTap: () {
             HapticFeedback.lightImpact();
             context.push(
-              '/groups/profile/${widget.group.id!}',
-              extra: widget.group,
+              '/lounges/profile/${widget.lounge.id!}',
+              extra: widget.lounge,
             );
           },
           child: Row(
@@ -339,7 +339,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    widget.group.emoji ?? '👥',
+                    widget.lounge.emoji ?? '👥',
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
@@ -350,7 +350,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.group.name,
+                      widget.lounge.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -358,7 +358,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       ),
                     ),
                     Text(
-                      '${widget.group.memberCount} members',
+                      '${widget.lounge.memberCount} members',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
                         fontFamily: 'Rubik',
@@ -375,7 +375,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             color: Colors.black,
             onRefresh: () {
               ref
-                  .read(realtimeChatProvider(widget.group.channelId).notifier)
+                  .read(realtimeChatProvider(widget.lounge.channelId).notifier)
                   .refresh();
             },
           ),
@@ -384,8 +384,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push(
-                '/groups/members/${widget.group.id!}',
-                extra: widget.group,
+                '/lounges/members/${widget.lounge.id!}',
+                extra: widget.lounge,
               );
             },
           ),
@@ -394,8 +394,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             onSelected: (value) async {
               if (value == 'profile') {
                 context.push(
-                  '/groups/profile/${widget.group.id!}',
-                  extra: widget.group,
+                  '/lounges/profile/${widget.lounge.id!}',
+                  extra: widget.lounge,
                 );
               } else if (value == 'edit') {
                 showModalBottomSheet(
@@ -403,12 +403,12 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) =>
-                      CreateGroupDialog(existingGroup: widget.group),
+                      CreateLoungeDialog(existingLounge: widget.lounge),
                 );
               } else if (value == 'leave') {
-                _confirmLeaveClub(context, ref);
+                _confirmLeaveLounge(context, ref);
               } else if (value == 'delete') {
-                _confirmDeleteClub(context, ref);
+                _confirmDeleteLounge(context, ref);
               } else if (value == 'admin_private') {
                 _confirmForcePrivate(context, ref);
               } else if (value == 'admin_disband') {
@@ -417,7 +417,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
             },
             itemBuilder: (_) {
               final isCreator =
-                  currentResident?.userInfoId == widget.group.creatorId;
+                  currentResident?.userInfoId == widget.lounge.creatorId;
               return [
                 const PopupMenuItem(
                   value: 'profile',
@@ -496,23 +496,23 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                   const PopupMenuDivider(),
                   PopupMenuItem(
                     value: 'admin_private',
-                    enabled: widget.group.isPublic && !widget.group.isStaffLocked,
+                    enabled: widget.lounge.isPublic && !widget.lounge.isStaffLocked,
                     child: Row(
                       children: [
                         Icon(
                           Icons.gavel,
-                          color: widget.group.isStaffLocked
+                          color: widget.lounge.isStaffLocked
                               ? Colors.grey
                               : AppTheme.duoPurple,
                           size: 20,
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          widget.group.isStaffLocked
+                          widget.lounge.isStaffLocked
                               ? 'Staff Locked'
                               : 'Force Private',
                           style: TextStyle(
-                            color: widget.group.isStaffLocked
+                            color: widget.lounge.isStaffLocked
                                 ? Colors.grey
                                 : AppTheme.duoPurple,
                             fontWeight: FontWeight.bold,
@@ -589,7 +589,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    widget.group.emoji ?? '👥',
+                    widget.lounge.emoji ?? '👥',
                     style: const TextStyle(fontSize: 40),
                   ),
                 ),
@@ -610,7 +610,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
               ),
           const SizedBox(height: AppTheme.duoSpacingLarge),
           Text(
-            'Welcome to ${widget.group.name}!',
+            'Welcome to ${widget.lounge.name}!',
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -658,7 +658,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     final blockedUsers = blockedUsersAsync.value ?? [];
     
     // Get member names for mention highlighting
-    final membersAsync = ref.watch(groupMembersProvider(widget.group.id!));
+    final membersAsync = ref.watch(loungeMembersProvider(widget.lounge.id!));
     final memberNames = membersAsync.when(
       data: (members) => members.map((m) => m.userName ?? '').where((n) => n.isNotEmpty).toList(),
       loading: () => <String>[],
@@ -672,7 +672,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     return RefreshIndicator(
       onRefresh: () async {
         ref
-            .read(realtimeChatProvider(widget.group.channelId).notifier)
+            .read(realtimeChatProvider(widget.lounge.channelId).notifier)
             .refresh();
       },
       color: AppTheme.primaryColor,
@@ -702,7 +702,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     );
   }
 
-  void _confirmLeaveClub(BuildContext context, WidgetRef ref) async {
+  void _confirmLeaveLounge(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -725,10 +725,10 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     if (confirmed == true && context.mounted) {
       HapticFeedback.mediumImpact();
       try {
-        await ref.read(groupListProvider.notifier).leaveGroup(widget.group.id!);
+        await ref.read(loungeListProvider.notifier).leaveLounge(widget.lounge.id!);
         if (context.mounted) {
-          Navigator.pop(context); // Go back to Groups screen
-          DuoSnackBarHelper.showSuccess(context, 'You left the club.');
+          Navigator.pop(context); // Go back to Lounges screen
+          DuoSnackBarHelper.showSuccess(context, 'You left the lounge.');
         }
       } catch (e) {
         if (context.mounted) {
@@ -738,7 +738,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
     }
   }
 
-  void _confirmDeleteClub(BuildContext context, WidgetRef ref) async {
+  void _confirmDeleteLounge(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -747,7 +747,7 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
           style: TextStyle(color: AppTheme.duoRed),
         ),
         content: const Text(
-          'This will delete the club for everyone and all messages will be lost. This cannot be undone!',
+          'This will delete the lounge for everyone and all messages will be lost. This cannot be undone!',
         ),
         actions: [
           TextButton(
@@ -767,11 +767,11 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       HapticFeedback.heavyImpact();
       try {
         final client = ref.read(clientProvider);
-        await client.group.deleteGroup(widget.group.id!);
+        await client.lounge.deleteLounge(widget.lounge.id!);
         if (context.mounted) {
-          ref.invalidate(groupListProvider);
+          ref.invalidate(loungeListProvider);
           Navigator.pop(context);
-          DuoSnackBarHelper.showSuccess(context, 'The club has been disbanded.');
+          DuoSnackBarHelper.showSuccess(context, 'The lounge has been disbanded.');
         }
       } catch (e) {
         if (context.mounted) {
@@ -806,9 +806,9 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       HapticFeedback.mediumImpact();
       try {
         final client = ref.read(clientProvider);
-        await client.admin.makeGroupPrivate(widget.group.id!);
+        await client.admin.makeLoungePrivate(widget.lounge.id!);
         if (context.mounted) {
-          ref.invalidate(groupListProvider);
+          ref.invalidate(loungeListProvider);
           DuoSnackBarHelper.showSuccess(
             context,
             'Lounge has been forced to private.',
@@ -852,13 +852,13 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
       HapticFeedback.heavyImpact();
       try {
         final client = ref.read(clientProvider);
-        await client.admin.disbandGroup(
-          groupId: widget.group.id!,
+        await client.admin.disbandLounge(
+          loungeId: widget.lounge.id!,
           reason: 'Administrative action',
         );
         if (context.mounted) {
-          ref.invalidate(groupListProvider);
-          Navigator.pop(context); // Go back to Groups screen
+          ref.invalidate(loungeListProvider);
+          Navigator.pop(context); // Go back to Lounges screen
           DuoSnackBarHelper.showSuccess(context, 'Lounge has been disbanded.');
         }
       } catch (e) {

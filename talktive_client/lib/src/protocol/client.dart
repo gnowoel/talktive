@@ -23,10 +23,10 @@ import 'package:talktive_client/src/protocol/admin_user_summary.dart' as _i8;
 import 'package:talktive_client/src/protocol/admin_user_details.dart' as _i9;
 import 'package:talktive_client/src/protocol/resident.dart' as _i10;
 import 'package:talktive_client/src/protocol/daily_reward.dart' as _i11;
-import 'package:talktive_client/src/protocol/group.dart' as _i12;
-import 'package:talktive_client/src/protocol/group_with_membership.dart'
+import 'package:talktive_client/src/protocol/lounge.dart' as _i12;
+import 'package:talktive_client/src/protocol/lounge_with_membership.dart'
     as _i13;
-import 'package:talktive_client/src/protocol/group_member_with_profile.dart'
+import 'package:talktive_client/src/protocol/lounge_member_with_profile.dart'
     as _i14;
 import 'package:talktive_client/src/protocol/message.dart' as _i15;
 import 'package:talktive_client/src/protocol/moment.dart' as _i16;
@@ -452,16 +452,18 @@ class EndpointAdmin extends _i2.EndpointRef {
         {},
       );
 
-  /// Search users by name or ID
+  /// Search users by name or ID with pagination
   _i3.Future<List<_i8.AdminUserSummary>> searchUsers({
     required String query,
     required int limit,
+    required int offset,
   }) => caller.callServerEndpoint<List<_i8.AdminUserSummary>>(
     'admin',
     'searchUsers',
     {
       'query': query,
       'limit': limit,
+      'offset': offset,
     },
   );
 
@@ -497,25 +499,25 @@ class EndpointAdmin extends _i2.EndpointRef {
         {'userId': userId},
       );
 
-  /// Disbands a group immediately.
-  _i3.Future<void> disbandGroup({
-    required int groupId,
+  /// Disbands a lounge immediately.
+  _i3.Future<void> disbandLounge({
+    required int loungeId,
     required String reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
-    'disbandGroup',
+    'disbandLounge',
     {
-      'groupId': groupId,
+      'loungeId': loungeId,
       'reason': reason,
     },
   );
 
-  /// Forces a group to become private.
-  _i3.Future<void> makeGroupPrivate(int groupId) =>
+  /// Forces a lounge to become private.
+  _i3.Future<void> makeLoungePrivate(int loungeId) =>
       caller.callServerEndpoint<void>(
         'admin',
-        'makeGroupPrivate',
-        {'groupId': groupId},
+        'makeLoungePrivate',
+        {'loungeId': loungeId},
       );
 
   /// Get user details for admin view
@@ -605,208 +607,6 @@ class EndpointGamification extends _i2.EndpointRef {
   );
 }
 
-/// {@category Endpoint}
-class EndpointGroup extends _i2.EndpointRef {
-  EndpointGroup(_i2.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'group';
-
-  /// Creates a new group.
-  _i3.Future<_i12.Group> createGroup(
-    String name, {
-    String? description,
-    String? emoji,
-    required bool isPublic,
-    required int maxMembers,
-    List<String>? interests,
-  }) => caller.callServerEndpoint<_i12.Group>(
-    'group',
-    'createGroup',
-    {
-      'name': name,
-      'description': description,
-      'emoji': emoji,
-      'isPublic': isPublic,
-      'maxMembers': maxMembers,
-      'interests': interests,
-    },
-  );
-
-  /// Lists all groups the user considers 'theirs' (joined, invited, applied).
-  _i3.Future<List<_i13.GroupWithMembership>> listMyGroups({
-    required int limit,
-    required int offset,
-  }) => caller.callServerEndpoint<List<_i13.GroupWithMembership>>(
-    'group',
-    'listMyGroups',
-    {
-      'limit': limit,
-      'offset': offset,
-    },
-  );
-
-  /// Gets details about a specific group.
-  _i3.Future<_i12.Group> getGroup(int groupId) =>
-      caller.callServerEndpoint<_i12.Group>(
-        'group',
-        'getGroup',
-        {'groupId': groupId},
-      );
-
-  /// Searches for public groups based on a query.
-  _i3.Future<List<_i12.Group>> searchPublicGroups(
-    String query, {
-    required int limit,
-    required int offset,
-  }) => caller.callServerEndpoint<List<_i12.Group>>(
-    'group',
-    'searchPublicGroups',
-    {
-      'query': query,
-      'limit': limit,
-      'offset': offset,
-    },
-  );
-
-  /// Applies to join a public group.
-  _i3.Future<void> applyToGroup(int groupId) => caller.callServerEndpoint<void>(
-    'group',
-    'applyToGroup',
-    {'groupId': groupId},
-  );
-
-  /// Invites a user to a group (by any current member or creator).
-  _i3.Future<void> inviteUserToGroup(
-    int groupId,
-    String targetUserIdString,
-  ) => caller.callServerEndpoint<void>(
-    'group',
-    'inviteUserToGroup',
-    {
-      'groupId': groupId,
-      'targetUserIdString': targetUserIdString,
-    },
-  );
-
-  /// Responds to a group invite (accept or decline).
-  _i3.Future<void> respondToGroupInvite(
-    int groupId,
-    bool accept,
-  ) => caller.callServerEndpoint<void>(
-    'group',
-    'respondToGroupInvite',
-    {
-      'groupId': groupId,
-      'accept': accept,
-    },
-  );
-
-  /// Approves or rejects a pending group application (creator only).
-  _i3.Future<void> approveGroupApplication(
-    int groupId,
-    String targetUserIdString,
-    bool approve,
-  ) => caller.callServerEndpoint<void>(
-    'group',
-    'approveGroupApplication',
-    {
-      'groupId': groupId,
-      'targetUserIdString': targetUserIdString,
-      'approve': approve,
-    },
-  );
-
-  /// Kicks a member from the group (creator only).
-  _i3.Future<void> kickMember(
-    int groupId,
-    String targetUserIdString,
-  ) => caller.callServerEndpoint<void>(
-    'group',
-    'kickMember',
-    {
-      'groupId': groupId,
-      'targetUserIdString': targetUserIdString,
-    },
-  );
-
-  /// Leaves a group.
-  _i3.Future<void> leaveGroup(int groupId) => caller.callServerEndpoint<void>(
-    'group',
-    'leaveGroup',
-    {'groupId': groupId},
-  );
-
-  /// Gets all members of a group with their profiles.
-  _i3.Future<void> toggleMuteGroup(
-    int groupId,
-    bool isMuted,
-  ) => caller.callServerEndpoint<void>(
-    'group',
-    'toggleMuteGroup',
-    {
-      'groupId': groupId,
-      'isMuted': isMuted,
-    },
-  );
-
-  /// Gets all members of a group with their profiles.
-  _i3.Future<List<_i14.GroupMemberWithProfile>> getGroupMembersWithProfiles(
-    int groupId,
-  ) => caller.callServerEndpoint<List<_i14.GroupMemberWithProfile>>(
-    'group',
-    'getGroupMembersWithProfiles',
-    {'groupId': groupId},
-  );
-
-  /// Gets all pending applications for a group (creator only).
-  _i3.Future<List<_i14.GroupMemberWithProfile>>
-  getPendingApplicationsWithProfiles(int groupId) =>
-      caller.callServerEndpoint<List<_i14.GroupMemberWithProfile>>(
-        'group',
-        'getPendingApplicationsWithProfiles',
-        {'groupId': groupId},
-      );
-
-  /// Gets all members of a group.
-  _i3.Future<List<_i10.Resident>> getGroupMembers(int groupId) =>
-      caller.callServerEndpoint<List<_i10.Resident>>(
-        'group',
-        'getGroupMembers',
-        {'groupId': groupId},
-      );
-
-  /// Updates group details (admin only).
-  _i3.Future<_i12.Group> updateGroup(
-    int groupId, {
-    String? name,
-    String? description,
-    String? emoji,
-    bool? isPublic,
-    int? maxMembers,
-    List<String>? interests,
-  }) => caller.callServerEndpoint<_i12.Group>(
-    'group',
-    'updateGroup',
-    {
-      'groupId': groupId,
-      'name': name,
-      'description': description,
-      'emoji': emoji,
-      'isPublic': isPublic,
-      'maxMembers': maxMembers,
-      'interests': interests,
-    },
-  );
-
-  /// Deletes a group (creator only).
-  _i3.Future<void> deleteGroup(int groupId) => caller.callServerEndpoint<void>(
-    'group',
-    'deleteGroup',
-    {'groupId': groupId},
-  );
-}
-
 /// Health check endpoint for monitoring and load balancers
 /// {@category Endpoint}
 class EndpointHealth extends _i2.EndpointRef {
@@ -857,13 +657,217 @@ class EndpointHealth extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointLounge extends _i2.EndpointRef {
+  EndpointLounge(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'lounge';
+
+  /// Creates a new lounge.
+  _i3.Future<_i12.Lounge> createLounge(
+    String name, {
+    String? description,
+    String? emoji,
+    required bool isPublic,
+    required int maxMembers,
+    List<String>? interests,
+  }) => caller.callServerEndpoint<_i12.Lounge>(
+    'lounge',
+    'createLounge',
+    {
+      'name': name,
+      'description': description,
+      'emoji': emoji,
+      'isPublic': isPublic,
+      'maxMembers': maxMembers,
+      'interests': interests,
+    },
+  );
+
+  /// Lists all lounges the user considers 'theirs' (joined, invited, applied).
+  _i3.Future<List<_i13.LoungeWithMembership>> listMyLounges({
+    required int limit,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_i13.LoungeWithMembership>>(
+    'lounge',
+    'listMyLounges',
+    {
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Gets details about a specific lounge.
+  _i3.Future<_i12.Lounge> getLounge(int loungeId) =>
+      caller.callServerEndpoint<_i12.Lounge>(
+        'lounge',
+        'getLounge',
+        {'loungeId': loungeId},
+      );
+
+  /// Searches for public lounges based on a query.
+  _i3.Future<List<_i12.Lounge>> searchPublicLounges(
+    String query, {
+    required int limit,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_i12.Lounge>>(
+    'lounge',
+    'searchPublicLounges',
+    {
+      'query': query,
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Applies to join a public lounge.
+  _i3.Future<void> applyToLounge(int loungeId) =>
+      caller.callServerEndpoint<void>(
+        'lounge',
+        'applyToLounge',
+        {'loungeId': loungeId},
+      );
+
+  /// Invites a user to a lounge (by any current member or creator).
+  _i3.Future<void> inviteUserToLounge(
+    int loungeId,
+    String targetUserIdString,
+  ) => caller.callServerEndpoint<void>(
+    'lounge',
+    'inviteUserToLounge',
+    {
+      'loungeId': loungeId,
+      'targetUserIdString': targetUserIdString,
+    },
+  );
+
+  /// Responds to a lounge invite (accept or decline).
+  _i3.Future<void> respondToLoungeInvite(
+    int loungeId,
+    bool accept,
+  ) => caller.callServerEndpoint<void>(
+    'lounge',
+    'respondToLoungeInvite',
+    {
+      'loungeId': loungeId,
+      'accept': accept,
+    },
+  );
+
+  /// Approves or rejects a pending lounge application (creator only).
+  _i3.Future<void> approveLoungeApplication(
+    int loungeId,
+    String targetUserIdString,
+    bool approve,
+  ) => caller.callServerEndpoint<void>(
+    'lounge',
+    'approveLoungeApplication',
+    {
+      'loungeId': loungeId,
+      'targetUserIdString': targetUserIdString,
+      'approve': approve,
+    },
+  );
+
+  /// Kicks a member from the lounge (creator only).
+  _i3.Future<void> kickMember(
+    int loungeId,
+    String targetUserIdString,
+  ) => caller.callServerEndpoint<void>(
+    'lounge',
+    'kickMember',
+    {
+      'loungeId': loungeId,
+      'targetUserIdString': targetUserIdString,
+    },
+  );
+
+  /// Leaves a lounge.
+  _i3.Future<void> leaveLounge(int loungeId) => caller.callServerEndpoint<void>(
+    'lounge',
+    'leaveLounge',
+    {'loungeId': loungeId},
+  );
+
+  /// Gets all members of a lounge with their profiles.
+  _i3.Future<void> toggleMuteLounge(
+    int loungeId,
+    bool isMuted,
+  ) => caller.callServerEndpoint<void>(
+    'lounge',
+    'toggleMuteLounge',
+    {
+      'loungeId': loungeId,
+      'isMuted': isMuted,
+    },
+  );
+
+  /// Gets all members of a lounge with their profiles.
+  _i3.Future<List<_i14.LoungeMemberWithProfile>> getLoungeMembersWithProfiles(
+    int loungeId,
+  ) => caller.callServerEndpoint<List<_i14.LoungeMemberWithProfile>>(
+    'lounge',
+    'getLoungeMembersWithProfiles',
+    {'loungeId': loungeId},
+  );
+
+  /// Gets all pending applications for a lounge (creator only).
+  _i3.Future<List<_i14.LoungeMemberWithProfile>>
+  getPendingApplicationsWithProfiles(int loungeId) =>
+      caller.callServerEndpoint<List<_i14.LoungeMemberWithProfile>>(
+        'lounge',
+        'getPendingApplicationsWithProfiles',
+        {'loungeId': loungeId},
+      );
+
+  /// Gets all members of a lounge.
+  _i3.Future<List<_i10.Resident>> getLoungeMembers(int loungeId) =>
+      caller.callServerEndpoint<List<_i10.Resident>>(
+        'lounge',
+        'getLoungeMembers',
+        {'loungeId': loungeId},
+      );
+
+  /// Updates lounge details (admin only).
+  _i3.Future<_i12.Lounge> updateLounge(
+    int loungeId, {
+    String? name,
+    String? description,
+    String? emoji,
+    bool? isPublic,
+    int? maxMembers,
+    List<String>? interests,
+  }) => caller.callServerEndpoint<_i12.Lounge>(
+    'lounge',
+    'updateLounge',
+    {
+      'loungeId': loungeId,
+      'name': name,
+      'description': description,
+      'emoji': emoji,
+      'isPublic': isPublic,
+      'maxMembers': maxMembers,
+      'interests': interests,
+    },
+  );
+
+  /// Deletes a lounge (creator only).
+  _i3.Future<void> deleteLounge(int loungeId) =>
+      caller.callServerEndpoint<void>(
+        'lounge',
+        'deleteLounge',
+        {'loungeId': loungeId},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointMessage extends _i2.EndpointRef {
   EndpointMessage(_i2.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'message';
 
-  /// Sends a message to a channel (Plaza, Group, or Private).
+  /// Sends a message to a channel (Plaza, Lounge, or Private).
   _i3.Future<_i15.Message> sendMessage(
     int channelId, {
     String? content,
@@ -1403,13 +1407,13 @@ class EndpointSearch extends _i2.EndpointRef {
     },
   );
 
-  /// Search for groups by name or description
-  _i3.Future<List<_i12.Group>> searchGroups(
+  /// Search for lounges by name or description
+  _i3.Future<List<_i12.Lounge>> searchLounges(
     String query, {
     required int limit,
-  }) => caller.callServerEndpoint<List<_i12.Group>>(
+  }) => caller.callServerEndpoint<List<_i12.Lounge>>(
     'search',
-    'searchGroups',
+    'searchLounges',
     {
       'query': query,
       'limit': limit,
@@ -1424,11 +1428,11 @@ class EndpointSearch extends _i2.EndpointRef {
         {'limit': limit},
       );
 
-  /// Get popular groups (most members) - CACHED
-  _i3.Future<List<_i12.Group>> getPopularGroups({required int limit}) =>
-      caller.callServerEndpoint<List<_i12.Group>>(
+  /// Get popular lounges (most members) - CACHED
+  _i3.Future<List<_i12.Lounge>> getPopularLounges({required int limit}) =>
+      caller.callServerEndpoint<List<_i12.Lounge>>(
         'search',
-        'getPopularGroups',
+        'getPopularLounges',
         {'limit': limit},
       );
 
@@ -1453,7 +1457,7 @@ class EndpointSearch extends _i2.EndpointRef {
     },
   );
 
-  /// Search all content (users, groups, moments)
+  /// Search all content (users, lounges, moments)
   _i3.Future<Map<String, dynamic>> searchAll(
     String query, {
     required int limit,
@@ -1559,8 +1563,8 @@ class Client extends _i2.ServerpodClientShared {
     jwtRefresh = EndpointJwtRefresh(this);
     admin = EndpointAdmin(this);
     gamification = EndpointGamification(this);
-    group = EndpointGroup(this);
     health = EndpointHealth(this);
+    lounge = EndpointLounge(this);
     message = EndpointMessage(this);
     moment = EndpointMoment(this);
     notification = EndpointNotification(this);
@@ -1582,9 +1586,9 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointGamification gamification;
 
-  late final EndpointGroup group;
-
   late final EndpointHealth health;
+
+  late final EndpointLounge lounge;
 
   late final EndpointMessage message;
 
@@ -1611,8 +1615,8 @@ class Client extends _i2.ServerpodClientShared {
     'jwtRefresh': jwtRefresh,
     'admin': admin,
     'gamification': gamification,
-    'group': group,
     'health': health,
+    'lounge': lounge,
     'message': message,
     'moment': moment,
     'notification': notification,

@@ -605,7 +605,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         return '🏆';
       case 'streak':
         return '🔥';
-      case 'group_invite':
+      case 'lounge_invite':
         return '🎫';
       case 'mention':
         return '🏷️';

@@ -4,27 +4,27 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
-import '../../widgets/duo/duo_group_card.dart';
+import '../../widgets/duo/duo_lounge_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
-import 'create_group_dialog.dart';
+import 'create_lounge_dialog.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../providers/current_resident_provider.dart';
 
-/// Duolingo-style Groups screen - Community discussions
-class GroupsScreen extends ConsumerWidget {
-  const GroupsScreen({super.key});
+/// Duolingo-style Lounges screen - Community discussions
+class LoungesScreen extends ConsumerWidget {
+  const LoungesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final groupsAsync = ref.watch(groupListProvider);
+    final loungesAsync = ref.watch(loungeListProvider);
 
     return DuoPageScaffold(
       emoji: '🏘️',
@@ -36,55 +36,55 @@ class GroupsScreen extends ConsumerWidget {
         children: [
           DuoRefreshButton(
             color: Colors.white,
-            onRefresh: () async => ref.invalidate(groupListProvider),
+            onRefresh: () async => ref.invalidate(loungeListProvider),
           ),
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white, size: 28),
             onPressed: () {
               HapticFeedback.lightImpact();
-              context.push('/groups/search');
+              context.push('/lounges/search');
             },
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: 'groups_fab',
+        heroTag: 'lounges_fab',
         onPressed: () => _showCreateDialog(context, ref),
         backgroundColor: AppTheme.duoBlue,
         elevation: 6,
-        child: const Icon(Icons.group_add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
-      body: groupsAsync.when(
-        data: (groups) => _buildGroupList(context, ref, groups),
+      body: loungesAsync.when(
+        data: (lounges) => _buildLoungeList(context, ref, lounges),
         loading: () => const DuoLoadingIndicator(),
         error: (error, _) => DuoEmptyState(
           emoji: '🔇',
           title: 'Connection Lost',
           subtitle: 'The clubhouse door is stuck. Try again?',
-          onActionPressed: () => ref.invalidate(groupListProvider),
+          onActionPressed: () => ref.invalidate(loungeListProvider),
           actionLabel: 'Retry',
         ),
       ),
     );
   }
 
-  Widget _buildGroupList(
+  Widget _buildLoungeList(
     BuildContext context,
     WidgetRef ref,
-    List<GroupWithMembership> groups,
+    List<LoungeWithMembership> lounges,
   ) {
-    if (groups.isEmpty) {
+    if (lounges.isEmpty) {
       return DuoEmptyState(
         emoji: '🏢',
         title: 'Empty Clubhouse',
-        subtitle: 'No clubs yet. Why not create one?',
+        subtitle: 'No lounges yet. Why not create one?',
         onActionPressed: () => _showCreateDialog(context, ref),
-        actionLabel: 'Start a Club',
+        actionLabel: 'Open a Lounge',
       );
     }
 
-    // Sort: Invites/Applications first, then Active groups
-    final pending = groups
+    // Sort: Invites/Applications first, then Active lounges
+    final pending = lounges
         .where(
           (g) =>
               g.membershipStatus == ChannelMemberStatus.invited ||
@@ -92,19 +92,19 @@ class GroupsScreen extends ConsumerWidget {
         )
         .toList();
 
-    final joined = groups
+    final joined = lounges
         .where((g) => g.membershipStatus == ChannelMemberStatus.joined)
         .toList();
 
     return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(groupListProvider),
+      onRefresh: () async => ref.invalidate(loungeListProvider),
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         children: [
           if (pending.isNotEmpty) ...[
             _buildSectionHeader(context, '🎫 The Doorstep'),
             ...pending.asMap().entries.map(
-              (entry) => _buildGroupCard(context, ref, entry.value, entry.key),
+              (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
             const SizedBox(height: 32),
           ],
@@ -112,7 +112,7 @@ class GroupsScreen extends ConsumerWidget {
           if (joined.isNotEmpty) ...[
             _buildSectionHeader(context, '🛋️ My Lounges'),
             ...joined.asMap().entries.map(
-              (entry) => _buildGroupCard(context, ref, entry.value, entry.key),
+              (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
           ],
 
@@ -150,33 +150,33 @@ class GroupsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGroupCard(
+  Widget _buildLoungeCard(
     BuildContext context,
     WidgetRef ref,
-    GroupWithMembership groupWithMembership,
+    LoungeWithMembership loungeWithMembership,
     int index,
   ) {
-    final group = groupWithMembership.group;
-    final status = groupWithMembership.membershipStatus;
+    final lounge = loungeWithMembership.lounge;
+    final status = loungeWithMembership.membershipStatus;
     final isInvite = status == ChannelMemberStatus.invited;
     final isApplied = status == ChannelMemberStatus.applied;
 
-    return DuoGroupCard(
-      group: group,
+    return DuoLoungeCard(
+      lounge: lounge,
       onTap: () {
         HapticFeedback.lightImpact();
         if (isInvite || isApplied) {
-          context.push('/groups/profile/${group.id!}', extra: group);
+          context.push('/lounges/profile/${lounge.id!}', extra: lounge);
           return;
         }
-        context.push('/groups/chat/${group.id!}', extra: group);
+        context.push('/lounges/chat/${lounge.id!}', extra: lounge);
       },
       trailing: (isInvite || isApplied)
           ? _buildStatusBadge(context, isInvite ? 'INVITED' : 'APPLIED')
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (groupWithMembership.unreadCount > 0)
+                if (loungeWithMembership.unreadCount > 0)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     margin: const EdgeInsets.only(right: 8),
@@ -185,7 +185,7 @@ class GroupsScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      groupWithMembership.unreadCount.toString(),
+                      loungeWithMembership.unreadCount.toString(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -209,8 +209,8 @@ class GroupsScreen extends ConsumerWidget {
                         HapticFeedback.lightImpact();
                         try {
                           await ref
-                              .read(groupListProvider.notifier)
-                              .respondToInvite(group.id!, false);
+                              .read(loungeListProvider.notifier)
+                              .respondToInvite(lounge.id!, false);
                           if (context.mounted) {
                             DuoSnackBarHelper.showInfo(
                               context,
@@ -237,8 +237,8 @@ class GroupsScreen extends ConsumerWidget {
                         HapticFeedback.lightImpact();
                         try {
                           await ref
-                              .read(groupListProvider.notifier)
-                              .respondToInvite(group.id!, true);
+                              .read(loungeListProvider.notifier)
+                              .respondToInvite(lounge.id!, true);
                           if (context.mounted) {
                             DuoSnackBarHelper.showSuccess(
                               context,
@@ -282,17 +282,17 @@ class GroupsScreen extends ConsumerWidget {
   }
 
   void _showCreateDialog(BuildContext context, WidgetRef ref) async {
-    debugPrint('GroupsScreen: [_showCreateDialog] FAB tapped');
+    debugPrint('LoungesScreen: [_showCreateDialog] FAB tapped');
     HapticFeedback.lightImpact();
 
     Resident? currentResident = ref.read(currentResidentProvider).value;
     
     if (currentResident == null) {
-      debugPrint('GroupsScreen: currentResident is null, waiting for future...');
+      debugPrint('LoungesScreen: currentResident is null, waiting for future...');
       try {
         currentResident = await ref.read(currentResidentProvider.future);
       } catch (e) {
-        debugPrint('GroupsScreen: Error waiting for resident: $e');
+        debugPrint('LoungesScreen: Error waiting for resident: $e');
         if (context.mounted) {
           DuoSnackBarHelper.showError(context, 'Failed to load profile.');
         }
@@ -301,7 +301,7 @@ class GroupsScreen extends ConsumerWidget {
     }
 
     if (currentResident == null) {
-      debugPrint('GroupsScreen: Resident still null after waiting');
+      debugPrint('LoungesScreen: Resident still null after waiting');
       if (context.mounted) {
         DuoSnackBarHelper.showError(context, 'Resident profile not found.');
       }
@@ -309,7 +309,7 @@ class GroupsScreen extends ConsumerWidget {
     }
 
     if (DuoFloorHelper.isMuted(currentResident)) {
-      debugPrint('GroupsScreen: Resident is muted');
+      debugPrint('LoungesScreen: Resident is muted');
       DuoSnackBarHelper.showError(
         context,
         DuoFloorHelper.getMuteReason(currentResident),
@@ -318,12 +318,12 @@ class GroupsScreen extends ConsumerWidget {
     }
 
     final effectiveFloor = DuoFloorHelper.computeFloor(currentResident);
-    debugPrint('GroupsScreen: Effective floor: $effectiveFloor');
+    debugPrint('LoungesScreen: Effective floor: $effectiveFloor');
 
     if (effectiveFloor < 1) {
       DuoFloorRequirementDialog.show(
         context,
-        message: 'You must reach Floor 1 to create a club. Keep chatting!',
+        message: 'You must reach Floor 1 to open a lounge. Keep chatting!',
         requiredFloor: 1,
       );
       return;
@@ -333,7 +333,7 @@ class GroupsScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const CreateGroupDialog(),
+      builder: (context) => const CreateLoungeDialog(),
     );
   }
 }

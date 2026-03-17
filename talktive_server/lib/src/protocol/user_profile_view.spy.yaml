@@ -15,7 +15,7 @@ fields:
   isBlocked: bool
   hasBlockedMe: bool
   isLiked: bool
-  mutualGroups: int
+  mutualLounges: int
   recentMoments: List<Moment>?
   level: int?
   xp: int?

@@ -17,10 +17,10 @@ import '../screens/plaza/plaza_chat_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
 import '../screens/moments/user_moments_screen.dart';
-import '../screens/groups/group_search_screen.dart';
-import '../screens/groups/group_profile_screen.dart';
-import '../screens/groups/group_chat_screen.dart';
-import '../screens/groups/group_members_screen.dart';
+import '../screens/lounges/lounge_search_screen.dart';
+import '../screens/lounges/lounge_profile_screen.dart';
+import '../screens/lounges/lounge_chat_screen.dart';
+import '../screens/lounges/lounge_members_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/users_screen.dart';
 
@@ -104,39 +104,39 @@ GoRouter router(Ref ref) {
         ],
       ),
       GoRoute(
-        path: '/groups',
+        path: '/lounges',
         builder: (context, state) => const HomeScreen(initialIndex: 3),
         routes: [
           GoRoute(
             path: 'search',
-            builder: (context, state) => const GroupSearchScreen(),
+            builder: (context, state) => const LoungeSearchScreen(),
           ),
           GoRoute(
-            path: 'profile/:groupId',
+            path: 'profile/:loungeId',
             builder: (context, state) {
-              final groupId = int.parse(state.pathParameters['groupId']!);
-              final group = state.extra as Group?;
-              return GroupProfileScreen(groupId: groupId, initialGroup: group);
+              final loungeId = int.parse(state.pathParameters['loungeId']!);
+              final lounge = state.extra as Lounge?;
+              return LoungeProfileScreen(loungeId: loungeId, initialLounge: lounge);
             },
           ),
           GoRoute(
-            path: 'chat/:groupId',
+            path: 'chat/:loungeId',
             builder: (context, state) {
-              final groupId = int.parse(state.pathParameters['groupId']!);
-              final group = state.extra as Group?;
-              if (group != null) {
-                return GroupChatScreen(group: group);
+              final loungeId = int.parse(state.pathParameters['loungeId']!);
+              final lounge = state.extra as Lounge?;
+              if (lounge != null) {
+                return LoungeChatScreen(lounge: lounge);
               } else {
-                return GroupChatLoader(groupId: groupId);
+                return LoungeChatLoader(loungeId: loungeId);
               }
             },
           ),
           GoRoute(
-            path: 'members/:groupId',
+            path: 'members/:loungeId',
             builder: (context, state) {
-              final groupId = int.parse(state.pathParameters['groupId']!);
-              final group = state.extra as Group?;
-              return GroupMembersScreen(groupId: groupId, initialGroup: group);
+              final loungeId = int.parse(state.pathParameters['loungeId']!);
+              final lounge = state.extra as Lounge?;
+              return LoungeMembersScreen(loungeId: loungeId, initialLounge: lounge);
             },
           ),
         ],

@@ -1,5 +1,5 @@
-class: Group
-table: groups
+class: Lounge
+table: lounge
 fields:
   channelId: int
   name: String
@@ -15,8 +15,8 @@ fields:
   interests: List<String>?
   isStaffLocked: bool, default=false
 indexes:
-  group_channel_idx:
+  lounge_channel_idx:
     fields: channelId
     unique: true
-  group_creator_idx:
+  lounge_creator_idx:
     fields: creatorId

@@ -8,7 +8,7 @@ class CacheService {
   static const Duration statisticsTTL = Duration(minutes: 5);
   static const Duration userInfoTTL = Duration(minutes: 10);
   static const Duration trendingMomentsTTL = Duration(minutes: 15);
-  static const Duration popularGroupsTTL = Duration(minutes: 30);
+  static const Duration popularLoungesTTL = Duration(minutes: 30);
 
   /// Cache key prefixes
   static const String _statsPrefix = 'stats:';
@@ -133,9 +133,9 @@ class CacheService {
     }
   }
 
-  /// Get popular groups from cache
-  static Future<String?> getPopularGroups(Session session) async {
-    final key = '${_popularPrefix}groups';
+  /// Get popular lounges from cache
+  static Future<String?> getPopularLounges(Session session) async {
+    final key = '${_popularPrefix}lounges';
 
     try {
       final cached = await session.caches.global.get<CacheString>(key);
@@ -146,18 +146,18 @@ class CacheService {
     }
   }
 
-  /// Set popular groups in cache
-  static Future<void> setPopularGroups(
+  /// Set popular lounges in cache
+  static Future<void> setPopularLounges(
     Session session,
-    String groupsJson,
+    String loungesJson,
   ) async {
-    final key = '${_popularPrefix}groups';
+    final key = '${_popularPrefix}lounges';
 
     try {
       await session.caches.global.put(
         key,
-        CacheString(value: groupsJson),
-        lifetime: popularGroupsTTL,
+        CacheString(value: loungesJson),
+        lifetime: popularLoungesTTL,
       );
     } catch (e) {
       session.log('Cache set error: $e', level: LogLevel.warning);
@@ -168,7 +168,7 @@ class CacheService {
   static Future<void> invalidateDiscoveryCache(Session session) async {
     try {
       await session.caches.global.invalidateKey('${_trendingPrefix}moments');
-      await session.caches.global.invalidateKey('${_popularPrefix}groups');
+      await session.caches.global.invalidateKey('${_popularPrefix}lounges');
     } catch (e) {
       session.log('Cache invalidation error: $e', level: LogLevel.warning);
     }

@@ -4,8 +4,8 @@ import '../../config/theme.dart';
 import '../../helpers/date_formatter.dart';
 import 'duo_card.dart';
 
-class DuoGroupCard extends StatelessWidget {
-  final Group group;
+class DuoLoungeCard extends StatelessWidget {
+  final Lounge lounge;
   final VoidCallback? onTap;
   final Widget? trailing;
   final List<Widget>? bottomActions;
@@ -13,9 +13,9 @@ class DuoGroupCard extends StatelessWidget {
   final bool showInterests;
   final int maxInterests;
 
-  const DuoGroupCard({
+  const DuoLoungeCard({
     super.key,
-    required this.group,
+    required this.lounge,
     this.onTap,
     this.trailing,
     this.bottomActions,
@@ -43,12 +43,12 @@ class DuoGroupCard extends StatelessWidget {
               ],
             ),
             if (showInterests &&
-                group.interests != null &&
-                group.interests!.isNotEmpty) ...[
+                lounge.interests != null &&
+                lounge.interests!.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildInterests(),
             ],
-            if (group.description != null && group.description!.isNotEmpty) ...[
+            if (lounge.description != null && lounge.description!.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildDescription(context),
             ],
@@ -76,7 +76,7 @@ class DuoGroupCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
       ),
       child: Center(
-        child: Text(group.emoji ?? '👥', style: const TextStyle(fontSize: 28)),
+        child: Text(lounge.emoji ?? '👥', style: const TextStyle(fontSize: 28)),
       ),
     );
   }
@@ -89,14 +89,14 @@ class DuoGroupCard extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                group.name,
+                lounge.name,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (showPublicBadge && group.isPublic)
+            if (showPublicBadge && lounge.isPublic)
               _buildBadge(context, 'Public', AppTheme.duoGreen),
           ],
         ),
@@ -106,17 +106,17 @@ class DuoGroupCard extends StatelessWidget {
             Icon(Icons.people, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text(
-              '${group.memberCount}/${group.maxMembers}',
+              '${lounge.memberCount}/${lounge.maxMembers}',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
-            if (group.lastMessageAt != null) ...[
+            if (lounge.lastMessageAt != null) ...[
               const SizedBox(width: 8),
               Icon(Icons.access_time, size: 14, color: Colors.grey[400]),
               const SizedBox(width: 2),
               Text(
-                formatTimestamp(group.lastMessageAt!),
+                formatTimestamp(lounge.lastMessageAt!),
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
@@ -124,7 +124,7 @@ class DuoGroupCard extends StatelessWidget {
             ],
           ],
         ),
-        if (group.lastMessage != null && group.lastMessage!.isNotEmpty) ...[
+        if (lounge.lastMessage != null && lounge.lastMessage!.isNotEmpty) ...[
           const SizedBox(height: 6),
           Row(
             children: [
@@ -132,7 +132,7 @@ class DuoGroupCard extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  group.lastMessage!,
+                  lounge.lastMessage!,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.duoBlue,
                     fontStyle: FontStyle.italic,
@@ -169,7 +169,7 @@ class DuoGroupCard extends StatelessWidget {
     return Wrap(
       spacing: 6,
       runSpacing: -6,
-      children: group.interests!
+      children: lounge.interests!
           .take(maxInterests)
           .map(
             (interest) => Chip(
@@ -195,7 +195,7 @@ class DuoGroupCard extends StatelessWidget {
 
   Widget _buildDescription(BuildContext context) {
     return Text(
-      group.description!,
+      lounge.description!,
       style: Theme.of(
         context,
       ).textTheme.bodyMedium?.copyWith(color: Colors.grey[800]),

@@ -1,6 +1,6 @@
-class: GroupWithMembership
+class: LoungeWithMembership
 fields:
-  group: Group
+  lounge: Lounge
   membershipStatus: ChannelMemberStatus?
   membershipRole: String?
   isMuted: bool?

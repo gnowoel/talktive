@@ -63,16 +63,16 @@ class NotificationService {
     String senderName,
     String messagePreview,
     int channelId,
-    String channelType, // 'private', 'group', 'plaza'
+    String channelType, // 'private', 'lounge', 'plaza'
   ) async {
     int? routeId = channelId;
-    if (channelType == 'group') {
-      final group = await protocol.Group.db.findFirstRow(
+    if (channelType == 'lounge') {
+      final lounge = await protocol.Lounge.db.findFirstRow(
         session,
         where: (t) => t.channelId.equals(channelId),
       );
-      if (group != null) {
-        routeId = group.id;
+      if (lounge != null) {
+        routeId = lounge.id;
       }
     }
 
@@ -87,7 +87,7 @@ class NotificationService {
         'channelType': channelType,
         'route': channelType == 'private'
             ? '/chats/thread/$routeId'
-            : (channelType == 'plaza' ? '/plaza' : '/groups/chat/$routeId'),
+            : (channelType == 'plaza' ? '/plaza' : '/lounges/chat/$routeId'),
       },
       saveToHistory: false,
     );
@@ -212,25 +212,25 @@ class NotificationService {
     );
   }
 
-  /// Sends a group invite notification.
-  static Future<void> sendGroupInviteNotification(
+  /// Sends a lounge invite notification.
+  static Future<void> sendLoungeInviteNotification(
     Session session,
     UuidValue recipientId,
     String inviterName,
-    String groupName,
-    String groupEmoji,
-    int groupId,
+    String loungeName,
+    String loungeEmoji,
+    int loungeId,
   ) async {
     await sendNotification(
       session,
       recipientId,
-      'group_invite',
-      '$inviterName invited you to $groupEmoji $groupName',
+      'lounge_invite',
+      '$inviterName invited you to $loungeEmoji $loungeName',
       'Tap to join',
       data: {
-        'groupId': groupId,
+        'loungeId': loungeId,
         'route':
-            '/groups/profile/$groupId', 
+            '/lounges/profile/$loungeId', 
       },
       saveToHistory: true, // Now saved to history as per user request
     );
@@ -243,22 +243,22 @@ class NotificationService {
     String senderName,
     String messagePreview,
     int channelId,
-    String groupName,
+    String loungeName,
   ) async {
-    // Resolve groupId from channelId
-    int? groupId;
-    final group = await protocol.Group.db.findFirstRow(
+    // Resolve loungeId from channelId
+    int? loungeId;
+    final lounge = await protocol.Lounge.db.findFirstRow(
       session,
       where: (t) => t.channelId.equals(channelId),
     );
-    if (group != null) {
-      groupId = group.id;
+    if (lounge != null) {
+      loungeId = lounge.id;
     }
 
     // Resolve route based on channel type
-    String route = '/groups';
-    if (groupId != null) {
-      route = '/groups/chat/$groupId';
+    String route = '/lounges';
+    if (loungeId != null) {
+      route = '/lounges/chat/$loungeId';
     } else {
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel?.type == protocol.ChannelType.private) {
@@ -275,8 +275,8 @@ class NotificationService {
       '@$senderName: $messagePreview',
       data: {
         'channelId': channelId,
-        'groupName': groupName,
-        'groupId': groupId,
+        'loungeName': loungeName,
+        'loungeId': loungeId,
         'route': route,
       },
       saveToHistory: true,

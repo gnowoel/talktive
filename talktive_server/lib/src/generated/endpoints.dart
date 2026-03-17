@@ -16,8 +16,8 @@ import '../auth/firebase_idp_endpoint.dart' as _i3;
 import '../auth/jwt_refresh_endpoint.dart' as _i4;
 import '../endpoints/admin_endpoint.dart' as _i5;
 import '../endpoints/gamification_endpoint.dart' as _i6;
-import '../endpoints/group_endpoint.dart' as _i7;
-import '../endpoints/health_endpoint.dart' as _i8;
+import '../endpoints/health_endpoint.dart' as _i7;
+import '../endpoints/lounge_endpoint.dart' as _i8;
 import '../endpoints/message_endpoint.dart' as _i9;
 import '../endpoints/moment_endpoint.dart' as _i10;
 import '../endpoints/notification_endpoint.dart' as _i11;
@@ -68,16 +68,16 @@ class Endpoints extends _i1.EndpointDispatch {
           'gamification',
           null,
         ),
-      'group': _i7.GroupEndpoint()
-        ..initialize(
-          server,
-          'group',
-          null,
-        ),
-      'health': _i8.HealthEndpoint()
+      'health': _i7.HealthEndpoint()
         ..initialize(
           server,
           'health',
+          null,
+        ),
+      'lounge': _i8.LoungeEndpoint()
+        ..initialize(
+          server,
+          'lounge',
           null,
         ),
       'message': _i9.MessageEndpoint()
@@ -678,6 +678,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int>(),
               nullable: false,
             ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -687,6 +692,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 session,
                 query: params['query'],
                 limit: params['limit'],
+                offset: params['offset'],
               ),
         ),
         'promoteToAdmin': _i1.MethodConnector(
@@ -765,11 +771,11 @@ class Endpoints extends _i1.EndpointDispatch {
                     userId: params['userId'],
                   ),
         ),
-        'disbandGroup': _i1.MethodConnector(
-          name: 'disbandGroup',
+        'disbandLounge': _i1.MethodConnector(
+          name: 'disbandLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -783,17 +789,18 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i5.AdminEndpoint).disbandGroup(
-                session,
-                groupId: params['groupId'],
-                reason: params['reason'],
-              ),
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).disbandLounge(
+                    session,
+                    loungeId: params['loungeId'],
+                    reason: params['reason'],
+                  ),
         ),
-        'makeGroupPrivate': _i1.MethodConnector(
-          name: 'makeGroupPrivate',
+        'makeLoungePrivate': _i1.MethodConnector(
+          name: 'makeLoungePrivate',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -803,9 +810,9 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['admin'] as _i5.AdminEndpoint).makeGroupPrivate(
+                  (endpoints['admin'] as _i5.AdminEndpoint).makeLoungePrivate(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                   ),
         ),
         'getUserDetails': _i1.MethodConnector(
@@ -944,12 +951,68 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
-    connectors['group'] = _i1.EndpointConnector(
-      name: 'group',
-      endpoint: endpoints['group']!,
+    connectors['health'] = _i1.EndpointConnector(
+      name: 'health',
+      endpoint: endpoints['health']!,
       methodConnectors: {
-        'createGroup': _i1.MethodConnector(
-          name: 'createGroup',
+        'check': _i1.MethodConnector(
+          name: 'check',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['health'] as _i7.HealthEndpoint).check(session),
+        ),
+        'detailed': _i1.MethodConnector(
+          name: 'detailed',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['health'] as _i7.HealthEndpoint).detailed(session),
+        ),
+        'ready': _i1.MethodConnector(
+          name: 'ready',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['health'] as _i7.HealthEndpoint).ready(session),
+        ),
+        'live': _i1.MethodConnector(
+          name: 'live',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['health'] as _i7.HealthEndpoint).live(session),
+        ),
+        'metrics': _i1.MethodConnector(
+          name: 'metrics',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['health'] as _i7.HealthEndpoint).metrics(session),
+        ),
+      },
+    );
+    connectors['lounge'] = _i1.EndpointConnector(
+      name: 'lounge',
+      endpoint: endpoints['lounge']!,
+      methodConnectors: {
+        'createLounge': _i1.MethodConnector(
+          name: 'createLounge',
           params: {
             'name': _i1.ParameterDescription(
               name: 'name',
@@ -986,18 +1049,19 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).createGroup(
-                session,
-                params['name'],
-                description: params['description'],
-                emoji: params['emoji'],
-                isPublic: params['isPublic'],
-                maxMembers: params['maxMembers'],
-                interests: params['interests'],
-              ),
+              ) async =>
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).createLounge(
+                    session,
+                    params['name'],
+                    description: params['description'],
+                    emoji: params['emoji'],
+                    isPublic: params['isPublic'],
+                    maxMembers: params['maxMembers'],
+                    interests: params['interests'],
+                  ),
         ),
-        'listMyGroups': _i1.MethodConnector(
-          name: 'listMyGroups',
+        'listMyLounges': _i1.MethodConnector(
+          name: 'listMyLounges',
           params: {
             'limit': _i1.ParameterDescription(
               name: 'limit',
@@ -1014,17 +1078,18 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).listMyGroups(
-                session,
-                limit: params['limit'],
-                offset: params['offset'],
-              ),
+              ) async =>
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).listMyLounges(
+                    session,
+                    limit: params['limit'],
+                    offset: params['offset'],
+                  ),
         ),
-        'getGroup': _i1.MethodConnector(
-          name: 'getGroup',
+        'getLounge': _i1.MethodConnector(
+          name: 'getLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1033,13 +1098,13 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).getGroup(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint).getLounge(
                 session,
-                params['groupId'],
+                params['loungeId'],
               ),
         ),
-        'searchPublicGroups': _i1.MethodConnector(
-          name: 'searchPublicGroups',
+        'searchPublicLounges': _i1.MethodConnector(
+          name: 'searchPublicLounges',
           params: {
             'query': _i1.ParameterDescription(
               name: 'query',
@@ -1061,19 +1126,19 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['group'] as _i7.GroupEndpoint).searchPublicGroups(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
+                  .searchPublicLounges(
                     session,
                     params['query'],
                     limit: params['limit'],
                     offset: params['offset'],
                   ),
         ),
-        'applyToGroup': _i1.MethodConnector(
-          name: 'applyToGroup',
+        'applyToLounge': _i1.MethodConnector(
+          name: 'applyToLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1082,16 +1147,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).applyToGroup(
-                session,
-                params['groupId'],
-              ),
+              ) async =>
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).applyToLounge(
+                    session,
+                    params['loungeId'],
+                  ),
         ),
-        'inviteUserToGroup': _i1.MethodConnector(
-          name: 'inviteUserToGroup',
+        'inviteUserToLounge': _i1.MethodConnector(
+          name: 'inviteUserToLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1105,18 +1171,18 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['group'] as _i7.GroupEndpoint).inviteUserToGroup(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
+                  .inviteUserToLounge(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                     params['targetUserIdString'],
                   ),
         ),
-        'respondToGroupInvite': _i1.MethodConnector(
-          name: 'respondToGroupInvite',
+        'respondToLoungeInvite': _i1.MethodConnector(
+          name: 'respondToLoungeInvite',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1130,18 +1196,18 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint)
-                  .respondToGroupInvite(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
+                  .respondToLoungeInvite(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                     params['accept'],
                   ),
         ),
-        'approveGroupApplication': _i1.MethodConnector(
-          name: 'approveGroupApplication',
+        'approveLoungeApplication': _i1.MethodConnector(
+          name: 'approveLoungeApplication',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1160,10 +1226,10 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint)
-                  .approveGroupApplication(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
+                  .approveLoungeApplication(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                     params['targetUserIdString'],
                     params['approve'],
                   ),
@@ -1171,8 +1237,8 @@ class Endpoints extends _i1.EndpointDispatch {
         'kickMember': _i1.MethodConnector(
           name: 'kickMember',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1186,17 +1252,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).kickMember(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint).kickMember(
                 session,
-                params['groupId'],
+                params['loungeId'],
                 params['targetUserIdString'],
               ),
         ),
-        'leaveGroup': _i1.MethodConnector(
-          name: 'leaveGroup',
+        'leaveLounge': _i1.MethodConnector(
+          name: 'leaveLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1205,16 +1271,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).leaveGroup(
-                session,
-                params['groupId'],
-              ),
+              ) async =>
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).leaveLounge(
+                    session,
+                    params['loungeId'],
+                  ),
         ),
-        'toggleMuteGroup': _i1.MethodConnector(
-          name: 'toggleMuteGroup',
+        'toggleMuteLounge': _i1.MethodConnector(
+          name: 'toggleMuteLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1229,17 +1296,17 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['group'] as _i7.GroupEndpoint).toggleMuteGroup(
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).toggleMuteLounge(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                     params['isMuted'],
                   ),
         ),
-        'getGroupMembersWithProfiles': _i1.MethodConnector(
-          name: 'getGroupMembersWithProfiles',
+        'getLoungeMembersWithProfiles': _i1.MethodConnector(
+          name: 'getLoungeMembersWithProfiles',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1248,17 +1315,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint)
-                  .getGroupMembersWithProfiles(
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
+                  .getLoungeMembersWithProfiles(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                   ),
         ),
         'getPendingApplicationsWithProfiles': _i1.MethodConnector(
           name: 'getPendingApplicationsWithProfiles',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1267,17 +1334,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint)
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
                   .getPendingApplicationsWithProfiles(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                   ),
         ),
-        'getGroupMembers': _i1.MethodConnector(
-          name: 'getGroupMembers',
+        'getLoungeMembers': _i1.MethodConnector(
+          name: 'getLoungeMembers',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1287,16 +1354,16 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['group'] as _i7.GroupEndpoint).getGroupMembers(
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).getLoungeMembers(
                     session,
-                    params['groupId'],
+                    params['loungeId'],
                   ),
         ),
-        'updateGroup': _i1.MethodConnector(
-          name: 'updateGroup',
+        'updateLounge': _i1.MethodConnector(
+          name: 'updateLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1335,22 +1402,23 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).updateGroup(
-                session,
-                params['groupId'],
-                name: params['name'],
-                description: params['description'],
-                emoji: params['emoji'],
-                isPublic: params['isPublic'],
-                maxMembers: params['maxMembers'],
-                interests: params['interests'],
-              ),
+              ) async =>
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).updateLounge(
+                    session,
+                    params['loungeId'],
+                    name: params['name'],
+                    description: params['description'],
+                    emoji: params['emoji'],
+                    isPublic: params['isPublic'],
+                    maxMembers: params['maxMembers'],
+                    interests: params['interests'],
+                  ),
         ),
-        'deleteGroup': _i1.MethodConnector(
-          name: 'deleteGroup',
+        'deleteLounge': _i1.MethodConnector(
+          name: 'deleteLounge',
           params: {
-            'groupId': _i1.ParameterDescription(
-              name: 'groupId',
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
               type: _i1.getType<int>(),
               nullable: false,
             ),
@@ -1359,66 +1427,11 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['group'] as _i7.GroupEndpoint).deleteGroup(
-                session,
-                params['groupId'],
-              ),
-        ),
-      },
-    );
-    connectors['health'] = _i1.EndpointConnector(
-      name: 'health',
-      endpoint: endpoints['health']!,
-      methodConnectors: {
-        'check': _i1.MethodConnector(
-          name: 'check',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
               ) async =>
-                  (endpoints['health'] as _i8.HealthEndpoint).check(session),
-        ),
-        'detailed': _i1.MethodConnector(
-          name: 'detailed',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['health'] as _i8.HealthEndpoint).detailed(session),
-        ),
-        'ready': _i1.MethodConnector(
-          name: 'ready',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['health'] as _i8.HealthEndpoint).ready(session),
-        ),
-        'live': _i1.MethodConnector(
-          name: 'live',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['health'] as _i8.HealthEndpoint).live(session),
-        ),
-        'metrics': _i1.MethodConnector(
-          name: 'metrics',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['health'] as _i8.HealthEndpoint).metrics(session),
+                  (endpoints['lounge'] as _i8.LoungeEndpoint).deleteLounge(
+                    session,
+                    params['loungeId'],
+                  ),
         ),
       },
     );
@@ -2502,8 +2515,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     limit: params['limit'],
                   ),
         ),
-        'searchGroups': _i1.MethodConnector(
-          name: 'searchGroups',
+        'searchLounges': _i1.MethodConnector(
+          name: 'searchLounges',
           params: {
             'query': _i1.ParameterDescription(
               name: 'query',
@@ -2521,7 +2534,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['search'] as _i15.SearchEndpoint).searchGroups(
+                  (endpoints['search'] as _i15.SearchEndpoint).searchLounges(
                     session,
                     params['query'],
                     limit: params['limit'],
@@ -2546,8 +2559,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     limit: params['limit'],
                   ),
         ),
-        'getPopularGroups': _i1.MethodConnector(
-          name: 'getPopularGroups',
+        'getPopularLounges': _i1.MethodConnector(
+          name: 'getPopularLounges',
           params: {
             'limit': _i1.ParameterDescription(
               name: 'limit',
@@ -2559,8 +2572,8 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['search'] as _i15.SearchEndpoint).getPopularGroups(
+              ) async => (endpoints['search'] as _i15.SearchEndpoint)
+                  .getPopularLounges(
                     session,
                     limit: params['limit'],
                   ),

@@ -5,25 +5,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/client_provider.dart';
-import '../../providers/group_provider.dart';
+import '../../providers/lounge_provider.dart';
 import '../../config/theme.dart';
-import '../../widgets/duo/duo_group_card.dart';
+import '../../widgets/duo/duo_lounge_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
-class GroupSearchScreen extends ConsumerStatefulWidget {
-  const GroupSearchScreen({super.key});
+class LoungeSearchScreen extends ConsumerStatefulWidget {
+  const LoungeSearchScreen({super.key});
 
   @override
-  ConsumerState<GroupSearchScreen> createState() => _GroupSearchScreenState();
+  ConsumerState<LoungeSearchScreen> createState() => _LoungeSearchScreenState();
 }
 
-class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
+class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Group> _results = [];
+  List<Lounge> _results = [];
   bool _isLoading = false;
   bool _isRecommendation = true;
 
@@ -43,7 +43,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     setState(() => _isLoading = true);
     try {
       final client = ref.read(clientProvider);
-      final results = await client.group.searchPublicGroups(
+      final results = await client.lounge.searchPublicLounges(
         '',
         limit: 10,
         offset: 0,
@@ -69,7 +69,7 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     setState(() => _isLoading = true);
     try {
       final client = ref.read(clientProvider);
-      final results = await client.group.searchPublicGroups(
+      final results = await client.lounge.searchPublicLounges(
         query,
         limit: 20,
         offset: 0,
@@ -168,13 +168,13 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
     );
   }
 
-  Widget _buildSearchResultCard(Group group, int index) {
-    return DuoGroupCard(
-      group: group,
+  Widget _buildSearchResultCard(Lounge lounge, int index) {
+    return DuoLoungeCard(
+      lounge: lounge,
       showInterests: true,
       onTap: () {
         HapticFeedback.lightImpact();
-        context.push('/groups/profile/${group.id!}', extra: group);
+        context.push('/lounges/profile/${lounge.id!}', extra: lounge);
       },
       bottomActions: [
         SizedBox(
@@ -184,8 +184,8 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
             onPressed: () async {
               try {
                 await ref
-                    .read(groupListProvider.notifier)
-                    .applyToGroup(group.id!);
+                    .read(loungeListProvider.notifier)
+                    .applyToLounge(lounge.id!);
                 if (mounted) {
                   DuoSnackBarHelper.showSuccess(context, 'Application sent!');
                 }

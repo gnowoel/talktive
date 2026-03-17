@@ -5,7 +5,7 @@ import 'client_provider.dart';
 import 'notification_provider.dart';
 import 'router_provider.dart';
 import 'private_chat_provider.dart';
-import 'group_provider.dart';
+import 'lounge_provider.dart';
 import 'gamification_provider.dart';
 
 part 'fcm_provider.g.dart';
@@ -139,9 +139,9 @@ class FCMManager extends _$FCMManager {
         );
 
     // Explicitly refresh providers to ensure unread counts update immediately
-    debugPrint('FCM DEBUG: Refreshing chat and group lists...');
+    debugPrint('FCM DEBUG: Refreshing chat and lounge lists...');
     ref.read(privateChatListProvider.notifier).refresh();
-    ref.read(groupListProvider.notifier).refresh();
+    ref.read(loungeListProvider.notifier).refresh();
 
     // Refresh gamification and activity for relevant events
     final type = message.data['type'] as String?;
@@ -166,7 +166,7 @@ class FCMManager extends _$FCMManager {
         return '🔥';
       case 'mention':
         return '🏷️';
-      case 'group_invite':
+      case 'lounge_invite':
         return '🎫';
       case 'level_up':
         return '🆙';

@@ -299,7 +299,7 @@ class GamificationService {
       Achievement(
         key: 'social_butterfly',
         name: 'Social Butterfly',
-        description: 'Join 5 groups',
+        description: 'Join 5 lounges',
         emoji: '🦋',
         category: 'social',
         targetValue: 5,
@@ -308,7 +308,7 @@ class GamificationService {
       Achievement(
         key: 'community_builder',
         name: 'Community Builder',
-        description: 'Create your first group',
+        description: 'Create your first lounge',
         emoji: '🏗️',
         category: 'social',
         targetValue: 1,

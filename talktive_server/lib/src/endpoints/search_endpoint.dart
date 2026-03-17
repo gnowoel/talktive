@@ -49,8 +49,8 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Search for groups by name or description
-  Future<List<protocol.Group>> searchGroups(
+  /// Search for lounges by name or description
+  Future<List<protocol.Lounge>> searchLounges(
     Session session,
     String query, {
     int limit = 20,
@@ -60,7 +60,7 @@ class SearchEndpoint extends Endpoint {
         return [];
       }
 
-      final groups = await protocol.Group.db.find(
+      final lounges = await protocol.Lounge.db.find(
         session,
         where: (t) =>
             t.name.ilike('%$query%') | t.description.ilike('%$query%'),
@@ -69,9 +69,9 @@ class SearchEndpoint extends Endpoint {
         limit: limit,
       );
 
-      return groups;
+      return lounges;
     } catch (e) {
-      session.log('Error searching groups: $e', level: LogLevel.error);
+      session.log('Error searching lounges: $e', level: LogLevel.error);
       return [];
     }
   }
@@ -111,21 +111,21 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Get popular groups (most members) - CACHED
-  Future<List<protocol.Group>> getPopularGroups(
+  /// Get popular lounges (most members) - CACHED
+  Future<List<protocol.Lounge>> getPopularLounges(
     Session session, {
     int limit = 10,
   }) async {
     try {
       // Try cache first
-      final cached = await CacheService.getPopularGroups(session);
+      final cached = await CacheService.getPopularLounges(session);
       if (cached != null) {
         final List<dynamic> decoded = jsonDecode(cached);
-        return decoded.map((g) => protocol.Group.fromJson(g)).toList();
+        return decoded.map((g) => protocol.Lounge.fromJson(g)).toList();
       }
 
       // Cache miss - query database
-      final groups = await protocol.Group.db.find(
+      final lounges = await protocol.Lounge.db.find(
         session,
         where: (t) => t.isPublic.equals(true),
         orderBy: (t) => t.memberCount,
@@ -134,12 +134,12 @@ class SearchEndpoint extends Endpoint {
       );
 
       // Store in cache
-      final encoded = jsonEncode(groups.map((g) => g.toJson()).toList());
-      await CacheService.setPopularGroups(session, encoded);
+      final encoded = jsonEncode(lounges.map((g) => g.toJson()).toList());
+      await CacheService.setPopularLounges(session, encoded);
 
-      return groups;
+      return lounges;
     } catch (e) {
-      session.log('Error getting popular groups: $e', level: LogLevel.error);
+      session.log('Error getting popular lounges: $e', level: LogLevel.error);
       return [];
     }
   }
@@ -221,7 +221,7 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Search all content (users, groups, moments)
+  /// Search all content (users, lounges, moments)
   Future<Map<String, dynamic>> searchAll(
     Session session,
     String query, {
@@ -229,7 +229,7 @@ class SearchEndpoint extends Endpoint {
   }) async {
     try {
       final users = await searchUsers(session, query, limit: limit);
-      final groups = await searchGroups(session, query, limit: limit);
+      final lounges = await searchLounges(session, query, limit: limit);
 
       // Search moments by caption
       final moments = await protocol.Moment.db.find(
@@ -242,14 +242,14 @@ class SearchEndpoint extends Endpoint {
 
       return {
         'users': users,
-        'groups': groups.map((g) => g.toJson()).toList(),
+        'lounges': lounges.map((g) => g.toJson()).toList(),
         'moments': moments.map((m) => m.toJson()).toList(),
       };
     } catch (e) {
       session.log('Error searching all: $e', level: LogLevel.error);
       return {
         'users': [],
-        'groups': [],
+        'lounges': [],
         'moments': [],
       };
     }
@@ -414,7 +414,7 @@ class SearchEndpoint extends Endpoint {
         limit: limit,
       );
 
-      final popularGroups = await getPopularGroups(
+      final popularLounges = await getPopularLounges(
         session,
         limit: limit,
       );
@@ -423,7 +423,7 @@ class SearchEndpoint extends Endpoint {
         'usersByInterests': usersByInterests,
         'usersByLanguages': usersByLanguages,
         'trendingMoments': trendingMoments.map((m) => m.toJson()).toList(),
-        'popularGroups': popularGroups.map((g) => g.toJson()).toList(),
+        'popularLounges': popularLounges.map((g) => g.toJson()).toList(),
       };
     } catch (e) {
       session.log('Error getting discovery feed: $e', level: LogLevel.error);
@@ -431,7 +431,7 @@ class SearchEndpoint extends Endpoint {
         'usersByInterests': [],
         'usersByLanguages': [],
         'trendingMoments': [],
-        'popularGroups': [],
+        'popularLounges': [],
       };
     }
   }

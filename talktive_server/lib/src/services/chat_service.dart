@@ -159,15 +159,15 @@ class ChatService {
         privateChat.lastMessage = previewText;
         await protocol.PrivateChat.db.updateRow(session, privateChat);
       }
-    } else if (channelType == protocol.ChannelType.group) {
-      final group = await protocol.Group.db.findFirstRow(
+    } else if (channelType == protocol.ChannelType.lounge) {
+      final lounge = await protocol.Lounge.db.findFirstRow(
         session,
         where: (t) => t.channelId.equals(channelId),
       );
-      if (group != null) {
-        group.lastMessageAt = now;
-        group.lastMessage = previewText;
-        await protocol.Group.db.updateRow(session, group);
+      if (lounge != null) {
+        lounge.lastMessageAt = now;
+        lounge.lastMessage = previewText;
+        await protocol.Lounge.db.updateRow(session, lounge);
       }
     }
   }

@@ -1,6 +1,6 @@
 # Talktive Flutter Client
 
-A robust, modern group chat application front-end built in Flutter. This is the client application for the Talktive project, connecting to the Serverpod-powered backend.
+A robust, modern lounge chat application front-end built in Flutter. This is the client application for the Talktive project, connecting to the Serverpod-powered backend.
 
 [![google-play-badge](https://github.com/user-attachments/assets/bb22e307-7b4d-4871-ad1a-57d1d4b3b809)](https://play.google.com/store/apps/details?id=app.talktive)
 

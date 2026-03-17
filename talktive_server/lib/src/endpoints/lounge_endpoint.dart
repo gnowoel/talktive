@@ -8,9 +8,9 @@ import '../services/resident_service.dart';
 import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
-class GroupEndpoint extends Endpoint with EndpointAuthMixin {
-  /// Creates a new group.
-  Future<protocol.Group> createGroup(
+class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
+  /// Creates a new lounge.
+  Future<protocol.Lounge> createLounge(
     Session session,
     String name, {
     String? description,
@@ -20,18 +20,18 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? interests,
   }) async {
     // Validate inputs
-    InputValidationService.validateGroupName(name).throwIfInvalid();
-    InputValidationService.validateGroupDescription(
+    InputValidationService.validateLoungeName(name).throwIfInvalid();
+    InputValidationService.validateLoungeDescription(
       description,
     ).throwIfInvalid();
-    InputValidationService.validateGroupMemberLimit(
+    InputValidationService.validateLoungeMemberLimit(
       maxMembers,
     ).throwIfInvalid();
 
     final currentUserId = await getUserId(session);
     final currentResident = await getAuthenticatedResident(session);
 
-    // Safety: muted or suspended users cannot create groups
+    // Safety: muted or suspended users cannot create lounges
     if (ApartmentService.isMuted(currentResident)) {
       throw protocol.TalktiveException(
         message: ApartmentService.getMuteReason(currentResident),
@@ -39,25 +39,25 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // Safety: must be at least Floor 1 to create a group
+    // Safety: must be at least Floor 1 to create a lounge
     if (ApartmentService.computeEffectiveFloor(currentResident) < 1) {
       throw protocol.TalktiveException(
-        message: 'You must reach Floor 1 to create a group. Keep chatting!',
+        message: 'You must reach Floor 1 to create a lounge. Keep chatting!',
         code: 'FLOOR_TOO_LOW',
       );
     }
 
-    // Create a new channel for this group
+    // Create a new channel for this lounge
     final channel = protocol.Channel(
       name: name,
-      type: protocol.ChannelType.group,
+      type: protocol.ChannelType.lounge,
       createdAt: DateTime.now(),
     );
 
     final savedChannel = await protocol.Channel.db.insertRow(session, channel);
 
-    // Create the group record
-    final group = protocol.Group(
+    // Create the lounge record
+    final lounge = protocol.Lounge(
       channelId: savedChannel.id!,
       name: name,
       description: description,
@@ -70,7 +70,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       interests: interests,
     );
 
-    final savedGroup = await protocol.Group.db.insertRow(session, group);
+    final savedLounge = await protocol.Lounge.db.insertRow(session, lounge);
 
     // Add creator as first member with admin role
     await protocol.ChannelMember.db.insertRow(
@@ -91,11 +91,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       'community_builder',
     );
 
-    return savedGroup;
+    return savedLounge;
   }
 
-  /// Lists all groups the user considers 'theirs' (joined, invited, applied).
-  Future<List<protocol.GroupWithMembership>> listMyGroups(
+  /// Lists all lounges the user considers 'theirs' (joined, invited, applied).
+  Future<List<protocol.LoungeWithMembership>> listMyLounges(
     Session session, {
     int limit = 50,
     int offset = 0,
@@ -108,7 +108,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     final currentUserId = await getUserId(session);
 
-    // Get all groups where user is a tracked member
+    // Get all lounges where user is a tracked member
     final memberships = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
@@ -130,17 +130,17 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       return [];
     }
 
-    final groups = await protocol.Group.db.find(
+    final lounges = await protocol.Lounge.db.find(
       session,
       where: (t) => t.channelId.inSet(membershipMap.keys.toSet()),
       orderBy: (t) => t.lastMessageAt,
       orderDescending: true,
     );
 
-    return Future.wait(groups.map((g) async {
+    return Future.wait(lounges.map((g) async {
       final member = membershipMap[g.channelId];
-      return protocol.GroupWithMembership(
-        group: g,
+      return protocol.LoungeWithMembership(
+        lounge: g,
         membershipStatus: member?.status ?? protocol.ChannelMemberStatus.left,
         membershipRole: member?.role,
         isMuted: member?.isMuted,
@@ -153,22 +153,22 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }));
   }
 
-  /// Gets details about a specific group.
-  Future<protocol.Group> getGroup(Session session, int groupId) async {
-    final group = await protocol.Group.db.findById(session, groupId);
+  /// Gets details about a specific lounge.
+  Future<protocol.Lounge> getLounge(Session session, int loungeId) async {
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
-    return group;
+    return lounge;
   }
 
-  /// Searches for public groups based on a query.
-  Future<List<protocol.Group>> searchPublicGroups(
+  /// Searches for public lounges based on a query.
+  Future<List<protocol.Lounge>> searchPublicLounges(
     Session session,
     String query, {
     int limit = 50,
@@ -191,15 +191,15 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       if (resident != null &&
           resident.interests != null &&
           resident.interests!.isNotEmpty) {
-        // Find public groups
-        final allPublicGroups = await protocol.Group.db.find(
+        // Find public lounges
+        final allPublicLounges = await protocol.Lounge.db.find(
           session,
           where: (t) => t.isPublic.equals(true),
           limit: 100, // Limit the scan for personalization
         );
 
         // Sort by interest match count
-        allPublicGroups.sort((a, b) {
+        allPublicLounges.sort((a, b) {
           final aMatch =
               a.interests
                   ?.where((i) => resident.interests!.contains(i))
@@ -217,7 +217,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
           ); // Then more members first
         });
 
-        return allPublicGroups.skip(offset).take(limit).toList();
+        return allPublicLounges.skip(offset).take(limit).toList();
       }
     }
 
@@ -227,8 +227,8 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     final sanitizedQuery = query.trim().toLowerCase();
 
-    // Find all public groups that contain the query string in name or description
-    final groups = await protocol.Group.db.find(
+    // Find all public lounges that contain the query string in name or description
+    final lounges = await protocol.Lounge.db.find(
       session,
       where: (t) =>
           t.isPublic.equals(true) &
@@ -240,11 +240,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     );
 
-    return groups;
+    return lounges;
   }
 
-  /// Applies to join a public group.
-  Future<void> applyToGroup(Session session, int groupId) async {
+  /// Applies to join a public lounge.
+  Future<void> applyToLounge(Session session, int loungeId) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -254,23 +254,23 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
-    if (!group.isPublic) {
-      throw protocol.TalktiveException(message: 'Cannot apply to a private group');
+    if (!lounge.isPublic) {
+      throw protocol.TalktiveException(message: 'Cannot apply to a private lounge');
     }
 
-    // Check if group is full
-    if (group.memberCount >= group.maxMembers) {
-      throw protocol.TalktiveException(message: 'Group is full');
+    // Check if lounge is full
+    if (lounge.memberCount >= lounge.maxMembers) {
+      throw protocol.TalktiveException(message: 'Lounge is full');
     }
 
     // Fetch current resident profile for safety checks
@@ -282,7 +282,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'User profile not found');
     }
 
-    // Safety: muted or suspended users cannot apply to groups
+    // Safety: muted or suspended users cannot apply to lounges
     if (ApartmentService.isMuted(currentResident)) {
       throw protocol.TalktiveException(message: ApartmentService.getMuteReason(currentResident));
     }
@@ -291,16 +291,16 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final existingMember = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(currentUserId),
     );
 
     if (existingMember != null) {
       if (existingMember.status == protocol.ChannelMemberStatus.joined) {
-        throw protocol.TalktiveException(message: 'Already a member of this group');
+        throw protocol.TalktiveException(message: 'Already a member of this lounge');
       } else if (existingMember.status ==
           protocol.ChannelMemberStatus.applied) {
-        throw protocol.TalktiveException(message: 'Already applied to this group');
+        throw protocol.TalktiveException(message: 'Already applied to this lounge');
       }
 
       // Update status if previously left or declined
@@ -312,7 +312,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       await protocol.ChannelMember.db.insertRow(
         session,
         protocol.ChannelMember(
-          channelId: group.channelId,
+          channelId: lounge.channelId,
           userInfoId: currentUserId,
           status: protocol.ChannelMemberStatus.applied,
           joinedAt: DateTime.now(),
@@ -321,10 +321,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
   }
 
-  /// Invites a user to a group (by any current member or creator).
-  Future<void> inviteUserToGroup(
+  /// Invites a user to a lounge (by any current member or creator).
+  Future<void> inviteUserToLounge(
     Session session,
-    int groupId,
+    int loungeId,
     String targetUserIdString,
   ) async {
     final authenticationInfo = session.authenticated;
@@ -341,13 +341,13 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'Cannot invite yourself');
     }
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
@@ -369,20 +369,20 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserMemberResult = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(currentUserId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
     if (currentUserMemberResult == null) {
       throw protocol.TalktiveException(
-        message: 'You are not a member of this group',
+        message: 'You are not a member of this lounge',
       );
     }
 
-    // Check if group is full
-    if (group.memberCount >= group.maxMembers) {
-      throw protocol.TalktiveException(message: 'Group is full');
+    // Check if lounge is full
+    if (lounge.memberCount >= lounge.maxMembers) {
+      throw protocol.TalktiveException(message: 'Lounge is full');
     }
 
     // Check if target has blocked inviter
@@ -396,11 +396,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // Check if target is already in the group
+    // Check if target is already in the lounge
     final targetMember = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(targetUserId),
     );
 
@@ -419,7 +419,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       await protocol.ChannelMember.db.insertRow(
         session,
         protocol.ChannelMember(
-          channelId: group.channelId,
+          channelId: lounge.channelId,
           userInfoId: targetUserId,
           status: protocol.ChannelMemberStatus.invited,
           invitedBy: currentUserId,
@@ -436,42 +436,42 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
       );
 
       if (inviter != null) {
-        await NotificationService.sendGroupInviteNotification(
+        await NotificationService.sendLoungeInviteNotification(
           session,
           targetUserId,
           inviter.userName ?? 'Someone',
-          group.name,
-          group.emoji ?? '👥',
-          group.id!,
+          lounge.name,
+          lounge.emoji ?? '👥',
+          lounge.id!,
         );
       }
     } catch (e) {
-      session.log('Failed to send group invite notification: $e');
+      session.log('Failed to send lounge invite notification: $e');
     }
   }
 
-  /// Responds to a group invite (accept or decline).
-  Future<void> respondToGroupInvite(
+  /// Responds to a lounge invite (accept or decline).
+  Future<void> respondToLoungeInvite(
     Session session,
-    int groupId,
+    int loungeId,
     bool accept,
   ) async {
     final currentUserId = await getUserId(session);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(currentUserId) &
           t.status.equals(protocol.ChannelMemberStatus.invited),
     );
@@ -488,15 +488,15 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     // The user accepted.
     // If they were invited by the creator (host), they bypass approval and join instantly.
-    if (member.invitedBy == group.creatorId) {
-      if (group.memberCount >= group.maxMembers) {
-        throw protocol.TalktiveException(message: 'Group is full');
+    if (member.invitedBy == lounge.creatorId) {
+      if (lounge.memberCount >= lounge.maxMembers) {
+        throw protocol.TalktiveException(message: 'Lounge is full');
       }
       member.status = protocol.ChannelMemberStatus.joined;
       await protocol.ChannelMember.db.updateRow(session, member);
 
-      group.memberCount += 1;
-      await protocol.Group.db.updateRow(session, group);
+      lounge.memberCount += 1;
+      await protocol.Lounge.db.updateRow(session, lounge);
 
       await GamificationService.trackProgress(
         session,
@@ -504,7 +504,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
         'social_butterfly',
       );
 
-      // Award XP for joining group
+      // Award XP for joining lounge
       final resident = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(currentUserId),
@@ -514,7 +514,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
           session,
           resident,
           25,
-          'Joined group',
+          'Joined lounge',
         );
       }
     } else {
@@ -524,35 +524,35 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
   }
 
-  /// Approves or rejects a pending group application (creator only).
-  Future<void> approveGroupApplication(
+  /// Approves or rejects a pending lounge application (creator only).
+  Future<void> approveLoungeApplication(
     Session session,
-    int groupId,
+    int loungeId,
     String targetUserIdString,
     bool approve,
   ) async {
     final currentUserId = await getUserId(session);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
     // Enforce creator access control
-    if (group.creatorId != currentUserId) {
+    if (lounge.creatorId != currentUserId) {
       throw protocol.TalktiveException(message: 'Only the creator can approve applications');
     }
 
     final pendingMember = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(targetUserId) &
           t.status.equals(protocol.ChannelMemberStatus.applied),
     );
@@ -568,15 +568,15 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Approve user
-    if (group.memberCount >= group.maxMembers) {
-      throw protocol.TalktiveException(message: 'Group is full');
+    if (lounge.memberCount >= lounge.maxMembers) {
+      throw protocol.TalktiveException(message: 'Lounge is full');
     }
 
     pendingMember.status = protocol.ChannelMemberStatus.joined;
     await protocol.ChannelMember.db.updateRow(session, pendingMember);
 
-    group.memberCount += 1;
-    await protocol.Group.db.updateRow(session, group);
+    lounge.memberCount += 1;
+    await protocol.Lounge.db.updateRow(session, lounge);
 
     await GamificationService.trackProgress(
       session,
@@ -599,10 +599,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
   }
 
-  /// Kicks a member from the group (creator only).
+  /// Kicks a member from the lounge (creator only).
   Future<void> kickMember(
     Session session,
-    int groupId,
+    int loungeId,
     String targetUserIdString,
   ) async {
     final authenticationInfo = session.authenticated;
@@ -616,43 +616,43 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
     if (currentUserId == targetUserId) {
-      throw protocol.TalktiveException(message: 'You cannot kick yourself. Use leaveGroup instead.');
+      throw protocol.TalktiveException(message: 'You cannot kick yourself. Use leaveLounge instead.');
     }
 
-    final group = await protocol.Group.db.findById(session, groupId);
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
-    if (group.creatorId != currentUserId) {
+    if (lounge.creatorId != currentUserId) {
       throw protocol.TalktiveException(message: 'Only the creator can kick members');
     }
 
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(targetUserId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
     if (member == null) {
-      throw protocol.TalktiveException(message: 'User is not a member of the group');
+      throw protocol.TalktiveException(message: 'User is not a member of the lounge');
     }
 
     member.status = protocol.ChannelMemberStatus.left;
     await protocol.ChannelMember.db.updateRow(session, member);
 
-    group.memberCount = (group.memberCount - 1).clamp(0, group.maxMembers);
-    await protocol.Group.db.updateRow(session, group);
+    lounge.memberCount = (lounge.memberCount - 1).clamp(0, lounge.maxMembers);
+    await protocol.Lounge.db.updateRow(session, lounge);
   }
 
-  /// Leaves a group.
-  Future<void> leaveGroup(Session session, int groupId) async {
+  /// Leaves a lounge.
+  Future<void> leaveLounge(Session session, int loungeId) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
 
@@ -662,13 +662,13 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
@@ -676,13 +676,13 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(currentUserId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
     if (member == null) {
-      throw protocol.TalktiveException(message: 'Not a member of this group');
+      throw protocol.TalktiveException(message: 'Not a member of this lounge');
     }
 
     // Update member status
@@ -690,25 +690,25 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     await protocol.ChannelMember.db.updateRow(session, member);
 
     // Decrement member count
-    group.memberCount = (group.memberCount - 1).clamp(0, group.maxMembers);
-    await protocol.Group.db.updateRow(session, group);
+    lounge.memberCount = (lounge.memberCount - 1).clamp(0, lounge.maxMembers);
+    await protocol.Lounge.db.updateRow(session, lounge);
   }
 
-  /// Gets all members of a group with their profiles.
-  Future<void> toggleMuteGroup(
+  /// Gets all members of a lounge with their profiles.
+  Future<void> toggleMuteLounge(
     Session session,
-    int groupId,
+    int loungeId,
     bool isMuted,
   ) async {
     final currentUserId = await getUserId(session);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
@@ -716,30 +716,30 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(currentUserId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
     if (member == null) {
-      throw protocol.TalktiveException(message: 'Not a member of this group');
+      throw protocol.TalktiveException(message: 'Not a member of this lounge');
     }
 
     member.isMuted = isMuted;
     await protocol.ChannelMember.db.updateRow(session, member);
   }
 
-  /// Gets all members of a group with their profiles.
-  Future<List<protocol.GroupMemberWithProfile>> getGroupMembersWithProfiles(
+  /// Gets all members of a lounge with their profiles.
+  Future<List<protocol.LoungeMemberWithProfile>> getLoungeMembersWithProfiles(
     Session session,
-    int groupId,
+    int loungeId,
   ) async {
-    final group = await protocol.Group.db.findById(session, groupId);
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
@@ -747,7 +747,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
       orderBy: (t) => t.joinedAt,
     );
@@ -761,12 +761,12 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     // Map resident profiles by ID for quick lookup
     final profileMap = {for (var r in residents) r.userInfoId: r};
 
-    final results = <protocol.GroupMemberWithProfile>[];
+    final results = <protocol.LoungeMemberWithProfile>[];
     for (final member in members) {
       final resident = profileMap[member.userInfoId];
       if (resident != null) {
         results.add(
-          protocol.GroupMemberWithProfile(
+          protocol.LoungeMemberWithProfile(
             resident: resident,
             status: member.status,
             role: member.role,
@@ -779,11 +779,11 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     return results;
   }
 
-  /// Gets all pending applications for a group (creator only).
-  Future<List<protocol.GroupMemberWithProfile>>
+  /// Gets all pending applications for a lounge (creator only).
+  Future<List<protocol.LoungeMemberWithProfile>>
   getPendingApplicationsWithProfiles(
     Session session,
-    int groupId,
+    int loungeId,
   ) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
@@ -793,16 +793,16 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     final currentUserId = UuidValue.fromString(currentUserIdentifier);
-    final group = await protocol.Group.db.findById(session, groupId);
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
-    if (group.creatorId != currentUserId) {
+    if (lounge.creatorId != currentUserId) {
       throw protocol.TalktiveException(message: 'Only the creator can view pending applications');
     }
 
@@ -810,7 +810,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.status.equals(protocol.ChannelMemberStatus.applied),
       orderBy: (t) => t.joinedAt, // reuse joinedAt for application time
     );
@@ -824,12 +824,12 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     // Map resident profiles by ID for quick lookup
     final profileMap = {for (var r in residents) r.userInfoId: r};
 
-    final results = <protocol.GroupMemberWithProfile>[];
+    final results = <protocol.LoungeMemberWithProfile>[];
     for (final member in members) {
       final resident = profileMap[member.userInfoId];
       if (resident != null) {
         results.add(
-          protocol.GroupMemberWithProfile(
+          protocol.LoungeMemberWithProfile(
             resident: resident,
             status: member.status,
             role: member.role,
@@ -841,17 +841,17 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     return results;
   }
 
-  /// Gets all members of a group.
-  Future<List<protocol.Resident>> getGroupMembers(
+  /// Gets all members of a lounge.
+  Future<List<protocol.Resident>> getLoungeMembers(
     Session session,
-    int groupId,
+    int loungeId,
   ) async {
-    final group = await protocol.Group.db.findById(session, groupId);
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
@@ -859,7 +859,7 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
@@ -878,10 +878,10 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     return residents;
   }
 
-  /// Updates group details (admin only).
-  Future<protocol.Group> updateGroup(
+  /// Updates lounge details (admin only).
+  Future<protocol.Lounge> updateLounge(
     Session session,
-    int groupId, {
+    int loungeId, {
     String? name,
     String? description,
     String? emoji,
@@ -891,13 +891,13 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     final currentUserId = await getUserId(session);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
@@ -905,92 +905,92 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
-          t.channelId.equals(group.channelId) &
+          t.channelId.equals(lounge.channelId) &
           t.userInfoId.equals(currentUserId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
     if (member == null || member.role != 'admin') {
       throw protocol.TalktiveException(
-        message: 'Only admins can update group details',
+        message: 'Only admins can update lounge details',
         code: 'ACCESS_DENIED',
       );
     }
 
     // Validate inputs if provided
     if (name != null) {
-      InputValidationService.validateGroupName(name).throwIfInvalid();
+      InputValidationService.validateLoungeName(name).throwIfInvalid();
     }
     if (description != null) {
-      InputValidationService.validateGroupDescription(
+      InputValidationService.validateLoungeDescription(
         description,
       ).throwIfInvalid();
     }
     if (maxMembers != null) {
-      InputValidationService.validateGroupMemberLimit(
+      InputValidationService.validateLoungeMemberLimit(
         maxMembers,
       ).throwIfInvalid();
     }
 
     // Update fields
     if (name != null && name.trim().isNotEmpty) {
-      group.name = name;
+      lounge.name = name;
     }
 
     if (description != null) {
-      group.description = description;
+      lounge.description = description;
     }
 
     if (emoji != null) {
-      group.emoji = emoji;
+      lounge.emoji = emoji;
     }
 
     if (isPublic != null) {
-      if (isPublic && group.isStaffLocked) {
+      if (isPublic && lounge.isStaffLocked) {
         throw protocol.TalktiveException(
           message:
               'This lounge has been locked to private by an administrator and cannot be made public.',
           code: 'ADMIN_LOCKED',
         );
       }
-      group.isPublic = isPublic;
+      lounge.isPublic = isPublic;
     }
 
     if (maxMembers != null) {
-      if (maxMembers < group.memberCount) {
+      if (maxMembers < lounge.memberCount) {
         throw protocol.TalktiveException(
           message: 'Cannot set max members below current member count',
           code: 'INVALID_INPUT',
         );
       }
-      group.maxMembers = maxMembers;
+      lounge.maxMembers = maxMembers;
     }
 
     if (interests != null) {
-      group.interests = interests;
+      lounge.interests = interests;
     }
 
-    return await protocol.Group.db.updateRow(session, group);
+    return await protocol.Lounge.db.updateRow(session, lounge);
   }
 
-  /// Deletes a group (creator only).
-  Future<void> deleteGroup(Session session, int groupId) async {
+  /// Deletes a lounge (creator only).
+  Future<void> deleteLounge(Session session, int loungeId) async {
     final currentUserId = await getUserId(session);
 
-    // Get the group
-    final group = await protocol.Group.db.findById(session, groupId);
+    // Get the lounge
+    final lounge = await protocol.Lounge.db.findById(session, loungeId);
 
-    if (group == null) {
+    if (lounge == null) {
       throw protocol.TalktiveException(
-        message: 'Group not found',
-        code: 'GROUP_NOT_FOUND',
+        message: 'Lounge not found',
+        code: 'LOUNGE_NOT_FOUND',
       );
     }
 
     // Check if user is the creator
-    if (group.creatorId != currentUserId) {
+    if (lounge.creatorId != currentUserId) {
       throw protocol.TalktiveException(
-        message: 'Only the creator can delete the group',
+        message: 'Only the creator can delete the lounge',
         code: 'ACCESS_DENIED',
       );
     }
@@ -998,20 +998,20 @@ class GroupEndpoint extends Endpoint with EndpointAuthMixin {
     // Delete all channel members
     final members = await protocol.ChannelMember.db.find(
       session,
-      where: (t) => t.channelId.equals(group.channelId),
+      where: (t) => t.channelId.equals(lounge.channelId),
     );
 
     for (final member in members) {
       await protocol.ChannelMember.db.deleteRow(session, member);
     }
 
-    // Delete the group
-    await protocol.Group.db.deleteRow(session, group);
+    // Delete the lounge
+    await protocol.Lounge.db.deleteRow(session, lounge);
 
     // Delete the channel
     final channel = await protocol.Channel.db.findById(
       session,
-      group.channelId,
+      lounge.channelId,
     );
     if (channel != null) {
       await protocol.Channel.db.deleteRow(session, channel);

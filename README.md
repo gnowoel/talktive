@@ -1,6 +1,6 @@
 # Talktive: Anonymous Chat
 
-Talktive is a private and group chat application where users log in securely via Google but interact using custom, anonymous personas designed for privacy and authentic conversations.
+Talktive is a private and lounge chat application where users log in securely via Google but interact using custom, anonymous personas designed for privacy and authentic conversations.
 
 ## 🎯 Purpose
 
@@ -19,7 +19,7 @@ Unlike traditional chat applications or social networking sites, chatting here i
 - **Plaza (Lobby)**: A public space for casual, open encounters.
 - **Moments (Bulletin Board)**: A place to showcase yourself and see what others are up to.
 - **Chats (Private Units)**: Intimate, 1-on-1 private spaces with old friends.
-- **Groups (Clubhouse)**: Semi-public spaces for community discussions and shared interests.
+- **Lounges (Clubhouse)**: Semi-public spaces for community discussions and shared interests.
 - **Profile (My Unit)**: Your personal space to showcase your personality (Interests, Languages, Achievements).
 
 **Duolingo-Inspired UI/UX**: The app features a clean, dynamic, and playful design inspired by Duolingo's aesthetic. Moving away from the previous glassmorphism design, Talktive now embraces:
@@ -30,7 +30,7 @@ Unlike traditional chat applications or social networking sites, chatting here i
 - **Micro-interactions**: Haptic feedback, smooth animations, satisfying transitions
 - **Celebration-Driven**: Confetti animations and positive reinforcement
 
-The onboarding wizard established these Duolingo-style patterns (vibrant colors, emoji-centric design, smooth animations, gamification elements), and this design language has been extended across the entire app including the bottom navigation and all five main screens: Plaza, Moments, Chats, Groups, and Profile.
+The onboarding wizard established these Duolingo-style patterns (vibrant colors, emoji-centric design, smooth animations, gamification elements), and this design language has been extended across the entire app including the bottom navigation and all five main screens: Plaza, Moments, Chats, Lounges, and Profile.
 
 ## 🚀 Project Status
 
@@ -45,7 +45,7 @@ The application has been successfully migrated from **Firebase** to **Serverpod*
 - 🎨 **Duolingo UI**: Clean, playful, and high-contrast design using the `Duo` component library.
 - 📬 **Secure Messaging**: 1-on-1 chats with a privacy-first "Doorbell" invite system.
 - 📸 **Moments**: A localized photo feed for residents to share snapshots and earn XP.
-- 🛋️ **Lounges (Groups)**: Join or create interest-based communities with admin approval flows.
+- 🛋️ **Lounges**: Join or create interest-based communities with admin approval flows.
 - 💎 **Gamified Socials**: Streaks, achievements, and level-up celebrations (Floor 1 to 50).
 
 **Safety & Safety Engineering:**

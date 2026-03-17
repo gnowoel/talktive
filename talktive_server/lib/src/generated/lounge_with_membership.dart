@@ -11,31 +11,35 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import 'group.dart' as _i2;
+import 'lounge.dart' as _i2;
 import 'channel_member_status.dart' as _i3;
 import 'package:talktive_server/src/generated/protocol.dart' as _i4;
 
-abstract class GroupWithMembership
+abstract class LoungeWithMembership
     implements _i1.SerializableModel, _i1.ProtocolSerialization {
-  GroupWithMembership._({
-    required this.group,
+  LoungeWithMembership._({
+    required this.lounge,
     this.membershipStatus,
     this.membershipRole,
     this.isMuted,
     int? unreadCount,
   }) : unreadCount = unreadCount ?? 0;
 
-  factory GroupWithMembership({
-    required _i2.Group group,
+  factory LoungeWithMembership({
+    required _i2.Lounge lounge,
     _i3.ChannelMemberStatus? membershipStatus,
     String? membershipRole,
     bool? isMuted,
     int? unreadCount,
-  }) = _GroupWithMembershipImpl;
+  }) = _LoungeWithMembershipImpl;
 
-  factory GroupWithMembership.fromJson(Map<String, dynamic> jsonSerialization) {
-    return GroupWithMembership(
-      group: _i4.Protocol().deserialize<_i2.Group>(jsonSerialization['group']),
+  factory LoungeWithMembership.fromJson(
+    Map<String, dynamic> jsonSerialization,
+  ) {
+    return LoungeWithMembership(
+      lounge: _i4.Protocol().deserialize<_i2.Lounge>(
+        jsonSerialization['lounge'],
+      ),
       membershipStatus: jsonSerialization['membershipStatus'] == null
           ? null
           : _i3.ChannelMemberStatus.fromJson(
@@ -49,7 +53,7 @@ abstract class GroupWithMembership
     );
   }
 
-  _i2.Group group;
+  _i2.Lounge lounge;
 
   _i3.ChannelMemberStatus? membershipStatus;
 
@@ -59,11 +63,11 @@ abstract class GroupWithMembership
 
   int unreadCount;
 
-  /// Returns a shallow copy of this [GroupWithMembership]
+  /// Returns a shallow copy of this [LoungeWithMembership]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  GroupWithMembership copyWith({
-    _i2.Group? group,
+  LoungeWithMembership copyWith({
+    _i2.Lounge? lounge,
     _i3.ChannelMemberStatus? membershipStatus,
     String? membershipRole,
     bool? isMuted,
@@ -72,8 +76,8 @@ abstract class GroupWithMembership
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'GroupWithMembership',
-      'group': group.toJson(),
+      '__className__': 'LoungeWithMembership',
+      'lounge': lounge.toJson(),
       if (membershipStatus != null)
         'membershipStatus': membershipStatus?.toJson(),
       if (membershipRole != null) 'membershipRole': membershipRole,
@@ -85,8 +89,8 @@ abstract class GroupWithMembership
   @override
   Map<String, dynamic> toJsonForProtocol() {
     return {
-      '__className__': 'GroupWithMembership',
-      'group': group.toJsonForProtocol(),
+      '__className__': 'LoungeWithMembership',
+      'lounge': lounge.toJsonForProtocol(),
       if (membershipStatus != null)
         'membershipStatus': membershipStatus?.toJson(),
       if (membershipRole != null) 'membershipRole': membershipRole,
@@ -103,34 +107,34 @@ abstract class GroupWithMembership
 
 class _Undefined {}
 
-class _GroupWithMembershipImpl extends GroupWithMembership {
-  _GroupWithMembershipImpl({
-    required _i2.Group group,
+class _LoungeWithMembershipImpl extends LoungeWithMembership {
+  _LoungeWithMembershipImpl({
+    required _i2.Lounge lounge,
     _i3.ChannelMemberStatus? membershipStatus,
     String? membershipRole,
     bool? isMuted,
     int? unreadCount,
   }) : super._(
-         group: group,
+         lounge: lounge,
          membershipStatus: membershipStatus,
          membershipRole: membershipRole,
          isMuted: isMuted,
          unreadCount: unreadCount,
        );
 
-  /// Returns a shallow copy of this [GroupWithMembership]
+  /// Returns a shallow copy of this [LoungeWithMembership]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  GroupWithMembership copyWith({
-    _i2.Group? group,
+  LoungeWithMembership copyWith({
+    _i2.Lounge? lounge,
     Object? membershipStatus = _Undefined,
     Object? membershipRole = _Undefined,
     Object? isMuted = _Undefined,
     int? unreadCount,
   }) {
-    return GroupWithMembership(
-      group: group ?? this.group.copyWith(),
+    return LoungeWithMembership(
+      lounge: lounge ?? this.lounge.copyWith(),
       membershipStatus: membershipStatus is _i3.ChannelMemberStatus?
           ? membershipStatus
           : this.membershipStatus,

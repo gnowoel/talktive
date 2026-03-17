@@ -221,9 +221,9 @@ class Messaging {
         GoRouter.of(context).go('/profile');
         break;
 
-      case 'group_invite':
-        // Navigate to groups screen
-        GoRouter.of(context).go('/groups');
+      case 'lounge_invite':
+        // Navigate to lounges screen
+        GoRouter.of(context).go('/lounges');
         break;
 
       case 'chat':

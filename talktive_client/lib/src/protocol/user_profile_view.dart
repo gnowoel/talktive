@@ -32,7 +32,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required this.isBlocked,
     required this.hasBlockedMe,
     required this.isLiked,
-    required this.mutualGroups,
+    required this.mutualLounges,
     this.recentMoments,
     this.level,
     this.xp,
@@ -61,7 +61,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     required bool isBlocked,
     required bool hasBlockedMe,
     required bool isLiked,
-    required int mutualGroups,
+    required int mutualLounges,
     List<_i2.Moment>? recentMoments,
     int? level,
     int? xp,
@@ -93,7 +93,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
         jsonSerialization['hasBlockedMe'],
       ),
       isLiked: _i1.BoolJsonExtension.fromJson(jsonSerialization['isLiked']),
-      mutualGroups: jsonSerialization['mutualGroups'] as int,
+      mutualLounges: jsonSerialization['mutualLounges'] as int,
       recentMoments: jsonSerialization['recentMoments'] == null
           ? null
           : _i4.Protocol().deserialize<List<_i2.Moment>>(
@@ -152,7 +152,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
 
   bool isLiked;
 
-  int mutualGroups;
+  int mutualLounges;
 
   List<_i2.Moment>? recentMoments;
 
@@ -194,7 +194,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     bool? isBlocked,
     bool? hasBlockedMe,
     bool? isLiked,
-    int? mutualGroups,
+    int? mutualLounges,
     List<_i2.Moment>? recentMoments,
     int? level,
     int? xp,
@@ -225,7 +225,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       'isBlocked': isBlocked,
       'hasBlockedMe': hasBlockedMe,
       'isLiked': isLiked,
-      'mutualGroups': mutualGroups,
+      'mutualLounges': mutualLounges,
       if (recentMoments != null)
         'recentMoments': recentMoments?.toJson(valueToJson: (v) => v.toJson()),
       if (level != null) 'level': level,
@@ -265,7 +265,7 @@ class _UserProfileViewImpl extends UserProfileView {
     required bool isBlocked,
     required bool hasBlockedMe,
     required bool isLiked,
-    required int mutualGroups,
+    required int mutualLounges,
     List<_i2.Moment>? recentMoments,
     int? level,
     int? xp,
@@ -292,7 +292,7 @@ class _UserProfileViewImpl extends UserProfileView {
          isBlocked: isBlocked,
          hasBlockedMe: hasBlockedMe,
          isLiked: isLiked,
-         mutualGroups: mutualGroups,
+         mutualLounges: mutualLounges,
          recentMoments: recentMoments,
          level: level,
          xp: xp,
@@ -325,7 +325,7 @@ class _UserProfileViewImpl extends UserProfileView {
     bool? isBlocked,
     bool? hasBlockedMe,
     bool? isLiked,
-    int? mutualGroups,
+    int? mutualLounges,
     Object? recentMoments = _Undefined,
     Object? level = _Undefined,
     Object? xp = _Undefined,
@@ -353,7 +353,7 @@ class _UserProfileViewImpl extends UserProfileView {
       isBlocked: isBlocked ?? this.isBlocked,
       hasBlockedMe: hasBlockedMe ?? this.hasBlockedMe,
       isLiked: isLiked ?? this.isLiked,
-      mutualGroups: mutualGroups ?? this.mutualGroups,
+      mutualLounges: mutualLounges ?? this.mutualLounges,
       recentMoments: recentMoments is List<_i2.Moment>?
           ? recentMoments
           : this.recentMoments?.map((e0) => e0.copyWith()).toList(),

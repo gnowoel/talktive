@@ -14,15 +14,15 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 
 enum ChannelType implements _i1.SerializableModel {
   plaza,
-  group,
+  lounge,
   private;
 
   static ChannelType fromJson(String name) {
     switch (name) {
       case 'plaza':
         return ChannelType.plaza;
-      case 'group':
-        return ChannelType.group;
+      case 'lounge':
+        return ChannelType.lounge;
       case 'private':
         return ChannelType.private;
       default:

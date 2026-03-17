@@ -4,10 +4,10 @@ We have implemented a tiered moderation system for the Talktive platform. This e
 
 ## 🛠 Features Implemented
 
-### 1. Multi-Tiered Roles
-- **Admins (Staff)**: Full system access. They can manage roles (promote/demote staff), view platform-wide statistics, and perform system maintenance.
-- **Moderators (Staff)**: Community management access. They can handle reports, suspend/mute users, and moderate lounges/messages.
-- **Regular Residents**: Standard users of the app.
+### 1. Centralized Role System (Enum-based)
+- **Residents**: All users now have a single `role` field (Enumerated: `user`, `moderator`, `admin`).
+- **Admins**: Full system access. They can manage roles (promote/demote staff), view platform-wide statistics, and perform system maintenance.
+- **Moderators**: Community management access. They can handle reports, suspend/mute users, and moderate lounges/messages.
 - **System Service**: Automated monitoring and reputation cleaning.
 
 ### 2. Tiered Access Control
@@ -23,8 +23,8 @@ We have implemented a tiered moderation system for the Talktive platform. This e
   - Viewing sensitive platform-wide statistics.
   - Running data archival and system maintenance tasks.
 
-### 3. Admin-Enforced Locking
-- **`isAdminLocked` Field**: Added to the `Group` model to track if a lounge's privacy has been set by staff.
+### 3. Staff-Enforced Locking
+- **`isStaffLocked` Field**: Added to the `Group` model to track if a lounge's privacy has been set by staff (Admins or Moderators).
 - **Backend Enforcement**: The `updateGroup` endpoint now checks this flag. If a lounge is locked, non-staff users are strictly prevented from making it public again.
 - **Staff Overrides**: Staff can use the `AdminEndpoint` to force a lounge private, which automatically sets the lock flag.
 
@@ -45,7 +45,7 @@ Updated with staff management commands:
 - `promote-mod <username>`: Make a user a Moderator.
 - `demote-mod <username>`: Remove Moderator status.
 - `privatize <groupId>`: Force a lounge to private/locked via CLI.
-- `list-users`: Show all users with their roles (`[ADMIN]`, `[MODERATOR]`, or `[USER]`).
+- `list-users`: Show all users with their roles (e.g., `[ADMIN]`, `[MODERATOR]`, or `[USER]`).
 
 ---
 

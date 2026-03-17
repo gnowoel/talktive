@@ -4,21 +4,23 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 17, 2026 - Moderator Role & Community Moderation Tools 🛡️
+## March 17, 2026 - Centralized Role System & Moderator Tools 🛡️
 
-### Staff Role Tiering
-- **Moderator Role Implementation**: Introduced a new `isModerator` field to the `Resident` model and `UserProfileView`.
-- **Permission Tiering**: Refactored `AdminEndpoint` to distinguish between **Staff Actions** (accessible to both Admins and Moderators) and **Admin-only Actions** (sensitive roles and stats).
-- **Staff Auth Mixin**: Introduced `getStaffProfile` in `EndpointAuthMixin` to simplify multi-role authorization across the backend.
+### Staff Role Refactoring
+- **Consolidated Role Architecture**: Replaced separate `isAdmin` and `isModerator` boolean flags with a single, type-safe `role` field using the `ResidentRole` enum (`user`, `moderator`, `admin`).
+- **Improved Performance**: Simplified database queries and object mapping by consolidating individual permission flags into a single indexed field.
+- **Permission Tiering**: Refactored `AdminEndpoint` to distinguish between **Staff Actions** (accessible to both Admins and Moderators) and **Admin-only Actions** (promoting/demoting staff).
+- **Staff Auth Mixin**: Updated `EndpointAuthMixin` to use the new role system for authorization checks, standardizing staff-level access throughout the backend.
 
 ### In-App Moderation Tools
+- **Staff-Enforced Locking**: Renamed `isAdminLocked` to `isStaffLocked` in the `Group` model to explicitly reflect that both Moderators and Admins can now lock a lounge's visibility.
 - **User Moderation**: Integrated "Mute" and "Suspend" actions directly into the `UserProfileViewScreen` for staff members, featuring professional double-confirmation dialogs.
-- **Lounge Oversight**: Expanded the "Gavel" menu in Group Chats and Profiles to allow Moderators to force lounges private or disband them.
+- **Lounge Oversight**: Expanded the "Gavel" menu in Group Chats and Profiles to allow any Staff member to "Force Private" or disband problematic lounges.
 - **Message Deletion**: Enabled long-press message deletion for staff members in the chat UI, providing immediate content moderation capabilities.
 
 ### Admin CLI Utility
-- **Staff Management**: Added commands to the `admin_bootstrap.dart` utility for promoting/demoting Moderators (`promote-mod`, `demote-mod`) and demoting Admins (`demote`).
-- **Enhanced Visibility**: Updated `list-users` to display clear role indicators (`[ADMIN]`, `[MODERATOR]`, or `[USER]`).
+- **Role System Migration**: Updated `admin_bootstrap.dart` to support the new enum-based role field for all administrative commands (`promote`, `demote`, `promote-mod`, `demote-mod`).
+- **Enhanced Visibility**: Updated `list-users` and `list-groups` to use the unified role indicators and the renamed `isStaffLocked` property.
 
 ---
 

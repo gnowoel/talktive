@@ -109,6 +109,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **Role System Refactoring (Mar 2026)**: Replaced boolean flags (`isAdmin`, `isModerator`) with a single `role` field using the `ResidentRole` enum. This simplifies role management, improves query performance, and provides a type-safe way to handle staff permissions. Renamed `isAdminLocked` to `isStaffLocked` in the `Group` model to reflect shared administrative oversight.
 - **Profile View Consolidation (Mar 2026)**: Centralized `UserProfileView` generation into `ResidentService` and implemented reactive `UserProfileProvider` in the frontend. This unified "My Profile" and "Resident Profile" views with consistent stats and real-time social state (block/like) synchronization.
 - **Consolidation & Simplification (Mar 2026)**: Merged `AchievementService` and `StreakService` into `GamificationService`, and consolidated `UserProfileEndpoint` and `UserLikeEndpoint` into `ResidentEndpoint`. Rationalized frontend providers by merging achievement, streak, and notification state management.
 - **500 Error (Feb 2026)**: Caused by `int` vs `UUID` mismatch in `Resident`. Fixed by:

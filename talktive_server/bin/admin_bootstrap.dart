@@ -85,7 +85,7 @@ Future<void> _promote(Session session, String username) async {
     print('User "$username" not found.');
     return;
   }
-  resident.isAdmin = true;
+  resident.role = protocol.ResidentRole.admin;
   await protocol.Resident.db.updateRow(session, resident);
   print('SUCCESS: ${resident.userName} is now an admin!');
 }
@@ -99,7 +99,7 @@ Future<void> _demote(Session session, String username) async {
     print('User "$username" not found.');
     return;
   }
-  resident.isAdmin = false;
+  resident.role = protocol.ResidentRole.user;
   await protocol.Resident.db.updateRow(session, resident);
   print('SUCCESS: ${resident.userName} is no longer an admin.');
 }
@@ -113,7 +113,7 @@ Future<void> _promoteMod(Session session, String username) async {
     print('User "$username" not found.');
     return;
   }
-  resident.isModerator = true;
+  resident.role = protocol.ResidentRole.moderator;
   await protocol.Resident.db.updateRow(session, resident);
   print('SUCCESS: ${resident.userName} is now a moderator!');
 }
@@ -127,7 +127,7 @@ Future<void> _demoteMod(Session session, String username) async {
     print('User "$username" not found.');
     return;
   }
-  resident.isModerator = false;
+  resident.role = protocol.ResidentRole.user;
   await protocol.Resident.db.updateRow(session, resident);
   print('SUCCESS: ${resident.userName} is no longer a moderator.');
 }
@@ -139,7 +139,7 @@ Future<void> _privatize(Session session, int groupId) async {
     return;
   }
   group.isPublic = false;
-  group.isAdminLocked = true;
+  group.isStaffLocked = true;
   await protocol.Group.db.updateRow(session, group);
   print('SUCCESS: Group "${group.name}" (ID: $groupId) is now PRIVATE and LOCKED.');
 }
@@ -147,17 +147,14 @@ Future<void> _privatize(Session session, int groupId) async {
 Future<void> _listUsers(Session session) async {
   final users = await protocol.Resident.db.find(session);
   for (var u in users) {
-    String roles = '';
-    if (u.isAdmin) roles += '[ADMIN] ';
-    if (u.isModerator) roles += '[MODERATOR] ';
-    if (roles.isEmpty) roles = '[USER]';
-    print('- ${u.userName} (${u.userInfoId}) $roles');
+    String roleStr = '[${u.role.name.toUpperCase()}]';
+    print('- ${u.userName} (${u.userInfoId}) $roleStr');
   }
 }
 
 Future<void> _listGroups(Session session) async {
   final groups = await protocol.Group.db.find(session);
   for (var g in groups) {
-    print('- ${g.name} (ID: ${g.id}) [Public: ${g.isPublic}] [Locked: ${g.isAdminLocked}]');
+    print('- ${g.name} (ID: ${g.id}) [Public: ${g.isPublic}] [Locked: ${g.isStaffLocked}]');
   }
 }

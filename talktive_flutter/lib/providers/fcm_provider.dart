@@ -159,6 +159,8 @@ class FCMManager extends _$FCMManager {
         return '🏷️';
       case 'group_invite':
         return '🎫';
+      case 'level_up':
+        return '🆙';
       default:
         return '🔔';
     }
@@ -182,6 +184,11 @@ class FCMManager extends _$FCMManager {
 
     final route = data['route'] as String?;
     if (route != null) {
+      final currentRoute = ref.read(routerProvider).location;
+      if (currentRoute == route) {
+        debugPrint('Already on $route, skipping push');
+        return;
+      }
       debugPrint('Navigating to from notification: $route');
       ref.read(routerProvider).push(route);
     }

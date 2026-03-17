@@ -45,25 +45,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     super.dispose();
   }
 
-  void _checkAndCelebrate(List<UserNotification> notifications) {
-    final hasNewLevelUp =
-        notifications.any((n) => n.type == 'level_up' && !n.read);
-    if (hasNewLevelUp) {
-      _confettiController.play();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final activityAsync = ref.watch(activityHistoryProvider);
     final gamificationAsync = ref.watch(gamificationProvider);
-
-    // Listen for data updates to trigger celebration
-    activityAsync.whenData((notifications) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _checkAndCelebrate(notifications);
-      });
-    });
 
     return Stack(
       children: [
@@ -96,7 +82,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               ),
             ],
           ),
-          hasBackButton: false,
+          hasBackButton: context.canPop(),
           body: activityAsync.when(
             data: (notifications) => _buildActivityContent(
               context,
@@ -479,6 +465,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         onTap: () {
           HapticFeedback.lightImpact();
           if (notification.id != null && !notification.read) {
+            // Play confetti for celebratory types on tap
+            if (notification.type == 'level_up' || 
+                notification.type == 'achievement' || 
+                notification.type == 'streak') {
+              _confettiController.play();
+            }
+            
             ref.read(activityHistoryProvider.notifier).markAsRead([
               notification.id!,
             ]);
@@ -489,7 +482,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               final data =
                   jsonDecode(notification.data!) as Map<String, dynamic>;
               final route = data['route'] as String?;
-              if (route != null) {
+              
+              // Skip redundant navigation if we're already on the activity screen
+              if (route != null && route != '/activity') {
                 context.push(route);
               }
             } catch (e) {

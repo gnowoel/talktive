@@ -142,16 +142,12 @@ GoRouter router(Ref ref) {
         ],
       ),
       GoRoute(
-        path: '/profile',
-        builder: (context, state) => const HomeScreen(initialIndex: 4),
-      ),
-      GoRoute(
         path: '/my-profile',
         builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
         path: '/activity',
-        builder: (context, state) => const ActivityScreen(),
+        builder: (context, state) => const HomeScreen(initialIndex: 4),
         routes: [
           GoRoute(
             path: 'settings',

@@ -97,6 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ref.read(groupListProvider.notifier).refresh();
                     } else if (index == 4) {
                       ref.read(activityHistoryProvider.notifier).refresh();
+                      ref.read(gamificationProvider.notifier).refresh();
                     }
                   },
                   child: AnimatedContainer(

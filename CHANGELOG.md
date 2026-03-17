@@ -4,7 +4,18 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 17, 2026 - Centralized Role System & Moderator Tools 🛡️
+## March 17, 2026 - Admin Performance & Safety Refinements 🛡️
+
+### Admin & Analytics Improvements
+- **Optimized User Search**: Refactored `AdminEndpoint.searchUsers` to utilize batch database queries for user statistics (messages, moments, reports). This reduces the database round-trips from one-per-user to a constant 3 queries, significantly improving performance for large search results.
+- **Enhanced Statistical Insights**: Updated `getStatistics` to compute active user counts (unique senders) for 24h, 7d, and 30d periods using optimized SQL queries.
+- **Complete Activity Tracking**: Expanded activity reporting to include counts for messages, moments, and reports across all time-bound dashboard widgets.
+- **Analytics UI Refresh**: Updated `AnalyticsScreen` in Flutter to show the new comparative metrics for all time periods.
+
+### Safety & Engagement
+- **Moderation Notifications**: Implemented automated "Safety" and "Warning" notifications for users who reach report thresholds (5 reports/7 days for mute, 10 reports/30 days for reputation reset).
+- **Vouch Feedback**: Added real-time notifications when a resident receives a "Vouch" (like), reinforcing positive community behavior and providing immediate social feedback.
+- **Admin Detail Polish**: Ensured `getUserDetails` fetches and displays correct consolidated counts using the optimized batch-query helper.
 
 ### Staff Role Refactoring
 - **Consolidated Role Architecture**: Replaced separate `isAdmin` and `isModerator` boolean flags with a single, type-safe `role` field using the `ResidentRole` enum (`user`, `moderator`, `admin`).

@@ -5,6 +5,7 @@ import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
 import '../services/gamification_service.dart';
+import '../services/notification_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import 'dart:math';
 
@@ -176,7 +177,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     await protocol.UserLike.db.insertRow(session, protocol.UserLike(senderId: callerId, receiverId: targetId, createdAt: DateTime.now()));
 
     // Trust Score Increase & XP Reward
-    ApartmentService.awardVouch(target: target);
+    target.trustScore = min(1000, target.trustScore + 10);
     await GamificationService.awardXP(
       session,
       target,
@@ -185,6 +186,18 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       save: false,
     );
     await protocol.Resident.db.updateRow(session, target);
+
+    // Send notification
+    try {
+      final liker = await getAuthenticatedResident(session);
+      await NotificationService.sendVouchNotification(
+        session,
+        targetId,
+        liker.userName ?? 'A resident',
+      );
+    } catch (e) {
+      session.log('Failed to send vouch notification: $e');
+    }
   }
 
   /// Remove a Vouch/Like.

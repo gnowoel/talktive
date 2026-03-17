@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
 import '../services/data_archival_service.dart';
@@ -41,7 +41,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   // Helper to get user info removed: using Resident natively
 
   /// Get all pending reports with pagination
-  Future<List<Map<String, dynamic>>> getPendingReports(
+  Future<List<protocol.AdminReportSummary>> getPendingReports(
     Session session, {
     int limit = 20,
     int offset = 0,
@@ -61,9 +61,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     );
 
-    final result = <Map<String, dynamic>>[];
+    final result = <protocol.AdminReportSummary>[];
     for (final report in reports) {
-      // Get reporter info
       final reporter = await protocol.Resident.db.findFirstRow(
         session,
         where: (t) => t.userInfoId.equals(report.reporterId),
@@ -72,32 +71,19 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         session,
         where: (t) => t.userInfoId.equals(report.targetId),
       );
-      result.add({
-        'report': report.toJson(),
-        'reporter': {
-          'userId': report.reporterId.toString(),
-          'userName': reporter?.userName ?? 'Unknown',
-          'floor': reporter != null
-              ? ApartmentService.computeEffectiveFloor(reporter)
-              : 0,
-        },
-        'target': {
-          'userId': report.targetId.toString(),
-          'userName': target?.userName ?? 'Unknown',
-          'floor': target != null
-              ? ApartmentService.computeEffectiveFloor(target)
-              : 0,
-          'trustScore': target?.trustScore ?? 0,
-          'level': target?.level ?? 0,
-        },
-      });
+      
+      result.add(protocol.AdminReportSummary(
+        report: report,
+        reporter: await _getUserSummary(session, reporter, report.reporterId.toString()),
+        target: await _getUserSummary(session, target, report.targetId.toString()),
+      ));
     }
 
     return result;
   }
 
   /// Get all reports (with status filter)
-  Future<List<Map<String, dynamic>>> getAllReports(
+  Future<List<protocol.AdminReportSummary>> getAllReports(
     Session session, {
     protocol.ReportStatus? status,
     int limit = 50,
@@ -118,7 +104,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     );
 
-    final result = <Map<String, dynamic>>[];
+    final result = <protocol.AdminReportSummary>[];
     for (final report in reports) {
       final reporter = await protocol.Resident.db.findFirstRow(
         session,
@@ -128,25 +114,12 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         session,
         where: (t) => t.userInfoId.equals(report.targetId),
       );
-      result.add({
-        'report': report.toJson(),
-        'reporter': {
-          'userId': report.reporterId.toString(),
-          'userName': reporter?.userName ?? 'Unknown',
-          'floor': reporter != null
-              ? ApartmentService.computeEffectiveFloor(reporter)
-              : 0,
-        },
-        'target': {
-          'userId': report.targetId.toString(),
-          'userName': target?.userName ?? 'Unknown',
-          'floor': target != null
-              ? ApartmentService.computeEffectiveFloor(target)
-              : 0,
-          'trustScore': target?.trustScore ?? 0,
-          'level': target?.level ?? 0,
-        },
-      });
+      
+      result.add(protocol.AdminReportSummary(
+        report: report,
+        reporter: await _getUserSummary(session, reporter, report.reporterId.toString()),
+        target: await _getUserSummary(session, target, report.targetId.toString()),
+      ));
     }
 
     return result;
@@ -340,7 +313,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Get platform statistics - OPTIMIZED with caching
-  Future<Map<String, dynamic>> getStatistics(Session session) async {
+  Future<protocol.AdminStatistics> getStatistics(Session session) async {
     await getAdminProfile(session);
 
     // Try to get from cache first
@@ -414,30 +387,34 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       activeUserIds.add(message.senderId);
     }
 
-    final stats = {
-      'totals': {
-        'users': totalUsers,
-        'messages': totalMessages,
-        'moments': totalMoments,
-        'groups': totalGroups,
-        'reports': totalReports,
-        'pendingReports': pendingReports,
-      },
-      'last24h': {
-        'messages': messagesLast24h,
-        'moments': momentsLast24h,
-        'reports': reportsLast24h,
-      },
-      'last7d': {
-        'messages': messagesLast7d,
-        'moments': momentsLast7d,
-        'activeUsers': activeUserIds.length,
-      },
-      'last30d': {
-        'messages': messagesLast30d,
-        'moments': momentsLast30d,
-      },
-    };
+    final stats = protocol.AdminStatistics(
+      totals: protocol.AdminTotals(
+        users: totalUsers,
+        messages: totalMessages,
+        moments: totalMoments,
+        groups: totalGroups,
+        reports: totalReports,
+        pendingReports: pendingReports,
+      ),
+      last24h: protocol.AdminActivity(
+        messages: messagesLast24h,
+        moments: momentsLast24h,
+        reports: reportsLast24h,
+        activeUsers: 0, // Not calculated for 24h in original, setting to 0
+      ),
+      last7d: protocol.AdminActivity(
+        messages: messagesLast7d,
+        moments: momentsLast7d,
+        reports: 0, // Not calculated for 7d in original, setting to 0
+        activeUsers: activeUserIds.length,
+      ),
+      last30d: protocol.AdminActivity(
+        messages: messagesLast30d,
+        moments: momentsLast30d,
+        reports: 0, // Not calculated for 30d in original, setting to 0
+        activeUsers: 0, // Not calculated for 30d in original, setting to 0
+      ),
+    );
 
     // Store in cache for 5 minutes
     await CacheService.setStatistics(session, stats);
@@ -446,81 +423,104 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Search users by name or ID
-  Future<List<Map<String, dynamic>>> searchUsers(
+  Future<List<protocol.AdminUserSummary>> searchUsers(
     Session session, {
     required String query,
     int limit = 20,
   }) async {
-    InputValidationService.validatePagination(
-      limit: limit,
-      offset: 0,
-    ).throwIfInvalid();
-    await getStaffProfile(session);
-
-    // Try to parse as UUID first
-    UuidValue? searchUuid;
+    session.log('ADMIN: searchUsers called with query: "$query"');
     try {
-      searchUuid = UuidValue.fromString(query);
-    } catch (e) {
-      // Not a UUID, search by name
-    }
-
-    final residents = await protocol.Resident.db.find(
-      session,
-      where: searchUuid != null
-          ? (t) => t.userInfoId.equals(searchUuid!)
-          : null,
-      limit: limit,
-    );
-
-    final result = <Map<String, dynamic>>[];
-    for (final resident in residents) {
-      // Filter by name if searching by name
-      if (searchUuid == null && resident.userName != null) {
-        if (!resident.userName!.toLowerCase().contains(query.toLowerCase())) {
-          continue;
+      await getStaffProfile(session);
+      
+      // Try to parse as UUID first
+      UuidValue? searchUuid;
+      try {
+        if (query.length >= 32) {
+          searchUuid = UuidValue.fromString(query);
         }
+      } catch (e) {
+        // Not a UUID
       }
 
-      // Count messages
-      final messageCount = await protocol.Message.db.count(
-        session,
-        where: (t) => t.senderId.equals(
-          resident.userInfoId,
-        ), // Use userInfoId (UuidValue)
-      );
+      List<protocol.Resident> residents;
+      if (searchUuid != null) {
+        residents = await protocol.Resident.db.find(
+          session,
+          where: (t) => t.userInfoId.equals(searchUuid),
+          limit: 1,
+        );
+      } else if (query.isNotEmpty) {
+        residents = await protocol.Resident.db.find(
+          session,
+          where: (t) => t.userName.ilike('%$query%'),
+          limit: limit,
+          orderBy: (t) => t.id,
+        );
+      } else {
+        residents = await protocol.Resident.db.find(
+          session,
+          limit: limit,
+          orderBy: (t) => t.id,
+        );
+      }
 
-      // Count moments
-      final momentCount = await protocol.Moment.db.count(
-        session,
-        where: (t) =>
-            t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
-      );
+      final result = <protocol.AdminUserSummary>[];
+      for (final r in residents) {
+        // Count messages
+        int messageCount = 0;
+        try {
+          messageCount = await protocol.Message.db.count(
+            session,
+            where: (t) => t.senderId.equals(r.userInfoId),
+          );
+        } catch (e) {
+          session.log('ADMIN Error counting messages for ${r.userInfoId}: $e');
+        }
 
-      // Count reports against this user
-      final reportCount = await protocol.Report.db.count(
-        session,
-        where: (t) => t.targetId.equals(resident.userInfoId),
-      );
+        // Count moments
+        int momentCount = 0;
+        try {
+          momentCount = await protocol.Moment.db.count(
+            session,
+            where: (t) => t.authorId.equals(r.userInfoId),
+          );
+        } catch (e) {
+          session.log('ADMIN Error counting moments for ${r.userInfoId}: $e');
+        }
 
-      result.add({
-        'userId': resident.userInfoId.toString(),
-        'userName': resident.userName ?? 'Unknown',
-        'floor': ApartmentService.computeEffectiveFloor(resident),
-        'trustScore': resident.trustScore,
-        'level': resident.level,
-        'xp': resident.xp,
-        'role': resident.role.name,
-        'suspended': resident.suspended,
-        'messageCount': messageCount,
-        'momentCount': momentCount,
-        'reportCount': reportCount,
-        'createdAt': DateTime.now()
-            .toIso8601String(), // Optional: could fetch Profile creation
-      });
+        // Count reports
+        int reportCount = 0;
+        try {
+          reportCount = await protocol.Report.db.count(
+            session,
+            where: (t) => t.targetId.equals(r.userInfoId),
+          );
+        } catch (e) {
+          session.log('ADMIN Error counting reports for ${r.userInfoId}: $e');
+        }
+
+        result.add(protocol.AdminUserSummary(
+          userId: r.userInfoId.toString(),
+          userName: r.userName,
+          floor: ApartmentService.computeEffectiveFloor(r),
+          trustScore: r.trustScore,
+          level: r.level,
+          xp: r.xp,
+          role: r.role,
+          suspended: r.suspended,
+          messageCount: messageCount,
+          momentCount: momentCount,
+          reportCount: reportCount,
+          createdAt: r.createdAt,
+          lastSeen: r.lastSeen,
+        ));
+      }
+      
+      return result;
+    } catch (e, stack) {
+      session.log('ADMIN Error in searchUsers: $e', level: LogLevel.error, stackTrace: stack);
+      rethrow;
     }
-
-    return result;
   }
 
   /// Promote user to admin
@@ -661,7 +661,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Get user details for admin view
-  Future<Map<String, dynamic>> getUserDetails(
+  Future<protocol.AdminUserDetails> getUserDetails(
     Session session, {
     required String userId,
   }) async {
@@ -681,21 +681,22 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     // Get recent messages
     final recentMessages = await protocol.Message.db.find(
       session,
-      where: (t) =>
-          t.senderId.equals(resident.userInfoId), // Use userInfoId (UuidValue)
+      where: (t) => t.senderId.equals(resident.userInfoId),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+      limit: 20,
     );
 
     final recentMoments = await protocol.Moment.db.find(
       session,
-      where: (t) =>
-          t.authorId.equals(resident.userInfoId), // Use authorId (UuidValue)
+      where: (t) => t.authorId.equals(resident.userInfoId),
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: 10,
     );
 
     // Get reports against this user
-    final reports = await protocol.Report.db.find(
+    final reportsAgainst = await protocol.Report.db.find(
       session,
       where: (t) => t.targetId.equals(resident.userInfoId),
       orderBy: (t) => t.createdAt,
@@ -712,35 +713,47 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       limit: 10,
     );
 
-    return {
-      'user': {
-        'userId': resident.userInfoId.toString(),
-        'userName': resident.userName ?? 'Unknown',
-        'floor': ApartmentService.computeEffectiveFloor(resident),
-        'trustScore': resident.trustScore,
-        'level': resident.level,
-        'xp': resident.xp,
-        'role': resident.role.name,
-        'suspended': resident.suspended,
-        'createdAt': DateTime.now().toIso8601String(),
-      },
-      'stats': {
-        'totalMessages': await protocol.Message.db.count(
-          session,
-          where: (t) => t.senderId.equals(resident.userInfoId),
-        ),
-        'totalMoments': await protocol.Moment.db.count(
-          session,
-          where: (t) => t.authorId.equals(resident.userInfoId),
-        ),
-        'reportsAgainst': reports.length,
-        'reportsMade': reportsMade.length,
-      },
-      'recentMessages': recentMessages.map((m) => m.toJson()).toList(),
-      'recentMoments': recentMoments.map((m) => m.toJson()).toList(),
-      'reportsAgainst': reports.map((r) => r.toJson()).toList(),
-      'reportsMade': reportsMade.map((r) => r.toJson()).toList(),
-    };
+    return protocol.AdminUserDetails(
+      user: await _getUserSummary(session, resident, userId),
+      recentMessages: recentMessages,
+      recentMoments: recentMoments,
+      reportsAgainst: reportsAgainst,
+      reportsMade: reportsMade,
+    );
+  }
+
+  Future<protocol.AdminUserSummary> _getUserSummary(Session session, protocol.Resident? resident, String userId) async {
+    if (resident == null) {
+      return protocol.AdminUserSummary(
+        userId: userId,
+        userName: 'Unknown',
+        floor: 0,
+        trustScore: 0,
+        level: 0,
+        xp: 0,
+        role: protocol.ResidentRole.user,
+        suspended: false,
+        messageCount: 0,
+        momentCount: 0,
+        reportCount: 0,
+      );
+    }
+    
+    return protocol.AdminUserSummary(
+      userId: resident.userInfoId.toString(),
+      userName: resident.userName,
+      floor: ApartmentService.computeEffectiveFloor(resident),
+      trustScore: resident.trustScore,
+      level: resident.level,
+      xp: resident.xp,
+      role: resident.role,
+      suspended: resident.suspended,
+      messageCount: 0,
+      momentCount: 0,
+      reportCount: 0,
+      createdAt: resident.createdAt,
+      lastSeen: resident.lastSeen,
+    );
   }
 
   /// Run data archival tasks (admin only).

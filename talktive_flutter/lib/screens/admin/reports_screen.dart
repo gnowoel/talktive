@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:talktive_client/talktive_client.dart';
+import 'package:talktive_client/talktive_client.dart' as protocol;
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
@@ -19,9 +19,9 @@ class ReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
-  List<Map<String, dynamic>> _reports = [];
+  List<protocol.AdminReportSummary> _reports = [];
   bool _isLoading = true;
-  ReportStatus _filterStatus = ReportStatus.pending;
+  protocol.ReportStatus _filterStatus = protocol.ReportStatus.pending;
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final reports = _filterStatus == ReportStatus.pending
+      final reports = _filterStatus == protocol.ReportStatus.pending
           ? await client.admin.getPendingReports(limit: 20, offset: 0)
           : await client.admin.getAllReports(
               status: _filterStatus,
@@ -66,7 +66,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     }
   }
 
-  Future<void> _resolveReport(int reportId, ReportStatus status) async {
+  Future<void> _resolveReport(int reportId, protocol.ReportStatus status) async {
     try {
       final client = ref.read(clientProvider);
       await client.admin.resolveReport(reportId: reportId, status: status);
@@ -76,7 +76,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              status == ReportStatus.approved
+              status == protocol.ReportStatus.approved
                   ? 'Report approved'
                   : 'Report rejected',
             ),
@@ -93,12 +93,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     }
   }
 
-  Future<void> _showReportDetails(Map<String, dynamic> reportData) async {
-    final report = Report.fromJson(
-      reportData['report'] as Map<String, dynamic>,
-    );
-    final reporter = reportData['reporter'] as Map<String, dynamic>;
-    final target = reportData['target'] as Map<String, dynamic>;
+  Future<void> _showReportDetails(protocol.AdminReportSummary reportData) async {
+    final report = reportData.report;
+    final reporter = reportData.reporter;
+    final target = reportData.target;
 
     await showModalBottomSheet(
       context: context,
@@ -156,15 +154,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 padding: const EdgeInsets.all(20),
                 children: [
                   _buildDetailSection('Reporter', [
-                    'Name: ${reporter['userName']}',
-                    'Floor: ${reporter['floor']}',
+                    'Name: ${reporter.userName ?? 'Unknown'}',
+                    'Floor: ${reporter.floor}',
                   ]),
                   const SizedBox(height: 20),
 
                   _buildDetailSection('Target User', [
-                    'Name: ${target['userName']}',
-                    'Floor: ${target['floor']}',
-                    'Reputation: ${target['floor'] ?? target['trustScore'] ?? 0}',
+                    'Name: ${target.userName ?? 'Unknown'}',
+                    'Floor: ${target.floor}',
+                    'Reputation: ${target.floor}', // Using floor as reputation proxy
                   ]),
                   const SizedBox(height: 20),
 
@@ -178,7 +176,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       'Message ID: ${report.messageId}',
                   ]),
 
-                  if (report.status == ReportStatus.pending) ...[
+                  if (report.status == protocol.ReportStatus.pending) ...[
                     const SizedBox(height: 32),
                     Row(
                       children: [
@@ -187,7 +185,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             text: 'Reject',
                             onPressed: () {
                               Navigator.pop(context);
-                              _resolveReport(report.id!, ReportStatus.rejected);
+                              _resolveReport(report.id!, protocol.ReportStatus.rejected);
                             },
                             variant: DuoButtonVariant.secondary,
                             color: AppTheme.textSecondary,
@@ -199,7 +197,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             text: 'Approve & Take Action',
                             onPressed: () {
                               Navigator.pop(context);
-                              _resolveReport(report.id!, ReportStatus.approved);
+                              _resolveReport(report.id!, protocol.ReportStatus.approved);
                             },
                             color: AppTheme.errorColor,
                           ),
@@ -284,11 +282,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                _buildFilterChip('Pending', ReportStatus.pending),
+                _buildFilterChip('Pending', protocol.ReportStatus.pending),
                 const SizedBox(width: 8),
-                _buildFilterChip('Approved', ReportStatus.approved),
+                _buildFilterChip('Approved', protocol.ReportStatus.approved),
                 const SizedBox(width: 8),
-                _buildFilterChip('Rejected', ReportStatus.rejected),
+                _buildFilterChip('Rejected', protocol.ReportStatus.rejected),
               ],
             ),
           ),
@@ -300,7 +298,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           ? DuoEmptyState(
               emoji: '✅',
               title: 'No reports',
-              subtitle: _filterStatus == ReportStatus.pending
+              subtitle: _filterStatus == protocol.ReportStatus.pending
                   ? 'All caught up!'
                   : 'No ${_filterStatus.name} reports',
             )
@@ -320,7 +318,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, ReportStatus status) {
+  Widget _buildFilterChip(String label, protocol.ReportStatus status) {
     final isSelected = _filterStatus == status;
     return GestureDetector(
       onTap: () {
@@ -353,12 +351,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     );
   }
 
-  Widget _buildReportCard(Map<String, dynamic> reportData) {
-    final report = Report.fromJson(
-      reportData['report'] as Map<String, dynamic>,
-    );
-    final reporter = reportData['reporter'] as Map<String, dynamic>;
-    final target = reportData['target'] as Map<String, dynamic>;
+  Widget _buildReportCard(protocol.AdminReportSummary reportData) {
+    final report = reportData.report;
+    final reporter = reportData.reporter;
+    final target = reportData.target;
 
     return DuoCard(
       onTap: () {
@@ -413,12 +409,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 'Reporter: ',
                 style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
-              Text(
-                '${reporter['userName']} (Floor ${reporter['floor']})',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
+              Expanded(
+                child: Text(
+                  '${reporter.userName ?? 'Unknown'} (Floor ${reporter.floor})',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -431,18 +430,21 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 'Target: ',
                 style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
-              Text(
-                '${target['userName']} (Floor ${target['floor']})',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
+              Expanded(
+                child: Text(
+                  '${target.userName ?? 'Unknown'} (Floor ${target.floor})',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
 
-          if (report.status == ReportStatus.pending) ...[
+          if (report.status == protocol.ReportStatus.pending) ...[
             const SizedBox(height: 12),
             Row(
               children: [
@@ -450,7 +452,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   child: DuoButton(
                     text: 'Reject',
                     onPressed: () =>
-                        _resolveReport(report.id!, ReportStatus.rejected),
+                        _resolveReport(report.id!, protocol.ReportStatus.rejected),
                     variant: DuoButtonVariant.secondary,
                     size: DuoButtonSize.small,
                     color: AppTheme.textSecondary,
@@ -461,7 +463,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   child: DuoButton(
                     text: 'Approve',
                     onPressed: () =>
-                        _resolveReport(report.id!, ReportStatus.approved),
+                        _resolveReport(report.id!, protocol.ReportStatus.approved),
                     size: DuoButtonSize.small,
                     color: AppTheme.errorColor,
                   ),
@@ -474,13 +476,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     );
   }
 
-  Color _getStatusColor(ReportStatus status) {
+  Color _getStatusColor(protocol.ReportStatus status) {
     switch (status) {
-      case ReportStatus.pending:
+      case protocol.ReportStatus.pending:
         return AppTheme.duoYellow;
-      case ReportStatus.approved:
+      case protocol.ReportStatus.approved:
         return AppTheme.errorColor;
-      case ReportStatus.rejected:
+      case protocol.ReportStatus.rejected:
         return AppTheme.textSecondary;
     }
   }

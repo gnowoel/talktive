@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 /// Centralized input validation service for all endpoints.
 /// Provides consistent validation rules across the application.

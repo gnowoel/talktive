@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 
 class MentionService {
   /// Extracts user IDs mentioned in the content using @name format.

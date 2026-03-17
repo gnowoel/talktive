@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/client_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
+import 'package:talktive_client/talktive_client.dart' as protocol;
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 /// Analytics dashboard for admins
@@ -15,7 +16,7 @@ class AnalyticsScreen extends ConsumerStatefulWidget {
 }
 
 class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
-  Map<String, dynamic>? _stats;
+  protocol.AdminStatistics? _stats;
   bool _isLoading = true;
 
   @override
@@ -92,7 +93,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildTotalsSection() {
-    final totals = _stats!['totals'] as Map<String, dynamic>;
+    final totals = _stats!.totals;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +114,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               child: _buildMetricCard(
                 '👥',
                 'Users',
-                totals['users'].toString(),
+                totals.users.toString(),
                 AppTheme.primaryColor,
               ),
             ),
@@ -122,7 +123,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               child: _buildMetricCard(
                 '💬',
                 'Messages',
-                totals['messages'].toString(),
+                totals.messages.toString(),
                 AppTheme.accentColor,
               ),
             ),
@@ -136,7 +137,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               child: _buildMetricCard(
                 '📸',
                 'Moments',
-                totals['moments'].toString(),
+                totals.moments.toString(),
                 AppTheme.secondaryColor,
               ),
             ),
@@ -145,7 +146,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               child: _buildMetricCard(
                 '👥',
                 'Groups',
-                totals['groups'].toString(),
+                totals.groups.toString(),
                 AppTheme.duoOrange,
               ),
             ),
@@ -159,7 +160,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               child: _buildMetricCard(
                 '⚠️',
                 'Reports',
-                totals['reports'].toString(),
+                totals.reports.toString(),
                 AppTheme.duoYellow,
               ),
             ),
@@ -168,7 +169,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               child: _buildMetricCard(
                 '🔔',
                 'Pending',
-                totals['pendingReports'].toString(),
+                totals.pendingReports.toString(),
                 AppTheme.errorColor,
               ),
             ),
@@ -179,7 +180,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildLast24hSection() {
-    final last24h = _stats!['last24h'] as Map<String, dynamic>;
+    final last24h = _stats!.last24h;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,21 +201,21 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               _buildActivityRow(
                 '💬',
                 'Messages',
-                last24h['messages'].toString(),
+                last24h.messages.toString(),
                 AppTheme.accentColor,
               ),
               const Divider(height: 24),
               _buildActivityRow(
                 '📸',
                 'Moments',
-                last24h['moments'].toString(),
+                last24h.moments.toString(),
                 AppTheme.secondaryColor,
               ),
               const Divider(height: 24),
               _buildActivityRow(
                 '⚠️',
                 'Reports',
-                last24h['reports'].toString(),
+                (last24h.reports ?? 0).toString(),
                 AppTheme.duoYellow,
               ),
             ],
@@ -225,7 +226,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildLast7dSection() {
-    final last7d = _stats!['last7d'] as Map<String, dynamic>;
+    final last7d = _stats!.last7d;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,21 +247,21 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               _buildActivityRow(
                 '💬',
                 'Messages',
-                last7d['messages'].toString(),
+                last7d.messages.toString(),
                 AppTheme.accentColor,
               ),
               const Divider(height: 24),
               _buildActivityRow(
                 '📸',
                 'Moments',
-                last7d['moments'].toString(),
+                last7d.moments.toString(),
                 AppTheme.secondaryColor,
               ),
               const Divider(height: 24),
               _buildActivityRow(
                 '👥',
                 'Active Users',
-                last7d['activeUsers'].toString(),
+                (last7d.activeUsers ?? 0).toString(),
                 AppTheme.primaryColor,
               ),
             ],
@@ -271,7 +272,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildLast30dSection() {
-    final last30d = _stats!['last30d'] as Map<String, dynamic>;
+    final last30d = _stats!.last30d;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,14 +293,14 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               _buildActivityRow(
                 '💬',
                 'Messages',
-                last30d['messages'].toString(),
+                last30d.messages.toString(),
                 AppTheme.accentColor,
               ),
               const Divider(height: 24),
               _buildActivityRow(
                 '📸',
                 'Moments',
-                last30d['moments'].toString(),
+                last30d.moments.toString(),
                 AppTheme.secondaryColor,
               ),
             ],

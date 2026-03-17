@@ -1,7 +1,7 @@
 // ignore_for_file: constant_identifier_names
 import 'package:serverpod/serverpod.dart';
 import 'dart:math';
-import '../generated/protocol.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 /// Apartment Service
 /// Handles trustScore (safety/moderation) system and the

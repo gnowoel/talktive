@@ -19,6 +19,7 @@ abstract class Resident
   Resident._({
     this.id,
     required this.userInfoId,
+    this.createdAt,
     int? trustScore,
     this.lastReputationIncrease,
     this.mutedUntil,
@@ -56,6 +57,7 @@ abstract class Resident
   factory Resident({
     int? id,
     required _i1.UuidValue userInfoId,
+    DateTime? createdAt,
     int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
@@ -87,6 +89,9 @@ abstract class Resident
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
       trustScore: jsonSerialization['trustScore'] as int?,
       lastReputationIncrease:
           jsonSerialization['lastReputationIncrease'] == null
@@ -158,6 +163,8 @@ abstract class Resident
 
   _i1.UuidValue userInfoId;
 
+  DateTime? createdAt;
+
   int trustScore;
 
   DateTime? lastReputationIncrease;
@@ -213,6 +220,7 @@ abstract class Resident
   Resident copyWith({
     int? id,
     _i1.UuidValue? userInfoId,
+    DateTime? createdAt,
     int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
@@ -243,6 +251,7 @@ abstract class Resident
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
+      if (createdAt != null) 'createdAt': createdAt?.toJson(),
       'trustScore': trustScore,
       if (lastReputationIncrease != null)
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
@@ -276,6 +285,7 @@ abstract class Resident
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
+      if (createdAt != null) 'createdAt': createdAt?.toJson(),
       'trustScore': trustScore,
       if (lastReputationIncrease != null)
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
@@ -339,6 +349,7 @@ class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
     required _i1.UuidValue userInfoId,
+    DateTime? createdAt,
     int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
@@ -365,6 +376,7 @@ class _ResidentImpl extends Resident {
   }) : super._(
          id: id,
          userInfoId: userInfoId,
+         createdAt: createdAt,
          trustScore: trustScore,
          lastReputationIncrease: lastReputationIncrease,
          mutedUntil: mutedUntil,
@@ -397,6 +409,7 @@ class _ResidentImpl extends Resident {
   Resident copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? userInfoId,
+    Object? createdAt = _Undefined,
     int? trustScore,
     Object? lastReputationIncrease = _Undefined,
     Object? mutedUntil = _Undefined,
@@ -424,6 +437,7 @@ class _ResidentImpl extends Resident {
     return Resident(
       id: id is int? ? id : this.id,
       userInfoId: userInfoId ?? this.userInfoId,
+      createdAt: createdAt is DateTime? ? createdAt : this.createdAt,
       trustScore: trustScore ?? this.trustScore,
       lastReputationIncrease: lastReputationIncrease is DateTime?
           ? lastReputationIncrease
@@ -471,6 +485,12 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     table.userInfoId,
     value,
   );
+
+  _i1.ColumnValue<DateTime, DateTime> createdAt(DateTime? value) =>
+      _i1.ColumnValue(
+        table.createdAt,
+        value,
+      );
 
   _i1.ColumnValue<int, int> trustScore(int value) => _i1.ColumnValue(
     table.trustScore,
@@ -605,6 +625,10 @@ class ResidentTable extends _i1.Table<int?> {
       'userInfoId',
       this,
     );
+    createdAt = _i1.ColumnDateTime(
+      'createdAt',
+      this,
+    );
     trustScore = _i1.ColumnInt(
       'trustScore',
       this,
@@ -714,6 +738,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnUuid userInfoId;
 
+  late final _i1.ColumnDateTime createdAt;
+
   late final _i1.ColumnInt trustScore;
 
   late final _i1.ColumnDateTime lastReputationIncrease;
@@ -764,6 +790,7 @@ class ResidentTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     userInfoId,
+    createdAt,
     trustScore,
     lastReputationIncrease,
     mutedUntil,

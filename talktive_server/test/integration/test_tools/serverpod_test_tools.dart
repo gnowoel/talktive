@@ -16,26 +16,30 @@ import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
-import 'package:talktive_server/src/generated/report_status.dart' as _i5;
-import 'package:talktive_server/src/generated/resident.dart' as _i6;
-import 'package:talktive_server/src/generated/daily_reward.dart' as _i7;
-import 'package:talktive_server/src/generated/group.dart' as _i8;
+import 'package:talktive_server/src/generated/admin_report_summary.dart' as _i5;
+import 'package:talktive_server/src/generated/report_status.dart' as _i6;
+import 'package:talktive_server/src/generated/admin_statistics.dart' as _i7;
+import 'package:talktive_server/src/generated/admin_user_summary.dart' as _i8;
+import 'package:talktive_server/src/generated/admin_user_details.dart' as _i9;
+import 'package:talktive_server/src/generated/resident.dart' as _i10;
+import 'package:talktive_server/src/generated/daily_reward.dart' as _i11;
+import 'package:talktive_server/src/generated/group.dart' as _i12;
 import 'package:talktive_server/src/generated/group_with_membership.dart'
-    as _i9;
+    as _i13;
 import 'package:talktive_server/src/generated/group_member_with_profile.dart'
-    as _i10;
-import 'package:talktive_server/src/generated/message.dart' as _i11;
-import 'package:talktive_server/src/generated/moment.dart' as _i12;
-import 'package:talktive_server/src/generated/moment_like.dart' as _i13;
-import 'package:talktive_server/src/generated/protocol.dart' as _i14;
-import 'package:talktive_server/src/generated/moment_comment.dart' as _i15;
-import 'package:talktive_server/src/generated/user_notification.dart' as _i16;
-import 'package:talktive_server/src/generated/private_chat.dart' as _i17;
+    as _i14;
+import 'package:talktive_server/src/generated/message.dart' as _i15;
+import 'package:talktive_server/src/generated/moment.dart' as _i16;
+import 'package:talktive_server/src/generated/moment_like.dart' as _i17;
+import 'package:talktive_server/src/generated/protocol.dart' as _i18;
+import 'package:talktive_server/src/generated/moment_comment.dart' as _i19;
+import 'package:talktive_server/src/generated/user_notification.dart' as _i20;
+import 'package:talktive_server/src/generated/private_chat.dart' as _i21;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
-    as _i18;
-import 'package:talktive_server/src/generated/report.dart' as _i19;
-import 'package:talktive_server/src/generated/user_profile_view.dart' as _i20;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i21;
+    as _i22;
+import 'package:talktive_server/src/generated/report.dart' as _i23;
+import 'package:talktive_server/src/generated/user_profile_view.dart' as _i24;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i25;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -726,7 +730,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<List<Map<String, dynamic>>> getPendingReports(
+  _i3.Future<List<_i5.AdminReportSummary>> getPendingReports(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required int offset,
@@ -753,7 +757,7 @@ class _AdminEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i5.AdminReportSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -761,9 +765,9 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<List<Map<String, dynamic>>> getAllReports(
+  _i3.Future<List<_i5.AdminReportSummary>> getAllReports(
     _i1.TestSessionBuilder sessionBuilder, {
-    _i5.ReportStatus? status,
+    _i6.ReportStatus? status,
     required int limit,
     required int offset,
   }) async {
@@ -790,7 +794,7 @@ class _AdminEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i5.AdminReportSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -801,7 +805,7 @@ class _AdminEndpoint {
   _i3.Future<void> resolveReport(
     _i1.TestSessionBuilder sessionBuilder, {
     required int reportId,
-    required _i5.ReportStatus status,
+    required _i6.ReportStatus status,
     String? adminNotes,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1074,7 +1078,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getStatistics(
+  _i3.Future<_i7.AdminStatistics> getStatistics(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1096,7 +1100,7 @@ class _AdminEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>>);
+                as _i3.Future<_i7.AdminStatistics>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1104,7 +1108,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<List<Map<String, dynamic>>> searchUsers(
+  _i3.Future<List<_i8.AdminUserSummary>> searchUsers(
     _i1.TestSessionBuilder sessionBuilder, {
     required String query,
     required int limit,
@@ -1131,7 +1135,7 @@ class _AdminEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i8.AdminUserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1329,7 +1333,7 @@ class _AdminEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getUserDetails(
+  _i3.Future<_i9.AdminUserDetails> getUserDetails(
     _i1.TestSessionBuilder sessionBuilder, {
     required String userId,
   }) async {
@@ -1352,7 +1356,7 @@ class _AdminEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>>);
+                as _i3.Future<_i9.AdminUserDetails>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1492,7 +1496,7 @@ class _GamificationEndpoint {
     });
   }
 
-  _i3.Future<_i6.Resident> getGamificationData(
+  _i3.Future<_i10.Resident> getGamificationData(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1514,7 +1518,7 @@ class _GamificationEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident>);
+                as _i3.Future<_i10.Resident>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1552,7 +1556,7 @@ class _GamificationEndpoint {
     });
   }
 
-  _i3.Future<_i7.DailyReward> claimDailyReward(
+  _i3.Future<_i11.DailyReward> claimDailyReward(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1574,7 +1578,7 @@ class _GamificationEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i7.DailyReward>);
+                as _i3.Future<_i11.DailyReward>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1582,7 +1586,7 @@ class _GamificationEndpoint {
     });
   }
 
-  _i3.Future<List<_i7.DailyReward>> getRewardHistory(
+  _i3.Future<List<_i11.DailyReward>> getRewardHistory(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -1605,7 +1609,7 @@ class _GamificationEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i7.DailyReward>>);
+                as _i3.Future<List<_i11.DailyReward>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1654,7 +1658,7 @@ class _GroupEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i8.Group> createGroup(
+  _i3.Future<_i12.Group> createGroup(
     _i1.TestSessionBuilder sessionBuilder,
     String name, {
     String? description,
@@ -1689,7 +1693,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.Group>);
+                as _i3.Future<_i12.Group>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1697,7 +1701,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<List<_i9.GroupWithMembership>> listMyGroups(
+  _i3.Future<List<_i13.GroupWithMembership>> listMyGroups(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required int offset,
@@ -1724,7 +1728,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i9.GroupWithMembership>>);
+                as _i3.Future<List<_i13.GroupWithMembership>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1732,7 +1736,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<_i8.Group> getGroup(
+  _i3.Future<_i12.Group> getGroup(
     _i1.TestSessionBuilder sessionBuilder,
     int groupId,
   ) async {
@@ -1755,7 +1759,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.Group>);
+                as _i3.Future<_i12.Group>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1763,7 +1767,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<List<_i8.Group>> searchPublicGroups(
+  _i3.Future<List<_i12.Group>> searchPublicGroups(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -1792,7 +1796,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i8.Group>>);
+                as _i3.Future<List<_i12.Group>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2039,7 +2043,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<List<_i10.GroupMemberWithProfile>> getGroupMembersWithProfiles(
+  _i3.Future<List<_i14.GroupMemberWithProfile>> getGroupMembersWithProfiles(
     _i1.TestSessionBuilder sessionBuilder,
     int groupId,
   ) async {
@@ -2062,7 +2066,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i10.GroupMemberWithProfile>>);
+                as _i3.Future<List<_i14.GroupMemberWithProfile>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2070,7 +2074,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<List<_i10.GroupMemberWithProfile>>
+  _i3.Future<List<_i14.GroupMemberWithProfile>>
   getPendingApplicationsWithProfiles(
     _i1.TestSessionBuilder sessionBuilder,
     int groupId,
@@ -2094,7 +2098,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i10.GroupMemberWithProfile>>);
+                as _i3.Future<List<_i14.GroupMemberWithProfile>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2102,7 +2106,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<List<_i6.Resident>> getGroupMembers(
+  _i3.Future<List<_i10.Resident>> getGroupMembers(
     _i1.TestSessionBuilder sessionBuilder,
     int groupId,
   ) async {
@@ -2125,7 +2129,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i6.Resident>>);
+                as _i3.Future<List<_i10.Resident>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2133,7 +2137,7 @@ class _GroupEndpoint {
     });
   }
 
-  _i3.Future<_i8.Group> updateGroup(
+  _i3.Future<_i12.Group> updateGroup(
     _i1.TestSessionBuilder sessionBuilder,
     int groupId, {
     String? name,
@@ -2170,7 +2174,7 @@ class _GroupEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.Group>);
+                as _i3.Future<_i12.Group>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2381,7 +2385,7 @@ class _MessageEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i11.Message> sendMessage(
+  _i3.Future<_i15.Message> sendMessage(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId, {
     String? content,
@@ -2416,7 +2420,7 @@ class _MessageEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i11.Message>);
+                as _i3.Future<_i15.Message>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2424,11 +2428,11 @@ class _MessageEndpoint {
     });
   }
 
-  _i3.Stream<_i11.Message> subscribe(
+  _i3.Stream<_i15.Message> subscribe(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId,
   ) {
-    var _localTestStreamManager = _i1.TestStreamManager<_i11.Message>();
+    var _localTestStreamManager = _i1.TestStreamManager<_i15.Message>();
     _i1.callStreamFunctionAndHandleExceptions(
       () async {
         var _localUniqueSession =
@@ -2456,7 +2460,7 @@ class _MessageEndpoint {
     return _localTestStreamManager.outputStreamController.stream;
   }
 
-  _i3.Future<List<_i11.Message>> listMessages(
+  _i3.Future<List<_i15.Message>> listMessages(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId, {
     required int limit,
@@ -2485,7 +2489,7 @@ class _MessageEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i11.Message>>);
+                as _i3.Future<List<_i15.Message>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2535,7 +2539,7 @@ class _MomentEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i12.Moment> postMoment(
+  _i3.Future<_i16.Moment> postMoment(
     _i1.TestSessionBuilder sessionBuilder, {
     required String imageUrl,
     required String caption,
@@ -2562,7 +2566,7 @@ class _MomentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i12.Moment>);
+                as _i3.Future<_i16.Moment>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2570,7 +2574,7 @@ class _MomentEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.Moment>> listMoments(
+  _i3.Future<List<_i16.Moment>> listMoments(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     int? lastId,
@@ -2597,7 +2601,7 @@ class _MomentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i12.Moment>>);
+                as _i3.Future<List<_i16.Moment>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2605,7 +2609,7 @@ class _MomentEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.Moment>> listUserMoments(
+  _i3.Future<List<_i16.Moment>> listUserMoments(
     _i1.TestSessionBuilder sessionBuilder, {
     required _i2.UuidValue userId,
     required int limit,
@@ -2634,7 +2638,7 @@ class _MomentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i12.Moment>>);
+                as _i3.Future<List<_i16.Moment>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2704,7 +2708,7 @@ class _MomentEndpoint {
     });
   }
 
-  _i3.Future<List<_i13.MomentLike>> getMomentLikes(
+  _i3.Future<List<_i17.MomentLike>> getMomentLikes(
     _i1.TestSessionBuilder sessionBuilder,
     int momentId,
   ) async {
@@ -2727,7 +2731,7 @@ class _MomentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i13.MomentLike>>);
+                as _i3.Future<List<_i17.MomentLike>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2789,7 +2793,7 @@ class _MomentEndpoint {
               _localUniqueSession,
               _localCallContext.arguments,
             )
-            .then((map) => _i14.Protocol().deserialize<Map<int, bool>>(map));
+            .then((map) => _i18.Protocol().deserialize<Map<int, bool>>(map));
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2797,7 +2801,7 @@ class _MomentEndpoint {
     });
   }
 
-  _i3.Future<_i15.MomentComment> addComment(
+  _i3.Future<_i19.MomentComment> addComment(
     _i1.TestSessionBuilder sessionBuilder,
     int momentId,
     String text,
@@ -2824,7 +2828,7 @@ class _MomentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i15.MomentComment>);
+                as _i3.Future<_i19.MomentComment>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2832,7 +2836,7 @@ class _MomentEndpoint {
     });
   }
 
-  _i3.Future<List<_i15.MomentComment>> getMomentComments(
+  _i3.Future<List<_i19.MomentComment>> getMomentComments(
     _i1.TestSessionBuilder sessionBuilder,
     int momentId, {
     required int limit,
@@ -2859,7 +2863,7 @@ class _MomentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i15.MomentComment>>);
+                as _i3.Future<List<_i19.MomentComment>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2909,7 +2913,7 @@ class _NotificationEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i16.UserNotification>> getUserNotifications(
+  _i3.Future<List<_i20.UserNotification>> getUserNotifications(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required int offset,
@@ -2938,7 +2942,7 @@ class _NotificationEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i16.UserNotification>>);
+                as _i3.Future<List<_i20.UserNotification>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3084,7 +3088,7 @@ class _PrivateChatEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i17.PrivateChat> getOrCreatePrivateChat(
+  _i3.Future<_i21.PrivateChat> getOrCreatePrivateChat(
     _i1.TestSessionBuilder sessionBuilder,
     String otherUserId, {
     String? initialMessage,
@@ -3111,7 +3115,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i17.PrivateChat>);
+                as _i3.Future<_i21.PrivateChat>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3119,7 +3123,7 @@ class _PrivateChatEndpoint {
     });
   }
 
-  _i3.Future<List<_i18.PrivateChatWithProfile>> listPrivateChats(
+  _i3.Future<List<_i22.PrivateChatWithProfile>> listPrivateChats(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -3141,7 +3145,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i18.PrivateChatWithProfile>>);
+                as _i3.Future<List<_i22.PrivateChatWithProfile>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3149,7 +3153,7 @@ class _PrivateChatEndpoint {
     });
   }
 
-  _i3.Future<_i18.PrivateChatWithProfile> getPrivateChatDetails(
+  _i3.Future<_i22.PrivateChatWithProfile> getPrivateChatDetails(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId,
   ) async {
@@ -3172,7 +3176,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i18.PrivateChatWithProfile>);
+                as _i3.Future<_i22.PrivateChatWithProfile>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3327,7 +3331,7 @@ class _ReportEndpoint {
     });
   }
 
-  _i3.Future<List<_i19.Report>> listReports(
+  _i3.Future<List<_i23.Report>> listReports(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required bool onlyUnresolved,
@@ -3354,7 +3358,7 @@ class _ReportEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i19.Report>>);
+                as _i3.Future<List<_i23.Report>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3439,7 +3443,7 @@ class _ResidentEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i6.Resident?> getResident(
+  _i3.Future<_i10.Resident?> getResident(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -3461,7 +3465,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident?>);
+                as _i3.Future<_i10.Resident?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3469,7 +3473,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i6.Resident?> getResidentById(
+  _i3.Future<_i10.Resident?> getResidentById(
     _i1.TestSessionBuilder sessionBuilder,
     String userId,
   ) async {
@@ -3492,7 +3496,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident?>);
+                as _i3.Future<_i10.Resident?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3500,7 +3504,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i6.Resident> initializeResident(
+  _i3.Future<_i10.Resident> initializeResident(
     _i1.TestSessionBuilder sessionBuilder, {
     required String name,
     required String avatar,
@@ -3539,7 +3543,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident>);
+                as _i3.Future<_i10.Resident>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3547,7 +3551,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i6.Resident> updateResident(
+  _i3.Future<_i10.Resident> updateResident(
     _i1.TestSessionBuilder sessionBuilder, {
     required String name,
     required String avatar,
@@ -3586,7 +3590,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident>);
+                as _i3.Future<_i10.Resident>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3594,7 +3598,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i20.UserProfileView?> getUserProfile(
+  _i3.Future<_i24.UserProfileView?> getUserProfile(
     _i1.TestSessionBuilder sessionBuilder,
     String userId,
   ) async {
@@ -3617,7 +3621,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i20.UserProfileView?>);
+                as _i3.Future<_i24.UserProfileView?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3840,7 +3844,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i6.Resident> updateOnlineSettings(
+  _i3.Future<_i10.Resident> updateOnlineSettings(
     _i1.TestSessionBuilder sessionBuilder, {
     required bool showOnlineStatus,
   }) async {
@@ -3865,7 +3869,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident>);
+                as _i3.Future<_i10.Resident>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3873,7 +3877,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i6.Resident> purchasePremium(
+  _i3.Future<_i10.Resident> purchasePremium(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -3895,7 +3899,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Resident>);
+                as _i3.Future<_i10.Resident>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3949,7 +3953,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i8.Group>> searchGroups(
+  _i3.Future<List<_i12.Group>> searchGroups(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -3976,7 +3980,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i8.Group>>);
+                as _i3.Future<List<_i12.Group>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3984,7 +3988,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.Moment>> getTrendingMoments(
+  _i3.Future<List<_i16.Moment>> getTrendingMoments(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4007,7 +4011,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i12.Moment>>);
+                as _i3.Future<List<_i16.Moment>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4015,7 +4019,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i8.Group>> getPopularGroups(
+  _i3.Future<List<_i12.Group>> getPopularGroups(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4038,7 +4042,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i8.Group>>);
+                as _i3.Future<List<_i12.Group>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4077,7 +4081,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.Moment>> getRecentMoments(
+  _i3.Future<List<_i16.Moment>> getRecentMoments(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
     required int offset,
@@ -4104,7 +4108,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i12.Moment>>);
+                as _i3.Future<List<_i16.Moment>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4251,7 +4255,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i21.Greeting> hello(
+  _i3.Future<_i25.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -4274,7 +4278,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i21.Greeting>);
+                as _i3.Future<_i25.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

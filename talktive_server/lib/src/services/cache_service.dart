@@ -17,13 +17,13 @@ class CacheService {
   static const String _popularPrefix = 'popular:';
 
   /// Get platform statistics from cache or compute
-  static Future<Map<String, dynamic>?> getStatistics(Session session) async {
+  static Future<AdminStatistics?> getStatistics(Session session) async {
     final key = '${_statsPrefix}platform';
 
     try {
-      final cached = await session.caches.global.get<CacheString>(key);
+      final cached = await session.caches.local.get<CacheString>(key);
       if (cached != null) {
-        return jsonDecode(cached.value) as Map<String, dynamic>;
+        return AdminStatistics.fromJson(jsonDecode(cached.value));
       }
     } catch (e) {
       session.log('Cache get error: $e', level: LogLevel.warning);
@@ -35,14 +35,14 @@ class CacheService {
   /// Set platform statistics in cache
   static Future<void> setStatistics(
     Session session,
-    Map<String, dynamic> stats,
+    AdminStatistics stats,
   ) async {
     final key = '${_statsPrefix}platform';
 
     try {
-      await session.caches.global.put(
+      await session.caches.local.put(
         key,
-        CacheString(value: jsonEncode(stats)),
+        CacheString(value: jsonEncode(stats.toJson())),
         lifetime: statisticsTTL,
       );
     } catch (e) {

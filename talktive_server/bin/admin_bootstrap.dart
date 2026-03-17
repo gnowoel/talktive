@@ -14,6 +14,7 @@ void main(List<String> args) async {
     print('  dart bin/admin_bootstrap.dart privatize <groupId>');
     print('  dart bin/admin_bootstrap.dart list-users');
     print('  dart bin/admin_bootstrap.dart list-groups');
+    print('  dart bin/admin_bootstrap.dart fix-roles');
     exit(1);
   }
 
@@ -63,6 +64,9 @@ void main(List<String> args) async {
         break;
       case 'list-groups':
         await _listGroups(session);
+        break;
+      case 'fix-roles':
+        await _fixRoles(session);
         break;
       default:
         print('Unknown command: $command');
@@ -148,13 +152,32 @@ Future<void> _listUsers(Session session) async {
   final users = await protocol.Resident.db.find(session);
   for (var u in users) {
     String roleStr = '[${u.role.name.toUpperCase()}]';
-    print('- ${u.userName} (${u.userInfoId}) $roleStr');
+    print('- ${u.userName} (${u.userInfoId}) $roleStr [XP: ${u.xp}] [Floor: ${u.level}] [TS: ${u.trustScore}]');
   }
 }
 
 Future<void> _listGroups(Session session) async {
   final groups = await protocol.Group.db.find(session);
   for (var g in groups) {
-    print('- ${g.name} (ID: ${g.id}) [Public: ${g.isPublic}] [Locked: ${g.isStaffLocked}]');
+    String lockStr = g.isStaffLocked ? '[LOCKED]' : '[OPEN]';
+    print('- ${g.name} (ID: ${g.id}) $lockStr - Public: ${g.isPublic}');
   }
+}
+
+Future<void> _fixRoles(Session session) async {
+  print('Checking for residents with null roles...');
+  final residents = await protocol.Resident.db.find(
+    session,
+    where: (t) => t.role.equals(null),
+  );
+
+  print('Found ${residents.length} residents needing fix.');
+
+  for (var r in residents) {
+    r.role = protocol.ResidentRole.user;
+    await protocol.Resident.db.updateRow(session, r);
+    print('- Fixed ${r.userName} (${r.userInfoId})');
+  }
+
+  print('SUCCESS: All residents have roles.');
 }

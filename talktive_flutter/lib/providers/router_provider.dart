@@ -21,6 +21,8 @@ import '../screens/groups/group_search_screen.dart';
 import '../screens/groups/group_profile_screen.dart';
 import '../screens/groups/group_chat_screen.dart';
 import '../screens/groups/group_members_screen.dart';
+import '../screens/admin/admin_dashboard_screen.dart';
+import '../screens/admin/users_screen.dart';
 
 part 'router_provider.g.dart';
 
@@ -177,6 +179,20 @@ GoRouter router(Ref ref) {
               final userName = state.uri.queryParameters['name'] ?? 'Resident';
               return UserMomentsScreen(userId: userId, userName: userName);
             },
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AdminDashboardScreen(),
+        routes: [
+          GoRoute(
+            path: 'dashboard',
+            builder: (context, state) => const AdminDashboardScreen(),
+          ),
+          GoRoute(
+            path: 'users',
+            builder: (context, state) => const UsersScreen(),
           ),
         ],
       ),

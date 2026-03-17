@@ -1,0 +1,6 @@
+class: AdminActivity
+fields:
+  messages: int
+  moments: int
+  reports: int?
+  activeUsers: int?

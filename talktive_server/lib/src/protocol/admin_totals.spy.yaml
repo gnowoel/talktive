@@ -1,0 +1,8 @@
+class: AdminTotals
+fields:
+  users: int
+  messages: int
+  moments: int
+  groups: int
+  reports: int
+  pendingReports: int

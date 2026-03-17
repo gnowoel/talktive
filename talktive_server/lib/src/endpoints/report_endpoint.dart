@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../utils/endpoint_auth_mixin.dart';

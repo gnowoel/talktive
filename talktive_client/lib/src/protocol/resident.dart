@@ -18,6 +18,7 @@ abstract class Resident implements _i1.SerializableModel {
   Resident._({
     this.id,
     required this.userInfoId,
+    this.createdAt,
     int? trustScore,
     this.lastReputationIncrease,
     this.mutedUntil,
@@ -55,6 +56,7 @@ abstract class Resident implements _i1.SerializableModel {
   factory Resident({
     int? id,
     required _i1.UuidValue userInfoId,
+    DateTime? createdAt,
     int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
@@ -86,6 +88,9 @@ abstract class Resident implements _i1.SerializableModel {
       userInfoId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['userInfoId'],
       ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
       trustScore: jsonSerialization['trustScore'] as int?,
       lastReputationIncrease:
           jsonSerialization['lastReputationIncrease'] == null
@@ -155,6 +160,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   _i1.UuidValue userInfoId;
 
+  DateTime? createdAt;
+
   int trustScore;
 
   DateTime? lastReputationIncrease;
@@ -207,6 +214,7 @@ abstract class Resident implements _i1.SerializableModel {
   Resident copyWith({
     int? id,
     _i1.UuidValue? userInfoId,
+    DateTime? createdAt,
     int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
@@ -237,6 +245,7 @@ abstract class Resident implements _i1.SerializableModel {
       '__className__': 'Resident',
       if (id != null) 'id': id,
       'userInfoId': userInfoId.toJson(),
+      if (createdAt != null) 'createdAt': createdAt?.toJson(),
       'trustScore': trustScore,
       if (lastReputationIncrease != null)
         'lastReputationIncrease': lastReputationIncrease?.toJson(),
@@ -276,6 +285,7 @@ class _ResidentImpl extends Resident {
   _ResidentImpl({
     int? id,
     required _i1.UuidValue userInfoId,
+    DateTime? createdAt,
     int? trustScore,
     DateTime? lastReputationIncrease,
     DateTime? mutedUntil,
@@ -302,6 +312,7 @@ class _ResidentImpl extends Resident {
   }) : super._(
          id: id,
          userInfoId: userInfoId,
+         createdAt: createdAt,
          trustScore: trustScore,
          lastReputationIncrease: lastReputationIncrease,
          mutedUntil: mutedUntil,
@@ -334,6 +345,7 @@ class _ResidentImpl extends Resident {
   Resident copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? userInfoId,
+    Object? createdAt = _Undefined,
     int? trustScore,
     Object? lastReputationIncrease = _Undefined,
     Object? mutedUntil = _Undefined,
@@ -361,6 +373,7 @@ class _ResidentImpl extends Resident {
     return Resident(
       id: id is int? ? id : this.id,
       userInfoId: userInfoId ?? this.userInfoId,
+      createdAt: createdAt is DateTime? ? createdAt : this.createdAt,
       trustScore: trustScore ?? this.trustScore,
       lastReputationIncrease: lastReputationIncrease is DateTime?
           ? lastReputationIncrease

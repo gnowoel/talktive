@@ -7,6 +7,7 @@ import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../helpers/duo_snackbar_helper.dart';
+import '../../helpers/resident_ext.dart';
 import '../../serverpod_client.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -94,6 +95,25 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'A prestigious golden ring around your avatar.',
                 isLocked: !resident.isPremium,
               ),
+              if (resident.isStaff) ...[
+                const SizedBox(height: AppTheme.duoSpacingLarge),
+                _buildSectionHeader(context, 'Staff Tools 🛠️'),
+                DuoCard(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    context.push('/admin/dashboard');
+                  },
+                  child: const ListTile(
+                    leading: Text('👨‍💼', style: TextStyle(fontSize: 24)),
+                    title: Text(
+                      'Admin Dashboard',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('Manage users and community safety'),
+                    trailing: Icon(Icons.chevron_right_rounded),
+                  ),
+                ),
+              ],
               const SizedBox(height: AppTheme.contentBottomPadding),
             ],
           );

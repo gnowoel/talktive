@@ -2,6 +2,7 @@ class: Resident
 table: resident
 fields:
   userInfoId: UuidValue
+  createdAt: DateTime?
   
   # Safety System
   trustScore: int, default=100

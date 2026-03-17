@@ -23,7 +23,7 @@ class UsersScreen extends ConsumerStatefulWidget {
 
 class _UsersScreenState extends ConsumerState<UsersScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _users = [];
+  List<protocol.AdminUserSummary> _users = [];
   bool _isLoading = false;
   bool _hasSearched = false;
 
@@ -68,13 +68,12 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _showUserActions(Map<String, dynamic> user) async {
-    final userId = user['userId'] as String;
-    final userName = user['userName'] as String;
-    final isBanned = user['suspended'] as bool? ?? false;
-    final roleName = user['role'] as String? ?? 'user';
-    final isAdmin = roleName == 'admin';
-    final isModerator = roleName == 'moderator';
+  Future<void> _showUserActions(protocol.AdminUserSummary user) async {
+    final userId = user.userId;
+    final userName = user.userName ?? 'Unknown';
+    final isBanned = user.suspended;
+    final isAdmin = user.role == protocol.ResidentRole.admin;
+    final isModerator = user.role == protocol.ResidentRole.moderator;
 
     final currentResidentVal = ref.read(currentResidentProvider).value;
     final isCurrentUserAdmin = currentResidentVal?.isAdmin ?? false;
@@ -116,7 +115,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Level ${user['level'] ?? user['floor']} • ⭐ ${user['floor'] ?? user['trustScore']} reputation',
+                      'Level ${user.level} • ⭐ ${user.trustScore} reputation',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,
@@ -507,17 +506,16 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     );
   }
 
-  Widget _buildUserCard(Map<String, dynamic> user) {
-    final userName = user['userName'] as String;
-    final floor = user['floor'] as int? ?? 0;
-    final reputation = user['floor'] as int? ?? user['trustScore'] as int? ?? 0;
-    final roleName = user['role'] as String? ?? 'user';
-    final isAdmin = roleName == 'admin';
-    final isModerator = roleName == 'moderator';
-    final isBanned = user['suspended'] as bool? ?? false;
-    final messageCount = user['messageCount'] as int;
-    final momentCount = user['momentCount'] as int;
-    final reportCount = user['reportCount'] as int;
+  Widget _buildUserCard(protocol.AdminUserSummary user) {
+    final userName = user.userName ?? 'Unknown';
+    final floor = user.floor;
+    final reputation = user.trustScore;
+    final isAdmin = user.role == protocol.ResidentRole.admin;
+    final isModerator = user.role == protocol.ResidentRole.moderator;
+    final isBanned = user.suspended;
+    final messageCount = user.messageCount;
+    final momentCount = user.momentCount;
+    final reportCount = user.reportCount;
 
     return DuoCard(
       onTap: () {
@@ -539,7 +537,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text(
+                    child: Text(
                     userName.isNotEmpty ? userName[0].toUpperCase() : '?',
                     style: const TextStyle(
                       fontSize: 24,

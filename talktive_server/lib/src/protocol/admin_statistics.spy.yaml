@@ -1,0 +1,6 @@
+class: AdminStatistics
+fields:
+  totals: AdminTotals
+  last24h: AdminActivity
+  last7d: AdminActivity
+  last30d: AdminActivity

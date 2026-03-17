@@ -1,6 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
@@ -85,6 +85,8 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       interests: interests ?? [],
       languages: languages ?? ['en'],
       role: protocol.ResidentRole.user,
+      createdAt: DateTime.now(),
+      lastSeen: DateTime.now(),
     );
 
     await protocol.Resident.db.insertRow(session, resident);

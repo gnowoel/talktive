@@ -1,7 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 // Removed redundant Auth Server import
 // Added UUID import
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/gamification_service.dart';
 import '../services/rate_limit_service.dart';

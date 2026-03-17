@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 
 /// Health check endpoint for monitoring and load balancers
 class HealthEndpoint extends Endpoint {

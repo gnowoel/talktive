@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 class CreditRestorationCall extends FutureCall {
   @override

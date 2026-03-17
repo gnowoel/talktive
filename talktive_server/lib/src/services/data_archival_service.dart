@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 
 /// Service for archiving old data to reduce database size and costs.
 /// Implements a simple archival strategy for messages older than 90 days.

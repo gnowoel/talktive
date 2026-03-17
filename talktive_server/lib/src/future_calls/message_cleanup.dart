@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart' hide Message;
-import '../generated/protocol.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 
 class MessageCleanupCall extends FutureCall {
   @override

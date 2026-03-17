@@ -1,0 +1,5 @@
+class: AdminReportSummary
+fields:
+  report: Report
+  reporter: AdminUserSummary
+  target: AdminUserSummary

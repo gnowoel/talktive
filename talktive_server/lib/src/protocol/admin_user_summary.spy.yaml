@@ -1,0 +1,15 @@
+class: AdminUserSummary
+fields:
+  userId: String
+  userName: String?
+  floor: int
+  trustScore: int
+  level: int
+  xp: int
+  role: ResidentRole
+  suspended: bool
+  messageCount: int
+  momentCount: int
+  reportCount: int
+  createdAt: DateTime?
+  lastSeen: DateTime?

@@ -1,6 +1,6 @@
 import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
-import '../generated/protocol.dart';
+import 'package:talktive_server/src/generated/protocol.dart';
 import 'apartment_service.dart';
 import 'gamification_service.dart';
 

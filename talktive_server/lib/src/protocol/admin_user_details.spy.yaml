@@ -1,0 +1,7 @@
+class: AdminUserDetails
+fields:
+  user: AdminUserSummary
+  recentMessages: List<Message>
+  recentMoments: List<Moment>
+  reportsAgainst: List<Report>
+  reportsMade: List<Report>

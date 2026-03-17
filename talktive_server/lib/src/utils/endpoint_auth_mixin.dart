@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import '../generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/resident_service.dart';
 
 /// A mixin to provide shared authentication and resident lookup utility for Serverpod endpoints.

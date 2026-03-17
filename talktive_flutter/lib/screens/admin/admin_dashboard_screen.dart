@@ -10,6 +10,7 @@ import '../../widgets/duo/duo_refresh_button.dart';
 import 'reports_screen.dart';
 import 'users_screen.dart';
 import 'analytics_screen.dart';
+import 'package:talktive_client/talktive_client.dart' as protocol;
 
 /// Admin Dashboard - Main hub for moderation and management
 class AdminDashboardScreen extends ConsumerStatefulWidget {
@@ -23,7 +24,7 @@ class AdminDashboardScreen extends ConsumerStatefulWidget {
 class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   bool _isAdmin = false;
   bool _isLoading = true;
-  Map<String, dynamic>? _stats;
+  protocol.AdminStatistics? _stats;
 
   @override
   void initState() {
@@ -178,9 +179,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   Widget _buildStatisticsSection() {
-    final totals = _stats!['totals'] as Map<String, dynamic>;
-    final last24h = _stats!['last24h'] as Map<String, dynamic>;
-    final last7d = _stats!['last7d'] as Map<String, dynamic>;
+    final totals = _stats!.totals;
+    final last24h = _stats!.last24h;
+    final last7d = _stats!.last7d;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +203,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _buildStatCard(
                 '👥',
                 'Users',
-                totals['users'].toString(),
+                totals.users.toString(),
                 AppTheme.primaryColor,
               ),
             ),
@@ -211,7 +212,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _buildStatCard(
                 '💬',
                 'Messages',
-                totals['messages'].toString(),
+                totals.messages.toString(),
                 AppTheme.accentColor,
               ),
             ),
@@ -224,7 +225,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _buildStatCard(
                 '📸',
                 'Moments',
-                totals['moments'].toString(),
+                totals.moments.toString(),
                 AppTheme.secondaryColor,
               ),
             ),
@@ -233,7 +234,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _buildStatCard(
                 '👥',
                 'Groups',
-                totals['groups'].toString(),
+                totals.groups.toString(),
                 AppTheme.duoOrange,
               ),
             ),
@@ -246,7 +247,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _buildStatCard(
                 '⚠️',
                 'Reports',
-                totals['reports'].toString(),
+                totals.reports.toString(),
                 AppTheme.duoYellow,
               ),
             ),
@@ -255,7 +256,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _buildStatCard(
                 '🔔',
                 'Pending',
-                totals['pendingReports'].toString(),
+                totals.pendingReports.toString(),
                 AppTheme.errorColor,
               ),
             ),
@@ -279,15 +280,15 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           child: Column(
             children: [
               _buildActivityRow('Last 24 Hours', [
-                '💬 ${last24h['messages']} messages',
-                '📸 ${last24h['moments']} moments',
-                '⚠️ ${last24h['reports']} reports',
+                '💬 ${last24h.messages} messages',
+                '📸 ${last24h.moments} moments',
+                '⚠️ ${last24h.reports ?? 0} reports',
               ]),
               const Divider(height: 24),
               _buildActivityRow('Last 7 Days', [
-                '💬 ${last7d['messages']} messages',
-                '📸 ${last7d['moments']} moments',
-                '👥 ${last7d['activeUsers']} active users',
+                '💬 ${last7d.messages} messages',
+                '📸 ${last7d.moments} moments',
+                '👥 ${last7d.activeUsers ?? 0} active users',
               ]),
             ],
           ),

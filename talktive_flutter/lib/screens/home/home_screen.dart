@@ -12,6 +12,7 @@ import '../../providers/private_chat_provider.dart';
 import '../../providers/group_provider.dart';
 import '../../providers/unread_counts_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../providers/gamification_provider.dart';
 
 import '../../config/theme.dart';
 

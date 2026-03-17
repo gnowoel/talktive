@@ -1,0 +1,148 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "groups",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "isStaffLocked",
+            "columnType": 1,
+            "isNullable": false,
+            "columnDefault": "false",
+            "dartType": "bool"
+          }
+        ],
+        "deleteColumns": [
+          "isAdminLocked"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"isAdminLocked\" of table \"groups\" will be dropped.",
+            "table": "groups",
+            "columns": [
+              "isAdminLocked"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "resident",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "role",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'user'::text",
+            "dartType": "protocol:ResidentRole"
+          }
+        ],
+        "deleteColumns": [
+          "isAdmin",
+          "isModerator",
+          "role"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"isAdmin\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "isAdmin"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"isModerator\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "isModerator"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"role\" of table \"resident\" is modified in a way that it must be deleted and recreated.",
+            "table": "resident",
+            "columns": [
+              "role"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"isAdminLocked\" of table \"groups\" will be dropped.",
+      "table": "groups",
+      "columns": [
+        "isAdminLocked"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"isAdmin\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "isAdmin"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"isModerator\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "isModerator"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"role\" of table \"resident\" is modified in a way that it must be deleted and recreated.",
+      "table": "resident",
+      "columns": [
+        "role"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

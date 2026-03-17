@@ -14,6 +14,8 @@ jwtRefresh:
   - refreshAccessToken:
 admin:
   - isAdmin:
+  - isModerator:
+  - isStaff:
   - getPendingReports:
   - getAllReports:
   - resolveReport:
@@ -27,6 +29,8 @@ admin:
   - getStatistics:
   - searchUsers:
   - promoteToAdmin:
+  - promoteToModerator:
+  - demoteFromModerator:
   - demoteFromAdmin:
   - disbandGroup:
   - makeGroupPrivate:

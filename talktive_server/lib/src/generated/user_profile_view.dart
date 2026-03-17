@@ -12,7 +12,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import 'moment.dart' as _i2;
-import 'package:talktive_server/src/generated/protocol.dart' as _i3;
+import 'resident_role.dart' as _i3;
+import 'package:talktive_server/src/generated/protocol.dart' as _i4;
 
 /// User profile view data
 abstract class UserProfileView
@@ -43,11 +44,8 @@ abstract class UserProfileView
     this.bio,
     this.lastSeen,
     bool? isOnline,
-    bool? isAdmin,
-    bool? isModerator,
-  }) : isOnline = isOnline ?? false,
-       isAdmin = isAdmin ?? false,
-       isModerator = isModerator ?? false;
+    required this.role,
+  }) : isOnline = isOnline ?? false;
 
   factory UserProfileView({
     required String userId,
@@ -75,8 +73,7 @@ abstract class UserProfileView
     String? bio,
     DateTime? lastSeen,
     bool? isOnline,
-    bool? isAdmin,
-    bool? isModerator,
+    required _i3.ResidentRole role,
   }) = _UserProfileViewImpl;
 
   factory UserProfileView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -100,19 +97,19 @@ abstract class UserProfileView
       mutualGroups: jsonSerialization['mutualGroups'] as int,
       recentMoments: jsonSerialization['recentMoments'] == null
           ? null
-          : _i3.Protocol().deserialize<List<_i2.Moment>>(
+          : _i4.Protocol().deserialize<List<_i2.Moment>>(
               jsonSerialization['recentMoments'],
             ),
       level: jsonSerialization['level'] as int?,
       xp: jsonSerialization['xp'] as int?,
       interests: jsonSerialization['interests'] == null
           ? null
-          : _i3.Protocol().deserialize<List<String>>(
+          : _i4.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
       languages: jsonSerialization['languages'] == null
           ? null
-          : _i3.Protocol().deserialize<List<String>>(
+          : _i4.Protocol().deserialize<List<String>>(
               jsonSerialization['languages'],
             ),
       gender: jsonSerialization['gender'] as String?,
@@ -124,12 +121,7 @@ abstract class UserProfileView
       isOnline: jsonSerialization['isOnline'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isOnline']),
-      isAdmin: jsonSerialization['isAdmin'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
-      isModerator: jsonSerialization['isModerator'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isModerator']),
+      role: _i3.ResidentRole.fromJson((jsonSerialization['role'] as String)),
     );
   }
 
@@ -183,9 +175,7 @@ abstract class UserProfileView
 
   bool isOnline;
 
-  bool isAdmin;
-
-  bool isModerator;
+  _i3.ResidentRole role;
 
   /// Returns a shallow copy of this [UserProfileView]
   /// with some or all fields replaced by the given arguments.
@@ -216,8 +206,7 @@ abstract class UserProfileView
     String? bio,
     DateTime? lastSeen,
     bool? isOnline,
-    bool? isAdmin,
-    bool? isModerator,
+    _i3.ResidentRole? role,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -249,8 +238,7 @@ abstract class UserProfileView
       if (bio != null) 'bio': bio,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
-      'isAdmin': isAdmin,
-      'isModerator': isModerator,
+      'role': role.toJson(),
     };
   }
 
@@ -286,8 +274,7 @@ abstract class UserProfileView
       if (bio != null) 'bio': bio,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
-      'isAdmin': isAdmin,
-      'isModerator': isModerator,
+      'role': role.toJson(),
     };
   }
 
@@ -326,8 +313,7 @@ class _UserProfileViewImpl extends UserProfileView {
     String? bio,
     DateTime? lastSeen,
     bool? isOnline,
-    bool? isAdmin,
-    bool? isModerator,
+    required _i3.ResidentRole role,
   }) : super._(
          userId: userId,
          userName: userName,
@@ -354,8 +340,7 @@ class _UserProfileViewImpl extends UserProfileView {
          bio: bio,
          lastSeen: lastSeen,
          isOnline: isOnline,
-         isAdmin: isAdmin,
-         isModerator: isModerator,
+         role: role,
        );
 
   /// Returns a shallow copy of this [UserProfileView]
@@ -388,8 +373,7 @@ class _UserProfileViewImpl extends UserProfileView {
     Object? bio = _Undefined,
     Object? lastSeen = _Undefined,
     bool? isOnline,
-    bool? isAdmin,
-    bool? isModerator,
+    _i3.ResidentRole? role,
   }) {
     return UserProfileView(
       userId: userId ?? this.userId,
@@ -423,8 +407,7 @@ class _UserProfileViewImpl extends UserProfileView {
       bio: bio is String? ? bio : this.bio,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isOnline: isOnline ?? this.isOnline,
-      isAdmin: isAdmin ?? this.isAdmin,
-      isModerator: isModerator ?? this.isModerator,
+      role: role ?? this.role,
     );
   }
 }

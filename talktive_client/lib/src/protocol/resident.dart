@@ -11,7 +11,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import 'package:talktive_client/src/protocol/protocol.dart' as _i2;
+import 'resident_role.dart' as _i2;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i3;
 
 abstract class Resident implements _i1.SerializableModel {
   Resident._({
@@ -36,9 +37,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.avatar,
     this.interests,
     this.languages,
-    this.role,
-    bool? isAdmin,
-    bool? isModerator,
+    _i2.ResidentRole? role,
     this.lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -49,8 +48,7 @@ abstract class Resident implements _i1.SerializableModel {
        currentStreak = currentStreak ?? 0,
        longestStreak = longestStreak ?? 0,
        experienceMessageCount = experienceMessageCount ?? 0,
-       isAdmin = isAdmin ?? false,
-       isModerator = isModerator ?? false,
+       role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
        showOnlineStatus = showOnlineStatus ?? true;
 
@@ -76,9 +74,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? avatar,
     List<String>? interests,
     List<String>? languages,
-    String? role,
-    bool? isAdmin,
-    bool? isModerator,
+    _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -127,21 +123,17 @@ abstract class Resident implements _i1.SerializableModel {
       avatar: jsonSerialization['avatar'] as String?,
       interests: jsonSerialization['interests'] == null
           ? null
-          : _i2.Protocol().deserialize<List<String>>(
+          : _i3.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
       languages: jsonSerialization['languages'] == null
           ? null
-          : _i2.Protocol().deserialize<List<String>>(
+          : _i3.Protocol().deserialize<List<String>>(
               jsonSerialization['languages'],
             ),
-      role: jsonSerialization['role'] as String?,
-      isAdmin: jsonSerialization['isAdmin'] == null
+      role: jsonSerialization['role'] == null
           ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
-      isModerator: jsonSerialization['isModerator'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isModerator']),
+          : _i2.ResidentRole.fromJson((jsonSerialization['role'] as String)),
       lastSeen: jsonSerialization['lastSeen'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastSeen']),
@@ -201,11 +193,7 @@ abstract class Resident implements _i1.SerializableModel {
 
   List<String>? languages;
 
-  String? role;
-
-  bool isAdmin;
-
-  bool isModerator;
+  _i2.ResidentRole role;
 
   DateTime? lastSeen;
 
@@ -238,9 +226,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? avatar,
     List<String>? interests,
     List<String>? languages,
-    String? role,
-    bool? isAdmin,
-    bool? isModerator,
+    _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -271,9 +257,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (avatar != null) 'avatar': avatar,
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
-      if (role != null) 'role': role,
-      'isAdmin': isAdmin,
-      'isModerator': isModerator,
+      'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
@@ -311,9 +295,7 @@ class _ResidentImpl extends Resident {
     String? avatar,
     List<String>? interests,
     List<String>? languages,
-    String? role,
-    bool? isAdmin,
-    bool? isModerator,
+    _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -340,8 +322,6 @@ class _ResidentImpl extends Resident {
          interests: interests,
          languages: languages,
          role: role,
-         isAdmin: isAdmin,
-         isModerator: isModerator,
          lastSeen: lastSeen,
          isPremium: isPremium,
          showOnlineStatus: showOnlineStatus,
@@ -373,9 +353,7 @@ class _ResidentImpl extends Resident {
     Object? avatar = _Undefined,
     Object? interests = _Undefined,
     Object? languages = _Undefined,
-    Object? role = _Undefined,
-    bool? isAdmin,
-    bool? isModerator,
+    _i2.ResidentRole? role,
     Object? lastSeen = _Undefined,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -413,9 +391,7 @@ class _ResidentImpl extends Resident {
       languages: languages is List<String>?
           ? languages
           : this.languages?.map((e0) => e0).toList(),
-      role: role is String? ? role : this.role,
-      isAdmin: isAdmin ?? this.isAdmin,
-      isModerator: isModerator ?? this.isModerator,
+      role: role ?? this.role,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,

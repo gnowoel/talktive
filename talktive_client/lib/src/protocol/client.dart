@@ -300,6 +300,20 @@ class EndpointAdmin extends _i2.EndpointRef {
     {},
   );
 
+  /// Check if the current user is a moderator
+  _i3.Future<bool> isModerator() => caller.callServerEndpoint<bool>(
+    'admin',
+    'isModerator',
+    {},
+  );
+
+  /// Check if the current user is staff (Admin or Moderator)
+  _i3.Future<bool> isStaff() => caller.callServerEndpoint<bool>(
+    'admin',
+    'isStaff',
+    {},
+  );
+
   /// Get all pending reports with pagination
   _i3.Future<List<Map<String, dynamic>>> getPendingReports({
     required int limit,
@@ -451,6 +465,22 @@ class EndpointAdmin extends _i2.EndpointRef {
       caller.callServerEndpoint<void>(
         'admin',
         'promoteToAdmin',
+        {'userId': userId},
+      );
+
+  /// Promote user to moderator
+  _i3.Future<void> promoteToModerator({required String userId}) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'promoteToModerator',
+        {'userId': userId},
+      );
+
+  /// Demote user from moderator
+  _i3.Future<void> demoteFromModerator({required String userId}) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'demoteFromModerator',
         {'userId': userId},
       );
 

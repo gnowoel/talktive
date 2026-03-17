@@ -11,7 +11,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   Future<bool> isAdmin(Session session) async {
     try {
       final resident = await getAuthenticatedResident(session);
-      return resident.isAdmin;
+      return resident.role == protocol.ResidentRole.admin;
     } catch (e) {
       return false;
     }
@@ -21,7 +21,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   Future<bool> isModerator(Session session) async {
     try {
       final resident = await getAuthenticatedResident(session);
-      return resident.isModerator;
+      return resident.role == protocol.ResidentRole.moderator;
     } catch (e) {
       return false;
     }
@@ -31,7 +31,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   Future<bool> isStaff(Session session) async {
     try {
       final resident = await getAuthenticatedResident(session);
-      return resident.isAdmin || resident.isModerator;
+      return resident.role == protocol.ResidentRole.admin ||
+          resident.role == protocol.ResidentRole.moderator;
     } catch (e) {
       return false;
     }
@@ -509,8 +510,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,
-        'isAdmin': resident.isAdmin,
-        'isModerator': resident.isModerator,
+        'role': resident.role.name,
         'suspended': resident.suspended,
         'messageCount': messageCount,
         'momentCount': momentCount,
@@ -541,7 +541,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'User not found');
     }
 
-    resident.isAdmin = true;
+    resident.role = protocol.ResidentRole.admin;
     await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin promoted user to admin: $userId');
@@ -565,7 +565,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'User not found');
     }
 
-    resident.isModerator = true;
+    resident.role = protocol.ResidentRole.moderator;
     await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin promoted user to moderator: $userId');
@@ -589,7 +589,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'User not found');
     }
 
-    resident.isModerator = false;
+    resident.role = protocol.ResidentRole.user;
     await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin demoted user from moderator: $userId');
@@ -613,7 +613,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'User not found');
     }
 
-    resident.isAdmin = false;
+    resident.role = protocol.ResidentRole.user;
     await protocol.Resident.db.updateRow(session, resident);
 
     session.log('Admin demoted user from admin: $userId');
@@ -654,7 +654,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     if (group == null) throw protocol.TalktiveException(message: 'Group not found');
 
     group.isPublic = false;
-    group.isAdminLocked = true;
+    group.isStaffLocked = true;
     await protocol.Group.db.updateRow(session, group);
 
     session.log('ADMIN: Group $groupId set to PRIVATE by admin.');
@@ -720,8 +720,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'trustScore': resident.trustScore,
         'level': resident.level,
         'xp': resident.xp,
-        'isAdmin': resident.isAdmin,
-        'isModerator': resident.isModerator,
+        'role': resident.role.name,
         'suspended': resident.suspended,
         'createdAt': DateTime.now().toIso8601String(),
       },

@@ -60,7 +60,8 @@ mixin EndpointAuthMixin {
   /// and verifies that they have either 'admin' or 'moderator' privileges.
   Future<protocol.Resident> getStaffProfile(Session session) async {
     final resident = await getAuthenticatedResident(session);
-    if (!resident.isAdmin && !resident.isModerator) {
+    if (resident.role != protocol.ResidentRole.admin &&
+        resident.role != protocol.ResidentRole.moderator) {
       throw protocol.TalktiveException(
         message: 'Moderator or Admin access required.',
         code: 'ACCESS_DENIED',
@@ -73,7 +74,7 @@ mixin EndpointAuthMixin {
   /// and verifies that they have 'admin' privileges.
   Future<protocol.Resident> getAdminProfile(Session session) async {
     final resident = await getAuthenticatedResident(session);
-    if (!resident.isAdmin) {
+    if (resident.role != protocol.ResidentRole.admin) {
       throw protocol.TalktiveException(
         message: 'Administrator access required.',
         code: 'ADMIN_ACCESS_REQUIRED',

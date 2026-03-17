@@ -84,7 +84,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       avatar: avatar,
       interests: interests ?? [],
       languages: languages ?? ['en'],
-      role: 'resident',
+      role: protocol.ResidentRole.user,
     );
 
     await protocol.Resident.db.insertRow(session, resident);

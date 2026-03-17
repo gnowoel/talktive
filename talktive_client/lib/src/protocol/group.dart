@@ -28,11 +28,11 @@ abstract class Group implements _i1.SerializableModel {
     this.lastMessageAt,
     this.lastMessage,
     this.interests,
-    bool? isAdminLocked,
+    bool? isStaffLocked,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
        maxMembers = maxMembers ?? 50,
-       isAdminLocked = isAdminLocked ?? false;
+       isStaffLocked = isStaffLocked ?? false;
 
   factory Group({
     int? id,
@@ -48,7 +48,7 @@ abstract class Group implements _i1.SerializableModel {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
-    bool? isAdminLocked,
+    bool? isStaffLocked,
   }) = _GroupImpl;
 
   factory Group.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -80,9 +80,9 @@ abstract class Group implements _i1.SerializableModel {
           : _i2.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
-      isAdminLocked: jsonSerialization['isAdminLocked'] == null
+      isStaffLocked: jsonSerialization['isStaffLocked'] == null
           ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdminLocked']),
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isStaffLocked']),
     );
   }
 
@@ -115,7 +115,7 @@ abstract class Group implements _i1.SerializableModel {
 
   List<String>? interests;
 
-  bool isAdminLocked;
+  bool isStaffLocked;
 
   /// Returns a shallow copy of this [Group]
   /// with some or all fields replaced by the given arguments.
@@ -134,7 +134,7 @@ abstract class Group implements _i1.SerializableModel {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
-    bool? isAdminLocked,
+    bool? isStaffLocked,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -153,7 +153,7 @@ abstract class Group implements _i1.SerializableModel {
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
       if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
-      'isAdminLocked': isAdminLocked,
+      'isStaffLocked': isStaffLocked,
     };
   }
 
@@ -180,7 +180,7 @@ class _GroupImpl extends Group {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
-    bool? isAdminLocked,
+    bool? isStaffLocked,
   }) : super._(
          id: id,
          channelId: channelId,
@@ -195,7 +195,7 @@ class _GroupImpl extends Group {
          lastMessageAt: lastMessageAt,
          lastMessage: lastMessage,
          interests: interests,
-         isAdminLocked: isAdminLocked,
+         isStaffLocked: isStaffLocked,
        );
 
   /// Returns a shallow copy of this [Group]
@@ -216,7 +216,7 @@ class _GroupImpl extends Group {
     Object? lastMessageAt = _Undefined,
     Object? lastMessage = _Undefined,
     Object? interests = _Undefined,
-    bool? isAdminLocked,
+    bool? isStaffLocked,
   }) {
     return Group(
       id: id is int? ? id : this.id,
@@ -236,7 +236,7 @@ class _GroupImpl extends Group {
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
-      isAdminLocked: isAdminLocked ?? this.isAdminLocked,
+      isStaffLocked: isStaffLocked ?? this.isStaffLocked,
     );
   }
 }

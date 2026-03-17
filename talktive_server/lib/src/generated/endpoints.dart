@@ -382,6 +382,27 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async =>
                   (endpoints['admin'] as _i5.AdminEndpoint).isAdmin(session),
         ),
+        'isModerator': _i1.MethodConnector(
+          name: 'isModerator',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i5.AdminEndpoint).isModerator(
+                session,
+              ),
+        ),
+        'isStaff': _i1.MethodConnector(
+          name: 'isStaff',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).isStaff(session),
+        ),
         'getPendingReports': _i1.MethodConnector(
           name: 'getPendingReports',
           params: {
@@ -683,6 +704,44 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['admin'] as _i5.AdminEndpoint).promoteToAdmin(
+                    session,
+                    userId: params['userId'],
+                  ),
+        ),
+        'promoteToModerator': _i1.MethodConnector(
+          name: 'promoteToModerator',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).promoteToModerator(
+                    session,
+                    userId: params['userId'],
+                  ),
+        ),
+        'demoteFromModerator': _i1.MethodConnector(
+          name: 'demoteFromModerator',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).demoteFromModerator(
                     session,
                     userId: params['userId'],
                   ),

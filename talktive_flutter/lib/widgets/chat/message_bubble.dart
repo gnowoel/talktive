@@ -11,6 +11,9 @@ import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/date_formatter.dart';
 import '../../helpers/url_helper.dart';
 import '../../helpers/duo_mention_helper.dart';
+import '../../helpers/resident_ext.dart';
+import '../../helpers/duo_snackbar_helper.dart';
+import '../../providers/client_provider.dart';
 
 class MessageBubble extends ConsumerWidget {
   final Message message;
@@ -348,8 +351,7 @@ class MessageBubble extends ConsumerWidget {
                 }
               },
             ),
-            if ((currentResident?.isAdmin ?? false) ||
-                (currentResident?.isModerator ?? false)) ...[
+            if (currentResident?.isStaff ?? false) ...[
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.delete_outline,

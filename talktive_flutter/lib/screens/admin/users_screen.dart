@@ -9,6 +9,9 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
+import '../../helpers/resident_ext.dart';
+import '../../providers/current_resident_provider.dart';
+import 'package:talktive_client/talktive_client.dart' as protocol;
 
 /// User management screen for admins
 class UsersScreen extends ConsumerStatefulWidget {
@@ -68,8 +71,13 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
   Future<void> _showUserActions(Map<String, dynamic> user) async {
     final userId = user['userId'] as String;
     final userName = user['userName'] as String;
-    final isBanned = user['isBanned'] as bool;
-    final isAdmin = user['isAdmin'] as bool;
+    final isBanned = user['suspended'] as bool? ?? false;
+    final roleName = user['role'] as String? ?? 'user';
+    final isAdmin = roleName == 'admin';
+    final isModerator = roleName == 'moderator';
+
+    final currentResidentVal = ref.read(currentResidentProvider).value;
+    final isCurrentUserAdmin = currentResidentVal?.isAdmin ?? false;
 
     await showModalBottomSheet(
       context: context,
@@ -149,23 +157,42 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                 },
               ),
 
-              const Divider(height: 1),
-
-              ListTile(
-                leading: Icon(
-                  isAdmin ? Icons.remove_moderator : Icons.admin_panel_settings,
-                  color: AppTheme.primaryColor,
+              if (isCurrentUserAdmin) ...[
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(
+                    isAdmin ? Icons.remove_moderator : Icons.admin_panel_settings,
+                    color: AppTheme.primaryColor,
+                  ),
+                  title: Text(isAdmin ? 'Remove Admin' : 'Promote to Admin'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (isAdmin) {
+                      _demoteFromAdmin(userId, userName);
+                    } else {
+                      _promoteToAdmin(userId, userName);
+                    }
+                  },
                 ),
-                title: Text(isAdmin ? 'Remove Admin' : 'Promote to Admin'),
-                onTap: () {
-                  Navigator.pop(context);
-                  if (isAdmin) {
-                    _demoteFromAdmin(userId, userName);
-                  } else {
-                    _promoteToAdmin(userId, userName);
-                  }
-                },
-              ),
+                ListTile(
+                  leading: Icon(
+                    isModerator
+                        ? Icons.person_remove_outlined
+                        : Icons.verified_user_outlined,
+                    color: AppTheme.secondaryColor,
+                  ),
+                  title: Text(
+                      isModerator ? 'Remove Moderator' : 'Promote to Moderator'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (isModerator) {
+                      _demoteFromModerator(userId, userName);
+                    } else {
+                      _promoteToModerator(userId, userName);
+                    }
+                  },
+                ),
+              ],
 
               const SizedBox(height: 20),
             ],
@@ -323,6 +350,64 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
+  Future<void> _promoteToModerator(String userId, String userName) async {
+    final confirmed = await _showConfirmDialog(
+      'Promote to Moderator',
+      'Give $userName moderator privileges?',
+    );
+
+    if (!confirmed) return;
+
+    try {
+      final client = ref.read(clientProvider);
+      await client.admin.promoteToModerator(userId: userId);
+
+      if (mounted) {
+        HapticFeedback.mediumImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$userName is now a moderator'),
+            backgroundColor: AppTheme.duoGreen,
+          ),
+        );
+        _searchUsers(_searchController.text);
+      }
+    } catch (e) {
+      if (mounted) {
+        DuoSnackBarHelper.showError(context, e);
+      }
+    }
+  }
+
+  Future<void> _demoteFromModerator(String userId, String userName) async {
+    final confirmed = await _showConfirmDialog(
+      'Remove Moderator',
+      'Remove moderator privileges from $userName?',
+    );
+
+    if (!confirmed) return;
+
+    try {
+      final client = ref.read(clientProvider);
+      await client.admin.demoteFromModerator(userId: userId);
+
+      if (mounted) {
+        HapticFeedback.mediumImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$userName is no longer a moderator'),
+            backgroundColor: AppTheme.duoGreen,
+          ),
+        );
+        _searchUsers(_searchController.text);
+      }
+    } catch (e) {
+      if (mounted) {
+        DuoSnackBarHelper.showError(context, e);
+      }
+    }
+  }
+
   Future<bool> _showConfirmDialog(String title, String message) async {
     final result = await showDialog<bool>(
       context: context,
@@ -426,8 +511,10 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     final userName = user['userName'] as String;
     final floor = user['floor'] as int? ?? 0;
     final reputation = user['floor'] as int? ?? user['trustScore'] as int? ?? 0;
-    final isAdmin = user['isAdmin'] as bool;
-    final isBanned = user['isBanned'] as bool;
+    final roleName = user['role'] as String? ?? 'user';
+    final isAdmin = roleName == 'admin';
+    final isModerator = roleName == 'moderator';
+    final isBanned = user['suspended'] as bool? ?? false;
     final messageCount = user['messageCount'] as int;
     final momentCount = user['momentCount'] as int;
     final reportCount = user['reportCount'] as int;
@@ -480,7 +567,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (isAdmin) ...[
+                        if (isAdmin || isModerator) ...[
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -488,17 +575,22 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(
+                              color: (isAdmin
+                                      ? AppTheme.primaryColor
+                                      : AppTheme.secondaryColor)
+                                  .withValues(
                                 alpha: 0.1,
                               ),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
-                              'ADMIN',
+                            child: Text(
+                              isAdmin ? 'ADMIN' : 'MODERATOR',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryColor,
+                                color: isAdmin
+                                    ? AppTheme.primaryColor
+                                    : AppTheme.secondaryColor,
                               ),
                             ),
                           ),

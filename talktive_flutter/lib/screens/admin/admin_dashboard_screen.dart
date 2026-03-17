@@ -34,15 +34,15 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   Future<void> _checkAdminAccess() async {
     try {
       final client = ref.read(clientProvider);
-      final isAdmin = await client.admin.isAdmin();
+      final isStaff = await client.admin.isStaff();
 
       if (mounted) {
         setState(() {
-          _isAdmin = isAdmin;
+          _isAdmin = isStaff;
           _isLoading = false;
         });
 
-        if (isAdmin) {
+        if (isStaff) {
           _loadStatistics();
         }
       }

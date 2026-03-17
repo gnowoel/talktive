@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/notification_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ReportEndpoint extends Endpoint with EndpointAuthMixin {
@@ -149,20 +150,51 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
       session.log(
         'User ${target.userInfoId} received 10+ reports in 30 days. Reputation set to 0.',
       );
-      // TODO: Send notification
+      // Notify user of severe penalty
+      try {
+        await NotificationService.sendSafetyNotification(
+          session,
+          target.userInfoId,
+          'Account Restricted ❌',
+          'Your account has been restricted due to multiple reports. Your reputation has been reset.',
+        );
+      } catch (e) {
+        session.log('Failed to send severe penalty notification: $e');
+      }
     } else if (recentReports7Days >= 5) {
       // 5 reports in 7 days: 24-hour mute
       target.mutedUntil = now.add(const Duration(hours: 24));
       session.log(
         'User ${target.userInfoId} received 5+ reports in 7 days. Muted for 24 hours.',
       );
-      // TODO: Send notification
+      
+      // Notify user of mute
+      try {
+        await NotificationService.sendSafetyNotification(
+          session,
+          target.userInfoId,
+          'Temporarily Muted ⏳',
+          'Your account is muted for 24 hours due to community reports. Please review our guidelines.',
+        );
+      } catch (e) {
+        session.log('Failed to send mute notification: $e');
+      }
     } else if (recentReports7Days >= 3) {
       // 3 reports in 7 days: Warning
       session.log(
         'User ${target.userInfoId} received 3+ reports in 7 days. Warning issued.',
       );
-      // TODO: Send warning notification
+      
+      // Send warning notification
+      try {
+        await NotificationService.sendWarningNotification(
+          session,
+          target.userInfoId,
+          'You have received several reports recently. Please be mindful of our community rules.',
+        );
+      } catch (e) {
+        session.log('Failed to send warning notification: $e');
+      }
     }
 
     await protocol.Resident.db.updateRow(session, target);

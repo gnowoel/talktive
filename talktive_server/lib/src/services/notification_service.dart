@@ -376,4 +376,62 @@ class NotificationService {
       await protocol.DeviceToken.db.deleteRow(session, existing);
     }
   }
+
+  /// Sends a vouch/like notification.
+  static Future<void> sendVouchNotification(
+    Session session,
+    UuidValue recipientId,
+    String senderName,
+  ) async {
+    await sendNotification(
+      session,
+      recipientId,
+      'vouch',
+      'New Vouch! 🤝',
+      '$senderName has vouched for you. Your trust score has increased!',
+      data: {
+        'route': '/profile',
+      },
+      saveToHistory: true,
+    );
+  }
+
+  /// Sends a safety-related notification (e.g., mute, suspension).
+  static Future<void> sendSafetyNotification(
+    Session session,
+    UuidValue userId,
+    String title,
+    String body,
+  ) async {
+    await sendNotification(
+      session,
+      userId,
+      'safety',
+      title,
+      body,
+      data: {
+        'route': '/activity',
+      },
+      saveToHistory: true,
+    );
+  }
+
+  /// Sends a warning notification.
+  static Future<void> sendWarningNotification(
+    Session session,
+    UuidValue userId,
+    String body,
+  ) async {
+    await sendNotification(
+      session,
+      userId,
+      'warning',
+      'Community Warning ⚠️',
+      body,
+      data: {
+        'route': '/activity',
+      },
+      saveToHistory: true,
+    );
+  }
 }

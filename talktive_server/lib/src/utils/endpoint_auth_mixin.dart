@@ -57,13 +57,25 @@ mixin EndpointAuthMixin {
   }
 
   /// Retrieves the Resident record for the currently authenticated user session,
-  /// and verifies that they have the 'admin' role.
-  /// Throws a TalktiveException if not found, not authenticated, or not an admin.
+  /// and verifies that they have either 'admin' or 'moderator' privileges.
+  Future<protocol.Resident> getStaffProfile(Session session) async {
+    final resident = await getAuthenticatedResident(session);
+    if (!resident.isAdmin && !resident.isModerator) {
+      throw protocol.TalktiveException(
+        message: 'Moderator or Admin access required.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+    return resident;
+  }
+
+  /// Retrieves the Resident record for the currently authenticated user session,
+  /// and verifies that they have 'admin' privileges.
   Future<protocol.Resident> getAdminProfile(Session session) async {
     final resident = await getAuthenticatedResident(session);
-    if (resident.role != 'admin') {
+    if (!resident.isAdmin) {
       throw protocol.TalktiveException(
-        message: 'Admin access required.',
+        message: 'Administrator access required.',
         code: 'ADMIN_ACCESS_REQUIRED',
       );
     }

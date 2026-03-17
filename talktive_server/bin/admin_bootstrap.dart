@@ -8,6 +8,9 @@ void main(List<String> args) async {
   if (args.isEmpty) {
     print('Usage:');
     print('  dart bin/admin_bootstrap.dart promote <username>');
+    print('  dart bin/admin_bootstrap.dart demote <username>');
+    print('  dart bin/admin_bootstrap.dart promote-mod <username>');
+    print('  dart bin/admin_bootstrap.dart demote-mod <username>');
     print('  dart bin/admin_bootstrap.dart privatize <groupId>');
     print('  dart bin/admin_bootstrap.dart list-users');
     print('  dart bin/admin_bootstrap.dart list-groups');
@@ -26,6 +29,27 @@ void main(List<String> args) async {
           break;
         }
         await _promote(session, args[1]);
+        break;
+      case 'demote':
+        if (args.length < 2) {
+          print('Missing username');
+          break;
+        }
+        await _demote(session, args[1]);
+        break;
+      case 'promote-mod':
+        if (args.length < 2) {
+          print('Missing username');
+          break;
+        }
+        await _promoteMod(session, args[1]);
+        break;
+      case 'demote-mod':
+        if (args.length < 2) {
+          print('Missing username');
+          break;
+        }
+        await _demoteMod(session, args[1]);
         break;
       case 'privatize':
         if (args.length < 2) {
@@ -66,6 +90,48 @@ Future<void> _promote(Session session, String username) async {
   print('SUCCESS: ${resident.userName} is now an admin!');
 }
 
+Future<void> _demote(Session session, String username) async {
+  final resident = await protocol.Resident.db.findFirstRow(
+    session,
+    where: (t) => t.userName.equals(username),
+  );
+  if (resident == null) {
+    print('User "$username" not found.');
+    return;
+  }
+  resident.isAdmin = false;
+  await protocol.Resident.db.updateRow(session, resident);
+  print('SUCCESS: ${resident.userName} is no longer an admin.');
+}
+
+Future<void> _promoteMod(Session session, String username) async {
+  final resident = await protocol.Resident.db.findFirstRow(
+    session,
+    where: (t) => t.userName.equals(username),
+  );
+  if (resident == null) {
+    print('User "$username" not found.');
+    return;
+  }
+  resident.isModerator = true;
+  await protocol.Resident.db.updateRow(session, resident);
+  print('SUCCESS: ${resident.userName} is now a moderator!');
+}
+
+Future<void> _demoteMod(Session session, String username) async {
+  final resident = await protocol.Resident.db.findFirstRow(
+    session,
+    where: (t) => t.userName.equals(username),
+  );
+  if (resident == null) {
+    print('User "$username" not found.');
+    return;
+  }
+  resident.isModerator = false;
+  await protocol.Resident.db.updateRow(session, resident);
+  print('SUCCESS: ${resident.userName} is no longer a moderator.');
+}
+
 Future<void> _privatize(Session session, int groupId) async {
   final group = await protocol.Group.db.findById(session, groupId);
   if (group == null) {
@@ -81,7 +147,11 @@ Future<void> _privatize(Session session, int groupId) async {
 Future<void> _listUsers(Session session) async {
   final users = await protocol.Resident.db.find(session);
   for (var u in users) {
-    print('- ${u.userName} (${u.userInfoId}) [Admin: ${u.isAdmin}]');
+    String roles = '';
+    if (u.isAdmin) roles += '[ADMIN] ';
+    if (u.isModerator) roles += '[MODERATOR] ';
+    if (roles.isEmpty) roles = '[USER]';
+    print('- ${u.userName} (${u.userInfoId}) $roles');
   }
 }
 

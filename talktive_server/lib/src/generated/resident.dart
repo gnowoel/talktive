@@ -39,6 +39,7 @@ abstract class Resident
     this.languages,
     this.role,
     bool? isAdmin,
+    bool? isModerator,
     this.lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -50,6 +51,7 @@ abstract class Resident
        longestStreak = longestStreak ?? 0,
        experienceMessageCount = experienceMessageCount ?? 0,
        isAdmin = isAdmin ?? false,
+       isModerator = isModerator ?? false,
        isPremium = isPremium ?? false,
        showOnlineStatus = showOnlineStatus ?? true;
 
@@ -77,6 +79,7 @@ abstract class Resident
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    bool? isModerator,
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -137,6 +140,9 @@ abstract class Resident
       isAdmin: jsonSerialization['isAdmin'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
+      isModerator: jsonSerialization['isModerator'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isModerator']),
       lastSeen: jsonSerialization['lastSeen'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastSeen']),
@@ -202,6 +208,8 @@ abstract class Resident
 
   bool isAdmin;
 
+  bool isModerator;
+
   DateTime? lastSeen;
 
   bool isPremium;
@@ -238,6 +246,7 @@ abstract class Resident
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    bool? isModerator,
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -270,6 +279,7 @@ abstract class Resident
       if (languages != null) 'languages': languages?.toJson(),
       if (role != null) 'role': role,
       'isAdmin': isAdmin,
+      'isModerator': isModerator,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
@@ -304,6 +314,7 @@ abstract class Resident
       if (languages != null) 'languages': languages?.toJson(),
       if (role != null) 'role': role,
       'isAdmin': isAdmin,
+      'isModerator': isModerator,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
@@ -367,6 +378,7 @@ class _ResidentImpl extends Resident {
     List<String>? languages,
     String? role,
     bool? isAdmin,
+    bool? isModerator,
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -394,6 +406,7 @@ class _ResidentImpl extends Resident {
          languages: languages,
          role: role,
          isAdmin: isAdmin,
+         isModerator: isModerator,
          lastSeen: lastSeen,
          isPremium: isPremium,
          showOnlineStatus: showOnlineStatus,
@@ -427,6 +440,7 @@ class _ResidentImpl extends Resident {
     Object? languages = _Undefined,
     Object? role = _Undefined,
     bool? isAdmin,
+    bool? isModerator,
     Object? lastSeen = _Undefined,
     bool? isPremium,
     bool? showOnlineStatus,
@@ -466,6 +480,7 @@ class _ResidentImpl extends Resident {
           : this.languages?.map((e0) => e0).toList(),
       role: role is String? ? role : this.role,
       isAdmin: isAdmin ?? this.isAdmin,
+      isModerator: isModerator ?? this.isModerator,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
@@ -595,6 +610,11 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
+  _i1.ColumnValue<bool, bool> isModerator(bool value) => _i1.ColumnValue(
+    table.isModerator,
+    value,
+  );
+
   _i1.ColumnValue<DateTime, DateTime> lastSeen(DateTime? value) =>
       _i1.ColumnValue(
         table.lastSeen,
@@ -711,6 +731,11 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    isModerator = _i1.ColumnBool(
+      'isModerator',
+      this,
+      hasDefault: true,
+    );
     lastSeen = _i1.ColumnDateTime(
       'lastSeen',
       this,
@@ -773,6 +798,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool isAdmin;
 
+  late final _i1.ColumnBool isModerator;
+
   late final _i1.ColumnDateTime lastSeen;
 
   late final _i1.ColumnBool isPremium;
@@ -804,6 +831,7 @@ class ResidentTable extends _i1.Table<int?> {
     languages,
     role,
     isAdmin,
+    isModerator,
     lastSeen,
     isPremium,
     showOnlineStatus,

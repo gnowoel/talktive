@@ -17,6 +17,26 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     }
   }
 
+  /// Check if the current user is a moderator
+  Future<bool> isModerator(Session session) async {
+    try {
+      final resident = await getAuthenticatedResident(session);
+      return resident.isModerator;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Check if the current user is staff (Admin or Moderator)
+  Future<bool> isStaff(Session session) async {
+    try {
+      final resident = await getAuthenticatedResident(session);
+      return resident.isAdmin || resident.isModerator;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Helper to get user info removed: using Resident natively
 
   /// Get all pending reports with pagination
@@ -29,7 +49,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       limit: limit,
       offset: offset,
     ).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final reports = await protocol.Report.db.find(
       session,
@@ -86,7 +106,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       limit: limit,
       offset: offset,
     ).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final reports = await protocol.Report.db.find(
       session,
@@ -139,7 +159,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     String? adminNotes,
   }) async {
     InputValidationService.validateId(reportId, 'Report ID').throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
@@ -160,7 +180,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     String? reason,
   }) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -185,7 +205,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required String userId,
   }) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -211,7 +231,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required int durationHours,
     required String reason,
   }) async {
-    await getAdminProfile(session);
+    await getStaffProfile(session);
     InputValidationService.validateUuid(userId).throwIfInvalid();
     InputValidationService.validateId(durationHours, 'Duration').throwIfInvalid();
 
@@ -230,7 +250,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Manually unmutes a user.
   Future<void> unmuteUser(Session session, String userId) async {
-    await getAdminProfile(session);
+    await getStaffProfile(session);
     InputValidationService.validateUuid(userId).throwIfInvalid();
 
     final targetUuid = UuidValue.fromString(userId);
@@ -253,7 +273,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     String? reason,
   }) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -279,7 +299,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     String? reason,
   }) async {
     InputValidationService.validateId(messageId, 'Message ID').throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final message = await protocol.Message.db.findById(session, messageId);
     if (message == null) {
@@ -297,7 +317,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     String? reason,
   }) async {
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final moment = await protocol.Moment.db.findById(session, momentId);
     if (moment == null) {
@@ -434,7 +454,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       limit: limit,
       offset: 0,
     ).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     // Try to parse as UUID first
     UuidValue? searchUuid;
@@ -490,6 +510,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'level': resident.level,
         'xp': resident.xp,
         'isAdmin': resident.isAdmin,
+        'isModerator': resident.isModerator,
         'suspended': resident.suspended,
         'messageCount': messageCount,
         'momentCount': momentCount,
@@ -526,6 +547,54 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     session.log('Admin promoted user to admin: $userId');
   }
 
+  /// Promote user to moderator
+  Future<void> promoteToModerator(
+    Session session, {
+    required String userId,
+  }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+    await getAdminProfile(session);
+
+    final userUuid = UuidValue.fromString(userId);
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userUuid),
+    );
+
+    if (resident == null) {
+      throw protocol.TalktiveException(message: 'User not found');
+    }
+
+    resident.isModerator = true;
+    await protocol.Resident.db.updateRow(session, resident);
+
+    session.log('Admin promoted user to moderator: $userId');
+  }
+
+  /// Demote user from moderator
+  Future<void> demoteFromModerator(
+    Session session, {
+    required String userId,
+  }) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+    await getAdminProfile(session);
+
+    final userUuid = UuidValue.fromString(userId);
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userUuid),
+    );
+
+    if (resident == null) {
+      throw protocol.TalktiveException(message: 'User not found');
+    }
+
+    resident.isModerator = false;
+    await protocol.Resident.db.updateRow(session, resident);
+
+    session.log('Admin demoted user from moderator: $userId');
+  }
+
   /// Demote admin to regular user
   Future<void> demoteFromAdmin(
     Session session, {
@@ -558,7 +627,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required int groupId,
     required String reason,
   }) async {
-    await getAdminProfile(session);
+    await getStaffProfile(session);
     InputValidationService.validateId(groupId, 'Group ID').throwIfInvalid();
 
     final group = await protocol.Group.db.findById(session, groupId);
@@ -578,7 +647,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Forces a group to become private.
   Future<void> makeGroupPrivate(Session session, int groupId) async {
-    await getAdminProfile(session);
+    await getStaffProfile(session);
     InputValidationService.validateId(groupId, 'Group ID').throwIfInvalid();
 
     final group = await protocol.Group.db.findById(session, groupId);
@@ -597,7 +666,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     required String userId,
   }) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
-    await getAdminProfile(session);
+    await getStaffProfile(session);
 
     final userUuid = UuidValue.fromString(userId);
     final resident = await protocol.Resident.db.findFirstRow(
@@ -652,6 +721,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
         'level': resident.level,
         'xp': resident.xp,
         'isAdmin': resident.isAdmin,
+        'isModerator': resident.isModerator,
         'suspended': resident.suspended,
         'createdAt': DateTime.now().toIso8601String(),
       },

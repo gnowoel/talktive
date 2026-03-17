@@ -491,7 +491,8 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       ],
                     ),
                   ),
-                if (currentResident?.isAdmin ?? false) ...[
+                if ((currentResident?.isAdmin ?? false) ||
+                    (currentResident?.isModerator ?? false)) ...[
                   const PopupMenuDivider(),
                   PopupMenuItem(
                     value: 'admin_private',

@@ -80,7 +80,8 @@ class GroupProfileScreen extends ConsumerWidget {
               onPressed: () => context.pop(),
             ),
             actions: [
-              if (currentResident?.isAdmin ?? false)
+              if ((currentResident?.isAdmin ?? false) ||
+                  (currentResident?.isModerator ?? false))
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.gavel, color: AppTheme.duoRed),
                   onSelected: (value) async {

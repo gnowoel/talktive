@@ -95,14 +95,12 @@ class MessageBubble extends ConsumerWidget {
 
           Flexible(
             child: GestureDetector(
-              onLongPress: !isCurrentUser
-                  ? () => _showMessageOptions(
-                      context,
-                      ref,
-                      senderName,
-                      message.senderId.toString(),
-                    )
-                  : null,
+              onLongPress: () => _showMessageOptions(
+                context,
+                ref,
+                senderName,
+                message.senderId.toString(),
+              ),
               child: Container(
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.70,
@@ -350,6 +348,63 @@ class MessageBubble extends ConsumerWidget {
                 }
               },
             ),
+            if ((currentResident?.isAdmin ?? false) ||
+                (currentResident?.isModerator ?? false)) ...[
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.delete_outline,
+                    color: AppTheme.errorColor),
+                title: const Text(
+                  'Delete Message (Staff)',
+                  style: TextStyle(
+                    color: AppTheme.errorColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      title: const Text('Delete message?'),
+                      content: const Text(
+                        'This will permanently remove the message from the conversation.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppTheme.errorColor,
+                          ),
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true && context.mounted) {
+                    try {
+                      final client = ref.read(clientProvider);
+                      await client.admin.deleteMessage(messageId: message.id!);
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showSuccess(
+                            context, 'Message deleted.');
+                      }
+                    } catch (e) {
+                      if (context.mounted) DuoSnackBarHelper.showError(context, e);
+                    }
+                  }
+                },
+              ),
+            ],
             const SizedBox(height: AppTheme.duoSpacingMedium),
           ],
         ),

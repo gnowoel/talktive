@@ -134,6 +134,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           await _confirmBlock(context, isBlocked);
         } else if (value == 'report') {
           _reportUser(context, ref);
+        } else if (value == 'admin_mute') {
+          _confirmMute(context, ref);
+        } else if (value == 'admin_suspend') {
+          _confirmSuspend(context, ref);
         }
       },
       itemBuilder: (_) => [
@@ -163,7 +167,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             child: Row(
               children: [
                 Icon(Icons.flag_outlined, color: AppTheme.errorColor, size: 20),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
                   'Report user',
                   style: TextStyle(
@@ -174,6 +178,43 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               ],
             ),
           ),
+        if ((ref.watch(currentResidentProvider).value?.isAdmin ?? false) ||
+            (ref.watch(currentResidentProvider).value?.isModerator ?? false)) ...[
+          const PopupMenuDivider(),
+          const PopupMenuItem(
+            value: 'admin_mute',
+            child: Row(
+              children: [
+                Icon(Icons.volume_off_rounded,
+                    color: AppTheme.duoOrange, size: 20),
+                SizedBox(width: 12),
+                Text(
+                  'Staff: Mute User',
+                  style: TextStyle(
+                    color: AppTheme.duoOrange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuItem(
+            value: 'admin_suspend',
+            child: Row(
+              children: [
+                Icon(Icons.gavel_rounded, color: AppTheme.duoRed, size: 20),
+                SizedBox(width: 12),
+                Text(
+                  'Staff: Suspend User',
+                  style: TextStyle(
+                    color: AppTheme.duoRed,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -865,5 +906,168 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmMute(BuildContext context, WidgetRef ref) async {
+    int duration = 24;
+    final reasonController = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('🔇 Mute Resident',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+                'Temporarily prevent this user from sending messages or moments.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: reasonController,
+              decoration: const InputDecoration(
+                labelText: 'Reason for mute',
+                hintText: 'e.g. Spamming, inappropriate content',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              value: duration,
+              decoration: const InputDecoration(
+                labelText: 'Duration',
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(value: 1, child: Text('1 Hour')),
+                DropdownMenuItem(value: 12, child: Text('12 Hours')),
+                DropdownMenuItem(value: 24, child: Text('24 Hours')),
+                DropdownMenuItem(value: 72, child: Text('3 Days')),
+                DropdownMenuItem(value: 168, child: Text('7 Days')),
+              ],
+              onChanged: (val) => duration = val ?? 24,
+            ),
+          ],
+        ),
+        actions: [
+          DuoButton(
+            text: 'Cancel',
+            variant: DuoButtonVariant.ghost,
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
+          DuoButton(
+            text: 'Apply Mute',
+            color: AppTheme.duoOrange,
+            onPressed: () {
+              if (reasonController.text.trim().isEmpty) {
+                DuoSnackBarHelper.showError(context, 'Please provide a reason.');
+                return;
+              }
+              Navigator.pop(ctx, true);
+            },
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      try {
+        final client = ref.read(clientProvider);
+        await client.admin.muteUser(
+          userId: widget.userId,
+          durationHours: duration,
+          reason: reasonController.text.trim(),
+        );
+        if (context.mounted) {
+          DuoSnackBarHelper.showSuccess(
+              context, 'User muted for $duration hours.');
+          ref.invalidate(userProfileProvider(widget.userId));
+        }
+      } catch (e) {
+        if (context.mounted) DuoSnackBarHelper.showError(context, e);
+      }
+    }
+  }
+
+  Future<void> _confirmSuspend(BuildContext context, WidgetRef ref) async {
+    final reasonController = TextEditingController();
+    final confirmController = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('⚖️ Suspend Resident?',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoRed)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'This will PERMANENTLY disable the user\'s account and reset their Trust Score to 0.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: reasonController,
+              decoration: const InputDecoration(
+                labelText: 'Reason for suspension',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Enter "SUSPEND" to confirm:'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: confirmController,
+              decoration: const InputDecoration(
+                hintText: 'SUSPEND',
+                border: OutlineInputBorder(),
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2),
+            ),
+          ],
+        ),
+        actions: [
+          DuoButton(
+            text: 'Cancel',
+            variant: DuoButtonVariant.ghost,
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
+          DuoButton(
+            text: 'Confirm Suspension',
+            color: AppTheme.duoRed,
+            onPressed: () {
+              if (confirmController.text != 'SUSPEND') {
+                DuoSnackBarHelper.showError(context, 'Please type SUSPEND to confirm.');
+                return;
+              }
+              if (reasonController.text.trim().isEmpty) {
+                DuoSnackBarHelper.showError(context, 'Please provide a reason.');
+                return;
+              }
+              Navigator.pop(ctx, true);
+            },
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      try {
+        final client = ref.read(clientProvider);
+        await client.admin.suspendUser(
+          userId: widget.userId,
+          reason: reasonController.text.trim(),
+        );
+        if (context.mounted) {
+          DuoSnackBarHelper.showSuccess(context, 'User suspended permanently.');
+          ref.invalidate(userProfileProvider(widget.userId));
+        }
+      } catch (e) {
+        if (context.mounted) DuoSnackBarHelper.showError(context, e);
+      }
+    }
   }
 }

@@ -192,6 +192,8 @@ class ResidentService {
       isOnline: resident.showOnlineStatus &&
           resident.lastSeen != null &&
           DateTime.now().difference(resident.lastSeen!).inMinutes < 5,
+      isAdmin: resident.isAdmin,
+      isModerator: resident.isModerator,
     );
   }
 }

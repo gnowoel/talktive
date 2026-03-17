@@ -43,7 +43,11 @@ abstract class UserProfileView
     this.bio,
     this.lastSeen,
     bool? isOnline,
-  }) : isOnline = isOnline ?? false;
+    bool? isAdmin,
+    bool? isModerator,
+  }) : isOnline = isOnline ?? false,
+       isAdmin = isAdmin ?? false,
+       isModerator = isModerator ?? false;
 
   factory UserProfileView({
     required String userId,
@@ -71,6 +75,8 @@ abstract class UserProfileView
     String? bio,
     DateTime? lastSeen,
     bool? isOnline,
+    bool? isAdmin,
+    bool? isModerator,
   }) = _UserProfileViewImpl;
 
   factory UserProfileView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -118,6 +124,12 @@ abstract class UserProfileView
       isOnline: jsonSerialization['isOnline'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isOnline']),
+      isAdmin: jsonSerialization['isAdmin'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isAdmin']),
+      isModerator: jsonSerialization['isModerator'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isModerator']),
     );
   }
 
@@ -171,6 +183,10 @@ abstract class UserProfileView
 
   bool isOnline;
 
+  bool isAdmin;
+
+  bool isModerator;
+
   /// Returns a shallow copy of this [UserProfileView]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -200,6 +216,8 @@ abstract class UserProfileView
     String? bio,
     DateTime? lastSeen,
     bool? isOnline,
+    bool? isAdmin,
+    bool? isModerator,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -231,6 +249,8 @@ abstract class UserProfileView
       if (bio != null) 'bio': bio,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
+      'isAdmin': isAdmin,
+      'isModerator': isModerator,
     };
   }
 
@@ -266,6 +286,8 @@ abstract class UserProfileView
       if (bio != null) 'bio': bio,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
+      'isAdmin': isAdmin,
+      'isModerator': isModerator,
     };
   }
 
@@ -304,6 +326,8 @@ class _UserProfileViewImpl extends UserProfileView {
     String? bio,
     DateTime? lastSeen,
     bool? isOnline,
+    bool? isAdmin,
+    bool? isModerator,
   }) : super._(
          userId: userId,
          userName: userName,
@@ -330,6 +354,8 @@ class _UserProfileViewImpl extends UserProfileView {
          bio: bio,
          lastSeen: lastSeen,
          isOnline: isOnline,
+         isAdmin: isAdmin,
+         isModerator: isModerator,
        );
 
   /// Returns a shallow copy of this [UserProfileView]
@@ -362,6 +388,8 @@ class _UserProfileViewImpl extends UserProfileView {
     Object? bio = _Undefined,
     Object? lastSeen = _Undefined,
     bool? isOnline,
+    bool? isAdmin,
+    bool? isModerator,
   }) {
     return UserProfileView(
       userId: userId ?? this.userId,
@@ -395,6 +423,8 @@ class _UserProfileViewImpl extends UserProfileView {
       bio: bio is String? ? bio : this.bio,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isOnline: isOnline ?? this.isOnline,
+      isAdmin: isAdmin ?? this.isAdmin,
+      isModerator: isModerator ?? this.isModerator,
     );
   }
 }

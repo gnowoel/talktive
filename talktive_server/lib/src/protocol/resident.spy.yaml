@@ -36,6 +36,7 @@ fields:
   # Admin
   role: String?
   isAdmin: bool, default=false
+  isModerator: bool, default=false
   
   # Online & Subscription
   lastSeen: DateTime?

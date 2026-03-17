@@ -8,11 +8,13 @@ This project is a migration of the "Talktive" chat app from Firebase to Serverpo
 
 **The Apartment Building Metaphor**: Talktive is modeled after a digital apartment building.
 
-- **Plaza (Lobby)**: Public encounters.
-- **Moments (Bulletin Board)**: Visual sharing.
-- **Private Chats (Private Units)**: Intense conversations.
-- **Lounges (Clubhouse)**: Community discussions (interest-based).
-- **Profile (My Unit)**: Personal identity.
+- **Plaza (Lobby)**: Public encounters, the building's social heart.
+- **Moments (Bulletin Board)**: Visual sharing and community updates.
+- **Private Chats (Private Units)**: Intense, personal conversations.
+- **Lounges (Clubhouse)**: The primary term for interest-based community spaces.
+- **Profile (My Unit)**: Personal identity and private sanctuary.
+
+These areas are unified by an **inviting, friendly tone** that ensures the "Apartment Building" feels like a welcoming home rather than just a structure.
 
 **Duolingo-Inspired UI/UX**: The app has been completely redesigned with a clean, dynamic, and playful aesthetic inspired by Duolingo. The previous glassmorphism design has been replaced with:
 

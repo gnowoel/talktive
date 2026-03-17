@@ -4,11 +4,13 @@
 
 Talktive is not just a chat app; it is a digital residence. This metaphor guides every UI decision:
 
-*   **Plaza (Lobby)**: Public, bustling, and open. High activity.
+*   **Plaza (Lobby)**: Public, bustling, and open. The building's social heart.
 *   **Moments (Bulletin Board)**: Visual, community-driven, and shared.
 *   **Chats (Private Units)**: Intimate, secure, and personal.
-*   **Lounges (Clubhouse)**: Interest-based, community-led, and moderated. Also referred to as "Clubs".
+*   **Lounges (Clubhouse)**: The primary term for interest-based communities. They feel like relaxed shared spaces where residents hang out.
 *   **Profile (My Unit)**: Your personal identity and sanctuary.
+
+These structural elements are unified by an **inviting, friendly tone**—using soft typography, warm emojis, and community-centric language to make the building feel like home.
 
 ---
 

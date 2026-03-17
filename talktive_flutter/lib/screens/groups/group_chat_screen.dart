@@ -11,6 +11,7 @@ import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/chat/message_bubble.dart';
 
+import '../../helpers/resident_ext.dart';
 import 'create_group_dialog.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/group_provider.dart';
@@ -491,28 +492,29 @@ class _GroupChatScreenState extends ConsumerState<GroupChatScreen> {
                       ],
                     ),
                   ),
-                if ((currentResident?.isAdmin ?? false) ||
-                    (currentResident?.isModerator ?? false)) ...[
+                if (currentResident?.isStaff ?? false) ...[
                   const PopupMenuDivider(),
                   PopupMenuItem(
                     value: 'admin_private',
-                    enabled: widget.group.isPublic,
+                    enabled: widget.group.isPublic && !widget.group.isStaffLocked,
                     child: Row(
                       children: [
                         Icon(
-                          Icons.lock_outline,
-                          color: AppTheme.duoOrange,
+                          Icons.gavel,
+                          color: widget.group.isStaffLocked
+                              ? Colors.grey
+                              : AppTheme.duoPurple,
                           size: 20,
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          widget.group.isPublic
-                              ? 'Admin: Force Private'
-                              : 'Admin: Private (Locked)',
+                          widget.group.isStaffLocked
+                              ? 'Staff Locked'
+                              : 'Force Private',
                           style: TextStyle(
-                            color: widget.group.isPublic
-                                ? AppTheme.duoOrange
-                                : Colors.grey,
+                            color: widget.group.isStaffLocked
+                                ? Colors.grey
+                                : AppTheme.duoPurple,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

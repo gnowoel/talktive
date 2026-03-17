@@ -348,7 +348,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                             value: _isPublic,
                             activeThumbColor: AppTheme.duoBlue,
                             onChanged: (_isCreating ||
-                                    (widget.existingGroup?.isAdminLocked ??
+                                    (widget.existingGroup?.isStaffLocked ??
                                         false))
                                 ? null
                                 : (val) {
@@ -359,7 +359,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                         ],
                       ),
                     ),
-                    if (widget.existingGroup?.isAdminLocked ?? false)
+                    if (widget.existingGroup?.isStaffLocked ?? false)
                       Padding(
                         padding: const EdgeInsets.only(top: 8, left: 4),
                         child: Row(

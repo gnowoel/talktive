@@ -18,6 +18,7 @@ import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
 import 'package:talktive/helpers/duo_trust_score_helper.dart';
 import '../../providers/current_resident_provider.dart';
+import '../../helpers/resident_ext.dart';
 
 /// Simple user profile view screen
 /// Shows basic user info when tapping on an avatar
@@ -178,8 +179,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               ],
             ),
           ),
-        if ((ref.watch(currentResidentProvider).value?.isAdmin ?? false) ||
-            (ref.watch(currentResidentProvider).value?.isModerator ?? false)) ...[
+        if (ref.watch(currentResidentProvider).value?.isStaff ?? false) ...[
           const PopupMenuDivider(),
           const PopupMenuItem(
             value: 'admin_mute',

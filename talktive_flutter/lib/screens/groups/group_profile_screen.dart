@@ -12,6 +12,7 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../helpers/resident_ext.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/client_provider.dart';
 import 'create_group_dialog.dart';
@@ -80,8 +81,7 @@ class GroupProfileScreen extends ConsumerWidget {
               onPressed: () => context.pop(),
             ),
             actions: [
-              if ((currentResident?.isAdmin ?? false) ||
-                  (currentResident?.isModerator ?? false))
+              if (currentResident?.isStaff ?? false)
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.gavel, color: AppTheme.duoRed),
                   onSelected: (value) async {
@@ -94,8 +94,12 @@ class GroupProfileScreen extends ConsumerWidget {
                   itemBuilder: (context) => [
                     PopupMenuItem(
                       value: 'admin_private',
-                      enabled: group.isPublic,
-                      child: const Text('Admin: Force Private'),
+                      enabled: group.isPublic && !group.isStaffLocked,
+                      child: Text(
+                        group.isStaffLocked
+                            ? 'Lounge Locked'
+                            : 'Force Private',
+                      ),
                     ),
                     const PopupMenuItem(
                       value: 'admin_disband',

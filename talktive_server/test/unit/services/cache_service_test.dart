@@ -20,8 +20,8 @@ void main() {
     });
 
     test('popular groups TTL is 30 minutes', () {
-      expect(CacheService.popularGroupsTTL.inMinutes, 30);
-      expect(CacheService.popularGroupsTTL.inSeconds, 1800);
+      expect(CacheService.popularLoungesTTL.inMinutes, 30);
+      expect(CacheService.popularLoungesTTL.inSeconds, 1800);
     });
 
     test('TTLs are ordered by update frequency', () {
@@ -29,7 +29,7 @@ void main() {
       expect(CacheService.statisticsTTL < CacheService.userInfoTTL, true);
       expect(CacheService.userInfoTTL < CacheService.trendingMomentsTTL, true);
       expect(
-        CacheService.trendingMomentsTTL < CacheService.popularGroupsTTL,
+        CacheService.trendingMomentsTTL < CacheService.popularLoungesTTL,
         true,
       );
     });
@@ -159,7 +159,7 @@ void main() {
 
     test('popular groups cache is longest for stable data', () {
       // 30 minutes is appropriate for slowly changing popularity
-      expect(CacheService.popularGroupsTTL.inMinutes, 30);
+      expect(CacheService.popularLoungesTTL.inMinutes, 30);
     });
   });
 
@@ -180,11 +180,11 @@ void main() {
       expect(CacheService.statisticsTTL.inMinutes, 5);
 
       // Frequently accessed, rarely updated: long TTL
-      expect(CacheService.popularGroupsTTL.inMinutes, 30);
+      expect(CacheService.popularLoungesTTL.inMinutes, 30);
 
       // Ratio should be significant
       final ratio =
-          CacheService.popularGroupsTTL.inSeconds /
+          CacheService.popularLoungesTTL.inSeconds /
           CacheService.statisticsTTL.inSeconds;
       expect(ratio, 6.0); // 6x longer
     });
@@ -282,7 +282,7 @@ void main() {
         CacheService.statisticsTTL,
         CacheService.userInfoTTL,
         CacheService.trendingMomentsTTL,
-        CacheService.popularGroupsTTL,
+        CacheService.popularLoungesTTL,
       ];
 
       for (final ttl in allTTLs) {

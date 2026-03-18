@@ -133,13 +133,10 @@ class EmulatorFirebaseIdp implements FirebaseIdp {
 
 /// A custom FirebaseIdpUtils that overrides token verification for the emulator.
 class EmulatorFirebaseIdpUtils extends FirebaseIdpUtils {
-  @override
-  final FirebaseIdpConfig config;
-
   EmulatorFirebaseIdpUtils({
-    required this.config,
+    required super.config,
     required super.authUsers,
-  }) : super(config: config);
+  });
 
   @override
   Future<FirebaseAccountDetails> fetchAccountDetails(

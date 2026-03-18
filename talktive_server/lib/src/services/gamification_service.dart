@@ -495,8 +495,8 @@ class GamificationService {
             await NotificationService.sendAchievementNotification(
               session,
               userId,
-              achievement.name ?? achievement.key,
-              achievement.emoji ?? '🏆',
+              achievement.name,
+              achievement.emoji,
               achievement.points,
             );
           } catch (e) {
@@ -522,8 +522,8 @@ class GamificationService {
             await NotificationService.sendAchievementNotification(
               session,
               userId,
-              achievement.name ?? achievement.key,
-              achievement.emoji ?? '🏆',
+              achievement.name,
+              achievement.emoji,
               achievement.points,
             );
           } catch (e) {

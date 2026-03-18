@@ -74,7 +74,7 @@ void main(List<String> args) async {
     stdout.writeln('An error occurred: $e');
   } finally {
     await session.close();
-    pod.shutdown();
+    await pod.shutdown();
     exit(0);
   }
 }

@@ -188,7 +188,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
           session,
           otherUserUuid,
           currentResident.userName ?? 'Someone',
-          privateChat!.channelId,
+          privateChat.channelId,
         );
       } catch (e) {
         session.log('Failed to send chat invite notification: $e', level: LogLevel.error);

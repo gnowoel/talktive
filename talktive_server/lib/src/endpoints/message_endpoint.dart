@@ -219,12 +219,12 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
       // 10.1 Trigger Notifications (FCM / Activity Hub) - DO NOT AWAIT
       // We offload this to avoid blocking the sender's UI
-      _triggerNotifications(
+      unawaited(_triggerNotifications(
         session,
         channel,
         savedMessage,
         sender,
-      ).catchError((e) => session.log('Notification error: $e', level: LogLevel.error));
+      ).catchError((e) => session.log('Notification error: $e', level: LogLevel.error)));
 
       // 11. Gamification & Stats Batching
       await GamificationService.awardXP(

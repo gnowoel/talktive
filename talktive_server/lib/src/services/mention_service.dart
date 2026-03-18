@@ -28,10 +28,6 @@ class MentionService {
 
     // Map names to IDs for easier lookup
     final nameMap = <String, Set<UuidValue>>{};
-    for (final member in members) {
-      // We'll need to fetch the Resident data to get the names
-      // Optimization: Fetch residents in one go
-    }
 
     final memberIds = members.map((m) => m.userInfoId).toSet();
     final residents = await protocol.Resident.db.find(
@@ -72,10 +68,9 @@ class MentionService {
   /// Checks if a specific user is mentioned in the content.
   static bool isUserMentioned(String content, String userName) {
     if (!content.contains('@')) return false;
-    final mentionTag = '@$userName';
     // Case-insensitive check with boundary logic
     final pattern = RegExp(
-      '@' + RegExp.escape(userName) + r'(?=\s|$|[.,!?;:])',
+      '@${RegExp.escape(userName)}(?=\\s|\$|[.,!?;:])',
       caseSensitive: false,
     );
     return pattern.hasMatch(content);

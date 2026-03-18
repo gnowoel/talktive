@@ -20,7 +20,8 @@ import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 /// Comprehensive Discovery screen combining Users, Lounges, and Moments search
 class DiscoveryScreen extends ConsumerStatefulWidget {
-  const DiscoveryScreen({super.key});
+  final int initialTabIndex;
+  const DiscoveryScreen({super.key, this.initialTabIndex = 0});
 
   @override
   ConsumerState<DiscoveryScreen> createState() => _DiscoveryScreenState();
@@ -40,7 +41,11 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3, 
+      vsync: this, 
+      initialIndex: widget.initialTabIndex,
+    );
     _fetchDiscoveryFeed();
   }
 

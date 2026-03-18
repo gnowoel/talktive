@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../plaza/plaza_screen.dart';
+import '../discovery/discovery_screen.dart';
 import '../moments/moments_screen.dart';
 import '../chats/chats_screen.dart';
 import '../lounges/lounges_screen.dart';
@@ -40,7 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   final List<Widget> _screens = [
-    PlazaScreen(),
+    const DiscoveryScreen(),
     const MomentsScreen(),
     const ChatsScreen(),
     const LoungesScreen(),
@@ -48,10 +48,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ];
 
   final List<_NavItem> _navItems = const [
-    _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
+    _NavItem(emoji: '🔍', label: 'Discovery', color: AppTheme.duoBlue),
     _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
     _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
-    _NavItem(emoji: '🏘️', label: 'Lounges', color: AppTheme.duoBlue),
+    _NavItem(emoji: '🏘️', label: 'Lounges', color: AppTheme.primaryColor),
     _NavItem(emoji: '🏆', label: 'Activity', color: AppTheme.duoGreen),
   ];
 

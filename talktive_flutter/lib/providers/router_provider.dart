@@ -50,10 +50,14 @@ GoRouter router(Ref ref) {
           );
         },
       ),
-      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/', builder: (context, state) => const HomeScreen(initialIndex: 0)), // Default to Discovery
       GoRoute(
-        path: '/plaza',
+        path: '/discovery',
         builder: (context, state) => const HomeScreen(initialIndex: 0),
+      ),
+      GoRoute(
+        path: '/plaza', // Keep the redirect path just in case for internal navigations
+        builder: (context, state) => const HomeScreen(initialIndex: 3), // Point to Lounges hub instead
         routes: [
           GoRoute(
             path: 'chat',
@@ -108,7 +112,10 @@ GoRouter router(Ref ref) {
         routes: [
           GoRoute(
             path: 'search',
-            builder: (context, state) => const DiscoveryScreen(),
+            builder: (context, state) {
+              final initialTab = state.extra as int? ?? 0;
+              return DiscoveryScreen(initialTabIndex: initialTab);
+            },
           ),
           GoRoute(
             path: 'profile/:loungeId',

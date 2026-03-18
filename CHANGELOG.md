@@ -22,6 +22,12 @@ This document tracks the major development milestones and changes made during th
 - **Header Action Standardization**: Unified the placement of the `DuoRefreshButton` across all screens (Lounges, Moments, Activity, Lounge Chat, Private Chat). The Refresh button is now consistently positioned as the final action in the header (immediately before any "More" overflow menu), providing a predictable anchor for manual state synchronization on Web and Mobile.
 - **Design System Update**: Formalized header action ordering and discovery patterns in `docs/DESIGN_SYSTEM.md` to ensure future screens maintain this UI consistency.
 
+### 🏛️ Architectural Refinement: The Grand Lobby
+- **Unified Discovery Tab**: Replaced the "Plaza" bottom navigation tab with a dedicated **Discovery** 🔍 hall. This elevates the discovery and search experience to a top-level feature while maintaining a cleaner interface.
+- **Merged Plaza Service**: The **Plaza** (Global Lounge) has been converted into a pinned card at the top of the **Lounges** screen. This enforces the building metaphor where the "Lobby" is the entrance to the clubhouse.
+- **Contextual Smarts**: Tapping the search icon in Moments or Lounges now navigates to the Discovery Hall with the relevant category (Moments or Lounges) pre-selected, providing a "wormhole" experience that feels local but is powered by the unified discovery engine.
+- **PlazaScreen Removal**: Deprecated and removed the standalone `PlazaScreen` in favor of the integrated "Lobby" experience.
+
 ---
 
 ## March 17, 2026 - Admin Performance, Safety & The Lounge Pivot 🛋️🛡️

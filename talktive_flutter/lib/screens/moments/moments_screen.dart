@@ -364,7 +364,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             icon: const Icon(Icons.search, color: Colors.white, size: 28),
             onPressed: () {
               HapticFeedback.lightImpact();
-              context.push('/lounges/search');
+              context.push('/lounges/search', extra: 2); // Open with Moments tab
             },
           ),
           DuoRefreshButton(

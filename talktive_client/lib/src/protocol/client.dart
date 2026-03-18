@@ -1272,7 +1272,8 @@ class EndpointResident extends _i2.EndpointRef {
     required String bio,
     List<String>? interests,
     List<String>? languages,
-    required String mood,
+    String? mood,
+    String? customAvatarUrl,
   }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
     'initializeResident',
@@ -1285,6 +1286,7 @@ class EndpointResident extends _i2.EndpointRef {
       'interests': interests,
       'languages': languages,
       'mood': mood,
+      'customAvatarUrl': customAvatarUrl,
     },
   );
 
@@ -1298,6 +1300,7 @@ class EndpointResident extends _i2.EndpointRef {
     List<String>? interests,
     List<String>? languages,
     String? mood,
+    String? customAvatarUrl,
   }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
     'updateResident',
@@ -1310,8 +1313,17 @@ class EndpointResident extends _i2.EndpointRef {
       'interests': interests,
       'languages': languages,
       'mood': mood,
+      'customAvatarUrl': customAvatarUrl,
     },
   );
+
+  /// Updates only the custom avatar URL (standalone method for overlay button).
+  _i3.Future<_i10.Resident> updateCustomAvatar(String? customAvatarUrl) =>
+      caller.callServerEndpoint<_i10.Resident>(
+        'resident',
+        'updateCustomAvatar',
+        {'customAvatarUrl': customAvatarUrl},
+      );
 
   /// Get a user's profile view (with stats)
   _i3.Future<_i23.UserProfileView?> getUserProfile(String userId) =>

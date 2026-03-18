@@ -42,6 +42,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
        xp = xp ?? 0,
@@ -80,6 +81,7 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    String? customAvatarUrl,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -150,6 +152,7 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOnlineStatus'],
             ),
+      customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
 
@@ -208,6 +211,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showOnlineStatus;
 
+  String? customAvatarUrl;
+
   /// Returns a shallow copy of this [Resident]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -238,6 +243,7 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    String? customAvatarUrl,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -270,6 +276,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
+      if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
 
@@ -309,6 +316,7 @@ class _ResidentImpl extends Resident {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    String? customAvatarUrl,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
@@ -336,6 +344,7 @@ class _ResidentImpl extends Resident {
          lastSeen: lastSeen,
          isPremium: isPremium,
          showOnlineStatus: showOnlineStatus,
+         customAvatarUrl: customAvatarUrl,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -369,6 +378,7 @@ class _ResidentImpl extends Resident {
     Object? lastSeen = _Undefined,
     bool? isPremium,
     bool? showOnlineStatus,
+    Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
@@ -408,6 +418,9 @@ class _ResidentImpl extends Resident {
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
+      customAvatarUrl: customAvatarUrl is String?
+          ? customAvatarUrl
+          : this.customAvatarUrl,
     );
   }
 }

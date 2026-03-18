@@ -152,6 +152,7 @@ class Auth extends _$Auth {
     List<String> interests = const [],
     List<String> languages = const ['en'],
     String mood = '😊',
+    String? customAvatarUrl,
   }) async {
     state = const AsyncValue.loading();
 
@@ -165,6 +166,7 @@ class Auth extends _$Auth {
         mood: mood,
         interests: interests,
         languages: languages,
+        customAvatarUrl: customAvatarUrl,
       );
 
       final prefs = await SharedPreferences.getInstance();
@@ -193,6 +195,7 @@ class Auth extends _$Auth {
     List<String> interests = const [],
     List<String> languages = const ['en'],
     String mood = '😊',
+    String? customAvatarUrl,
   }) async {
     try {
       final resident = await client.resident.updateResident(
@@ -204,6 +207,7 @@ class Auth extends _$Auth {
         mood: mood,
         interests: interests,
         languages: languages,
+        customAvatarUrl: customAvatarUrl,
       );
 
       final prefs = await SharedPreferences.getInstance();

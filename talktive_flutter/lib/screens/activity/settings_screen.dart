@@ -105,6 +105,13 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
+                icon: '🖼️',
+                title: 'Custom Avatar',
+                description: 'Upload your own image to use as an avatar.',
+                isLocked: !resident.isPremium,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: '🔍',
                 title: 'Neighbors Discovery',
                 description: 'Search for any resident in the building.',

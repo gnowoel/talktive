@@ -12,6 +12,7 @@ import '../../config/interests.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
+import '../../services/media_service.dart';
 
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -41,7 +42,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   String _selectedMood = '😊';
   List<String> _selectedInterests = [];
   List<String> _selectedLanguages = ['en'];
+  String? _customAvatarUrl;
   bool _isLoading = false;
+  bool _isUploadingCustomAvatar = false;
 
   final List<String> _popularAvatars = [
     '😊',
@@ -128,6 +131,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
       _selectedInterests = List<String>.from(resident.interests ?? []);
       _selectedLanguages = List<String>.from(resident.languages ?? ['en']);
+      _customAvatarUrl = resident.customAvatarUrl;
 
       final bioText = resident.bio ?? '';
       _bioController.text = bioText;
@@ -232,9 +236,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       final bool success;
 
       if (isEditing) {
-        success = await ref
-            .read(authProvider.notifier)
-            .updateProfile(
+        success = await ref.read(authProvider.notifier).updateProfile(
               name: _nameController.text.trim(),
               avatar: _selectedAvatar,
               gender: _selectedGender,
@@ -243,11 +245,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               interests: _selectedInterests,
               languages: _selectedLanguages,
               mood: _selectedMood,
+              customAvatarUrl: _customAvatarUrl,
             );
       } else {
-        success = await ref
-            .read(authProvider.notifier)
-            .completeSetup(
+        success = await ref.read(authProvider.notifier).completeSetup(
               name: _nameController.text.trim(),
               avatar: _selectedAvatar,
               gender: _selectedGender,
@@ -256,6 +257,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               interests: _selectedInterests,
               languages: _selectedLanguages,
               mood: _selectedMood,
+              customAvatarUrl: _customAvatarUrl,
             );
       }
 
@@ -433,12 +435,45 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       ],
                     ),
                     child: Center(
-                      child: Text(
-                        _selectedAvatar,
-                        style: const TextStyle(fontSize: 60),
-                      ),
+                      child: _customAvatarUrl != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(60),
+                              child: Image.network(
+                                _customAvatarUrl!,
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.error, color: Colors.white),
+                              ),
+                            )
+                          : Text(
+                              _selectedAvatar,
+                              style: const TextStyle(fontSize: 60),
+                            ),
                     ),
                   ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
+                  if (widget.initialResident?.isPremium ?? false) ...[
+                    const SizedBox(height: 16),
+                    DuoButton(
+                      text: _customAvatarUrl == null
+                          ? 'Upload Premium Photo'
+                          : 'Change Premium Photo',
+                      icon: Icons.photo_library_outlined,
+                      variant: DuoButtonVariant.ghost,
+                      size: DuoButtonSize.small,
+                      isLoading: _isUploadingCustomAvatar,
+                      onPressed: _pickAndUploadPhoto,
+                    ),
+                    if (_customAvatarUrl != null)
+                      DuoButton(
+                        text: 'Remove Photo',
+                        variant: DuoButtonVariant.ghost,
+                        size: DuoButtonSize.small,
+                        color: AppTheme.duoRed,
+                        onPressed: () => setState(() => _customAvatarUrl = null),
+                      ),
+                  ],
                   const SizedBox(height: 32),
                   GridView.builder(
                     shrinkWrap: true,
@@ -457,6 +492,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                         onTap: () {
                           setState(() {
                             _selectedAvatar = avatar;
+                            _customAvatarUrl = null;
                           });
                           HapticFeedback.selectionClick();
                         },
@@ -1328,6 +1364,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                 onEmojiSelected: (category, emoji) {
                   setState(() {
                     _selectedAvatar = emoji.emoji;
+                    _customAvatarUrl = null;
                   });
                   Navigator.pop(context);
                   HapticFeedback.mediumImpact();
@@ -1405,5 +1442,36 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _pickAndUploadPhoto() async {
+    final picker = ref.read(mediaServiceProvider);
+    final image = await picker.pickImage();
+    if (image == null) return;
+
+    setState(() {
+      _isUploadingCustomAvatar = true;
+    });
+
+    try {
+      final url = await picker.uploadFile(image, 'avatars');
+      if (url != null) {
+        setState(() {
+          _customAvatarUrl = url;
+          // When a custom photo is uploaded, we still keep the emoji but it's hidden in the preview
+        });
+        if (mounted) {
+          DuoSnackBarHelper.showSuccess(context, 'Avatar uploaded! 📸');
+        }
+      }
+    } catch (e) {
+      if (mounted) DuoSnackBarHelper.showError(context, e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingCustomAvatar = false;
+        });
+      }
+    }
   }
 }

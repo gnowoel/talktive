@@ -8,6 +8,7 @@ import 'package:talktive_client/talktive_client.dart' as protocol;
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/lounge_provider.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
@@ -42,7 +43,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
   void initState() {
     super.initState();
     _tabController = TabController(
-      length: 3, 
+      length: 2, 
       vsync: this, 
       initialIndex: widget.initialTabIndex,
     );
@@ -150,9 +151,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
                 unselectedLabelColor: AppTheme.textSecondary,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                 tabs: const [
-                  Tab(text: 'Lounges'),
                   Tab(text: 'People'),
-                  Tab(text: 'Moments'),
+                  Tab(text: 'Lounges'),
                 ],
               ),
             ],
@@ -162,9 +162,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildLoungeTab(),
           _buildPeopleTab(),
-          _buildMomentTab(),
+          _buildLoungeTab(),
         ],
       ),
     );
@@ -200,6 +199,22 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
   }
 
   Widget _buildPeopleTab() {
+    final currentResident = ref.watch(currentResidentProvider).value;
+    final isPremium = currentResident?.isPremium ?? false;
+
+    if (!isPremium) {
+      return DuoEmptyState(
+        emoji: '💎',
+        title: 'Neighbors Discovery',
+        subtitle: 'Finding specific neighbors is a Premium feature. Unlock the building map today!',
+        actionLabel: 'Upgrade to Pro',
+        onActionPressed: () {
+          HapticFeedback.heavyImpact();
+          context.push('/activity/settings'); // To upgrade
+        },
+      );
+    }
+
     if (_searchQuery != null && _searchQuery!.isNotEmpty) {
       if (_isSearching) return const Center(child: DuoLoadingIndicator());
       final users = _searchResults?.users ?? [];
@@ -359,22 +374,5 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
     ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1, end: 0);
   }
 
-  Widget _buildMomentList(List<protocol.Moment> moments) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: moments.length,
-      itemBuilder: (context, index) {
-        final moment = moments[index];
-        return DuoMomentCard(
-          moment: moment,
-          index: index,
-          isLiked: false, // Default for discovery
-          onLike: () {},   // Read-only in search for now
-          onComment: () => context.push('/moments/detail', extra: moment),
-          onTap: () => context.push('/moments/detail', extra: moment),
-          onAuthorTap: () => context.push('/user/${moment.authorId}'),
-        );
-      },
-    );
   }
 }

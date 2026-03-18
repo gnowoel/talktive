@@ -22,11 +22,14 @@ This document tracks the major development milestones and changes made during th
 - **Header Action Standardization**: Unified the placement of the `DuoRefreshButton` across all screens (Lounges, Moments, Activity, Lounge Chat, Private Chat). The Refresh button is now consistently positioned as the final action in the header (immediately before any "More" overflow menu), providing a predictable anchor for manual state synchronization on Web and Mobile.
 - **Design System Update**: Formalized header action ordering and discovery patterns in `docs/DESIGN_SYSTEM.md` to ensure future screens maintain this UI consistency.
 
-### 🏛️ Architectural Refinement: The Grand Lobby
-- **Unified Discovery Tab**: Replaced the "Plaza" bottom navigation tab with a dedicated **Discovery** 🔍 hall. This elevates the discovery and search experience to a top-level feature while maintaining a cleaner interface.
-- **Merged Plaza Service**: The **Plaza** (Global Lounge) has been converted into a pinned card at the top of the **Lounges** screen. This enforces the building metaphor where the "Lobby" is the entrance to the clubhouse.
-- **Contextual Smarts**: Tapping the search icon in Moments or Lounges now navigates to the Discovery Hall with the relevant category (Moments or Lounges) pre-selected, providing a "wormhole" experience that feels local but is powered by the unified discovery engine.
-- **PlazaScreen Removal**: Deprecated and removed the standalone `PlazaScreen` in favor of the integrated "Lobby" experience.
+### 🎭 Architectural Refinement: Ephemeral & Premium Discovery
+- **Plaza Restoration**: Restored the **Plaza** 🏛️ as the primary home tab (Index 0) to provide better onboarding guidance for new residents, specifically directing them to the "Global Lounge."
+- **Neighbors Discovery (Premium)**: Implemented a **Premium Wall** for Resident Search. Searching for specific neighbors is now a "Pro" feature ($2.99/mo), while Lounge discovery remains free for everyone.
+- **Ephemeral Moments**: Removed the search functionality from the **Moments** feed. This reinforces the app's philosophy that moments are snapshots of the "now," not an archive to be searched.
+- **Contextual Search**: Standardized header search buttons to provide contextual "wormholes":
+    *   **Plaza**: Opens Discovery focused on **People** (Premium).
+    *   **Lounges**: Opens Discovery focused on **Lounges** (Free).
+- **Settings Integration**: Added "Neighbors Discovery" to the premium feature list in Activity Settings.
 
 ---
 

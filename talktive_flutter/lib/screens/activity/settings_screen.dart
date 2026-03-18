@@ -103,6 +103,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'A prestigious golden ring around your avatar.',
                 isLocked: !resident.isPremium,
               ),
+              _buildFeatureRow(
+                context,
+                icon: '🔍',
+                title: 'Neighbors Discovery',
+                description: 'Search for any resident in the building.',
+                isLocked: !resident.isPremium,
+              ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools 🛠️'),

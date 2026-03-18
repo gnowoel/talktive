@@ -39,7 +39,7 @@ class LoungesScreen extends ConsumerWidget {
             icon: const Icon(Icons.search, color: Colors.white, size: 28),
             onPressed: () {
               HapticFeedback.lightImpact();
-              context.push('/lounges/search', extra: 0); // Open with Lounges tab
+              context.push('/lounges/search', extra: 1); // Open with Lounges tab
             },
           ),
           DuoRefreshButton(
@@ -102,10 +102,6 @@ class LoungesScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         children: [
-          // THE LOBBY (Merged from Plaza)
-          _buildSectionHeader(context, '🏛️ The Lobby'),
-          _buildGlobalLoungeCard(context),
-          const SizedBox(height: 32),
 
           if (pending.isNotEmpty) ...[
             _buildSectionHeader(context, '🎫 The Doorstep'),
@@ -124,62 +120,6 @@ class LoungesScreen extends ConsumerWidget {
 
           const SizedBox(height: AppTheme.contentBottomPadding),
         ],
-      ),
-    );
-  }
-
-  Widget _buildGlobalLoungeCard(BuildContext context) {
-    return DuoCard(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push('/plaza/chat');
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: AppTheme.primaryGradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-              ),
-              child: const Center(
-                child: Text('🌍', style: TextStyle(fontSize: 28)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Global Lounge',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'Join the building\'s public chat',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 24),
-          ],
-        ),
       ),
     );
   }

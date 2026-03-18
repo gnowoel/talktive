@@ -8,7 +8,6 @@ import '../screens/onboarding/profile_setup_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/chats/chat_thread_screen.dart';
 import '../screens/chats/peephole_screen.dart';
-import '../screens/activity/activity_screen.dart';
 import '../screens/activity/settings_screen.dart';
 
 import '../screens/profile/user_profile_view_screen.dart';
@@ -17,7 +16,7 @@ import '../screens/plaza/plaza_chat_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
 import '../screens/moments/user_moments_screen.dart';
-import '../screens/lounges/lounge_search_screen.dart';
+import '../screens/discovery/discovery_screen.dart';
 import '../screens/lounges/lounge_profile_screen.dart';
 import '../screens/lounges/lounge_chat_screen.dart';
 import '../screens/lounges/lounge_members_screen.dart';
@@ -109,7 +108,7 @@ GoRouter router(Ref ref) {
         routes: [
           GoRoute(
             path: 'search',
-            builder: (context, state) => const LoungeSearchScreen(),
+            builder: (context, state) => const DiscoveryScreen(),
           ),
           GoRoute(
             path: 'profile/:loungeId',

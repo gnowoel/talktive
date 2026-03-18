@@ -78,6 +78,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         if (mounted) DuoSnackBarHelper.showError(context, 'Failed to load profile. Please try again.');
         return;
       }
+      if (!mounted) return;
     }
 
     if (currentResident == null) {
@@ -95,6 +96,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       );
       return;
     }
+    if (!mounted) return;
+    
 
     final effectiveFloor = DuoFloorHelper.computeFloor(currentResident);
     debugPrint('MomentsScreen: Effective floor: $effectiveFloor');
@@ -354,11 +357,23 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       emoji: '📸',
       title: 'Moments',
       subtitle: 'Share your day',
-      trailingHeader: DuoRefreshButton(
-        onRefresh: () async {
-          ref.invalidate(momentsProvider);
-          ref.invalidate(momentLikesProvider);
-        },
+      trailingHeader: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.white, size: 28),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.push('/lounges/search');
+            },
+          ),
+          DuoRefreshButton(
+            onRefresh: () async {
+              ref.invalidate(momentsProvider);
+              ref.invalidate(momentLikesProvider);
+            },
+          ),
+        ],
       ),
       gradient: AppTheme.secondaryGradient,
       floatingActionButton: FloatingActionButton(

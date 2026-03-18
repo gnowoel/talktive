@@ -72,7 +72,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
       // 3. User info and floor Computation
       final senderName = sender.userName;
-      final senderAvatar = sender.avatar;
+      final senderAvatar = sender.customAvatarUrl ?? sender.avatar;
       final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(
         sender,
       );

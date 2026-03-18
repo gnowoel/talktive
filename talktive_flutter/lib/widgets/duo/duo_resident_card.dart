@@ -40,7 +40,7 @@ class DuoResidentCard extends StatelessWidget {
             Row(
               children: [
                 DuoAvatar(
-                  imageUrl: resident.avatar,
+                  imageUrl: resident.customAvatarUrl ?? resident.avatar,
                   size: 48,
                   mood: resident.mood,
                   floorLevel: DuoFloorHelper.computeFloor(resident),

@@ -302,7 +302,7 @@ class SearchEndpoint extends Endpoint {
     return protocol.UserSummary(
       userId: resident.userInfoId.toString(),
       userName: resident.userName,
-      userAvatar: resident.avatar,
+      userAvatar: resident.customAvatarUrl ?? resident.avatar,
       userMood: resident.mood,
       floor: ApartmentService.computeEffectiveFloor(resident),
       trustScore: resident.trustScore,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
 import 'package:talktive/helpers/duo_trust_score_helper.dart';
@@ -58,10 +59,7 @@ class DuoAvatar extends StatelessWidget {
     final badgeSize = size > 60 ? 24.0 : 18.0;
     final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
     final isEmoji = !hasImageUrl && imageUrl != null && imageUrl!.isNotEmpty;
-    final avatarText = hasImageUrl
-        ? '👤'
-        : (imageUrl?.isNotEmpty == true ? imageUrl : '👤');
-
+    
     // Determine ring color from trustScore or explicit ringColor
     final effectiveRingColor =
         ringColor ??
@@ -69,46 +67,57 @@ class DuoAvatar extends StatelessWidget {
             ? DuoTrustScoreHelper.getTrustColor(trustScore!)
             : AppTheme.primaryColor);
 
-    Widget avatar = Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: hasImageUrl || isEmoji
-            ? null
-            : LinearGradient(
-                colors: [
-                  effectiveRingColor,
-                  _lightenColor(effectiveRingColor, 0.2),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-        color: isEmoji ? Colors.white : null,
-        image: hasImageUrl
-            ? DecorationImage(
-                image: NetworkImage(UrlHelper.resolve(imageUrl!)),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: hasImageUrl
-          ? null
-          : Center(
-              child: Text(
-                avatarText ?? '👤',
-                style: TextStyle(
-                  color: isEmoji ? null : Colors.white,
-                  fontSize: isEmoji ? size * 0.55 : size * 0.4,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
+    Widget avatarCore;
+    
+    if (hasImageUrl) {
+      avatarCore = ClipRRect(
+        borderRadius: BorderRadius.circular(size / 2),
+        child: CachedNetworkImage(
+          imageUrl: UrlHelper.resolve(imageUrl!),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => _buildPlaceholder(effectiveRingColor),
+          errorWidget: (context, url, error) => _buildPlaceholder(effectiveRingColor),
+        ),
+      );
+    } else {
+      final avatarText = imageUrl?.isNotEmpty == true ? imageUrl : '👤';
+      avatarCore = Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: isEmoji
+              ? null
+              : LinearGradient(
+                  colors: [
+                    effectiveRingColor,
+                    _lightenColor(effectiveRingColor, 0.2),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ),
+          color: isEmoji ? Colors.white : null,
+        ),
+        child: Center(
+          child: Text(
+            avatarText ?? '👤',
+            style: TextStyle(
+              color: isEmoji ? null : Colors.white,
+              fontSize: isEmoji ? size * 0.55 : size * 0.4,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
             ),
-    );
+          ),
+        ),
+      );
+    }
+
+    Widget finalAvatar = avatarCore;
 
     if (showRing) {
-      avatar = Container(
+      finalAvatar = Container(
         padding: EdgeInsets.all(ringWidth),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -127,7 +136,7 @@ class DuoAvatar extends StatelessWidget {
             color: Colors.white,
           ),
           padding: EdgeInsets.all(ringWidth),
-          child: avatar,
+          child: avatarCore,
         ),
       );
     }
@@ -139,7 +148,7 @@ class DuoAvatar extends StatelessWidget {
       return Stack(
         clipBehavior: Clip.none,
         children: [
-          avatar,
+          finalAvatar,
           if (hasFloor)
             Positioned(
               left: -4,
@@ -206,7 +215,7 @@ class DuoAvatar extends StatelessWidget {
       return Stack(
         clipBehavior: Clip.none,
         children: [
-          avatar,
+          finalAvatar,
           Positioned(
             right: 0,
             bottom: 0,
@@ -224,8 +233,61 @@ class DuoAvatar extends StatelessWidget {
       );
     }
 
-    return avatar;
+    return finalAvatar;
   }
+
+  Widget _buildPlaceholder(Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [
+            color,
+            _lightenColor(color, 0.2),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          '👤',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.4,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getFloorColor(int floor) {
+    if (floor >= 10) return AppTheme.diamondBadge;
+    if (floor >= 7) return AppTheme.goldBadge;
+    if (floor >= 4) return AppTheme.silverBadge;
+    if (floor >= 2) return AppTheme.bronzeBadge;
+    return AppTheme.primaryColor;
+  }
+
+  Color _lightenColor(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl
+        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  bool _isNetworkUrl(String value) {
+    final uri = Uri.tryParse(value);
+    return uri != null &&
+        uri.hasScheme &&
+        (uri.scheme == 'http' || uri.scheme == 'https');
+  }
+}
+
 
   Color _getFloorColor(int floor) {
     if (floor >= 10) return AppTheme.diamondBadge;

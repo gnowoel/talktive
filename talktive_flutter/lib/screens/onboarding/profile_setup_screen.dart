@@ -584,19 +584,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               child: Column(
                 children: [
                   const SizedBox(height: 24),
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                    ),
-                    child: Center(
-                      child: Text(
-                        _selectedAvatar,
-                        style: const TextStyle(fontSize: 40),
-                      ),
-                    ),
+                  DuoAvatar(
+                    imageUrl: _customAvatarUrl,
+                    placeholderEmoji: _selectedAvatar,
+                    size: 80,
+                    showRing: true,
                   ).animate().scale(),
                   const SizedBox(height: 32),
                   TextField(

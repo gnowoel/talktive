@@ -41,6 +41,21 @@ class ProfileScreen extends ConsumerWidget {
           icon: const Icon(Icons.close_rounded),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          residentAsync.when(
+            data: (resident) => IconButton(
+              icon: const Icon(Icons.edit_rounded),
+              tooltip: 'Edit Profile',
+              onPressed: () {
+                if (resident != null) {
+                  context.push('/profile-setup', extra: {'resident': resident});
+                }
+              },
+            ),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ],
       ),
       body: residentAsync.when(
         data: (resident) => _buildProfileContent(context, ref, resident),
@@ -185,8 +200,6 @@ class ProfileScreen extends ConsumerWidget {
           _buildLanguagesSection(resident),
           // Interests section
           _buildInterestsSection(resident),
-          // Edit Profile button
-          _buildEditProfileButton(context, ref, resident),
           // Blocked users menu
           _buildBlockedUsersButton(context),
           // Sign out button
@@ -472,31 +485,6 @@ class ProfileScreen extends ConsumerWidget {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const BlockedUsersScreen()),
           );
-        },
-      ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
-    );
-  }
-
-  Widget _buildEditProfileButton(
-    BuildContext context,
-    WidgetRef ref,
-    resident,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingLarge,
-        vertical: AppTheme.duoSpacingSmall,
-      ),
-      child: DuoButton(
-        text: 'Edit Profile',
-        icon: Icons.edit,
-        color: AppTheme.primaryColor,
-        isSecondary: true,
-        width: double.infinity,
-        onPressed: () {
-          if (resident != null) {
-            context.push('/profile-setup', extra: {'resident': resident});
-          }
         },
       ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
     );

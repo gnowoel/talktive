@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:talktive_client/talktive_client.dart';
 import 'private_chat_provider.dart';
 import 'lounge_provider.dart';
 import 'notification_provider.dart';

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
@@ -80,7 +79,7 @@ class ActivityHistory extends _$ActivityHistory {
         state = AsyncValue.data(
           currentData.map((n) {
             if (ids.contains(n.id)) {
-              return n.copyWith(read: true); 
+              return n.copyWith(read: true);
             }
             return n;
           }).toList(),

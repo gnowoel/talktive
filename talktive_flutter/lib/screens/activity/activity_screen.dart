@@ -16,7 +16,6 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../widgets/duo/duo_streak_card.dart';
-import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_badge.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
@@ -44,7 +43,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     _confettiController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +290,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
@@ -307,11 +305,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
         final achievements = data.achievements;
         final unlocked = achievements.where((a) => a['unlocked'] == true).toList();
-        final totalPoints = achievements.fold<int>(0, (sum, a) {
-          final ach = a['achievement'] as Achievement;
-          return sum + (ach.points);
-        });
-
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.fromLTRB(
@@ -385,7 +378,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1);
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 

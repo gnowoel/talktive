@@ -437,7 +437,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                   ),
                 ),
                 if (isCreator)
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
@@ -506,7 +506,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                               : AppTheme.duoPurple,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Text(
                           widget.lounge.isStaffLocked
                               ? 'Staff Locked'
@@ -530,8 +530,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                           color: AppTheme.duoRed,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
+                        SizedBox(width: 12),
+                        Text(
                           'Admin: Disband',
                           style: TextStyle(
                             color: AppTheme.duoRed,
@@ -662,7 +662,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     final memberNames = membersAsync.when(
       data: (members) => members.map((m) => m.userName ?? '').where((n) => n.isNotEmpty).toList(),
       loading: () => <String>[],
-      error: (_, __) => <String>[],
+      error: (_, _) => <String>[],
     );
 
     final filteredMessages = messages.where((msg) {

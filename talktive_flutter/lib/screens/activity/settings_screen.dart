@@ -68,11 +68,13 @@ class SettingsScreen extends ConsumerWidget {
                         showOnlineStatus: value,
                       );
                       ref.invalidate(currentResidentProvider);
+                      if (!context.mounted) return;
                       DuoSnackBarHelper.showSuccess(
                         context,
                         value ? 'Online status visible! 🟢' : 'Incognito mode active! 👻',
                       );
                     } catch (e) {
+                      if (!context.mounted) return;
                       DuoSnackBarHelper.showError(context, 'Failed to update settings');
                     }
                   },
@@ -215,8 +217,10 @@ class SettingsScreen extends ConsumerWidget {
                 try {
                   await client.resident.purchasePremium();
                   ref.invalidate(currentResidentProvider);
+                  if (!context.mounted) return;
                   DuoSnackBarHelper.showSuccess(context, 'Welcome to Talktive Plus! 🌟');
                 } catch (e) {
+                  if (!context.mounted) return;
                   DuoSnackBarHelper.showError(context, 'Purchase failed');
                 }
               },

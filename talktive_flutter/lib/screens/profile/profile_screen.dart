@@ -53,7 +53,7 @@ class ProfileScreen extends ConsumerWidget {
               },
             ),
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
         ],
       ),
@@ -262,7 +262,6 @@ class ProfileScreen extends ConsumerWidget {
           final trustScore = profile?.trustScore ?? 100;
           final floor = profile?.floor ?? 1;
           final messages = profile?.totalMessages ?? 0;
-          final xp = profile?.xp ?? 0;
 
           return GridView.count(
             crossAxisCount: 2,
@@ -314,7 +313,7 @@ class ProfileScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Text('Error loading stats'),
+        error: (_, _) => const Text('Error loading stats'),
       ),
     );
   }

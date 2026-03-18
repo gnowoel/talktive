@@ -8,7 +8,6 @@ import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
-import '../../providers/user_likes_provider.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/private_chat_provider.dart';
@@ -168,7 +167,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             child: Row(
               children: [
                 Icon(Icons.flag_outlined, color: AppTheme.errorColor, size: 20),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   'Report resident',
                   style: TextStyle(

@@ -14,10 +14,6 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
-import '../../services/media_service.dart';
-import '../../providers/client_provider.dart';
-import '../../helpers/duo_snackbar_helper.dart';
-import 'package:flutter/services.dart';
 
 /// Duolingo-style Profile screen - Achievement Hub
 class ProfileScreen extends ConsumerWidget {
@@ -110,34 +106,6 @@ class ProfileScreen extends ConsumerWidget {
                     .animate()
                     .fadeIn(delay: 100.ms)
                     .scale(begin: const Offset(0.8, 0.8)),
-                if (resident?.isPremium ?? false)
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: GestureDetector(
-                      onTap: () => _pickAndUploadAvatar(context, ref),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ).animate(delay: 400.ms).fadeIn().scale(),
               ],
             ),
           ),
@@ -227,14 +195,6 @@ class ProfileScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _displayName(Resident? resident) {
-    final name = resident?.userName;
-    if (name != null && name.isNotEmpty) {
-      return name;
-    }
-    return 'Your Profile';
   }
 
 
@@ -614,31 +574,5 @@ class ProfileScreen extends ConsumerWidget {
         },
       ).animate().fadeIn(delay: 550.ms).slideY(begin: 0.1, end: 0),
     );
-  }
-
-  Future<void> _pickAndUploadAvatar(BuildContext context, WidgetRef ref) async {
-    HapticFeedback.mediumImpact();
-    final picker = ref.read(mediaServiceProvider);
-
-    final image = await picker.pickImage();
-    if (image == null) return;
-
-    try {
-      // Show loading snackbar or dialog if needed, but let's just do it
-      DuoSnackBarHelper.showSuccess(context, 'Uploading avatar... ⏳');
-
-      final imageUrl = await picker.uploadFile(image, 'avatars');
-      if (imageUrl != null) {
-        await ref.read(clientProvider).resident.updateCustomAvatar(imageUrl);
-        ref.invalidate(currentResidentProvider);
-        if (context.mounted) {
-          DuoSnackBarHelper.showSuccess(context, 'Avatar updated! 🌟');
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        DuoSnackBarHelper.showError(context, 'Failed to upload avatar: $e');
-      }
-    }
   }
 }

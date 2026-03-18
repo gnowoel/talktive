@@ -11,6 +11,7 @@ import '../../config/languages.dart';
 import '../../config/interests.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
 import '../../services/media_service.dart';
 
@@ -418,54 +419,66 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: AppTheme.primaryGradient,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                  Center(
+                    child: Stack(
+                      children: [
+                        DuoAvatar(
+                          imageUrl: _customAvatarUrl,
+                          placeholderEmoji: _selectedAvatar,
+                          size: 120,
+                          showRing: true,
+                        ).animate().scale(
+                          duration: 300.ms,
+                          curve: Curves.elasticOut,
                         ),
+                        if (widget.initialResident?.isPremium ?? false)
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: GestureDetector(
+                              onTap: _pickAndUploadPhoto,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 3,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: _isUploadingCustomAvatar
+                                    ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : const Icon(
+                                      Icons.camera_alt_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                              ),
+                            ),
+                          ).animate(delay: 400.ms).fadeIn().scale(),
                       ],
                     ),
-                    child: Center(
-                      child: _customAvatarUrl != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(60),
-                              child: Image.network(
-                                _customAvatarUrl!,
-                                width: 120,
-                                height: 120,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.error, color: Colors.white),
-                              ),
-                            )
-                          : Text(
-                              _selectedAvatar,
-                              style: const TextStyle(fontSize: 60),
-                            ),
-                    ),
-                  ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
+                  ),
                   if (widget.initialResident?.isPremium ?? false) ...[
-                    const SizedBox(height: 16),
-                    DuoButton(
-                      text: _customAvatarUrl == null
-                          ? 'Upload Premium Photo'
-                          : 'Change Premium Photo',
-                      icon: Icons.photo_library_outlined,
-                      variant: DuoButtonVariant.ghost,
-                      size: DuoButtonSize.small,
-                      isLoading: _isUploadingCustomAvatar,
-                      onPressed: _pickAndUploadPhoto,
-                    ),
-                    if (_customAvatarUrl != null)
+                    if (_customAvatarUrl != null) ...[
+                      const SizedBox(height: 16),
                       DuoButton(
                         text: 'Remove Photo',
                         variant: DuoButtonVariant.ghost,
@@ -473,6 +486,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                         color: AppTheme.duoRed,
                         onPressed: () => setState(() => _customAvatarUrl = null),
                       ),
+                    ],
                   ],
                   const SizedBox(height: 32),
                   GridView.builder(

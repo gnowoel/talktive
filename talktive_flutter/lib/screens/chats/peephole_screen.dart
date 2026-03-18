@@ -88,6 +88,7 @@ class PeepholeScreen extends ConsumerWidget {
                     tag: 'avatar_${chatItem.chat.id}',
                     child: DuoAvatar(
                       imageUrl: chatItem.otherUserAvatar,
+                      placeholderEmoji: otherResident.avatar,
                       size: 120,
                       mood: chatItem.otherUserMood,
                       trustScore: otherResident.trustScore,

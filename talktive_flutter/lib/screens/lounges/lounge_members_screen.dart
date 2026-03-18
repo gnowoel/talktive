@@ -160,7 +160,7 @@ class LoungeMembersScreen extends ConsumerWidget {
           '/user/${resident.userInfoId.toString()}',
           extra: {
             'userName': resident.userName,
-            'userAvatar': resident.avatar,
+            'userAvatar': resident.customAvatarUrl ?? resident.avatar,
             'userFloor': DuoFloorHelper.computeFloor(resident),
           },
         );

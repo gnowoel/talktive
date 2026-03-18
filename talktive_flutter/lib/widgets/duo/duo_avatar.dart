@@ -7,6 +7,7 @@ import 'package:talktive/helpers/duo_trust_score_helper.dart';
 /// Duolingo-style avatar with gradient ring and optional mood or floor overlays.
 class DuoAvatar extends StatelessWidget {
   final String? imageUrl;
+  final String? placeholderEmoji;
   final double size;
   final int? floorLevel;
   final int? trustScore;
@@ -27,6 +28,7 @@ class DuoAvatar extends StatelessWidget {
   const DuoAvatar({
     super.key,
     this.imageUrl,
+    this.placeholderEmoji,
     this.size = 48,
     this.floorLevel,
     this.trustScore,
@@ -77,12 +79,12 @@ class DuoAvatar extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
-          placeholder: (context, url) => _buildPlaceholder(effectiveRingColor),
-          errorWidget: (context, url, error) => _buildPlaceholder(effectiveRingColor),
+          placeholder: (context, url) => _buildPlaceholder(effectiveRingColor, emoji: placeholderEmoji),
+          errorWidget: (context, url, error) => _buildPlaceholder(effectiveRingColor, emoji: placeholderEmoji),
         ),
       );
     } else {
-      final avatarText = imageUrl?.isNotEmpty == true ? imageUrl : '👤';
+      final avatarText = isEmoji ? imageUrl : (placeholderEmoji ?? '👤');
       avatarCore = Container(
         width: size,
         height: size,
@@ -113,6 +115,7 @@ class DuoAvatar extends StatelessWidget {
         ),
       );
     }
+// ... rest of method unchanged
 
     Widget finalAvatar = avatarCore;
 
@@ -236,7 +239,7 @@ class DuoAvatar extends StatelessWidget {
     return finalAvatar;
   }
 
-  Widget _buildPlaceholder(Color color) {
+  Widget _buildPlaceholder(Color color, {String? emoji}) {
     return Container(
       width: size,
       height: size,
@@ -251,43 +254,21 @@ class DuoAvatar extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Center(
-        child: Text(
-          '👤',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: size * 0.4,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
-        ),
-      ),
+      child: emoji != null
+          ? Center(
+              child: Text(
+                emoji,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: size * 0.4,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            )
+          : null,
     );
   }
-
-  Color _getFloorColor(int floor) {
-    if (floor >= 10) return AppTheme.diamondBadge;
-    if (floor >= 7) return AppTheme.goldBadge;
-    if (floor >= 4) return AppTheme.silverBadge;
-    if (floor >= 2) return AppTheme.bronzeBadge;
-    return AppTheme.primaryColor;
-  }
-
-  Color _lightenColor(Color color, double amount) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
-        .toColor();
-  }
-
-  bool _isNetworkUrl(String value) {
-    final uri = Uri.tryParse(value);
-    return uri != null &&
-        uri.hasScheme &&
-        (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-}
-
 
   Color _getFloorColor(int floor) {
     if (floor >= 10) return AppTheme.diamondBadge;

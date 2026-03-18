@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:serverpod/serverpod.dart';
 // Removed redundant Auth Server import
 // Added UUID import
@@ -244,11 +245,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       await protocol.Resident.db.updateRow(session, sender);
 
       // 12. Achievement tracking (already uses batching internally)
-      await GamificationService.trackMultipleProgress(
+      unawaited(GamificationService.trackMultipleProgress(
         session,
         sender.userInfoId,
         ['first_message', 'conversationalist', 'chatterbox'],
-      );
+      ));
 
       // Secondary checks
       await GamificationService.checkTimeBasedAchievements(

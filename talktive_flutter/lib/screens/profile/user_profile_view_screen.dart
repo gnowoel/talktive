@@ -288,6 +288,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             child:
                 DuoAvatar(
                       imageUrl: avatar,
+                      placeholderEmoji: widget.userAvatar,
                       size: 110,
                       floorLevel: floor,
                       mood: profile?.userMood,

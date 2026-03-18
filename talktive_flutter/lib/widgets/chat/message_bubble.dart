@@ -260,6 +260,7 @@ class MessageBubble extends ConsumerWidget {
             const SizedBox(width: AppTheme.duoSpacingSmall),
             DuoAvatar(
               imageUrl: currentResident?.customAvatarUrl ?? currentResident?.avatar,
+              placeholderEmoji: currentResident?.avatar,
               size: 36,
               trustScore: currentResident?.trustScore,
               showRing:

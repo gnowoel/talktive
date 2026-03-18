@@ -213,6 +213,7 @@ class ChatsScreen extends ConsumerWidget {
           children: [
             DuoAvatar(
               imageUrl: otherUserAvatar,
+              placeholderEmoji: chatItem.otherResident.avatar,
               size: 56,
               mood: chatItem.otherUserMood,
               showRing: true,
@@ -316,6 +317,7 @@ class ChatsScreen extends ConsumerWidget {
               tag: 'avatar_${chatItem.chat.id}',
               child: DuoAvatar(
                 imageUrl: otherUserAvatar,
+                placeholderEmoji: chatItem.otherResident.avatar,
                 size: 56,
                 mood: chatItem.otherUserMood,
                 showRing: false,

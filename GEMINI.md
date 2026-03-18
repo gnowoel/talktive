@@ -111,6 +111,9 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **Structural Consolidation & Optimization (Mar 2026)**:
+  - **Server**: Optimized `AdminEndpoint` with batch fetching for reports, eliminating N+1 query issues. Encapsulated Resident and Lounge creation logic into `ResidentService` and `LoungeService`. Parallelized database queries in `ResidentService.getResidentProfileView` for significantly faster profile loading. Fixed a race condition in `GamificationService` streak updates by ensuring asynchronous methods are properly awaited.
+  - **Client**: Implemented a lean `ServerpodInitialize` wrapper that bypasses legacy `ServiceLocator` and Firebase-specific initialization for the Serverpod version. Decoupled the Serverpod app path from legacy code by moving old services, helpers, pages, and models to a `lib/legacy/` directory, resulting in a significantly cleaner and more maintainable `lib/` root.
 - **Role System Refactoring (Mar 2026)**: Replaced boolean flags (`isAdmin`, `isModerator`) with a single `role` field using the `ResidentRole` enum. This simplifies role management, improves query performance, and provides a type-safe way to handle staff permissions. Renamed `isAdminLocked` to `isStaffLocked` in the `Lounge` model to reflect shared administrative oversight.
 - **Profile View Consolidation (Mar 2026)**: Centralized `UserProfileView` generation into `ResidentService` and implemented reactive `UserProfileProvider` in the frontend. This unified "My Profile" and "Resident Profile" views with consistent stats and real-time social state (block/like) synchronization.
 - **Consolidation & Simplification (Mar 2026)**: Merged `AchievementService` and `StreakService` into `GamificationService`, and consolidated `UserProfileEndpoint` and `UserLikeEndpoint` into `ResidentEndpoint`. Rationalized frontend providers by merging achievement, streak, and notification state management.

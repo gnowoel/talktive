@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'services/edge_to_edge_manager.dart';
 import 'package:go_router/go_router.dart';
 
-import 'router.dart';
+import 'legacy/router.dart';
 import 'services/messaging.dart';
-import 'theme.dart';
-import 'widgets/edge_to_edge_wrapper.dart';
-import 'wrappers/verify_user.dart';
-import 'wrappers/current_user.dart';
-import 'wrappers/initialize.dart';
-import 'wrappers/providers.dart';
-import 'wrappers/setup.dart';
-import 'wrappers/subscribe.dart';
-import 'wrappers/whats_new.dart';
+import 'legacy/theme.dart';
+import 'legacy/widgets/edge_to_edge_wrapper.dart';
+import 'legacy/wrappers/verify_user.dart';
+import 'legacy/wrappers/current_user.dart';
+import 'legacy/wrappers/initialize.dart';
+import 'legacy/wrappers/providers.dart';
+import 'legacy/wrappers/setup.dart';
+import 'legacy/wrappers/subscribe.dart';
+import 'legacy/wrappers/whats_new.dart';
 
 const useEmulators = true;
 

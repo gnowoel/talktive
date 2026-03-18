@@ -1,8 +1,67 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
+import 'gamification_service.dart';
 
 /// Service for managing Lounge logic and discovery.
 class LoungeService {
+  /// Creates a new lounge and its associated channel and members.
+  static Future<Lounge> createLounge(
+    Session session, {
+    required String name,
+    required UuidValue creatorId,
+    String? description,
+    String? emoji,
+    bool isPublic = false,
+    int maxMembers = 50,
+    List<String>? interests,
+  }) async {
+    // 1. Create a new channel for this lounge
+    final channel = Channel(
+      name: name,
+      type: ChannelType.lounge,
+      createdAt: DateTime.now(),
+    );
+
+    final savedChannel = await Channel.db.insertRow(session, channel);
+
+    // 2. Create the lounge record
+    final lounge = Lounge(
+      channelId: savedChannel.id!,
+      name: name,
+      description: description,
+      emoji: emoji,
+      creatorId: creatorId,
+      createdAt: DateTime.now(),
+      memberCount: 1,
+      isPublic: isPublic,
+      maxMembers: maxMembers,
+      interests: interests,
+    );
+
+    final savedLounge = await Lounge.db.insertRow(session, lounge);
+
+    // 3. Add creator as first member with admin role
+    await ChannelMember.db.insertRow(
+      session,
+      ChannelMember(
+        channelId: savedChannel.id!,
+        userInfoId: creatorId,
+        status: ChannelMemberStatus.joined,
+        joinedAt: DateTime.now(),
+        role: 'admin',
+      ),
+    );
+
+    // 4. Track achievement
+    await GamificationService.trackProgress(
+      session,
+      creatorId,
+      'community_builder',
+    );
+
+    return savedLounge;
+  }
+
   /// Searches for public lounges by name or description.
   static Future<List<Lounge>> searchLounges(
     Session session,

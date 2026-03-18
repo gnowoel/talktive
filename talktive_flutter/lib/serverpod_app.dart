@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/theme.dart';
-import 'wrappers/initialize.dart';
+import 'wrappers/serverpod_initialize.dart';
 import 'widgets/duo/duo_notification_toast.dart';
 import 'providers/router_provider.dart';
 import 'providers/fcm_provider.dart';
@@ -27,7 +27,7 @@ class _ServerpodAppContent extends ConsumerWidget {
     // Keep FCMManager alive to handle background/foreground messages
     ref.watch(fCMManagerProvider);
 
-    return Initialize(
+    return ServerpodInitialize(
       useEmulators: true,
       child: MaterialApp.router(
         title: 'Talktive (Serverpod)',

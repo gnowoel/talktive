@@ -1,0 +1,493 @@
+import './package:flutter/material.dart';
+
+import './package:provider/provider.dart';
+import './package:timeago/timeago.dart' as timeago;
+
+import '../legacy/helpers/helpers.dart';
+
+import '../models/topic.dart';
+import '../models/tribe.dart';
+import '../services/fireauth.dart';
+import '../services/firestore.dart';
+import '../services/follow_cache.dart';
+import '../services/server_clock.dart';
+import '../services/ad_service/go_router_room_helper.dart';
+import '../services/tribe_cache.dart';
+import '../services/user_cache.dart';
+import './tag.dart';
+import './user_info_loader.dart';
+
+class TopicItem extends StatefulWidget {
+  final Topic topic;
+  final bool hasJoined;
+  final bool hasSeen;
+  final bool showTribeTag;
+  final void Function(Tribe)? onTribeSelected;
+  final Function(Topic)? onRemove;
+  final Function(Topic)? onRestore;
+
+  const TopicItem({
+    super.key,
+    required this.topic,
+    required this.hasJoined,
+    required this.hasSeen,
+    this.showTribeTag = false,
+    this.onTribeSelected,
+    this.onRemove,
+    this.onRestore,
+  });
+
+  @override
+  State<TopicItem> createState() => _TopicItemState();
+}
+
+class _TopicItemState extends State<TopicItem> {
+  late Fireauth fireauth;
+  late Firestore firestore;
+  late UserCache userCache;
+  late FollowCache followCache;
+  late bool byMe;
+  late bool isFriend;
+  bool _isProcessing = false;
+  late TribeCache tribeCache;
+
+  @override
+  void initState() {
+    super.initState();
+    fireauth = context.read<Fireauth>();
+    firestore = context.read<Firestore>();
+    userCache = context.read<UserCache>();
+    byMe = widget.topic.creator.id == fireauth.instance.currentUser!.uid;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    followCache = Provider.of<FollowCache>(context);
+    tribeCache = Provider.of<TribeCache>(context);
+    isFriend = followCache.isFollowing(widget.topic.creator.id);
+  }
+
+  Future<void> _unlistTopic() async {
+    _doAction(() async {
+      await firestore.makeTopicPrivate(
+        fireauth.instance.currentUser!.uid,
+        widget.topic.id,
+      );
+    });
+  }
+
+  void _handleDismiss(DismissDirection direction) {
+    if (widget.onRemove != null) {
+      widget.onRemove!(widget.topic);
+    }
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger
+        .showSnackBar(
+          SnackBar(
+            content: const Text('Moment unlisted'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                if (widget.onRestore != null) {
+                  widget.onRestore!(widget.topic);
+                }
+              },
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        )
+        .closed
+        .then((reason) {
+          if (reason == SnackBarClosedReason.timeout) {
+            _unlistTopic();
+          }
+        });
+  }
+
+  Future<void> _doAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    }
+  }
+
+  Future<void> _joinTopic() async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      final topicId = widget.topic.id;
+      final topicCreatorId = widget.topic.creator.id;
+
+      await firestore.joinTopic(userId, topicId);
+
+      if (mounted) {
+        await context.goToTopic(topicId, topicCreatorId);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
+  }
+
+  bool _canJoinTopic() {
+    final self = userCache.user;
+    if (self == null) return false;
+    return canJoinTopic(self);
+  }
+
+  Future<void> _handleTap() async {
+    final self = userCache.user;
+    if (self == null) return;
+
+    if (widget.hasJoined) {
+      await _enterTopic();
+      return;
+    }
+
+    if (!_canJoinTopic()) {
+      await _showRestrictionDialog();
+      return;
+    }
+
+    await _joinTopic();
+  }
+
+  Future<void> _enterTopic() async {
+    await context.goToTopic(widget.topic.id, widget.topic.creator.id);
+  }
+
+  Future<void> _showRestrictionDialog() async {
+    final self = userCache.user!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    String title;
+    List<Widget> content;
+
+    if (!canSendMessage(self)) {
+      title = 'Account Restricted';
+      content = [
+        Text(
+          'Your account has been temporarily restricted due to multiple reports of inappropriate behavior.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot join moments until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    } else {
+      title = 'Account Restricted';
+      content = [
+        Text(
+          'Your account has been temporarily restricted due to multiple reports.',
+          style: TextStyle(height: 1.5, color: colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'You cannot join moments until this restriction expires.',
+          style: TextStyle(height: 1.5),
+        ),
+      ];
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: content,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreatorInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => UserInfoLoader(
+        userId: widget.topic.creator.id,
+        photoURL: widget.topic.creator.photoURL ?? '',
+        displayName: widget.topic.creator.displayName ?? '',
+      ),
+    );
+  }
+
+  void _onTribeTap() {
+    if (widget.topic.tribeId != null && widget.onTribeSelected != null) {
+      final tribe = tribeCache.getTribeById(widget.topic.tribeId!);
+      if (tribe != null) {
+        widget.onTribeSelected!(tribe);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final now = DateTime.fromMillisecondsSinceEpoch(ServerClock().now);
+    final updatedAt = DateTime.fromMillisecondsSinceEpoch(
+      widget.topic.updatedAt,
+    );
+
+    final isTwoPerson = widget.topic.isTwoPersonTopic;
+    Color cardColor;
+    Color textColor = colorScheme.onSurface;
+
+    if (isTwoPerson) {
+      cardColor = colorScheme.tertiaryContainer;
+      textColor = colorScheme.onTertiaryContainer;
+    } else {
+      cardColor = widget.hasJoined
+          ? colorScheme.surfaceContainerHigh
+          : (widget.hasSeen
+                ? colorScheme.surfaceContainerHigh
+                : colorScheme.secondaryContainer);
+    }
+
+    final currentUser = userCache.user;
+    final canUnlist =
+        (byMe || (currentUser?.isAdminOrModerator == true)) &&
+        widget.onRemove != null &&
+        widget.onRestore != null;
+
+    final cardContent = Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      color: cardColor,
+      clipBehavior: Clip.hardEdge,
+      child: ListTile(
+        contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
+        leading: GestureDetector(
+          onTap: () => _showCreatorInfo(context),
+          child: Text(
+            widget.topic.creator.photoURL ?? '',
+            style: TextStyle(fontSize: 36, color: textColor),
+          ),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.topic.tribeId != null && widget.showTribeTag) ...[
+              GestureDetector(
+                onTap: _onTribeTap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  margin: const EdgeInsets.only(bottom: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.secondaryContainer.withValues(
+                      alpha: 0.7,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    tribeCache.getTribeById(widget.topic.tribeId!)?.name ??
+                        widget.topic.tribeId!,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // if (byMe || isFriend) ...[
+                //   Icon(
+                //     Icons.grade,
+                //     size: 16,
+                //     color: customColors.friendIndicator,
+                //   ),
+                //   const SizedBox(width: 4),
+                // ],
+                Expanded(
+                  child: Text(
+                    isTwoPerson
+                        ? (widget.topic.creator.displayName ?? 'Chat')
+                        : widget.topic.title,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: widget.showTribeTag ? 3 : 1,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              formatText(widget.topic.lastMessageContent),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(height: 1.2),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                if (isTwoPerson) ...[
+                  // Display partner info for two-person topics
+                  Tag(
+                    tooltip:
+                        '${getLongGenderName(widget.topic.creator.gender ?? "?")}',
+                    child: Text(
+                      widget.topic.creator.gender ?? "?",
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Tag(
+                    tooltip: 'Floor',
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.apartment, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          'F${widget.topic.creator.level}',
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else ...[
+                  Tag(
+                    tooltip: 'Messages',
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.message_outlined, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.topic.messageCount}',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 4),
+                Tag(
+                  tooltip: 'Last updated',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.schedule, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        timeago.format(
+                          updatedAt,
+                          locale: 'en_short',
+                          clock: now,
+                        ),
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isTwoPerson &&
+                    widget.topic.creator.followerCount == 0) ...[
+                  const SizedBox(width: 4),
+                  Tag(status: 'introduction'),
+                ],
+              ],
+            ),
+          ],
+        ),
+        trailing: _buildIconButton(),
+      ),
+    );
+
+    final unlistBackground = Container(
+      color: colorScheme.errorContainer,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
+      child: Row(
+        children: [
+          Icon(Icons.visibility_off, color: colorScheme.onErrorContainer),
+          const SizedBox(width: 8),
+          Text(
+            'Unlist',
+            style: TextStyle(
+              color: colorScheme.onErrorContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!canUnlist) {
+      return cardContent;
+    }
+
+    return Dismissible(
+      key: Key(widget.topic.id),
+      background: unlistBackground,
+      direction: DismissDirection.startToEnd,
+      onDismissed: _handleDismiss,
+      child: cardContent,
+    );
+  }
+
+  Widget _buildIconButton() {
+    if (widget.hasJoined) {
+      return IconButton(
+        icon: const Icon(Icons.keyboard_double_arrow_right),
+        onPressed: _handleTap,
+        tooltip: 'Enter moment',
+      );
+    }
+
+    if (!_canJoinTopic()) {
+      return IconButton(
+        icon: const Icon(Icons.block_outlined),
+        onPressed: _handleTap,
+        tooltip: 'Restricted',
+      );
+    }
+
+    return IconButton(
+      icon: _isProcessing
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.keyboard_arrow_right),
+      onPressed: _isProcessing ? null : _handleTap,
+      tooltip: 'Join moment',
+    );
+  }
+}

@@ -110,7 +110,7 @@ class GamificationService {
       resident.lastLoginDate = now;
 
       // Update streak (don't save yet)
-      _updateStreakInternal(
+      await _updateStreakInternal(
         session,
         resident,
         lastLogin,
@@ -126,7 +126,7 @@ class GamificationService {
   }
 
   /// Internal streak update logic (no save)
-  static void _updateStreakInternal(
+  static Future<void> _updateStreakInternal(
     Session session,
     Resident resident,
     DateTime? lastLogin,
@@ -180,7 +180,7 @@ class GamificationService {
   }) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    _updateStreakInternal(session, resident, resident.lastLoginDate, today);
+    await _updateStreakInternal(session, resident, resident.lastLoginDate, today);
     if (save) {
       await Resident.db.updateRow(session, resident);
     }

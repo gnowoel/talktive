@@ -51,48 +51,20 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     var resident = await ResidentService.getResident(session, senderUuid);
     if (resident != null) return resident;
 
-    // 2. Fetch/Update User Profile (Force Anonymous Identity)
-    try {
-      await ResidentService.syncAuthProfile(session, senderUuid, name);
-    } catch (e) {
-      await AuthServices.instance.userProfiles.createUserProfile(
-        session,
-        senderUuid,
-        UserProfileData(
-          userName: name,
-          fullName: name,
-          email: 'anon-$senderUuid@anonymous.talktive.com',
-        ),
-      );
-    }
-
-    // 3. Create Resident
-    resident = protocol.Resident(
-      userInfoId: senderUuid,
-      xp: 0,
-      level: 1,
-      currentStreak: 0,
-      longestStreak: 0,
-      trustScore: ApartmentService.TRUST_SCORE_START,
-      suspended: false,
-      experienceMessageCount: 0,
-      userName: name,
+    // 2. Create Resident via service
+    return await ResidentService.createResident(
+      session,
+      userId: senderUuid,
+      name: name,
+      avatar: avatar,
       gender: gender,
       country: country,
       bio: bio,
+      interests: interests,
+      languages: languages,
       mood: mood,
-      avatar: avatar,
-      interests: interests ?? [],
-      languages: languages ?? ['en'],
-      role: protocol.ResidentRole.user,
-      createdAt: DateTime.now(),
-      lastSeen: DateTime.now(),
-      isPremium: false,
       customAvatarUrl: customAvatarUrl,
     );
-
-    await protocol.Resident.db.insertRow(session, resident);
-    return resident;
   }
 
   /// Updates an existing Resident's profile details.

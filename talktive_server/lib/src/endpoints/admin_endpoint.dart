@@ -61,21 +61,53 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     );
 
+    if (reports.isEmpty) return [];
+
+    // Collect all unique user IDs involved
+    final userIds = <UuidValue>{};
+    for (final report in reports) {
+      userIds.add(report.reporterId);
+      userIds.add(report.targetId);
+    }
+
+    // Batch fetch residents
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userIds),
+    );
+    final residentMap = {for (var r in residents) r.userInfoId: r};
+
+    // Batch fetch counts
+    final countsMap = await _getBatchUserCounts(
+      session,
+      userIds.map((u) => u.toString()).toList(),
+    );
+
     final result = <protocol.AdminReportSummary>[];
     for (final report in reports) {
-      final reporter = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(report.reporterId),
-      );
-      final target = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(report.targetId),
-      );
+      final reporter = residentMap[report.reporterId];
+      final target = residentMap[report.targetId];
+      final reporterCounts = countsMap[report.reporterId.toString()] ?? {};
+      final targetCounts = countsMap[report.targetId.toString()] ?? {};
       
       result.add(protocol.AdminReportSummary(
         report: report,
-        reporter: await _getUserSummary(session, reporter, report.reporterId.toString()),
-        target: await _getUserSummary(session, target, report.targetId.toString()),
+        reporter: await _getUserSummary(
+          session, 
+          reporter, 
+          report.reporterId.toString(),
+          messageCount: reporterCounts['messages'],
+          momentCount: reporterCounts['moments'],
+          reportCount: reporterCounts['reports'],
+        ),
+        target: await _getUserSummary(
+          session, 
+          target, 
+          report.targetId.toString(),
+          messageCount: targetCounts['messages'],
+          momentCount: targetCounts['moments'],
+          reportCount: targetCounts['reports'],
+        ),
       ));
     }
 
@@ -104,21 +136,53 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     );
 
+    if (reports.isEmpty) return [];
+
+    // Collect all unique user IDs involved
+    final userIds = <UuidValue>{};
+    for (final report in reports) {
+      userIds.add(report.reporterId);
+      userIds.add(report.targetId);
+    }
+
+    // Batch fetch residents
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userIds),
+    );
+    final residentMap = {for (var r in residents) r.userInfoId: r};
+
+    // Batch fetch counts
+    final countsMap = await _getBatchUserCounts(
+      session,
+      userIds.map((u) => u.toString()).toList(),
+    );
+
     final result = <protocol.AdminReportSummary>[];
     for (final report in reports) {
-      final reporter = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(report.reporterId),
-      );
-      final target = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(report.targetId),
-      );
+      final reporter = residentMap[report.reporterId];
+      final target = residentMap[report.targetId];
+      final reporterCounts = countsMap[report.reporterId.toString()] ?? {};
+      final targetCounts = countsMap[report.targetId.toString()] ?? {};
       
       result.add(protocol.AdminReportSummary(
         report: report,
-        reporter: await _getUserSummary(session, reporter, report.reporterId.toString()),
-        target: await _getUserSummary(session, target, report.targetId.toString()),
+        reporter: await _getUserSummary(
+          session, 
+          reporter, 
+          report.reporterId.toString(),
+          messageCount: reporterCounts['messages'],
+          momentCount: reporterCounts['moments'],
+          reportCount: reporterCounts['reports'],
+        ),
+        target: await _getUserSummary(
+          session, 
+          target, 
+          report.targetId.toString(),
+          messageCount: targetCounts['messages'],
+          momentCount: targetCounts['moments'],
+          reportCount: targetCounts['reports'],
+        ),
       ));
     }
 

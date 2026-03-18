@@ -1,0 +1,756 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../helpers/exception.dart';
+import '../models/topic.dart';
+
+import '../services/fireauth.dart';
+import '../services/firestore.dart';
+import '../services/follow_cache.dart';
+import '../services/message_meta_cache.dart';
+import '../services/paginated_message_service.dart';
+import '../services/settings.dart';
+import '../services/topic_cache.dart';
+import '../services/topic_followers_cache.dart';
+import '../services/user_cache.dart';
+import '../legacy/theme.dart';
+
+import '../../widgets/info_notice.dart';
+import '../../widgets/layout.dart';
+import '../../widgets/status_notice.dart';
+import '../../widgets/topic_hearts.dart';
+import '../../widgets/normal_topic_input.dart';
+import '../../widgets/paginated_message_list.dart';
+import '../../widgets/user_info_loader.dart';
+
+class NormalTopicPage extends StatefulWidget {
+  final String topicId;
+  final String topicCreatorId;
+
+  const NormalTopicPage({
+    super.key,
+    required this.topicId,
+    required this.topicCreatorId,
+  });
+
+  @override
+  State<NormalTopicPage> createState() => _NormalTopicPageState();
+}
+
+class _NormalTopicPageState extends State<NormalTopicPage> {
+  late ThemeData theme;
+  late Settings settings;
+  late Fireauth fireauth;
+  late Firestore firestore;
+  late UserCache userCache;
+  late FollowCache followCache;
+  late TopicFollowersCache topicFollowersCache;
+  late MessageMetaCache messageMetaCache;
+  late TopicCache topicCache;
+
+  late PaginatedMessageService paginatedMessageService;
+  late StreamSubscription topicSubscription;
+
+  final _focusNode = FocusNode();
+  final _scrollController = ScrollController();
+  final GlobalKey<NormalTopicInputState> _inputKey =
+      GlobalKey<NormalTopicInputState>();
+
+  Topic? _topic;
+  int _messageCount = 0;
+  bool _userHasSentMessage = false;
+  bool _isInviting = false;
+  bool _isMakingPrivate = false;
+  bool _isMakingPublic = false;
+  bool _hasSubscribedToMessageMeta = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    settings = context.read<Settings>();
+    fireauth = context.read<Fireauth>();
+    firestore = context.read<Firestore>();
+    topicFollowersCache = context.read<TopicFollowersCache>();
+
+    paginatedMessageService = context.read<PaginatedMessageService>();
+
+    // Reset pagination state to ensure fresh loading when entering topic
+    paginatedMessageService.resetTopicPagination(widget.topicId);
+
+    final userId = fireauth.instance.currentUser!.uid;
+
+    topicSubscription = firestore
+        .subscribeToTopic(userId, widget.topicId)
+        .listen((topic) {
+          if (!mounted) return;
+
+          if (topic.isDummy) {
+            setState(() {
+              if (_topic == null) {
+                _topic = topic.copyWith(id: widget.topicId);
+              } else {
+                _topic = _topic!.copyWith(updatedAt: 0);
+              }
+            });
+            if (mounted) {
+              ErrorHandler.showSnackBarMessage(
+                context,
+                AppException('The moment has been deleted.'),
+                severe: true,
+              );
+            }
+          } else {
+            setState(() => _topic = topic);
+            // Sync total message count with pagination service first
+            paginatedMessageService.updateTopicTotalMessageCount(
+              widget.topicId,
+              topic.messageCount,
+            );
+            // Then update topic cache with the latest data
+            topicCache.updateTopic(topic);
+          }
+        });
+
+    // Subscribe to topic followers for real-time blocking updates
+    topicFollowersCache.subscribeToTopic(widget.topicId);
+
+    // Real-time message updates are now handled by the paginated service
+    // SimplePaginatedMessageList will handle loading its own messages
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
+    userCache = Provider.of<UserCache>(context);
+    followCache = Provider.of<FollowCache>(context);
+    messageMetaCache = Provider.of<MessageMetaCache>(context);
+    topicCache = Provider.of<TopicCache>(context);
+
+    // Subscribe to message metadata for real-time recall updates
+    if (!_hasSubscribedToMessageMeta) {
+      messageMetaCache.subscribeToTopic(widget.topicId);
+      _hasSubscribedToMessageMeta = true;
+    }
+
+    _userHasSentMessage = _checkUserMessageStatus();
+  }
+
+  @override
+  void dispose() {
+    topicSubscription.cancel();
+    topicFollowersCache.unsubscribe();
+    // Clean up message metadata cache
+    messageMetaCache.unsubscribe();
+    _scrollController.dispose();
+    _focusNode.dispose();
+    // Clean up paginated service state for this topic
+    paginatedMessageService.clearTopicData(widget.topicId);
+    super.dispose();
+  }
+
+  Future<void> _sendTextMessage(String content) async {
+    try {
+      final user = userCache.user;
+      if (user == null) {
+        throw AppException('User not authenticated');
+      }
+
+      await firestore.sendTopicTextMessage(
+        topicId: widget.topicId,
+        userId: user.id,
+        userDisplayName: user.displayName ?? '',
+        userPhotoURL: user.photoURL ?? '',
+        content: content,
+      );
+
+      // Update user message status after successful send
+      if (mounted) {
+        setState(() {
+          _userHasSentMessage = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendImageMessage(String uri) async {
+    try {
+      final user = userCache.user;
+      if (user == null) {
+        throw AppException('User not authenticated');
+      }
+
+      await firestore.sendTopicImageMessage(
+        topicId: widget.topicId,
+        userId: user.id,
+        userDisplayName: user.displayName ?? '',
+        userPhotoURL: user.photoURL ?? '',
+        uri: uri,
+      );
+
+      // Update user message status after successful send
+      if (mounted) {
+        setState(() {
+          _userHasSentMessage = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    }
+  }
+
+  void _updateMessageCount(int count) {
+    if (_messageCount != count) {
+      _messageCount = count;
+
+      // Always sync with the total count from pagination service
+      final totalCount = paginatedMessageService.getTopicTotalMessageCount(
+        widget.topicId,
+      );
+      if (totalCount != null && _topic != null) {
+        // Update the local topic object with the accurate count if different
+        if (totalCount != _topic!.messageCount) {
+          final updatedTopic = _topic!.copyWith(messageCount: totalCount);
+          setState(() {
+            _topic = updatedTopic;
+          });
+          // Immediately update the cache to ensure consistency
+          topicCache.updateTopic(updatedTopic);
+        }
+      }
+      // Update user message status based on message count
+      final newStatus = _checkUserMessageStatus();
+      if (_userHasSentMessage != newStatus) {
+        setState(() {
+          _userHasSentMessage = newStatus;
+        });
+      }
+    }
+  }
+
+  bool _checkUserMessageStatus() {
+    // Check if the current user has sent any messages in this topic
+    // This will be updated when messages are loaded through the service
+    final state = paginatedMessageService.getTopicState(widget.topicId);
+    if (state?.messages.isNotEmpty == true) {
+      final currentUserId = fireauth.instance.currentUser?.uid;
+      return state!.messages.any((message) => message.userId == currentUserId);
+    }
+    return false;
+  }
+
+  Future<bool?> _showInviteConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invite Followers'),
+        content: const Text(
+          'This will notify your followers and add this moment to their chat list. Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _inviteFollowers() async {
+    if (_isInviting) return;
+
+    setState(() => _isInviting = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      final result = await firestore.inviteFollowersToTopic(
+        userId,
+        widget.topicId,
+      );
+
+      if (mounted) {
+        final invitedCount = (result['invitedCount'] as num).toInt();
+        final message = result['message'] as String;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              invitedCount > 0
+                  ? 'Invited $invitedCount followers to join this moment!'
+                  : message,
+            ),
+            backgroundColor: invitedCount > 0
+                ? theme.colorScheme.primary
+                : null,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isInviting = false);
+      }
+    }
+  }
+
+  Future<bool?> _showMakePrivateConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Make Moment Private'),
+        content: const Text(
+          'This will make the moment private and only invited users will be able to access it. This action cannot be undone by moderators or moment owners. Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Make Private'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _showMakePublicConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Make Moment Public'),
+        content: const Text(
+          'This will make the moment public and visible to all users. Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Make Public'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _makeTopicPrivate() async {
+    if (_isMakingPrivate) return;
+
+    setState(() => _isMakingPrivate = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      await firestore.makeTopicPrivate(userId, widget.topicId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Moment has been made private'),
+            backgroundColor: theme.colorScheme.primary,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isMakingPrivate = false);
+      }
+    }
+  }
+
+  Future<void> _makeTopicPublic() async {
+    if (_isMakingPublic) return;
+
+    setState(() => _isMakingPublic = true);
+
+    try {
+      final userId = fireauth.instance.currentUser!.uid;
+      await firestore.makeTopicPublic(userId, widget.topicId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Moment has been made public'),
+            backgroundColor: theme.colorScheme.primary,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showSnackBarMessage(
+          context,
+          e is AppException ? e : AppException(e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isMakingPublic = false);
+      }
+    }
+  }
+
+  void _insertMention(String displayName) {
+    _inputKey.currentState?.insertMention(displayName);
+  }
+
+  Future<void> _updateReadMessageCount() async {
+    try {
+      final selfId = fireauth.instance.currentUser?.uid;
+      if (selfId == null || _topic == null) return;
+
+      // Use the latest message count from pagination service
+      final latestTotalCount = paginatedMessageService
+          .getTopicTotalMessageCount(widget.topicId);
+      final count = latestTotalCount ?? _messageCount;
+
+      // Skip if no change needed
+      if (count == 0 || count == _topic!.readMessageCount) {
+        return;
+      }
+
+      // Store original topic for rollback
+      final originalTopic = _topic!;
+
+      // Create updated topic with both message count and read count
+      final updatedTopic = _topic!.copyWith(
+        readMessageCount: count,
+        messageCount: latestTotalCount ?? _topic!.messageCount,
+      );
+      // Optimistically update UI and cache
+      setState(() {
+        _topic = updatedTopic;
+      });
+      topicCache.updateTopic(updatedTopic);
+
+      try {
+        await firestore.updateTopicReadMessageCount(
+          selfId,
+          widget.topicId,
+          readMessageCount: count,
+        );
+      } catch (updateError) {
+        // Revert optimistic update on failure
+        if (mounted) {
+          setState(() {
+            _topic = originalTopic;
+          });
+          topicCache.updateTopic(originalTopic);
+        }
+        debugPrint('Failed to update read message count: $updateError');
+        rethrow; // Re-throw to be caught by outer catch
+      }
+    } catch (e) {
+      // Log the error but don't show to user
+      debugPrint('Error in _updateReadMessageCount: $e');
+    }
+  }
+
+  void _showCreatorInfo(BuildContext context) {
+    if (_topic == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => UserInfoLoader(
+        userId: widget.topicCreatorId,
+        photoURL: _topic!.creator.photoURL ?? '',
+        displayName: _topic!.creator.displayName ?? '',
+      ),
+    );
+  }
+
+  bool _shouldShowWelcomeMessage() {
+    final currentUserId = fireauth.instance.currentUser?.uid;
+    final currentUser = userCache.user;
+    final topic = _topic;
+
+    if (currentUserId == null || currentUser == null || topic == null) {
+      return false;
+    }
+
+    // Don't show if current user is the topic creator
+    if (currentUserId == widget.topicCreatorId) {
+      return false;
+    }
+
+    // Don't show if current user is a newcomer (follower count must be > 0)
+    if ((currentUser.followerCount ?? 0) <= 0) {
+      return false;
+    }
+
+    // Show only if topic creator has 0 followers (newcomer)
+    return topic.creator.followerCount == 0;
+  }
+
+  Widget _buildWelcomeMessageBox() {
+    final creatorName = _topic?.creator.displayName ?? 'this user';
+    return StatusNotice(
+      content:
+          'Welcome $creatorName to the community! Say hello and help them feel at home.',
+      icon: Icons.waving_hand_outlined,
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      foregroundColor: theme.colorScheme.onSurface,
+    );
+  }
+
+  bool _shouldShowTopicCreatorNotice() {
+    final currentUserId = fireauth.instance.currentUser?.uid;
+    final topic = _topic;
+
+    if (currentUserId == null || topic == null) {
+      return false;
+    }
+
+    // Only show for topic creators
+    if (currentUserId != widget.topicCreatorId) {
+      return false;
+    }
+
+    // Check settings to see if notice should be shown
+    return settings.shouldShowTopicPageNotice;
+  }
+
+  Widget _buildTopicCreatorNotice() {
+    return InfoNotice(
+      content: 'You can LONG-PRESS a message to block a user.',
+      onDismiss: () => settings.saveTopicPageNoticeVersion(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final customColors = theme.extension<CustomColors>()!;
+
+    final creator = _topic?.creator;
+    final displayName = creator?.displayName;
+    final isFriend = followCache.isFollowing(widget.topicCreatorId);
+    final currentUserId = fireauth.instance.currentUser!.uid;
+    final byMe = widget.topicCreatorId == currentUserId;
+    final currentUser = userCache.user;
+    final isAdmin = currentUser?.isAdmin ?? false;
+    final isModerator = currentUser?.isModerator ?? false;
+    final canMakePrivate = isAdmin || isModerator || byMe;
+    final canMakePublic =
+        isAdmin; // Only admins can make private moments public
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _updateReadMessageCount();
+        if (context.mounted) {
+          Navigator.pop(context, result);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.surfaceContainerLow,
+          title: GestureDetector(
+            onTap: () => _showCreatorInfo(context),
+            child: Row(
+              children: [
+                if ((byMe || isFriend) &&
+                    displayName != null &&
+                    displayName.isNotEmpty) ...[
+                  Icon(
+                    Icons.grade,
+                    size: 20,
+                    color: customColors.friendIndicator,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+                Expanded(child: Text(_topic?.title ?? '')),
+              ],
+            ),
+          ),
+          actions: [
+            RepaintBoundary(child: TopicHearts(topic: _topic)),
+            if (!topicFollowersCache.isUserBlocked(currentUserId)) ...[
+              PopupMenuButton<String>(
+                onSelected: (_isInviting || _isMakingPrivate || _isMakingPublic)
+                    ? null
+                    : (value) async {
+                        if (value == 'invite') {
+                          final confirmed =
+                              await _showInviteConfirmationDialog();
+                          if (confirmed == true) {
+                            _inviteFollowers();
+                          }
+                        } else if (value == 'make_private') {
+                          final confirmed =
+                              await _showMakePrivateConfirmationDialog();
+                          if (confirmed == true) {
+                            _makeTopicPrivate();
+                          }
+                        } else if (value == 'make_public') {
+                          final confirmed =
+                              await _showMakePublicConfirmationDialog();
+                          if (confirmed == true) {
+                            _makeTopicPublic();
+                          }
+                        }
+                      },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'invite',
+                    enabled:
+                        !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                    child: Row(
+                      children: [
+                        _isInviting
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    theme.colorScheme.primary,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.person_add, size: 18),
+                        const SizedBox(width: 8),
+                        Text(_isInviting ? 'Inviting...' : 'Invite Followers'),
+                      ],
+                    ),
+                  ),
+                  if (canMakePrivate && (_topic?.isPublic == true)) ...[
+                    PopupMenuItem(
+                      value: 'make_private',
+                      enabled:
+                          !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                      child: Row(
+                        children: [
+                          _isMakingPrivate
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(Icons.lock, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            _isMakingPrivate
+                                ? 'Making Private...'
+                                : 'Make Private',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (canMakePublic && (_topic?.isPublic == false)) ...[
+                    PopupMenuItem(
+                      value: 'make_public',
+                      enabled:
+                          !_isInviting && !_isMakingPrivate && !_isMakingPublic,
+                      child: Row(
+                        children: [
+                          _isMakingPublic
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(Icons.public, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            _isMakingPublic
+                                ? 'Making Public...'
+                                : 'Make Public',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ] else ...[
+              const SizedBox(width: 16),
+            ],
+          ],
+        ),
+        body: SafeArea(
+          child: Layout(
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                if (_shouldShowWelcomeMessage()) ...[_buildWelcomeMessageBox()],
+                if (_shouldShowTopicCreatorNotice()) ...[
+                  _buildTopicCreatorNotice(),
+                ],
+                Expanded(
+                  child: PaginatedMessageList(
+                    id: widget.topicId,
+                    topicCreatorId: widget.topicCreatorId,
+                    focusNode: _focusNode,
+                    scrollController: _scrollController,
+                    updateMessageCount: _updateMessageCount,
+                    onInsertMention: _insertMention,
+                    readMessageCount: _topic?.readMessageCount ?? 0,
+                  ),
+                ),
+                NormalTopicInput(
+                  key: _inputKey,
+                  topic: _topic,
+                  focusNode: _focusNode,
+                  onSendTextMessage: _sendTextMessage,
+                  onSendImageMessage: _sendImageMessage,
+                  onInsertMention: _insertMention,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

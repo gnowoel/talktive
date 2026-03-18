@@ -85,6 +85,64 @@ class ResidentService {
     }
   }
 
+  /// Creates a new Resident profile and synchronizes it with the AuthUser.
+  static Future<Resident> createResident(
+    Session session, {
+    required UuidValue userId,
+    required String name,
+    required String avatar,
+    required String gender,
+    required String country,
+    required String bio,
+    List<String>? interests,
+    List<String>? languages,
+    String? mood,
+    String? customAvatarUrl,
+  }) async {
+    // 1. Fetch/Update User Profile (Force Anonymous Identity)
+    try {
+      await syncAuthProfile(session, userId, name);
+    } catch (e) {
+      await AuthServices.instance.userProfiles.createUserProfile(
+        session,
+        userId,
+        UserProfileData(
+          userName: name,
+          fullName: name,
+          email: 'anon-$userId@anonymous.talktive.com',
+        ),
+      );
+    }
+
+    // 2. Create Resident
+    final resident = Resident(
+      userInfoId: userId,
+      xp: 0,
+      level: 1,
+      currentStreak: 0,
+      longestStreak: 0,
+      trustScore: ApartmentService.TRUST_SCORE_START,
+      suspended: false,
+      experienceMessageCount: 0,
+      userName: name,
+      gender: gender,
+      country: country,
+      bio: bio,
+      mood: mood,
+      avatar: avatar,
+      interests: interests ?? [],
+      languages: languages ?? ['en'],
+      role: ResidentRole.user,
+      createdAt: DateTime.now(),
+      lastSeen: DateTime.now(),
+      isPremium: false,
+      customAvatarUrl: customAvatarUrl,
+    );
+
+    await Resident.db.insertRow(session, resident);
+    return resident;
+  }
+
   /// Checks if a user is blocked by another user.
   static Future<bool> isBlocked(
     Session session, {
@@ -108,39 +166,24 @@ class ResidentService {
     final resident = await getResident(session, targetId);
     if (resident == null) return null;
 
-    final isBlocked = viewerId != null
-        ? await ResidentService.isBlocked(session,
-            blockerId: viewerId, blockedId: targetId)
-        : false;
-    final hasBlockedMe = viewerId != null
-        ? await ResidentService.isBlocked(session,
-            blockerId: targetId, blockedId: viewerId)
-        : false;
+    // Parallelize all data fetching for optimal performance
+    final socialStateFuture = viewerId != null
+        ? Future.wait([
+            ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
+            ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
+            UserLike.db.findFirstRow(session,
+                where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)),
+          ])
+        : Future.value([false, false, null]);
 
-    final isLiked = viewerId != null
-        ? await UserLike.db.findFirstRow(session,
-                where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)) !=
-            null
-        : false;
+    final statsFuture = Future.wait([
+      Message.db.count(session, where: (t) => t.senderId.equals(targetId)),
+      Moment.db.count(session, where: (t) => t.authorId.equals(targetId)),
+      UserAchievement.db.count(session,
+          where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null)),
+    ]);
 
-    // Optimized Stats
-    // We can run these in parallel if needed, but for now simple queries are fine
-    final messageCount = await Message.db.count(
-      session,
-      where: (t) => t.senderId.equals(targetId),
-    );
-    final momentCount = await Moment.db.count(
-      session,
-      where: (t) => t.authorId.equals(targetId),
-    );
-    final achievements = await UserAchievement.db.count(
-      session,
-      where: (t) =>
-          t.userId.equals(targetId) & t.unlockedAt.notEquals(null),
-    );
-
-    // Recent moments
-    final recentMoments = await Moment.db.find(
+    final recentMomentsFuture = Moment.db.find(
       session,
       where: (t) => t.authorId.equals(targetId),
       orderBy: (t) => t.createdAt,
@@ -148,19 +191,38 @@ class ResidentService {
       limit: 6,
     );
 
-    // Mutual lounges (only if viewer is provided)
+    final mutualLoungesFuture = viewerId != null
+        ? Future.wait([
+            ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
+            ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
+          ])
+        : Future.value([<ChannelMember>[], <ChannelMember>[]]);
+
+    // Await all results
+    final results = await Future.wait([
+      socialStateFuture,
+      statsFuture,
+      recentMomentsFuture,
+      mutualLoungesFuture,
+    ]);
+
+    final socialState = results[0] as List<dynamic>;
+    final stats = results[1] as List<int>;
+    final recentMoments = results[2] as List<Moment>;
+    final loungeMemberships = results[3] as List<List<ChannelMember>>;
+
+    final isBlocked = socialState[0] as bool;
+    final hasBlockedMe = socialState[1] as bool;
+    final isLiked = socialState[2] != null;
+
+    final messageCount = stats[0];
+    final momentCount = stats[1];
+    final achievements = stats[2];
+
     int mutualLoungesCount = 0;
     if (viewerId != null) {
-      final viewerLounges = await ChannelMember.db.find(
-        session,
-        where: (t) => t.userInfoId.equals(viewerId),
-      );
-      final targetLounges = await ChannelMember.db.find(
-        session,
-        where: (t) => t.userInfoId.equals(targetId),
-      );
-      final viewerLoungeIds = viewerLounges.map((g) => g.channelId).toSet();
-      final targetLoungeIds = targetLounges.map((g) => g.channelId).toSet();
+      final viewerLoungeIds = loungeMemberships[0].map((g) => g.channelId).toSet();
+      final targetLoungeIds = loungeMemberships[1].map((g) => g.channelId).toSet();
       mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
     }
 

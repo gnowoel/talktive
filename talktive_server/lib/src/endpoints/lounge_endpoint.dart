@@ -48,51 +48,16 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // Create a new channel for this lounge
-    final channel = protocol.Channel(
+    return await LoungeService.createLounge(
+      session,
       name: name,
-      type: protocol.ChannelType.lounge,
-      createdAt: DateTime.now(),
-    );
-
-    final savedChannel = await protocol.Channel.db.insertRow(session, channel);
-
-    // Create the lounge record
-    final lounge = protocol.Lounge(
-      channelId: savedChannel.id!,
-      name: name,
+      creatorId: currentUserId,
       description: description,
       emoji: emoji,
-      creatorId: currentUserId,
-      createdAt: DateTime.now(),
-      memberCount: 1,
       isPublic: isPublic,
       maxMembers: maxMembers,
       interests: interests,
     );
-
-    final savedLounge = await protocol.Lounge.db.insertRow(session, lounge);
-
-    // Add creator as first member with admin role
-    await protocol.ChannelMember.db.insertRow(
-      session,
-      protocol.ChannelMember(
-        channelId: savedChannel.id!,
-        userInfoId: currentUserId,
-        status: protocol.ChannelMemberStatus.joined,
-        joinedAt: DateTime.now(),
-        role: 'admin',
-      ),
-    );
-
-    // Track achievement
-    await GamificationService.trackProgress(
-      session,
-      currentUserId,
-      'community_builder',
-    );
-
-    return savedLounge;
   }
 
   /// Lists all lounges the user considers 'theirs' (joined, invited, applied).

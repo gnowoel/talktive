@@ -2239,8 +2239,13 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'mood': _i1.ParameterDescription(
               name: 'mood',
-              type: _i1.getType<String>(),
-              nullable: false,
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'customAvatarUrl': _i1.ParameterDescription(
+              name: 'customAvatarUrl',
+              type: _i1.getType<String?>(),
+              nullable: true,
             ),
           },
           call:
@@ -2258,6 +2263,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     interests: params['interests'],
                     languages: params['languages'],
                     mood: params['mood'],
+                    customAvatarUrl: params['customAvatarUrl'],
                   ),
         ),
         'updateResident': _i1.MethodConnector(
@@ -2303,6 +2309,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'customAvatarUrl': _i1.ParameterDescription(
+              name: 'customAvatarUrl',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -2319,6 +2330,26 @@ class Endpoints extends _i1.EndpointDispatch {
                     interests: params['interests'],
                     languages: params['languages'],
                     mood: params['mood'],
+                    customAvatarUrl: params['customAvatarUrl'],
+                  ),
+        ),
+        'updateCustomAvatar': _i1.MethodConnector(
+          name: 'updateCustomAvatar',
+          params: {
+            'customAvatarUrl': _i1.ParameterDescription(
+              name: 'customAvatarUrl',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
+                  .updateCustomAvatar(
+                    session,
+                    params['customAvatarUrl'],
                   ),
         ),
         'getUserProfile': _i1.MethodConnector(

@@ -1621,6 +1621,12 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'bool',
           columnDefault: 'true',
         ),
+        _i2.ColumnDefinition(
+          name: 'customAvatarUrl',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
       ],
       foreignKeys: [],
       indexes: [

@@ -43,6 +43,7 @@ abstract class Resident
     this.lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
        xp = xp ?? 0,
@@ -81,6 +82,7 @@ abstract class Resident
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    String? customAvatarUrl,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -151,6 +153,7 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOnlineStatus'],
             ),
+      customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
 
@@ -211,6 +214,8 @@ abstract class Resident
 
   bool showOnlineStatus;
 
+  String? customAvatarUrl;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -244,6 +249,7 @@ abstract class Resident
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    String? customAvatarUrl,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -276,6 +282,7 @@ abstract class Resident
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
+      if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
 
@@ -310,6 +317,7 @@ abstract class Resident
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
+      if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
 
@@ -373,6 +381,7 @@ class _ResidentImpl extends Resident {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    String? customAvatarUrl,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
@@ -400,6 +409,7 @@ class _ResidentImpl extends Resident {
          lastSeen: lastSeen,
          isPremium: isPremium,
          showOnlineStatus: showOnlineStatus,
+         customAvatarUrl: customAvatarUrl,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -433,6 +443,7 @@ class _ResidentImpl extends Resident {
     Object? lastSeen = _Undefined,
     bool? isPremium,
     bool? showOnlineStatus,
+    Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
@@ -472,6 +483,9 @@ class _ResidentImpl extends Resident {
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
+      customAvatarUrl: customAvatarUrl is String?
+          ? customAvatarUrl
+          : this.customAvatarUrl,
     );
   }
 }
@@ -616,6 +630,12 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     table.showOnlineStatus,
     value,
   );
+
+  _i1.ColumnValue<String, String> customAvatarUrl(String? value) =>
+      _i1.ColumnValue(
+        table.customAvatarUrl,
+        value,
+      );
 }
 
 class ResidentTable extends _i1.Table<int?> {
@@ -732,6 +752,10 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    customAvatarUrl = _i1.ColumnString(
+      'customAvatarUrl',
+      this,
+    );
   }
 
   late final ResidentUpdateTable updateTable;
@@ -786,6 +810,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showOnlineStatus;
 
+  late final _i1.ColumnString customAvatarUrl;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -814,6 +840,7 @@ class ResidentTable extends _i1.Table<int?> {
     lastSeen,
     isPremium,
     showOnlineStatus,
+    customAvatarUrl,
   ];
 }
 

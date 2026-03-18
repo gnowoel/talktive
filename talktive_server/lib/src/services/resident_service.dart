@@ -167,7 +167,7 @@ class ResidentService {
     return UserProfileView(
       userId: targetId.toString(),
       userName: resident.userName ?? 'Resident',
-      userAvatar: resident.avatar ?? '👤',
+      userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '👤',
       userMood: resident.mood,
       floor: ApartmentService.computeEffectiveFloor(resident),
       trustScore: resident.trustScore,

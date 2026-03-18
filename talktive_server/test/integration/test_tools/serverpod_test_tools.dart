@@ -3518,7 +3518,8 @@ class _ResidentEndpoint {
     required String bio,
     List<String>? interests,
     List<String>? languages,
-    required String mood,
+    String? mood,
+    String? customAvatarUrl,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -3540,6 +3541,7 @@ class _ResidentEndpoint {
             'interests': interests,
             'languages': languages,
             'mood': mood,
+            'customAvatarUrl': customAvatarUrl,
           }),
           serializationManager: _serializationManager,
         );
@@ -3566,6 +3568,7 @@ class _ResidentEndpoint {
     List<String>? interests,
     List<String>? languages,
     String? mood,
+    String? customAvatarUrl,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -3587,6 +3590,40 @@ class _ResidentEndpoint {
             'interests': interests,
             'languages': languages,
             'mood': mood,
+            'customAvatarUrl': customAvatarUrl,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i10.Resident>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i10.Resident> updateCustomAvatar(
+    _i1.TestSessionBuilder sessionBuilder,
+    String? customAvatarUrl,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'resident',
+            method: 'updateCustomAvatar',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'resident',
+          methodName: 'updateCustomAvatar',
+          parameters: _i1.testObjectToJson({
+            'customAvatarUrl': customAvatarUrl,
           }),
           serializationManager: _serializationManager,
         );

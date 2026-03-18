@@ -35,7 +35,8 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     required String bio,
     List<String>? interests,
     List<String>? languages,
-    String mood = '😊',
+    String? mood,
+    String? customAvatarUrl,
   }) async {
     // Input validation
     InputValidationService.validateName(name).throwIfInvalid();
@@ -86,6 +87,8 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       role: protocol.ResidentRole.user,
       createdAt: DateTime.now(),
       lastSeen: DateTime.now(),
+      isPremium: false,
+      customAvatarUrl: customAvatarUrl,
     );
 
     await protocol.Resident.db.insertRow(session, resident);
@@ -103,6 +106,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? interests,
     List<String>? languages,
     String? mood,
+    String? customAvatarUrl,
   }) async {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
@@ -124,6 +128,29 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.interests = interests ?? resident.interests;
     resident.languages = languages ?? resident.languages;
 
+    if (customAvatarUrl != null && !resident.isPremium) {
+      throw protocol.TalktiveException(
+        message: 'Custom avatars are a Premium feature.',
+        code: 'PREMIUM_REQUIRED',
+      );
+    }
+    resident.customAvatarUrl = customAvatarUrl;
+
+    return await protocol.Resident.db.updateRow(session, resident);
+  }
+
+  /// Updates only the custom avatar URL (standalone method for overlay button).
+  Future<protocol.Resident> updateCustomAvatar(Session session, String? customAvatarUrl) async {
+    final resident = await getAuthenticatedResident(session);
+    
+    if (customAvatarUrl != null && !resident.isPremium) {
+      throw protocol.TalktiveException(
+        message: 'Custom avatars are a Premium feature.',
+        code: 'PREMIUM_REQUIRED',
+      );
+    }
+    
+    resident.customAvatarUrl = customAvatarUrl;
     return await protocol.Resident.db.updateRow(session, resident);
   }
 

@@ -41,6 +41,7 @@ fields:
   lastSeen: DateTime?
   isPremium: bool, default=false
   showOnlineStatus: bool, default=true
+  customAvatarUrl: String?
   
 indexes:
   resident_user_idx:

@@ -108,6 +108,7 @@ resident:
   - getResidentById:
   - initializeResident:
   - updateResident:
+  - updateCustomAvatar:
   - getUserProfile:
   - likeUser:
   - unlikeUser:

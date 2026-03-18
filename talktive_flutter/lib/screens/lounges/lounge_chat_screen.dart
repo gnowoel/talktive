@@ -371,14 +371,6 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
           ),
         ),
         actions: [
-          DuoRefreshButton(
-            color: Colors.black,
-            onRefresh: () {
-              ref
-                  .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-                  .refresh();
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.people, color: Colors.black),
             onPressed: () {
@@ -387,6 +379,14 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                 '/lounges/members/${widget.lounge.id!}',
                 extra: widget.lounge,
               );
+            },
+          ),
+          DuoRefreshButton(
+            color: Colors.black,
+            onRefresh: () {
+              ref
+                  .read(realtimeChatProvider(widget.lounge.channelId).notifier)
+                  .refresh();
             },
           ),
           PopupMenuButton<String>(

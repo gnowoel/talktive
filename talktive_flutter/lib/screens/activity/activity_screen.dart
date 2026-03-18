@@ -61,14 +61,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           trailingHeader: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DuoRefreshButton(
-                color: Colors.white,
-                onRefresh: () async {
-                  await ref.read(activityHistoryProvider.notifier).refresh();
-                  await ref.read(gamificationProvider.notifier).refresh();
-                },
-              ),
-              const SizedBox(width: AppTheme.duoSpacingSmall),
               _buildHeaderIcon(
                 context,
                 icon: Icons.person_outline_rounded,
@@ -79,6 +71,14 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 context,
                 icon: Icons.settings_outlined,
                 onTap: () => context.push('/activity/settings'),
+              ),
+              const SizedBox(width: AppTheme.duoSpacingSmall),
+              DuoRefreshButton(
+                color: Colors.white,
+                onRefresh: () async {
+                  await ref.read(activityHistoryProvider.notifier).refresh();
+                  await ref.read(gamificationProvider.notifier).refresh();
+                },
               ),
             ],
           ),

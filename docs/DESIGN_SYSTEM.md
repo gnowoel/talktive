@@ -84,3 +84,21 @@ Talktive should feel alive.
 *   **Celebrations**: Use the `ConfettiAnimation` for level-ups or significant achievements.
 *   **Satisfying States**: Buttons should visibly "press down" (built into `DuoButton`).
 *   **Aesthetic Feedback**: SnackBars (via `SnackBarHelper`) must be **floating**, with rounded corners and consistent padding, ensuring they don't block core navigation while providing satisfying visual reinforcement.
+
+---
+
+## ⚖️ UI Standardization Patterns
+
+To ensure a predictable experience across the diverse "floors" of the building, we follow strict placement rules for common actions:
+
+### 1. Refresh Button Placement
+The `DuoRefreshButton` provides manual state synchronization. It must be consistently placed:
+*   **Location**: Always the **rightmost** element in a header's primary action group.
+*   **Standard Grouping**: `[Functional Icons (Search, Profile, Settings)] [Refresh Button] [Overflow Menu (...)]`.
+*   **Rationale**: Placing the utility action (Refresh) at the end of the functional list provides a consistent anchor point across all dynamic screens.
+
+### 2. Search & Discovery
+Community discovery is a primary action.
+*   **Icon**: `Icons.search` (Outline or Rounded).
+*   **Action**: Consistently navigates to `/lounges/search` (which routes to the unified Discovery screen).
+*   **Placement**: Positioned as a primary header action, typically preceding the Refresh button.

@@ -18,6 +18,10 @@ This document tracks the major development milestones and changes made during th
 - **Service Layer Polish**: Refactored `LoungeService` and `ResidentService` to handle personalized data fetching more cleanly, reducing endpoint boilerplate.
 - **Start-up Success**: Verified clean, warning-free initialization of the Serverpod backend, Flutter Web, and Flutter Android platforms.
 
+### ⚖️ UI & UX Standardization
+- **Header Action Standardization**: Unified the placement of the `DuoRefreshButton` across all screens (Lounges, Moments, Activity, Lounge Chat, Private Chat). The Refresh button is now consistently positioned as the final action in the header (immediately before any "More" overflow menu), providing a predictable anchor for manual state synchronization on Web and Mobile.
+- **Design System Update**: Formalized header action ordering and discovery patterns in `docs/DESIGN_SYSTEM.md` to ensure future screens maintain this UI consistency.
+
 ---
 
 ## March 17, 2026 - Admin Performance, Safety & The Lounge Pivot 🛋️🛡️

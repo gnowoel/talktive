@@ -16,7 +16,6 @@ import 'create_lounge_dialog.dart';
 import '../../widgets/duo/duo_floor_requirement_dialog.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
-import '../../widgets/duo/duo_card.dart';
 import '../../providers/current_resident_provider.dart';
 
 /// Duolingo-style Lounges screen - Community discussions

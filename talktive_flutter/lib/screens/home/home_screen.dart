@@ -7,7 +7,6 @@ import '../moments/moments_screen.dart';
 import '../chats/chats_screen.dart';
 import '../lounges/lounges_screen.dart';
 import '../activity/activity_screen.dart';
-import '../profile/profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/lounge_provider.dart';
 import '../../providers/unread_counts_provider.dart';

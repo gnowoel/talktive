@@ -30,6 +30,8 @@ Unlike traditional chat applications or social networking sites, chatting here i
 - **Micro-interactions**: Haptic feedback, smooth animations, satisfying transitions
 - **Celebration-Driven**: Confetti animations and positive reinforcement
 
+**The "Ephemeral First" Philosophy**: Talktive prioritizes the "now" over the "archive". Shared moments are snapshots to be experienced in the feed, not searched or archived centrally. This protects resident privacy and ensures the building feels alive with current activity rather than stale records.
+
 The onboarding wizard established these Duolingo-style patterns (vibrant colors, emoji-centric design, smooth animations, gamification elements), and this design language has been extended across the entire app including the bottom navigation and all five main screens: Plaza, Moments, Chats, Lounges, and Profile.
 
 ## 🚀 Project Status

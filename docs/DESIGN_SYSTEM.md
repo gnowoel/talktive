@@ -14,6 +14,16 @@ These structural elements are unified by an **inviting, friendly tone**—using 
 
 ---
 
+## 🎭 Ephemeral & Privacy-First Discovery
+
+Our discovery system follows the **"Ephemeral First"** philosophy. We prioritize the "now" over the "archive" to protect resident privacy and encourage authentic interaction:
+
+*   **Moments are Snapshots**: Moments are visible in the feed but are not searchable. They are ephemeral snapshots of life, meant to be experienced as they happen.
+*   **Privacy-Tiers**: Public spaces (Lounges) are easily discoverable to encourage community, while Resident profiles are protected behind a **Premium Discovery** wall. 
+*   **The Global Lobby**: New residents are always guided back to the **Plaza** and the **Global Lounge**—the digital "front door" where the community meets.
+
+---
+
 ## 🎨 Visual Identity: Duolingo-Inspired UX
 
 We embrace a playful, high-energy aesthetic that makes interaction feel like a game rather than a chore.

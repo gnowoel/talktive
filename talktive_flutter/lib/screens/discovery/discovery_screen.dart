@@ -15,7 +15,6 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_lounge_card.dart';
-import '../../widgets/duo/duo_moment_card.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
@@ -243,21 +242,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
     );
   }
 
-  Widget _buildMomentTab() {
-    if (_searchQuery != null && _searchQuery!.isNotEmpty) {
-      if (_isSearching) return const Center(child: DuoLoadingIndicator());
-      final moments = _searchResults?.moments ?? [];
-      if (moments.isEmpty) return const DuoEmptyState(emoji: '📸', title: 'No moments found', subtitle: 'Search for tags or captions');
-      return _buildMomentList(moments);
-    }
 
-    if (_isLoadingFeed) return const Center(child: DuoLoadingIndicator());
-
-    final trending = _discoveryFeed?.trendingMoments ?? [];
-    if (trending.isEmpty) return const DuoEmptyState(emoji: '✨', title: 'Nothing trending yet', subtitle: 'Be the first to post a moment!');
-
-    return _buildMomentList(trending);
-  }
 
   Widget _buildSectionHeader(String title) {
     return Padding(
@@ -372,7 +357,5 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
         ),
       ),
     ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1, end: 0);
-  }
-
   }
 }

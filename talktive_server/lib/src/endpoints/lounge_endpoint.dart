@@ -4,6 +4,7 @@ import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/notification_service.dart';
+import '../services/lounge_service.dart';
 import '../services/resident_service.dart';
 import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
@@ -176,71 +177,28 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     final authenticationInfo = session.authenticated;
     final currentUserIdentifier = authenticationInfo?.userIdentifier;
-    UuidValue? currentUserId;
-    if (currentUserIdentifier != null) {
-      currentUserId = UuidValue.fromString(currentUserIdentifier);
-    }
 
     // If query is empty and user is logged in, show personalized recommendations
-    if (query.trim().isEmpty && currentUserId != null) {
-      final resident = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(currentUserId!),
-      );
+    if (query.trim().isEmpty && currentUserIdentifier != null) {
+      final currentUserId = UuidValue.fromString(currentUserIdentifier);
+      final resident = await ResidentService.getResident(session, currentUserId);
 
-      if (resident != null &&
-          resident.interests != null &&
-          resident.interests!.isNotEmpty) {
-        // Find public lounges
-        final allPublicLounges = await protocol.Lounge.db.find(
+      if (resident != null) {
+        return await LoungeService.getRecommendedLounges(
           session,
-          where: (t) => t.isPublic.equals(true),
-          limit: 100, // Limit the scan for personalization
+          resident,
+          limit: limit,
+          offset: offset,
         );
-
-        // Sort by interest match count
-        allPublicLounges.sort((a, b) {
-          final aMatch =
-              a.interests
-                  ?.where((i) => resident.interests!.contains(i))
-                  .length ??
-              0;
-          final bMatch =
-              b.interests
-                  ?.where((i) => resident.interests!.contains(i))
-                  .length ??
-              0;
-          if (aMatch != bMatch)
-            return bMatch.compareTo(aMatch); // More matches first
-          return b.memberCount.compareTo(
-            a.memberCount,
-          ); // Then more members first
-        });
-
-        return allPublicLounges.skip(offset).take(limit).toList();
       }
     }
 
-    if (query.trim().isEmpty) {
-      return [];
-    }
-
-    final sanitizedQuery = query.trim().toLowerCase();
-
-    // Find all public lounges that contain the query string in name or description
-    final lounges = await protocol.Lounge.db.find(
+    return await LoungeService.searchLounges(
       session,
-      where: (t) =>
-          t.isPublic.equals(true) &
-          (t.name.ilike('%$sanitizedQuery%') |
-              t.description.ilike('%$sanitizedQuery%')),
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
+      query,
       limit: limit,
       offset: offset,
     );
-
-    return lounges;
   }
 
   /// Applies to join a public lounge.

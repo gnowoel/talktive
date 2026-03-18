@@ -934,7 +934,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
-              value: duration,
+              initialValue: duration,
               decoration: const InputDecoration(
                 labelText: 'Duration',
                 border: OutlineInputBorder(),

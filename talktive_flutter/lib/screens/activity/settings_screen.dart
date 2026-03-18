@@ -52,7 +52,15 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   subtitle: const Text('Let others see when you are active'),
                   value: resident.showOnlineStatus,
-                  activeColor: AppTheme.duoGreen,
+                  activeThumbColor: AppTheme.duoGreen,
+                  trackColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return AppTheme.duoGreen.withValues(alpha: 0.5);
+                      }
+                      return null;
+                    },
+                  ),
                   onChanged: (value) async {
                     HapticFeedback.selectionClick();
                     try {

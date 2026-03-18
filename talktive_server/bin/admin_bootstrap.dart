@@ -1,4 +1,3 @@
-
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'package:talktive_server/src/generated/endpoints.dart';
@@ -6,15 +5,15 @@ import 'dart:io';
 
 void main(List<String> args) async {
   if (args.isEmpty) {
-    print('Usage:');
-    print('  dart bin/admin_bootstrap.dart promote <username>');
-    print('  dart bin/admin_bootstrap.dart demote <username>');
-    print('  dart bin/admin_bootstrap.dart promote-mod <username>');
-    print('  dart bin/admin_bootstrap.dart demote-mod <username>');
-    print('  dart bin/admin_bootstrap.dart privatize <groupId>');
-    print('  dart bin/admin_bootstrap.dart list-users');
-    print('  dart bin/admin_bootstrap.dart list-groups');
-    print('  dart bin/admin_bootstrap.dart fix-roles');
+    stdout.writeln('Usage:');
+    stdout.writeln('  dart bin/admin_bootstrap.dart promote <username>');
+    stdout.writeln('  dart bin/admin_bootstrap.dart demote <username>');
+    stdout.writeln('  dart bin/admin_bootstrap.dart promote-mod <username>');
+    stdout.writeln('  dart bin/admin_bootstrap.dart demote-mod <username>');
+    stdout.writeln('  dart bin/admin_bootstrap.dart privatize <loungeId>');
+    stdout.writeln('  dart bin/admin_bootstrap.dart list-users');
+    stdout.writeln('  dart bin/admin_bootstrap.dart list-lounges');
+    stdout.writeln('  dart bin/admin_bootstrap.dart fix-roles');
     exit(1);
   }
 
@@ -26,35 +25,35 @@ void main(List<String> args) async {
     switch (command) {
       case 'promote':
         if (args.length < 2) {
-          print('Missing username');
+          stdout.writeln('Missing username');
           break;
         }
         await _promote(session, args[1]);
         break;
       case 'demote':
         if (args.length < 2) {
-          print('Missing username');
+          stdout.writeln('Missing username');
           break;
         }
         await _demote(session, args[1]);
         break;
       case 'promote-mod':
         if (args.length < 2) {
-          print('Missing username');
+          stdout.writeln('Missing username');
           break;
         }
         await _promoteMod(session, args[1]);
         break;
       case 'demote-mod':
         if (args.length < 2) {
-          print('Missing username');
+          stdout.writeln('Missing username');
           break;
         }
         await _demoteMod(session, args[1]);
         break;
       case 'privatize':
         if (args.length < 2) {
-          print('Missing groupId');
+          stdout.writeln('Missing loungeId');
           break;
         }
         await _privatize(session, int.parse(args[1]));
@@ -62,17 +61,17 @@ void main(List<String> args) async {
       case 'list-users':
         await _listUsers(session);
         break;
-      case 'list-groups':
-        await _listGroups(session);
+      case 'list-lounges':
+        await _listLounges(session);
         break;
       case 'fix-roles':
         await _fixRoles(session);
         break;
       default:
-        print('Unknown command: $command');
+        stdout.writeln('Unknown command: $command');
     }
   } catch (e) {
-    print('An error occurred: $e');
+    stdout.writeln('An error occurred: $e');
   } finally {
     await session.close();
     pod.shutdown();
@@ -86,12 +85,12 @@ Future<void> _promote(Session session, String username) async {
     where: (t) => t.userName.equals(username),
   );
   if (resident == null) {
-    print('User "$username" not found.');
+    stdout.writeln('User "$username" not found.');
     return;
   }
   resident.role = protocol.ResidentRole.admin;
   await protocol.Resident.db.updateRow(session, resident);
-  print('SUCCESS: ${resident.userName} is now an admin!');
+  stdout.writeln('SUCCESS: ${resident.userName} is now an admin!');
 }
 
 Future<void> _demote(Session session, String username) async {
@@ -100,12 +99,12 @@ Future<void> _demote(Session session, String username) async {
     where: (t) => t.userName.equals(username),
   );
   if (resident == null) {
-    print('User "$username" not found.');
+    stdout.writeln('User "$username" not found.');
     return;
   }
   resident.role = protocol.ResidentRole.user;
   await protocol.Resident.db.updateRow(session, resident);
-  print('SUCCESS: ${resident.userName} is no longer an admin.');
+  stdout.writeln('SUCCESS: ${resident.userName} is no longer an admin.');
 }
 
 Future<void> _promoteMod(Session session, String username) async {
@@ -114,12 +113,12 @@ Future<void> _promoteMod(Session session, String username) async {
     where: (t) => t.userName.equals(username),
   );
   if (resident == null) {
-    print('User "$username" not found.');
+    stdout.writeln('User "$username" not found.');
     return;
   }
   resident.role = protocol.ResidentRole.moderator;
   await protocol.Resident.db.updateRow(session, resident);
-  print('SUCCESS: ${resident.userName} is now a moderator!');
+  stdout.writeln('SUCCESS: ${resident.userName} is now a moderator!');
 }
 
 Future<void> _demoteMod(Session session, String username) async {
@@ -128,56 +127,56 @@ Future<void> _demoteMod(Session session, String username) async {
     where: (t) => t.userName.equals(username),
   );
   if (resident == null) {
-    print('User "$username" not found.');
+    stdout.writeln('User "$username" not found.');
     return;
   }
   resident.role = protocol.ResidentRole.user;
   await protocol.Resident.db.updateRow(session, resident);
-  print('SUCCESS: ${resident.userName} is no longer a moderator.');
+  stdout.writeln('SUCCESS: ${resident.userName} is no longer a moderator.');
 }
 
-Future<void> _privatize(Session session, int groupId) async {
-  final group = await protocol.Group.db.findById(session, groupId);
-  if (group == null) {
-    print('Group with ID $groupId not found.');
+Future<void> _privatize(Session session, int loungeId) async {
+  final lounge = await protocol.Lounge.db.findById(session, loungeId);
+  if (lounge == null) {
+    stdout.writeln('Lounge with ID $loungeId not found.');
     return;
   }
-  group.isPublic = false;
-  group.isStaffLocked = true;
-  await protocol.Group.db.updateRow(session, group);
-  print('SUCCESS: Group "${group.name}" (ID: $groupId) is now PRIVATE and LOCKED.');
+  lounge.isPublic = false;
+  lounge.isStaffLocked = true;
+  await protocol.Lounge.db.updateRow(session, lounge);
+  stdout.writeln('SUCCESS: Lounge "${lounge.name}" (ID: $loungeId) is now PRIVATE and LOCKED.');
 }
 
 Future<void> _listUsers(Session session) async {
   final users = await protocol.Resident.db.find(session);
   for (var u in users) {
     String roleStr = '[${u.role.name.toUpperCase()}]';
-    print('- ${u.userName} (${u.userInfoId}) $roleStr [XP: ${u.xp}] [Floor: ${u.level}] [TS: ${u.trustScore}]');
+    stdout.writeln('- ${u.userName} (${u.userInfoId}) $roleStr [XP: ${u.xp}] [Floor: ${u.level}] [TS: ${u.trustScore}]');
   }
 }
 
-Future<void> _listGroups(Session session) async {
-  final groups = await protocol.Group.db.find(session);
-  for (var g in groups) {
-    String lockStr = g.isStaffLocked ? '[LOCKED]' : '[OPEN]';
-    print('- ${g.name} (ID: ${g.id}) $lockStr - Public: ${g.isPublic}');
+Future<void> _listLounges(Session session) async {
+  final lounges = await protocol.Lounge.db.find(session);
+  for (var l in lounges) {
+    String lockStr = l.isStaffLocked ? '[LOCKED]' : '[OPEN]';
+    stdout.writeln('- ${l.name} (ID: ${l.id}) $lockStr - Public: ${l.isPublic}');
   }
 }
 
 Future<void> _fixRoles(Session session) async {
-  print('Checking for residents with null roles...');
+  stdout.writeln('Checking for residents with null roles...');
   final residents = await protocol.Resident.db.find(
     session,
     where: (t) => t.role.equals(null),
   );
 
-  print('Found ${residents.length} residents needing fix.');
+  stdout.writeln('Found ${residents.length} residents needing fix.');
 
   for (var r in residents) {
     r.role = protocol.ResidentRole.user;
     await protocol.Resident.db.updateRow(session, r);
-    print('- Fixed ${r.userName} (${r.userInfoId})');
+    stdout.writeln('- Fixed ${r.userName} (${r.userInfoId})');
   }
 
-  print('SUCCESS: All residents have roles.');
+  stdout.writeln('SUCCESS: All residents have roles.');
 }

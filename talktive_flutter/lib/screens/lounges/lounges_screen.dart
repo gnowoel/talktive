@@ -300,6 +300,8 @@ class LoungesScreen extends ConsumerWidget {
       }
     }
 
+    if (!context.mounted) return;
+
     if (currentResident == null) {
       debugPrint('LoungesScreen: Resident still null after waiting');
       if (context.mounted) {

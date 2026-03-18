@@ -1,0 +1,8 @@
+### Personalized discovery feed
+class: DiscoveryFeed
+fields:
+  usersByInterests: List<UserSummary>
+  usersByLanguages: List<UserSummary>
+  trendingMoments: List<Moment>
+  popularLounges: List<Lounge>
+  recommendedLounges: List<Lounge>?

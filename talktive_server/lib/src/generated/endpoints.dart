@@ -2597,31 +2597,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     limit: params['limit'],
                   ),
         ),
-        'getRecentMoments': _i1.MethodConnector(
-          name: 'getRecentMoments',
-          params: {
-            'limit': _i1.ParameterDescription(
-              name: 'limit',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-            'offset': _i1.ParameterDescription(
-              name: 'offset',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['search'] as _i15.SearchEndpoint).getRecentMoments(
-                    session,
-                    limit: params['limit'],
-                    offset: params['offset'],
-                  ),
-        ),
         'searchAll': _i1.MethodConnector(
           name: 'searchAll',
           params: {

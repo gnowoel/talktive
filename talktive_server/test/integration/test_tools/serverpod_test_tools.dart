@@ -39,7 +39,10 @@ import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
     as _i22;
 import 'package:talktive_server/src/generated/report.dart' as _i23;
 import 'package:talktive_server/src/generated/user_profile_view.dart' as _i24;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i25;
+import 'package:talktive_server/src/generated/user_summary.dart' as _i25;
+import 'package:talktive_server/src/generated/search_all_results.dart' as _i26;
+import 'package:talktive_server/src/generated/discovery_feed.dart' as _i27;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i28;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -3920,7 +3923,7 @@ class _SearchEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<Map<String, dynamic>>> searchUsers(
+  _i3.Future<List<_i25.UserSummary>> searchUsers(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -3947,7 +3950,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i25.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4052,7 +4055,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<Map<String, dynamic>>> getActiveUsers(
+  _i3.Future<List<_i25.UserSummary>> getActiveUsers(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4075,7 +4078,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i25.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4083,42 +4086,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i16.Moment>> getRecentMoments(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required int limit,
-    required int offset,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'search',
-            method: 'getRecentMoments',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'search',
-          methodName: 'getRecentMoments',
-          parameters: _i1.testObjectToJson({
-            'limit': limit,
-            'offset': offset,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i16.Moment>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<Map<String, dynamic>> searchAll(
+  _i3.Future<_i26.SearchAllResults> searchAll(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -4145,7 +4113,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>>);
+                as _i3.Future<_i26.SearchAllResults>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4153,7 +4121,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<Map<String, dynamic>>> discoverUsersByInterests(
+  _i3.Future<List<_i25.UserSummary>> discoverUsersByInterests(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4176,7 +4144,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i25.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4184,7 +4152,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<Map<String, dynamic>>> discoverUsersByLanguages(
+  _i3.Future<List<_i25.UserSummary>> discoverUsersByLanguages(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4207,7 +4175,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<Map<String, dynamic>>>);
+                as _i3.Future<List<_i25.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4215,7 +4183,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getDiscoveryFeed(
+  _i3.Future<_i27.DiscoveryFeed> getDiscoveryFeed(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4238,7 +4206,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>>);
+                as _i3.Future<_i27.DiscoveryFeed>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4257,7 +4225,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i25.Greeting> hello(
+  _i3.Future<_i28.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -4280,7 +4248,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i25.Greeting>);
+                as _i3.Future<_i28.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

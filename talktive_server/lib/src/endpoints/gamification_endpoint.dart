@@ -2,7 +2,6 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
 import '../services/gamification_service.dart';
 import '../services/input_validation_service.dart';
-import '../services/resident_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class GamificationEndpoint extends Endpoint with EndpointAuthMixin {

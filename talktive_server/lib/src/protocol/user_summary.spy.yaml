@@ -1,0 +1,15 @@
+### Simplified user data for lists and search
+class: UserSummary
+fields:
+  userId: String
+  userName: String?
+  userAvatar: String?
+  userMood: String?
+  floor: int
+  trustScore: int?
+  sharedInterests: List<String>?
+  sharedLanguages: List<String>?
+  matchScore: int?
+  messageCount: int?
+  isOnline: bool, default=false
+  role: ResidentRole?

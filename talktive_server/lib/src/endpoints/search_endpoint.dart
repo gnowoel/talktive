@@ -2,12 +2,13 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
-import '../services/input_validation_service.dart';
+import '../services/lounge_service.dart';
+import '../services/resident_service.dart';
 import 'dart:convert';
 
 class SearchEndpoint extends Endpoint {
   /// Search for users by name (optimized with early limit)
-  Future<List<Map<String, dynamic>>> searchUsers(
+  Future<List<protocol.UserSummary>> searchUsers(
     Session session,
     String query, {
     int limit = 20,
@@ -17,32 +18,16 @@ class SearchEndpoint extends Endpoint {
         return [];
       }
 
-      // Limit the initial query to reduce memory usage
-      // Get 3x limit to account for filtering
+      final queryLower = query.toLowerCase();
+
+      // Get more to account for name filtering
       final residents = await protocol.Resident.db.find(
         session,
-        limit: limit * 3,
+        where: (t) => t.userName.ilike('%$queryLower%'),
+        limit: limit,
       );
 
-      // Filter by name with early exit
-      final results = <Map<String, dynamic>>[];
-      for (final resident in residents) {
-        if (results.length >= limit) break; // Early exit when limit reached
-
-        final userName = resident.userName ?? 'Resident';
-
-        if (userName.toLowerCase().contains(query.toLowerCase())) {
-          results.add({
-            'userId': resident.userInfoId.toString(),
-            'userName': userName,
-            'userAvatar': resident.avatar ?? '👤',
-            'floor': ApartmentService.computeEffectiveFloor(resident),
-            'trustScore': resident.trustScore,
-          });
-        }
-      }
-
-      return results;
+      return residents.map((r) => _toUserSummary(r)).toList();
     } catch (e) {
       session.log('Error searching users: $e', level: LogLevel.error);
       return [];
@@ -56,20 +41,7 @@ class SearchEndpoint extends Endpoint {
     int limit = 20,
   }) async {
     try {
-      if (query.trim().isEmpty) {
-        return [];
-      }
-
-      final lounges = await protocol.Lounge.db.find(
-        session,
-        where: (t) =>
-            t.name.ilike('%$query%') | t.description.ilike('%$query%'),
-        orderBy: (t) => t.memberCount,
-        orderDescending: true,
-        limit: limit,
-      );
-
-      return lounges;
+      return await LoungeService.searchLounges(session, query, limit: limit);
     } catch (e) {
       session.log('Error searching lounges: $e', level: LogLevel.error);
       return [];
@@ -82,16 +54,13 @@ class SearchEndpoint extends Endpoint {
     int limit = 10,
   }) async {
     try {
-      // Try cache first
       final cached = await CacheService.getTrendingMoments(session);
       if (cached != null) {
         final List<dynamic> decoded = jsonDecode(cached);
         return decoded.map((m) => protocol.Moment.fromJson(m)).toList();
       }
 
-      // Cache miss - query database
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
-
       final moments = await protocol.Moment.db.find(
         session,
         where: (t) => t.createdAt >= sevenDaysAgo,
@@ -100,7 +69,6 @@ class SearchEndpoint extends Endpoint {
         limit: limit,
       );
 
-      // Store in cache
       final encoded = jsonEncode(moments.map((m) => m.toJson()).toList());
       await CacheService.setTrendingMoments(session, encoded);
 
@@ -117,23 +85,14 @@ class SearchEndpoint extends Endpoint {
     int limit = 10,
   }) async {
     try {
-      // Try cache first
       final cached = await CacheService.getPopularLounges(session);
       if (cached != null) {
         final List<dynamic> decoded = jsonDecode(cached);
         return decoded.map((g) => protocol.Lounge.fromJson(g)).toList();
       }
 
-      // Cache miss - query database
-      final lounges = await protocol.Lounge.db.find(
-        session,
-        where: (t) => t.isPublic.equals(true),
-        orderBy: (t) => t.memberCount,
-        orderDescending: true,
-        limit: limit,
-      );
+      final lounges = await LoungeService.getPopularLounges(session, limit: limit);
 
-      // Store in cache
       final encoded = jsonEncode(lounges.map((g) => g.toJson()).toList());
       await CacheService.setPopularLounges(session, encoded);
 
@@ -145,50 +104,34 @@ class SearchEndpoint extends Endpoint {
   }
 
   /// Get active users (most messages in last 7 days) - OPTIMIZED
-  Future<List<Map<String, dynamic>>> getActiveUsers(
+  Future<List<protocol.UserSummary>> getActiveUsers(
     Session session, {
     int limit = 10,
   }) async {
     try {
       final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
-      // Limit messages to prevent memory issues (get last 1000 messages)
       final messages = await protocol.Message.db.find(
         session,
         where: (t) => t.createdAt >= sevenDaysAgo,
         orderBy: (t) => t.createdAt,
         orderDescending: true,
-        limit: 1000, // Limit to prevent loading all messages
+        limit: 1000, 
       );
 
-      // Count messages per sender (senderId is UuidValue)
       final messageCounts = <UuidValue, int>{};
       for (final message in messages) {
-        messageCounts[message.senderId] =
-            (messageCounts[message.senderId] ?? 0) + 1;
+        messageCounts[message.senderId] = (messageCounts[message.senderId] ?? 0) + 1;
       }
 
-      // Sort by count and get top users
       final sortedSenders = messageCounts.entries.toList()
         ..sort((a, b) => b.value.compareTo(a.value));
 
-      final activeUsers = <Map<String, dynamic>>[];
+      final activeUsers = <protocol.UserSummary>[];
       for (final entry in sortedSenders.take(limit)) {
-        // Find resident by userInfoId (key is UuidValue)
-        final resident = await protocol.Resident.db.findFirstRow(
-          session,
-          where: (t) => t.userInfoId.equals(entry.key),
-        );
-
+        final resident = await ResidentService.getResident(session, entry.key);
         if (resident != null) {
-          activeUsers.add({
-            'userId': resident.userInfoId.toString(),
-            'userName': resident.userName ?? 'Resident',
-            'userAvatar': resident.avatar ?? '👤',
-            'userMood': resident.mood,
-            'floor': ApartmentService.computeEffectiveFloor(resident),
-            'messageCount': entry.value,
-          });
+          activeUsers.add(_toUserSummary(resident, messageCount: entry.value));
         }
       }
 
@@ -199,30 +142,8 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  /// Get recent moments (for discovery feed)
-  Future<List<protocol.Moment>> getRecentMoments(
-    Session session, {
-    int limit = 20,
-    int offset = 0,
-  }) async {
-    try {
-      final moments = await protocol.Moment.db.find(
-        session,
-        orderBy: (t) => t.createdAt,
-        orderDescending: true,
-        limit: limit,
-        offset: offset,
-      );
-
-      return moments;
-    } catch (e) {
-      session.log('Error getting recent moments: $e', level: LogLevel.error);
-      return [];
-    }
-  }
-
   /// Search all content (users, lounges, moments)
-  Future<Map<String, dynamic>> searchAll(
+  Future<protocol.SearchAllResults> searchAll(
     Session session,
     String query, {
     int limit = 10,
@@ -231,7 +152,6 @@ class SearchEndpoint extends Endpoint {
       final users = await searchUsers(session, query, limit: limit);
       final lounges = await searchLounges(session, query, limit: limit);
 
-      // Search moments by caption
       final moments = await protocol.Moment.db.find(
         session,
         where: (t) => t.caption.ilike('%$query%'),
@@ -240,199 +160,160 @@ class SearchEndpoint extends Endpoint {
         limit: limit,
       );
 
-      return {
-        'users': users,
-        'lounges': lounges.map((g) => g.toJson()).toList(),
-        'moments': moments.map((m) => m.toJson()).toList(),
-      };
+      return protocol.SearchAllResults(
+        users: users,
+        lounges: lounges,
+        moments: moments,
+      );
     } catch (e) {
       session.log('Error searching all: $e', level: LogLevel.error);
-      return {
-        'users': [],
-        'lounges': [],
-        'moments': [],
-      };
+      return protocol.SearchAllResults(users: [], lounges: [], moments: []);
     }
   }
 
   /// Discover users by shared interests
-  Future<List<Map<String, dynamic>>> discoverUsersByInterests(
+  Future<List<protocol.UserSummary>> discoverUsersByInterests(
     Session session, {
     int limit = 20,
   }) async {
-    // Validate inputs
-    InputValidationService.validatePagination(
-      limit: limit,
-      offset: 0,
-    ).throwIfInvalid();
-
     final userIdentifier = session.authenticated?.userIdentifier;
-    if (userIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
-    }
+    if (userIdentifier == null) throw protocol.TalktiveException(message: 'Not authenticated');
 
     final userId = UuidValue.fromString(userIdentifier);
+    final currentUser = await ResidentService.getResident(session, userId);
 
-    // Get current user's interests
-    final currentUser = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
+    if (currentUser == null || currentUser.interests?.isEmpty != false) return [];
 
-    if (currentUser == null || currentUser.interests?.isEmpty != false) {
-      return [];
-    }
-
-    // Find users with matching interests
     final allResidents = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.notEquals(userId), // Exclude self
-      limit: limit * 3, // Get more to filter
+      where: (t) => t.userInfoId.notEquals(userId),
+      limit: limit * 5, 
     );
 
-    final matches = <Map<String, dynamic>>[];
+    final matches = <protocol.UserSummary>[];
     for (final resident in allResidents) {
       if (matches.length >= limit) break;
+      if (resident.interests == null || resident.interests!.isEmpty) continue;
 
-      // Skip if resident has no interests
-      if (resident.interests == null || resident.interests!.isEmpty) {
-        continue;
-      }
-
-      // Calculate interest overlap
       final sharedInterests = currentUser.interests!
           .where((interest) => resident.interests!.contains(interest))
           .toList();
 
       if (sharedInterests.isNotEmpty) {
-        matches.add({
-          'userId': resident.userInfoId.toString(),
-          'userName': resident.userName ?? 'Resident',
-          'userAvatar': resident.avatar ?? '👤',
-          'floor': ApartmentService.computeEffectiveFloor(resident),
-          'sharedInterests': sharedInterests,
-          'matchScore': sharedInterests.length,
-        });
+        matches.add(_toUserSummary(
+          resident,
+          sharedInterests: sharedInterests,
+          matchScore: sharedInterests.length,
+        ));
       }
     }
 
-    // Sort by match score (most shared interests first)
-    matches.sort(
-      (a, b) => (b['matchScore'] as int).compareTo(a['matchScore'] as int),
-    );
-
+    matches.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));
     return matches;
   }
 
   /// Discover users by shared languages
-  Future<List<Map<String, dynamic>>> discoverUsersByLanguages(
+  Future<List<protocol.UserSummary>> discoverUsersByLanguages(
     Session session, {
     int limit = 20,
   }) async {
-    // Validate inputs
-    InputValidationService.validatePagination(
-      limit: limit,
-      offset: 0,
-    ).throwIfInvalid();
-
     final userIdentifier = session.authenticated?.userIdentifier;
-    if (userIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
-    }
+    if (userIdentifier == null) throw protocol.TalktiveException(message: 'Not authenticated');
 
     final userId = UuidValue.fromString(userIdentifier);
+    final currentUser = await ResidentService.getResident(session, userId);
 
-    // Get current user's languages
-    final currentUser = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
+    if (currentUser == null || currentUser.languages?.isEmpty != false) return [];
 
-    if (currentUser == null || currentUser.languages?.isEmpty != false) {
-      return [];
-    }
-
-    // Find users with matching languages
     final allResidents = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.notEquals(userId), // Exclude self
-      limit: limit * 3, // Get more to filter
+      where: (t) => t.userInfoId.notEquals(userId),
+      limit: limit * 5,
     );
 
-    final matches = <Map<String, dynamic>>[];
+    final matches = <protocol.UserSummary>[];
     for (final resident in allResidents) {
       if (matches.length >= limit) break;
+      if (resident.languages == null || resident.languages!.isEmpty) continue;
 
-      // Skip if resident has no languages
-      if (resident.languages == null || resident.languages!.isEmpty) {
-        continue;
-      }
-
-      // Calculate language overlap
       final sharedLanguages = currentUser.languages!
           .where((language) => resident.languages!.contains(language))
           .toList();
 
       if (sharedLanguages.isNotEmpty) {
-        matches.add({
-          'userId': resident.userInfoId.toString(),
-          'userName': resident.userName ?? 'Resident',
-          'userAvatar': resident.avatar ?? '👤',
-          'floor': ApartmentService.computeEffectiveFloor(resident),
-          'sharedLanguages': sharedLanguages,
-          'matchScore': sharedLanguages.length,
-        });
+        matches.add(_toUserSummary(
+          resident,
+          sharedLanguages: sharedLanguages,
+          matchScore: sharedLanguages.length,
+        ));
       }
     }
 
-    // Sort by match score (most shared languages first)
-    matches.sort(
-      (a, b) => (b['matchScore'] as int).compareTo(a['matchScore'] as int),
-    );
-
+    matches.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));
     return matches;
   }
 
-  /// Get personalized discovery feed (combines interests, languages, and activity)
-  Future<Map<String, dynamic>> getDiscoveryFeed(
+  /// Get personalized discovery feed
+  Future<protocol.DiscoveryFeed> getDiscoveryFeed(
     Session session, {
     int limit = 10,
   }) async {
     try {
-      final usersByInterests = await discoverUsersByInterests(
-        session,
-        limit: limit,
-      );
+      final usersByInterests = await discoverUsersByInterests(session, limit: limit);
+      final usersByLanguages = await discoverUsersByLanguages(session, limit: limit);
+      final trendingMoments = await getTrendingMoments(session, limit: limit);
+      final popularLounges = await getPopularLounges(session, limit: limit);
 
-      final usersByLanguages = await discoverUsersByLanguages(
-        session,
-        limit: limit,
-      );
+      final userIdentifier = session.authenticated?.userIdentifier;
+      protocol.Resident? currentUser;
+      if (userIdentifier != null) {
+        currentUser = await ResidentService.getResident(session, UuidValue.fromString(userIdentifier));
+      }
 
-      final trendingMoments = await getTrendingMoments(
-        session,
-        limit: limit,
-      );
+      final recommendedLounges = currentUser != null
+          ? await LoungeService.getRecommendedLounges(session, currentUser, limit: limit)
+          : await LoungeService.getPopularLounges(session, limit: limit);
 
-      final popularLounges = await getPopularLounges(
-        session,
-        limit: limit,
+      return protocol.DiscoveryFeed(
+        usersByInterests: usersByInterests,
+        usersByLanguages: usersByLanguages,
+        trendingMoments: trendingMoments,
+        popularLounges: popularLounges,
+        recommendedLounges: recommendedLounges,
       );
-
-      return {
-        'usersByInterests': usersByInterests,
-        'usersByLanguages': usersByLanguages,
-        'trendingMoments': trendingMoments.map((m) => m.toJson()).toList(),
-        'popularLounges': popularLounges.map((g) => g.toJson()).toList(),
-      };
     } catch (e) {
       session.log('Error getting discovery feed: $e', level: LogLevel.error);
-      return {
-        'usersByInterests': [],
-        'usersByLanguages': [],
-        'trendingMoments': [],
-        'popularLounges': [],
-      };
+      return protocol.DiscoveryFeed(
+        usersByInterests: [],
+        usersByLanguages: [],
+        trendingMoments: [],
+        popularLounges: [],
+      );
     }
+  }
+
+  protocol.UserSummary _toUserSummary(
+    protocol.Resident resident, {
+    List<String>? sharedInterests,
+    List<String>? sharedLanguages,
+    int? matchScore,
+    int? messageCount,
+  }) {
+    return protocol.UserSummary(
+      userId: resident.userInfoId.toString(),
+      userName: resident.userName,
+      userAvatar: resident.avatar,
+      userMood: resident.mood,
+      floor: ApartmentService.computeEffectiveFloor(resident),
+      trustScore: resident.trustScore,
+      sharedInterests: sharedInterests,
+      sharedLanguages: sharedLanguages,
+      matchScore: matchScore,
+      messageCount: messageCount,
+      isOnline: resident.showOnlineStatus &&
+          resident.lastSeen != null &&
+          DateTime.now().difference(resident.lastSeen!).inMinutes < 5,
+      role: resident.role,
+    );
   }
 }

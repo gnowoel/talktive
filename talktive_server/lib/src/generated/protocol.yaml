@@ -124,7 +124,6 @@ search:
   - getTrendingMoments:
   - getPopularLounges:
   - getActiveUsers:
-  - getRecentMoments:
   - searchAll:
   - discoverUsersByInterests:
   - discoverUsersByLanguages:

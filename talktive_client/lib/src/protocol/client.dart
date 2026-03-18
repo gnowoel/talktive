@@ -38,9 +38,12 @@ import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i21;
 import 'package:talktive_client/src/protocol/report.dart' as _i22;
 import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i23;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i24;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i25;
-import 'protocol.dart' as _i26;
+import 'package:talktive_client/src/protocol/user_summary.dart' as _i24;
+import 'package:talktive_client/src/protocol/search_all_results.dart' as _i25;
+import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i26;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i27;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i28;
+import 'protocol.dart' as _i29;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -1395,10 +1398,10 @@ class EndpointSearch extends _i2.EndpointRef {
   String get name => 'search';
 
   /// Search for users by name (optimized with early limit)
-  _i3.Future<List<Map<String, dynamic>>> searchUsers(
+  _i3.Future<List<_i24.UserSummary>> searchUsers(
     String query, {
     required int limit,
-  }) => caller.callServerEndpoint<List<Map<String, dynamic>>>(
+  }) => caller.callServerEndpoint<List<_i24.UserSummary>>(
     'search',
     'searchUsers',
     {
@@ -1437,31 +1440,18 @@ class EndpointSearch extends _i2.EndpointRef {
       );
 
   /// Get active users (most messages in last 7 days) - OPTIMIZED
-  _i3.Future<List<Map<String, dynamic>>> getActiveUsers({required int limit}) =>
-      caller.callServerEndpoint<List<Map<String, dynamic>>>(
+  _i3.Future<List<_i24.UserSummary>> getActiveUsers({required int limit}) =>
+      caller.callServerEndpoint<List<_i24.UserSummary>>(
         'search',
         'getActiveUsers',
         {'limit': limit},
       );
 
-  /// Get recent moments (for discovery feed)
-  _i3.Future<List<_i16.Moment>> getRecentMoments({
-    required int limit,
-    required int offset,
-  }) => caller.callServerEndpoint<List<_i16.Moment>>(
-    'search',
-    'getRecentMoments',
-    {
-      'limit': limit,
-      'offset': offset,
-    },
-  );
-
   /// Search all content (users, lounges, moments)
-  _i3.Future<Map<String, dynamic>> searchAll(
+  _i3.Future<_i25.SearchAllResults> searchAll(
     String query, {
     required int limit,
-  }) => caller.callServerEndpoint<Map<String, dynamic>>(
+  }) => caller.callServerEndpoint<_i25.SearchAllResults>(
     'search',
     'searchAll',
     {
@@ -1471,26 +1461,26 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Discover users by shared interests
-  _i3.Future<List<Map<String, dynamic>>> discoverUsersByInterests({
+  _i3.Future<List<_i24.UserSummary>> discoverUsersByInterests({
     required int limit,
-  }) => caller.callServerEndpoint<List<Map<String, dynamic>>>(
+  }) => caller.callServerEndpoint<List<_i24.UserSummary>>(
     'search',
     'discoverUsersByInterests',
     {'limit': limit},
   );
 
   /// Discover users by shared languages
-  _i3.Future<List<Map<String, dynamic>>> discoverUsersByLanguages({
+  _i3.Future<List<_i24.UserSummary>> discoverUsersByLanguages({
     required int limit,
-  }) => caller.callServerEndpoint<List<Map<String, dynamic>>>(
+  }) => caller.callServerEndpoint<List<_i24.UserSummary>>(
     'search',
     'discoverUsersByLanguages',
     {'limit': limit},
   );
 
-  /// Get personalized discovery feed (combines interests, languages, and activity)
-  _i3.Future<Map<String, dynamic>> getDiscoveryFeed({required int limit}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  /// Get personalized discovery feed
+  _i3.Future<_i26.DiscoveryFeed> getDiscoveryFeed({required int limit}) =>
+      caller.callServerEndpoint<_i26.DiscoveryFeed>(
         'search',
         'getDiscoveryFeed',
         {'limit': limit},
@@ -1507,8 +1497,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i24.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i24.Greeting>(
+  _i3.Future<_i27.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i27.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1519,14 +1509,14 @@ class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
-    auth = _i25.Caller(client);
+    auth = _i28.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
   late final _i4.Caller serverpod_auth_core;
 
-  late final _i25.Caller auth;
+  late final _i28.Caller auth;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -1549,7 +1539,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i26.Protocol(),
+         _i29.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

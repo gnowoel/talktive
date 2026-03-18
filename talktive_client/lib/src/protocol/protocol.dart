@@ -28,47 +28,51 @@ import 'channel_subscription.dart' as _i15;
 import 'channel_type.dart' as _i16;
 import 'daily_reward.dart' as _i17;
 import 'device_token.dart' as _i18;
-import 'greetings/greeting.dart' as _i19;
-import 'lounge.dart' as _i20;
-import 'lounge_member_with_profile.dart' as _i21;
-import 'lounge_with_membership.dart' as _i22;
-import 'message.dart' as _i23;
-import 'moment.dart' as _i24;
-import 'moment_comment.dart' as _i25;
-import 'moment_like.dart' as _i26;
-import 'private_chat.dart' as _i27;
-import 'private_chat_with_profile.dart' as _i28;
-import 'report.dart' as _i29;
-import 'report_status.dart' as _i30;
-import 'resident.dart' as _i31;
-import 'resident_role.dart' as _i32;
-import 'talktive_exception.dart' as _i33;
-import 'user_achievement.dart' as _i34;
-import 'user_like.dart' as _i35;
-import 'user_notification.dart' as _i36;
-import 'user_profile_view.dart' as _i37;
-import 'package:talktive_client/src/protocol/admin_report_summary.dart' as _i38;
-import 'package:talktive_client/src/protocol/admin_user_summary.dart' as _i39;
-import 'package:talktive_client/src/protocol/daily_reward.dart' as _i40;
+import 'discovery_feed.dart' as _i19;
+import 'greetings/greeting.dart' as _i20;
+import 'lounge.dart' as _i21;
+import 'lounge_member_with_profile.dart' as _i22;
+import 'lounge_with_membership.dart' as _i23;
+import 'message.dart' as _i24;
+import 'moment.dart' as _i25;
+import 'moment_comment.dart' as _i26;
+import 'moment_like.dart' as _i27;
+import 'private_chat.dart' as _i28;
+import 'private_chat_with_profile.dart' as _i29;
+import 'report.dart' as _i30;
+import 'report_status.dart' as _i31;
+import 'resident.dart' as _i32;
+import 'resident_role.dart' as _i33;
+import 'search_all_results.dart' as _i34;
+import 'talktive_exception.dart' as _i35;
+import 'user_achievement.dart' as _i36;
+import 'user_like.dart' as _i37;
+import 'user_notification.dart' as _i38;
+import 'user_profile_view.dart' as _i39;
+import 'user_summary.dart' as _i40;
+import 'package:talktive_client/src/protocol/admin_report_summary.dart' as _i41;
+import 'package:talktive_client/src/protocol/admin_user_summary.dart' as _i42;
+import 'package:talktive_client/src/protocol/daily_reward.dart' as _i43;
 import 'package:talktive_client/src/protocol/lounge_with_membership.dart'
-    as _i41;
-import 'package:talktive_client/src/protocol/lounge.dart' as _i42;
+    as _i44;
+import 'package:talktive_client/src/protocol/lounge.dart' as _i45;
 import 'package:talktive_client/src/protocol/lounge_member_with_profile.dart'
-    as _i43;
-import 'package:talktive_client/src/protocol/resident.dart' as _i44;
-import 'package:talktive_client/src/protocol/message.dart' as _i45;
-import 'package:talktive_client/src/protocol/moment.dart' as _i46;
-import 'package:talktive_client/src/protocol/moment_like.dart' as _i47;
-import 'package:talktive_client/src/protocol/moment_comment.dart' as _i48;
-import 'package:talktive_client/src/protocol/user_notification.dart' as _i49;
+    as _i46;
+import 'package:talktive_client/src/protocol/resident.dart' as _i47;
+import 'package:talktive_client/src/protocol/message.dart' as _i48;
+import 'package:talktive_client/src/protocol/moment.dart' as _i49;
+import 'package:talktive_client/src/protocol/moment_like.dart' as _i50;
+import 'package:talktive_client/src/protocol/moment_comment.dart' as _i51;
+import 'package:talktive_client/src/protocol/user_notification.dart' as _i52;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
-    as _i50;
-import 'package:talktive_client/src/protocol/report.dart' as _i51;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i52;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i53;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i54;
+import 'package:talktive_client/src/protocol/report.dart' as _i54;
+import 'package:talktive_client/src/protocol/user_summary.dart' as _i55;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+    as _i56;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i57;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i58;
 export 'achievement.dart';
 export 'admin_activity.dart';
 export 'admin_report_summary.dart';
@@ -86,6 +90,7 @@ export 'channel_subscription.dart';
 export 'channel_type.dart';
 export 'daily_reward.dart';
 export 'device_token.dart';
+export 'discovery_feed.dart';
 export 'greetings/greeting.dart';
 export 'lounge.dart';
 export 'lounge_member_with_profile.dart';
@@ -100,11 +105,13 @@ export 'report.dart';
 export 'report_status.dart';
 export 'resident.dart';
 export 'resident_role.dart';
+export 'search_all_results.dart';
 export 'talktive_exception.dart';
 export 'user_achievement.dart';
 export 'user_like.dart';
 export 'user_notification.dart';
 export 'user_profile_view.dart';
+export 'user_summary.dart';
 export 'client.dart';
 
 class Protocol extends _i1.SerializationManager {
@@ -192,62 +199,71 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i18.DeviceToken) {
       return _i18.DeviceToken.fromJson(data) as T;
     }
-    if (t == _i19.Greeting) {
-      return _i19.Greeting.fromJson(data) as T;
+    if (t == _i19.DiscoveryFeed) {
+      return _i19.DiscoveryFeed.fromJson(data) as T;
     }
-    if (t == _i20.Lounge) {
-      return _i20.Lounge.fromJson(data) as T;
+    if (t == _i20.Greeting) {
+      return _i20.Greeting.fromJson(data) as T;
     }
-    if (t == _i21.LoungeMemberWithProfile) {
-      return _i21.LoungeMemberWithProfile.fromJson(data) as T;
+    if (t == _i21.Lounge) {
+      return _i21.Lounge.fromJson(data) as T;
     }
-    if (t == _i22.LoungeWithMembership) {
-      return _i22.LoungeWithMembership.fromJson(data) as T;
+    if (t == _i22.LoungeMemberWithProfile) {
+      return _i22.LoungeMemberWithProfile.fromJson(data) as T;
     }
-    if (t == _i23.Message) {
-      return _i23.Message.fromJson(data) as T;
+    if (t == _i23.LoungeWithMembership) {
+      return _i23.LoungeWithMembership.fromJson(data) as T;
     }
-    if (t == _i24.Moment) {
-      return _i24.Moment.fromJson(data) as T;
+    if (t == _i24.Message) {
+      return _i24.Message.fromJson(data) as T;
     }
-    if (t == _i25.MomentComment) {
-      return _i25.MomentComment.fromJson(data) as T;
+    if (t == _i25.Moment) {
+      return _i25.Moment.fromJson(data) as T;
     }
-    if (t == _i26.MomentLike) {
-      return _i26.MomentLike.fromJson(data) as T;
+    if (t == _i26.MomentComment) {
+      return _i26.MomentComment.fromJson(data) as T;
     }
-    if (t == _i27.PrivateChat) {
-      return _i27.PrivateChat.fromJson(data) as T;
+    if (t == _i27.MomentLike) {
+      return _i27.MomentLike.fromJson(data) as T;
     }
-    if (t == _i28.PrivateChatWithProfile) {
-      return _i28.PrivateChatWithProfile.fromJson(data) as T;
+    if (t == _i28.PrivateChat) {
+      return _i28.PrivateChat.fromJson(data) as T;
     }
-    if (t == _i29.Report) {
-      return _i29.Report.fromJson(data) as T;
+    if (t == _i29.PrivateChatWithProfile) {
+      return _i29.PrivateChatWithProfile.fromJson(data) as T;
     }
-    if (t == _i30.ReportStatus) {
-      return _i30.ReportStatus.fromJson(data) as T;
+    if (t == _i30.Report) {
+      return _i30.Report.fromJson(data) as T;
     }
-    if (t == _i31.Resident) {
-      return _i31.Resident.fromJson(data) as T;
+    if (t == _i31.ReportStatus) {
+      return _i31.ReportStatus.fromJson(data) as T;
     }
-    if (t == _i32.ResidentRole) {
-      return _i32.ResidentRole.fromJson(data) as T;
+    if (t == _i32.Resident) {
+      return _i32.Resident.fromJson(data) as T;
     }
-    if (t == _i33.TalktiveException) {
-      return _i33.TalktiveException.fromJson(data) as T;
+    if (t == _i33.ResidentRole) {
+      return _i33.ResidentRole.fromJson(data) as T;
     }
-    if (t == _i34.UserAchievement) {
-      return _i34.UserAchievement.fromJson(data) as T;
+    if (t == _i34.SearchAllResults) {
+      return _i34.SearchAllResults.fromJson(data) as T;
     }
-    if (t == _i35.UserLike) {
-      return _i35.UserLike.fromJson(data) as T;
+    if (t == _i35.TalktiveException) {
+      return _i35.TalktiveException.fromJson(data) as T;
     }
-    if (t == _i36.UserNotification) {
-      return _i36.UserNotification.fromJson(data) as T;
+    if (t == _i36.UserAchievement) {
+      return _i36.UserAchievement.fromJson(data) as T;
     }
-    if (t == _i37.UserProfileView) {
-      return _i37.UserProfileView.fromJson(data) as T;
+    if (t == _i37.UserLike) {
+      return _i37.UserLike.fromJson(data) as T;
+    }
+    if (t == _i38.UserNotification) {
+      return _i38.UserNotification.fromJson(data) as T;
+    }
+    if (t == _i39.UserProfileView) {
+      return _i39.UserProfileView.fromJson(data) as T;
+    }
+    if (t == _i40.UserSummary) {
+      return _i40.UserSummary.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.Achievement?>()) {
       return (data != null ? _i2.Achievement.fromJson(data) : null) as T;
@@ -302,76 +318,101 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i18.DeviceToken?>()) {
       return (data != null ? _i18.DeviceToken.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i19.Greeting?>()) {
-      return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.DiscoveryFeed?>()) {
+      return (data != null ? _i19.DiscoveryFeed.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.Lounge?>()) {
-      return (data != null ? _i20.Lounge.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.Greeting?>()) {
+      return (data != null ? _i20.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i21.LoungeMemberWithProfile?>()) {
-      return (data != null ? _i21.LoungeMemberWithProfile.fromJson(data) : null)
+    if (t == _i1.getType<_i21.Lounge?>()) {
+      return (data != null ? _i21.Lounge.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i22.LoungeMemberWithProfile?>()) {
+      return (data != null ? _i22.LoungeMemberWithProfile.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i22.LoungeWithMembership?>()) {
-      return (data != null ? _i22.LoungeWithMembership.fromJson(data) : null)
+    if (t == _i1.getType<_i23.LoungeWithMembership?>()) {
+      return (data != null ? _i23.LoungeWithMembership.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i23.Message?>()) {
-      return (data != null ? _i23.Message.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.Message?>()) {
+      return (data != null ? _i24.Message.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i24.Moment?>()) {
-      return (data != null ? _i24.Moment.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i25.Moment?>()) {
+      return (data != null ? _i25.Moment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i25.MomentComment?>()) {
-      return (data != null ? _i25.MomentComment.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i26.MomentComment?>()) {
+      return (data != null ? _i26.MomentComment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i26.MomentLike?>()) {
-      return (data != null ? _i26.MomentLike.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i27.MomentLike?>()) {
+      return (data != null ? _i27.MomentLike.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i27.PrivateChat?>()) {
-      return (data != null ? _i27.PrivateChat.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i28.PrivateChat?>()) {
+      return (data != null ? _i28.PrivateChat.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i28.PrivateChatWithProfile?>()) {
-      return (data != null ? _i28.PrivateChatWithProfile.fromJson(data) : null)
+    if (t == _i1.getType<_i29.PrivateChatWithProfile?>()) {
+      return (data != null ? _i29.PrivateChatWithProfile.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i29.Report?>()) {
-      return (data != null ? _i29.Report.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i30.Report?>()) {
+      return (data != null ? _i30.Report.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i30.ReportStatus?>()) {
-      return (data != null ? _i30.ReportStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i31.ReportStatus?>()) {
+      return (data != null ? _i31.ReportStatus.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i31.Resident?>()) {
-      return (data != null ? _i31.Resident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i32.Resident?>()) {
+      return (data != null ? _i32.Resident.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i32.ResidentRole?>()) {
-      return (data != null ? _i32.ResidentRole.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i33.ResidentRole?>()) {
+      return (data != null ? _i33.ResidentRole.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i33.TalktiveException?>()) {
-      return (data != null ? _i33.TalktiveException.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i34.SearchAllResults?>()) {
+      return (data != null ? _i34.SearchAllResults.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i34.UserAchievement?>()) {
-      return (data != null ? _i34.UserAchievement.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i35.TalktiveException?>()) {
+      return (data != null ? _i35.TalktiveException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i35.UserLike?>()) {
-      return (data != null ? _i35.UserLike.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i36.UserAchievement?>()) {
+      return (data != null ? _i36.UserAchievement.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i36.UserNotification?>()) {
-      return (data != null ? _i36.UserNotification.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i37.UserLike?>()) {
+      return (data != null ? _i37.UserLike.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i37.UserProfileView?>()) {
-      return (data != null ? _i37.UserProfileView.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i38.UserNotification?>()) {
+      return (data != null ? _i38.UserNotification.fromJson(data) : null) as T;
     }
-    if (t == List<_i23.Message>) {
-      return (data as List).map((e) => deserialize<_i23.Message>(e)).toList()
+    if (t == _i1.getType<_i39.UserProfileView?>()) {
+      return (data != null ? _i39.UserProfileView.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i40.UserSummary?>()) {
+      return (data != null ? _i40.UserSummary.fromJson(data) : null) as T;
+    }
+    if (t == List<_i24.Message>) {
+      return (data as List).map((e) => deserialize<_i24.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i24.Moment>) {
-      return (data as List).map((e) => deserialize<_i24.Moment>(e)).toList()
+    if (t == List<_i25.Moment>) {
+      return (data as List).map((e) => deserialize<_i25.Moment>(e)).toList()
           as T;
     }
-    if (t == List<_i29.Report>) {
-      return (data as List).map((e) => deserialize<_i29.Report>(e)).toList()
+    if (t == List<_i30.Report>) {
+      return (data as List).map((e) => deserialize<_i30.Report>(e)).toList()
+          as T;
+    }
+    if (t == List<_i40.UserSummary>) {
+      return (data as List)
+              .map((e) => deserialize<_i40.UserSummary>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i21.Lounge>) {
+      return (data as List).map((e) => deserialize<_i21.Lounge>(e)).toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i21.Lounge>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<_i21.Lounge>(e)).toList()
+              : null)
           as T;
     }
     if (t == List<String>) {
@@ -383,21 +424,21 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == _i1.getType<List<_i24.Moment>?>()) {
+    if (t == _i1.getType<List<_i25.Moment>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<_i24.Moment>(e)).toList()
+              ? (data as List).map((e) => deserialize<_i25.Moment>(e)).toList()
               : null)
           as T;
     }
-    if (t == List<_i38.AdminReportSummary>) {
+    if (t == List<_i41.AdminReportSummary>) {
       return (data as List)
-              .map((e) => deserialize<_i38.AdminReportSummary>(e))
+              .map((e) => deserialize<_i41.AdminReportSummary>(e))
               .toList()
           as T;
     }
-    if (t == List<_i39.AdminUserSummary>) {
+    if (t == List<_i42.AdminUserSummary>) {
       return (data as List)
-              .map((e) => deserialize<_i39.AdminUserSummary>(e))
+              .map((e) => deserialize<_i42.AdminUserSummary>(e))
               .toList()
           as T;
     }
@@ -422,9 +463,9 @@ class Protocol extends _i1.SerializationManager {
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
-    if (t == List<_i40.DailyReward>) {
+    if (t == List<_i43.DailyReward>) {
       return (data as List)
-              .map((e) => deserialize<_i40.DailyReward>(e))
+              .map((e) => deserialize<_i43.DailyReward>(e))
               .toList()
           as T;
     }
@@ -437,36 +478,36 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == List<_i41.LoungeWithMembership>) {
+    if (t == List<_i44.LoungeWithMembership>) {
       return (data as List)
-              .map((e) => deserialize<_i41.LoungeWithMembership>(e))
+              .map((e) => deserialize<_i44.LoungeWithMembership>(e))
               .toList()
           as T;
     }
-    if (t == List<_i42.Lounge>) {
-      return (data as List).map((e) => deserialize<_i42.Lounge>(e)).toList()
+    if (t == List<_i45.Lounge>) {
+      return (data as List).map((e) => deserialize<_i45.Lounge>(e)).toList()
           as T;
     }
-    if (t == List<_i43.LoungeMemberWithProfile>) {
+    if (t == List<_i46.LoungeMemberWithProfile>) {
       return (data as List)
-              .map((e) => deserialize<_i43.LoungeMemberWithProfile>(e))
+              .map((e) => deserialize<_i46.LoungeMemberWithProfile>(e))
               .toList()
           as T;
     }
-    if (t == List<_i44.Resident>) {
-      return (data as List).map((e) => deserialize<_i44.Resident>(e)).toList()
+    if (t == List<_i47.Resident>) {
+      return (data as List).map((e) => deserialize<_i47.Resident>(e)).toList()
           as T;
     }
-    if (t == List<_i45.Message>) {
-      return (data as List).map((e) => deserialize<_i45.Message>(e)).toList()
+    if (t == List<_i48.Message>) {
+      return (data as List).map((e) => deserialize<_i48.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i46.Moment>) {
-      return (data as List).map((e) => deserialize<_i46.Moment>(e)).toList()
+    if (t == List<_i49.Moment>) {
+      return (data as List).map((e) => deserialize<_i49.Moment>(e)).toList()
           as T;
     }
-    if (t == List<_i47.MomentLike>) {
-      return (data as List).map((e) => deserialize<_i47.MomentLike>(e)).toList()
+    if (t == List<_i50.MomentLike>) {
+      return (data as List).map((e) => deserialize<_i50.MomentLike>(e)).toList()
           as T;
     }
     if (t == Map<int, bool>) {
@@ -478,36 +519,42 @@ class Protocol extends _i1.SerializationManager {
           )
           as T;
     }
-    if (t == List<_i48.MomentComment>) {
+    if (t == List<_i51.MomentComment>) {
       return (data as List)
-              .map((e) => deserialize<_i48.MomentComment>(e))
+              .map((e) => deserialize<_i51.MomentComment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i49.UserNotification>) {
+    if (t == List<_i52.UserNotification>) {
       return (data as List)
-              .map((e) => deserialize<_i49.UserNotification>(e))
+              .map((e) => deserialize<_i52.UserNotification>(e))
               .toList()
           as T;
     }
-    if (t == List<_i50.PrivateChatWithProfile>) {
+    if (t == List<_i53.PrivateChatWithProfile>) {
       return (data as List)
-              .map((e) => deserialize<_i50.PrivateChatWithProfile>(e))
+              .map((e) => deserialize<_i53.PrivateChatWithProfile>(e))
               .toList()
           as T;
     }
-    if (t == List<_i51.Report>) {
-      return (data as List).map((e) => deserialize<_i51.Report>(e)).toList()
+    if (t == List<_i54.Report>) {
+      return (data as List).map((e) => deserialize<_i54.Report>(e)).toList()
+          as T;
+    }
+    if (t == List<_i55.UserSummary>) {
+      return (data as List)
+              .map((e) => deserialize<_i55.UserSummary>(e))
+              .toList()
           as T;
     }
     try {
-      return _i52.Protocol().deserialize<T>(data, t);
+      return _i56.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i53.Protocol().deserialize<T>(data, t);
+      return _i57.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i54.Protocol().deserialize<T>(data, t);
+      return _i58.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -531,25 +578,28 @@ class Protocol extends _i1.SerializationManager {
       _i16.ChannelType => 'ChannelType',
       _i17.DailyReward => 'DailyReward',
       _i18.DeviceToken => 'DeviceToken',
-      _i19.Greeting => 'Greeting',
-      _i20.Lounge => 'Lounge',
-      _i21.LoungeMemberWithProfile => 'LoungeMemberWithProfile',
-      _i22.LoungeWithMembership => 'LoungeWithMembership',
-      _i23.Message => 'Message',
-      _i24.Moment => 'Moment',
-      _i25.MomentComment => 'MomentComment',
-      _i26.MomentLike => 'MomentLike',
-      _i27.PrivateChat => 'PrivateChat',
-      _i28.PrivateChatWithProfile => 'PrivateChatWithProfile',
-      _i29.Report => 'Report',
-      _i30.ReportStatus => 'ReportStatus',
-      _i31.Resident => 'Resident',
-      _i32.ResidentRole => 'ResidentRole',
-      _i33.TalktiveException => 'TalktiveException',
-      _i34.UserAchievement => 'UserAchievement',
-      _i35.UserLike => 'UserLike',
-      _i36.UserNotification => 'UserNotification',
-      _i37.UserProfileView => 'UserProfileView',
+      _i19.DiscoveryFeed => 'DiscoveryFeed',
+      _i20.Greeting => 'Greeting',
+      _i21.Lounge => 'Lounge',
+      _i22.LoungeMemberWithProfile => 'LoungeMemberWithProfile',
+      _i23.LoungeWithMembership => 'LoungeWithMembership',
+      _i24.Message => 'Message',
+      _i25.Moment => 'Moment',
+      _i26.MomentComment => 'MomentComment',
+      _i27.MomentLike => 'MomentLike',
+      _i28.PrivateChat => 'PrivateChat',
+      _i29.PrivateChatWithProfile => 'PrivateChatWithProfile',
+      _i30.Report => 'Report',
+      _i31.ReportStatus => 'ReportStatus',
+      _i32.Resident => 'Resident',
+      _i33.ResidentRole => 'ResidentRole',
+      _i34.SearchAllResults => 'SearchAllResults',
+      _i35.TalktiveException => 'TalktiveException',
+      _i36.UserAchievement => 'UserAchievement',
+      _i37.UserLike => 'UserLike',
+      _i38.UserNotification => 'UserNotification',
+      _i39.UserProfileView => 'UserProfileView',
+      _i40.UserSummary => 'UserSummary',
       _ => null,
     };
   }
@@ -598,54 +648,60 @@ class Protocol extends _i1.SerializationManager {
         return 'DailyReward';
       case _i18.DeviceToken():
         return 'DeviceToken';
-      case _i19.Greeting():
+      case _i19.DiscoveryFeed():
+        return 'DiscoveryFeed';
+      case _i20.Greeting():
         return 'Greeting';
-      case _i20.Lounge():
+      case _i21.Lounge():
         return 'Lounge';
-      case _i21.LoungeMemberWithProfile():
+      case _i22.LoungeMemberWithProfile():
         return 'LoungeMemberWithProfile';
-      case _i22.LoungeWithMembership():
+      case _i23.LoungeWithMembership():
         return 'LoungeWithMembership';
-      case _i23.Message():
+      case _i24.Message():
         return 'Message';
-      case _i24.Moment():
+      case _i25.Moment():
         return 'Moment';
-      case _i25.MomentComment():
+      case _i26.MomentComment():
         return 'MomentComment';
-      case _i26.MomentLike():
+      case _i27.MomentLike():
         return 'MomentLike';
-      case _i27.PrivateChat():
+      case _i28.PrivateChat():
         return 'PrivateChat';
-      case _i28.PrivateChatWithProfile():
+      case _i29.PrivateChatWithProfile():
         return 'PrivateChatWithProfile';
-      case _i29.Report():
+      case _i30.Report():
         return 'Report';
-      case _i30.ReportStatus():
+      case _i31.ReportStatus():
         return 'ReportStatus';
-      case _i31.Resident():
+      case _i32.Resident():
         return 'Resident';
-      case _i32.ResidentRole():
+      case _i33.ResidentRole():
         return 'ResidentRole';
-      case _i33.TalktiveException():
+      case _i34.SearchAllResults():
+        return 'SearchAllResults';
+      case _i35.TalktiveException():
         return 'TalktiveException';
-      case _i34.UserAchievement():
+      case _i36.UserAchievement():
         return 'UserAchievement';
-      case _i35.UserLike():
+      case _i37.UserLike():
         return 'UserLike';
-      case _i36.UserNotification():
+      case _i38.UserNotification():
         return 'UserNotification';
-      case _i37.UserProfileView():
+      case _i39.UserProfileView():
         return 'UserProfileView';
+      case _i40.UserSummary():
+        return 'UserSummary';
     }
-    className = _i52.Protocol().getClassNameForObject(data);
+    className = _i56.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i53.Protocol().getClassNameForObject(data);
+    className = _i57.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
-    className = _i54.Protocol().getClassNameForObject(data);
+    className = _i58.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
@@ -709,74 +765,83 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'DeviceToken') {
       return deserialize<_i18.DeviceToken>(data['data']);
     }
+    if (dataClassName == 'DiscoveryFeed') {
+      return deserialize<_i19.DiscoveryFeed>(data['data']);
+    }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i19.Greeting>(data['data']);
+      return deserialize<_i20.Greeting>(data['data']);
     }
     if (dataClassName == 'Lounge') {
-      return deserialize<_i20.Lounge>(data['data']);
+      return deserialize<_i21.Lounge>(data['data']);
     }
     if (dataClassName == 'LoungeMemberWithProfile') {
-      return deserialize<_i21.LoungeMemberWithProfile>(data['data']);
+      return deserialize<_i22.LoungeMemberWithProfile>(data['data']);
     }
     if (dataClassName == 'LoungeWithMembership') {
-      return deserialize<_i22.LoungeWithMembership>(data['data']);
+      return deserialize<_i23.LoungeWithMembership>(data['data']);
     }
     if (dataClassName == 'Message') {
-      return deserialize<_i23.Message>(data['data']);
+      return deserialize<_i24.Message>(data['data']);
     }
     if (dataClassName == 'Moment') {
-      return deserialize<_i24.Moment>(data['data']);
+      return deserialize<_i25.Moment>(data['data']);
     }
     if (dataClassName == 'MomentComment') {
-      return deserialize<_i25.MomentComment>(data['data']);
+      return deserialize<_i26.MomentComment>(data['data']);
     }
     if (dataClassName == 'MomentLike') {
-      return deserialize<_i26.MomentLike>(data['data']);
+      return deserialize<_i27.MomentLike>(data['data']);
     }
     if (dataClassName == 'PrivateChat') {
-      return deserialize<_i27.PrivateChat>(data['data']);
+      return deserialize<_i28.PrivateChat>(data['data']);
     }
     if (dataClassName == 'PrivateChatWithProfile') {
-      return deserialize<_i28.PrivateChatWithProfile>(data['data']);
+      return deserialize<_i29.PrivateChatWithProfile>(data['data']);
     }
     if (dataClassName == 'Report') {
-      return deserialize<_i29.Report>(data['data']);
+      return deserialize<_i30.Report>(data['data']);
     }
     if (dataClassName == 'ReportStatus') {
-      return deserialize<_i30.ReportStatus>(data['data']);
+      return deserialize<_i31.ReportStatus>(data['data']);
     }
     if (dataClassName == 'Resident') {
-      return deserialize<_i31.Resident>(data['data']);
+      return deserialize<_i32.Resident>(data['data']);
     }
     if (dataClassName == 'ResidentRole') {
-      return deserialize<_i32.ResidentRole>(data['data']);
+      return deserialize<_i33.ResidentRole>(data['data']);
+    }
+    if (dataClassName == 'SearchAllResults') {
+      return deserialize<_i34.SearchAllResults>(data['data']);
     }
     if (dataClassName == 'TalktiveException') {
-      return deserialize<_i33.TalktiveException>(data['data']);
+      return deserialize<_i35.TalktiveException>(data['data']);
     }
     if (dataClassName == 'UserAchievement') {
-      return deserialize<_i34.UserAchievement>(data['data']);
+      return deserialize<_i36.UserAchievement>(data['data']);
     }
     if (dataClassName == 'UserLike') {
-      return deserialize<_i35.UserLike>(data['data']);
+      return deserialize<_i37.UserLike>(data['data']);
     }
     if (dataClassName == 'UserNotification') {
-      return deserialize<_i36.UserNotification>(data['data']);
+      return deserialize<_i38.UserNotification>(data['data']);
     }
     if (dataClassName == 'UserProfileView') {
-      return deserialize<_i37.UserProfileView>(data['data']);
+      return deserialize<_i39.UserProfileView>(data['data']);
+    }
+    if (dataClassName == 'UserSummary') {
+      return deserialize<_i40.UserSummary>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i52.Protocol().deserializeByClassName(data);
+      return _i56.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i53.Protocol().deserializeByClassName(data);
+      return _i57.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i54.Protocol().deserializeByClassName(data);
+      return _i58.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -791,13 +856,13 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i52.Protocol().mapRecordToJson(record);
+      return _i56.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i53.Protocol().mapRecordToJson(record);
+      return _i57.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i54.Protocol().mapRecordToJson(record);
+      return _i58.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

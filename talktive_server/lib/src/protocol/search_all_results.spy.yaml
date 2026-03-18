@@ -1,0 +1,6 @@
+### Combined search results
+class: SearchAllResults
+fields:
+  users: List<UserSummary>
+  lounges: List<Lounge>
+  moments: List<Moment>

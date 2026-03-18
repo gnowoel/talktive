@@ -7,8 +7,6 @@ import '../services/resident_service.dart';
 import '../services/gamification_service.dart';
 import '../services/notification_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
-import 'dart:math';
-
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Checks if the authenticated user has a Resident profile and
   /// performs standard background tasks (daily login bonus, etc.).
@@ -177,7 +175,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     await protocol.UserLike.db.insertRow(session, protocol.UserLike(senderId: callerId, receiverId: targetId, createdAt: DateTime.now()));
 
     // Trust Score Increase & XP Reward
-    target.trustScore = min(1000, target.trustScore + 10);
+    ApartmentService.awardVouch(target: target);
     await GamificationService.awardXP(
       session,
       target,

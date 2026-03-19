@@ -2,11 +2,10 @@
 
 ## Overview
 
-The Talktive Flutter app supports two versions side-by-side during the migration period:
-1. **Firebase Version** (Legacy) - Uses Firebase + Provider
-2. **Serverpod Version** (New) - Uses Serverpod + Riverpod
+The Talktive Flutter app has been migrated from a Firebase-based architecture to a Serverpod-based one. During the final stages of migration, the codebase maintains a strict separation between the new modern implementation and the legacy code.
 
-This document provides a clear map of which files belong to which version.
+1. **Modern Version** (Current) - Uses Serverpod + Riverpod + Duolingo-inspired UI.
+2. **Legacy Version** (Maintenance) - Original Firebase + Provider implementation, now consolidated for eventual removal.
 
 ---
 
@@ -14,327 +13,81 @@ This document provides a clear map of which files belong to which version.
 
 ```
 talktive_flutter/lib/
-├── main.dart                      # [SHARED] Entry point
-├── version_selector.dart          # [SHARED] Version selector UI
-├── firebase_options.dart          # [FIREBASE] Firebase configuration
-├── app.dart                       # [FIREBASE] Firebase app entry
-├── router.dart                    # [FIREBASE] Firebase routing
-├── theme.dart                     # [FIREBASE] Firebase theme
-├── serverpod_app.dart             # [SERVERPOD] Serverpod app entry
-├── serverpod_client.dart          # [SERVERPOD] Serverpod client setup
-├── pages/                         # [FIREBASE] All Firebase pages
-├── screens/                       # [SERVERPOD] All Serverpod screens
-├── providers/                     # [SERVERPOD] Riverpod providers
-├── services/                      # [MIXED] See breakdown below
-├── wrappers/                      # [MIXED] See breakdown below
-├── widgets/                       # [MIXED] See breakdown below
-├── config/                        # [SHARED] Configuration files
-├── models/                        # [SHARED] Data models
-├── helpers/                       # [SHARED] Utility functions
-└── debug/                         # [SHARED] Debug utilities
+├── main.dart                      # [SHARED] Entry point & Global Client Init
+├── version_selector.dart          # [SHARED] Dual-boot selector UI
+├── serverpod_app.dart             # [MODERN] Serverpod app entry & Riverpod Root
+├── serverpod_client.dart          # [MODERN] Serverpod client configuration
+├── app.dart                       # [LEGACY] Firebase app entry
+├── config/                        # [MODERN] Modern configuration (Theme, etc.)
+├── providers/                     # [MODERN] Riverpod providers (State Management)
+├── screens/                       # [MODERN] Feature-based UI screens
+├── services/                      # [MODERN] Modern services (Media, Messaging)
+├── widgets/                       # [MODERN] Modern component library (Duo widgets)
+├── helpers/                       # [MODERN] Modern utility functions
+├── utils/                         # [MODERN] Core utilities and formulas
+└── legacy/                        # [LEGACY] Consolidated Firebase implementation
+    ├── pages/                     # Old Firebase pages
+    ├── models/                    # Old Data models (replaced by talktive_client)
+    ├── services/                  # Old Firebase services (Firestore, Auth, etc.)
+    ├── widgets/                   # Old UI components
+    ├── wrappers/                  # Old initialization wrappers
+    ├── helpers/                   # Old utility functions
+    ├── router.dart                # Old GoRouter configuration
+    └── theme.dart                 # Old legacy theme
 ```
 
 ---
 
-## File Categorization
+## Architecture Components
 
-### 🔴 Firebase Version Only
+### 🟢 Modern Implementation (Serverpod)
 
-**Entry Points:**
-- `app.dart` - Firebase app
-- `router.dart` - Firebase routing with GoRouter
-- `theme.dart` - Firebase theme
-- `firebase_options.dart` - Firebase configuration
+**Core Logic:**
+- `serverpod_client.dart`: Manages the connection to the Serverpod backend.
+- `providers/`: Reactive state management using Riverpod.
+- `talktive_client`: Generated code from the Serverpod protocol (replaces manual models).
 
-**Pages Directory** (all files):
-- `pages/users.dart`
-- `pages/topics.dart`
-- `pages/chats.dart`
-- `pages/friends.dart`
-- `pages/profile.dart`
-- `pages/topic.dart`
-- `pages/two_person_topic.dart`
-- `pages/normal_topic.dart`
-- `pages/launch.dart`
-- `pages/create_topic.dart`
-- `pages/edit_profile.dart`
-- `pages/backup_account.dart`
-- `pages/privacy_settings_page.dart`
-- `pages/reports.dart`
-- `pages/admin_users.dart`
-- `pages/shares.dart`
-- `pages/empty.dart`
-- `pages/error.dart`
+**UI & Experience:**
+- `screens/`: Organized by feature (lounges, plaza, moments, profile).
+- `widgets/duo/`: A comprehensive library of "Duolingo-styled" playful components.
+- `wrappers/serverpod_initialize.dart`: Lean initialization specifically for the Serverpod path.
 
 **Services:**
-- `services/fireauth.dart` - Firebase Authentication
-- `services/firedata.dartMap` - Firebase Realtime Database
-- `services/firestore.dart` - Firestore operations
-- `services/storage.dart` - Firebase Storage
-- `services/messaging.dart` - Legacy FCM Handler
+- `services/messaging.dart`: Unified FCM handler (handles both versions).
+- `services/media_service.dart`: Image picking and Firebase Storage uploads (shared).
+- `services/edge_to_edge_manager.dart`: Modern Android/iOS system UI management.
 
-**Wrappers:**
-- `wrappers/initialize.dart` - Firebase initialization
-- `wrappers/verify_user.dart` - Firebase auth verification
-- `wrappers/setup.dart` - Firebase setup flow
-- `wrappers/setup/` (all files) - Setup steps
+### 🔴 Legacy Implementation (Firebase)
 
-**Widgets:**
-- `widgets/user_info_loader.dart` - Uses Firestore
-- `widgets/two_person_topic_input.dart` - Uses Firebase
-- `widgets/normal_topic_input.dart` - Uses Firebase
-
----
-
-### 🟢 Serverpod Version Only
-
-**Entry Points:**
-- `serverpod_app.dart` - Serverpod app
-- `serverpod_client.dart` - Serverpod client setup
-
-**Screens Directory** (all files):
-- `screens/splash_screen.dart`
-- `screens/onboarding/` - Welcome and profile setup
-- `screens/home/home_screen.dart` - Main navigation
-- `screens/chat/chat_screen.dart` - Individual chat
-- `screens/chats/` - Private chats
-- `screens/lounges/` - Lounge chats
-- `screens/plaza/` - Public chat
-- `screens/moments/` - Photo feed
-- `screens/profile/` - User profile
-- `screens/achievements/` - Achievements
-
-**Providers Directory** (all files):
-- `providers/client_provider.dart` - Serverpod client
-- `providers/auth_provider.dart` - Serverpod auth
-- `providers/chat_provider.dart` - Chat state
-- `providers/private_chat_provider.dart` - Private chats
-- `providers/lounge_provider.dart` - Lounges
-- `providers/current_resident_provider.dart` - Current user data
-- `providers/realtime_chat_provider.dart` - Real-time messaging
-- `providers/notification_provider.dart` - Notifications
-- `providers/streak_provider.dart` - Streaks
-- `providers/achievement_provider.dart` - Achievements
-- `providers/user_likes_provider.dart` - User likes/vouches
-- `providers/user_profile_provider.dart` - External user profiles
-- `providers/fcm_provider.dart` - Serverpod FCM Manager
-
-**Helpers:**
-- `helpers/duo_mention_helper.dart` - Mention parsing and highlighting
-- `helpers/duo_snackbar_helper.dart` - Duolingo-styled SnackBars
-- `helpers/duo_floor_helper.dart` - Floor and XP calculations
-- `helpers/duo_trust_score_helper.dart` - Trust score visualization
-
-**Widgets:**
-- `widgets/duo/` (all files) - Duolingo-style components
-  - `duo_keyboard_dismissible.dart` - Keyboard dismissal wrapper
-  - `duo_chat_layout.dart` - Standardized chat screen structure
-  - `duo_floor_badge.dart` - Resident floor level status badge
-- `widgets/chat/` - Chat components (used by Serverpod screens)
-
----
-
-### 🟡 Shared Between Both Versions
-
-**Config:**
-- `config/theme.dart` - Shared theme configuration
-- `config/ad_config.dart` - Ad configuration
-- `config/message_report_config.dart` - Report configuration
-
-**Models:**
-- All files in `models/` - Data structures used by both
-
-**Helpers:**
-- `helpers/mention_helper.dart` - Legacy mention logic for Firebase
-- `helpers/snackbar_helper.dart` - Legacy SnackBar helper for Firebase
-- All other files in `helpers/` - Utility functions (Shared)
-
-**Services (Shared):**
-- `services/background_messaging_handler.dart` - Central dispatcher for background notifications
-- `services/avatar.dart` - Avatar utilities
-- `services/settings.dart` - App settings
-- `services/service_locator.dart` - Service locator
-- `services/logging_service.dart` - Logging
-- `services/error_recovery_service.dart` - Error handling
-- `services/server_clock.dart` - Time sync
-- `services/ad_service/` - Ad management
-- `services/paginated_message_service.dart` - Pagination
-- `services/user_cache.dart` - User caching
-- `services/topic_cache.dart` - Topic caching
-- `services/tribe_cache.dart` - Tribe caching
-- `services/follow_cache.dart` - Follow caching
-- `services/topic_followers_cache.dart` - Followers caching
-- `services/message_meta_cache.dart` - Message metadata
-- `services/moment_prompts.dart` - Moment prompts
-- `services/edge_to_edge_manager.dart` - Edge-to-edge display
-
-**Wrappers (Shared):**
-- `wrappers/providers.dart` - Provider setup
-- `wrappers/current_user.dart` - Current user wrapper
-- `wrappers/subscribe.dart` - Subscription wrapper
-- `wrappers/whats_new.dart` - What's new dialog
-
-**Widgets (Shared):**
-- Most widgets except those explicitly marked as Firebase or Serverpod
-- `widgets/navigation.dart` - Navigation components
-- `widgets/edge_to_edge_wrapper.dart` - Edge-to-edge wrapper
-- `widgets/auth/` - Authentication widgets
-
----
-
-## Import Guidelines
-
-### For Firebase Version Files
-
-```dart
-// Firebase-specific imports
-import '../services/fireauth.dart';
-import '../services/firestore.dart';
-import '../pages/users.dart';
-import '../router.dart';
-import '../theme.dart';
-
-// Shared imports
-import '../config/theme.dart';
-import '../models/user.dart';
-import '../helpers/helpers.dart';
-import '../services/messaging.dart';
-```
-
-### For Serverpod Version Files
-
-```dart
-// Serverpod-specific imports
-import '../serverpod_client.dart';
-import '../providers/auth_provider.dart';
-import '../screens/home/home_screen.dart';
-import '../helpers/duo_snackbar_helper.dart';
-
-// Shared imports
-import '../config/theme.dart';
-import '../models/user.dart';
-import '../helpers/helpers.dart';
-import '../widgets/duo/duo_button.dart';
-```
-
-### For Shared Files
-
-```dart
-// Can import from either version based on context
-// Or use conditional imports if needed
-import '../config/theme.dart';
-import '../models/user.dart';
-import '../helpers/helpers.dart';
-```
-
----
-
-## Migration Strategy
-
-### Current State (March 2026)
-- Both versions coexist in the same codebase
-- Users select version via `version_selector.dart`
-- No file conflicts due to clear separation
-
-### Phase 1: Parallel Development
-- Continue developing both versions
-- Firebase version: Maintenance only
-- Serverpod version: Active development
-
-### Phase 2: User Migration
-- Gradually migrate users to Serverpod version
-- Monitor metrics and feedback
-- Keep Firebase version as fallback
-
-### Phase 3: Deprecation
-- Once Serverpod version is stable and adopted
-- Remove Firebase version files:
-  - Delete `app.dart`, `router.dart`, `theme.dart`
-  - Delete `pages/` directory
-  - Delete Firebase services
-  - Delete Firebase wrappers
-- Update `version_selector.dart` to launch Serverpod directly
-- Clean up unused dependencies
-
-### Phase 4: Reorganization (Optional)
-- Move `serverpod_app.dart` → `app.dart`
-- Move `screens/` → `pages/` (if desired)
-- Flatten directory structure
-- Remove version-specific naming
+All legacy code has been moved to the `lib/legacy/` directory to decouple it from the modern development path. This includes:
+- **Services**: `Firestore`, `Fireauth`, `Firedata`, `ServiceLocator`, and `ErrorRecovery`.
+- **Pages**: All original `*.dart` files from the former `lib/pages/` directory.
+- **Models**: Manual JSON models (`User`, `Topic`, `Message`, etc.).
+- **Wrappers**: Complex multi-layer initialization (`VerifyUser`, `Setup`, `CurrentUser`).
 
 ---
 
 ## Development Guidelines
 
-### Adding New Features
+### 1. Working with Data
+Never create manual models in `lib/models/` (this directory has been removed). All data structures should be defined in the Serverpod protocol (`talktive_server/lib/src/protocol`) and generated into `talktive_client`.
 
-**For Firebase Version:**
-1. Add files to `pages/` directory
-2. Use Firebase services (`fireauth`, `firestore`, etc.)
-3. Use Provider for state management
-4. Update `router.dart` with new routes
+### 2. State Management
+Use Riverpod for all new features. Avoid using the legacy `ServiceLocator` or `Provider` (package:provider) unless maintaining legacy pages.
 
-**For Serverpod Version:**
-1. Add files to `screens/` directory
-2. Use Serverpod client and providers
-3. Use Riverpod for state management
-4. Update `serverpod_app.dart` with new routes
+### 3. UI Standards
+Follow the Duolingo-inspired design language. Use components from `lib/widgets/duo/` (DuoButton, DuoCard, DuoInput, etc.) to ensure visual consistency across the app.
 
-### Version-Based File Separation
-
-To ensure a smooth migration and prevent accidental regressions, we follow these rules for shared logic:
-
-1. **Avoid Logic Mixing**: Do not add version-specific conditional logic (`if (isServerpod) ...`) to shared files in `helpers/`, `services/`, or `widgets/`.
-2. **Duplicate and Separate**: If a shared utility needs significant changes for the Serverpod version, create a new version-specific file (e.g., `helpers/duo_mention_helper.dart`) instead of modifying the existing one.
-3. **Naming Convention**: Use the `duo_` prefix for helpers, items, and widgets that are specifically designed for the new Serverpod/Duolingo-styled version.
-4. **Clean Deprecation**: This separation allows the Firebase version to remain stable as "legacy" code, which can be deleted in its entirety once the migration is complete without leaving "orphaned" logic strings in shared files.
-
-### Testing
-
-**Firebase Version:**
-```bash
-# Select Firebase in version selector
-# Test all pages and features
-# Verify Firebase services work
-```
-
-**Serverpod Version:**
-```bash
-# Select Serverpod in version selector
-# Test all screens and features
-# Verify Serverpod backend integration
-```
+### 4. Performance & Cleanliness
+- **Parallelize Queries**: Use `Future.wait` in Serverpod endpoints and Flutter providers.
+- **Batch Operations**: Prefer batch fetching (e.g., `_getBatchUserCounts` in AdminEndpoint) to avoid N+1 query problems.
+- **Pruning**: When a legacy feature is fully replaced by a Serverpod equivalent, its corresponding files in `lib/legacy/` should be evaluated for deletion.
 
 ---
 
-## Quick Reference
+## Migration Status (March 2026)
 
-### "Which version does this file belong to?"
-
-**Check the directory:**
-- `pages/` → Firebase
-- `screens/` → Serverpod
-- `providers/` → Serverpod
-- Everything else → Check imports
-
-**Check the imports:**
-- Imports `fireauth`, `firestore`, `firedata` → Firebase
-- Imports `serverpod_client`, `talktive_client` → Serverpod
-- Imports only from `config/`, `models/`, `helpers/` → Shared
-
-**Check the file name:**
-- `*_screen.dart` → Usually Serverpod
-- `*_page.dart` → Usually Firebase
-- `duo_*.dart` → Serverpod (Duolingo-style components)
-
----
-
-## Summary
-
-✅ **Clear separation** between Firebase and Serverpod versions  
-✅ **No file conflicts** - different directories for version-specific code  
-✅ **Shared utilities** - common code in `config/`, `models/`, `helpers/`  
-✅ **Easy migration** - can remove Firebase files when ready  
-✅ **Maintainable** - clear guidelines for where to add new code  
-
-This structure allows both versions to coexist peacefully during the migration period while maintaining code clarity and preventing conflicts.
+The migration is in **Phase 8 (Polish & Refinement)**.
+- The Serverpod version is the primary development target.
+- The Firebase version is kept for reference and safety during transition.
+- The codebase is "Legacy-Isolated," meaning the modern path is not dependent on legacy services (except for shared FCM/Media logic).

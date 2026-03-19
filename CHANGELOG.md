@@ -4,6 +4,22 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 18, 2026 - Structural Consolidation & Optimization 🏗️⚡
+
+### Backend Optimization & Robustness
+- **Eliminated N+1 Queries**: Refactored `AdminEndpoint` report listings to use batch database fetching for residents and their activity counts, drastically reducing database load during administrative reviews.
+- **Service-Layer Encapsulation**: Moved complex creation logic for Residents and Lounges from endpoints into dedicated `ResidentService` and `LoungeService` methods, improving code reuse and testability.
+- **Parallelized Data Fetching**: Optimized `ResidentService.getResidentProfileView` using `Future.wait` to execute social status, statistics, and mutual lounge queries in parallel, resulting in significantly faster profile load times.
+- **Streak Logic Fix**: Resolved a race condition in `GamificationService` where asynchronous streak updates were not being properly awaited, ensuring accurate daily login and streak tracking.
+
+### Frontend Modernization & Cleanup
+- **Legacy Isolation**: Successfully decoupled the modern Serverpod implementation from the original Firebase codebase by moving all legacy services, models, helpers, pages, and widgets into a dedicated `lib/legacy/` directory.
+- **Lean Initialization**: Replaced the heavy, multi-layered legacy `Initialize` wrapper with a streamlined `ServerpodInitialize` widget specifically tailored for the Serverpod version, bypassing unnecessary legacy service setup.
+- **Clean Root Structure**: Pruned the `lib/` root directory, removing empty `models/` and `pages/` folders and consolidating survivors into a modern, feature-based organization.
+- **Import Standardization**: Updated relative imports across the entire project to reflect the new directory structure, ensuring both modern and legacy paths remain functional during the transition.
+
+---
+
 ## March 18, 2026 - Unified Discovery & Architectural Stabilization 🔍🏗️
 
 ### Unified Discovery System

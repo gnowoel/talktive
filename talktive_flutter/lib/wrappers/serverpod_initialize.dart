@@ -1,6 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 
 import '../services/edge_to_edge_manager.dart';
 import '../config/theme.dart';
@@ -34,6 +40,25 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
       // 1. Core Platform Services
       await EdgeToEdgeManager.initialize();
       await SharedPreferences.getInstance();
+
+      // 2. Firebase Emulator Initialization (if in debug mode)
+      if (kDebugMode && widget.useEmulators) {
+        final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+        final host = isAndroid ? '10.0.2.2' : 'localhost';
+        
+        try {
+          debugPrint('ServerpodInitialize: Using Firebase Emulators at $host');
+          FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
+          FirebaseFirestore.instance.useFirestoreEmulator(host, 8088);
+          await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+          await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+          FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+          debugPrint('ServerpodInitialize: Firebase Emulators initialized successfully');
+        } catch (e) {
+          debugPrint('ServerpodInitialize: Error setting up emulators: $e');
+          // We don't throw here to allow app to start even if emulators fail
+        }
+      }
 
       if (mounted) {
         setState(() => _initialized = true);

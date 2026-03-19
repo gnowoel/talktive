@@ -62,6 +62,44 @@ class _LoungeChatLoaderState extends ConsumerState<LoungeChatLoader> {
     }
   }
 
+  Future<void> _sendVoiceMessage(String path) async {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    if (!currentResident.isPremium) {
+      DuoSnackBarHelper.showError(
+        context,
+        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
+      );
+      return;
+    }
+
+    setState(() => _isSending = true);
+
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      
+      if (voiceUrl != null) {
+        await ref
+            .read(realtimeChatProvider(widget.lounge.channelId).notifier)
+            .sendMessage(
+              mediaUrl: voiceUrl,
+              mediaType: 'voice',
+            );
+        HapticFeedback.lightImpact();
+      }
+    } catch (e) {
+      if (mounted) {
+        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -240,7 +278,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       await ref
           .read(realtimeChatProvider(widget.lounge.channelId).notifier)
           .sendMessage(
-            content, 
+            content: content.isEmpty ? null : content, 
             imageUrl: imageUrl,
           );
 
@@ -549,6 +587,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       ),
       controller: _messageController,
       onSend: _sendMessage,
+      onVoiceSend: _sendVoiceMessage,
       onImagePick: _pickAndSendImage,
       enabled: canSend,
       isSending: _isSending,

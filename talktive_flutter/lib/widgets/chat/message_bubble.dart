@@ -14,6 +14,7 @@ import '../../helpers/duo_mention_helper.dart';
 import '../../helpers/resident_ext.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import '../../providers/client_provider.dart';
+import 'voice_message_player.dart';
 
 class MessageBubble extends ConsumerWidget {
   final Message message;
@@ -215,6 +216,13 @@ class MessageBubble extends ConsumerWidget {
                             ),
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (message.mediaType == 'voice' && message.mediaUrl != null) ...[
+                      VoiceMessagePlayer(
+                        url: message.mediaUrl!,
+                        isCurrentUser: isCurrentUser,
                       ),
                       const SizedBox(height: 8),
                     ],

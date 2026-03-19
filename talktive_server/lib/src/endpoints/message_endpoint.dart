@@ -131,16 +131,25 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         );
       }
 
-      // 7. Floor-based content restrictions
+      // 7. Floor-based and Premium content restrictions
       final hasMedia =
           (imageUrl != null && imageUrl.isNotEmpty) ||
           (mediaUrl != null && mediaUrl.isNotEmpty);
-      if (channel.type == protocol.ChannelType.plaza && hasMedia) {
-        // Plaza restrictions: images allowed only for Floor 2+
-        if (senderEffectiveFloor < 2) {
+      
+      if (hasMedia) {
+        // Plaza restrictions: images/media allowed only for Floor 2+
+        if (channel.type == protocol.ChannelType.plaza && senderEffectiveFloor < 2) {
           throw protocol.TalktiveException(
-            message: 'You must reach Floor 2 to send images in the Plaza.',
+            message: 'You must reach Floor 2 to send media in the Plaza.',
             code: 'FLOOR_RESTRICTION',
+          );
+        }
+
+        // Voice message premium check
+        if (mediaType == 'voice' && !sender.isPremium) {
+          throw protocol.TalktiveException(
+            message: 'Voice messages are a Premium feature. 🎙️ Upgrade in Settings!',
+            code: 'PREMIUM_REQUIRED',
           );
         }
       }

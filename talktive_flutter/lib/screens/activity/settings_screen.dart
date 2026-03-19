@@ -114,6 +114,13 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
+                icon: '🎙️',
+                title: 'Voice Messages',
+                description: 'Send audio messages in any chat thread.',
+                isLocked: !resident.isPremium,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: '🔍',
                 title: 'Neighbors Discovery',
                 description: 'Search for any resident in the building.',

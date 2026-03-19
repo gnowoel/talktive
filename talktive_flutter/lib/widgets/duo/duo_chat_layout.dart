@@ -58,6 +58,7 @@ class DuoChatInputLayout extends StatelessWidget {
   // DuoChatInput parameters
   final TextEditingController controller;
   final VoidCallback onSend;
+  final Function(String path)? onVoiceSend;
   final bool enabled;
   final String hintText;
   final VoidCallback? onImagePick;
@@ -72,6 +73,7 @@ class DuoChatInputLayout extends StatelessWidget {
     required this.content,
     required this.controller,
     required this.onSend,
+    this.onVoiceSend,
     this.appBar,
     this.header,
     this.backgroundColor,
@@ -95,6 +97,7 @@ class DuoChatInputLayout extends StatelessWidget {
       input: DuoChatInput(
         controller: controller,
         onSend: onSend,
+        onVoiceSend: onVoiceSend,
         enabled: enabled,
         hintText: hintText,
         onImagePick: onImagePick,

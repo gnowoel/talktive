@@ -104,8 +104,15 @@ class RealtimeChat extends _$RealtimeChat {
   }
 
   /// Sends a message to the channel.
-  Future<void> sendMessage(String content, {String? imageUrl}) async {
-    if (content.trim().isEmpty && imageUrl == null) return;
+  Future<void> sendMessage({
+    String? content,
+    String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
+  }) async {
+    if ((content == null || content.trim().isEmpty) &&
+        imageUrl == null &&
+        mediaUrl == null) return;
 
     final client = ref.read(clientProvider);
 
@@ -113,8 +120,10 @@ class RealtimeChat extends _$RealtimeChat {
       // Send message to server
       final savedMessage = await client.message.sendMessage(
         _channelId,
-        content: content.trim(),
+        content: content?.trim(),
         imageUrl: imageUrl,
+        mediaUrl: mediaUrl,
+        mediaType: mediaType,
         isSystem: false,
       );
 
@@ -128,7 +137,7 @@ class RealtimeChat extends _$RealtimeChat {
         state = AsyncValue.data(updatedMessages);
       }
 
-      debugPrint('RealtimeChat: Message sent: ${savedMessage.content}');
+      debugPrint('RealtimeChat: Message sent: ${savedMessage.id}');
     } catch (e) {
       debugPrint('RealtimeChat: Send error: $e');
       rethrow;

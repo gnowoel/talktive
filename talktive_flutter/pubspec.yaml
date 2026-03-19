@@ -55,6 +55,8 @@ dependencies:
 
   flutter_web_plugins:
     sdk: flutter
+  record: ^6.2.0
+  audioplayers: ^6.6.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

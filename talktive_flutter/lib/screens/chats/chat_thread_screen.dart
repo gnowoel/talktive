@@ -98,15 +98,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   Future<void> _sendMessageInternal({String? content, String? imageUrl}) async {
     try {
-      if (imageUrl != null) {
-        await ref
-            .read(realtimeChatProvider(widget.channelId).notifier)
-            .sendMessage(content ?? '', imageUrl: imageUrl);
-      } else if (content != null) {
-        await ref
-            .read(realtimeChatProvider(widget.channelId).notifier)
-            .sendMessage(content);
-      }
+      await ref
+          .read(realtimeChatProvider(widget.channelId).notifier)
+          .sendMessage(
+            content: content ?? _messageController.text.trim(),
+            imageUrl: imageUrl,
+          );
       _messageController.clear();
       _hasMarkedAsRead = false;
       _markAsRead();
@@ -162,6 +159,44 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         setState(() {
           _isSending = false;
         });
+      }
+    }
+  }
+
+  Future<void> _sendVoiceMessage(String path) async {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    if (!currentResident.isPremium) {
+      DuoSnackBarHelper.showError(
+        context,
+        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
+      );
+      return;
+    }
+
+    setState(() => _isSending = true);
+
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      
+      if (voiceUrl != null) {
+        await ref
+            .read(realtimeChatProvider(widget.channelId).notifier)
+            .sendMessage(
+              mediaUrl: voiceUrl,
+              mediaType: 'voice',
+            );
+        HapticFeedback.lightImpact();
+      }
+    } catch (e) {
+      if (mounted) {
+        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
       }
     }
   }
@@ -339,7 +374,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             ],
           ),
           controller: _messageController,
-          onSend: _sendMessage,
+          onSend: _sendMessageInternal,
+          onVoiceSend: _sendVoiceMessage,
           onImagePick: _pickAndSendImage,
           enabled: canSend,
           isSending: _isSending,

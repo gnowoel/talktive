@@ -145,6 +145,8 @@ class ChatService {
       }
     } else if (imageUrl != null && imageUrl.isNotEmpty) {
       previewText = '📷 Photo';
+    } else if (mediaType == 'voice') {
+      previewText = '🎙️ Voice message';
     } else if (mediaUrl != null && mediaUrl.isNotEmpty) {
       previewText = '🎥 Video';
     }

@@ -101,7 +101,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       await ref
           .read(realtimeChatProvider(1).notifier)
           .sendMessage(
-            content, 
+            content: content.isEmpty ? null : content, 
             imageUrl: imageUrl,
           );
       
@@ -125,6 +125,48 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         // On Web, requesting focus needs to happen after the next frame to work reliably
         Future.delayed(Duration.zero, () {
           if (mounted) _focusNode.requestFocus();
+        });
+      }
+    }
+  }
+
+  Future<void> _sendVoiceMessage(String path) async {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    if (!currentResident.isPremium) {
+      DuoSnackBarHelper.showError(
+        context,
+        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
+      );
+      return;
+    }
+
+    setState(() {
+      _isSending = true;
+    });
+
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      
+      if (voiceUrl != null) {
+        await ref
+            .read(realtimeChatProvider(1).notifier)
+            .sendMessage(
+              mediaUrl: voiceUrl,
+              mediaType: 'voice',
+            );
+        HapticFeedback.lightImpact();
+      }
+    } catch (e) {
+      if (mounted) {
+        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSending = false;
         });
       }
     }
@@ -195,6 +237,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
       controller: _messageController,
       onSend: _sendMessage,
+      onVoiceSend: _sendVoiceMessage,
       onImagePick: _pickAndSendImage,
       enabled: canSend,
       isLoading: currentResidentAsync.isLoading,

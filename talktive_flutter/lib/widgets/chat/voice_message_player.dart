@@ -28,24 +28,31 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
   void initState() {
     super.initState();
     _player = AudioPlayer();
-    
-    // Set audio context to ensures it plays through the speaker
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-       _player.setAudioContext(AudioContext(
-        android: const AudioContextAndroid(
-          audioFocus: AndroidAudioFocus.gain,
-          contentType: AndroidContentType.music,
-          usageType: AndroidUsageType.media,
-          audioMode: AndroidAudioMode.normal,
-        ),
-        iOS: AudioContextIOS(
-          category: AVAudioSessionCategory.playback,
-          options: const {
-            AVAudioSessionOptions.mixWithOthers,
-            AVAudioSessionOptions.defaultToSpeaker,
-          },
-        ),
-      ));
+
+    if (!kIsWeb) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        _player.setAudioContext(
+          AudioContext(
+            android: const AudioContextAndroid(
+              audioFocus: AndroidAudioFocus.gain,
+              contentType: AndroidContentType.music,
+              usageType: AndroidUsageType.media,
+              audioMode: AndroidAudioMode.normal,
+            ),
+          ),
+        );
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        _player.setAudioContext(
+          AudioContext(
+            iOS: AudioContextIOS(
+              category: AVAudioSessionCategory.playback,
+              options: const {
+                AVAudioSessionOptions.mixWithOthers,
+              },
+            ),
+          ),
+        );
+      }
     }
     
     _player.onPlayerStateChanged.listen((state) {

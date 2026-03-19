@@ -11,6 +11,7 @@ class DuoChatInput extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final Function(String path)? onVoiceSend;
+  final Future<bool> Function()? onVoiceStart;
   final bool enabled;
   final String hintText;
   final VoidCallback? onImagePick;
@@ -65,6 +66,11 @@ class _DuoChatInputState extends State<DuoChatInput> {
   }
 
   Future<void> _startRecording() async {
+    if (widget.onVoiceStart != null) {
+      final canStart = await widget.onVoiceStart!();
+      if (!canStart) return;
+    }
+    
     try {
       if (await _audioRecorder.hasPermission()) {
         final directory = await getTemporaryDirectory();

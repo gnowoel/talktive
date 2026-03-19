@@ -377,6 +377,19 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           controller: _messageController,
           onSend: _sendMessage,
           onVoiceSend: _sendVoiceMessage,
+          onVoiceStart: () async {
+            final currentResident = ref.read(currentResidentProvider).value;
+            if (currentResident == null) return false;
+
+            if (!currentResident.isPremium) {
+              DuoSnackBarHelper.showError(
+                context,
+                'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
+              );
+              return false;
+            }
+            return true;
+          },
           onImagePick: _pickAndSendImage,
           enabled: canSend,
           isSending: _isSending,

@@ -13,14 +13,9 @@ Future<void> backgroundMessagingHandler(RemoteMessage message) async {
   
   if (appVersion == 'serverpod') {
     debugPrint('Dispatching background message to Serverpod handler');
-    // Note: Since this is a background isolate, we can't easily access Riverpod providers
-    // unless we re-initialize things. For now, we just let it be handled by local notifications
-    // if the payload has enough info, or we just log it.
-    // The legacy Messaging.handleMessage also shows a local notification.
-    
-    // If it's a Serverpod message, we might want to still show a local notification 
-    // using the parameters from the payload.
-    await Messaging.handleMessage(message); 
+    // For Serverpod background messages, we rely on the same Messaging logic 
+    // to show a native local notification since we are in a background isolate.
+    await Messaging.handleMessage(message, force: true); 
   } else {
     debugPrint('Dispatching background message to Legacy handler');
     await Messaging.handleMessage(message);

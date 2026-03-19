@@ -139,10 +139,10 @@ class Messaging {
     // await _showLocalNotification(title, body, data);
   }
 
-  static Future<void> handleMessage(RemoteMessage message) async {
+  static Future<void> handleMessage(RemoteMessage message, {bool force = false}) async {
     final data = message.data;
-    if (data['appVersion'] == 'serverpod') {
-      debugPrint('Messaging (Legacy): Ignoring serverpod message');
+    if (!force && data['appVersion'] == 'serverpod') {
+      debugPrint('Messaging (Legacy): Skipping serverpod message (use force: true to override)');
       return;
     }
 
@@ -270,6 +270,11 @@ class Messaging {
         final data =
             jsonDecode(details!.notificationResponse!.payload!)
                 as Map<String, dynamic>;
+
+        if (data['appVersion'] == 'serverpod') {
+          debugPrint('Messaging (Legacy): Initial route is for Serverpod, skipping');
+          return null;
+        }
 
         if (data['type'] == 'chat') {
           final chatId = data['chatId'] as String;

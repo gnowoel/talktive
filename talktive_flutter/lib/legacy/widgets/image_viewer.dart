@@ -1,5 +1,5 @@
-import './package:flutter/material.dart';
-import './package:photo_view/photo_view.dart';
+import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ImageViewer extends StatelessWidget {
   final ImageProvider imageProvider;

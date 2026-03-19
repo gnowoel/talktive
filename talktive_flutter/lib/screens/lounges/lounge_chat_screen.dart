@@ -19,6 +19,7 @@ import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
+import 'package:image_picker/image_picker.dart';
 import 'lounge_profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 
@@ -58,44 +59,6 @@ class _LoungeChatLoaderState extends ConsumerState<LoungeChatLoader> {
           _error = e;
           _isLoading = false;
         });
-      }
-    }
-  }
-
-  Future<void> _sendVoiceMessage(String path) async {
-    final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident == null) return;
-
-    if (!currentResident.isPremium) {
-      DuoSnackBarHelper.showError(
-        context,
-        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
-      );
-      return;
-    }
-
-    setState(() => _isSending = true);
-
-    try {
-      final mediaService = ref.read(mediaServiceProvider);
-      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
-      
-      if (voiceUrl != null) {
-        await ref
-            .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-            .sendMessage(
-              mediaUrl: voiceUrl,
-              mediaType: 'voice',
-            );
-        HapticFeedback.lightImpact();
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
       }
     }
   }
@@ -195,6 +158,44 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
+
+  Future<void> _sendVoiceMessage(String path) async {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    if (!currentResident.isPremium) {
+      DuoSnackBarHelper.showError(
+        context,
+        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
+      );
+      return;
+    }
+
+    setState(() => _isSending = true);
+
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      
+      if (voiceUrl != null) {
+        await ref
+            .read(realtimeChatProvider(widget.lounge.channelId).notifier)
+            .sendMessage(
+              mediaUrl: voiceUrl,
+              mediaType: 'voice',
+            );
+        HapticFeedback.lightImpact();
+      }
+    } catch (e) {
+      if (mounted) {
+        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
+    }
+  }
 
   @override
   void initState() {

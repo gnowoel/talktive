@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../models/follow.dart';
 import '../services/follow_cache.dart';
-import '../../widgets/friend_list.dart';
-import '../../widgets/info.dart';
-import '../../widgets/layout.dart';
+import '../widgets/friend_list.dart';
+import '../widgets/info.dart';
+import '../widgets/layout.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});

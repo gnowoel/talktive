@@ -1,14 +1,14 @@
-import './package:flutter/material.dart';
-import './package:provider/provider.dart';
-import './package:talktive/legacy/helpers/helpers.dart';
-import './package:timeago/timeago.dart' as timeago;
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:talktive/legacy/helpers/helpers.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/user.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
 import '../services/user_cache.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 import './tag.dart';
 import '../helpers/snackbar_helper.dart';
 

@@ -5,11 +5,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
-import '../helpers/platform.dart';
-import '../helpers/routes.dart';
-import '../router.dart';
+import '../legacy/helpers/platform.dart';
+import '../legacy/helpers/routes.dart';
+import '../legacy/router.dart';
 import '../serverpod_client.dart';
-import 'ad_service/go_router_room_helper.dart';
+import '../legacy/services/ad_service/go_router_room_helper.dart';
 
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();

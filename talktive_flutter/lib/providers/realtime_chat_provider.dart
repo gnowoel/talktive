@@ -50,7 +50,9 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Subscribes to real-time message updates via WebSocket.
   void _subscribe() {
-    if (_isSubscribed) return;
+    if (_isSubscribed) {
+      return;
+    }
 
     final client = ref.read(clientProvider);
 
@@ -90,11 +92,15 @@ class RealtimeChat extends _$RealtimeChat {
   /// Handles a new message received via WebSocket.
   void _handleNewMessage(Message newMessage) {
     final currentState = state.value;
-    if (currentState == null) return;
+    if (currentState == null) {
+      return;
+    }
 
     // Check if message already exists (avoid duplicates)
     final exists = currentState.any((m) => m.id == newMessage.id);
-    if (exists) return;
+    if (exists) {
+      return;
+    }
 
     // Prepend new message to the list (newest first)
     final updatedMessages = [newMessage, ...currentState];
@@ -112,7 +118,9 @@ class RealtimeChat extends _$RealtimeChat {
   }) async {
     if ((content == null || content.trim().isEmpty) &&
         imageUrl == null &&
-        mediaUrl == null) return;
+        mediaUrl == null) {
+      return;
+    }
 
     final client = ref.read(clientProvider);
 

@@ -1,8 +1,8 @@
-import './package:cached_network_image/cached_network_image.dart';
-import './package:flutter/material.dart';
-import './package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../legacy/helpers/helpers.dart';
+import '../helpers/helpers.dart';
 
 import '../helpers/topic_message_status_helper.dart';
 
@@ -15,7 +15,7 @@ import '../services/follow_cache.dart';
 import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 import './bubble.dart';
 import './image_viewer.dart';
 import './user_info_loader.dart';

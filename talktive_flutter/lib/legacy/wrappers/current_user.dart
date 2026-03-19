@@ -5,7 +5,7 @@ import '../models/user.dart';
 import '../services/ad_service/admob_compliance.dart';
 import '../services/firedata.dart';
 import '../services/user_cache.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 
 class CurrentUser extends StatefulWidget {
   final Widget child;

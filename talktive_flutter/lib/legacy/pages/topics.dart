@@ -8,9 +8,9 @@ import '../services/firestore.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 import '../services/tribe_cache.dart';
-import '../../widgets/info.dart';
-import '../../widgets/layout.dart';
-import '../../widgets/topic_list.dart';
+import '../widgets/info.dart';
+import '../widgets/layout.dart';
+import '../widgets/topic_list.dart';
 import '../helpers/snackbar_helper.dart';
 
 class TopicsPage extends StatefulWidget {

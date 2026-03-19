@@ -1,0 +1,1 @@
+export '../../config/theme.dart';

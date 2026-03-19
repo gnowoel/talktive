@@ -12,7 +12,7 @@ import '../services/firestore.dart';
 import '../services/tribe_cache.dart';
 import '../services/user_cache.dart';
 import '../services/ad_service/go_router_room_helper.dart';
-import '../../widgets/layout.dart';
+import '../widgets/layout.dart';
 import '../helpers/snackbar_helper.dart';
 
 class CreateTopicPage extends StatefulWidget {

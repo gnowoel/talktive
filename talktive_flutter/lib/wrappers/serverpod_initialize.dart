@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../serverpod_client.dart';
 import '../services/edge_to_edge_manager.dart';
-import '../services/background_messaging_handler.dart';
 import '../config/theme.dart';
-import '../firebase_options.dart';
 
 class ServerpodInitialize extends StatefulWidget {
   final Widget child;

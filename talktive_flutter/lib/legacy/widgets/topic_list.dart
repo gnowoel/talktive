@@ -1,4 +1,4 @@
-import './package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../models/topic.dart';
 import '../models/tribe.dart';

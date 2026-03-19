@@ -80,7 +80,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     // Batch fetch counts
     final countsMap = await _getBatchUserCounts(
       session,
-      userIds.map((u) => u.toString()).toList(),
+      userIds.toList(),
     );
 
     final result = <protocol.AdminReportSummary>[];
@@ -155,7 +155,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     // Batch fetch counts
     final countsMap = await _getBatchUserCounts(
       session,
-      userIds.map((u) => u.toString()).toList(),
+      userIds.toList(),
     );
 
     final result = <protocol.AdminReportSummary>[];

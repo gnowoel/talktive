@@ -14,6 +14,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/lounge_provider.dart';
@@ -374,7 +375,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             ],
           ),
           controller: _messageController,
-          onSend: _sendMessageInternal,
+          onSend: _sendMessage,
           onVoiceSend: _sendVoiceMessage,
           onImagePick: _pickAndSendImage,
           enabled: canSend,

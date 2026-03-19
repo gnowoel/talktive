@@ -1,7 +1,7 @@
-import './package:flutter/material.dart';
-import './package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../legacy/helpers/helpers.dart';
+import '../helpers/helpers.dart';
 import '../models/user.dart';
 import '../services/firestore.dart';
 import '../services/user_cache.dart';

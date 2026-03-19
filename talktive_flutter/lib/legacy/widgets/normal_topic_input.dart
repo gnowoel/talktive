@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import './package:flutter/material.dart';
-import './package:flutter/services.dart';
-import './package:image_picker/image_picker.dart';
-import './package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
-import '../legacy/helpers/helpers.dart';
+import '../helpers/helpers.dart';
 import '../models/topic.dart';
 import '../services/fireauth.dart';
 import '../services/storage.dart';

@@ -14,14 +14,14 @@ import '../services/paginated_message_service.dart';
 import '../services/topic_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 
-import '../../widgets/layout.dart';
-import '../../widgets/status_notice.dart';
-import '../../widgets/topic_hearts.dart';
-import '../../widgets/two_person_topic_input.dart';
-import '../../widgets/paginated_message_list.dart';
-import '../../widgets/user_info_loader.dart';
+import '../widgets/layout.dart';
+import '../widgets/status_notice.dart';
+import '../widgets/topic_hearts.dart';
+import '../widgets/two_person_topic_input.dart';
+import '../widgets/paginated_message_list.dart';
+import '../widgets/user_info_loader.dart';
 
 class TwoPersonTopicPage extends StatefulWidget {
   final String topicId;

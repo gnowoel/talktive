@@ -1,6 +1,6 @@
-import './package:flutter/material.dart';
-import './package:flutter/services.dart';
-import './package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
 import '../services/fireauth.dart';
@@ -10,12 +10,12 @@ import '../services/message_meta_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
 
-import '../legacy/helpers/helpers.dart';
+import '../helpers/helpers.dart';
 import '../helpers/topic_message_status_helper.dart';
 import '../helpers/message_recall_helper.dart';
 import '../helpers/message_report_helper.dart';
 import '../helpers/mention_helper.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 import './bubble.dart';
 import './user_info_loader.dart';
 

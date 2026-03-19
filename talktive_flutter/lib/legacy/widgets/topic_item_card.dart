@@ -1,4 +1,4 @@
-import './package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/topic.dart';
 import './two_person_topic_item_card.dart';
 import './normal_topic_item_card.dart';

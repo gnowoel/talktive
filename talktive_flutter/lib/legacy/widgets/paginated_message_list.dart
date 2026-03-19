@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import './package:flutter/material.dart';
-import './package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/topic_message.dart';
 import '../services/paginated_message_service.dart';

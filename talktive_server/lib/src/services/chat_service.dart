@@ -132,6 +132,7 @@ class ChatService {
     String? content,
     String? imageUrl,
     String? mediaUrl,
+    String? mediaType,
   }) async {
     final now = DateTime.now();
 

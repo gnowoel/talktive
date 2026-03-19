@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../pages/error.dart';
-import '../../services/fireauth.dart';
-import '../legacy/theme.dart';
+import '../pages/error.dart';
+import '../services/fireauth.dart';
+import '../theme.dart';
 
 class VerifyUser extends StatefulWidget {
   final Widget child;

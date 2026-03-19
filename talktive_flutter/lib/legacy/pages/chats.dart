@@ -9,10 +9,10 @@ import '../models/topic.dart';
 import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../services/user_cache.dart';
-import '../../widgets/layout.dart';
-import '../../widgets/chat_list.dart';
-import '../../widgets/info.dart';
-import '../../widgets/info_notice.dart';
+import '../widgets/layout.dart';
+import '../widgets/chat_list.dart';
+import '../widgets/info.dart';
+import '../widgets/info_notice.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});

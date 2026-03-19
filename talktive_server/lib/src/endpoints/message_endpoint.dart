@@ -219,6 +219,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           content: filteredContent,
           imageUrl: imageUrl,
           mediaUrl: mediaUrl,
+          mediaType: mediaType,
         );
       }
 

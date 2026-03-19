@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/fireauth.dart';
 import '../services/settings.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 
 class WhatsNew extends StatefulWidget {
   final Widget child;

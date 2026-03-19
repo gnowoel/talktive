@@ -1,4 +1,4 @@
-import './package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import './message_separator.dart';
 
 class SeparatorDemo extends StatelessWidget {

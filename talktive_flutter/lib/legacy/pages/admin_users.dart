@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../services/firedata.dart';
 import '../services/user_cache.dart';
-import '../../widgets/layout.dart';
+import '../widgets/layout.dart';
 
 class AdminUsersPage extends StatefulWidget {
   const AdminUsersPage({super.key});

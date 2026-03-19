@@ -1,5 +1,5 @@
-import './package:flutter/material.dart';
-import './package:talktive/models/follow.dart';
+import 'package:flutter/material.dart';
+import 'package:talktive/models/follow.dart';
 
 import './friend_item.dart';
 

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import './helpers.dart';
-import '../../services/avatar.dart';
-import '../../services/fireauth.dart';
-import '../../services/firedata.dart';
+import '../helpers/helpers.dart';
+import '../services/avatar.dart';
+import '../services/fireauth.dart';
+import '../services/firedata.dart';
 import '../models/user.dart';
 import '../services/server_clock.dart';
-import '../../widgets/layout.dart';
+import '../widgets/layout.dart';
 import '../helpers/snackbar_helper.dart';
 
 class EditProfilePage extends StatefulWidget {

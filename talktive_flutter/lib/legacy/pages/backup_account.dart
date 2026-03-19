@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/exception.dart';
 import '../services/fireauth.dart';
-import '../../widgets/layout.dart';
+import '../widgets/layout.dart';
 import '../helpers/snackbar_helper.dart';
 
 class BackupAccountPage extends StatefulWidget {

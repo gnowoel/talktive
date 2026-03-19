@@ -6,7 +6,7 @@ import '../models/topic.dart';
 import '../services/fireauth.dart';
 import '../services/firestore.dart';
 
-import '../../widgets/layout.dart';
+import '../widgets/layout.dart';
 
 import 'two_person_topic.dart';
 import 'normal_topic.dart';

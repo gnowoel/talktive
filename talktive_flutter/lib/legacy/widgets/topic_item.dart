@@ -1,9 +1,9 @@
-import './package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import './package:provider/provider.dart';
-import './package:timeago/timeago.dart' as timeago;
+import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-import '../legacy/helpers/helpers.dart';
+import '../helpers/helpers.dart';
 
 import '../models/topic.dart';
 import '../models/tribe.dart';

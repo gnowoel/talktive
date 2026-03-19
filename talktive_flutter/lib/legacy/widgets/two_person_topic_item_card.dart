@@ -1,16 +1,16 @@
-import './package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import './package:provider/provider.dart';
-import './package:timeago/timeago.dart' as timeago;
+import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-import '../legacy/helpers/helpers.dart';
+import '../helpers/helpers.dart';
 import '../models/topic.dart';
 import '../services/fireauth.dart';
 
 import '../services/ad_service/go_router_room_helper.dart';
 import '../services/follow_cache.dart';
 import '../services/server_clock.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 import './tag.dart';
 import './user_info_loader.dart';
 import '../helpers/snackbar_helper.dart';

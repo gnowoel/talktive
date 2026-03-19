@@ -15,15 +15,15 @@ import '../services/settings.dart';
 import '../services/topic_cache.dart';
 import '../services/topic_followers_cache.dart';
 import '../services/user_cache.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 
-import '../../widgets/info_notice.dart';
-import '../../widgets/layout.dart';
-import '../../widgets/status_notice.dart';
-import '../../widgets/topic_hearts.dart';
-import '../../widgets/normal_topic_input.dart';
-import '../../widgets/paginated_message_list.dart';
-import '../../widgets/user_info_loader.dart';
+import '../widgets/info_notice.dart';
+import '../widgets/layout.dart';
+import '../widgets/status_notice.dart';
+import '../widgets/topic_hearts.dart';
+import '../widgets/normal_topic_input.dart';
+import '../widgets/paginated_message_list.dart';
+import '../widgets/user_info_loader.dart';
 
 class NormalTopicPage extends StatefulWidget {
   final String topicId;

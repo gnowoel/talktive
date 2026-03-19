@@ -3,12 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import './helpers.dart';
+import '../helpers/helpers.dart';
 
 import '../services/user_cache.dart';
 import '../services/ad_service/improved_consent_manager.dart';
 import '../services/ad_service/admob_compliance.dart';
-import '../../widgets/layout.dart';
+import '../widgets/layout.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

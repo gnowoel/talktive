@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../services/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DuoInfoBanner extends StatefulWidget {
   final String bannerId;
@@ -30,9 +30,8 @@ class _DuoInfoBannerState extends State<DuoInfoBanner> {
   }
 
   Future<void> _checkDismissedState() async {
-    final dismissed = await Prefs.getBool(
-      'banner_dismissed_${widget.bannerId}',
-    );
+    final prefs = await SharedPreferences.getInstance();
+    final dismissed = prefs.getBool('banner_dismissed_${widget.bannerId}') ?? false;
     if (mounted) {
       setState(() {
         _isDismissed = dismissed;
@@ -43,7 +42,8 @@ class _DuoInfoBannerState extends State<DuoInfoBanner> {
 
   Future<void> _dismiss() async {
     setState(() => _isDismissed = true);
-    await Prefs.setBool('banner_dismissed_${widget.bannerId}', true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('banner_dismissed_${widget.bannerId}', true);
   }
 
   @override

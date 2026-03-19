@@ -1,4 +1,4 @@
-import './package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../services/ad_service/improved_consent_manager.dart';
 import '../services/ad_service/admob_compliance.dart';
 

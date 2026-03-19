@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/fireauth.dart';
 import '../services/settings.dart';
-import '../legacy/theme.dart';
+import '../theme.dart';
 import 'setup/notification_step.dart';
 import 'setup/profile_step.dart';
 import 'setup/signin_step.dart';

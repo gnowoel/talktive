@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'legacy/router.dart';
 import 'services/messaging.dart';
 import 'legacy/theme.dart';
-import 'legacy/widgets/edge_to_edge_wrapper.dart';
+import 'widgets/edge_to_edge_wrapper.dart';
 import 'legacy/wrappers/verify_user.dart';
 import 'legacy/wrappers/current_user.dart';
 import 'legacy/wrappers/initialize.dart';

@@ -14,7 +14,7 @@ import '../services/messaging.dart';
 
 import '../services/service_locator.dart';
 import '../services/settings.dart' as my;
-import '../legacy/theme.dart';
+import '../theme.dart';
 
 class Initialize extends StatefulWidget {
   final bool useEmulators;

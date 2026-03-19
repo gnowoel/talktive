@@ -8,11 +8,11 @@ import '../services/firestore.dart';
 
 import '../services/server_clock.dart';
 import '../services/settings.dart';
-import '../../widgets/filter_bar.dart';
-import '../../widgets/info.dart';
-import '../../widgets/info_notice.dart';
-import '../../widgets/scrollable_center.dart';
-import '../../widgets/user_list.dart';
+import '../widgets/filter_bar.dart';
+import '../widgets/info.dart';
+import '../widgets/info_notice.dart';
+import '../widgets/scrollable_center.dart';
+import '../widgets/user_list.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({super.key});

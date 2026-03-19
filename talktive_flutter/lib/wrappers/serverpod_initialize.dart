@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,13 +34,6 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
       // 1. Core Platform Services
       await EdgeToEdgeManager.initialize();
       await SharedPreferences.getInstance();
-
-      // 2. Firebase Initialization (needed for Auth and FCM)
-      // Already handled in main.dart, but we ensure emulators if needed
-      if (kDebugMode && widget.useEmulators) {
-        final host = defaultTargetPlatform == TargetPlatform.android ? '10.0.2.2' : 'localhost';
-        await FirebaseAuth.instance.useAuthEmulator(host, 9099);
-      }
 
       if (mounted) {
         setState(() => _initialized = true);

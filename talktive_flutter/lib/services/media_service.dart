@@ -37,6 +37,7 @@ class MediaService {
 
     final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
     final path = '$folder/$fileName';
+    final contentType = _contentTypeForFile(file, folder);
 
     try {
       final storage = FirebaseStorage.instance;
@@ -44,7 +45,7 @@ class MediaService {
       debugPrint('MediaService: Destination path: $path');
 
       final storageRef = storage.ref(path);
-      final metadata = SettableMetadata(contentType: 'image/jpeg');
+      final metadata = SettableMetadata(contentType: contentType);
 
       TaskSnapshot snapshot;
 
@@ -73,6 +74,25 @@ class MediaService {
       debugPrint('MediaService: Stack trace: $stack');
       rethrow;
     }
+  }
+
+  String _contentTypeForFile(XFile file, String folder) {
+    final name = file.name.toLowerCase();
+
+    if (folder == 'voices' || name.endsWith('.m4a')) {
+      return 'audio/mp4';
+    }
+    if (name.endsWith('.png')) {
+      return 'image/png';
+    }
+    if (name.endsWith('.webp')) {
+      return 'image/webp';
+    }
+    if (name.endsWith('.gif')) {
+      return 'image/gif';
+    }
+
+    return 'image/jpeg';
   }
 }
 

@@ -90,88 +90,111 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = widget.isCurrentUser ? Colors.white : AppTheme.primaryColor;
-    final secondaryColor = widget.isCurrentUser 
-        ? Colors.white.withValues(alpha: 0.3) 
+    final themeColor = widget.isCurrentUser
+        ? Colors.white
+        : AppTheme.primaryColor;
+    final secondaryColor = widget.isCurrentUser
+        ? Colors.white.withValues(alpha: 0.3)
         : AppTheme.primaryColor.withValues(alpha: 0.1);
+    final labelColor = widget.isCurrentUser
+        ? Colors.white.withValues(alpha: 0.8)
+        : AppTheme.textLight;
+    final progress = _duration.inMilliseconds > 0
+        ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0)
+        : 0.0;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          GestureDetector(
-            onTap: _togglePlay,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: themeColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _playerState == PlayerState.playing ? Icons.pause : Icons.play_arrow,
-                color: widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : 220.0;
+        final waveformWidth = (maxWidth - 48).clamp(120.0, 220.0);
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: SizedBox(
+            width: waveformWidth + 48,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Stack(
-                  children: [
-                    Container(
-                      height: 4,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: secondaryColor,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                GestureDetector(
+                  onTap: _togglePlay,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: themeColor,
+                      shape: BoxShape.circle,
                     ),
-                    FractionallySizedBox(
-                      widthFactor: _duration.inMilliseconds > 0 
-                          ? _position.inMilliseconds / _duration.inMilliseconds 
-                          : 0.0,
-                      child: Container(
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: themeColor,
-                          borderRadius: BorderRadius.circular(2),
+                    child: Icon(
+                      _playerState == PlayerState.playing
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      color: widget.isCurrentUser
+                          ? AppTheme.primaryColor
+                          : Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: waveformWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 4,
+                              width: waveformWidth,
+                              color: secondaryColor,
+                            ),
+                            FractionallySizedBox(
+                              alignment: Alignment.centerLeft,
+                              widthFactor: progress,
+                              child: Container(
+                                height: 4,
+                                width: waveformWidth,
+                                color: themeColor,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _formatDuration(_position),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: widget.isCurrentUser ? Colors.white.withValues(alpha: 0.8) : AppTheme.textLight,
-                        fontFamily: 'Rubik',
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _formatDuration(_position),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: labelColor,
+                              fontFamily: 'Rubik',
+                            ),
+                          ),
+                          Text(
+                            _formatDuration(_duration),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: labelColor,
+                              fontFamily: 'Rubik',
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      _formatDuration(_duration),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: widget.isCurrentUser ? Colors.white.withValues(alpha: 0.8) : AppTheme.textLight,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

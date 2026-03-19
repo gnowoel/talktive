@@ -34,8 +34,9 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
         _player.setAudioContext(
           AudioContext(
             android: const AudioContextAndroid(
+              isSpeakerphoneOn: true,
               audioFocus: AndroidAudioFocus.gain,
-              contentType: AndroidContentType.music,
+              contentType: AndroidContentType.speech,
               usageType: AndroidUsageType.media,
               audioMode: AndroidAudioMode.normal,
             ),

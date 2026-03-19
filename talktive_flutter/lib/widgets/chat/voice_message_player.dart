@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
 
@@ -28,6 +29,26 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     super.initState();
     _player = AudioPlayer();
     
+    // Set audio context to ensures it plays through the speaker
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+       _player.setAudioContext(AudioContext(
+        android: const AudioContextAndroid(
+          isRestricted_9_0: true,
+          audioFocus: AndroidAudioFocus.gain,
+          contentType: AndroidContentType.music,
+          usageType: AndroidUsageType.media,
+          audioMode: AndroidAudioMode.normal,
+        ),
+        iOS: const AudioContextIOS(
+          category: AVAudioSessionCategory.playback,
+          options: [
+            AVAudioSessionOptions.mixWithOthers,
+            AVAudioSessionOptions.defaultToSpeaker,
+          ],
+        ),
+      ));
+    }
+    
     _player.onPlayerStateChanged.listen((state) {
       if (mounted) setState(() => _playerState = state);
     });
@@ -39,6 +60,17 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     _player.onPositionChanged.listen((position) {
       if (mounted) setState(() => _position = position);
     });
+
+    _player.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() {
+          _playerState = PlayerState.completed;
+          _position = Duration.zero;
+        });
+      }
+    });
+
+    _player.onLog.listen((log) => debugPrint('AudioPlayer Log: $log'));
   }
 
   @override

@@ -33,18 +33,17 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
        _player.setAudioContext(AudioContext(
         android: const AudioContextAndroid(
-          isRestricted_9_0: true,
           audioFocus: AndroidAudioFocus.gain,
           contentType: AndroidContentType.music,
           usageType: AndroidUsageType.media,
           audioMode: AndroidAudioMode.normal,
         ),
-        iOS: const AudioContextIOS(
+        iOS: AudioContextIOS(
           category: AVAudioSessionCategory.playback,
-          options: [
+          options: const {
             AVAudioSessionOptions.mixWithOthers,
             AVAudioSessionOptions.defaultToSpeaker,
-          ],
+          },
         ),
       ));
     }
@@ -99,7 +98,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           GestureDetector(
             onTap: _togglePlay,
@@ -126,6 +125,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                   children: [
                     Container(
                       height: 4,
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         color: secondaryColor,
                         borderRadius: BorderRadius.circular(2),

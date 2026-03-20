@@ -187,6 +187,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
               const SizedBox(height: AppTheme.contentBottomPadding),
             ],
+          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error: $e')),

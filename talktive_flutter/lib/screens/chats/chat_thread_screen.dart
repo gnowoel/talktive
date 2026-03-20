@@ -578,7 +578,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               message.senderId == currentResident.userInfoId;
 
           bool isRead = false;
-          if (isCurrentUser && currentResident?.isPremium == true && currentResident?.showReadReceipts == true && otherLastReadAt != null) {
+          // Only Premium users can SEE read receipts
+          if (isCurrentUser && currentResident.isPremium && otherLastReadAt != null) {
             isRead = message.createdAt.isBefore(otherLastReadAt);
           }
 

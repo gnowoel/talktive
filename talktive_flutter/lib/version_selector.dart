@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'serverpod_app.dart';
 
@@ -14,7 +15,10 @@ class VersionSelector extends StatefulWidget {
 class _VersionSelectorState extends State<VersionSelector> {
   AppVersion? _selectedVersion;
 
-  void _selectVersion(AppVersion version) {
+  void _selectVersion(AppVersion version) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('active_app_version', version.name);
+    
     setState(() {
       _selectedVersion = version;
     });

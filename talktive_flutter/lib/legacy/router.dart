@@ -16,7 +16,7 @@ import 'pages/topic.dart';
 import 'pages/topics.dart';
 import 'pages/users.dart';
 
-import 'services/messaging.dart';
+import 'services/legacy_messaging.dart';
 import 'services/user_cache.dart';
 import 'widgets/navigation.dart';
 
@@ -28,7 +28,7 @@ final _friendsNavigatorKey = GlobalKey<NavigatorState>();
 final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<GoRouter> initRouter() async {
-  final initialRoute = await Messaging.getInitialRoute();
+  final initialRoute = await LegacyMessaging.getInitialRoute();
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,

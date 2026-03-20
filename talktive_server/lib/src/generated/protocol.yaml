@@ -73,6 +73,7 @@ message:
   - subscribe:
   - listMessages:
   - markChannelAsRead:
+  - sendTypingIndicator:
 moment:
   - postMoment:
   - listMoments:
@@ -119,6 +120,7 @@ resident:
   - getBlockedUserIds:
   - updateOnlineSettings:
   - purchasePremium:
+  - updatePremiumSettings:
 search:
   - searchUsers:
   - searchLounges:

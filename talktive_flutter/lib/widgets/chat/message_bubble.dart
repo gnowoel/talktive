@@ -22,6 +22,7 @@ class MessageBubble extends ConsumerWidget {
   final Resident? currentResident;
   final Function(String)? onMention;
   final List<String>? otherMemberNames;
+  final bool isRead;
 
   const MessageBubble({
     super.key,
@@ -30,6 +31,7 @@ class MessageBubble extends ConsumerWidget {
     required this.currentResident,
     this.onMention,
     this.otherMemberNames,
+    this.isRead = false,
   });
 
   @override
@@ -249,15 +251,29 @@ class MessageBubble extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                     ],
-                    Text(
-                      formatTimestamp(message.createdAt),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isCurrentUser
-                            ? Colors.white.withValues(alpha: 0.7)
-                            : AppTheme.textLight,
-                        fontFamily: 'Rubik',
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          formatTimestamp(message.createdAt),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isCurrentUser
+                                ? Colors.white.withValues(alpha: 0.7)
+                                : AppTheme.textLight,
+                            fontFamily: 'Rubik',
+                          ),
+                        ),
+                        if (isRead && isCurrentUser) ...[
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.done_all_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

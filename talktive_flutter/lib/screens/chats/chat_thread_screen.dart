@@ -211,14 +211,18 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     // Listen for real-time updates to mark as read if user is viewing
     ref.listen(realtimeChatProvider(widget.channelId), (previous, next) {
       if (previous != null && next.hasValue && next.value != null) {
-        final prevLength = previous.value?.length ?? 0;
-        final nextLength = next.value?.length ?? 0;
+        final prevLength = previous.value?.messages.length ?? 0;
+        final nextLength = next.value?.messages.length ?? 0;
         if (nextLength > prevLength) {
           _hasMarkedAsRead = false;
           _markAsRead();
         }
       }
     });
+
+    final currentResidentAsync = ref.watch(currentResidentProvider);
+    final currentResident = currentResidentAsync.value;
+    final chatState = ref.watch(realtimeChatProvider(widget.channelId));
 
 
     return chatDetailsAsync.when(
@@ -241,14 +245,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         final otherFloor = DuoFloorHelper.computeFloor(otherResident);
         final otherMood = details.otherUserMood;
 
-        final chatState = ref.watch(realtimeChatProvider(widget.channelId));
-        final currentResidentAsync = ref.watch(currentResidentProvider);
-        final currentResident = currentResidentAsync.value;
-
         final canSend =
             currentResident != null && !DuoFloorHelper.isMuted(currentResident);
-        
+
+        final typingUsers = chatState.value?.typingUsers ?? {};
+        // Filter out ourselves if we are in the list
+        final otherTypingUsers = typingUsers.where((u) => u != currentResident?.userName).toList();
+
         return DuoChatInputLayout(
+          typingIndicator: (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+              ? _buildTypingIndicator(otherTypingUsers)
+              : null,
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -390,6 +397,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             }
             return true;
           },
+          onTypingStatusChanged: (isTyping) {
+            if (currentResident?.isPremium == true && currentResident?.showTypingIndicator == true) {
+              ref.read(realtimeChatProvider(widget.channelId).notifier).setTyping(isTyping);
+            }
+          },
           onImagePick: _pickAndSendImage,
           enabled: canSend,
           isSending: _isSending,
@@ -400,9 +412,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               ? 'Type a message...'
               : DuoFloorHelper.getMuteInputHint(currentResident),
           content: chatState.when(
-            data: (messages) => messages.isEmpty
+            data: (state) => state.messages.isEmpty
                 ? _buildEmptyState()
-                : _buildMessagesList(messages, otherName, currentResident),
+                : _buildMessagesList(state, otherName, currentResident, details.otherResident.userInfoId.toString()),
             loading: () => const Center(
               child: CircularProgressIndicator(color: AppTheme.primaryColor),
             ),
@@ -506,33 +518,42 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     );
   }
 
-  Widget _buildErrorState(Object error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildTypingIndicator(List<String> typingUsers) {
+    if (typingUsers.isEmpty) return const SizedBox.shrink();
+    
+    final text = typingUsers.length == 1 
+      ? '${typingUsers[0]} is typing...' 
+      : 'Multiple people are typing...';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge, vertical: 4),
+      child: Row(
         children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
+          SizedBox(
+            width: 24,
+            child: const Text('✍️', style: TextStyle(fontSize: 14)),
+          ).animate(onPlay: (c) => c.repeat(reverse: true))
+           .scale(duration: 600.ms, begin: const Offset(0.8, 0.8), end: const Offset(1.1, 1.1)),
+          const SizedBox(width: 8),
           Text(
-            'Failed to load messages',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: AppTheme.duoSpacingSmall),
-          Text(
-            error.toString(),
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            textAlign: TextAlign.center,
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppTheme.textSecondary,
+              fontStyle: FontStyle.italic,
+              fontFamily: 'Rubik',
+            ),
           ),
         ],
       ),
-    );
+    ).animate().fadeIn().slideY(begin: 0.2, end: 0);
   }
 
-  Widget _buildMessagesList(List<Message> messages, String otherName, Resident? currentResident) {
+  Widget _buildMessagesList(RealtimeChatState state, String otherName, Resident? currentResident, String otherUserId) {
+    final messages = state.messages;
+    final lastReadStatus = state.lastReadStatus;
+    final otherLastReadAt = lastReadStatus[otherUserId];
+    
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
@@ -556,17 +577,49 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               currentResident != null &&
               message.senderId == currentResident.userInfoId;
 
+          bool isRead = false;
+          if (isCurrentUser && currentResident?.isPremium == true && currentResident?.showReadReceipts == true && otherLastReadAt != null) {
+            isRead = message.createdAt.isBefore(otherLastReadAt);
+          }
+
           return MessageBubble(
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: currentResident,
                 onMention: _addMention,
                 otherMemberNames: [otherName],
+                isRead: isRead,
               )
               .animate(delay: Duration(milliseconds: index * 30))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);
         },
+      ),
+    );
+  }
+
+  Widget _buildErrorState(Object error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+          Text(
+            'Failed to load messages',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: AppTheme.duoSpacingSmall),
+          Text(
+            error.toString(),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

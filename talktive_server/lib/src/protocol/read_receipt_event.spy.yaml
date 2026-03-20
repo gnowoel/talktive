@@ -1,0 +1,5 @@
+class: ReadReceiptEvent
+fields:
+  channelId: int
+  userId: UuidValue
+  lastReadAt: DateTime

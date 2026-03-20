@@ -20,12 +20,14 @@ class DuoChatInput extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isSending;
   final bool isLoading;
+  final Function(bool isTyping)? onTypingStatusChanged;
 
   const DuoChatInput({
     super.key,
     required this.controller,
     required this.onSend,
     this.onVoiceSend,
+    this.onVoiceStart,
     this.enabled = true,
     this.isSending = false,
     this.isLoading = false,
@@ -34,6 +36,7 @@ class DuoChatInput extends StatefulWidget {
     this.prefix,
     this.activeColor,
     this.focusNode,
+    this.onTypingStatusChanged,
   });
 
   @override
@@ -46,6 +49,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
   DateTime? _recordStartTime;
   Timer? _recordTimer;
   String _recordDuration = '0:00';
+  Timer? _typingTimer;
+  bool _wasTyping = false;
 
   @override
   void initState() {
@@ -58,11 +63,33 @@ class _DuoChatInputState extends State<DuoChatInput> {
     widget.controller.removeListener(_onTextChanged);
     _audioRecorder.dispose();
     _recordTimer?.cancel();
+    _typingTimer?.cancel();
     super.dispose();
   }
 
   void _onTextChanged() {
     setState(() {}); // Rebuild to toggle send/voice button
+
+    // Typing flag logic
+    if (widget.onTypingStatusChanged != null) {
+      final isNotEmpty = widget.controller.text.trim().isNotEmpty;
+
+      if (isNotEmpty != _wasTyping) {
+        _wasTyping = isNotEmpty;
+        widget.onTypingStatusChanged!(isNotEmpty);
+      }
+
+      // Automatically clear typing status after 3 seconds of inactivity
+      _typingTimer?.cancel();
+      if (isNotEmpty) {
+        _typingTimer = Timer(const Duration(seconds: 3), () {
+          if (mounted && _wasTyping) {
+            _wasTyping = false;
+            widget.onTypingStatusChanged!(false);
+          }
+        });
+      }
+    }
   }
 
   Future<void> _startRecording() async {

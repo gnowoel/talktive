@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/avatar.dart';
-import '../services/messaging.dart';
+import '../services/legacy_messaging.dart';
 import '../services/service_locator.dart';
 import '../services/storage.dart';
 
@@ -20,7 +20,7 @@ class Providers extends StatelessWidget {
 
         // Additional services not managed by ServiceLocator
         Provider(create: (context) => Storage()),
-        Provider(create: (context) => Messaging()),
+        Provider(create: (context) => LegacyMessaging()),
         ChangeNotifierProvider(create: (context) => Avatar()),
       ],
       child: child,

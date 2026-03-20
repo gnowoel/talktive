@@ -7,4 +7,5 @@ fields:
   otherUserMood: String?
   currentMemberStatus: ChannelMemberStatus?
   otherMemberStatus: ChannelMemberStatus?
+  otherUserLastReadAt: DateTime?
   unreadCount: int, default=0

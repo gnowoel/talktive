@@ -1538,6 +1538,31 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['channelId'],
                   ),
         ),
+        'sendTypingIndicator': _i1.MethodConnector(
+          name: 'sendTypingIndicator',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'isTyping': _i1.ParameterDescription(
+              name: 'isTyping',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['message'] as _i9.MessageEndpoint)
+                  .sendTypingIndicator(
+                    session,
+                    params['channelId'],
+                    params['isTyping'],
+                  ),
+        ),
         'subscribe': _i1.MethodStreamConnector(
           name: 'subscribe',
           params: {
@@ -2514,6 +2539,31 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
                   .purchasePremium(session),
+        ),
+        'updatePremiumSettings': _i1.MethodConnector(
+          name: 'updatePremiumSettings',
+          params: {
+            'showReadReceipts': _i1.ParameterDescription(
+              name: 'showReadReceipts',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+            'showTypingIndicator': _i1.ParameterDescription(
+              name: 'showTypingIndicator',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
+                  .updatePremiumSettings(
+                    session,
+                    showReadReceipts: params['showReadReceipts'],
+                    showTypingIndicator: params['showTypingIndicator'],
+                  ),
         ),
       },
     );

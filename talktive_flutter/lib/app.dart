@@ -4,7 +4,7 @@ import 'services/edge_to_edge_manager.dart';
 import 'package:go_router/go_router.dart';
 
 import 'legacy/router.dart';
-import 'services/messaging.dart';
+import 'legacy/services/legacy_messaging.dart';
 import 'legacy/theme.dart';
 import 'widgets/edge_to_edge_wrapper.dart';
 import 'legacy/wrappers/verify_user.dart';
@@ -40,7 +40,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      final messaging = Messaging();
+      final messaging = LegacyMessaging();
       messaging.clearAllNotifications();
 
       // Update system UI overlay style when app is resumed

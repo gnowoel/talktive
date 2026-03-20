@@ -43,6 +43,8 @@ abstract class Resident
     this.lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -53,7 +55,9 @@ abstract class Resident
        experienceMessageCount = experienceMessageCount ?? 0,
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
-       showOnlineStatus = showOnlineStatus ?? true;
+       showOnlineStatus = showOnlineStatus ?? true,
+       showReadReceipts = showReadReceipts ?? true,
+       showTypingIndicator = showTypingIndicator ?? true;
 
   factory Resident({
     int? id,
@@ -82,6 +86,8 @@ abstract class Resident
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -153,6 +159,16 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOnlineStatus'],
             ),
+      showReadReceipts: jsonSerialization['showReadReceipts'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showReadReceipts'],
+            ),
+      showTypingIndicator: jsonSerialization['showTypingIndicator'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showTypingIndicator'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -214,6 +230,10 @@ abstract class Resident
 
   bool showOnlineStatus;
 
+  bool showReadReceipts;
+
+  bool showTypingIndicator;
+
   String? customAvatarUrl;
 
   @override
@@ -249,6 +269,8 @@ abstract class Resident
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     String? customAvatarUrl,
   });
   @override
@@ -282,6 +304,8 @@ abstract class Resident
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
+      'showReadReceipts': showReadReceipts,
+      'showTypingIndicator': showTypingIndicator,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -317,6 +341,8 @@ abstract class Resident
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
+      'showReadReceipts': showReadReceipts,
+      'showTypingIndicator': showTypingIndicator,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -381,6 +407,8 @@ class _ResidentImpl extends Resident {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -409,6 +437,8 @@ class _ResidentImpl extends Resident {
          lastSeen: lastSeen,
          isPremium: isPremium,
          showOnlineStatus: showOnlineStatus,
+         showReadReceipts: showReadReceipts,
+         showTypingIndicator: showTypingIndicator,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -443,6 +473,8 @@ class _ResidentImpl extends Resident {
     Object? lastSeen = _Undefined,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -483,6 +515,8 @@ class _ResidentImpl extends Resident {
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
+      showReadReceipts: showReadReceipts ?? this.showReadReceipts,
+      showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
@@ -631,6 +665,17 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
+  _i1.ColumnValue<bool, bool> showReadReceipts(bool value) => _i1.ColumnValue(
+    table.showReadReceipts,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> showTypingIndicator(bool value) =>
+      _i1.ColumnValue(
+        table.showTypingIndicator,
+        value,
+      );
+
   _i1.ColumnValue<String, String> customAvatarUrl(String? value) =>
       _i1.ColumnValue(
         table.customAvatarUrl,
@@ -752,6 +797,16 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    showReadReceipts = _i1.ColumnBool(
+      'showReadReceipts',
+      this,
+      hasDefault: true,
+    );
+    showTypingIndicator = _i1.ColumnBool(
+      'showTypingIndicator',
+      this,
+      hasDefault: true,
+    );
     customAvatarUrl = _i1.ColumnString(
       'customAvatarUrl',
       this,
@@ -810,6 +865,10 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showOnlineStatus;
 
+  late final _i1.ColumnBool showReadReceipts;
+
+  late final _i1.ColumnBool showTypingIndicator;
+
   late final _i1.ColumnString customAvatarUrl;
 
   @override
@@ -840,6 +899,8 @@ class ResidentTable extends _i1.Table<int?> {
     lastSeen,
     isPremium,
     showOnlineStatus,
+    showReadReceipts,
+    showTypingIndicator,
     customAvatarUrl,
   ];
 }

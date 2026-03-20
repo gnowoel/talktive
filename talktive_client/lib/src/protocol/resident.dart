@@ -42,6 +42,8 @@ abstract class Resident implements _i1.SerializableModel {
     this.lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -52,7 +54,9 @@ abstract class Resident implements _i1.SerializableModel {
        experienceMessageCount = experienceMessageCount ?? 0,
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
-       showOnlineStatus = showOnlineStatus ?? true;
+       showOnlineStatus = showOnlineStatus ?? true,
+       showReadReceipts = showReadReceipts ?? true,
+       showTypingIndicator = showTypingIndicator ?? true;
 
   factory Resident({
     int? id,
@@ -81,6 +85,8 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -152,6 +158,16 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOnlineStatus'],
             ),
+      showReadReceipts: jsonSerialization['showReadReceipts'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showReadReceipts'],
+            ),
+      showTypingIndicator: jsonSerialization['showTypingIndicator'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showTypingIndicator'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -211,6 +227,10 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showOnlineStatus;
 
+  bool showReadReceipts;
+
+  bool showTypingIndicator;
+
   String? customAvatarUrl;
 
   /// Returns a shallow copy of this [Resident]
@@ -243,6 +263,8 @@ abstract class Resident implements _i1.SerializableModel {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     String? customAvatarUrl,
   });
   @override
@@ -276,6 +298,8 @@ abstract class Resident implements _i1.SerializableModel {
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
       'showOnlineStatus': showOnlineStatus,
+      'showReadReceipts': showReadReceipts,
+      'showTypingIndicator': showTypingIndicator,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -316,6 +340,8 @@ class _ResidentImpl extends Resident {
     DateTime? lastSeen,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -344,6 +370,8 @@ class _ResidentImpl extends Resident {
          lastSeen: lastSeen,
          isPremium: isPremium,
          showOnlineStatus: showOnlineStatus,
+         showReadReceipts: showReadReceipts,
+         showTypingIndicator: showTypingIndicator,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -378,6 +406,8 @@ class _ResidentImpl extends Resident {
     Object? lastSeen = _Undefined,
     bool? isPremium,
     bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -418,6 +448,8 @@ class _ResidentImpl extends Resident {
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
+      showReadReceipts: showReadReceipts ?? this.showReadReceipts,
+      showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,

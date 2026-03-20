@@ -41,6 +41,8 @@ fields:
   lastSeen: DateTime?
   isPremium: bool, default=false
   showOnlineStatus: bool, default=true
+  showReadReceipts: bool, default=true
+  showTypingIndicator: bool, default=true
   customAvatarUrl: String?
   
 indexes:

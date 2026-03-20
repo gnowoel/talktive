@@ -39,7 +39,7 @@ final class FCMManagerProvider
   FCMManager create() => FCMManager();
 }
 
-String _$fCMManagerHash() => r'6dd1b1897d0c31d6790e89f5b749d5abecdba4c3';
+String _$fCMManagerHash() => r'5deb6f13c4f01bd277c95e1aff86e16cc6dcc3b2';
 
 /// Provider for Firebase Cloud Messaging for the Serverpod version.
 /// Background messages are handled centrally in background_messaging_handler.dart.

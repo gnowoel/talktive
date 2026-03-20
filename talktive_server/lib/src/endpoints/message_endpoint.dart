@@ -275,29 +275,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     }
   }
 
-  /// Subscribes to a channel to receive real-time messages.
-  Stream<protocol.Message> subscribe(Session session, int channelId) async* {
-    final authenticationInfo = session.authenticated;
-    if (authenticationInfo == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
-    }
-
-    // 1. Verify access (optional: check if user is member of channel)
-    // For Plaza (floor 0), it's public. For others, check membership.
-    // final channel = await protocol.Channel.db.findById(session, channelId); // Optimization: skip DB check for stream?
-    // If we want to enforce rules, we should check.
-
-    // 2. Create stream from message bus
+  /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
+  Stream<SerializableModel> subscribe(Session session, int channelId) {
     final streamKey = 'channel_$channelId';
-
-    // session.messages.createStream returns a Stream of SerializableModel
-    final stream = session.messages.createStream(streamKey);
-
-    await for (final message in stream) {
-      if (message is protocol.Message) {
-        yield message;
-      }
-    }
+    return session.messages.createStream(streamKey);
   }
 
   /// Fetches the history of messages for a channel.
@@ -375,9 +356,40 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (membership != null) {
-      membership.lastReadAt = DateTime.now();
+      final now = DateTime.now();
+      membership.lastReadAt = now;
       await protocol.ChannelMember.db.updateRow(session, membership);
+
+      // Broadcast ReadReceiptEvent to other channel members
+      await session.messages.postMessage(
+        'channel_$channelId',
+        protocol.ReadReceiptEvent(
+          channelId: channelId,
+          userId: userUuid,
+          lastReadAt: now,
+        ),
+      );
     }
+  }
+
+  /// Sends a typing indicator to a channel.
+  Future<void> sendTypingIndicator(
+    Session session,
+    int channelId,
+    bool isTyping,
+  ) async {
+    final userUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, userUuid);
+
+    await session.messages.postMessage(
+      'channel_$channelId',
+      protocol.TypingIndicator(
+        channelId: channelId,
+        senderId: userUuid,
+        userName: resident.userName ?? 'Resident',
+        isTyping: isTyping,
+      ),
+    );
   }
 
   /// Internal helper to trigger notifications in the background.

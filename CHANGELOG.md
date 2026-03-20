@@ -4,7 +4,26 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 18, 2026 - Structural Consolidation & Optimization 🏗️⚡
+## March 20, 2026 - Premium Features & Version-Aware Notifications 💎🔔
+
+### Premium Social Features
+- **Read Receipts**: Implemented a "Read Receipts" system for private 1-on-1 chats. Residents with a Premium subscription can now see when their messages have been read by the recipient (indicated by a double checkmark).
+- **Real-time Typing Indicators**: Added "Someone is typing..." visual cues to both Private and Lounge chats. This feature is exclusive to Premium residents and can be toggled in settings.
+- **Privacy Controls**: Integrated toggles for "Show Read Receipts" and "Show Typing Indicator" within the Activity > Settings screen, allowing Premium users to control their visibility.
+
+### App Version Separation (Architectural Refinement)
+- **Version-Aware FCM**: Refactored the `backgroundMessagingHandler` to intelligently dispatch push notifications based on a new `appVersion` field in the FCM payload. Notifications are now only displayed if they match the user's currently selected app version (Firebase vs. Serverpod).
+- **Serverpod Notification Service**: Created a standalone `ServerpodNotificationService` to handle local notifications and token registration specifically for the new architecture, ensuring complete isolation from legacy Firebase code.
+- **Persistent Version Selection**: Integrated `SharedPreferences` to remember the user's app version choice across restarts, providing a seamless experience after the initial selection.
+- **FCM Registration Reactivity**: Updated the `FCMManager` to automatically register and unregister tokens based on the resident's authentication state, ensuring push notifications are tied to the active session.
+
+### Codebase Cleanup & Isolation
+- **Legacy Messaging Decoupling**: Moved and renamed the original `Messaging` service to `LegacyMessaging`. Removed all Serverpod-specific code from it to simplify eventual removal of the Firebase version.
+- **Unified Chat Layout Refinement**: Updated `DuoChatLayout` and `DuoChatInputLayout` to support dynamic typing indicators and non-constant state updates, standardizing the chat experience across all channel types.
+- **Voice Message UI Polish**: Refined the voice message recording experience with improved haptic feedback and explicit "Premium Required" gates.
+
+---
+
 
 ### Backend Optimization & Robustness
 - **Eliminated N+1 Queries**: Refactored `AdminEndpoint` report listings to use batch database fetching for residents and their activity counts, drastically reducing database load during administrative reviews.

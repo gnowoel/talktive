@@ -328,8 +328,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     // Listen for real-time updates to mark as read if user is viewing
     ref.listen(realtimeChatProvider(widget.lounge.channelId), (previous, next) {
       if (previous != null && next.hasValue && next.value != null) {
-        final prevLength = previous.value?.length ?? 0;
-        final nextLength = next.value?.length ?? 0;
+        final prevLength = previous.value?.messages.length ?? 0;
+        final nextLength = next.value?.messages.length ?? 0;
         if (nextLength > prevLength) {
           _hasMarkedAsRead = false; // Reset to allow marking new messages as read
           _markAsRead();
@@ -343,7 +343,14 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     final canSend =
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
+    final typingUsers = chatState.value?.typingUsers ?? {};
+    final otherTypingUsers =
+        typingUsers.where((u) => u != currentResident?.userName).toList();
+
     return DuoChatInputLayout(
+      typingIndicator: (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+          ? _buildTypingIndicator(otherTypingUsers)
+          : null,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -602,6 +609,13 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         }
         return true;
       },
+      onTypingStatusChanged: (isTyping) {
+        if (currentResident?.isPremium == true && currentResident?.showTypingIndicator == true) {
+          ref
+              .read(realtimeChatProvider(widget.lounge.channelId).notifier)
+              .setTyping(isTyping);
+        }
+      },
       onImagePick: _pickAndSendImage,
       enabled: canSend,
       isSending: _isSending,
@@ -612,15 +626,54 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
           ? 'Message the lounge...'
           : DuoFloorHelper.getMuteInputHint(currentResident),
       content: chatState.when(
-        data: (messages) => messages.isEmpty
+        data: (state) => state.messages.isEmpty
             ? _buildEmptyState()
-            : _buildMessagesList(messages, currentResident),
+            : _buildMessagesList(state.messages, currentResident),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppTheme.primaryColor),
         ),
         error: (error, stack) => _buildErrorState(error),
       ),
     );
+  }
+
+  Widget _buildTypingIndicator(List<String> typingUsers) {
+    if (typingUsers.isEmpty) return const SizedBox.shrink();
+
+    final text = typingUsers.length == 1
+        ? '${typingUsers[0]} is typing...'
+        : '${typingUsers[0]} and ${typingUsers.length - 1} others typing...';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: 4,
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24,
+            child: const Text('✍️', style: TextStyle(fontSize: 14)),
+          )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scale(
+                duration: 600.ms,
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1.1, 1.1),
+              ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppTheme.textSecondary,
+              fontStyle: FontStyle.italic,
+              fontFamily: 'Rubik',
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn().slideY(begin: 0.2, end: 0);
   }
 
   Widget _buildEmptyState() {

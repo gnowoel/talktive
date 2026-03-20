@@ -17,7 +17,7 @@ final realtimeChatProvider = RealtimeChatFamily._();
 /// Provider for real-time chat with WebSocket streaming.
 /// Automatically subscribes to channel updates and maintains message list.
 final class RealtimeChatProvider
-    extends $AsyncNotifierProvider<RealtimeChat, List<Message>> {
+    extends $AsyncNotifierProvider<RealtimeChat, RealtimeChatState> {
   /// Provider for real-time chat with WebSocket streaming.
   /// Automatically subscribes to channel updates and maintains message list.
   RealtimeChatProvider._({
@@ -56,7 +56,7 @@ final class RealtimeChatProvider
   }
 }
 
-String _$realtimeChatHash() => r'bd2ad193c5595c6460b542ff3e551deb03263b35';
+String _$realtimeChatHash() => r'74d9cfd2b256e892918a5b1388d712ce28ec9333';
 
 /// Provider for real-time chat with WebSocket streaming.
 /// Automatically subscribes to channel updates and maintains message list.
@@ -65,9 +65,9 @@ final class RealtimeChatFamily extends $Family
     with
         $ClassFamilyOverride<
           RealtimeChat,
-          AsyncValue<List<Message>>,
-          List<Message>,
-          FutureOr<List<Message>>,
+          AsyncValue<RealtimeChatState>,
+          RealtimeChatState,
+          FutureOr<RealtimeChatState>,
           int
         > {
   RealtimeChatFamily._()
@@ -92,20 +92,21 @@ final class RealtimeChatFamily extends $Family
 /// Provider for real-time chat with WebSocket streaming.
 /// Automatically subscribes to channel updates and maintains message list.
 
-abstract class _$RealtimeChat extends $AsyncNotifier<List<Message>> {
+abstract class _$RealtimeChat extends $AsyncNotifier<RealtimeChatState> {
   late final _$args = ref.$arg as int;
   int get channelId => _$args;
 
-  FutureOr<List<Message>> build(int channelId);
+  FutureOr<RealtimeChatState> build(int channelId);
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<List<Message>>, List<Message>>;
+    final ref =
+        this.ref as $Ref<AsyncValue<RealtimeChatState>, RealtimeChatState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<Message>>, List<Message>>,
-              AsyncValue<List<Message>>,
+              AnyNotifier<AsyncValue<RealtimeChatState>, RealtimeChatState>,
+              AsyncValue<RealtimeChatState>,
               Object?,
               Object?
             >;

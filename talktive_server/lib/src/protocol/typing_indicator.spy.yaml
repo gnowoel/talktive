@@ -1,0 +1,6 @@
+class: TypingIndicator
+fields:
+  channelId: int
+  senderId: UuidValue
+  userName: String
+  isTyping: bool

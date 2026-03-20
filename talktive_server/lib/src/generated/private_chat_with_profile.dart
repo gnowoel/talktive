@@ -26,6 +26,7 @@ abstract class PrivateChatWithProfile
     this.otherUserMood,
     this.currentMemberStatus,
     this.otherMemberStatus,
+    this.otherUserLastReadAt,
     int? unreadCount,
   }) : unreadCount = unreadCount ?? 0;
 
@@ -37,6 +38,7 @@ abstract class PrivateChatWithProfile
     String? otherUserMood,
     _i4.ChannelMemberStatus? currentMemberStatus,
     _i4.ChannelMemberStatus? otherMemberStatus,
+    DateTime? otherUserLastReadAt,
     int? unreadCount,
   }) = _PrivateChatWithProfileImpl;
 
@@ -63,6 +65,11 @@ abstract class PrivateChatWithProfile
           : _i4.ChannelMemberStatus.fromJson(
               (jsonSerialization['otherMemberStatus'] as String),
             ),
+      otherUserLastReadAt: jsonSerialization['otherUserLastReadAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['otherUserLastReadAt'],
+            ),
       unreadCount: jsonSerialization['unreadCount'] as int?,
     );
   }
@@ -81,6 +88,8 @@ abstract class PrivateChatWithProfile
 
   _i4.ChannelMemberStatus? otherMemberStatus;
 
+  DateTime? otherUserLastReadAt;
+
   int unreadCount;
 
   /// Returns a shallow copy of this [PrivateChatWithProfile]
@@ -94,6 +103,7 @@ abstract class PrivateChatWithProfile
     String? otherUserMood,
     _i4.ChannelMemberStatus? currentMemberStatus,
     _i4.ChannelMemberStatus? otherMemberStatus,
+    DateTime? otherUserLastReadAt,
     int? unreadCount,
   });
   @override
@@ -109,6 +119,8 @@ abstract class PrivateChatWithProfile
         'currentMemberStatus': currentMemberStatus?.toJson(),
       if (otherMemberStatus != null)
         'otherMemberStatus': otherMemberStatus?.toJson(),
+      if (otherUserLastReadAt != null)
+        'otherUserLastReadAt': otherUserLastReadAt?.toJson(),
       'unreadCount': unreadCount,
     };
   }
@@ -126,6 +138,8 @@ abstract class PrivateChatWithProfile
         'currentMemberStatus': currentMemberStatus?.toJson(),
       if (otherMemberStatus != null)
         'otherMemberStatus': otherMemberStatus?.toJson(),
+      if (otherUserLastReadAt != null)
+        'otherUserLastReadAt': otherUserLastReadAt?.toJson(),
       'unreadCount': unreadCount,
     };
   }
@@ -147,6 +161,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     String? otherUserMood,
     _i4.ChannelMemberStatus? currentMemberStatus,
     _i4.ChannelMemberStatus? otherMemberStatus,
+    DateTime? otherUserLastReadAt,
     int? unreadCount,
   }) : super._(
          chat: chat,
@@ -156,6 +171,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
          otherUserMood: otherUserMood,
          currentMemberStatus: currentMemberStatus,
          otherMemberStatus: otherMemberStatus,
+         otherUserLastReadAt: otherUserLastReadAt,
          unreadCount: unreadCount,
        );
 
@@ -171,6 +187,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     Object? otherUserMood = _Undefined,
     Object? currentMemberStatus = _Undefined,
     Object? otherMemberStatus = _Undefined,
+    Object? otherUserLastReadAt = _Undefined,
     int? unreadCount,
   }) {
     return PrivateChatWithProfile(
@@ -191,6 +208,9 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
       otherMemberStatus: otherMemberStatus is _i4.ChannelMemberStatus?
           ? otherMemberStatus
           : this.otherMemberStatus,
+      otherUserLastReadAt: otherUserLastReadAt is DateTime?
+          ? otherUserLastReadAt
+          : this.otherUserLastReadAt,
       unreadCount: unreadCount ?? this.unreadCount,
     );
   }

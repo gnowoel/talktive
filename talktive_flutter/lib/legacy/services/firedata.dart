@@ -6,7 +6,7 @@ import '../helpers/exception.dart';
 import '../helpers/platform.dart';
 import '../models/admin.dart';
 import '../models/user.dart';
-import 'messaging.dart';
+import 'legacy_messaging.dart';
 
 class Firedata {
   final FirebaseDatabase instance;
@@ -73,7 +73,7 @@ class Firedata {
     if (!isAndroid) return; // TODO: Support other platforms
 
     try {
-      final messaging = Messaging();
+      final messaging = LegacyMessaging();
       final token = fcmToken ?? await messaging.instance.getToken();
       final ref = instance.ref('users/$userId/fcmToken');
       await ref.set(token);

@@ -5,11 +5,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
-import '../legacy/helpers/platform.dart';
-import '../legacy/helpers/routes.dart';
-import '../legacy/router.dart';
-import '../serverpod_client.dart';
-import '../legacy/services/ad_service/go_router_room_helper.dart';
+import '../helpers/platform.dart';
+import '../helpers/routes.dart';
+import '../router.dart';
+import '../../serverpod_client.dart';
+import 'ad_service/go_router_room_helper.dart';
 
 final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -17,47 +17,20 @@ final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
 const _channelId = 'high_importance_channel';
 const _channelName = 'High Importance Notifications';
 
-class Messaging {
-  Messaging._();
-  static final Messaging _instance = Messaging._();
-  factory Messaging() => _instance;
+class LegacyMessaging {
+  LegacyMessaging._();
+  static final LegacyMessaging _instance = LegacyMessaging._();
+  factory LegacyMessaging() => _instance;
 
   final FirebaseMessaging instance = FirebaseMessaging.instance;
 
   Future<String?> getToken() async {
-    final token = await instance.getToken();
-    if (token != null) {
-      await _registerTokenWithBackend(token);
-    }
-    return token;
+    return await instance.getToken();
   }
 
   Stream<String> subscribeToFcmToken() {
-    if (!isAndroid) {
-      // TODO: Support other platforms
-      return const Stream.empty();
-    }
-
-    // Register new tokens with backend
-    instance.onTokenRefresh.listen((token) {
-      _registerTokenWithBackend(token);
-    });
-
+    // Legacy token subscription (does not register with Serverpod)
     return instance.onTokenRefresh;
-  }
-
-  Future<void> _registerTokenWithBackend(String token) async {
-    try {
-      String platform = 'android';
-      if (Platform.isIOS) {
-        platform = 'ios';
-      }
-
-      await client.notification.registerDeviceToken(token, platform);
-      debugPrint('Device token registered with backend');
-    } catch (e) {
-      debugPrint('Error registering device token: $e');
-    }
   }
 
   Future<void> localSetup() async {

@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../services/ad_service/simple_ad_manager.dart';
 import '../services/avatar.dart';
-import '../services/messaging.dart';
+import '../services/legacy_messaging.dart';
 
 import '../services/service_locator.dart';
 import '../services/settings.dart' as my;
@@ -122,11 +122,11 @@ class _InitializeState extends State<Initialize> {
     avatar.init();
     debugPrint('Initialize: Avatar initialized');
 
-    final messaging = Messaging();
+    final messaging = LegacyMessaging();
     await messaging.localSetup();
     await messaging.clearAllNotifications(); // Clear existing notifications
     await messaging.addListeners();
-    debugPrint('Initialize: Messaging services initialized');
+    debugPrint('Initialize: LegacyMessaging services initialized');
 
     // Initialize ads with simple non-blocking approach
     debugPrint('Initialize: Starting ads initialization...');

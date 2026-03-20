@@ -53,7 +53,7 @@ final class UserProfileProvider
   }
 }
 
-String _$userProfileHash() => r'89c369e8201aa0ceca5b25f446ce834e1616a324';
+String _$userProfileHash() => r'64992f76d9136892a6368a034e2da987ce670c84';
 
 /// Provider for user profile data (cached and reactive)
 

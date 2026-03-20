@@ -2,7 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/messaging.dart';
+import '../../services/legacy_messaging.dart';
 
 class NotificationStep extends StatefulWidget {
   final VoidCallback onNext;
@@ -16,7 +16,7 @@ class NotificationStep extends StatefulWidget {
 class _NotificationStepState extends State<NotificationStep> {
   Future<void> _requestPermission() async {
     try {
-      final messaging = context.read<Messaging>();
+      final messaging = context.read<LegacyMessaging>();
 
       final status = await messaging.instance.requestPermission(
         alert: true,

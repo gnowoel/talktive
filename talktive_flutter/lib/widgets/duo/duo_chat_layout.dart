@@ -15,19 +15,23 @@ class DuoChatLayout extends StatelessWidget {
   /// Optional AppBar. If not provided, you might want to use SliverAppBar in content.
   final PreferredSizeWidget? appBar;
 
+  /// Optional widget to show between AppBar and content
+  final Widget? header;
+
+  /// Optional widget to show when someone is typing
+  final Widget? typingIndicator;
+
   /// Optional background color
   final Color? backgroundColor;
 
-  /// Optional widget to show between AppBar and content (like an InfoBanner)
-  final Widget? header;
-
-  const DuoChatLayout({
+  DuoChatLayout({
     super.key,
     required this.content,
     this.input,
     this.appBar,
     this.backgroundColor,
     this.header,
+    this.typingIndicator,
   });
 
   @override
@@ -40,6 +44,7 @@ class DuoChatLayout extends StatelessWidget {
           children: [
             if (header != null) header!,
             Expanded(child: content),
+            if (typingIndicator != null) typingIndicator!,
             if (input != null) input!,
           ],
         ),
@@ -68,13 +73,16 @@ class DuoChatInputLayout extends StatelessWidget {
   final FocusNode? focusNode;
   final bool isSending;
   final bool isLoading;
+  final Function(bool isTyping)? onTypingStatusChanged;
+  final Widget? typingIndicator;
 
-  const DuoChatInputLayout({
+  DuoChatInputLayout({
     super.key,
     required this.content,
     required this.controller,
     required this.onSend,
     this.onVoiceSend,
+    this.onVoiceStart,
     this.appBar,
     this.header,
     this.backgroundColor,
@@ -86,6 +94,8 @@ class DuoChatInputLayout extends StatelessWidget {
     this.focusNode,
     this.isSending = false,
     this.isLoading = false,
+    this.onTypingStatusChanged,
+    this.typingIndicator,
   });
 
   @override
@@ -95,6 +105,7 @@ class DuoChatInputLayout extends StatelessWidget {
       header: header,
       backgroundColor: backgroundColor,
       content: content,
+      typingIndicator: typingIndicator,
       input: DuoChatInput(
         controller: controller,
         onSend: onSend,
@@ -108,6 +119,7 @@ class DuoChatInputLayout extends StatelessWidget {
         focusNode: focusNode,
         isSending: isSending,
         isLoading: isLoading,
+        onTypingStatusChanged: onTypingStatusChanged,
       ),
     );
   }

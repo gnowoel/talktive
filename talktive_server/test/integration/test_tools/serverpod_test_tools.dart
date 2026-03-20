@@ -2433,11 +2433,12 @@ class _MessageEndpoint {
     });
   }
 
-  _i3.Stream<_i15.Message> subscribe(
+  _i3.Stream<_i2.SerializableModel> subscribe(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId,
   ) {
-    var _localTestStreamManager = _i1.TestStreamManager<_i15.Message>();
+    var _localTestStreamManager =
+        _i1.TestStreamManager<_i2.SerializableModel>();
     _i1.callStreamFunctionAndHandleExceptions(
       () async {
         var _localUniqueSession =
@@ -2518,6 +2519,41 @@ class _MessageEndpoint {
           endpointPath: 'message',
           methodName: 'markChannelAsRead',
           parameters: _i1.testObjectToJson({'channelId': channelId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> sendTypingIndicator(
+    _i1.TestSessionBuilder sessionBuilder,
+    int channelId,
+    bool isTyping,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'message',
+            method: 'sendTypingIndicator',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'message',
+          methodName: 'sendTypingIndicator',
+          parameters: _i1.testObjectToJson({
+            'channelId': channelId,
+            'isTyping': isTyping,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -3934,6 +3970,41 @@ class _ResidentEndpoint {
           endpointPath: 'resident',
           methodName: 'purchasePremium',
           parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i10.Resident>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i10.Resident> updatePremiumSettings(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required bool showReadReceipts,
+    required bool showTypingIndicator,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'resident',
+            method: 'updatePremiumSettings',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'resident',
+          methodName: 'updatePremiumSettings',
+          parameters: _i1.testObjectToJson({
+            'showReadReceipts': showReadReceipts,
+            'showTypingIndicator': showTypingIndicator,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

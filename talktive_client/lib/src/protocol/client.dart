@@ -891,9 +891,12 @@ class EndpointMessage extends _i2.EndpointRef {
     },
   );
 
-  /// Subscribes to a channel to receive real-time messages.
-  _i3.Stream<_i15.Message> subscribe(int channelId) => caller
-      .callStreamingServerEndpoint<_i3.Stream<_i15.Message>, _i15.Message>(
+  /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
+  _i3.Stream<_i2.SerializableModel> subscribe(int channelId) =>
+      caller.callStreamingServerEndpoint<
+        _i3.Stream<_i2.SerializableModel>,
+        _i2.SerializableModel
+      >(
         'message',
         'subscribe',
         {'channelId': channelId},
@@ -922,6 +925,19 @@ class EndpointMessage extends _i2.EndpointRef {
         'markChannelAsRead',
         {'channelId': channelId},
       );
+
+  /// Sends a typing indicator to a channel.
+  _i3.Future<void> sendTypingIndicator(
+    int channelId,
+    bool isTyping,
+  ) => caller.callServerEndpoint<void>(
+    'message',
+    'sendTypingIndicator',
+    {
+      'channelId': channelId,
+      'isTyping': isTyping,
+    },
+  );
 }
 
 /// {@category Endpoint}
@@ -1400,6 +1416,19 @@ class EndpointResident extends _i2.EndpointRef {
         'purchasePremium',
         {},
       );
+
+  /// Updates premium settings (Read Receipts, Typing Indicator).
+  _i3.Future<_i10.Resident> updatePremiumSettings({
+    required bool showReadReceipts,
+    required bool showTypingIndicator,
+  }) => caller.callServerEndpoint<_i10.Resident>(
+    'resident',
+    'updatePremiumSettings',
+    {
+      'showReadReceipts': showReadReceipts,
+      'showTypingIndicator': showTypingIndicator,
+    },
+  );
 }
 
 /// {@category Endpoint}

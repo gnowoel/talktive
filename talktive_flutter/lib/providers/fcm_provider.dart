@@ -7,6 +7,7 @@ import 'router_provider.dart';
 import 'private_chat_provider.dart';
 import 'lounge_provider.dart';
 import 'gamification_provider.dart';
+import 'auth_provider.dart';
 
 part 'fcm_provider.g.dart';
 
@@ -18,7 +19,25 @@ class FCMManager extends _$FCMManager {
 
   @override
   FutureOr<String?> build() async {
-    return await initialize();
+    final authState = ref.watch(authProvider);
+    
+    // We only trigger FCM initialization if the user selects the serverpod version
+    // and is authenticated.
+    return authState.when(
+      data: (auth) async {
+        if (auth is Authenticated) {
+          debugPrint('FCMManager: User authenticated (${auth.userName}), initializing FCM...');
+          return await initialize();
+        } else if (auth is Unauthenticated) {
+          debugPrint('FCMManager: User unauthenticated, cleaning up FCM...');
+          await unregister();
+          return null;
+        }
+        return null;
+      },
+      loading: () => null,
+      error: (_, __) => null,
+    );
   }
 
   /// Initialize FCM and request permissions.

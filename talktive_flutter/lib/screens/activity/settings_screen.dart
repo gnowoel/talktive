@@ -121,11 +121,64 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
+                icon: '✔️',
+                title: 'Read Receipts',
+                description: 'See when others have read your messages.',
+                isLocked: !resident.isPremium,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: '✍️',
+                title: 'Typing Indicators',
+                description: 'See when someone is replying to you.',
+                isLocked: !resident.isPremium,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: '🔍',
                 title: 'Neighbors Discovery',
                 description: 'Search for any resident in the building.',
                 isLocked: !resident.isPremium,
               ),
+              if (resident.isPremium) ...[
+                const SizedBox(height: AppTheme.duoSpacingLarge),
+                _buildSectionHeader(context, 'Premium Settings ✨'),
+                DuoCard(
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        title: const Text(
+                          'Show Read Receipts',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: const Text('Let others see when you have read their messages'),
+                        value: resident.showReadReceipts,
+                        activeThumbColor: AppTheme.primaryColor,
+                        onChanged: (value) => _updatePremiumSettings(
+                          context,
+                          ref,
+                          showReadReceipts: value,
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      SwitchListTile(
+                        title: const Text(
+                          'Show Typing Indicator',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: const Text('Show others when you are typing'),
+                        value: resident.showTypingIndicator,
+                        activeThumbColor: AppTheme.primaryColor,
+                        onChanged: (value) => _updatePremiumSettings(
+                          context,
+                          ref,
+                          showTypingIndicator: value,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools 🛠️'),
@@ -153,6 +206,30 @@ class SettingsScreen extends ConsumerWidget {
         error: (e, s) => Center(child: Text('Error: $e')),
       ),
     );
+  }
+
+  Future<void> _updatePremiumSettings(
+    BuildContext context,
+    WidgetRef ref, {
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
+  }) async {
+    HapticFeedback.selectionClick();
+    final resident = ref.read(currentResidentProvider).value;
+    if (resident == null) return;
+
+    try {
+      await client.resident.updatePremiumSettings(
+        showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
+        showTypingIndicator: showTypingIndicator ?? resident.showTypingIndicator,
+      );
+      ref.invalidate(currentResidentProvider);
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showSuccess(context, 'Premium settings updated! ✨');
+    } catch (e) {
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showError(context, 'Failed to update settings');
+    }
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {

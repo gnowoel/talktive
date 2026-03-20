@@ -8,7 +8,7 @@ import '../services/firedata.dart';
 import '../services/firestore.dart';
 import '../services/follow_cache.dart';
 
-import '../services/messaging.dart';
+import '../services/legacy_messaging.dart';
 import '../services/server_clock.dart';
 import '../services/topic_cache.dart';
 
@@ -30,7 +30,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
   late Fireauth fireauth;
   late Firedata firedata;
   late Firestore firestore;
-  late Messaging messaging;
+  late LegacyMessaging messaging;
   late ServerClock serverClock;
   late UserCache userCache;
   late FollowCache followCache;
@@ -81,7 +81,7 @@ class _SubscribeState extends State<Subscribe> with WidgetsBindingObserver {
     fireauth = context.read<Fireauth>();
     firedata = context.read<Firedata>();
     firestore = context.read<Firestore>();
-    messaging = context.read<Messaging>();
+    messaging = context.read<LegacyMessaging>();
     serverClock = context.read<ServerClock>();
     userCache = context.read<UserCache>();
     followCache = context.read<FollowCache>();

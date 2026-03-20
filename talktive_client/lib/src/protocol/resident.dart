@@ -44,6 +44,9 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -56,7 +59,10 @@ abstract class Resident implements _i1.SerializableModel {
        isPremium = isPremium ?? false,
        showOnlineStatus = showOnlineStatus ?? true,
        showReadReceipts = showReadReceipts ?? true,
-       showTypingIndicator = showTypingIndicator ?? true;
+       showTypingIndicator = showTypingIndicator ?? true,
+       showVoiceMessages = showVoiceMessages ?? true,
+       showNeighborsDiscovery = showNeighborsDiscovery ?? true,
+       showEnhancedPeephole = showEnhancedPeephole ?? true;
 
   factory Resident({
     int? id,
@@ -87,6 +93,9 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -168,6 +177,22 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showTypingIndicator'],
             ),
+      showVoiceMessages: jsonSerialization['showVoiceMessages'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showVoiceMessages'],
+            ),
+      showNeighborsDiscovery:
+          jsonSerialization['showNeighborsDiscovery'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showNeighborsDiscovery'],
+            ),
+      showEnhancedPeephole: jsonSerialization['showEnhancedPeephole'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showEnhancedPeephole'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -231,6 +256,12 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showTypingIndicator;
 
+  bool showVoiceMessages;
+
+  bool showNeighborsDiscovery;
+
+  bool showEnhancedPeephole;
+
   String? customAvatarUrl;
 
   /// Returns a shallow copy of this [Resident]
@@ -265,6 +296,9 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     String? customAvatarUrl,
   });
   @override
@@ -300,6 +334,9 @@ abstract class Resident implements _i1.SerializableModel {
       'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
+      'showVoiceMessages': showVoiceMessages,
+      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showEnhancedPeephole': showEnhancedPeephole,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -342,6 +379,9 @@ class _ResidentImpl extends Resident {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -372,6 +412,9 @@ class _ResidentImpl extends Resident {
          showOnlineStatus: showOnlineStatus,
          showReadReceipts: showReadReceipts,
          showTypingIndicator: showTypingIndicator,
+         showVoiceMessages: showVoiceMessages,
+         showNeighborsDiscovery: showNeighborsDiscovery,
+         showEnhancedPeephole: showEnhancedPeephole,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -408,6 +451,9 @@ class _ResidentImpl extends Resident {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -450,6 +496,10 @@ class _ResidentImpl extends Resident {
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
       showReadReceipts: showReadReceipts ?? this.showReadReceipts,
       showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
+      showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
+      showNeighborsDiscovery:
+          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
+      showEnhancedPeephole: showEnhancedPeephole ?? this.showEnhancedPeephole,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,

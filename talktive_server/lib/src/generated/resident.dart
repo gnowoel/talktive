@@ -45,6 +45,9 @@ abstract class Resident
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -57,7 +60,10 @@ abstract class Resident
        isPremium = isPremium ?? false,
        showOnlineStatus = showOnlineStatus ?? true,
        showReadReceipts = showReadReceipts ?? true,
-       showTypingIndicator = showTypingIndicator ?? true;
+       showTypingIndicator = showTypingIndicator ?? true,
+       showVoiceMessages = showVoiceMessages ?? true,
+       showNeighborsDiscovery = showNeighborsDiscovery ?? true,
+       showEnhancedPeephole = showEnhancedPeephole ?? true;
 
   factory Resident({
     int? id,
@@ -88,6 +94,9 @@ abstract class Resident
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -169,6 +178,22 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showTypingIndicator'],
             ),
+      showVoiceMessages: jsonSerialization['showVoiceMessages'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showVoiceMessages'],
+            ),
+      showNeighborsDiscovery:
+          jsonSerialization['showNeighborsDiscovery'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showNeighborsDiscovery'],
+            ),
+      showEnhancedPeephole: jsonSerialization['showEnhancedPeephole'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showEnhancedPeephole'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -234,6 +259,12 @@ abstract class Resident
 
   bool showTypingIndicator;
 
+  bool showVoiceMessages;
+
+  bool showNeighborsDiscovery;
+
+  bool showEnhancedPeephole;
+
   String? customAvatarUrl;
 
   @override
@@ -271,6 +302,9 @@ abstract class Resident
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     String? customAvatarUrl,
   });
   @override
@@ -306,6 +340,9 @@ abstract class Resident
       'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
+      'showVoiceMessages': showVoiceMessages,
+      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showEnhancedPeephole': showEnhancedPeephole,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -343,6 +380,9 @@ abstract class Resident
       'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
+      'showVoiceMessages': showVoiceMessages,
+      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showEnhancedPeephole': showEnhancedPeephole,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -409,6 +449,9 @@ class _ResidentImpl extends Resident {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -439,6 +482,9 @@ class _ResidentImpl extends Resident {
          showOnlineStatus: showOnlineStatus,
          showReadReceipts: showReadReceipts,
          showTypingIndicator: showTypingIndicator,
+         showVoiceMessages: showVoiceMessages,
+         showNeighborsDiscovery: showNeighborsDiscovery,
+         showEnhancedPeephole: showEnhancedPeephole,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -475,6 +521,9 @@ class _ResidentImpl extends Resident {
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -517,6 +566,10 @@ class _ResidentImpl extends Resident {
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
       showReadReceipts: showReadReceipts ?? this.showReadReceipts,
       showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
+      showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
+      showNeighborsDiscovery:
+          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
+      showEnhancedPeephole: showEnhancedPeephole ?? this.showEnhancedPeephole,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
@@ -676,6 +729,23 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         value,
       );
 
+  _i1.ColumnValue<bool, bool> showVoiceMessages(bool value) => _i1.ColumnValue(
+    table.showVoiceMessages,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> showNeighborsDiscovery(bool value) =>
+      _i1.ColumnValue(
+        table.showNeighborsDiscovery,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> showEnhancedPeephole(bool value) =>
+      _i1.ColumnValue(
+        table.showEnhancedPeephole,
+        value,
+      );
+
   _i1.ColumnValue<String, String> customAvatarUrl(String? value) =>
       _i1.ColumnValue(
         table.customAvatarUrl,
@@ -807,6 +877,21 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    showVoiceMessages = _i1.ColumnBool(
+      'showVoiceMessages',
+      this,
+      hasDefault: true,
+    );
+    showNeighborsDiscovery = _i1.ColumnBool(
+      'showNeighborsDiscovery',
+      this,
+      hasDefault: true,
+    );
+    showEnhancedPeephole = _i1.ColumnBool(
+      'showEnhancedPeephole',
+      this,
+      hasDefault: true,
+    );
     customAvatarUrl = _i1.ColumnString(
       'customAvatarUrl',
       this,
@@ -869,6 +954,12 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showTypingIndicator;
 
+  late final _i1.ColumnBool showVoiceMessages;
+
+  late final _i1.ColumnBool showNeighborsDiscovery;
+
+  late final _i1.ColumnBool showEnhancedPeephole;
+
   late final _i1.ColumnString customAvatarUrl;
 
   @override
@@ -901,6 +992,9 @@ class ResidentTable extends _i1.Table<int?> {
     showOnlineStatus,
     showReadReceipts,
     showTypingIndicator,
+    showVoiceMessages,
+    showNeighborsDiscovery,
+    showEnhancedPeephole,
     customAvatarUrl,
   ];
 }

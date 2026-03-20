@@ -282,16 +282,23 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     return await protocol.Resident.db.updateRow(session, resident);
   }
 
-  /// Updates privacy settings (Read Receipts, Typing Indicator).
+  /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search).
   Future<protocol.Resident> updatePrivacySettings(
     Session session, {
-    required bool showReadReceipts,
-    required bool showTypingIndicator,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
   }) async {
     final resident = await getAuthenticatedResident(session);
 
-    resident.showReadReceipts = showReadReceipts;
-    resident.showTypingIndicator = showTypingIndicator;
+    if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
+    if (showTypingIndicator != null) resident.showTypingIndicator = showTypingIndicator;
+    if (showVoiceMessages != null) resident.showVoiceMessages = showVoiceMessages;
+    if (showNeighborsDiscovery != null) resident.showNeighborsDiscovery = showNeighborsDiscovery;
+    if (showEnhancedPeephole != null) resident.showEnhancedPeephole = showEnhancedPeephole;
+    
     return await protocol.Resident.db.updateRow(session, resident);
   }
 }

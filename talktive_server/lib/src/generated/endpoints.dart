@@ -2545,13 +2545,28 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'showReadReceipts': _i1.ParameterDescription(
               name: 'showReadReceipts',
-              type: _i1.getType<bool>(),
-              nullable: false,
+              type: _i1.getType<bool?>(),
+              nullable: true,
             ),
             'showTypingIndicator': _i1.ParameterDescription(
               name: 'showTypingIndicator',
-              type: _i1.getType<bool>(),
-              nullable: false,
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showVoiceMessages': _i1.ParameterDescription(
+              name: 'showVoiceMessages',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showNeighborsDiscovery': _i1.ParameterDescription(
+              name: 'showNeighborsDiscovery',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showEnhancedPeephole': _i1.ParameterDescription(
+              name: 'showEnhancedPeephole',
+              type: _i1.getType<bool?>(),
+              nullable: true,
             ),
           },
           call:
@@ -2563,6 +2578,9 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     showReadReceipts: params['showReadReceipts'],
                     showTypingIndicator: params['showTypingIndicator'],
+                    showVoiceMessages: params['showVoiceMessages'],
+                    showNeighborsDiscovery: params['showNeighborsDiscovery'],
+                    showEnhancedPeephole: params['showEnhancedPeephole'],
                   ),
         ),
       },

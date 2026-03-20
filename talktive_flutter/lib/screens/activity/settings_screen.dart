@@ -43,117 +43,80 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
-              _buildSectionHeader(context, 'Privacy 🛡️'),
+              _buildSectionHeader(context, 'Premium Features ✨'),
+              _buildPremiumCard(context, ref, resident.isPremium),
+              const SizedBox(height: AppTheme.duoSpacingMedium),
               DuoCard(
                 child: Column(
                   children: [
-                    SwitchListTile(
-                      title: const Text(
-                        'Show Online Status',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text('Let others see when you are active'),
+                    _buildFeatureToggle(
+                      context,
+                      ref,
+                      icon: '🟢',
+                      title: 'Online Indicator',
+                      description: 'See when neighbors are active',
                       value: resident.showOnlineStatus,
-                      activeThumbColor: AppTheme.duoGreen,
-                      onChanged: (value) async {
-                        HapticFeedback.selectionClick();
-                        try {
-                          await client.resident.updateOnlineSettings(
-                            showOnlineStatus: value,
-                          );
-                          ref.invalidate(currentResidentProvider);
-                          if (!context.mounted) return;
-                          DuoSnackBarHelper.showSuccess(
-                            context,
-                            value ? 'Online status visible! 🟢' : 'Incognito mode active! 👻',
-                          );
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          DuoSnackBarHelper.showError(context, 'Failed to update settings');
-                        }
-                      },
+                      isLocked: !resident.isPremium,
+                      onChanged: (val) => _updatePremiumSettings(context, ref, showOnlineStatus: val),
                     ),
                     const Divider(height: 1),
-                    SwitchListTile(
-                      title: const Text(
-                        'Show Read Receipts',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text('Let others see when you have read their messages'),
+                    _buildFeatureToggle(
+                      context,
+                      ref,
+                      icon: '✔️',
+                      title: 'Read Receipts',
+                      description: 'Let others see if you read messages',
                       value: resident.showReadReceipts,
-                      activeThumbColor: AppTheme.primaryColor,
-                      onChanged: (value) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showReadReceipts: value,
-                      ),
+                      isLocked: !resident.isPremium,
+                      onChanged: (val) => _updatePremiumSettings(context, ref, showReadReceipts: val),
                     ),
                     const Divider(height: 1),
-                    SwitchListTile(
-                      title: const Text(
-                        'Show Typing Indicator',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text('Show others when you are typing'),
+                    _buildFeatureToggle(
+                      context,
+                      ref,
+                      icon: '💬',
+                      title: 'Typing Indicators',
+                      description: 'Show others when you are typing',
                       value: resident.showTypingIndicator,
-                      activeThumbColor: AppTheme.primaryColor,
-                      onChanged: (value) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showTypingIndicator: value,
-                      ),
+                      isLocked: !resident.isPremium,
+                      onChanged: (val) => _updatePremiumSettings(context, ref, showTypingIndicator: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildFeatureToggle(
+                      context,
+                      ref,
+                      icon: '🎙️',
+                      title: 'Voice Messages',
+                      description: 'Send audio messages in chats',
+                      value: resident.showVoiceMessages,
+                      isLocked: !resident.isPremium,
+                      onChanged: (val) => _updatePremiumSettings(context, ref, showVoiceMessages: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildFeatureToggle(
+                      context,
+                      ref,
+                      icon: '🔍',
+                      title: 'Neighbor Discovery',
+                      description: 'Search for any resident',
+                      value: resident.showNeighborsDiscovery,
+                      isLocked: !resident.isPremium,
+                      onChanged: (val) => _updatePremiumSettings(context, ref, showNeighborsDiscovery: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildFeatureToggle(
+                      context,
+                      ref,
+                      icon: '👁️',
+                      title: 'Enhanced Peephole',
+                      description: 'Get deep insights when checking peepholes',
+                      value: resident.showEnhancedPeephole,
+                      isLocked: !resident.isPremium,
+                      onChanged: (val) => _updatePremiumSettings(context, ref, showEnhancedPeephole: val),
                     ),
                   ],
                 ),
               ),
-              if (resident.isPremium) ...[
-                const SizedBox(height: AppTheme.duoSpacingLarge),
-                _buildSectionHeader(context, 'Premium Features ✨'),
-                _buildPremiumCard(context, ref, resident.isPremium),
-                const SizedBox(height: AppTheme.duoSpacingMedium),
-                _buildFeatureRow(
-                  context,
-                  icon: '🖼️',
-                  title: 'Custom Avatar',
-                  description: 'Upload your own image to use as an avatar.',
-                  isLocked: false,
-                ),
-                _buildFeatureRow(
-                  context,
-                  icon: '🎙️',
-                  title: 'Voice Messages',
-                  description: 'Send audio messages in any chat thread.',
-                  isLocked: false,
-                ),
-                _buildFeatureRow(
-                  context,
-                  icon: '🔍',
-                  title: 'Neighbors Discovery',
-                  description: 'Search for any resident in the building.',
-                  isLocked: false,
-                ),
-                _buildFeatureRow(
-                  context,
-                  icon: '🟢',
-                  title: 'Online Indicator',
-                  description: 'See when your friends are active in real-time.',
-                  isLocked: false,
-                ),
-                _buildFeatureRow(
-                  context,
-                  icon: '✔️',
-                  title: 'Read Receipts',
-                  description: 'See when others have read your messages.',
-                  isLocked: false,
-                ),
-                _buildFeatureRow(
-                  context,
-                  icon: '✍️',
-                  title: 'Typing Indicators',
-                  description: 'See when someone is replying to you.',
-                  isLocked: false,
-                ),
-              ],
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools 🛠️'),
@@ -183,11 +146,17 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _updatePrivacySettings(
+
+
+  Future<void> _updatePremiumSettings(
     BuildContext context,
     WidgetRef ref, {
+    bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
   }) async {
     HapticFeedback.selectionClick();
     final resident = ref.read(currentResidentProvider).value;
@@ -197,7 +166,16 @@ class SettingsScreen extends ConsumerWidget {
       await client.resident.updatePrivacySettings(
         showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
         showTypingIndicator: showTypingIndicator ?? resident.showTypingIndicator,
+        showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
+        showNeighborsDiscovery: showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
+        showEnhancedPeephole: showEnhancedPeephole ?? resident.showEnhancedPeephole,
       );
+      
+      // Handle Online status separately if needed or update it here
+      if (showOnlineStatus != null) {
+        await client.resident.updateOnlineSettings(showOnlineStatus: showOnlineStatus);
+      }
+
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;
       DuoSnackBarHelper.showSuccess(context, 'Premium settings updated! ✨');
@@ -290,63 +268,40 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeatureRow(
-    BuildContext context, {
+  Widget _buildFeatureToggle(
+    BuildContext context,
+    WidgetRef ref, {
     required String icon,
     required String title,
     required String description,
+    required bool value,
     required bool isLocked,
+    required Function(bool) onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isLocked ? Colors.grey[200] : AppTheme.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
+    return Opacity(
+      opacity: isLocked ? 0.5 : 1.0,
+      child: SwitchListTile(
+        title: Row(
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: 12),
+            Expanded(
               child: Text(
-                icon,
-                style: const TextStyle(fontSize: 24),
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: isLocked ? Colors.grey[600] : Colors.black,
-                      ),
-                    ),
-                    if (isLocked) ...[
-                      const SizedBox(width: 8),
-                      const Icon(Icons.lock_outline, size: 14, color: Colors.grey),
-                    ],
-                  ],
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+            if (isLocked)
+              const Icon(Icons.lock_rounded, size: 16, color: Colors.grey),
+          ],
+        ),
+        subtitle: Text(description),
+        value: isLocked ? false : value,
+        activeThumbColor: AppTheme.primaryColor,
+        onChanged: isLocked ? null : (val) {
+          HapticFeedback.selectionClick();
+          onChanged(val);
+        },
       ),
     );
   }

@@ -38,7 +38,7 @@ class LoungesScreen extends ConsumerWidget {
             icon: const Icon(Icons.search, color: Colors.white, size: 28),
             onPressed: () {
               HapticFeedback.lightImpact();
-              context.push('/lounges/search', extra: 1); // Open with Lounges tab
+              context.push('/discovery/lounges');
             },
           ),
           DuoRefreshButton(

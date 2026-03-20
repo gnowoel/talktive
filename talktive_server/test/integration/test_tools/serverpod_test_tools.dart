@@ -3987,8 +3987,11 @@ class _ResidentEndpoint {
 
   _i3.Future<_i10.Resident> updatePrivacySettings(
     _i1.TestSessionBuilder sessionBuilder, {
-    required bool showReadReceipts,
-    required bool showTypingIndicator,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -4004,6 +4007,9 @@ class _ResidentEndpoint {
           parameters: _i1.testObjectToJson({
             'showReadReceipts': showReadReceipts,
             'showTypingIndicator': showTypingIndicator,
+            'showVoiceMessages': showVoiceMessages,
+            'showNeighborsDiscovery': showNeighborsDiscovery,
+            'showEnhancedPeephole': showEnhancedPeephole,
           }),
           serializationManager: _serializationManager,
         );

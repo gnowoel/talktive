@@ -16,7 +16,8 @@ import '../screens/plaza/plaza_chat_screen.dart';
 import '../screens/moments/moment_detail_screen.dart';
 import '../screens/moments/image_gallery_screen.dart';
 import '../screens/moments/user_moments_screen.dart';
-import '../screens/discovery/discovery_screen.dart';
+import '../screens/discovery/people_search_screen.dart';
+import '../screens/discovery/lounge_search_screen.dart';
 import '../screens/lounges/lounge_profile_screen.dart';
 import '../screens/lounges/lounge_chat_screen.dart';
 import '../screens/lounges/lounge_members_screen.dart';
@@ -54,6 +55,16 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/discovery',
         builder: (context, state) => const HomeScreen(initialIndex: 0),
+        routes: [
+          GoRoute(
+            path: 'people',
+            builder: (context, state) => const PeopleSearchScreen(),
+          ),
+          GoRoute(
+            path: 'lounges',
+            builder: (context, state) => const LoungeSearchScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/plaza', // Keep the redirect path just in case for internal navigations
@@ -112,10 +123,7 @@ GoRouter router(Ref ref) {
         routes: [
           GoRoute(
             path: 'search',
-            builder: (context, state) {
-              final initialTab = state.extra as int? ?? 0;
-              return DiscoveryScreen(initialTabIndex: initialTab);
-            },
+            builder: (context, state) => const LoungeSearchScreen(),
           ),
           GoRoute(
             path: 'profile/:loungeId',

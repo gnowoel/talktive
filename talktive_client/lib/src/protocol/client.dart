@@ -1417,16 +1417,22 @@ class EndpointResident extends _i2.EndpointRef {
         {},
       );
 
-  /// Updates privacy settings (Read Receipts, Typing Indicator).
+  /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search).
   _i3.Future<_i10.Resident> updatePrivacySettings({
-    required bool showReadReceipts,
-    required bool showTypingIndicator,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
   }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
     'updatePrivacySettings',
     {
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
+      'showVoiceMessages': showVoiceMessages,
+      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showEnhancedPeephole': showEnhancedPeephole,
     },
   );
 }

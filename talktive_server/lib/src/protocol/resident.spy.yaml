@@ -43,6 +43,9 @@ fields:
   showOnlineStatus: bool, default=true
   showReadReceipts: bool, default=true
   showTypingIndicator: bool, default=true
+  showVoiceMessages: bool, default=true
+  showNeighborsDiscovery: bool, default=true
+  showEnhancedPeephole: bool, default=true
   customAvatarUrl: String?
   
 indexes:

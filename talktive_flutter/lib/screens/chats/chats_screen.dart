@@ -28,10 +28,22 @@ class ChatsScreen extends ConsumerWidget {
       emoji: '💬',
       title: 'Chats',
       subtitle: 'Private conversations',
-      trailingHeader: DuoRefreshButton(
-        onRefresh: () async {
-          await ref.read(privateChatListProvider.notifier).refresh();
-        },
+      trailingHeader: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.white, size: 24),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.push('/discovery/people');
+            },
+          ),
+          DuoRefreshButton(
+            onRefresh: () async {
+              await ref.read(privateChatListProvider.notifier).refresh();
+            },
+          ),
+        ],
       ),
       gradient: AppTheme.duoOrangeGradient,
       body: chatsState.when(

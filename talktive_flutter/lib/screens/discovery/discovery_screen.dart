@@ -105,6 +105,20 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
+    final currentResident = ref.watch(currentResidentProvider).value;
+    final isPremium = currentResident?.isPremium ?? false;
+
+    // Reset length if it changes (e.g. during dev or if they upgrade while on screen)
+    final expectedLength = isPremium ? 2 : 1;
+    if (_tabController.length != expectedLength) {
+      _tabController.dispose();
+      _tabController = TabController(
+        length: expectedLength,
+        vsync: this,
+        initialIndex: isPremium ? widget.initialTabIndex : 0,
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -120,14 +134,16 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(110),
+          preferredSize: Size.fromHeight(isPremium ? 110 : 70),
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: DuoInput(
                   controller: _searchController,
-                  hintText: 'Search people, lounges, or moments...',
+                  hintText: isPremium 
+                    ? 'Search people, lounges, or moments...'
+                    : 'Search lounges or moments...',
                   prefixIcon: Icons.search,
                   iconColor: AppTheme.duoBlue,
                   onChanged: (val) => _performSearch(val),
@@ -142,18 +158,19 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
                     : null,
                 ),
               ),
-              TabBar(
-                controller: _tabController,
-                indicatorColor: AppTheme.duoBlue,
-                indicatorWeight: 3,
-                labelColor: AppTheme.duoBlue,
-                unselectedLabelColor: AppTheme.textSecondary,
-                labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                tabs: const [
-                  Tab(text: 'People'),
-                  Tab(text: 'Lounges'),
-                ],
-              ),
+              if (isPremium)
+                TabBar(
+                  controller: _tabController,
+                  indicatorColor: AppTheme.duoBlue,
+                  indicatorWeight: 3,
+                  labelColor: AppTheme.duoBlue,
+                  unselectedLabelColor: AppTheme.textSecondary,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  tabs: const [
+                    Tab(text: 'People'),
+                    Tab(text: 'Lounges'),
+                  ],
+                ),
             ],
           ),
         ),
@@ -161,7 +178,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> with SingleTi
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildPeopleTab(),
+          if (isPremium) _buildPeopleTab(),
           _buildLoungeTab(),
         ],
       ),

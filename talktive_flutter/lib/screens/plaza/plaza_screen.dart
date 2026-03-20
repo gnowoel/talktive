@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../providers/current_resident_provider.dart';
 
 /// Duolingo-style Plaza screen - entry point for public areas
 class PlazaScreen extends ConsumerWidget {
@@ -23,8 +24,9 @@ class PlazaScreen extends ConsumerWidget {
         icon: const Icon(Icons.search, color: Colors.white, size: 28),
         onPressed: () {
           HapticFeedback.lightImpact();
-          // Navigate to Discovery with People tab (index 0)
-          context.push('/lounges/search', extra: 0); 
+          final isPremium = ref.read(currentResidentProvider).value?.isPremium ?? false;
+          // Navigate to People tab (0) if premium, otherwise Lounges tab (which will be 0 as it's the only one)
+          context.push('/lounges/search', extra: isPremium ? 0 : 0); 
         },
       ),
       body: ListView(

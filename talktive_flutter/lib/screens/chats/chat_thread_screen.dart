@@ -383,9 +383,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ),
           controller: _messageController,
           onSend: _sendMessage,
-          onVoiceSend: _sendVoiceMessage,
+          onVoiceSend: (currentResident?.isPremium ?? false) ? _sendVoiceMessage : null,
           onVoiceStart: () async {
-            final currentResident = ref.read(currentResidentProvider).value;
             if (currentResident == null) return false;
 
             if (!currentResident.isPremium) {

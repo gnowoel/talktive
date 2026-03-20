@@ -21,6 +21,15 @@ This document tracks the major development milestones and changes made during th
 - **Unified Chat Layout Refinement**: Updated `DuoChatLayout` and `DuoChatInputLayout` to support dynamic typing indicators and non-constant state updates, standardizing the chat experience across all channel types.
 - **Voice Message UI Polish**: Refined the voice message recording experience with improved haptic feedback and explicit "Premium Required" gates.
 
+### Premium Gating & "No Temptation" UX
+- **Hide-by-Default Implementation**: Applied the "no temptation" philosophy by completely hiding premium-only features from non-premium residents, rather than showing locked states.
+- **Premium Section Visibility**: The entire "Premium Features" section in Settings is now conditionally rendered and only visible to premium subscribers.
+- **Micro-Gated Functionality**: 
+  - **Voice Messages**: Completely removed the voice recording (microphone) button from the chat input for non-premium users.
+  - **Neighbor Discovery**: Restructured the `DiscoveryScreen` to remove the "People" tab for free users, simplifying search to Lounges and Moments only.
+  - **Search Wormhole Update**: Standardized the Plaza's search entry point to intelligently route users to the appropriate tab based on their premium status.
+  - **Presence Privacy**: Enforced premium-only visibility for the real-time online status indicator across all contact lists and chat threads.
+
 ---
 
 

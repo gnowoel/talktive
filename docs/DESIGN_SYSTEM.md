@@ -112,3 +112,16 @@ Community discovery is a primary action.
 *   **Icon**: `Icons.search` (Outline or Rounded).
 *   **Action**: Consistently navigates to `/lounges/search` (which routes to the unified Discovery screen).
 *   **Placement**: Positioned as a primary header action, typically preceding the Refresh button.
+
+---
+
+## 💎 Premium Strategy: "No Temptation" UX
+
+Talktive follows a "No Temptation" philosophy regarding premium features for non-paying residents:
+
+*   **Hide, Don't Lock**: Premium features are completely hidden from the UI for non-premium users, rather than being shown in a locked or "grayed-out" state. This prevents users from feeling "nagged" or constantly tempted to pay.
+*   **Invisible Gating**:
+    *   **Settings**: The entire "Premium Features" section in the Activity Settings is only visible to premium subscribers.
+    *   **Voice Messages**: The microphone icon is absent for free users; they are not prompted to upgrade when trying to send a voice message because the option simply isn't there.
+    *   **Resident Discovery**: The "People" tab in the Discovery search is hidden for free users, keeping the focus on community (Lounges) and content (Moments).
+*   **Status Indicators**: Premium-only metadata, such as real-time online status dots, is globally withheld from non-premium clients to maintain a clear boundary between free and premium tiers.

@@ -129,6 +129,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Activity Renaming (Mar 2026)**: Renamed "Achievements" to "Activity" hub for comprehensive notification-based interaction history.
 - **Image Handling & Dev Visibility (Mar 2026)**: Fixed lounge image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
 - **Architectural Refinement (Mar 2026)**: Consolidated rate limiting into a unified Redis-based (Serverpod cache) service and removed redundant database-backed rate limit tables. Removed unused `ImageEndpoint` and `StorageEndpoint` to simplify server implementation.
+- **No Temptation Premium Gating (Mar 2026)**: Enforced a \"Hide, Don't Lock\" policy for premium features. Completely removed the voice message button, Resident discovery (People search), and premium settings section for non-subscribers. This ensures a clean, non-intrusive experience for free users while maintaining strict privacy for premium-only metadata like online status.
 
 ## Useful Commands
 

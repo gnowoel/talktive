@@ -361,14 +361,18 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       await protocol.ChannelMember.db.updateRow(session, membership);
 
       // Broadcast ReadReceiptEvent to other channel members
-      await session.messages.postMessage(
-        'channel_$channelId',
-        protocol.ReadReceiptEvent(
-          channelId: channelId,
-          userId: userUuid,
-          lastReadAt: now,
-        ),
-      );
+      // Only broadcast if the user has opted in to sharing read receipts
+      final resident = await getResidentProfile(session, userUuid);
+      if (resident.showReadReceipts) {
+        await session.messages.postMessage(
+          'channel_$channelId',
+          protocol.ReadReceiptEvent(
+            channelId: channelId,
+            userId: userUuid,
+            lastReadAt: now,
+          ),
+        );
+      }
     }
   }
 
@@ -381,15 +385,18 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    await session.messages.postMessage(
-      'channel_$channelId',
-      protocol.TypingIndicator(
-        channelId: channelId,
-        senderId: userUuid,
-        userName: resident.userName ?? 'Resident',
-        isTyping: isTyping,
-      ),
-    );
+    // Only broadcast if the user has opted in to sharing typing status
+    if (resident.showTypingIndicator) {
+      await session.messages.postMessage(
+        'channel_$channelId',
+        protocol.TypingIndicator(
+          channelId: channelId,
+          senderId: userUuid,
+          userName: resident.userName ?? 'Resident',
+          isTyping: isTyping,
+        ),
+      );
+    }
   }
 
   /// Internal helper to trigger notifications in the background.

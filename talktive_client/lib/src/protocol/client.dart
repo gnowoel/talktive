@@ -1417,13 +1417,13 @@ class EndpointResident extends _i2.EndpointRef {
         {},
       );
 
-  /// Updates premium settings (Read Receipts, Typing Indicator).
-  _i3.Future<_i10.Resident> updatePremiumSettings({
+  /// Updates privacy settings (Read Receipts, Typing Indicator).
+  _i3.Future<_i10.Resident> updatePrivacySettings({
     required bool showReadReceipts,
     required bool showTypingIndicator,
   }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
-    'updatePremiumSettings',
+    'updatePrivacySettings',
     {
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,

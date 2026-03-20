@@ -4,18 +4,17 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 20, 2026 - Premium Features & Version-Aware Notifications 💎🔔
+## March 20, 2026 - Privacy Features & Version Selection 🏠🔒
 
-### Premium Social Features
-- **Read Receipts**: Implemented a "Read Receipts" system for private 1-on-1 chats. Residents with a Premium subscription can now see when their messages have been read by the recipient (indicated by a double checkmark).
-- **Real-time Typing Indicators**: Added "Someone is typing..." visual cues to both Private and Lounge chats. This feature is exclusive to Premium residents and can be toggled in settings.
-- **Privacy Controls**: Integrated toggles for "Show Read Receipts" and "Show Typing Indicator" within the Activity > Settings screen, allowing Premium users to control their visibility.
+### Privacy-First Social Features
+- **Universal Privacy Toggles**: Read receipts and typing status management is now available to all residents, not just Premium subscribers. Toggles for "Show Read Receipts" and "Show Typing Indicator" have been moved to the primary "Privacy" section in Settings.
+- **Premium Visibility**: Premium Residents can see read receipts (indicated by double checkmarks) and typing indicators ("Someone is typing...") from their contacts, provided the other party has not opted out through their privacy settings.
+- **Privacy-Aware Server Logic**: Server-side endpoints now intelligently filter out read and typing status broadcasts from residents who have disabled these features, ensuring their privacy is respected across all clients.
 
-### App Version Separation (Architectural Refinement)
+### App Version Management
+- **Persistence-Free Selection**: The app now prompts users to select their preferred version (Firebase or Serverpod) upon every restart, allowing them to switch between versions as needed rather than being locked into a choice.
 - **Version-Aware FCM**: Refactored the `backgroundMessagingHandler` to intelligently dispatch push notifications based on a new `appVersion` field in the FCM payload. Notifications are now only displayed if they match the user's currently selected app version (Firebase vs. Serverpod).
-- **Serverpod Notification Service**: Created a standalone `ServerpodNotificationService` to handle local notifications and token registration specifically for the new architecture, ensuring complete isolation from legacy Firebase code.
-- **Persistent Version Selection**: Integrated `SharedPreferences` to remember the user's app version choice across restarts, providing a seamless experience after the initial selection.
-- **FCM Registration Reactivity**: Updated the `FCMManager` to automatically register and unregister tokens based on the resident's authentication state, ensuring push notifications are tied to the active session.
+- **FCM Target Optimization**: The background notification handler uses a persistent record of the last active version to ensure push notifications only target the relevant version, preventing deep-linking issues across the boundary.
 
 ### Codebase Cleanup & Isolation
 - **Legacy Messaging Decoupling**: Moved and renamed the original `Messaging` service to `LegacyMessaging`. Removed all Serverpod-specific code from it to simplify eventual removal of the Firebase version.

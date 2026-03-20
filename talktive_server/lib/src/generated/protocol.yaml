@@ -120,7 +120,7 @@ resident:
   - getBlockedUserIds:
   - updateOnlineSettings:
   - purchasePremium:
-  - updatePremiumSettings:
+  - updatePrivacySettings:
 search:
   - searchUsers:
   - searchLounges:

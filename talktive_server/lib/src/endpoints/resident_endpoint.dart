@@ -282,20 +282,13 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     return await protocol.Resident.db.updateRow(session, resident);
   }
 
-  /// Updates premium settings (Read Receipts, Typing Indicator).
-  Future<protocol.Resident> updatePremiumSettings(
+  /// Updates privacy settings (Read Receipts, Typing Indicator).
+  Future<protocol.Resident> updatePrivacySettings(
     Session session, {
     required bool showReadReceipts,
     required bool showTypingIndicator,
   }) async {
     final resident = await getAuthenticatedResident(session);
-
-    if (!resident.isPremium) {
-      throw protocol.TalktiveException(
-        message: 'These settings require a Premium subscription.',
-        code: 'PREMIUM_REQUIRED',
-      );
-    }
 
     resident.showReadReceipts = showReadReceipts;
     resident.showTypingIndicator = showTypingIndicator;

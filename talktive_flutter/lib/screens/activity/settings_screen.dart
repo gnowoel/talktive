@@ -45,39 +45,65 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               _buildSectionHeader(context, 'Privacy 🛡️'),
               DuoCard(
-                child: SwitchListTile(
-                  title: const Text(
-                    'Show Online Status',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: const Text('Let others see when you are active'),
-                  value: resident.showOnlineStatus,
-                  activeThumbColor: AppTheme.duoGreen,
-                  trackColor: WidgetStateProperty.resolveWith<Color?>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.selected)) {
-                        return AppTheme.duoGreen.withValues(alpha: 0.5);
-                      }
-                      return null;
-                    },
-                  ),
-                  onChanged: (value) async {
-                    HapticFeedback.selectionClick();
-                    try {
-                      await client.resident.updateOnlineSettings(
-                        showOnlineStatus: value,
-                      );
-                      ref.invalidate(currentResidentProvider);
-                      if (!context.mounted) return;
-                      DuoSnackBarHelper.showSuccess(
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: const Text(
+                        'Show Online Status',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: const Text('Let others see when you are active'),
+                      value: resident.showOnlineStatus,
+                      activeThumbColor: AppTheme.duoGreen,
+                      onChanged: (value) async {
+                        HapticFeedback.selectionClick();
+                        try {
+                          await client.resident.updateOnlineSettings(
+                            showOnlineStatus: value,
+                          );
+                          ref.invalidate(currentResidentProvider);
+                          if (!context.mounted) return;
+                          DuoSnackBarHelper.showSuccess(
+                            context,
+                            value ? 'Online status visible! 🟢' : 'Incognito mode active! 👻',
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          DuoSnackBarHelper.showError(context, 'Failed to update settings');
+                        }
+                      },
+                    ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      title: const Text(
+                        'Show Read Receipts',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: const Text('Let others see when you have read their messages'),
+                      value: resident.showReadReceipts,
+                      activeThumbColor: AppTheme.primaryColor,
+                      onChanged: (value) => _updatePrivacySettings(
                         context,
-                        value ? 'Online status visible! 🟢' : 'Incognito mode active! 👻',
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      DuoSnackBarHelper.showError(context, 'Failed to update settings');
-                    }
-                  },
+                        ref,
+                        showReadReceipts: value,
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      title: const Text(
+                        'Show Typing Indicator',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: const Text('Show others when you are typing'),
+                      value: resident.showTypingIndicator,
+                      activeThumbColor: AppTheme.primaryColor,
+                      onChanged: (value) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showTypingIndicator: value,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
@@ -140,45 +166,6 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'Search for any resident in the building.',
                 isLocked: !resident.isPremium,
               ),
-              if (resident.isPremium) ...[
-                const SizedBox(height: AppTheme.duoSpacingLarge),
-                _buildSectionHeader(context, 'Premium Settings ✨'),
-                DuoCard(
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        title: const Text(
-                          'Show Read Receipts',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: const Text('Let others see when you have read their messages'),
-                        value: resident.showReadReceipts,
-                        activeThumbColor: AppTheme.primaryColor,
-                        onChanged: (value) => _updatePremiumSettings(
-                          context,
-                          ref,
-                          showReadReceipts: value,
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      SwitchListTile(
-                        title: const Text(
-                          'Show Typing Indicator',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: const Text('Show others when you are typing'),
-                        value: resident.showTypingIndicator,
-                        activeThumbColor: AppTheme.primaryColor,
-                        onChanged: (value) => _updatePremiumSettings(
-                          context,
-                          ref,
-                          showTypingIndicator: value,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools 🛠️'),
@@ -200,7 +187,6 @@ class SettingsScreen extends ConsumerWidget {
               ],
               const SizedBox(height: AppTheme.contentBottomPadding),
             ],
-          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error: $e')),
@@ -208,7 +194,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _updatePremiumSettings(
+  Future<void> _updatePrivacySettings(
     BuildContext context,
     WidgetRef ref, {
     bool? showReadReceipts,
@@ -219,7 +205,7 @@ class SettingsScreen extends ConsumerWidget {
     if (resident == null) return;
 
     try {
-      await client.resident.updatePremiumSettings(
+      await client.resident.updatePrivacySettings(
         showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
         showTypingIndicator: showTypingIndicator ?? resident.showTypingIndicator,
       );

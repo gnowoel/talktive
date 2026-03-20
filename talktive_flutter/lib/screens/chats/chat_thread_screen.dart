@@ -398,7 +398,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             return true;
           },
           onTypingStatusChanged: (isTyping) {
-            if (currentResident?.isPremium == true && currentResident?.showTypingIndicator == true) {
+            if (currentResident?.showTypingIndicator == true) {
               ref.read(realtimeChatProvider(widget.channelId).notifier).setTyping(isTyping);
             }
           },

@@ -307,7 +307,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
             otherUserMood: otherResident.mood,
             currentMemberStatus: currentMember?.status,
             otherMemberStatus: otherMember?.status,
-            otherUserLastReadAt: otherMember?.lastReadAt,
+            otherUserLastReadAt: otherResident.showReadReceipts ? otherMember?.lastReadAt : null,
             unreadCount: await ChatService.getUnreadCount(
               session,
               chat.channelId,
@@ -388,7 +388,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       otherUserMood: otherResident.mood,
       currentMemberStatus: currentMember?.status,
       otherMemberStatus: otherMember?.status,
-      otherUserLastReadAt: otherMember?.lastReadAt,
+      otherUserLastReadAt: otherResident.showReadReceipts ? otherMember?.lastReadAt : null,
       unreadCount: await ChatService.getUnreadCount(
         session,
         privateChat.channelId,

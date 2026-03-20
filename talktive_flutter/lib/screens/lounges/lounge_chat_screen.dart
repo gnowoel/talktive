@@ -610,7 +610,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         return true;
       },
       onTypingStatusChanged: (isTyping) {
-        if (currentResident?.isPremium == true && currentResident?.showTypingIndicator == true) {
+        if (currentResident?.showTypingIndicator == true) {
           ref
               .read(realtimeChatProvider(widget.lounge.channelId).notifier)
               .setTyping(isTyping);

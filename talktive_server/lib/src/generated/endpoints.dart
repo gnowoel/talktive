@@ -2540,8 +2540,8 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
                   .purchasePremium(session),
         ),
-        'updatePremiumSettings': _i1.MethodConnector(
-          name: 'updatePremiumSettings',
+        'updatePrivacySettings': _i1.MethodConnector(
+          name: 'updatePrivacySettings',
           params: {
             'showReadReceipts': _i1.ParameterDescription(
               name: 'showReadReceipts',
@@ -2559,7 +2559,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
-                  .updatePremiumSettings(
+                  .updatePrivacySettings(
                     session,
                     showReadReceipts: params['showReadReceipts'],
                     showTypingIndicator: params['showTypingIndicator'],

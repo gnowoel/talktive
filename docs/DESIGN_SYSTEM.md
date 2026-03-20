@@ -110,18 +110,24 @@ The `DuoRefreshButton` provides manual state synchronization. It must be consist
 ### 2. Search & Discovery
 Community discovery is a primary action.
 *   **Icon**: `Icons.search` (Outline or Rounded).
-*   **Action**: Consistently navigates to `/lounges/search` (which routes to the unified Discovery screen).
+*   **Action**: Consistently navigates to `/discovery/lounges`.
 *   **Placement**: Positioned as a primary header action, typically preceding the Refresh button.
 
 ---
 
-## 💎 Premium Strategy: "No Temptation" UX
+## 💎 Premium Strategy: "Benefit Visibility" UX
 
-Talktive follows a "No Temptation" philosophy regarding premium features for non-paying residents:
+Talktive follows a "Benefit Visibility" philosophy to ensure residents understand the value of Talktive Plus while maintaining a premium, non-intrusive experience:
 
-*   **Hide, Don't Lock**: Premium features are completely hidden from the UI for non-premium users, rather than being shown in a locked or "grayed-out" state. This prevents users from feeling "nagged" or constantly tempted to pay.
-*   **Invisible Gating**:
-    *   **Settings**: The entire "Premium Features" section in the Activity Settings is only visible to premium subscribers.
-    *   **Voice Messages**: The microphone icon is absent for free users; they are not prompted to upgrade when trying to send a voice message because the option simply isn't there.
-    *   **Resident Discovery**: The "People" tab in the Discovery search is hidden for free users, keeping the focus on community (Lounges) and content (Moments).
-*   **Status Indicators**: Premium-only metadata, such as real-time online status dots, is globally withheld from non-premium clients to maintain a clear boundary between free and premium tiers.
+*   **Showcase, Don't Nag**: Premium benefits are listed in the **Activity > Settings** screen for all users. This allows residents to see the value proposition of Talktive Plus without being constantly interrupted by upgrade prompts during their core experience.
+*   **Visual Gating**:
+    *   **Settings**: For non-premium users, the "Premium Features" section displays descriptions and icons for each Plus benefit, but the toggle switches are locked and grayed out.
+    *   **Voice Messages**: The microphone action is hidden from the chat UI for free users, keeping the interface clean.
+    *   **Resident Discovery**: While Lounge Discovery is open to all, searching for specific neighbors (Resident Search) is a dedicated Plus feature.
+*   **Feature Reordering**: Premium features are ordered by their impact on identity and utility:
+    1. **Custom Avatar** (🖼️)
+    2. **Voice Messages** (🎙️)
+    3. **Neighbors Discovery** (🔍)
+    4. **Online Indicator** (🟢)
+    5. **Read Receipts** (✔️)
+    6. **Typing Indicators** (✍️)

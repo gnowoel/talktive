@@ -127,7 +127,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Notification Fix (Mar 2026)**: Fixed in-app popups by correcting FCM payload v1 (invalid `priority` field), triggering notifications in `MessageEndpoint`, and improving route resolution.
 - **Activity Renaming (Mar 2026)**: Renamed "Achievements" to "Activity" hub for comprehensive notification-based interaction history.
 - **Search & Navigation Refinement (Mar 2026)**: Separated people and lounge discovery into dedicated screens (`PeopleSearchScreen`, `LoungeSearchScreen`). Moved people search to the Chats tab and lounge search to the Lounges tab. Removed the unified "Wormhole" discovery screen to simplify navigation.
-- **Privacy & Premium UX (Mar 2026)**: Restored a dedicated "Privacy Settings" section for all users (Online, Read Receipts, Typing). Implemented a "Benefits List" for unpaid users in Settings, while providing premium users with granular toggle switches for all 8 Plus features (including Golden Ring and Enhanced Peephole).
+- **Privacy & Premium UX (Mar 2026)**: Restored a dedicated "Privacy Settings" section for all users (Online, Read Receipts, Typing). Implemented a "Benefits List" for unpaid users in Settings, showcasing icons and descriptions for all 6 Plus features with locked toggles. Unlocked Lounge Search for all users while maintaining Resident Search as a premium benefit. Reordered premium features to prioritize identity (Avatar) and utility (Voice).
 - **Image Handling & Dev Visibility (Mar 2026)**: Fixed lounge image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
 
 ## Useful Commands

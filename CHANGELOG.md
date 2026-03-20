@@ -4,6 +4,25 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 21, 2026 - Premium UX Refinement & Open Discovery 💎🔍
+
+### Premium Feature Reordering & Polish
+- **Optimized Feature Order**: Reordered the Talktive Plus benefits in **Settings** to prioritize identity and core functionality:
+    1. **Custom Avatar** (🖼️)
+    2. **Voice Messages** (🎙️)
+    3. **Neighbors Discovery** (🔍)
+    4. **Online Indicator** (🟢)
+    5. **Read Receipts** (✔️)
+    6. **Typing Indicators** (✍️)
+- **Icon Standardization**: Restored the original `✔️` symbol for Read Receipts to maintain visual consistency with the chat UI.
+- **Granular Toggles**: Enabled individual toggle switches for all 6 premium features for Plus subscribers.
+
+### Open Lounge Discovery
+- **Universal Search**: Restored the search icon to the **Lounges** tab for all residents, regardless of premium status.
+- **Removed Discovery Gate**: Unlocked the `LoungeSearchScreen` for free users, allowing everyone to search for and join community clubhouses. Residents search (Neighbors Discovery) remains a dedicated Plus feature.
+
+---
+
 ## March 20, 2026 - Search Refinement & Premium UX Harmonization 🔍💎
 
 ### Search & Discovery Re-architecture

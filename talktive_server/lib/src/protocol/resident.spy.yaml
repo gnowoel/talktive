@@ -46,6 +46,8 @@ fields:
   showVoiceMessages: bool, default=true
   showNeighborsDiscovery: bool, default=true
   showEnhancedPeephole: bool, default=true
+  showGoldenRing: bool, default=true
+  showCustomAvatar: bool, default=true
   customAvatarUrl: String?
   
 indexes:

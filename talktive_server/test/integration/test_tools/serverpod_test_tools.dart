@@ -3992,6 +3992,8 @@ class _ResidentEndpoint {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -4010,6 +4012,8 @@ class _ResidentEndpoint {
             'showVoiceMessages': showVoiceMessages,
             'showNeighborsDiscovery': showNeighborsDiscovery,
             'showEnhancedPeephole': showEnhancedPeephole,
+            'showGoldenRing': showGoldenRing,
+            'showCustomAvatar': showCustomAvatar,
           }),
           serializationManager: _serializationManager,
         );

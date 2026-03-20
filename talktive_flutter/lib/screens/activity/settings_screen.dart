@@ -43,76 +43,135 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
-              _buildSectionHeader(context, 'Premium Features ✨'),
-              _buildPremiumCard(context, ref, resident.isPremium),
-              const SizedBox(height: AppTheme.duoSpacingMedium),
+              _buildSectionHeader(context, 'Privacy Settings'),
               DuoCard(
                 child: Column(
                   children: [
-                    _buildFeatureToggle(
+                    _buildToggle(
+                      context,
+                      ref,
+                      icon: '🟢',
+                      title: 'Show Online Status',
+                      description: 'Let others see if you are online',
+                      value: resident.showOnlineStatus,
+                      onChanged: (val) => _updateOnlineStatus(context, ref, val),
+                    ),
+                    const Divider(height: 1),
+                    _buildToggle(
+                      context,
+                      ref,
+                      icon: '✔️',
+                      title: 'Show Read Receipts',
+                      description: 'Let others see if you read messages',
+                      value: resident.showReadReceipts,
+                      onChanged: (val) => _updatePrivacy(context, ref, showReadReceipts: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildToggle(
+                      context,
+                      ref,
+                      icon: '💬',
+                      title: 'Show Typing Indicators',
+                      description: 'Show others when you are typing',
+                      value: resident.showTypingIndicator,
+                      onChanged: (val) => _updatePrivacy(context, ref, showTypingIndicator: val),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              _buildPremiumStatusCard(context, ref, resident.isPremium),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              _buildSectionHeader(context, 'Premium Features ✨'),
+              DuoCard(
+                child: Column(
+                  children: [
+                    _buildBenefitRow(
                       context,
                       ref,
                       icon: '🟢',
                       title: 'Online Indicator',
-                      description: 'See when neighbors are active',
-                      value: resident.showOnlineStatus,
-                      isLocked: !resident.isPremium,
-                      onChanged: (val) => _updatePremiumSettings(context, ref, showOnlineStatus: val),
+                      description: 'See when your friends are active in real-time.',
+                      value: resident.showOnlineStatus, // Wait, toggle this field? Or just a benefit?
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updateOnlineStatus(context, ref, val),
                     ),
                     const Divider(height: 1),
-                    _buildFeatureToggle(
+                    _buildBenefitRow(
                       context,
                       ref,
-                      icon: '✔️',
-                      title: 'Read Receipts',
-                      description: 'Let others see if you read messages',
-                      value: resident.showReadReceipts,
-                      isLocked: !resident.isPremium,
-                      onChanged: (val) => _updatePremiumSettings(context, ref, showReadReceipts: val),
+                      icon: '👀',
+                      title: 'Enhanced Peephole',
+                      description: 'See more details about people knocking on your door.',
+                      value: resident.showEnhancedPeephole,
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showEnhancedPeephole: val),
                     ),
                     const Divider(height: 1),
-                    _buildFeatureToggle(
+                    _buildBenefitRow(
                       context,
                       ref,
-                      icon: '💬',
-                      title: 'Typing Indicators',
-                      description: 'Show others when you are typing',
-                      value: resident.showTypingIndicator,
-                      isLocked: !resident.isPremium,
-                      onChanged: (val) => _updatePremiumSettings(context, ref, showTypingIndicator: val),
+                      icon: '✨',
+                      title: 'Golden Ring',
+                      description: 'A prestigious golden ring around your avatar.',
+                      value: resident.showGoldenRing,
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showGoldenRing: val),
                     ),
                     const Divider(height: 1),
-                    _buildFeatureToggle(
+                    _buildBenefitRow(
+                      context,
+                      ref,
+                      icon: '🖼️',
+                      title: 'Custom Avatar',
+                      description: 'Upload your own image to use as an avatar.',
+                      value: resident.showCustomAvatar,
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showCustomAvatar: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildBenefitRow(
                       context,
                       ref,
                       icon: '🎙️',
                       title: 'Voice Messages',
-                      description: 'Send audio messages in chats',
+                      description: 'Send audio messages in any chat thread.',
                       value: resident.showVoiceMessages,
-                      isLocked: !resident.isPremium,
-                      onChanged: (val) => _updatePremiumSettings(context, ref, showVoiceMessages: val),
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showVoiceMessages: val),
                     ),
                     const Divider(height: 1),
-                    _buildFeatureToggle(
+                    _buildBenefitRow(
+                      context,
+                      ref,
+                      icon: '✔️',
+                      title: 'Read Receipts',
+                      description: 'See when others have read your messages.',
+                      value: resident.showReadReceipts,
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showReadReceipts: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildBenefitRow(
+                      context,
+                      ref,
+                      icon: '✍️',
+                      title: 'Typing Indicators',
+                      description: 'See when someone is replying to you.',
+                      value: resident.showTypingIndicator,
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showTypingIndicator: val),
+                    ),
+                    const Divider(height: 1),
+                    _buildBenefitRow(
                       context,
                       ref,
                       icon: '🔍',
-                      title: 'Neighbor Discovery',
-                      description: 'Search for any resident',
+                      title: 'Neighbors Discovery',
+                      description: 'Search for any resident in the building.',
                       value: resident.showNeighborsDiscovery,
-                      isLocked: !resident.isPremium,
-                      onChanged: (val) => _updatePremiumSettings(context, ref, showNeighborsDiscovery: val),
-                    ),
-                    const Divider(height: 1),
-                    _buildFeatureToggle(
-                      context,
-                      ref,
-                      icon: '👁️',
-                      title: 'Enhanced Peephole',
-                      description: 'Get deep insights when checking peepholes',
-                      value: resident.showEnhancedPeephole,
-                      isLocked: !resident.isPremium,
-                      onChanged: (val) => _updatePremiumSettings(context, ref, showEnhancedPeephole: val),
+                      isPremium: resident.isPremium,
+                      onChanged: (val) => _updatePrivacy(context, ref, showNeighborsDiscovery: val),
                     ),
                   ],
                 ),
@@ -146,45 +205,6 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-
-
-  Future<void> _updatePremiumSettings(
-    BuildContext context,
-    WidgetRef ref, {
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
-    bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-  }) async {
-    HapticFeedback.selectionClick();
-    final resident = ref.read(currentResidentProvider).value;
-    if (resident == null) return;
-
-    try {
-      await client.resident.updatePrivacySettings(
-        showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
-        showTypingIndicator: showTypingIndicator ?? resident.showTypingIndicator,
-        showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
-        showNeighborsDiscovery: showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
-        showEnhancedPeephole: showEnhancedPeephole ?? resident.showEnhancedPeephole,
-      );
-      
-      // Handle Online status separately if needed or update it here
-      if (showOnlineStatus != null) {
-        await client.resident.updateOnlineSettings(showOnlineStatus: showOnlineStatus);
-      }
-
-      ref.invalidate(currentResidentProvider);
-      if (!context.mounted) return;
-      DuoSnackBarHelper.showSuccess(context, 'Premium settings updated! ✨');
-    } catch (e) {
-      if (!context.mounted) return;
-      DuoSnackBarHelper.showError(context, 'Failed to update settings');
-    }
-  }
-
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
@@ -200,7 +220,102 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPremiumCard(BuildContext context, WidgetRef ref, bool isPremium) {
+  Widget _buildToggle(
+    BuildContext context,
+    WidgetRef ref, {
+    required String icon,
+    required String title,
+    required String description,
+    required bool value,
+    required Function(bool) onChanged,
+  }) {
+    return SwitchListTile(
+      title: Row(
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+      subtitle: Text(description),
+      value: value,
+      activeThumbColor: AppTheme.primaryColor,
+      onChanged: (val) {
+        HapticFeedback.selectionClick();
+        onChanged(val);
+      },
+    );
+  }
+
+  Widget _buildBenefitRow(
+    BuildContext context,
+    WidgetRef ref, {
+    required String icon,
+    required String title,
+    required String description,
+    required bool value,
+    required bool isPremium,
+    required Function(bool) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingMedium,
+        vertical: AppTheme.duoSpacingSmall,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.center,
+            child: Text(icon, style: const TextStyle(fontSize: 24)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isPremium)
+            Switch(
+              value: value,
+              activeThumbColor: WidgetStateProperty.all(AppTheme.primaryColor),
+              onChanged: (val) {
+                HapticFeedback.selectionClick();
+                onChanged(val);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumStatusCard(BuildContext context, WidgetRef ref, bool isPremium) {
     if (isPremium) {
       return DuoCard(
         color: AppTheme.primaryColor.withValues(alpha: 0.1),
@@ -268,41 +383,48 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeatureToggle(
+  Future<void> _updateOnlineStatus(BuildContext context, WidgetRef ref, bool value) async {
+    try {
+      await client.resident.updateOnlineSettings(showOnlineStatus: value);
+      ref.invalidate(currentResidentProvider);
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showSuccess(context, 'Online status updated');
+    } catch (e) {
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showError(context, 'Failed to update online status');
+    }
+  }
+
+  Future<void> _updatePrivacy(
     BuildContext context,
     WidgetRef ref, {
-    required String icon,
-    required String title,
-    required String description,
-    required bool value,
-    required bool isLocked,
-    required Function(bool) onChanged,
-  }) {
-    return Opacity(
-      opacity: isLocked ? 0.5 : 1.0,
-      child: SwitchListTile(
-        title: Row(
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 20)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            if (isLocked)
-              const Icon(Icons.lock_rounded, size: 16, color: Colors.grey),
-          ],
-        ),
-        subtitle: Text(description),
-        value: isLocked ? false : value,
-        activeThumbColor: AppTheme.primaryColor,
-        onChanged: isLocked ? null : (val) {
-          HapticFeedback.selectionClick();
-          onChanged(val);
-        },
-      ),
-    );
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
+  }) async {
+    final resident = ref.read(currentResidentProvider).value;
+    if (resident == null) return;
+
+    try {
+      await client.resident.updatePrivacySettings(
+        showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
+        showTypingIndicator: showTypingIndicator ?? resident.showTypingIndicator,
+        showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
+        showNeighborsDiscovery: showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
+        showEnhancedPeephole: showEnhancedPeephole ?? resident.showEnhancedPeephole,
+        showGoldenRing: showGoldenRing ?? resident.showGoldenRing,
+        showCustomAvatar: showCustomAvatar ?? resident.showCustomAvatar,
+      );
+      ref.invalidate(currentResidentProvider);
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showSuccess(context, 'Settings updated! ✨');
+    } catch (e) {
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showError(context, 'Failed to update settings');
+    }
   }
 }

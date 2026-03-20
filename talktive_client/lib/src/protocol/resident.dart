@@ -47,6 +47,8 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -62,7 +64,9 @@ abstract class Resident implements _i1.SerializableModel {
        showTypingIndicator = showTypingIndicator ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       showEnhancedPeephole = showEnhancedPeephole ?? true;
+       showEnhancedPeephole = showEnhancedPeephole ?? true,
+       showGoldenRing = showGoldenRing ?? true,
+       showCustomAvatar = showCustomAvatar ?? true;
 
   factory Resident({
     int? id,
@@ -96,6 +100,8 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -193,6 +199,14 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showEnhancedPeephole'],
             ),
+      showGoldenRing: jsonSerialization['showGoldenRing'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['showGoldenRing']),
+      showCustomAvatar: jsonSerialization['showCustomAvatar'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showCustomAvatar'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -262,6 +276,10 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showEnhancedPeephole;
 
+  bool showGoldenRing;
+
+  bool showCustomAvatar;
+
   String? customAvatarUrl;
 
   /// Returns a shallow copy of this [Resident]
@@ -299,6 +317,8 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
     String? customAvatarUrl,
   });
   @override
@@ -337,6 +357,8 @@ abstract class Resident implements _i1.SerializableModel {
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showEnhancedPeephole': showEnhancedPeephole,
+      'showGoldenRing': showGoldenRing,
+      'showCustomAvatar': showCustomAvatar,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -382,6 +404,8 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -415,6 +439,8 @@ class _ResidentImpl extends Resident {
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showEnhancedPeephole: showEnhancedPeephole,
+         showGoldenRing: showGoldenRing,
+         showCustomAvatar: showCustomAvatar,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -454,6 +480,8 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showEnhancedPeephole,
+    bool? showGoldenRing,
+    bool? showCustomAvatar,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -500,6 +528,8 @@ class _ResidentImpl extends Resident {
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
       showEnhancedPeephole: showEnhancedPeephole ?? this.showEnhancedPeephole,
+      showGoldenRing: showGoldenRing ?? this.showGoldenRing,
+      showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,

@@ -47,6 +47,10 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -62,7 +66,11 @@ abstract class Resident implements _i1.SerializableModel {
        showTypingIndicator = showTypingIndicator ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       showCustomAvatar = showCustomAvatar ?? true;
+       showCustomAvatar = showCustomAvatar ?? true,
+       showImagesInPlaza = showImagesInPlaza ?? true,
+       showOthersOnlineStatus = showOthersOnlineStatus ?? true,
+       showOthersReadReceipts = showOthersReadReceipts ?? true,
+       showOthersTypingIndicators = showOthersTypingIndicators ?? true;
 
   factory Resident({
     int? id,
@@ -96,6 +104,10 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -193,6 +205,29 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showCustomAvatar'],
             ),
+      showImagesInPlaza: jsonSerialization['showImagesInPlaza'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showImagesInPlaza'],
+            ),
+      showOthersOnlineStatus:
+          jsonSerialization['showOthersOnlineStatus'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOthersOnlineStatus'],
+            ),
+      showOthersReadReceipts:
+          jsonSerialization['showOthersReadReceipts'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOthersReadReceipts'],
+            ),
+      showOthersTypingIndicators:
+          jsonSerialization['showOthersTypingIndicators'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOthersTypingIndicators'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -262,6 +297,14 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showCustomAvatar;
 
+  bool showImagesInPlaza;
+
+  bool showOthersOnlineStatus;
+
+  bool showOthersReadReceipts;
+
+  bool showOthersTypingIndicators;
+
   String? customAvatarUrl;
 
   /// Returns a shallow copy of this [Resident]
@@ -299,6 +342,10 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     String? customAvatarUrl,
   });
   @override
@@ -337,6 +384,10 @@ abstract class Resident implements _i1.SerializableModel {
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
+      'showImagesInPlaza': showImagesInPlaza,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -382,6 +433,10 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -415,6 +470,10 @@ class _ResidentImpl extends Resident {
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showCustomAvatar: showCustomAvatar,
+         showImagesInPlaza: showImagesInPlaza,
+         showOthersOnlineStatus: showOthersOnlineStatus,
+         showOthersReadReceipts: showOthersReadReceipts,
+         showOthersTypingIndicators: showOthersTypingIndicators,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -454,6 +513,10 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -500,6 +563,13 @@ class _ResidentImpl extends Resident {
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
+      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
+      showOthersOnlineStatus:
+          showOthersOnlineStatus ?? this.showOthersOnlineStatus,
+      showOthersReadReceipts:
+          showOthersReadReceipts ?? this.showOthersReadReceipts,
+      showOthersTypingIndicators:
+          showOthersTypingIndicators ?? this.showOthersTypingIndicators,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,

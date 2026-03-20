@@ -34,13 +34,15 @@ class LoungesScreen extends ConsumerWidget {
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white, size: 28),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              context.push('/discovery/lounges');
-            },
-          ),
+          if (ref.watch(currentResidentProvider).value?.isPremium == true && 
+              (ref.watch(currentResidentProvider).value?.showNeighborsDiscovery ?? true))
+            IconButton(
+              icon: const Icon(Icons.search, color: Colors.white, size: 28),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                context.push('/discovery/lounges');
+              },
+            ),
           DuoRefreshButton(
             color: Colors.white,
             onRefresh: () async => ref.invalidate(loungeListProvider),

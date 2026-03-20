@@ -31,13 +31,15 @@ class ChatsScreen extends ConsumerWidget {
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white, size: 24),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              context.push('/discovery/people');
-            },
-          ),
+          if (ref.watch(currentResidentProvider).value?.isPremium == true && 
+              (ref.watch(currentResidentProvider).value?.showNeighborsDiscovery ?? true))
+            IconButton(
+              icon: const Icon(Icons.search, color: Colors.white, size: 24),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                context.push('/discovery/people');
+              },
+            ),
           DuoRefreshButton(
             onRefresh: () async {
               await ref.read(privateChatListProvider.notifier).refresh();
@@ -231,6 +233,7 @@ class ChatsScreen extends ConsumerWidget {
               showRing: true,
               floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
               isOnline: (ref.watch(currentResidentProvider).value?.isPremium ?? false) &&
+                  (ref.watch(currentResidentProvider).value?.showOthersOnlineStatus ?? true) &&
                   chatItem.otherResident.showOnlineStatus &&
                   chatItem.otherResident.lastSeen != null &&
                   DateTime.now().difference(chatItem.otherResident.lastSeen!).inMinutes < 5,

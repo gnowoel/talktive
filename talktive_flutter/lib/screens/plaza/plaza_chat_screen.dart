@@ -186,7 +186,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         typingUsers.where((u) => u != currentResident?.userName).toList();
 
     return DuoChatInputLayout(
-      typingIndicator: (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+      typingIndicator: (currentResident?.isPremium == true && 
+                         currentResident?.showOthersTypingIndicators == true &&
+                         otherTypingUsers.isNotEmpty)
           ? _buildTypingIndicator(otherTypingUsers)
           : null,
       appBar: AppBar(
@@ -245,7 +247,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
       controller: _messageController,
       onSend: _sendMessage,
-      onVoiceSend: _sendVoiceMessage,
+      onVoiceSend: (currentResident?.isPremium == true && currentResident?.showVoiceMessages == true) ? _sendVoiceMessage : null,
       onVoiceStart: () async {
         final currentResident = ref.read(currentResidentProvider).value;
         if (currentResident == null) return false;
@@ -264,7 +266,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ref.read(realtimeChatProvider(1).notifier).setTyping(isTyping);
         }
       },
-      onImagePick: _pickAndSendImage,
+      onImagePick: (currentResident?.isPremium == true && currentResident?.showImagesInPlaza == true) ? _pickAndSendImage : null,
       enabled: canSend,
       isLoading: currentResidentAsync.isLoading,
       isSending: _isSending,

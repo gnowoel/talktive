@@ -48,6 +48,10 @@ abstract class Resident
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -63,7 +67,11 @@ abstract class Resident
        showTypingIndicator = showTypingIndicator ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       showCustomAvatar = showCustomAvatar ?? true;
+       showCustomAvatar = showCustomAvatar ?? true,
+       showImagesInPlaza = showImagesInPlaza ?? true,
+       showOthersOnlineStatus = showOthersOnlineStatus ?? true,
+       showOthersReadReceipts = showOthersReadReceipts ?? true,
+       showOthersTypingIndicators = showOthersTypingIndicators ?? true;
 
   factory Resident({
     int? id,
@@ -97,6 +105,10 @@ abstract class Resident
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -194,6 +206,29 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showCustomAvatar'],
             ),
+      showImagesInPlaza: jsonSerialization['showImagesInPlaza'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showImagesInPlaza'],
+            ),
+      showOthersOnlineStatus:
+          jsonSerialization['showOthersOnlineStatus'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOthersOnlineStatus'],
+            ),
+      showOthersReadReceipts:
+          jsonSerialization['showOthersReadReceipts'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOthersReadReceipts'],
+            ),
+      showOthersTypingIndicators:
+          jsonSerialization['showOthersTypingIndicators'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showOthersTypingIndicators'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -265,6 +300,14 @@ abstract class Resident
 
   bool showCustomAvatar;
 
+  bool showImagesInPlaza;
+
+  bool showOthersOnlineStatus;
+
+  bool showOthersReadReceipts;
+
+  bool showOthersTypingIndicators;
+
   String? customAvatarUrl;
 
   @override
@@ -305,6 +348,10 @@ abstract class Resident
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     String? customAvatarUrl,
   });
   @override
@@ -343,6 +390,10 @@ abstract class Resident
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
+      'showImagesInPlaza': showImagesInPlaza,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -383,6 +434,10 @@ abstract class Resident
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
+      'showImagesInPlaza': showImagesInPlaza,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -452,6 +507,10 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -485,6 +544,10 @@ class _ResidentImpl extends Resident {
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showCustomAvatar: showCustomAvatar,
+         showImagesInPlaza: showImagesInPlaza,
+         showOthersOnlineStatus: showOthersOnlineStatus,
+         showOthersReadReceipts: showOthersReadReceipts,
+         showOthersTypingIndicators: showOthersTypingIndicators,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -524,6 +587,10 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showImagesInPlaza,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -570,6 +637,13 @@ class _ResidentImpl extends Resident {
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
+      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
+      showOthersOnlineStatus:
+          showOthersOnlineStatus ?? this.showOthersOnlineStatus,
+      showOthersReadReceipts:
+          showOthersReadReceipts ?? this.showOthersReadReceipts,
+      showOthersTypingIndicators:
+          showOthersTypingIndicators ?? this.showOthersTypingIndicators,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
@@ -745,6 +819,29 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
+  _i1.ColumnValue<bool, bool> showImagesInPlaza(bool value) => _i1.ColumnValue(
+    table.showImagesInPlaza,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> showOthersOnlineStatus(bool value) =>
+      _i1.ColumnValue(
+        table.showOthersOnlineStatus,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> showOthersReadReceipts(bool value) =>
+      _i1.ColumnValue(
+        table.showOthersReadReceipts,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> showOthersTypingIndicators(bool value) =>
+      _i1.ColumnValue(
+        table.showOthersTypingIndicators,
+        value,
+      );
+
   _i1.ColumnValue<String, String> customAvatarUrl(String? value) =>
       _i1.ColumnValue(
         table.customAvatarUrl,
@@ -891,6 +988,26 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    showImagesInPlaza = _i1.ColumnBool(
+      'showImagesInPlaza',
+      this,
+      hasDefault: true,
+    );
+    showOthersOnlineStatus = _i1.ColumnBool(
+      'showOthersOnlineStatus',
+      this,
+      hasDefault: true,
+    );
+    showOthersReadReceipts = _i1.ColumnBool(
+      'showOthersReadReceipts',
+      this,
+      hasDefault: true,
+    );
+    showOthersTypingIndicators = _i1.ColumnBool(
+      'showOthersTypingIndicators',
+      this,
+      hasDefault: true,
+    );
     customAvatarUrl = _i1.ColumnString(
       'customAvatarUrl',
       this,
@@ -959,6 +1076,14 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showCustomAvatar;
 
+  late final _i1.ColumnBool showImagesInPlaza;
+
+  late final _i1.ColumnBool showOthersOnlineStatus;
+
+  late final _i1.ColumnBool showOthersReadReceipts;
+
+  late final _i1.ColumnBool showOthersTypingIndicators;
+
   late final _i1.ColumnString customAvatarUrl;
 
   @override
@@ -994,6 +1119,10 @@ class ResidentTable extends _i1.Table<int?> {
     showVoiceMessages,
     showNeighborsDiscovery,
     showCustomAvatar,
+    showImagesInPlaza,
+    showOthersOnlineStatus,
+    showOthersReadReceipts,
+    showOthersTypingIndicators,
     customAvatarUrl,
   ];
 }

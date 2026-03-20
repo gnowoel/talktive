@@ -46,6 +46,10 @@ fields:
   showVoiceMessages: bool, default=true
   showNeighborsDiscovery: bool, default=true
   showCustomAvatar: bool, default=true
+  showImagesInPlaza: bool, default=true
+  showOthersOnlineStatus: bool, default=true
+  showOthersReadReceipts: bool, default=true
+  showOthersTypingIndicators: bool, default=true
   customAvatarUrl: String?
   
 indexes:

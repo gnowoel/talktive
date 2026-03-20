@@ -253,7 +253,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         final otherTypingUsers = typingUsers.where((u) => u != currentResident?.userName).toList();
 
         return DuoChatInputLayout(
-          typingIndicator: (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+          typingIndicator: (currentResident?.isPremium == true && 
+                             currentResident?.showOthersTypingIndicators == true &&
+                             otherTypingUsers.isNotEmpty)
               ? _buildTypingIndicator(otherTypingUsers)
               : null,
           appBar: AppBar(
@@ -383,7 +385,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ),
           controller: _messageController,
           onSend: _sendMessage,
-          onVoiceSend: (currentResident?.isPremium ?? false) ? _sendVoiceMessage : null,
+          onVoiceSend: (currentResident?.isPremium ?? false) && (currentResident?.showVoiceMessages ?? true) ? _sendVoiceMessage : null,
           onVoiceStart: () async {
             if (currentResident == null) return false;
 
@@ -578,7 +580,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
           bool isRead = false;
           // Only Premium users can SEE read receipts
-          if (isCurrentUser && currentResident.isPremium && otherLastReadAt != null) {
+          if (isCurrentUser && 
+              currentResident.isPremium && 
+              currentResident.showOthersReadReceipts &&
+              otherLastReadAt != null) {
             isRead = message.createdAt.isBefore(otherLastReadAt);
           }
 

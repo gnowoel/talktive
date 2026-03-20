@@ -110,6 +110,39 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppTheme.duoSpacingMedium),
               _buildFeatureRow(
                 context,
+                icon: '🟢',
+                title: 'Online Indicator',
+                description: 'See when your friends are active in real-time.',
+                isLocked: !resident.isPremium,
+                value: resident.showOthersOnlineStatus,
+                onChanged: resident.isPremium 
+                  ? (val) => _updatePrivacySettings(context, ref, showOthersOnlineStatus: val)
+                  : null,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: '✔️',
+                title: 'Read Receipts',
+                description: 'See when others have read your messages.',
+                isLocked: !resident.isPremium,
+                value: resident.showOthersReadReceipts,
+                onChanged: resident.isPremium 
+                  ? (val) => _updatePrivacySettings(context, ref, showOthersReadReceipts: val)
+                  : null,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: '✍️',
+                title: 'Typing Indicators',
+                description: 'See when someone is replying to you.',
+                isLocked: !resident.isPremium,
+                value: resident.showOthersTypingIndicators,
+                onChanged: resident.isPremium 
+                  ? (val) => _updatePrivacySettings(context, ref, showOthersTypingIndicators: val)
+                  : null,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: '🖼️',
                 title: 'Custom Avatar',
                 description: 'Upload your own image to use as an avatar.',
@@ -140,33 +173,6 @@ class SettingsScreen extends ConsumerWidget {
                 onChanged: resident.isPremium 
                   ? (val) => _updatePrivacySettings(context, ref, showNeighborsDiscovery: val)
                   : null,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: '🟢',
-                title: 'Online Indicator',
-                description: 'See when your friends are active in real-time.',
-                isLocked: !resident.isPremium,
-                value: true, // Always on for display if premium?
-                onChanged: null,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: '✔️',
-                title: 'Read Receipts',
-                description: 'See when others have read your messages.',
-                isLocked: !resident.isPremium,
-                value: true,
-                onChanged: null,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: '✍️',
-                title: 'Typing Indicators',
-                description: 'See when someone is replying to you.',
-                isLocked: !resident.isPremium,
-                value: true,
-                onChanged: null,
               ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
@@ -205,6 +211,9 @@ class SettingsScreen extends ConsumerWidget {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
   }) async {
     HapticFeedback.selectionClick();
     final resident = ref.read(currentResidentProvider).value;
@@ -217,6 +226,9 @@ class SettingsScreen extends ConsumerWidget {
         showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
         showNeighborsDiscovery: showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
         showCustomAvatar: showCustomAvatar ?? resident.showCustomAvatar,
+        showOthersOnlineStatus: showOthersOnlineStatus ?? resident.showOthersOnlineStatus,
+        showOthersReadReceipts: showOthersReadReceipts ?? resident.showOthersReadReceipts,
+        showOthersTypingIndicators: showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
       );
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;

@@ -290,6 +290,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
   }) async {
     final resident = await getAuthenticatedResident(session);
 
@@ -298,6 +301,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     if (showVoiceMessages != null) resident.showVoiceMessages = showVoiceMessages;
     if (showNeighborsDiscovery != null) resident.showNeighborsDiscovery = showNeighborsDiscovery;
     if (showCustomAvatar != null) resident.showCustomAvatar = showCustomAvatar;
+    if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
+    if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
+    if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
     
     return await protocol.Resident.db.updateRow(session, resident);
   }

@@ -1424,6 +1424,9 @@ class EndpointResident extends _i2.EndpointRef {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
   }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
     'updatePrivacySettings',
@@ -1433,6 +1436,9 @@ class EndpointResident extends _i2.EndpointRef {
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
     },
   );
 }

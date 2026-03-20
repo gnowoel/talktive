@@ -4,31 +4,23 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
-## March 20, 2026 - Privacy Features & Version Selection 🏠🔒
+## March 20, 2026 - Search Refinement & Premium UX Harmonization 🔍💎
 
-### Privacy-First Social Features
-- **Universal Privacy Toggles**: Read receipts and typing status management is now available to all residents, not just Premium subscribers. Toggles for "Show Read Receipts" and "Show Typing Indicator" have been moved to the primary "Privacy" section in Settings.
-- **Premium Visibility**: Premium Residents can see read receipts (indicated by double checkmarks) and typing indicators ("Someone is typing...") from their contacts, provided the other party has not opted out through their privacy settings.
-- **Privacy-Aware Server Logic**: Server-side endpoints now intelligently filter out read and typing status broadcasts from residents who have disabled these features, ensuring their privacy is respected across all clients.
+### Search & Discovery Re-architecture
+- **Dedicated Search Screens**: Replaced the unified "Wormhole" with purpose-built `PeopleSearchScreen` (Premium) and `LoungeSearchScreen` (Public). 
+- **Tab-Centric Discovery**: Moved the search entry point for neighbors to the **Chats** tab and lounges to the **Lounges** tab, aligning functionality with user intent.
+- **Premium Wall Refinement**: Implemented explicit premium gates for resident search, providing a polished upgrade path for users looking to expand their social circle.
 
-### App Version Management
-- **Persistence-Free Selection**: The app now prompts users to select their preferred version (Firebase or Serverpod) upon every restart, allowing them to switch between versions as needed rather than being locked into a choice.
-- **Version-Aware FCM**: Refactored the `backgroundMessagingHandler` to intelligently dispatch push notifications based on a new `appVersion` field in the FCM payload. Notifications are now only displayed if they match the user's currently selected app version (Firebase vs. Serverpod).
-- **FCM Target Optimization**: The background notification handler uses a persistent record of the last active version to ensure push notifications only target the relevant version, preventing deep-linking issues across the boundary.
+### Premium & Privacy UX Harmonization
+- **Restored Universal Privacy**: Re-established a dedicated "Privacy Settings" section accessible to everyone. Residents can now opt-out of sharing Online Status, Read Receipts, and Typing Indicators regardless of subscription status.
+- **"Benefits List" for Free Users**: Implemented a non-intrusive "Premium Features" list in Settings for unpaid users, showcasing icons and descriptions for all 8 Plus benefits without active toggles.
+- **Granular Premium Controls**: Provided premium users with 8 individual toggle switches (including new **Golden Ring** and **Enhanced Peephole** controls), allowing them to personalize their Plus experience.
+- **Default-On Benefits**: Ensured all premium benefits are enabled by default upon subscription for immediate value.
 
-### Codebase Cleanup & Isolation
-- **Legacy Messaging Decoupling**: Moved and renamed the original `Messaging` service to `LegacyMessaging`. Removed all Serverpod-specific code from it to simplify eventual removal of the Firebase version.
-- **Unified Chat Layout Refinement**: Updated `DuoChatLayout` and `DuoChatInputLayout` to support dynamic typing indicators and non-constant state updates, standardizing the chat experience across all channel types.
-- **Voice Message UI Polish**: Refined the voice message recording experience with improved haptic feedback and explicit "Premium Required" gates.
-
-### Premium Gating & "No Temptation" UX
-- **Hide-by-Default Implementation**: Applied the "no temptation" philosophy by completely hiding premium-only features from non-premium residents, rather than showing locked states.
-- **Premium Section Visibility**: The entire "Premium Features" section in Settings is now conditionally rendered and only visible to premium subscribers.
-- **Micro-Gated Functionality**: 
-  - **Voice Messages**: Completely removed the voice recording (microphone) button from the chat input for non-premium users.
-  - **Neighbor Discovery**: Restructured the `DiscoveryScreen` to remove the "People" tab for free users, simplifying search to Lounges and Moments only.
-  - **Search Wormhole Update**: Standardized the Plaza's search entry point to intelligently route users to the appropriate tab based on their premium status.
-  - **Presence Privacy**: Enforced premium-only visibility for the real-time online status indicator across all contact lists and chat threads.
+### Backend & Protocol Stability
+- **Resident Protocol Extension**: Added `showGoldenRing` and `showCustomAvatar` fields to the `Resident` model to support high-fidelity premium toggles.
+- **Unified Privacy Endpoint**: Updated `ResidentEndpoint` to handle all 8 premium-locked and universal privacy signals in a single, secure method.
+- **Switch UI Polish**: Fixed a Flutter compilation error in `settings_screen.dart` related to deprecated `activeColor` usage, standardizing on theme-aware thumb coloring.
 
 ---
 

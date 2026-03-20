@@ -72,9 +72,8 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ### Completed (Phase 8 Refinement)
 - **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
-- **Privacy & Safety**: Privacy-first "Doorbell & Peephole" invite system; interest-based lounge discovery.
-- **Social & Engagement**: Immersive Moments feed with direct Firebase uploads and XP rewards.
-- **Architectural Polish**: Query optimizations, batch database operations, and reactive profile providers.
+- **Architectural Polish**: Query optimizations, batch database operations, reactive profile providers, and dedicated search screens.
+- **Privacy & Premium Control**: Restored universal privacy toggles and granular premium feature switches.
 
 *For detailed historical sub-phase notes (8.1 – 8.23), see [CHANGELOG.md](./CHANGELOG.md).*
 
@@ -127,9 +126,9 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Notification Edge Case Fix (Mar 2026)**: Fixed FCM push notifications deep link exceptions by linking `sendMessageNotification` to correctly route lounge chats dynamically to `LoungeChatLoader` with fallback if the cache is empty. Enabled missed trigger bindings to execute `sendAchievementNotification` and `sendLoungeInviteNotification` systematically.
 - **Notification Fix (Mar 2026)**: Fixed in-app popups by correcting FCM payload v1 (invalid `priority` field), triggering notifications in `MessageEndpoint`, and improving route resolution.
 - **Activity Renaming (Mar 2026)**: Renamed "Achievements" to "Activity" hub for comprehensive notification-based interaction history.
+- **Search & Navigation Refinement (Mar 2026)**: Separated people and lounge discovery into dedicated screens (`PeopleSearchScreen`, `LoungeSearchScreen`). Moved people search to the Chats tab and lounge search to the Lounges tab. Removed the unified "Wormhole" discovery screen to simplify navigation.
+- **Privacy & Premium UX (Mar 2026)**: Restored a dedicated "Privacy Settings" section for all users (Online, Read Receipts, Typing). Implemented a "Benefits List" for unpaid users in Settings, while providing premium users with granular toggle switches for all 8 Plus features (including Golden Ring and Enhanced Peephole).
 - **Image Handling & Dev Visibility (Mar 2026)**: Fixed lounge image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
-- **Architectural Refinement (Mar 2026)**: Consolidated rate limiting into a unified Redis-based (Serverpod cache) service and removed redundant database-backed rate limit tables. Removed unused `ImageEndpoint` and `StorageEndpoint` to simplify server implementation.
-- **No Temptation Premium Gating (Mar 2026)**: Enforced a \"Hide, Don't Lock\" policy for premium features. Completely removed the voice message button, Resident discovery (People search), and premium settings section for non-subscribers. This ensures a clean, non-intrusive experience for free users while maintaining strict privacy for premium-only metadata like online status.
 
 ## Useful Commands
 

@@ -304,7 +304,7 @@ class SettingsScreen extends ConsumerWidget {
           if (isPremium)
             Switch(
               value: value,
-              activeThumbColor: WidgetStateProperty.all(AppTheme.primaryColor),
+              activeThumbColor: AppTheme.primaryColor,
               onChanged: (val) {
                 HapticFeedback.selectionClick();
                 onChanged(val);

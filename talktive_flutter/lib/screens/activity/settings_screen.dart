@@ -112,27 +112,6 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppTheme.duoSpacingMedium),
               _buildFeatureRow(
                 context,
-                icon: '🟢',
-                title: 'Online Indicator',
-                description: 'See when your friends are active in real-time.',
-                isLocked: !resident.isPremium,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: '👀',
-                title: 'Enhanced Peephole',
-                description: 'See more details about people knocking on your door.',
-                isLocked: !resident.isPremium,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: '✨',
-                title: 'Golden Ring',
-                description: 'A prestigious golden ring around your avatar.',
-                isLocked: !resident.isPremium,
-              ),
-              _buildFeatureRow(
-                context,
                 icon: '🖼️',
                 title: 'Custom Avatar',
                 description: 'Upload your own image to use as an avatar.',
@@ -147,6 +126,20 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
+                icon: '🔍',
+                title: 'Neighbors Discovery',
+                description: 'Search for any resident in the building.',
+                isLocked: !resident.isPremium,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: '🟢',
+                title: 'Online Indicator',
+                description: 'See when your friends are active in real-time.',
+                isLocked: !resident.isPremium,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: '✔️',
                 title: 'Read Receipts',
                 description: 'See when others have read your messages.',
@@ -157,13 +150,6 @@ class SettingsScreen extends ConsumerWidget {
                 icon: '✍️',
                 title: 'Typing Indicators',
                 description: 'See when someone is replying to you.',
-                isLocked: !resident.isPremium,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: '🔍',
-                title: 'Neighbors Discovery',
-                description: 'Search for any resident in the building.',
                 isLocked: !resident.isPremium,
               ),
               if (resident.isStaff) ...[

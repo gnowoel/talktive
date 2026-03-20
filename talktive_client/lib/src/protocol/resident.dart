@@ -46,8 +46,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
@@ -64,8 +62,6 @@ abstract class Resident implements _i1.SerializableModel {
        showTypingIndicator = showTypingIndicator ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       showEnhancedPeephole = showEnhancedPeephole ?? true,
-       showGoldenRing = showGoldenRing ?? true,
        showCustomAvatar = showCustomAvatar ?? true;
 
   factory Resident({
@@ -99,8 +95,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     String? customAvatarUrl,
   }) = _ResidentImpl;
@@ -194,14 +188,6 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showNeighborsDiscovery'],
             ),
-      showEnhancedPeephole: jsonSerialization['showEnhancedPeephole'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showEnhancedPeephole'],
-            ),
-      showGoldenRing: jsonSerialization['showGoldenRing'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['showGoldenRing']),
       showCustomAvatar: jsonSerialization['showCustomAvatar'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -274,10 +260,6 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showNeighborsDiscovery;
 
-  bool showEnhancedPeephole;
-
-  bool showGoldenRing;
-
   bool showCustomAvatar;
 
   String? customAvatarUrl;
@@ -316,8 +298,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     String? customAvatarUrl,
   });
@@ -356,8 +336,6 @@ abstract class Resident implements _i1.SerializableModel {
       'showTypingIndicator': showTypingIndicator,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'showEnhancedPeephole': showEnhancedPeephole,
-      'showGoldenRing': showGoldenRing,
       'showCustomAvatar': showCustomAvatar,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -403,8 +381,6 @@ class _ResidentImpl extends Resident {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     String? customAvatarUrl,
   }) : super._(
@@ -438,8 +414,6 @@ class _ResidentImpl extends Resident {
          showTypingIndicator: showTypingIndicator,
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
-         showEnhancedPeephole: showEnhancedPeephole,
-         showGoldenRing: showGoldenRing,
          showCustomAvatar: showCustomAvatar,
          customAvatarUrl: customAvatarUrl,
        );
@@ -479,8 +453,6 @@ class _ResidentImpl extends Resident {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     Object? customAvatarUrl = _Undefined,
   }) {
@@ -527,8 +499,6 @@ class _ResidentImpl extends Resident {
       showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
-      showEnhancedPeephole: showEnhancedPeephole ?? this.showEnhancedPeephole,
-      showGoldenRing: showGoldenRing ?? this.showGoldenRing,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl

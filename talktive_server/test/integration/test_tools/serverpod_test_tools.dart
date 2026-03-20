@@ -3991,8 +3991,6 @@ class _ResidentEndpoint {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4011,8 +4009,6 @@ class _ResidentEndpoint {
             'showTypingIndicator': showTypingIndicator,
             'showVoiceMessages': showVoiceMessages,
             'showNeighborsDiscovery': showNeighborsDiscovery,
-            'showEnhancedPeephole': showEnhancedPeephole,
-            'showGoldenRing': showGoldenRing,
             'showCustomAvatar': showCustomAvatar,
           }),
           serializationManager: _serializationManager,

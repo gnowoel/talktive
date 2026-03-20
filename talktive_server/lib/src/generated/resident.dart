@@ -47,8 +47,6 @@ abstract class Resident
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
@@ -65,8 +63,6 @@ abstract class Resident
        showTypingIndicator = showTypingIndicator ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       showEnhancedPeephole = showEnhancedPeephole ?? true,
-       showGoldenRing = showGoldenRing ?? true,
        showCustomAvatar = showCustomAvatar ?? true;
 
   factory Resident({
@@ -100,8 +96,6 @@ abstract class Resident
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     String? customAvatarUrl,
   }) = _ResidentImpl;
@@ -195,14 +189,6 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showNeighborsDiscovery'],
             ),
-      showEnhancedPeephole: jsonSerialization['showEnhancedPeephole'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showEnhancedPeephole'],
-            ),
-      showGoldenRing: jsonSerialization['showGoldenRing'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['showGoldenRing']),
       showCustomAvatar: jsonSerialization['showCustomAvatar'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -277,10 +263,6 @@ abstract class Resident
 
   bool showNeighborsDiscovery;
 
-  bool showEnhancedPeephole;
-
-  bool showGoldenRing;
-
   bool showCustomAvatar;
 
   String? customAvatarUrl;
@@ -322,8 +304,6 @@ abstract class Resident
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     String? customAvatarUrl,
   });
@@ -362,8 +342,6 @@ abstract class Resident
       'showTypingIndicator': showTypingIndicator,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'showEnhancedPeephole': showEnhancedPeephole,
-      'showGoldenRing': showGoldenRing,
       'showCustomAvatar': showCustomAvatar,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -404,8 +382,6 @@ abstract class Resident
       'showTypingIndicator': showTypingIndicator,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'showEnhancedPeephole': showEnhancedPeephole,
-      'showGoldenRing': showGoldenRing,
       'showCustomAvatar': showCustomAvatar,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -475,8 +451,6 @@ class _ResidentImpl extends Resident {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     String? customAvatarUrl,
   }) : super._(
@@ -510,8 +484,6 @@ class _ResidentImpl extends Resident {
          showTypingIndicator: showTypingIndicator,
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
-         showEnhancedPeephole: showEnhancedPeephole,
-         showGoldenRing: showGoldenRing,
          showCustomAvatar: showCustomAvatar,
          customAvatarUrl: customAvatarUrl,
        );
@@ -551,8 +523,6 @@ class _ResidentImpl extends Resident {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
     Object? customAvatarUrl = _Undefined,
   }) {
@@ -599,8 +569,6 @@ class _ResidentImpl extends Resident {
       showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
-      showEnhancedPeephole: showEnhancedPeephole ?? this.showEnhancedPeephole,
-      showGoldenRing: showGoldenRing ?? this.showGoldenRing,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
@@ -772,17 +740,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         value,
       );
 
-  _i1.ColumnValue<bool, bool> showEnhancedPeephole(bool value) =>
-      _i1.ColumnValue(
-        table.showEnhancedPeephole,
-        value,
-      );
-
-  _i1.ColumnValue<bool, bool> showGoldenRing(bool value) => _i1.ColumnValue(
-    table.showGoldenRing,
-    value,
-  );
-
   _i1.ColumnValue<bool, bool> showCustomAvatar(bool value) => _i1.ColumnValue(
     table.showCustomAvatar,
     value,
@@ -929,16 +886,6 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
-    showEnhancedPeephole = _i1.ColumnBool(
-      'showEnhancedPeephole',
-      this,
-      hasDefault: true,
-    );
-    showGoldenRing = _i1.ColumnBool(
-      'showGoldenRing',
-      this,
-      hasDefault: true,
-    );
     showCustomAvatar = _i1.ColumnBool(
       'showCustomAvatar',
       this,
@@ -1010,10 +957,6 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showNeighborsDiscovery;
 
-  late final _i1.ColumnBool showEnhancedPeephole;
-
-  late final _i1.ColumnBool showGoldenRing;
-
   late final _i1.ColumnBool showCustomAvatar;
 
   late final _i1.ColumnString customAvatarUrl;
@@ -1050,8 +993,6 @@ class ResidentTable extends _i1.Table<int?> {
     showTypingIndicator,
     showVoiceMessages,
     showNeighborsDiscovery,
-    showEnhancedPeephole,
-    showGoldenRing,
     showCustomAvatar,
     customAvatarUrl,
   ];

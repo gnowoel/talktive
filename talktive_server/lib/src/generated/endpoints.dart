@@ -2563,16 +2563,6 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
-            'showEnhancedPeephole': _i1.ParameterDescription(
-              name: 'showEnhancedPeephole',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showGoldenRing': _i1.ParameterDescription(
-              name: 'showGoldenRing',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
             'showCustomAvatar': _i1.ParameterDescription(
               name: 'showCustomAvatar',
               type: _i1.getType<bool?>(),
@@ -2590,8 +2580,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     showTypingIndicator: params['showTypingIndicator'],
                     showVoiceMessages: params['showVoiceMessages'],
                     showNeighborsDiscovery: params['showNeighborsDiscovery'],
-                    showEnhancedPeephole: params['showEnhancedPeephole'],
-                    showGoldenRing: params['showGoldenRing'],
                     showCustomAvatar: params['showCustomAvatar'],
                   ),
         ),

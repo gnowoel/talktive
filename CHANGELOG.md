@@ -13,13 +13,13 @@ This document tracks the major development milestones and changes made during th
 
 ### Premium & Privacy UX Harmonization
 - **Restored Universal Privacy**: Re-established a dedicated "Privacy Settings" section accessible to everyone. Residents can now opt-out of sharing Online Status, Read Receipts, and Typing Indicators regardless of subscription status.
-- **"Benefits List" for Free Users**: Implemented a non-intrusive "Premium Features" list in Settings for unpaid users, showcasing icons and descriptions for all 8 Plus benefits without active toggles.
-- **Granular Premium Controls**: Provided premium users with 8 individual toggle switches (including new **Golden Ring** and **Enhanced Peephole** controls), allowing them to personalize their Plus experience.
+- **"Benefits List" for Free Users**: Implemented a non-intrusive "Premium Features" list in Settings for unpaid users, showcasing icons and descriptions for 6 Plus benefits without active toggles.
+- **Granular Premium Controls**: Provided premium users with individual toggle switches (including standard benefits), allowing them to personalize their Plus experience.
 - **Default-On Benefits**: Ensured all premium benefits are enabled by default upon subscription for immediate value.
 
 ### Backend & Protocol Stability
-- **Resident Protocol Extension**: Added `showGoldenRing` and `showCustomAvatar` fields to the `Resident` model to support high-fidelity premium toggles.
-- **Unified Privacy Endpoint**: Updated `ResidentEndpoint` to handle all 8 premium-locked and universal privacy signals in a single, secure method.
+- **Resident Protocol Extension**: Updated the `Resident` model to support high-fidelity premium toggles.
+- **Unified Privacy Endpoint**: Updated `ResidentEndpoint` to handle all 6 premium-locked and universal privacy signals in a single, secure method.
 - **Switch UI Polish**: Fixed a Flutter compilation error in `settings_screen.dart` related to deprecated `activeColor` usage, standardizing on theme-aware thumb coloring.
 
 ---

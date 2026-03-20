@@ -1423,8 +1423,6 @@ class EndpointResident extends _i2.EndpointRef {
     bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? showEnhancedPeephole,
-    bool? showGoldenRing,
     bool? showCustomAvatar,
   }) => caller.callServerEndpoint<_i10.Resident>(
     'resident',
@@ -1434,8 +1432,6 @@ class EndpointResident extends _i2.EndpointRef {
       'showTypingIndicator': showTypingIndicator,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'showEnhancedPeephole': showEnhancedPeephole,
-      'showGoldenRing': showGoldenRing,
       'showCustomAvatar': showCustomAvatar,
     },
   );

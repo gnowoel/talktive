@@ -34,8 +34,6 @@ class LoungesScreen extends ConsumerWidget {
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (ref.watch(currentResidentProvider).value?.isPremium == true && 
-              (ref.watch(currentResidentProvider).value?.showNeighborsDiscovery ?? true))
             IconButton(
               icon: const Icon(Icons.search, color: Colors.white, size: 28),
               onPressed: () {

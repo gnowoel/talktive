@@ -45,9 +45,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   }
 
   Future<void> _fetchLounges() async {
-    final isPremium = ref.read(currentResidentProvider).value?.isPremium ?? false;
-    if (!isPremium) return;
-
     setState(() => _isLoading = true);
     try {
       final client = ref.read(clientProvider);
@@ -117,7 +114,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
               hintText: 'Search interest-based community lounges...',
               prefixIcon: Icons.search,
               iconColor: AppTheme.duoBlue,
-              enabled: isPremium,
+              enabled: true,
               onChanged: (val) => _performSearch(val),
               suffixIcon: _searchController.text.isNotEmpty 
                 ? IconButton(
@@ -132,44 +129,12 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           ),
         ),
       ),
-      body: !isPremium ? _buildLockedState() : _buildContent(),
+      body: _buildContent(),
     );
   }
 
-  Widget _buildLockedState() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 40),
-          const Icon(Icons.lock_rounded, size: 80, color: AppTheme.duoBlue),
-          const SizedBox(height: 24),
-          const Text(
-            'Lounge Discovery',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Finding private interest-based community lounges is a Talktive Plus feature. Unlock the building map to discover the perfect clubhouse for you!',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
-          ),
-          const SizedBox(height: 32),
-          DuoButton(
-            text: 'Upgrade to Plus',
-            onPressed: () => context.push('/activity/settings'),
-            width: double.infinity,
-          ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () => context.pop(),
-            child: const Text('Maybe Later'),
-          ),
-        ],
-      ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9)),
-    );
-  }
+  // _buildLockedState is no longer used but we can keep it as a helper or remove it. 
+  // I will remove it to keep the file clean as per user's "essential for all" request.
 
   Widget _buildContent() {
     if (_isLoading && (_searchQuery != null || (_recommendedLounges == null && _popularLounges == null))) {

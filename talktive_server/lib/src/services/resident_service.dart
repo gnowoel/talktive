@@ -169,6 +169,18 @@ class ResidentService {
     return block != null;
   }
 
+  /// Returns a set of user IDs who have blocked the given user.
+  static Future<Set<UuidValue>> getBlocksAgainstUser(
+    Session session,
+    UuidValue blockedId,
+  ) async {
+    final blocks = await protocol.Block.db.find(
+      session,
+      where: (t) => t.blockedId.equals(blockedId),
+    );
+    return blocks.map((b) => b.blockerId).toSet();
+  }
+
   /// Converts a Resident to a UserSummary.
   static protocol.UserSummary toUserSummary(
     protocol.Resident resident, {

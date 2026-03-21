@@ -6,9 +6,9 @@ import '../utils/endpoint_auth_mixin.dart';
 
 class GamificationEndpoint extends Endpoint with EndpointAuthMixin {
   /// Gets all achievements with user progress.
-  Future<List<Map<String, dynamic>>> getUserAchievements(Session session) async {
+  Future<List<UserAchievementView>> getUserAchievements(Session session) async {
     final userId = await getUserId(session);
-    return await GamificationService.getUserAchievements(session, userId);
+    return await GamificationService.getUserAchievementViews(session, userId);
   }
 
   /// Marks achievements as notified (user has seen them).
@@ -26,6 +26,12 @@ class GamificationEndpoint extends Endpoint with EndpointAuthMixin {
   /// Gets the current user's resident data (containing streaks).
   Future<Resident> getGamificationData(Session session) async {
     return await getAuthenticatedResident(session);
+  }
+
+  /// Gets the combined gamification status for a resident.
+  Future<GamificationStatus> getGamificationStatus(Session session) async {
+    final resident = await getAuthenticatedResident(session);
+    return await GamificationService.getGamificationStatus(session, resident);
   }
 
   /// Checks if the user can claim today's daily reward.

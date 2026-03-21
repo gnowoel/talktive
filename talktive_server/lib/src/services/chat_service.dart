@@ -104,24 +104,58 @@ class ChatService {
     int channelId,
     UuidValue userId,
   ) async {
-    // 1. Get the membership record to find lastReadAt
-    final membership = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(userId),
-    );
+    final counts = await batchGetUnreadCounts(session, [channelId], userId);
+    return counts[channelId] ?? 0;
+  }
 
-    if (membership == null) return 0;
+  static Future<Map<int, int>> batchGetUnreadCounts(
+    Session session,
+    List<int> channelIds,
+    UuidValue userId,
+  ) async {
+    if (channelIds.isEmpty) return {};
 
-    // 2. Count messages created after lastReadAt, excluding messages from the user themselves
-    final count = await protocol.Message.db.count(
+    // 1. Get the membership records to find lastReadAt
+    final memberships = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
-          t.channelId.equals(channelId) &
-          (t.createdAt > membership.lastReadAt) &
-          t.senderId.notEquals(userId),
+          t.channelId.inSet(channelIds.toSet()) & t.userInfoId.equals(userId),
     );
 
-    return count;
+    if (memberships.isEmpty) return {};
+
+    final result = <int, int>{};
+    
+    // We use a raw query here to avoid N+1 count calls.
+    // Joining message and channel_member lets us filter messages per channel 
+    // against EACH channel's lastReadAt in a single database round-trip.
+    final sql = '''
+      SELECT m."channelId", COUNT(m.id)
+      FROM "message" m
+      INNER JOIN "channel_member" cm ON m."channelId" = cm."channelId"
+      WHERE m."channelId" IN (${channelIds.join(',')})
+      AND cm."userInfoId" = '$userId'
+      AND (cm."lastReadAt" IS NULL OR m."createdAt" > cm."lastReadAt")
+      AND m."senderId" != '$userId'
+      GROUP BY m."channelId"
+    ''';
+
+    try {
+      final unreadCounts = await session.db.query(sql);
+      for (final row in unreadCounts) {
+        if (row.length >= 2) {
+          result[row[0] as int] = row[1] as int;
+        }
+      }
+    } catch (e) {
+      session.log('Error executing batch unread counts query: $e', level: LogLevel.error);
+      // Fallback for safety (though not efficient, prevents total failure)
+      for (final channelId in channelIds) {
+        result[channelId] = 0;
+      }
+    }
+
+    return result;
   }
 
   /// Updates the denormalized 'last message' fields for a channel.

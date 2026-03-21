@@ -564,39 +564,67 @@ class GamificationService {
   }
 
   /// Gets all achievements with user progress.
-  static Future<List<Map<String, dynamic>>> getUserAchievements(
+  static Future<List<protocol.UserAchievementView>> getUserAchievementViews(
     Session session,
     UuidValue userId,
   ) async {
-    final achievements = await Achievement.db.find(session);
-    final userAchievements = await UserAchievement.db.find(
+    final achievements = await protocol.Achievement.db.find(session);
+    final userAchievements = await protocol.UserAchievement.db.find(
       session,
       where: (t) => t.userId.equals(userId),
     );
 
-    final result = <Map<String, dynamic>>[];
+    final result = <protocol.UserAchievementView>[];
 
     for (final achievement in achievements) {
       final userAchievement = userAchievements.firstWhere(
         (ua) => ua.achievementId == achievement.id,
-        orElse: () => UserAchievement(
+        orElse: () => protocol.UserAchievement(
           userId: userId,
           achievementId: achievement.id!,
           progress: 0,
-          notified: false,
+          notified: true,
         ),
       );
 
-      result.add({
-        'achievement': achievement,
-        'progress': userAchievement.progress,
-        'unlocked': userAchievement.unlockedAt != null,
-        'unlockedAt': userAchievement.unlockedAt,
-        'isNew': userAchievement.unlockedAt != null && !userAchievement.notified,
-      });
+      result.add(protocol.UserAchievementView(
+        achievement: achievement,
+        progress: userAchievement.progress,
+        unlocked: userAchievement.unlockedAt != null,
+        unlockedAt: userAchievement.unlockedAt,
+        isNew: userAchievement.unlockedAt != null && !userAchievement.notified,
+      ));
     }
 
+    // Sort: unlocked first, then by key
+    result.sort((a, b) {
+      if (a.unlocked != b.unlocked) {
+        return a.unlocked ? -1 : 1;
+      }
+      return a.achievement.key.compareTo(b.achievement.key);
+    });
+
     return result;
+  }
+
+  /// Gets the combined gamification status for a resident.
+  static Future<protocol.GamificationStatus> getGamificationStatus(
+    Session session,
+    protocol.Resident resident,
+  ) async {
+    final userId = resident.userInfoId;
+
+    // Run parallel checks for efficiency
+    final results = await Future.wait([
+      canClaimDailyReward(session, userId),
+      getUserAchievementViews(session, userId),
+    ]);
+
+    return protocol.GamificationStatus(
+      resident: resident,
+      canClaimReward: results[0] as bool,
+      achievements: results[1] as List<protocol.UserAchievementView>,
+    );
   }
 
   /// Marks achievements as notified.
@@ -605,17 +633,24 @@ class GamificationService {
     UuidValue userId,
     List<int> achievementIds,
   ) async {
-    for (final achievementId in achievementIds) {
-      final userAchievement = await UserAchievement.db.findFirstRow(
-        session,
-        where: (t) =>
-            t.userId.equals(userId) & t.achievementId.equals(achievementId),
-      );
+    if (achievementIds.isEmpty) return;
 
-      if (userAchievement != null && !userAchievement.notified) {
-        userAchievement.notified = true;
-        await UserAchievement.db.updateRow(session, userAchievement);
+    final userAchievements = await UserAchievement.db.find(
+      session,
+      where: (t) =>
+          t.userId.equals(userId) & t.achievementId.inSet(achievementIds.toSet()),
+    );
+
+    final toUpdate = <protocol.UserAchievement>[];
+    for (final ua in userAchievements) {
+      if (!ua.notified) {
+        ua.notified = true;
+        toUpdate.add(ua);
       }
+    }
+
+    if (toUpdate.isNotEmpty) {
+      await UserAchievement.db.update(session, toUpdate);
     }
   }
 

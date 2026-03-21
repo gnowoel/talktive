@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:collection/collection.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/gamification_service.dart';
@@ -257,28 +258,53 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
       orderBy: (t) => t.lastMessageAt,
       orderDescending: true,
     );
-
     final result = <protocol.PrivateChatWithProfile>[];
+    final channelIds = chats.map((c) => c.channelId).toList();
+    
+    // Batch fetch all related data in parallel
+    final results = await Future.wait([
+      protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.channelId.inSet(channelIds.toSet()),
+      ),
+      ChatService.batchGetUnreadCounts(session, channelIds, currentUserId),
+    ]);
+
+    final allMembers = results[0] as List<protocol.ChannelMember>;
+    final unreadCounts = results[1] as Map<int, int>;
+
+    final membersByChannel = <int, List<protocol.ChannelMember>>{};
+    for (var m in allMembers) {
+      membersByChannel.putIfAbsent(m.channelId, () => []).add(m);
+    }
+
+    // Identify other user IDs for batch fetching residents
+    final otherUserIds = <UuidValue>{};
+    for (final chat in chats) {
+      final otherId = chat.participant1Id.uuid == currentUserId.uuid
+          ? chat.participant2Id
+          : chat.participant1Id;
+      otherUserIds.add(otherId);
+    }
+
+    final residents = await ResidentService.getResidents(session, otherUserIds.toList());
+    final residentsMap = {for (var r in residents) r.userInfoId: r};
+
+    // userInfo might be needed if resident data is sparse
+    final userInfos = await UserInfo.db.find(
+      session,
+      where: (t) => t.userIdentifier.inSet(otherUserIds.map((id) => id.toString()).toSet()),
+    );
+    final userInfoMap = {for (var u in userInfos) u.userIdentifier: u};
 
     for (final chat in chats) {
       final otherUserId = chat.participant1Id.uuid == currentUserId.uuid
           ? chat.participant2Id
           : chat.participant1Id;
 
-      // Get channel members to check statuses
-      final currentMember = await protocol.ChannelMember.db.findFirstRow(
-        session,
-        where: (t) =>
-            t.channelId.equals(chat.channelId) &
-            t.userInfoId.equals(currentUserId),
-      );
-
-      final otherMember = await protocol.ChannelMember.db.findFirstRow(
-        session,
-        where: (t) =>
-            t.channelId.equals(chat.channelId) &
-            t.userInfoId.equals(otherUserId),
-      );
+      final members = membersByChannel[chat.channelId] ?? [];
+      final currentMember = members.firstWhereOrNull((m) => m.userInfoId == currentUserId);
+      final otherMember = members.firstWhereOrNull((m) => m.userInfoId == otherUserId);
 
       // Skip declined or left chats
       if (currentMember != null &&
@@ -287,16 +313,9 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         continue;
       }
 
-      final otherResident = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(otherUserId),
-      );
-
+      final otherResident = residentsMap[otherUserId];
       if (otherResident != null) {
-        final userInfo = await UserInfo.db.findFirstRow(
-          session,
-          where: (t) => t.userIdentifier.equals(otherUserId.toString()),
-        );
+        final userInfo = userInfoMap[otherUserId.toString()];
 
         result.add(
           protocol.PrivateChatWithProfile(
@@ -308,11 +327,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
             currentMemberStatus: currentMember?.status,
             otherMemberStatus: otherMember?.status,
             otherUserLastReadAt: otherResident.showReadReceipts ? otherMember?.lastReadAt : null,
-            unreadCount: await ChatService.getUnreadCount(
-              session,
-              chat.channelId,
-              currentUserId,
-            ),
+            unreadCount: unreadCounts[chat.channelId] ?? 0,
           ),
         );
       }

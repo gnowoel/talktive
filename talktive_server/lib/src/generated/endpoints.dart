@@ -900,6 +900,16 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['gamification'] as _i6.GamificationEndpoint)
                   .getGamificationData(session),
         ),
+        'getGamificationStatus': _i1.MethodConnector(
+          name: 'getGamificationStatus',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['gamification'] as _i6.GamificationEndpoint)
+                  .getGamificationStatus(session),
+        ),
         'canClaimDailyReward': _i1.MethodConnector(
           name: 'canClaimDailyReward',
           params: {},

@@ -304,7 +304,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         if (data == null || data.achievements.isEmpty) return const SizedBox.shrink();
 
         final achievements = data.achievements;
-        final unlocked = achievements.where((a) => a['unlocked'] == true).toList();
+        final unlocked = achievements.where((a) => a.unlocked).toList();
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.fromLTRB(
@@ -353,7 +353,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   itemCount: achievements.length,
                   itemBuilder: (context, index) {
                     final achievement = achievements[index];
-                    final achievementData = achievement['achievement'] as Achievement;
+                    final achievementData = achievement.achievement;
 
                     return Padding(
                       padding: EdgeInsets.only(
@@ -362,8 +362,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                       child: DuoBadge(
                         emoji: achievementData.emoji,
                         name: achievementData.name,
-                        isUnlocked: achievement['unlocked'] == true,
-                        isNew: achievement['isNew'] == true,
+                        isUnlocked: achievement.unlocked,
+                        isNew: achievement.isNew,
                         onTap: () {
                           // Show detail maybe? For now just stay here
                           HapticFeedback.selectionClick();

@@ -8,7 +8,7 @@ part 'gamification_provider.g.dart';
 class GamificationData {
   final Resident resident;
   final bool canClaimReward;
-  final List<Map<String, dynamic>> achievements;
+  final List<UserAchievementView> achievements;
 
   GamificationData({
     required this.resident,
@@ -19,7 +19,7 @@ class GamificationData {
   GamificationData copyWith({
     Resident? resident,
     bool? canClaimReward,
-    List<Map<String, dynamic>>? achievements,
+    List<UserAchievementView>? achievements,
   }) {
     return GamificationData(
       resident: resident ?? this.resident,
@@ -39,17 +39,13 @@ class GamificationNotifier extends _$GamificationNotifier {
   Future<GamificationData?> fetchAll() async {
     final client = ref.read(clientProvider);
     try {
-      // Parallel fetch for better performance
-      final results = await Future.wait([
-        client.gamification.getGamificationData(),
-        client.gamification.canClaimDailyReward(),
-        client.gamification.getUserAchievements(),
-      ]);
+      final status = await client.gamification.getGamificationStatus();
+      if (status == null) return null;
 
       return GamificationData(
-        resident: results[0] as Resident,
-        canClaimReward: results[1] as bool,
-        achievements: results[2] as List<Map<String, dynamic>>,
+        resident: status.resident,
+        canClaimReward: status.canClaimReward,
+        achievements: status.achievements,
       );
     } catch (e) {
       return null;

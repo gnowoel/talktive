@@ -1,0 +1,7 @@
+class: UserAchievementView
+fields:
+  achievement: Achievement
+  progress: int
+  unlocked: bool
+  unlockedAt: DateTime?
+  isNew: bool

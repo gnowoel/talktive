@@ -103,20 +103,22 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       orderDescending: true,
     );
 
-    return Future.wait(lounges.map((g) async {
+    final unreadCounts = await ChatService.batchGetUnreadCounts(
+      session,
+      lounges.map((l) => l.channelId).toList(),
+      currentUserId,
+    );
+
+    return lounges.map((g) {
       final member = membershipMap[g.channelId];
       return protocol.LoungeWithMembership(
         lounge: g,
         membershipStatus: member?.status ?? protocol.ChannelMemberStatus.left,
         membershipRole: member?.role,
         isMuted: member?.isMuted,
-        unreadCount: await ChatService.getUnreadCount(
-          session,
-          g.channelId,
-          currentUserId,
-        ),
+        unreadCount: unreadCounts[g.channelId] ?? 0,
       );
-    }));
+    }).toList();
   }
 
   /// Gets details about a specific lounge.

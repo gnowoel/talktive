@@ -413,7 +413,17 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final senderUuid = sender.userInfoId;
     final senderName = sender.userName ?? 'Resident';
 
-    // 1. Detect mentions
+    // 1. Resolve lounge once for all notifications
+    int? loungeId;
+    if (!isPlaza) {
+      final lounge = await protocol.Lounge.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      loungeId = lounge?.id;
+    }
+
+    // 2. Detect mentions
     final mentionedUserIds = await MentionService.getMentionedUserIds(
       session,
       channelId,
@@ -423,10 +433,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     // Remove sender
     mentionedUserIds.remove(senderUuid);
 
-    final isPlaza = channel.type == protocol.ChannelType.plaza;
     final loungeName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
 
-    // 2. Notify mentions (Parallel)
+    // 3. Notify mentions (Parallel)
     final mentionFutures = mentionedUserIds.map((mentionedId) =>
         NotificationService.sendMentionNotification(
           session,
@@ -435,14 +444,21 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           content,
           channelId,
           loungeName,
+          loungeId: loungeId,
         ));
 
-    // 3. Notify other members (Private/Lounge only)
-    List<Future> memberFutures = [];
+    // 4. Notify other members (Private/Lounge only)
+    Future? bulkMemberFuture;
     if (!isPlaza) {
       final String channelTypeStr =
           channel.type == protocol.ChannelType.private ? 'private' : 'lounge';
       final mentionIdSet = mentionedUserIds.toSet();
+
+      // Batch fetch users who have blocked the sender
+      final blockedBySet = await ResidentService.getBlocksAgainstUser(
+        session,
+        senderUuid,
+      );
 
       final otherMembers = await protocol.ChannelMember.db.find(
         session,
@@ -452,29 +468,33 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
             t.status.equals(protocol.ChannelMemberStatus.joined),
       );
 
+      final recipientIds = <UuidValue>[];
       for (final member in otherMembers) {
         if (member.isMuted || mentionIdSet.contains(member.userInfoId)) continue;
         
-        // Check if the recipient has blocked the sender
-        final isRecipientBlockingSender = await ResidentService.isBlocked(
-          session,
-          blockerId: member.userInfoId,
-          blockedId: senderUuid,
-        );
-        if (isRecipientBlockingSender) continue;
+        // Check if the recipient has blocked the sender (using fetched batch)
+        if (blockedBySet.contains(member.userInfoId)) continue;
 
-        memberFutures.add(NotificationService.sendMessageNotification(
+        recipientIds.add(member.userInfoId);
+      }
+
+      if (recipientIds.isNotEmpty) {
+        bulkMemberFuture = NotificationService.sendBulkMessageNotifications(
           session,
-          member.userInfoId,
+          recipientIds,
           senderName,
           content,
           channelId,
           channelTypeStr,
-        ));
+          loungeId: loungeId,
+        );
       }
     }
 
     // Run all notifications in parallel
-    await Future.wait([...mentionFutures, ...memberFutures]);
+    await Future.wait([
+      ...mentionFutures,
+      if (bulkMemberFuture != null) bulkMemberFuture,
+    ]);
   }
 }

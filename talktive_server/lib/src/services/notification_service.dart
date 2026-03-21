@@ -14,14 +14,37 @@ class NotificationService {
     Map<String, dynamic>? data,
     bool saveToHistory = true,
   }) async {
+    await sendBulkNotifications(
+      session,
+      [userId],
+      type,
+      title,
+      body,
+      data: data,
+      saveToHistory: saveToHistory,
+    );
+  }
+
+  /// Sends a notification to multiple users efficiently.
+  static Future<void> sendBulkNotifications(
+    Session session,
+    List<UuidValue> userIds,
+    String type,
+    String title,
+    String body, {
+    Map<String, dynamic>? data,
+    bool saveToHistory = true,
+  }) async {
+    if (userIds.isEmpty) return;
+
     // Prepare FCM payload
     final fcmData =
         data?.map((key, value) => MapEntry(key, value.toString())) ?? {};
     fcmData['appVersion'] = 'serverpod';
 
-    // Create notification record
+    // 1. Handle History (Batched)
     if (saveToHistory) {
-      final notification = protocol.UserNotification(
+      final notifications = userIds.map((userId) => protocol.UserNotification(
         userId: userId,
         type: type,
         title: title,
@@ -29,24 +52,32 @@ class NotificationService {
         data: data != null ? jsonEncode(data) : null,
         read: false,
         createdAt: DateTime.now(),
-      );
+      )).toList();
 
-      final inserted =
-          await protocol.UserNotification.db.insertRow(session, notification);
-      fcmData['notificationId'] = inserted.id.toString();
+      // Note: Serverpod doesn't have a direct batch insert that returns IDs easily
+      // for all rows in a way we can map back to users for individual fcmData enrichment,
+      // but since we only need notificationId for the payload if it's saved, 
+      // and usually bulk notifications (like messages) don't save to history,
+      // we'll just insert and skip individual notificationId mapping for now unless it's a single user.
+      
+      if (userIds.length == 1) {
+        final inserted = await protocol.UserNotification.db.insertRow(session, notifications.first);
+        fcmData['notificationId'] = inserted.id.toString();
+      } else {
+        await protocol.UserNotification.db.insert(session, notifications);
+      }
     }
 
-    // Get user's device tokens
+    // 2. Fetch all device tokens for all users in one query
     final tokens = await protocol.DeviceToken.db.find(
       session,
-      where: (t) => t.userId.equals(userId),
+      where: (t) => t.userId.inSet(userIds.toSet()),
     );
 
-    if (tokens.isEmpty) {
-      return; // User has no registered devices
-    }
+    if (tokens.isEmpty) return;
 
-    // Send FCM push notification to all tokens in parallel
+    // 3. Send FCM push notifications in parallel
+    // We send to all tokens. FCMService.sendToToken is already async.
     await Future.wait(tokens.map((deviceToken) => FCMService.sendToToken(
           session,
           deviceToken.token,
@@ -64,15 +95,16 @@ class NotificationService {
     String messagePreview,
     int channelId,
     String channelType, // 'private', 'lounge', 'plaza'
+    {int? loungeId},
   ) async {
-    int? routeId = channelId;
-    if (channelType == 'lounge') {
+    int? resolvedRouteId = loungeId ?? channelId;
+    if (loungeId == null && channelType == 'lounge') {
       final lounge = await protocol.Lounge.db.findFirstRow(
         session,
         where: (t) => t.channelId.equals(channelId),
       );
       if (lounge != null) {
-        routeId = lounge.id;
+        resolvedRouteId = lounge.id;
       }
     }
 
@@ -86,8 +118,50 @@ class NotificationService {
         'channelId': channelId,
         'channelType': channelType,
         'route': channelType == 'private'
-            ? '/chats/thread/$routeId'
-            : (channelType == 'plaza' ? '/plaza' : '/lounges/chat/$routeId'),
+            ? '/chats/thread/$resolvedRouteId'
+            : (channelType == 'plaza' ? '/plaza' : '/lounges/chat/$resolvedRouteId'),
+      },
+      saveToHistory: false,
+    );
+  }
+
+  /// Sends a message notification to multiple recipients efficiently.
+  static Future<void> sendBulkMessageNotifications(
+    Session session,
+    List<UuidValue> recipientIds,
+    String senderName,
+    String messagePreview,
+    int channelId,
+    String channelType, {
+    int? loungeId,
+  }) async {
+    if (recipientIds.isEmpty) return;
+
+    int? resolvedRouteId = loungeId ?? channelId;
+    if (loungeId == null && channelType == 'lounge') {
+      final lounge = await protocol.Lounge.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      if (lounge != null) {
+        resolvedRouteId = lounge.id;
+      }
+    }
+
+    final route = channelType == 'private'
+        ? '/chats/thread/$resolvedRouteId'
+        : (channelType == 'plaza' ? '/plaza' : '/lounges/chat/$resolvedRouteId');
+
+    await sendBulkNotifications(
+      session,
+      recipientIds,
+      'message',
+      senderName,
+      messagePreview,
+      data: {
+        'channelId': channelId,
+        'channelType': channelType,
+        'route': route,
       },
       saveToHistory: false,
     );
@@ -243,22 +317,25 @@ class NotificationService {
     String senderName,
     String messagePreview,
     int channelId,
-    String loungeName,
-  ) async {
-    // Resolve loungeId from channelId
-    int? loungeId;
-    final lounge = await protocol.Lounge.db.findFirstRow(
-      session,
-      where: (t) => t.channelId.equals(channelId),
-    );
-    if (lounge != null) {
-      loungeId = lounge.id;
+    String loungeName, {
+    int? loungeId,
+  }) async {
+    // Resolve loungeId from channelId if not provided
+    int? resolvedLoungeId = loungeId;
+    if (resolvedLoungeId == null) {
+      final lounge = await protocol.Lounge.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      if (lounge != null) {
+        resolvedLoungeId = lounge.id;
+      }
     }
 
     // Resolve route based on channel type
     String route = '/lounges';
-    if (loungeId != null) {
-      route = '/lounges/chat/$loungeId';
+    if (resolvedLoungeId != null) {
+      route = '/lounges/chat/$resolvedLoungeId';
     } else {
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel?.type == protocol.ChannelType.private) {
@@ -308,16 +385,18 @@ class NotificationService {
     Session session,
     List<int> notificationIds,
   ) async {
-    for (final id in notificationIds) {
-      final notification = await protocol.UserNotification.db.findById(
-        session,
-        id,
-      );
-      if (notification != null) {
-        notification.read = true;
-        await protocol.UserNotification.db.updateRow(session, notification);
-      }
+    if (notificationIds.isEmpty) return;
+
+    final notifications = await protocol.UserNotification.db.find(
+      session,
+      where: (t) => t.id.inSet(notificationIds.toSet()),
+    );
+
+    for (final notification in notifications) {
+      notification.read = true;
     }
+
+    await protocol.UserNotification.db.update(session, notifications);
   }
 
   /// Gets unread notification count.
@@ -325,11 +404,10 @@ class NotificationService {
     Session session,
     UuidValue userId,
   ) async {
-    final unread = await protocol.UserNotification.db.find(
+    return await protocol.UserNotification.db.count(
       session,
       where: (t) => t.userId.equals(userId) & t.read.equals(false),
     );
-    return unread.length;
   }
 
   /// Registers a device token.

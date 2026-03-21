@@ -41,6 +41,7 @@ gamification:
   - getUserAchievements:
   - markAchievementsAsNotified:
   - getGamificationData:
+  - getGamificationStatus:
   - canClaimDailyReward:
   - claimDailyReward:
   - getRewardHistory:

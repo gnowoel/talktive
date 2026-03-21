@@ -1,0 +1,5 @@
+class: GamificationStatus
+fields:
+  resident: Resident
+  canClaimReward: bool
+  achievements: List<UserAchievementView>

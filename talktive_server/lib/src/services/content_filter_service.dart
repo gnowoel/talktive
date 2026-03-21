@@ -128,11 +128,8 @@ class ContentFilterService {
   ) async {
     try {
       final key = 'lastmsg:$userId';
-      final lastMessageEntry = await session.caches.global.get<CacheString>(
-        key,
-      );
-
-      if (lastMessageEntry?.value == content) {
+      final entry = await session.caches.global.get<CacheString>(key);
+      if (entry != null && entry.value == content) {
         return true; // Same message as last one
       }
 

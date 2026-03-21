@@ -56,8 +56,9 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
           debugPrint('ServerpodInitialize: Firebase Emulators initialized successfully');
         } catch (e) {
           debugPrint('ServerpodInitialize: Error setting up emulators: $e');
-          // We don't throw here to allow app to start even if emulators fail
         }
+      } else if (kDebugMode) {
+        debugPrint('ServerpodInitialize: Firebase Emulators are DISABLED');
       }
 
       if (mounted) {

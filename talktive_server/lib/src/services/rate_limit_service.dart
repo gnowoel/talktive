@@ -49,12 +49,15 @@ class RateLimitService {
       final lastMessageEntry = await session.caches.global.get<CacheString>(
         lastMessageKey,
       );
-      if (lastMessageEntry != null) {
-        final lastMessage = DateTime.parse(lastMessageEntry.value);
-        final secondsSince = now.difference(lastMessage).inSeconds;
+      final entry = lastMessageEntry;
+      if (entry != null) {
+        final lastMessage = DateTime.tryParse(entry.value);
+        if (lastMessage != null) {
+          final secondsSince = now.difference(lastMessage).inSeconds;
 
-        if (secondsSince < config.minSecondsBetweenMessages) {
-          return 'Please wait ${config.minSecondsBetweenMessages - secondsSince} seconds.';
+          if (secondsSince < config.minSecondsBetweenMessages) {
+            return 'Please wait ${config.minSecondsBetweenMessages - secondsSince} seconds.';
+          }
         }
       }
 

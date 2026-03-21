@@ -231,7 +231,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                   onPressed: _nextPage,
                                   variant: DuoButtonVariant.secondary,
                                   size: DuoButtonSize.large,
-                                  color: Colors.white,
+                                  color: _pages[_currentPage].backgroundColor,
                                 )
                               : GoogleSignInButton(
                                   onPressed: _getStarted,

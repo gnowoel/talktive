@@ -6,6 +6,7 @@ import 'serverpod_app.dart';
 import 'widgets/duo/duo_button.dart';
 import 'helpers/duo_snackbar_helper.dart';
 import 'legacy/helpers/helpers.dart';
+import 'config/theme.dart';
 
 enum AppVersion { firebase, serverpod }
 
@@ -135,8 +136,9 @@ class _VersionSelectorState extends State<VersionSelector> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
+      theme: AppTheme.lightTheme,
       home: Scaffold(
+        backgroundColor: AppTheme.lightBackground,
         appBar: _state == SelectorState.enterRecoveryToken || _state == SelectorState.chooseVersion
             ? AppBar(
                 leading: IconButton(
@@ -185,14 +187,14 @@ class _VersionSelectorState extends State<VersionSelector> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Spacer(),
-        const Icon(Icons.chat_bubble_outline_rounded, size: 80, color: Colors.blue),
+        const Icon(Icons.chat_bubble_outline_rounded, size: 80, color: AppTheme.primaryColor),
         const SizedBox(height: 24),
         const Text(
           'Talktive',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.textPrimary),
         ),
         const SizedBox(height: 8),
-        Text('Safe Chat', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+        const Text('Anonymous Chat', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
         const Spacer(),
         DuoButton(
           text: "I'm a New User",
@@ -273,7 +275,7 @@ class _VersionSelectorState extends State<VersionSelector> {
         ),
         const SizedBox(height: 48),
         DuoButton(
-          text: 'New Safer Version',
+          text: 'Anonymous Chat (New)',
           onPressed: () => _selectVersion(AppVersion.serverpod),
           width: double.infinity,
           size: DuoButtonSize.large,

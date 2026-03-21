@@ -44,6 +44,24 @@ class DuoButton extends StatefulWidget {
 class _DuoButtonState extends State<DuoButton> {
   bool _isPressed = false;
 
+  Color _lightenColor(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl
+        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _getContrastColor(Color color, bool forWhiteBackground) {
+    if (!forWhiteBackground) return Colors.white;
+    
+    final hsl = HSLColor.fromColor(color);
+    // If color is too light, darken it for better contrast on white background
+    if (hsl.lightness > 0.6) {
+      return hsl.withLightness(0.45).toColor();
+    }
+    return color;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDisabled = widget.onPressed == null || widget.isLoading;
@@ -52,6 +70,13 @@ class _DuoButtonState extends State<DuoButton> {
         (widget.variant == DuoButtonVariant.danger
             ? AppTheme.duoRed
             : AppTheme.primaryColor);
+
+    final isGhost = widget.variant == DuoButtonVariant.ghost;
+    final isSecondary = widget.variant == DuoButtonVariant.secondary;
+    
+    final textColor = (isSecondary || isGhost)
+        ? (isDisabled ? Colors.grey : _getContrastColor(buttonColor, isSecondary))
+        : Colors.white;
 
     // Size settings
     double fontSize;
@@ -78,9 +103,6 @@ class _DuoButtonState extends State<DuoButton> {
         padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12);
         borderRadius = AppTheme.duoRadiusMedium;
     }
-
-    final isGhost = widget.variant == DuoButtonVariant.ghost;
-    final isSecondary = widget.variant == DuoButtonVariant.secondary;
 
     return GestureDetector(
       onTapDown: isDisabled
@@ -150,9 +172,7 @@ class _DuoButtonState extends State<DuoButton> {
                     if (widget.icon != null) ...[
                       Icon(
                         widget.icon,
-                        color: (isSecondary || isGhost)
-                            ? (isDisabled ? Colors.grey : buttonColor)
-                            : Colors.white,
+                        color: textColor,
                         size: iconSize,
                       ),
                       const SizedBox(width: 8),
@@ -160,9 +180,7 @@ class _DuoButtonState extends State<DuoButton> {
                     Text(
                       widget.text,
                       style: TextStyle(
-                        color: (isSecondary || isGhost)
-                            ? (isDisabled ? Colors.grey : buttonColor)
-                            : Colors.white,
+                        color: textColor,
                         fontSize: fontSize,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
@@ -172,9 +190,7 @@ class _DuoButtonState extends State<DuoButton> {
                       const SizedBox(width: 8),
                       Icon(
                             widget.secondaryIcon,
-                            color: (isSecondary || isGhost)
-                                ? (isDisabled ? Colors.grey : buttonColor)
-                                : Colors.white.withValues(alpha: 0.9),
+                            color: textColor.withValues(alpha: (isSecondary || isGhost) ? 1.0 : 0.9),
                             size: iconSize * 0.9,
                           )
                           .animate(
@@ -193,12 +209,5 @@ class _DuoButtonState extends State<DuoButton> {
         ),
       ),
     );
-  }
-
-  Color _lightenColor(Color color, double amount) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
-        .toColor();
   }
 }

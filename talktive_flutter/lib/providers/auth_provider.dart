@@ -134,7 +134,9 @@ class Auth extends _$Auth {
       }
 
       // 4. Get Firebase ID Token
-      final idToken = await user.getIdToken();
+      debugPrint('Auth: Firebase Sign-In success. Getting idToken...');
+      final idToken = await userCredential.user!.getIdToken();
+      debugPrint('Auth: idToken length: ${idToken?.length}');
 
       if (idToken == null) {
         throw Exception("Firebase ID Token is null");
@@ -142,7 +144,9 @@ class Auth extends _$Auth {
 
       // 5. Authenticate with Serverpod
       // This verifies the Firebase token on the server and creates a Serverpod session
+      debugPrint('Auth: Calling firebaseIdp.login with Serverpod...');
       final authSuccess = await client.firebaseIdp.login(idToken: idToken);
+      debugPrint('Auth: Serverpod login result: $authSuccess');
       await sessionManager.updateSignedInUser(authSuccess);
 
       // 6. Refresh Auth State

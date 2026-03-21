@@ -8,6 +8,7 @@ import 'private_chat_provider.dart';
 import 'lounge_provider.dart';
 import 'gamification_provider.dart';
 import 'auth_provider.dart';
+import '../serverpod_client.dart';
 
 part 'fcm_provider.g.dart';
 
@@ -67,10 +68,14 @@ class FCMManager extends _$FCMManager {
         await _registerToken(token);
       }
 
-      // Listen for token refresh
-      _messaging!.onTokenRefresh.listen((newToken) {
+      // Listen for token refresh and store the subscription for disposal
+      final streamSubscription = _messaging!.onTokenRefresh.listen((newToken) {
         debugPrint('FCM Token refreshed: $newToken');
         _registerToken(newToken);
+      });
+      
+      ref.onDispose(() {
+        streamSubscription.cancel();
       });
 
       // FCMManager ignores background message registration here as it's handled in main.dart
@@ -106,6 +111,11 @@ class FCMManager extends _$FCMManager {
   /// Register FCM token with server.
   Future<void> _registerToken(String token) async {
     try {
+      if (!sessionManager.isAuthenticated) {
+        debugPrint('FCM DEBUG: Skipping token registration, sessionManager.isAuthenticated is false');
+        return;
+      }
+
       debugPrint('FCM DEBUG: Registering token: $token');
       final client = ref.read(clientProvider);
       final platform = defaultTargetPlatform == TargetPlatform.iOS

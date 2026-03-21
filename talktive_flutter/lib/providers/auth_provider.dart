@@ -102,10 +102,31 @@ class Auth extends _$Auth {
         idToken: googleAuth.idToken,
       );
 
-      // 3. Sign in to Firebase
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
+      // 3. Link or Sign in to Firebase
+      final currentUser = FirebaseAuth.instance.currentUser;
+      UserCredential userCredential;
+
+      if (currentUser != null &&
+          (currentUser.isAnonymous ||
+              currentUser.providerData
+                  .every((info) => info.providerId != 'google.com'))) {
+        try {
+          userCredential = await currentUser.linkWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'provider-already-linked') {
+            userCredential =
+                await FirebaseAuth.instance.signInWithCredential(credential);
+          } else if (e.code == 'credential-already-in-use') {
+            throw Exception(
+                "This Google account is already linked to another Talktive account.");
+          } else {
+            rethrow;
+          }
+        }
+      } else {
+        userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+      }
       final user = userCredential.user;
 
       if (user == null) {

@@ -129,6 +129,8 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Search & Navigation Refinement (Mar 2026)**: Separated people and lounge discovery into dedicated screens (`PeopleSearchScreen`, `LoungeSearchScreen`). Moved people search to the Chats tab and lounge search to the Lounges tab. Removed the unified "Wormhole" discovery screen to simplify navigation.
 - **Privacy & Premium UX (Mar 2026)**: Restored a dedicated "Privacy Settings" section for all users (Online, Read Receipts, Typing). Implemented a "Benefits List" for unpaid users in Settings, showcasing icons and descriptions for all 6 Plus features with locked toggles. Unlocked Lounge Search for all users while maintaining Resident Search as a premium benefit. Reordered premium features to prioritize identity (Avatar) and utility (Voice).
 - **Image Handling & Dev Visibility (Mar 2026)**: Fixed lounge image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
+- **Account Migration Workflow (Mar 2026)**: Implemented a comprehensive migration flow for moving users from the legacy Firebase backend to Serverpod. Added a `VersionSelector` state machine that handles New vs. Existing user routes, validates Recovery Tokens for signed-out existing users, and caches app version preferences.
+  - **Account Linking**: Updated `AuthProvider` to link new Google Sign-In credentials to existing anonymous/email Firebase accounts via `FirebaseAuth.instance.currentUser?.linkWithCredential(credential)`, ensuring users retain their legacy `userInfoId` and chat histories.
 
 ## Useful Commands
 

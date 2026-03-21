@@ -4,6 +4,18 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 21, 2026 - Account Migration Workflow & Account Linking 🔄🔗
+
+### Seamless Version Selection
+- **Interactive Version Router**: Replaced the static app initialization with a dynamic `VersionSelector` state machine that intelligently routes users based on their "New" or "Existing" status.
+- **Preference Caching**: Implemented local caching for app version choices, allowing users who have completed migration to skip the selection screen on subsequent startups, providing a frictionless entry.
+- **Duo UI Standardization**: Updated the migration flow to utilize standard `DuoButton` components, ensuring the onboarding experience is visually cohesive with the rest of the application.
+
+### Legacy Account Restoration
+- **Recovery Token Ingestion**: Integrated the legacy `SigninStep` logic directly into the modern `VersionSelector`, allowing existing users who are signed out to securely restore their Firebase sessions via their 20-character recovery tokens without needing to load the legacy app layer.
+- **Google Sign-In Account Linking**: Upgraded the `AuthProvider`'s `loginWithGoogle` method to intelligently detect existing anonymous or email/password Firebase sessions. It now uses `linkWithCredential` instead of creating a new user, permanently preserving the user's historical `userInfoId` and chat histories during the Serverpod transition.
+
+---
 ## March 21, 2026 - Premium UX Refinement & Open Discovery 💎🔍
 
 ### Premium Feature Reordering & Polish

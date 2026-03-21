@@ -58,6 +58,21 @@ This document tracks the major development milestones and changes made during th
 
 ---
 
+## March 22, 2026 - Backend Refactoring & Architectural Consolidation 🏗️🛡️
+
+### Service-Layer Centralization
+- **Reporting & Moderation**: Created a dedicated `ReportService` to encapsulate complex reporting logic, automated moderation triggers, and penalty application, significantly simplifying `ReportEndpoint` and `AdminEndpoint`.
+- **Admin Data Optimization**: Centralized administrative user summary conversion and batch activity counting in `ResidentService`. This ensures consistent DTO generation and eliminates redundant logic across the admin suite.
+- **Lounge Membership Optimization**: Introduced `LoungeService.getMembersByStatus` to unify membership list retrieval. This refactoring removed N+1 query issues and standardized resident-member profile matching.
+
+### Performance & Stability
+- **Eliminated N+1 Queries**: Refactored `LoungeEndpoint` and `AdminEndpoint` to use batch fetching for residents, replacing multiple individual database lookups with single, efficient filtered queries.
+- **Secure Report Resolution**: Centralized the status update and note-taking logic for reports, ensuring consistent administrative audit trails.
+- **Improved Edge-Case Handling**: Implemented placeholder resident generation for reports involving deleted or missing users, preventing administrative dash crashes.
+- **Code Pruning**: Removed over 200 lines of redundant helper methods from endpoints by delegating to specialized services.
+
+---
+
 ## March 18, 2026 - Unified Discovery & Architectural Stabilization 🔍🏗️
 
 ### Unified Discovery System
@@ -96,7 +111,7 @@ This document tracks the major development milestones and changes made during th
 - **Analytics UI Refresh**: Updated `AnalyticsScreen` in Flutter to show the new comparative metrics for all time periods.
 
 ### Safety & Engagement
-- **Moderation Notifications**: Implemented automated "Safety" and "Warning" notifications for users who reach report thresholds (5 reports/7 days for mute, 10 reports/30 days for reputation reset).
+- **Moderation Notifications**: Implemented automated "Safety" and "Warning" notifications for users who reach report thresholds (5 reports/7 days for mute, 10 reports/30 days for reputation set to 0).
 - **Vouch Feedback**: Added real-time notifications when a resident receives a "Vouch" (like), reinforcing positive community behavior and providing immediate social feedback.
 - **Admin Detail Polish**: Ensured `getUserDetails` fetches and displays correct consolidated counts using the optimized batch-query helper.
 

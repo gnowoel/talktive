@@ -1,24 +1,36 @@
 import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
-import 'package:talktive_server/src/generated/protocol.dart';
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
 import 'gamification_service.dart';
 
 /// Service for managing Resident profiles and synchronization with AuthUser.
 class ResidentService {
   /// Fetches a Resident by their userInfoId.
-  static Future<Resident?> getResident(
+  static Future<protocol.Resident?> getResident(
     Session session,
     UuidValue userId,
   ) async {
-    return await Resident.db.findFirstRow(
+    return await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
   }
 
+  /// Fetches multiple Residents by their userInfoIds.
+  static Future<List<protocol.Resident>> getResidents(
+    Session session,
+    List<UuidValue> userIds,
+  ) async {
+    if (userIds.isEmpty) return [];
+    return await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userIds.toSet()),
+    );
+  }
+
   /// Fetches a Resident and performs passive updates (Trust Score, Daily Login).
-  static Future<Resident?> getActiveResident(
+  static Future<protocol.Resident?> getActiveResident(
     Session session,
     UuidValue userId,
   ) async {
@@ -50,7 +62,7 @@ class ResidentService {
     needsSave = true;
 
     if (needsSave) {
-      await Resident.db.updateRow(session, resident);
+      await protocol.Resident.db.updateRow(session, resident);
     }
 
     return resident;
@@ -86,7 +98,7 @@ class ResidentService {
   }
 
   /// Creates a new Resident profile and synchronizes it with the AuthUser.
-  static Future<Resident> createResident(
+  static Future<protocol.Resident> createResident(
     Session session, {
     required UuidValue userId,
     required String name,
@@ -115,7 +127,7 @@ class ResidentService {
     }
 
     // 2. Create Resident
-    final resident = Resident(
+    final resident = protocol.Resident(
       userInfoId: userId,
       xp: 0,
       level: 1,
@@ -132,14 +144,14 @@ class ResidentService {
       avatar: avatar,
       interests: interests ?? [],
       languages: languages ?? ['en'],
-      role: ResidentRole.user,
+      role: protocol.ResidentRole.user,
       createdAt: DateTime.now(),
       lastSeen: DateTime.now(),
       isPremium: false,
       customAvatarUrl: customAvatarUrl,
     );
 
-    await Resident.db.insertRow(session, resident);
+    await protocol.Resident.db.insertRow(session, resident);
     return resident;
   }
 
@@ -149,7 +161,7 @@ class ResidentService {
     required UuidValue blockerId,
     required UuidValue blockedId,
   }) async {
-    final block = await Block.db.findFirstRow(
+    final block = await protocol.Block.db.findFirstRow(
       session,
       where: (t) =>
           t.blockerId.equals(blockerId) & t.blockedId.equals(blockedId),
@@ -157,8 +169,39 @@ class ResidentService {
     return block != null;
   }
 
+  /// Converts a Resident to a UserSummary.
+  static protocol.UserSummary toUserSummary(
+    protocol.Resident resident, {
+    List<String>? sharedInterests,
+    List<String>? sharedLanguages,
+    int? matchScore,
+    int? messageCount,
+  }) {
+    return protocol.UserSummary(
+      userId: resident.userInfoId.toString(),
+      userName: resident.userName,
+      userAvatar: resident.customAvatarUrl ?? resident.avatar,
+      userMood: resident.mood,
+      floor: ApartmentService.computeEffectiveFloor(resident),
+      trustScore: resident.trustScore,
+      sharedInterests: sharedInterests,
+      sharedLanguages: sharedLanguages,
+      matchScore: matchScore,
+      messageCount: messageCount,
+      isOnline: isResidentOnline(resident),
+      role: resident.role,
+    );
+  }
+
+  /// Helper to check if a resident is online based on privacy settings and lastSeen.
+  static bool isResidentOnline(protocol.Resident resident) {
+    return resident.showOnlineStatus &&
+        resident.lastSeen != null &&
+        DateTime.now().difference(resident.lastSeen!).inMinutes < 5;
+  }
+
   /// Builds a comprehensive UserProfileView for a resident.
-  static Future<UserProfileView?> getResidentProfileView(
+  static Future<protocol.UserProfileView?> getResidentProfileView(
     Session session,
     UuidValue targetId, {
     UuidValue? viewerId,
@@ -171,19 +214,19 @@ class ResidentService {
         ? Future.wait([
             ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
             ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
-            UserLike.db.findFirstRow(session,
+            protocol.UserLike.db.findFirstRow(session,
                 where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)),
           ])
         : Future.value([false, false, null]);
 
     final statsFuture = Future.wait([
-      Message.db.count(session, where: (t) => t.senderId.equals(targetId)),
-      Moment.db.count(session, where: (t) => t.authorId.equals(targetId)),
-      UserAchievement.db.count(session,
+      protocol.Message.db.count(session, where: (t) => t.senderId.equals(targetId)),
+      protocol.Moment.db.count(session, where: (t) => t.authorId.equals(targetId)),
+      protocol.UserAchievement.db.count(session,
           where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null)),
     ]);
 
-    final recentMomentsFuture = Moment.db.find(
+    final recentMomentsFuture = protocol.Moment.db.find(
       session,
       where: (t) => t.authorId.equals(targetId),
       orderBy: (t) => t.createdAt,
@@ -193,10 +236,10 @@ class ResidentService {
 
     final mutualLoungesFuture = viewerId != null
         ? Future.wait([
-            ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
-            ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
+            protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
+            protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
           ])
-        : Future.value([<ChannelMember>[], <ChannelMember>[]]);
+        : Future.value([<protocol.ChannelMember>[], <protocol.ChannelMember>[]]);
 
     // Await all results
     final results = await Future.wait([
@@ -208,8 +251,8 @@ class ResidentService {
 
     final socialState = results[0] as List<dynamic>;
     final stats = results[1] as List<int>;
-    final recentMoments = results[2] as List<Moment>;
-    final loungeMemberships = results[3] as List<List<ChannelMember>>;
+    final recentMoments = results[2] as List<protocol.Moment>;
+    final loungeMemberships = results[3] as List<List<protocol.ChannelMember>>;
 
     final isBlocked = socialState[0] as bool;
     final hasBlockedMe = socialState[1] as bool;
@@ -226,7 +269,7 @@ class ResidentService {
       mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
     }
 
-    return UserProfileView(
+    return protocol.UserProfileView(
       userId: targetId.toString(),
       userName: resident.userName ?? 'Resident',
       userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '👤',
@@ -251,10 +294,90 @@ class ResidentService {
       country: resident.country,
       bio: resident.bio,
       lastSeen: resident.lastSeen,
-      isOnline: resident.showOnlineStatus &&
-          resident.lastSeen != null &&
-          DateTime.now().difference(resident.lastSeen!).inMinutes < 5,
+      isOnline: isResidentOnline(resident),
       role: resident.role,
     );
+  }
+
+  /// Converts a Resident to an AdminUserSummary (for staff views).
+  static protocol.AdminUserSummary toAdminUserSummary(
+    protocol.Resident resident, {
+    int? messageCount,
+    int? momentCount,
+    int? reportCount,
+  }) {
+    return protocol.AdminUserSummary(
+      userId: resident.userInfoId.toString(),
+      userName: resident.userName,
+      floor: ApartmentService.computeEffectiveFloor(resident),
+      trustScore: resident.trustScore,
+      level: resident.level,
+      xp: resident.xp,
+      role: resident.role,
+      suspended: resident.suspended,
+      messageCount: messageCount ?? 0,
+      momentCount: momentCount ?? 0,
+      reportCount: reportCount ?? 0,
+      createdAt: resident.createdAt,
+      lastSeen: resident.lastSeen,
+    );
+  }
+
+  /// Batch retrieve message, moment, and report counts for multiple users.
+  static Future<Map<String, Map<String, int>>> getBatchUserCounts(
+    Session session,
+    List<UuidValue> userIds,
+  ) async {
+    if (userIds.isEmpty) return {};
+
+    final result = <String, Map<String, int>>{};
+    for (final id in userIds) {
+      result[id.toString()] = {
+        'messages': 0,
+        'moments': 0,
+        'reports': 0,
+      };
+    }
+
+    try {
+      final idList = userIds.map((u) => "'$u'").join(',');
+
+      // 1. Message counts
+      final messageCounts = await session.db.unsafeQuery(
+        'SELECT "senderId", count(*) as count FROM message WHERE "senderId" IN ($idList) GROUP BY "senderId"',
+      );
+      for (final row in messageCounts) {
+        final id = row[0].toString();
+        if (result.containsKey(id)) {
+          result[id]!['messages'] = int.tryParse(row[1].toString()) ?? 0;
+        }
+      }
+
+      // 2. Moment counts
+      final momentCounts = await session.db.unsafeQuery(
+        'SELECT "authorId", count(*) as count FROM moment WHERE "authorId" IN ($idList) GROUP BY "authorId"',
+      );
+      for (final row in momentCounts) {
+        final id = row[0].toString();
+        if (result.containsKey(id)) {
+          result[id]!['moments'] = int.tryParse(row[1].toString()) ?? 0;
+        }
+      }
+
+      // 3. Report counts (against the user)
+      final reportCounts = await session.db.unsafeQuery(
+        'SELECT "targetId", count(*) as count FROM report WHERE "targetId" IN ($idList) GROUP BY "targetId"',
+      );
+      for (final row in reportCounts) {
+        final id = row[0].toString();
+        if (result.containsKey(id)) {
+          result[id]!['reports'] = int.tryParse(row[1].toString()) ?? 0;
+        }
+      }
+    } catch (e) {
+      session.log('Error in getBatchUserCounts: $e', level: LogLevel.error);
+    }
+
+    return result;
   }
 }

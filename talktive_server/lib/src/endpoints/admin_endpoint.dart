@@ -1,9 +1,10 @@
-import 'package:serverpod/serverpod.dart';
+import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import '../services/apartment_service.dart';
 import '../services/cache_service.dart';
 import '../services/data_archival_service.dart';
 import '../services/input_validation_service.dart';
+import '../services/resident_service.dart';
+import '../services/report_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class AdminEndpoint extends Endpoint with EndpointAuthMixin {
@@ -15,6 +16,18 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     } catch (e) {
       return false;
     }
+  }
+
+  protocol.Resident _createPlaceholderResident(UuidValue userId) {
+    return protocol.Resident(
+      userInfoId: userId,
+      userName: 'Deleted User',
+      trustScore: 0,
+      level: 0,
+      xp: 0,
+      role: protocol.ResidentRole.user,
+      suspended: true,
+    );
   }
 
   /// Check if the current user is a moderator
@@ -77,11 +90,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
     final residentMap = {for (var r in residents) r.userInfoId: r};
 
-    // Batch fetch counts
-    final countsMap = await _getBatchUserCounts(
-      session,
-      userIds.toList(),
-    );
+    final countsMap = await ResidentService.getBatchUserCounts(session, userIds.toList());
 
     final result = <protocol.AdminReportSummary>[];
     for (final report in reports) {
@@ -92,18 +101,14 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       
       result.add(protocol.AdminReportSummary(
         report: report,
-        reporter: await _getUserSummary(
-          session, 
-          reporter, 
-          report.reporterId.toString(),
+        reporter: ResidentService.toAdminUserSummary(
+          reporter ?? _createPlaceholderResident(report.reporterId),
           messageCount: reporterCounts['messages'],
           momentCount: reporterCounts['moments'],
           reportCount: reporterCounts['reports'],
         ),
-        target: await _getUserSummary(
-          session, 
-          target, 
-          report.targetId.toString(),
+        target: ResidentService.toAdminUserSummary(
+          target ?? _createPlaceholderResident(report.targetId),
           messageCount: targetCounts['messages'],
           momentCount: targetCounts['moments'],
           reportCount: targetCounts['reports'],
@@ -152,11 +157,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
     final residentMap = {for (var r in residents) r.userInfoId: r};
 
-    // Batch fetch counts
-    final countsMap = await _getBatchUserCounts(
-      session,
-      userIds.toList(),
-    );
+    final countsMap = await ResidentService.getBatchUserCounts(session, userIds.toList());
 
     final result = <protocol.AdminReportSummary>[];
     for (final report in reports) {
@@ -167,18 +168,14 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       
       result.add(protocol.AdminReportSummary(
         report: report,
-        reporter: await _getUserSummary(
-          session, 
-          reporter, 
-          report.reporterId.toString(),
+        reporter: ResidentService.toAdminUserSummary(
+          reporter ?? _createPlaceholderResident(report.reporterId),
           messageCount: reporterCounts['messages'],
           momentCount: reporterCounts['moments'],
           reportCount: reporterCounts['reports'],
         ),
-        target: await _getUserSummary(
-          session, 
-          target, 
-          report.targetId.toString(),
+        target: ResidentService.toAdminUserSummary(
+          target ?? _createPlaceholderResident(report.targetId),
           messageCount: targetCounts['messages'],
           momentCount: targetCounts['moments'],
           reportCount: targetCounts['reports'],
@@ -199,16 +196,12 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateId(reportId, 'Report ID').throwIfInvalid();
     await getStaffProfile(session);
 
-    final report = await protocol.Report.db.findById(session, reportId);
-    if (report == null) {
-      throw protocol.TalktiveException(message: 'Report not found');
-    }
-
-    report.status = status;
-    report.adminNotes = adminNotes;
-    report.resolvedAt = DateTime.now();
-
-    await protocol.Report.db.updateRow(session, report);
+    await ReportService.resolveReport(
+      session,
+      reportId: reportId,
+      status: status,
+      adminNotes: adminNotes,
+    );
   }
 
   /// Suspend a user (disable account)
@@ -327,7 +320,7 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     resident.mutedUntil = null; // Clear any temporary mutes
     await protocol.Resident.db.updateRow(session, resident);
 
-    session.log('Admin reset trustScore for user: $userId. Reason: $reason');
+    session.log('Admin restored Trust Score to default (100) for user: $userId. Reason: $reason');
   }
 
   /// Delete a message
@@ -553,17 +546,15 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
 
       // Batch fetch counts for performance
       final userIds = residents.map((r) => r.userInfoId).toList();
-      final countsMap = await _getBatchUserCounts(session, userIds);
+      final countsMap = await ResidentService.getBatchUserCounts(session, userIds);
 
       final result = <protocol.AdminUserSummary>[];
       for (final r in residents) {
         final userIdStr = r.userInfoId.toString();
         final userCounts = countsMap[userIdStr] ?? {'messages': 0, 'moments': 0, 'reports': 0};
 
-        result.add(await _getUserSummary(
-          session, 
+        result.add(ResidentService.toAdminUserSummary(
           r, 
-          userIdStr,
           messageCount: userCounts['messages'],
           momentCount: userCounts['moments'],
           reportCount: userCounts['reports'],
@@ -768,14 +759,12 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     // Get counts in batch
-    final countsMap = await _getBatchUserCounts(session, [userUuid]);
+    final countsMap = await ResidentService.getBatchUserCounts(session, [userUuid]);
     final userCounts = countsMap[userId] ?? {'messages': 0, 'moments': 0, 'reports': 0};
 
     return protocol.AdminUserDetails(
-      user: await _getUserSummary(
-        session, 
+      user: ResidentService.toAdminUserSummary(
         resident, 
-        userId,
         messageCount: userCounts['messages'],
         momentCount: userCounts['moments'],
         reportCount: userCounts['reports'],
@@ -785,104 +774,6 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
       reportsAgainst: reportsAgainst,
       reportsMade: reportsMade,
     );
-  }
-
-  Future<protocol.AdminUserSummary> _getUserSummary(
-    Session session, 
-    protocol.Resident? resident, 
-    String userId, {
-    int? messageCount,
-    int? momentCount,
-    int? reportCount,
-  }) async {
-    if (resident == null) {
-      return protocol.AdminUserSummary(
-        userId: userId,
-        userName: 'Unknown',
-        floor: 0,
-        trustScore: 0,
-        level: 0,
-        xp: 0,
-        role: protocol.ResidentRole.user,
-        suspended: false,
-        messageCount: 0,
-        momentCount: 0,
-        reportCount: 0,
-      );
-    }
-    
-    // Use provided counts or default to 0 (we don't want to fetch in a loop here)
-    return protocol.AdminUserSummary(
-      userId: resident.userInfoId.toString(),
-      userName: resident.userName,
-      floor: ApartmentService.computeEffectiveFloor(resident),
-      trustScore: resident.trustScore,
-      level: resident.level,
-      xp: resident.xp,
-      role: resident.role,
-      suspended: resident.suspended,
-      messageCount: messageCount ?? 0,
-      momentCount: momentCount ?? 0,
-      reportCount: reportCount ?? 0,
-      createdAt: resident.createdAt,
-      lastSeen: resident.lastSeen,
-    );
-  }
-
-  /// Batch retrieve counts for multiple users in 3 efficient queries
-  Future<Map<String, Map<String, int>>> _getBatchUserCounts(
-    Session session,
-    List<UuidValue> userIds,
-  ) async {
-    if (userIds.isEmpty) return {};
-
-    final result = <String, Map<String, int>>{};
-    for (final id in userIds) {
-      result[id.toString()] = {
-        'messages': 0,
-        'moments': 0,
-        'reports': 0,
-      };
-    }
-
-    try {
-      // 1. Message counts
-      final messageCounts = await session.db.unsafeQuery(
-        'SELECT "senderId", count(*) as count FROM message WHERE "senderId" IN (${userIds.map((u) => "'$u'").join(',')}) GROUP BY "senderId"',
-      );
-      for (final row in messageCounts) {
-        final id = row[0].toString();
-        if (result.containsKey(id)) {
-          result[id]!['messages'] = int.tryParse(row[1].toString()) ?? 0;
-        }
-      }
-
-      // 2. Moment counts
-      final momentCounts = await session.db.unsafeQuery(
-        'SELECT "authorId", count(*) as count FROM moment WHERE "authorId" IN (${userIds.map((u) => "'$u'").join(',')}) GROUP BY "authorId"',
-      );
-      for (final row in momentCounts) {
-        final id = row[0].toString();
-        if (result.containsKey(id)) {
-          result[id]!['moments'] = int.tryParse(row[1].toString()) ?? 0;
-        }
-      }
-
-      // 3. Report counts (against the user)
-      final reportCounts = await session.db.unsafeQuery(
-        'SELECT "targetId", count(*) as count FROM report WHERE "targetId" IN (${userIds.map((u) => "'$u'").join(',')}) GROUP BY "targetId"',
-      );
-      for (final row in reportCounts) {
-        final id = row[0].toString();
-        if (result.containsKey(id)) {
-          result[id]!['reports'] = int.tryParse(row[1].toString()) ?? 0;
-        }
-      }
-    } catch (e) {
-      session.log('ADMIN Error in _getBatchUserCounts: $e', level: LogLevel.error);
-    }
-
-    return result;
   }
 
   /// Run data archival tasks (admin only).

@@ -129,4 +129,47 @@ class LoungeService {
 
     return allPublicLounges.skip(offset).take(limit).toList();
   }
+
+  /// Retrieves members for a given channel based on their status.
+  static Future<List<LoungeMemberWithProfile>> getMembersByStatus(
+    Session session,
+    int channelId,
+    ChannelMemberStatus status,
+  ) async {
+    // 1. Get all members with given status
+    final members = await ChannelMember.db.find(
+      session,
+      where: (t) => t.channelId.equals(channelId) & t.status.equals(status),
+      orderBy: (t) => t.joinedAt,
+    );
+
+    if (members.isEmpty) return [];
+
+    // 2. Batch retrieve resident profiles
+    final userIds = members.map((m) => m.userInfoId).toSet().toList();
+    final residents = await Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userIds.toSet()),
+    );
+
+    // 3. Map resident profiles by ID for quick lookup
+    final profileMap = {for (var r in residents) r.userInfoId: r};
+
+    // 4. Combine into final result
+    final results = <LoungeMemberWithProfile>[];
+    for (final member in members) {
+      final resident = profileMap[member.userInfoId];
+      if (resident != null) {
+        results.add(
+          LoungeMemberWithProfile(
+            resident: resident,
+            status: member.status,
+            role: member.role,
+            joinedAt: member.joinedAt,
+          ),
+        );
+      }
+    }
+    return results;
+  }
 }

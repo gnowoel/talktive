@@ -657,49 +657,12 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int loungeId,
   ) async {
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Get all active members
-    final members = await protocol.ChannelMember.db.find(
+    final lounge = await getLounge(session, loungeId);
+    return await LoungeService.getMembersByStatus(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
-      orderBy: (t) => t.joinedAt,
+      lounge.channelId,
+      protocol.ChannelMemberStatus.joined,
     );
-
-    final userIds = members.map((m) => m.userInfoId).toSet();
-    final residents = await protocol.Resident.db.find(
-      session,
-      where: (t) => t.userInfoId.inSet(userIds),
-    );
-
-    // Map resident profiles by ID for quick lookup
-    final profileMap = {for (var r in residents) r.userInfoId: r};
-
-    final results = <protocol.LoungeMemberWithProfile>[];
-    for (final member in members) {
-      final resident = profileMap[member.userInfoId];
-      if (resident != null) {
-        results.add(
-          protocol.LoungeMemberWithProfile(
-            resident: resident,
-            status: member.status,
-            role: member.role,
-            joinedAt: member.joinedAt,
-          ),
-        );
-      }
-    }
-
-    return results;
   }
 
   /// Gets all pending applications for a lounge (creator only).
@@ -708,60 +671,20 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int loungeId,
   ) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+    final currentUserId = await getUserId(session);
+    final lounge = await getLounge(session, loungeId);
 
-    if (currentUserIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
+    if (lounge.creatorId != currentUserId) {
       throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
+        message: 'Only the creator can view pending applications',
       );
     }
 
-    if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(message: 'Only the creator can view pending applications');
-    }
-
-    // Get all applied members
-    final members = await protocol.ChannelMember.db.find(
+    return await LoungeService.getMembersByStatus(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.status.equals(protocol.ChannelMemberStatus.applied),
-      orderBy: (t) => t.joinedAt, // reuse joinedAt for application time
+      lounge.channelId,
+      protocol.ChannelMemberStatus.applied,
     );
-
-    final userIds = members.map((m) => m.userInfoId).toSet();
-    final residents = await protocol.Resident.db.find(
-      session,
-      where: (t) => t.userInfoId.inSet(userIds),
-    );
-
-    // Map resident profiles by ID for quick lookup
-    final profileMap = {for (var r in residents) r.userInfoId: r};
-
-    final results = <protocol.LoungeMemberWithProfile>[];
-    for (final member in members) {
-      final resident = profileMap[member.userInfoId];
-      if (resident != null) {
-        results.add(
-          protocol.LoungeMemberWithProfile(
-            resident: resident,
-            status: member.status,
-            role: member.role,
-            joinedAt: member.joinedAt,
-          ),
-        );
-      }
-    }
-    return results;
   }
 
   /// Gets all members of a lounge.
@@ -769,36 +692,20 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int loungeId,
   ) async {
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
+    final lounge = await getLounge(session, loungeId);
 
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Get all active members
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
           t.channelId.equals(lounge.channelId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
+      orderBy: (t) => t.joinedAt,
     );
 
-    // Get resident info for each member
-    final residents = <protocol.Resident>[];
-    for (final member in members) {
-      final resident = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(member.userInfoId),
-      );
-      if (resident != null) {
-        residents.add(resident);
-      }
-    }
+    if (members.isEmpty) return [];
 
-    return residents;
+    final userIds = members.map((m) => m.userInfoId).toSet().toList();
+    return await ResidentService.getResidents(session, userIds);
   }
 
   /// Updates lounge details (admin only).

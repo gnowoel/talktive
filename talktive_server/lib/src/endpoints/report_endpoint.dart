@@ -1,9 +1,8 @@
-import 'dart:math';
-import 'package:serverpod/serverpod.dart';
+import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
-import '../services/notification_service.dart';
+import '../services/report_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ReportEndpoint extends Endpoint with EndpointAuthMixin {
@@ -50,7 +49,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
     // Effective floor ≥ 1 required to report (prevents abuse from new
     // accounts and from trustScore-restricted users)
     if (ApartmentService.computeEffectiveFloor(reporter) < 1) {
-      throw protocol.TalktiveException(message: 'You must reach Floor 1 to report users. Keep chatting and maintain good trustScore!',);
+      throw protocol.TalktiveException(message: 'You must reach Floor 1 to report users. Keep chatting and maintain a good Trust Score!',);
     }
 
     // Fetch target
@@ -109,99 +108,19 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'Daily report limit reached (3 reports per day).');
     }
 
-    // Create report
-    final report = protocol.Report(
-      reporterId: reporterUuid,
-      targetId: targetUuid,
+    // Create report and apply automated moderation using ReportService
+    await ReportService.createReport(
+      session,
+      reporter: reporter,
+      target: target,
       reason: reason,
       channelId: channelId,
       messageId: messageId,
-      createdAt: now,
-      status: protocol.ReportStatus.pending,
     );
-    await protocol.Report.db.insertRow(session, report);
-
-    // Apply penalty to target
-    ApartmentService.applyReportPenalty(
-      reporter: reporter,
-      target: target,
-    );
-
-    // Check for auto-escalation based on recent reports
-    final sevenDaysAgo = now.subtract(const Duration(days: 7));
-    final thirtyDaysAgo = now.subtract(const Duration(days: 30));
-
-    final recentReports7Days = await protocol.Report.db.count(
-      session,
-      where: (t) =>
-          t.targetId.equals(targetUuid) & (t.createdAt > sevenDaysAgo),
-    );
-
-    final recentReports30Days = await protocol.Report.db.count(
-      session,
-      where: (t) =>
-          t.targetId.equals(targetUuid) & (t.createdAt > thirtyDaysAgo),
-    );
-
-    // Auto-escalation thresholds
-    if (recentReports30Days >= 10) {
-      // 10 reports in 30 days: Severe penalty
-      target.trustScore = 0; // Muted until trustScore restores
-      session.log(
-        'User ${target.userInfoId} received 10+ reports in 30 days. Reputation set to 0.',
-      );
-      // Notify user of severe penalty
-      try {
-        await NotificationService.sendSafetyNotification(
-          session,
-          target.userInfoId,
-          'Account Restricted ❌',
-          'Your account has been restricted due to multiple reports. Your reputation has been reset.',
-        );
-      } catch (e) {
-        session.log('Failed to send severe penalty notification: $e');
-      }
-    } else if (recentReports7Days >= 5) {
-      // 5 reports in 7 days: 24-hour mute
-      target.mutedUntil = now.add(const Duration(hours: 24));
-      session.log(
-        'User ${target.userInfoId} received 5+ reports in 7 days. Muted for 24 hours.',
-      );
-      
-      // Notify user of mute
-      try {
-        await NotificationService.sendSafetyNotification(
-          session,
-          target.userInfoId,
-          'Temporarily Muted ⏳',
-          'Your account is muted for 24 hours due to community reports. Please review our guidelines.',
-        );
-      } catch (e) {
-        session.log('Failed to send mute notification: $e');
-      }
-    } else if (recentReports7Days >= 3) {
-      // 3 reports in 7 days: Warning
-      session.log(
-        'User ${target.userInfoId} received 3+ reports in 7 days. Warning issued.',
-      );
-      
-      // Send warning notification
-      try {
-        await NotificationService.sendWarningNotification(
-          session,
-          target.userInfoId,
-          'You have received several reports recently. Please be mindful of our community rules.',
-        );
-      } catch (e) {
-        session.log('Failed to send warning notification: $e');
-      }
-    }
-
-    await protocol.Resident.db.updateRow(session, target);
 
     session.log(
       'User ${reporter.userInfoId} reported ${target.userInfoId}. '
-      'Penalty: ${max(1, reporter.level)} trustScore points. New trustScore: ${target.trustScore}',
+      'Penalty applied via ReportService. New Trust Score: ${target.trustScore}',
     );
   }
 
@@ -246,17 +165,13 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     await getAdminProfile(session);
 
-    final report = await protocol.Report.db.findById(session, reportId);
-    if (report == null) {
-      throw protocol.TalktiveException(message: 'Report not found');
-    }
-
-    report.status = approved
-        ? protocol.ReportStatus.approved
-        : protocol.ReportStatus.rejected;
-    report.resolvedAt = DateTime.now();
-
-    await protocol.Report.db.updateRow(session, report);
+    await ReportService.resolveReport(
+      session,
+      reportId: reportId,
+      status: approved 
+          ? protocol.ReportStatus.approved 
+          : protocol.ReportStatus.rejected,
+    );
   }
 
   /// Gets detailed report information with user context (admin only).

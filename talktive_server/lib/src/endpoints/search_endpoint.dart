@@ -27,7 +27,7 @@ class SearchEndpoint extends Endpoint {
         limit: limit,
       );
 
-      return residents.map((r) => _toUserSummary(r)).toList();
+      return residents.map((r) => ResidentService.toUserSummary(r)).toList();
     } catch (e) {
       session.log('Error searching users: $e', level: LogLevel.error);
       return [];
@@ -131,7 +131,7 @@ class SearchEndpoint extends Endpoint {
       for (final entry in sortedSenders.take(limit)) {
         final resident = await ResidentService.getResident(session, entry.key);
         if (resident != null) {
-          activeUsers.add(_toUserSummary(resident, messageCount: entry.value));
+          activeUsers.add(ResidentService.toUserSummary(resident, messageCount: entry.value));
         }
       }
 
@@ -200,7 +200,7 @@ class SearchEndpoint extends Endpoint {
           .toList();
 
       if (sharedInterests.isNotEmpty) {
-        matches.add(_toUserSummary(
+        matches.add(ResidentService.toUserSummary(
           resident,
           sharedInterests: sharedInterests,
           matchScore: sharedInterests.length,
@@ -241,7 +241,7 @@ class SearchEndpoint extends Endpoint {
           .toList();
 
       if (sharedLanguages.isNotEmpty) {
-        matches.add(_toUserSummary(
+        matches.add(ResidentService.toUserSummary(
           resident,
           sharedLanguages: sharedLanguages,
           matchScore: sharedLanguages.length,
@@ -292,28 +292,4 @@ class SearchEndpoint extends Endpoint {
     }
   }
 
-  protocol.UserSummary _toUserSummary(
-    protocol.Resident resident, {
-    List<String>? sharedInterests,
-    List<String>? sharedLanguages,
-    int? matchScore,
-    int? messageCount,
-  }) {
-    return protocol.UserSummary(
-      userId: resident.userInfoId.toString(),
-      userName: resident.userName,
-      userAvatar: resident.customAvatarUrl ?? resident.avatar,
-      userMood: resident.mood,
-      floor: ApartmentService.computeEffectiveFloor(resident),
-      trustScore: resident.trustScore,
-      sharedInterests: sharedInterests,
-      sharedLanguages: sharedLanguages,
-      matchScore: matchScore,
-      messageCount: messageCount,
-      isOnline: resident.showOnlineStatus &&
-          resident.lastSeen != null &&
-          DateTime.now().difference(resident.lastSeen!).inMinutes < 5,
-      role: resident.role,
-    );
-  }
 }

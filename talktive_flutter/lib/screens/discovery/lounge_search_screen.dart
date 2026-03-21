@@ -92,7 +92,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final currentResident = ref.watch(currentResidentProvider).value;
-    final isPremium = currentResident?.isPremium ?? false;
 
     return Scaffold(
       backgroundColor: Colors.white,

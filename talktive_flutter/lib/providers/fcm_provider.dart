@@ -36,7 +36,7 @@ class FCMManager extends _$FCMManager {
         return null;
       },
       loading: () => null,
-      error: (_, __) => null,
+      error: (e, st) => null,
     );
   }
 

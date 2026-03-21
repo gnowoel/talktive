@@ -24,7 +24,7 @@ class DuoChatLayout extends StatelessWidget {
   /// Optional background color
   final Color? backgroundColor;
 
-  DuoChatLayout({
+  const DuoChatLayout({
     super.key,
     required this.content,
     this.input,
@@ -76,7 +76,7 @@ class DuoChatInputLayout extends StatelessWidget {
   final Function(bool isTyping)? onTypingStatusChanged;
   final Widget? typingIndicator;
 
-  DuoChatInputLayout({
+  const DuoChatInputLayout({
     super.key,
     required this.content,
     required this.controller,

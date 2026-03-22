@@ -137,8 +137,8 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
   - **Legacy Access**: To support users who have migrated but still need the old version, the Plaza (Home) screen now provides a clear link to the legacy web application at `https://open.talktive.app/`.
 - **Seamless Authentication Workflow (Mar 2026)**: Optimized the application entry point to automatically detect persistent Google Sign-In sessions. Residents who are already logged in now bypass the `VersionSelector` and are automatically authenticated with the Serverpod backend, providing a zero-click "Welcome back" experience.
 - **Session Persistence (Mar 2026)**: Updated `AuthProvider.signOut` to maintain the `active_app_version` preference, ensuring that users remain on their chosen version (Serverpod) even after logging out.
-- **Iconography Balance & restoration (Mar 2026)**: Systematically restored traditional Material icons (non-rounded) for functional UI elements (buttons, headers, cards) while retaining emojis for bottom navigation and avatars. This preserves the professional contrast and clarity of the UI while maintaining the app's playful, emoji-rich personality. Reinstated "Inviting" labels like "Your digital apartment lobby" and "Join the community clubhouse" for a warmer user experience.
-- **Flutter SDK Modernization (Mar 2026)**: Migrated the codebase to the modern `.withValues(alpha: ...)` API, replacing the deprecated `.withOpacity()` and improving compatibility with Flutter 3.41+.
+- **Iconography Balance**: Systematically uses traditional Material icons (non-rounded) for functional UI elements (headers, cards, inputs, empty states) while retaining emojis for bottom navigation and avatars. Established conceptual consistency (one icon per idea) across all screens (e.g., `Icons.groups` for Lounges, `Icons.chat` for Chats). 
+- **Inviting Labels**: Restored welcoming subtitles like "Your digital apartment lobby" and "Join the community clubhouse" to ensure the app feels like a friendly home.
 
 ## Useful Commands
 

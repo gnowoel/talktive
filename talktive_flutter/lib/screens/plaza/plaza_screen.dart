@@ -209,7 +209,7 @@ class PlazaScreen extends ConsumerWidget {
         const SizedBox(width: AppTheme.duoSpacingMedium),
         Expanded(
           child: _buildSmallCard(
-            icon: Icons.apartment,
+            icon: Icons.layers,
             title: 'Floors',
             subtitle: 'Level up by chatting',
             color: AppTheme.duoYellow,

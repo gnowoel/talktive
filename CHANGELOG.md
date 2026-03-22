@@ -10,7 +10,8 @@ This document tracks the major development milestones and changes made during th
   - **Chats**: Restored "Private conversations".
   - **Lounges**: Restored "Join the community clubhouse".
   - **Moments**: Restored "Share your day".
-- **Iconography Balance**: Reverted UI elements to use traditional Material Design icons (non-rounded) for better clarity and professionalism, as requested. Emojis have been retained for bottom navigation and avatars to maintain the app's playful character while ensuring UI contrast.
+- **Phase 8.29: Iconography Consistency (Mar 2026)**: Standardized icon usage across all core screens (Plaza, Moments, Chats, Lounges, Activity). Established "One Icon per Idea" rule for Material Icons: Plaza (`apartment`/`layers`), Moments (`photo_library`), Chats (`chat`), Lounges (`groups`), and Activity (`emoji_events`). Consistently used Material Icons for all functional groups including empty states.
+- **Phase 8.28: Icon & Label Restoration (Mar 2026)**: Restored welcoming iconography and inviting labels across the app. Reverted to non-rounded Material Icons for UI elements to improve contrast and professionalism, while keeping Emojis for playful expressions like avatars and bottom navigation.
 - **Consistency Refinement**: Performed a global audit and cleanup of rounded icons, standardizing on the classic Material Design set for all headers, buttons, and system cards.
 
 ### Build & Documentation

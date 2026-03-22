@@ -54,7 +54,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         DuoPageScaffold(
           title: 'Activity',
           subtitle: 'Progress & Updates',
-          icon: Icons.local_activity,
+          icon: Icons.emoji_events,
           gradient: AppTheme.duoGreenGradient,
           trailingHeader: Row(
             mainAxisSize: MainAxisSize.min,
@@ -582,7 +582,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   IconData _getIconForType(String type) {
     switch (type) {
       case 'message':
-        return Icons.chat_bubble;
+        return Icons.chat;
       case 'moment_like':
         return Icons.favorite;
       case 'moment_comment':

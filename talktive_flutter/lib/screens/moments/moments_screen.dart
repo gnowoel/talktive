@@ -384,7 +384,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       data: (moments) {
         if (moments.isEmpty) {
           return DuoEmptyState(
-            icon: Icons.camera_alt,
+            icon: Icons.photo_library,
             title: 'No moments yet',
             subtitle: 'Share your first photo!',
             buttonText: 'Create Moment',

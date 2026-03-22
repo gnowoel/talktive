@@ -137,8 +137,8 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: DuoEmptyState(
-        icon: Icons.chat_bubble_outline,
-        title: 'No chats yet',
+        icon: Icons.chat,
+        title: 'Your door is quiet',
         subtitle: 'Start a conversation with someone in the Plaza!',
         buttonText: 'Go to Plaza',
         onButtonPressed: () {

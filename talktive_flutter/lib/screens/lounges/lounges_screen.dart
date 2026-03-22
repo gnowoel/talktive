@@ -75,8 +75,8 @@ class LoungesScreen extends ConsumerWidget {
   ) {
     if (lounges.isEmpty) {
       return DuoEmptyState(
-        emoji: '🏢',
-        title: 'Empty Clubhouse',
+        icon: Icons.groups,
+        title: 'Quiet Clubhouse',
         subtitle: 'No lounges yet. Why not create one?',
         onButtonPressed: () => _showCreateDialog(context, ref),
         buttonText: 'Open a Lounge',

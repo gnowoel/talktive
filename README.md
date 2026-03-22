@@ -129,12 +129,12 @@ Even for the new Serverpod version, we use **Firebase Authentication**.
     > **⚠️ IMPORTANT FOR GOOGLE SIGN-IN**
     > Only `localhost:8083` is registered with Google Cloud OAuth. You must explicitly start the server using `--web-hostname=localhost` and access it via `http://localhost:8083`. Do not use `127.0.0.1`, otherwise Google Sign-In will fail with origin errors.
 
-2.  On launch, you will see the **Start Screen**:
-    - Tap **"Start"** to use the existing Firebase version.
-    - Tap **"New safer version"** to preview the Serverpod integration.
+2.  On launch, established users with persistent Google Sign-In will automatically skip the choice and enter the **Serverpod** version. First-time or signed-out users will see the **Start Screen**:
+    - Tap **"New safer version"** to access the Serverpod integration.
+    - Tap **"Start"** for the legacy Firebase path.
     
-    > **⚠️ IMPORTANT FOR TESTING**
-    > We run the old Firebase version along with the new Serverpod version. For testing the new Serverpod version, please tap **"New safer version"** instead of "Start" on app start.
+    > **⚠️ SEAMLESS DISCOVERY**
+    > Returning residents are automatically logged into the Serverpod backend. For testing the legacy version while signed in, a "Switch App Version" option should be added to settings or the cache cleared via a sign-out event.
 
 ## 🧠 Development Philosophy
 

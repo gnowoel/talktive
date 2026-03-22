@@ -18,6 +18,7 @@ Talktive is a digital apartment building where privacy and community coexist. Us
 - **Database**: PostgreSQL with UUID identification. Fully migrated from legacy integer IDs.
 - **Caching**: Redis for rate limiting and temporary session storage.
 - **Authentication**: Firebase Auth (Google) linked to Serverpod Auth Core via `firebaseIdp`.
+- **Seamless Entry**: Automated auto-login for established Google sessions, skipping version selection for returning residents.
 - **Media**: Direct client-side uploads to Firebase Storage for high performance.
 
 ### Frontend: Flutter (Standardized Duo UI)

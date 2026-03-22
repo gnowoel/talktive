@@ -55,6 +55,18 @@ class _VersionSelectorState extends State<VersionSelector> {
       return;
     }
 
+    // New logic: If the user is already signed in with Google (from a previous session or installation),
+    // skip the version selection and default to the new Serverpod version. 
+    // This resolves the confusion where logged-in users felt forced to choose "New User" or "Existing User".
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      await prefs.setString('active_app_version', AppVersion.serverpod.name);
+      if (mounted) {
+        setState(() => _state = SelectorState.runAppServerpod);
+      }
+      return;
+    }
+
     if (mounted) setState(() => _state = SelectorState.chooseUserType);
   }
 

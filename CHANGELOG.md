@@ -2,9 +2,14 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
-## March 22, 2026 - Notification & Messaging Batch Optimization 🔔🚀
+## March 22, 2026 - Auth Workflow Optimization & Batch Delivery 🔐🚀
 
-### high-Performance Notification Engine
+### Seamless Authentication (Phase 8.24)
+- **Smart Version Selector**: Upgraded the `VersionSelector` to automatically detect persistent Google Sign-In sessions via `FirebaseAuth.instance.currentUser`. Logged-in users now skip the version selection screen and are directed straight to the Serverpod version, optimizing entry for returning residents.
+- **Serverpod Auto-Login**: Implemented proactive authentication in `AuthProvider`'s `build()` method. If a Firebase session exists but the Serverpod session is stale, the app now automatically exchanges the Firebase ID token for a new Serverpod session, providing a zero-click login experience.
+- **Auth State Robustness**: Refined `_refreshAuthState` and auto-login logic to explicitly handle unauthenticated states and verify session success flags, ensuring UI routes are always accurate following session establishment.
+
+### High-Performance Notification Engine
 - **Batched Notification Delivery**: Introduced `sendBulkNotifications` in `NotificationService`, which consolidates database operations for history saving and fetches device tokens in a single batch. This significantly reduces database round-trips when notifying multiple users.
 - **Optimized Chat Notifications**: Implemented `sendBulkMessageNotifications` to handle message delivery across lounges and private chats efficiently. It resolves lounge/channel context once per batch and parallelizes FCM calls for maximum throughput.
 - **N+1 Query Resolution**: Updated `sendMentionNotification`, `sendMomentLikeNotification`, and `sendMomentCommentNotification` to accept pre-resolved context (like `loungeId`), eliminating redundant lookups when multiple notifications are triggered by a single event.

@@ -131,6 +131,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Image Handling & Dev Visibility (Mar 2026)**: Fixed lounge image visibility by resolving platform-specific hostnames (`localhost` vs `10.0.2.2`) and implemented full-screen Hero animations for chat images. Unified routing under a top-level `/gallery` path.
 - **Account Migration Workflow (Mar 2026)**: Implemented a comprehensive migration flow for moving users from the legacy Firebase backend to Serverpod. Added a `VersionSelector` state machine that handles New vs. Existing user routes, validates Recovery Tokens for signed-out existing users, and caches app version preferences.
   - **Account Linking**: Updated `AuthProvider` to link new Google Sign-In credentials to existing anonymous/email Firebase accounts via `FirebaseAuth.instance.currentUser?.linkWithCredential(credential)`, ensuring users retain their legacy `userInfoId` and chat histories.
+- **Seamless Authentication Workflow (Mar 2026)**: Optimized the application entry point to automatically detect persistent Google Sign-In sessions. Residents who are already logged in now bypass the `VersionSelector` and are automatically authenticated with the Serverpod backend, providing a zero-click "Welcome back" experience.
 
 ## Useful Commands
 

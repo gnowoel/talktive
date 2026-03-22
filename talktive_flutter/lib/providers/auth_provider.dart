@@ -45,6 +45,25 @@ class Auth extends _$Auth {
   FutureOr<TalktiveAuthState> build() async {
     // We assume sessionManager.initialize() was called in main
     if (!sessionManager.isAuthenticated) {
+      // Check if user is already logged in with Firebase but not Serverpod.
+      // This helps users migrate smoothly from older version sessions.
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        try {
+          final idToken = await firebaseUser.getIdToken();
+          if (idToken != null) {
+            debugPrint('Auth: Attempting auto-login to Serverpod with existing Firebase user');
+            final authResponse = await client.firebaseIdp.login(idToken: idToken);
+            if (authResponse != null && authResponse.success) {
+              await sessionManager.updateSignedInUser(authResponse);
+              return await _refreshAuthState();
+            }
+          }
+        } catch (e) {
+          debugPrint('Auth: Auto-login to Serverpod failed (expected if token expired): $e');
+          // If auto-login fails, fall back to Unauthenticated
+        }
+      }
       return const Unauthenticated();
     }
 
@@ -53,6 +72,9 @@ class Auth extends _$Auth {
 
   Future<TalktiveAuthState> _refreshAuthState() async {
     try {
+      if (!sessionManager.isAuthenticated) {
+        return const Unauthenticated();
+      }
       final resident = await client.resident.getResident();
 
       if (resident != null) {

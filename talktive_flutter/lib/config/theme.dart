@@ -3,15 +3,25 @@ import 'package:flutter/services.dart';
 
 class AppTheme {
   // ─── Core Duolingo-Inspired Colors (defined first – used as aliases below) ──
-  static const Color duoGreen  = Color(0xFF58CC02);  // Signature green   → success, profile
-  static const Color duoYellow = Color(0xFFFFD93D);  // Cheerful yellow    → streaks, XP
-  static const Color duoRed    = Color(0xFFFF4B4B);  // Friendly red       → danger, unread badges
-  static const Color duoOrange = Color(0xFFFF9600);  // Vibrant orange     → chats
-  static const Color duoBlue   = Color(0xFF1CB0F6);  // Deep cheerful blue → lounges, links
+  static const Color duoGreen = Color(
+    0xFF58CC02,
+  ); // Signature green   → success, profile
+  static const Color duoYellow = Color(
+    0xFFFFD93D,
+  ); // Cheerful yellow    → streaks, XP
+  static const Color duoRed = Color(
+    0xFFFF4B4B,
+  ); // Friendly red       → danger, unread badges
+  static const Color duoOrange = Color(
+    0xFFFF9600,
+  ); // Vibrant orange     → chats
+  static const Color duoBlue = Color(
+    0xFF1CB0F6,
+  ); // Deep cheerful blue → lounges, links
 
   // ─── Brand Colors ────────────────────────────────────────────────────────────
-  static const Color primaryColor   = Color(0xFF6C63FF); // Purple (main brand)
-  static const Color duoPurple      = primaryColor;       // Alias for primaryColor
+  static const Color primaryColor = Color(0xFF6C63FF); // Purple (main brand)
+  static const Color duoPurple = primaryColor; // Alias for primaryColor
   static const Color secondaryColor = Color(0xFFFF6584); // Pink (Moments)
   // accentColor is aliased to duoBlue for a consistent, accessible palette.
   // Prefer using duoBlue directly to make semantic intent explicit.
@@ -71,8 +81,8 @@ class AppTheme {
   // Functional Colors
   static const Color successColor = duoGreen;
   static const Color warningColor = duoYellow;
-  static const Color errorColor   = duoRed;
-  static const Color infoColor    = duoBlue;
+  static const Color errorColor = duoRed;
+  static const Color infoColor = duoBlue;
 
   // Mood Colors (for user moods)
   static const Color happyColor = Color(0xFFFFD93D);

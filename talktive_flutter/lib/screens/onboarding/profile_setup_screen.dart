@@ -237,7 +237,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       final bool success;
 
       if (isEditing) {
-        success = await ref.read(authProvider.notifier).updateProfile(
+        success = await ref
+            .read(authProvider.notifier)
+            .updateProfile(
               name: _nameController.text.trim(),
               avatar: _selectedAvatar,
               gender: _selectedGender,
@@ -249,7 +251,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               customAvatarUrl: _customAvatarUrl,
             );
       } else {
-        success = await ref.read(authProvider.notifier).completeSetup(
+        success = await ref
+            .read(authProvider.notifier)
+            .completeSetup(
               name: _nameController.text.trim(),
               avatar: _selectedAvatar,
               gender: _selectedGender,
@@ -458,18 +462,18 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                                 ),
                                 child: _isUploadingCustomAvatar
                                     ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
                                     : const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
                               ),
                             ),
                           ).animate(delay: 400.ms).fadeIn().scale(),
@@ -484,7 +488,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                         variant: DuoButtonVariant.ghost,
                         size: DuoButtonSize.small,
                         color: AppTheme.duoRed,
-                        onPressed: () => setState(() => _customAvatarUrl = null),
+                        onPressed: () =>
+                            setState(() => _customAvatarUrl = null),
                       ),
                     ],
                   ],

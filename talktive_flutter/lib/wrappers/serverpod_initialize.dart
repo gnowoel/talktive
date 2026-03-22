@@ -45,7 +45,7 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
       if (kDebugMode && widget.useEmulators) {
         final isAndroid = defaultTargetPlatform == TargetPlatform.android;
         final host = isAndroid ? '10.0.2.2' : 'localhost';
-        
+
         try {
           debugPrint('ServerpodInitialize: Using Firebase Emulators at $host');
           FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
@@ -53,7 +53,9 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
           await FirebaseAuth.instance.useAuthEmulator(host, 9099);
           await FirebaseStorage.instance.useStorageEmulator(host, 9199);
           FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
-          debugPrint('ServerpodInitialize: Firebase Emulators initialized successfully');
+          debugPrint(
+            'ServerpodInitialize: Firebase Emulators initialized successfully',
+          );
         } catch (e) {
           debugPrint('ServerpodInitialize: Error setting up emulators: $e');
         }
@@ -85,7 +87,11 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: AppTheme.duoRed),
+                  const Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: AppTheme.duoRed,
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Failed to initialize app',

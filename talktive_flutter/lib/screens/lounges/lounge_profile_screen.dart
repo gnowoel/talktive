@@ -83,7 +83,11 @@ class LoungeProfileScreen extends ConsumerWidget {
             actions: [
               if (currentResident?.isStaff ?? false)
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.gavel, size: 24, color: AppTheme.textPrimary),
+                  icon: const Icon(
+                    Icons.gavel,
+                    size: 24,
+                    color: AppTheme.textPrimary,
+                  ),
                   onSelected: (value) async {
                     if (value == 'admin_private') {
                       _confirmForceAdminPrivate(context, ref, lounge);
@@ -112,7 +116,11 @@ class LoungeProfileScreen extends ConsumerWidget {
                 ),
               if (isCreator)
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 24, color: AppTheme.textPrimary),
+                  icon: const Icon(
+                    Icons.edit,
+                    size: 24,
+                    color: AppTheme.textPrimary,
+                  ),
                   onPressed: () => _showEditDialog(context, lounge),
                 ),
             ],
@@ -151,7 +159,8 @@ class LoungeProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Interests
-                if (lounge.interests != null && lounge.interests!.isNotEmpty) ...[
+                if (lounge.interests != null &&
+                    lounge.interests!.isNotEmpty) ...[
                   Text(
                     'Interests',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -268,7 +277,10 @@ class LoungeProfileScreen extends ConsumerWidget {
             onTap: isJoined
                 ? () {
                     HapticFeedback.lightImpact();
-                    context.push('/lounges/members/${lounge.id!}', extra: lounge);
+                    context.push(
+                      '/lounges/members/${lounge.id!}',
+                      extra: lounge,
+                    );
                   }
                 : null,
           ),
@@ -415,7 +427,11 @@ class LoungeProfileScreen extends ConsumerWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.notifications_off, size: 24, color: AppTheme.duoPurple),
+                    Icon(
+                      Icons.notifications_off,
+                      size: 24,
+                      color: AppTheme.duoPurple,
+                    ),
                     SizedBox(width: 12),
                     Text(
                       'Mute Notifications',
@@ -499,7 +515,10 @@ class LoungeProfileScreen extends ConsumerWidget {
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    DuoSnackBarHelper.showError(context, 'Failed to decline: $e');
+                    DuoSnackBarHelper.showError(
+                      context,
+                      'Failed to decline: $e',
+                    );
                   }
                 }
               },
@@ -517,13 +536,19 @@ class LoungeProfileScreen extends ConsumerWidget {
                       .read(loungeListProvider.notifier)
                       .respondToInvite(lounge.id!, true);
                   if (context.mounted) {
-                    DuoSnackBarHelper.showSuccess(context, 'Invitation accepted!');
+                    DuoSnackBarHelper.showSuccess(
+                      context,
+                      'Invitation accepted!',
+                    );
                     // Instead of popping, we just invalidate and let the view refresh
                     ref.invalidate(loungeWithMembershipProvider(lounge.id!));
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    DuoSnackBarHelper.showError(context, 'Failed to accept: $e');
+                    DuoSnackBarHelper.showError(
+                      context,
+                      'Failed to accept: $e',
+                    );
                   }
                 }
               },
@@ -540,7 +565,9 @@ class LoungeProfileScreen extends ConsumerWidget {
         onPressed: () async {
           HapticFeedback.mediumImpact();
           try {
-            await ref.read(loungeListProvider.notifier).applyToLounge(lounge.id!);
+            await ref
+                .read(loungeListProvider.notifier)
+                .applyToLounge(lounge.id!);
             if (context.mounted) {
               DuoSnackBarHelper.showSuccess(context, 'Application sent!');
             }
@@ -606,7 +633,11 @@ class LoungeProfileScreen extends ConsumerWidget {
     }
   }
 
-  void _confirmAdminDisband(BuildContext context, WidgetRef ref, Lounge lounge) async {
+  void _confirmAdminDisband(
+    BuildContext context,
+    WidgetRef ref,
+    Lounge lounge,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

@@ -66,9 +66,12 @@ class RealtimeChat extends _$RealtimeChat {
 
     // Try to get other user's last read from details (for private chats)
     try {
-      final details = await ref.read(privateChatDetailsProvider(_channelId).future);
+      final details = await ref.read(
+        privateChatDetailsProvider(_channelId).future,
+      );
       if (details.otherUserLastReadAt != null) {
-        initialState.lastReadStatus[details.otherResident.userInfoId.toString()] =
+        initialState.lastReadStatus[details.otherResident.userInfoId
+                .toString()] =
             details.otherUserLastReadAt!;
       }
     } catch (_) {
@@ -141,10 +144,10 @@ class RealtimeChat extends _$RealtimeChat {
     final exists = currentState.messages.any((m) => m.id == newMessage.id);
     if (exists) return;
 
-    state = AsyncValue.data(currentState.copyWith(
-      messages: [newMessage, ...currentState.messages],
-    ));
-    
+    state = AsyncValue.data(
+      currentState.copyWith(messages: [newMessage, ...currentState.messages]),
+    );
+
     // Clear typing indicator for this sender
     _removeTypingUser(newMessage.senderName);
   }
@@ -152,28 +155,32 @@ class RealtimeChat extends _$RealtimeChat {
   void _handleTypingIndicator(TypingIndicator indicator) {
     if (state.value == null) return;
     final currentState = state.value!;
-    
+
     // Don't show our own typing status
     // (Assuming we know our userId context - we can skip if name matches or just let it be)
-    
+
     final updatedTyping = Set<String>.from(currentState.typingUsers);
     if (indicator.isTyping) {
       updatedTyping.add(indicator.userName);
     } else {
       updatedTyping.remove(indicator.userName);
     }
-    
+
     state = AsyncValue.data(currentState.copyWith(typingUsers: updatedTyping));
   }
 
   void _handleReadReceipt(ReadReceiptEvent event) {
     if (state.value == null) return;
     final currentState = state.value!;
-    
-    final updatedReadStatus = Map<String, DateTime>.from(currentState.lastReadStatus);
+
+    final updatedReadStatus = Map<String, DateTime>.from(
+      currentState.lastReadStatus,
+    );
     updatedReadStatus[event.userId.toString()] = event.lastReadAt;
-    
-    state = AsyncValue.data(currentState.copyWith(lastReadStatus: updatedReadStatus));
+
+    state = AsyncValue.data(
+      currentState.copyWith(lastReadStatus: updatedReadStatus),
+    );
   }
 
   void _removeTypingUser(String userName) {
@@ -182,7 +189,9 @@ class RealtimeChat extends _$RealtimeChat {
     if (currentState.typingUsers.contains(userName)) {
       final updatedTyping = Set<String>.from(currentState.typingUsers)
         ..remove(userName);
-      state = AsyncValue.data(currentState.copyWith(typingUsers: updatedTyping));
+      state = AsyncValue.data(
+        currentState.copyWith(typingUsers: updatedTyping),
+      );
     }
   }
 
@@ -213,11 +222,15 @@ class RealtimeChat extends _$RealtimeChat {
 
       if (state.value != null) {
         final currentState = state.value!;
-        final exists = currentState.messages.any((m) => m.id == savedMessage.id);
+        final exists = currentState.messages.any(
+          (m) => m.id == savedMessage.id,
+        );
         if (!exists) {
-          state = AsyncValue.data(currentState.copyWith(
-            messages: [savedMessage, ...currentState.messages],
-          ));
+          state = AsyncValue.data(
+            currentState.copyWith(
+              messages: [savedMessage, ...currentState.messages],
+            ),
+          );
         }
       }
     } catch (e) {
@@ -239,11 +252,13 @@ class RealtimeChat extends _$RealtimeChat {
     state = const AsyncValue.loading();
     try {
       final messages = await _fetchMessages();
-      state = AsyncValue.data(RealtimeChatState(
-        messages: messages,
-        typingUsers: {},
-        lastReadStatus: {},
-      ));
+      state = AsyncValue.data(
+        RealtimeChatState(
+          messages: messages,
+          typingUsers: {},
+          lastReadStatus: {},
+        ),
+      );
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -264,9 +279,11 @@ class RealtimeChat extends _$RealtimeChat {
       );
 
       if (olderMessages.isNotEmpty) {
-        state = AsyncValue.data(currentState.copyWith(
-          messages: [...currentState.messages, ...olderMessages],
-        ));
+        state = AsyncValue.data(
+          currentState.copyWith(
+            messages: [...currentState.messages, ...olderMessages],
+          ),
+        );
       }
     } catch (e) {
       debugPrint('RealtimeChat: Load more error: $e');

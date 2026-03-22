@@ -23,10 +23,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(
           'Settings',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -39,7 +36,8 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: residentAsync.when(
         data: (resident) {
-          if (resident == null) return const Center(child: Text('Please log in'));
+          if (resident == null)
+            return const Center(child: Text('Please log in'));
 
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -53,7 +51,9 @@ class SettingsScreen extends ConsumerWidget {
                         'Show Online Status',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: const Text('Let others see when you are active'),
+                      subtitle: const Text(
+                        'Let others see when you are active',
+                      ),
                       value: resident.showOnlineStatus,
                       activeThumbColor: AppTheme.duoGreen,
                       onChanged: (value) async {
@@ -66,11 +66,16 @@ class SettingsScreen extends ConsumerWidget {
                           if (!context.mounted) return;
                           DuoSnackBarHelper.showSuccess(
                             context,
-                            value ? 'Online status visible! 🟢' : 'Incognito mode active! 👻',
+                            value
+                                ? 'Online status visible! 🟢'
+                                : 'Incognito mode active! 👻',
                           );
                         } catch (e) {
                           if (!context.mounted) return;
-                          DuoSnackBarHelper.showError(context, 'Failed to update settings');
+                          DuoSnackBarHelper.showError(
+                            context,
+                            'Failed to update settings',
+                          );
                         }
                       },
                     ),
@@ -79,7 +84,9 @@ class SettingsScreen extends ConsumerWidget {
                         'Show Read Receipts',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: const Text('Let others see when you have read their messages'),
+                      subtitle: const Text(
+                        'Let others see when you have read their messages',
+                      ),
                       value: resident.showReadReceipts,
                       activeThumbColor: AppTheme.primaryColor,
                       onChanged: (value) => _updatePrivacySettings(
@@ -116,9 +123,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'Upload your own image to use as an avatar.',
                 isLocked: !resident.isPremium,
                 value: resident.showCustomAvatar,
-                onChanged: resident.isPremium 
-                  ? (val) => _updatePrivacySettings(context, ref, showCustomAvatar: val)
-                  : null,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showCustomAvatar: val,
+                      )
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -127,9 +138,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'Send audio messages in any chat thread.',
                 isLocked: !resident.isPremium,
                 value: resident.showVoiceMessages,
-                onChanged: resident.isPremium 
-                  ? (val) => _updatePrivacySettings(context, ref, showVoiceMessages: val)
-                  : null,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showVoiceMessages: val,
+                      )
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -138,9 +153,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'Search for any resident in the building.',
                 isLocked: !resident.isPremium,
                 value: resident.showNeighborsDiscovery,
-                onChanged: resident.isPremium 
-                  ? (val) => _updatePrivacySettings(context, ref, showNeighborsDiscovery: val)
-                  : null,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showNeighborsDiscovery: val,
+                      )
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -149,9 +168,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'See when your friends are active in real-time.',
                 isLocked: !resident.isPremium,
                 value: resident.showOthersOnlineStatus,
-                onChanged: resident.isPremium 
-                  ? (val) => _updatePrivacySettings(context, ref, showOthersOnlineStatus: val)
-                  : null,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showOthersOnlineStatus: val,
+                      )
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -160,9 +183,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'See when others have read your messages.',
                 isLocked: !resident.isPremium,
                 value: resident.showOthersReadReceipts,
-                onChanged: resident.isPremium 
-                  ? (val) => _updatePrivacySettings(context, ref, showOthersReadReceipts: val)
-                  : null,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showOthersReadReceipts: val,
+                      )
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -171,9 +198,13 @@ class SettingsScreen extends ConsumerWidget {
                 description: 'See when someone is replying to you.',
                 isLocked: !resident.isPremium,
                 value: resident.showOthersTypingIndicators,
-                onChanged: resident.isPremium 
-                  ? (val) => _updatePrivacySettings(context, ref, showOthersTypingIndicators: val)
-                  : null,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showOthersTypingIndicators: val,
+                      )
+                    : null,
               ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
@@ -184,13 +215,21 @@ class SettingsScreen extends ConsumerWidget {
                     context.push('/admin/dashboard');
                   },
                   child: const ListTile(
-                    leading: Icon(Icons.admin_panel_settings, size: 28, color: AppTheme.duoPurple),
+                    leading: Icon(
+                      Icons.admin_panel_settings,
+                      size: 28,
+                      color: AppTheme.duoPurple,
+                    ),
                     title: Text(
                       'Admin Dashboard',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text('Manage users and community safety'),
-                    trailing: const Icon(Icons.chevron_right, size: 24, color: AppTheme.textSecondary),
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      size: 24,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                 ),
               ],
@@ -203,7 +242,9 @@ class SettingsScreen extends ConsumerWidget {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Log Out'),
-                      content: const Text('Are you sure you want to log out of your persona?'),
+                      content: const Text(
+                        'Are you sure you want to log out of your persona?',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
@@ -211,7 +252,10 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Log Out', style: TextStyle(color: AppTheme.errorColor)),
+                          child: const Text(
+                            'Log Out',
+                            style: TextStyle(color: AppTheme.errorColor),
+                          ),
                         ),
                       ],
                     ),
@@ -255,13 +299,18 @@ class SettingsScreen extends ConsumerWidget {
     try {
       await client.resident.updatePrivacySettings(
         showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
-        showTypingIndicator: showTypingIndicator ?? resident.showTypingIndicator,
+        showTypingIndicator:
+            showTypingIndicator ?? resident.showTypingIndicator,
         showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
-        showNeighborsDiscovery: showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
+        showNeighborsDiscovery:
+            showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
         showCustomAvatar: showCustomAvatar ?? resident.showCustomAvatar,
-        showOthersOnlineStatus: showOthersOnlineStatus ?? resident.showOthersOnlineStatus,
-        showOthersReadReceipts: showOthersReadReceipts ?? resident.showOthersReadReceipts,
-        showOthersTypingIndicators: showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
+        showOthersOnlineStatus:
+            showOthersOnlineStatus ?? resident.showOthersOnlineStatus,
+        showOthersReadReceipts:
+            showOthersReadReceipts ?? resident.showOthersReadReceipts,
+        showOthersTypingIndicators:
+            showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
       );
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;
@@ -287,7 +336,11 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPremiumCard(BuildContext context, WidgetRef ref, bool isPremium) {
+  Widget _buildPremiumCard(
+    BuildContext context,
+    WidgetRef ref,
+    bool isPremium,
+  ) {
     if (isPremium) {
       return DuoCard(
         color: AppTheme.primaryColor.withValues(alpha: 0.1),
@@ -325,10 +378,7 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             const Text(
               'Unlock Talktive Plus',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 8),
             Text(
@@ -345,7 +395,10 @@ class SettingsScreen extends ConsumerWidget {
                   await client.resident.purchasePremium();
                   ref.invalidate(currentResidentProvider);
                   if (!context.mounted) return;
-                  DuoSnackBarHelper.showSuccess(context, 'Welcome to Talktive Plus! 🌟');
+                  DuoSnackBarHelper.showSuccess(
+                    context,
+                    'Welcome to Talktive Plus! 🌟',
+                  );
                 } catch (e) {
                   if (!context.mounted) return;
                   DuoSnackBarHelper.showError(context, 'Purchase failed');
@@ -375,7 +428,9 @@ class SettingsScreen extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isLocked ? Colors.grey[200] : AppTheme.primaryColor.withValues(alpha: 0.1),
+              color: isLocked
+                  ? Colors.grey[200]
+                  : AppTheme.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -409,10 +464,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 Text(
                   description,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[500],
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                 ),
               ],
             ),

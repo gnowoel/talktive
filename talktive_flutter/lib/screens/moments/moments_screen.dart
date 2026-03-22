@@ -68,14 +68,20 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     HapticFeedback.lightImpact();
 
     Resident? currentResident = ref.read(currentResidentProvider).value;
-    
+
     if (currentResident == null) {
-      debugPrint('MomentsScreen: currentResident is null, waiting for future...');
+      debugPrint(
+        'MomentsScreen: currentResident is null, waiting for future...',
+      );
       try {
         currentResident = await ref.read(currentResidentProvider.future);
       } catch (e) {
         debugPrint('MomentsScreen: Error waiting for resident: $e');
-        if (mounted) DuoSnackBarHelper.showError(context, 'Failed to load profile. Please try again.');
+        if (mounted)
+          DuoSnackBarHelper.showError(
+            context,
+            'Failed to load profile. Please try again.',
+          );
         return;
       }
       if (!mounted) return;
@@ -83,7 +89,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
     if (currentResident == null) {
       debugPrint('MomentsScreen: Resident still null after waiting');
-      if (mounted) DuoSnackBarHelper.showError(context, 'Resident profile not found.');
+      if (mounted)
+        DuoSnackBarHelper.showError(context, 'Resident profile not found.');
       return;
     }
 
@@ -97,11 +104,10 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       return;
     }
     if (!mounted) return;
-    
 
     final effectiveFloor = DuoFloorHelper.computeFloor(currentResident);
     debugPrint('MomentsScreen: Effective floor: $effectiveFloor');
-    
+
     if (effectiveFloor < 2) {
       DuoFloorRequirementDialog.show(
         context,
@@ -227,7 +233,11 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                   bottom: false,
                   child: Row(
                     children: [
-                      const Icon(Icons.camera_alt, size: 28, color: Colors.white),
+                      const Icon(
+                        Icons.camera_alt,
+                        size: 28,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: AppTheme.duoSpacingSmall),
                       const Expanded(
                         child: Text(
@@ -291,7 +301,11 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.add_a_photo, size: 48, color: Colors.grey),
+                                    const Icon(
+                                      Icons.add_a_photo,
+                                      size: 48,
+                                      color: Colors.grey,
+                                    ),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Select photo',

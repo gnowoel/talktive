@@ -26,10 +26,7 @@ class BlockedUsersScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(
           'Blocked Users',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -70,7 +67,6 @@ class BlockedUsersScreen extends ConsumerWidget {
       ),
     );
   }
-
 
   Widget _buildBlockedUserCard(
     BuildContext context,

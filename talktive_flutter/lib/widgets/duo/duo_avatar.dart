@@ -61,7 +61,7 @@ class DuoAvatar extends StatelessWidget {
     final badgeSize = size > 60 ? 24.0 : 18.0;
     final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
     final isEmoji = !hasImageUrl && imageUrl != null && imageUrl!.isNotEmpty;
-    
+
     // Determine ring color from trustScore or explicit ringColor
     final effectiveRingColor =
         ringColor ??
@@ -70,7 +70,7 @@ class DuoAvatar extends StatelessWidget {
             : AppTheme.primaryColor);
 
     Widget avatarCore;
-    
+
     if (hasImageUrl) {
       avatarCore = ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
@@ -79,8 +79,10 @@ class DuoAvatar extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
-          placeholder: (context, url) => _buildPlaceholder(effectiveRingColor, emoji: placeholderEmoji),
-          errorWidget: (context, url, error) => _buildPlaceholder(effectiveRingColor, emoji: placeholderEmoji),
+          placeholder: (context, url) =>
+              _buildPlaceholder(effectiveRingColor, emoji: placeholderEmoji),
+          errorWidget: (context, url, error) =>
+              _buildPlaceholder(effectiveRingColor, emoji: placeholderEmoji),
         ),
       );
     } else {
@@ -115,7 +117,7 @@ class DuoAvatar extends StatelessWidget {
         ),
       );
     }
-// ... rest of method unchanged
+    // ... rest of method unchanged
 
     Widget finalAvatar = avatarCore;
 
@@ -246,10 +248,7 @@ class DuoAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
-          colors: [
-            color,
-            _lightenColor(color, 0.2),
-          ],
+          colors: [color, _lightenColor(color, 0.2)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

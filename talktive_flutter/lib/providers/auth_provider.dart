@@ -52,15 +52,21 @@ class Auth extends _$Auth {
         try {
           final idToken = await firebaseUser.getIdToken();
           if (idToken != null) {
-            debugPrint('Auth: Attempting auto-login to Serverpod with existing Firebase user');
-            final authResponse = await client.firebaseIdp.login(idToken: idToken);
+            debugPrint(
+              'Auth: Attempting auto-login to Serverpod with existing Firebase user',
+            );
+            final authResponse = await client.firebaseIdp.login(
+              idToken: idToken,
+            );
             if (authResponse != null) {
               await sessionManager.updateSignedInUser(authResponse);
               return await _refreshAuthState();
             }
           }
         } catch (e) {
-          debugPrint('Auth: Auto-login to Serverpod failed (expected if token expired): $e');
+          debugPrint(
+            'Auth: Auto-login to Serverpod failed (expected if token expired): $e',
+          );
           // If auto-login fails, fall back to Unauthenticated
         }
       }
@@ -130,24 +136,28 @@ class Auth extends _$Auth {
 
       if (currentUser != null &&
           (currentUser.isAnonymous ||
-              currentUser.providerData
-                  .every((info) => info.providerId != 'google.com'))) {
+              currentUser.providerData.every(
+                (info) => info.providerId != 'google.com',
+              ))) {
         try {
           userCredential = await currentUser.linkWithCredential(credential);
         } on FirebaseAuthException catch (e) {
           if (e.code == 'provider-already-linked') {
-            userCredential =
-                await FirebaseAuth.instance.signInWithCredential(credential);
+            userCredential = await FirebaseAuth.instance.signInWithCredential(
+              credential,
+            );
           } else if (e.code == 'credential-already-in-use') {
             throw Exception(
-                "This Google account is already linked to another Talktive account.");
+              "This Google account is already linked to another Talktive account.",
+            );
           } else {
             rethrow;
           }
         }
       } else {
-        userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+        userCredential = await FirebaseAuth.instance.signInWithCredential(
+          credential,
+        );
       }
       final user = userCredential.user;
 

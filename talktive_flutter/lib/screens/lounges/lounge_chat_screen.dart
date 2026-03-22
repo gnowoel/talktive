@@ -421,11 +421,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.people,
-              size: 24,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.people, size: 24, color: Colors.black),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push(
@@ -476,11 +472,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                   value: 'profile',
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info,
-                        size: 20,
-                        color: AppTheme.textPrimary,
-                      ),
+                      Icon(Icons.info, size: 20, color: AppTheme.textPrimary),
                       SizedBox(width: 12),
                       Text('Lounge Profile'),
                     ],
@@ -580,11 +572,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     value: 'admin_disband',
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.gavel,
-                          color: AppTheme.duoRed,
-                          size: 20,
-                        ),
+                        Icon(Icons.gavel, color: AppTheme.duoRed, size: 20),
                         SizedBox(width: 12),
                         Text(
                           'Admin: Disband',
@@ -751,11 +739,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: AppTheme.duoRed,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load messages',

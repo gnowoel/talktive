@@ -52,8 +52,11 @@ class DuoEmptyState extends StatelessWidget {
                   ),
                   child: Center(
                     child: icon != null
-                      ? Icon(icon, size: 64, color: AppTheme.primaryColor)
-                      : Text(emoji ?? '', style: const TextStyle(fontSize: 64)),
+                        ? Icon(icon, size: 64, color: AppTheme.primaryColor)
+                        : Text(
+                            emoji ?? '',
+                            style: const TextStyle(fontSize: 64),
+                          ),
                   ),
                 )
                 .animate(

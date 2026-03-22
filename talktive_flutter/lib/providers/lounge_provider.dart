@@ -207,9 +207,14 @@ Future<List<Resident>> loungeMembers(Ref ref, int loungeId) async {
 
 /// Provider for getting a single lounge with membership from the current user.
 @riverpod
-Future<LoungeWithMembership?> loungeWithMembership(Ref ref, int loungeId) async {
+Future<LoungeWithMembership?> loungeWithMembership(
+  Ref ref,
+  int loungeId,
+) async {
   final lounges = await ref.watch(loungeListProvider.future);
-  final memberLounge = lounges.where((g) => g.lounge.id == loungeId).firstOrNull;
+  final memberLounge = lounges
+      .where((g) => g.lounge.id == loungeId)
+      .firstOrNull;
 
   if (memberLounge != null) {
     return memberLounge;

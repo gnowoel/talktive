@@ -66,7 +66,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     }
   }
 
-  Future<void> _resolveReport(int reportId, protocol.ReportStatus status) async {
+  Future<void> _resolveReport(
+    int reportId,
+    protocol.ReportStatus status,
+  ) async {
     try {
       final client = ref.read(clientProvider);
       await client.admin.resolveReport(reportId: reportId, status: status);
@@ -93,7 +96,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     }
   }
 
-  Future<void> _showReportDetails(protocol.AdminReportSummary reportData) async {
+  Future<void> _showReportDetails(
+    protocol.AdminReportSummary reportData,
+  ) async {
     final report = reportData.report;
     final reporter = reportData.reporter;
     final target = reportData.target;
@@ -185,7 +190,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             text: 'Reject',
                             onPressed: () {
                               Navigator.pop(context);
-                              _resolveReport(report.id!, protocol.ReportStatus.rejected);
+                              _resolveReport(
+                                report.id!,
+                                protocol.ReportStatus.rejected,
+                              );
                             },
                             variant: DuoButtonVariant.secondary,
                             color: AppTheme.textSecondary,
@@ -197,7 +205,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             text: 'Approve & Take Action',
                             onPressed: () {
                               Navigator.pop(context);
-                              _resolveReport(report.id!, protocol.ReportStatus.approved);
+                              _resolveReport(
+                                report.id!,
+                                protocol.ReportStatus.approved,
+                              );
                             },
                             color: AppTheme.errorColor,
                           ),
@@ -451,8 +462,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 Expanded(
                   child: DuoButton(
                     text: 'Reject',
-                    onPressed: () =>
-                        _resolveReport(report.id!, protocol.ReportStatus.rejected),
+                    onPressed: () => _resolveReport(
+                      report.id!,
+                      protocol.ReportStatus.rejected,
+                    ),
                     variant: DuoButtonVariant.secondary,
                     size: DuoButtonSize.small,
                     color: AppTheme.textSecondary,
@@ -462,8 +475,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 Expanded(
                   child: DuoButton(
                     text: 'Approve',
-                    onPressed: () =>
-                        _resolveReport(report.id!, protocol.ReportStatus.approved),
+                    onPressed: () => _resolveReport(
+                      report.id!,
+                      protocol.ReportStatus.approved,
+                    ),
                     size: DuoButtonSize.small,
                     color: AppTheme.errorColor,
                   ),

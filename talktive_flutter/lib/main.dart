@@ -16,14 +16,14 @@ import 'version_selector.dart';
 
 Future<void> main() async {
   debugRepaintRainbowEnabled = false;
-  
+
   if (kIsWeb) {
     usePathUrlStrategy();
   }
-  
+
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Pre-initialize SharedPreferences to ensure plugin is registered early 
+  // Pre-initialize SharedPreferences to ensure plugin is registered early
   // and available when needed in Initialize wrapper.
   try {
     await SharedPreferences.getInstance();

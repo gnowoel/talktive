@@ -47,15 +47,13 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
           AudioContext(
             iOS: AudioContextIOS(
               category: AVAudioSessionCategory.playback,
-              options: const {
-                AVAudioSessionOptions.mixWithOthers,
-              },
+              options: const {AVAudioSessionOptions.mixWithOthers},
             ),
           ),
         );
       }
     }
-    
+
     _player.onPlayerStateChanged.listen((state) {
       if (mounted) setState(() => _playerState = state);
     });

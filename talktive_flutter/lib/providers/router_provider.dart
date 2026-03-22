@@ -23,6 +23,7 @@ import '../screens/lounges/lounge_chat_screen.dart';
 import '../screens/lounges/lounge_members_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/users_screen.dart';
+import '../screens/plaza/help_center_screen.dart';
 
 part 'router_provider.g.dart';
 
@@ -51,7 +52,10 @@ GoRouter router(Ref ref) {
           );
         },
       ),
-      GoRoute(path: '/', builder: (context, state) => const HomeScreen(initialIndex: 0)), // Default to Discovery
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const HomeScreen(initialIndex: 0),
+      ), // Default to Discovery
       GoRoute(
         path: '/discovery',
         builder: (context, state) => const HomeScreen(initialIndex: 0),
@@ -67,12 +71,19 @@ GoRouter router(Ref ref) {
         ],
       ),
       GoRoute(
-        path: '/plaza', // Keep the redirect path just in case for internal navigations
-        builder: (context, state) => const HomeScreen(initialIndex: 3), // Point to Lounges hub instead
+        path:
+            '/plaza', // Keep the redirect path just in case for internal navigations
+        builder: (context, state) => const HomeScreen(
+          initialIndex: 0,
+        ), // Point to Plaza tab instead of Lounges
         routes: [
           GoRoute(
             path: 'chat',
             builder: (context, state) => const PlazaChatScreen(),
+          ),
+          GoRoute(
+            path: 'help',
+            builder: (context, state) => const HelpCenterScreen(),
           ),
         ],
       ),
@@ -130,7 +141,10 @@ GoRouter router(Ref ref) {
             builder: (context, state) {
               final loungeId = int.parse(state.pathParameters['loungeId']!);
               final lounge = state.extra as Lounge?;
-              return LoungeProfileScreen(loungeId: loungeId, initialLounge: lounge);
+              return LoungeProfileScreen(
+                loungeId: loungeId,
+                initialLounge: lounge,
+              );
             },
           ),
           GoRoute(
@@ -150,7 +164,10 @@ GoRouter router(Ref ref) {
             builder: (context, state) {
               final loungeId = int.parse(state.pathParameters['loungeId']!);
               final lounge = state.extra as Lounge?;
-              return LoungeMembersScreen(loungeId: loungeId, initialLounge: lounge);
+              return LoungeMembersScreen(
+                loungeId: loungeId,
+                initialLounge: lounge,
+              );
             },
           ),
         ],

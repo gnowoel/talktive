@@ -25,7 +25,7 @@ class LoungeSearchScreen extends ConsumerStatefulWidget {
 
 class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  
+
   List<protocol.Lounge>? _searchResults;
   List<protocol.Lounge>? _recommendedLounges;
   List<protocol.Lounge>? _popularLounges;
@@ -113,15 +113,19 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
               iconColor: AppTheme.duoBlue,
               enabled: true,
               onChanged: (val) => _performSearch(val),
-              suffixIcon: _searchController.text.isNotEmpty 
-                ? IconButton(
-                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
-                    onPressed: () {
-                      _searchController.clear();
-                      _performSearch('');
-                    },
-                  )
-                : null,
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        _searchController.clear();
+                        _performSearch('');
+                      },
+                    )
+                  : null,
             ),
           ),
         ),
@@ -131,7 +135,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   }
 
   Widget _buildContent() {
-    if (_isLoading && (_searchQuery != null || (_recommendedLounges == null && _popularLounges == null))) {
+    if (_isLoading &&
+        (_searchQuery != null ||
+            (_recommendedLounges == null && _popularLounges == null))) {
       return const Center(child: DuoLoadingIndicator());
     }
 
@@ -139,9 +145,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       final lounges = _searchResults ?? [];
       if (lounges.isEmpty) {
         return const DuoEmptyState(
-          icon: Icons.groups, 
-          title: 'No lounges found', 
-          subtitle: 'Try searching for different interests'
+          icon: Icons.groups,
+          title: 'No lounges found',
+          subtitle: 'Try searching for different interests',
         );
       }
       return _buildLoungeList(lounges);
@@ -155,18 +161,22 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       children: [
         if (recommended.isNotEmpty) ...[
           _buildSectionHeader('RECOMMENDED FOR YOU', Icons.tips_and_updates),
-          ...recommended.asMap().entries.map((e) => _buildLoungeCard(e.value, e.key)),
+          ...recommended.asMap().entries.map(
+            (e) => _buildLoungeCard(e.value, e.key),
+          ),
           const SizedBox(height: 24),
         ],
         if (popular.isNotEmpty) ...[
           _buildSectionHeader('POPULAR LOUNGES', Icons.whatshot),
-          ...popular.asMap().entries.map((e) => _buildLoungeCard(e.value, e.key + 10)),
+          ...popular.asMap().entries.map(
+            (e) => _buildLoungeCard(e.value, e.key + 10),
+          ),
         ],
         if (recommended.isEmpty && popular.isEmpty)
           const DuoEmptyState(
-            icon: Icons.search, 
-            title: 'Waiting for recommendation', 
-            subtitle: 'Update your interests to find best lounges!'
+            icon: Icons.search,
+            title: 'Waiting for recommendation',
+            subtitle: 'Update your interests to find best lounges!',
           ),
       ],
     );
@@ -216,8 +226,11 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             text: 'Apply to Join',
             onPressed: () async {
               try {
-                await ref.read(loungeListProvider.notifier).applyToLounge(lounge.id!);
-                if (mounted) DuoSnackBarHelper.showSuccess(context, 'Application sent!');
+                await ref
+                    .read(loungeListProvider.notifier)
+                    .applyToLounge(lounge.id!);
+                if (mounted)
+                  DuoSnackBarHelper.showSuccess(context, 'Application sent!');
               } catch (e) {
                 if (mounted) DuoSnackBarHelper.showError(context, 'Failed: $e');
               }

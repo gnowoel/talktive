@@ -126,9 +126,13 @@ class MessageBubble extends ConsumerWidget {
                       : null,
                   color: isCurrentUser ? null : Colors.white,
                   borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                  border: (!isCurrentUser && 
-                          message.content != null && 
-                          DuoMentionHelper.containsMention(message.content!, currentResident?.userName ?? ''))
+                  border:
+                      (!isCurrentUser &&
+                          message.content != null &&
+                          DuoMentionHelper.containsMention(
+                            message.content!,
+                            currentResident?.userName ?? '',
+                          ))
                       ? Border.all(color: AppTheme.accentColor, width: 2)
                       : null,
                   boxShadow: [
@@ -161,12 +165,21 @@ class MessageBubble extends ConsumerWidget {
                               const SizedBox(width: 6),
                               DuoFloorBadge(floor: senderFloor),
                             ],
-                            if (message.content != null && DuoMentionHelper.containsMention(message.content!, currentResident?.userName ?? '')) ...[
+                            if (message.content != null &&
+                                DuoMentionHelper.containsMention(
+                                  message.content!,
+                                  currentResident?.userName ?? '',
+                                )) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.accentColor.withValues(alpha: 0.1),
+                                  color: AppTheme.accentColor.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
@@ -212,7 +225,11 @@ class MessageBubble extends ConsumerWidget {
                                 height: 200,
                                 color: Colors.grey[200],
                                 child: const Center(
-                                  child: Text('❌', style: TextStyle(fontSize: 24)),
+                                  child: Icon(
+                                    Icons.error_outline,
+                                    size: 32,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ),
                               fit: BoxFit.cover,
@@ -223,7 +240,8 @@ class MessageBubble extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                     ],
-                    if (message.mediaType == 'voice' && message.mediaUrl != null) ...[
+                    if (message.mediaType == 'voice' &&
+                        message.mediaUrl != null) ...[
                       VoiceMessagePlayer(
                         url: message.mediaUrl!,
                         isCurrentUser: isCurrentUser,
@@ -243,8 +261,8 @@ class MessageBubble extends ConsumerWidget {
                             fontFamily: 'Rubik',
                             height: 1.4,
                           ),
-                          mentionColor: isCurrentUser 
-                              ? Colors.white 
+                          mentionColor: isCurrentUser
+                              ? Colors.white
                               : AppTheme.primaryColor,
                           currentUserName: currentResident?.userName,
                           otherMemberNames: otherMemberNames,
@@ -269,9 +287,10 @@ class MessageBubble extends ConsumerWidget {
                         ),
                         if (isRead && isCurrentUser) ...[
                           const SizedBox(width: 4),
-                          const Text(
-                            '✔️',
-                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          const Icon(
+                            Icons.done_all,
+                            size: 14,
+                            color: Colors.white,
                           ),
                         ],
                       ],
@@ -284,7 +303,8 @@ class MessageBubble extends ConsumerWidget {
           if (isCurrentUser) ...[
             const SizedBox(width: AppTheme.duoSpacingSmall),
             DuoAvatar(
-              imageUrl: currentResident?.customAvatarUrl ?? currentResident?.avatar,
+              imageUrl:
+                  currentResident?.customAvatarUrl ?? currentResident?.avatar,
               placeholderEmoji: currentResident?.avatar,
               size: 36,
               trustScore: currentResident?.trustScore,
@@ -325,7 +345,7 @@ class MessageBubble extends ConsumerWidget {
               ),
             ),
             ListTile(
-              leading: const Text('⛔', style: TextStyle(fontSize: 24)),
+              leading: const Icon(Icons.block, color: AppTheme.errorColor),
               title: Text(
                 'Block $senderName',
                 style: const TextStyle(
@@ -380,7 +400,10 @@ class MessageBubble extends ConsumerWidget {
             if (currentResident?.isStaff ?? false) ...[
               const Divider(),
               ListTile(
-                  leading: const Text('🗑️', style: TextStyle(fontSize: 24)),
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: AppTheme.errorColor,
+                ),
                 title: const Text(
                   'Delete Message (Staff)',
                   style: TextStyle(
@@ -423,10 +446,13 @@ class MessageBubble extends ConsumerWidget {
                       await client.admin.deleteMessage(messageId: message.id!);
                       if (context.mounted) {
                         DuoSnackBarHelper.showSuccess(
-                            context, 'Message deleted.');
+                          context,
+                          'Message deleted.',
+                        );
                       }
                     } catch (e) {
-                      if (context.mounted) DuoSnackBarHelper.showError(context, e);
+                      if (context.mounted)
+                        DuoSnackBarHelper.showError(context, e);
                     }
                   }
                 },

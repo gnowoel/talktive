@@ -48,7 +48,8 @@ class DuoLoungeCard extends StatelessWidget {
               const SizedBox(height: 8),
               _buildInterests(),
             ],
-            if (lounge.description != null && lounge.description!.isNotEmpty) ...[
+            if (lounge.description != null &&
+                lounge.description!.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildDescription(context),
             ],
@@ -128,7 +129,11 @@ class DuoLoungeCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.chat_bubble_outline_rounded, size: 14, color: AppTheme.duoBlue),
+              Icon(
+                Icons.chat_bubble_outline_rounded,
+                size: 14,
+                color: AppTheme.duoBlue,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(

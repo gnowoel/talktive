@@ -3,7 +3,7 @@ import '../config/theme.dart';
 
 class DuoMentionHelper {
   /// Parses message content and returns a TextSpan with highlighted mentions.
-  /// 
+  ///
   /// [currentUserName] is the name of the recipient (the user reading the message).
   /// [otherMemberNames] is an optional list of other people in the conversation to highlight.
   static TextSpan buildMessageSpan({
@@ -20,7 +20,7 @@ class DuoMentionHelper {
 
     final spans = <TextSpan>[];
     final allMatches = <_MentionMatch>[];
-    
+
     // 1. Split by @ to find potential mention starts
     final atIndices = <int>[];
     for (int i = 0; i < content.length; i++) {
@@ -29,7 +29,9 @@ class DuoMentionHelper {
 
     for (final index in atIndices) {
       final remaining = content.substring(index + 1);
-      final chunk = remaining.length > 50 ? remaining.substring(0, 50) : remaining;
+      final chunk = remaining.length > 50
+          ? remaining.substring(0, 50)
+          : remaining;
       if (chunk.isEmpty) continue;
 
       bool matched = false;
@@ -37,7 +39,13 @@ class DuoMentionHelper {
       // 1.1 Match Current User (Me) prioritized
       if (currentUserName != null && currentUserName.isNotEmpty) {
         if (chunk.toLowerCase().startsWith(currentUserName.toLowerCase())) {
-          allMatches.add(_MentionMatch(index, index + 1 + currentUserName.length, isMe: true));
+          allMatches.add(
+            _MentionMatch(
+              index,
+              index + 1 + currentUserName.length,
+              isMe: true,
+            ),
+          );
           matched = true;
         }
       }
@@ -53,7 +61,9 @@ class DuoMentionHelper {
         for (final name in sortedNames) {
           if (name.isEmpty) continue;
           if (chunk.toLowerCase().startsWith(name.toLowerCase())) {
-            allMatches.add(_MentionMatch(index, index + 1 + name.length, isMe: false));
+            allMatches.add(
+              _MentionMatch(index, index + 1 + name.length, isMe: false),
+            );
             matched = true;
             break;
           }
@@ -68,46 +78,51 @@ class DuoMentionHelper {
     for (final match in allMatches) {
       // Add text before the mention
       if (match.start > currentPos) {
-        spans.add(TextSpan(
-          text: content.substring(currentPos, match.start),
-          style: baseStyle,
-        ));
+        spans.add(
+          TextSpan(
+            text: content.substring(currentPos, match.start),
+            style: baseStyle,
+          ),
+        );
       }
-      
+
       final mentionText = content.substring(match.start, match.end);
-      
+
       if (match.isMe) {
         // Highly visible highlight for the user themselves
-        spans.add(TextSpan(
-          text: mentionText,
-          style: baseStyle.copyWith(
-            color: isCurrentUserSender ? Colors.white : AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-            // Use subtle background highlights with good contrast
-            backgroundColor: isCurrentUserSender 
-                ? Colors.white.withValues(alpha: 0.2) // On purple
-                : AppTheme.accentColor.withValues(alpha: 0.15), // On white
+        spans.add(
+          TextSpan(
+            text: mentionText,
+            style: baseStyle.copyWith(
+              color: isCurrentUserSender ? Colors.white : AppTheme.accentColor,
+              fontWeight: FontWeight.bold,
+              // Use subtle background highlights with good contrast
+              backgroundColor: isCurrentUserSender
+                  ? Colors.white.withValues(alpha: 0.2) // On purple
+                  : AppTheme.accentColor.withValues(alpha: 0.15), // On white
+            ),
           ),
-        ));
+        );
       } else {
         // Standard highlight for other people
-        spans.add(TextSpan(
-          text: mentionText,
-          style: baseStyle.copyWith(
-            color: isCurrentUserSender ? Colors.white : mentionColor,
-            fontWeight: FontWeight.w600,
+        spans.add(
+          TextSpan(
+            text: mentionText,
+            style: baseStyle.copyWith(
+              color: isCurrentUserSender ? Colors.white : mentionColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ));
+        );
       }
       currentPos = match.end;
     }
-    
+
     // Add remaining text
     if (currentPos < content.length) {
-      spans.add(TextSpan(
-        text: content.substring(currentPos),
-        style: baseStyle,
-      ));
+      spans.add(
+        TextSpan(text: content.substring(currentPos), style: baseStyle),
+      );
     }
 
     return TextSpan(children: spans);

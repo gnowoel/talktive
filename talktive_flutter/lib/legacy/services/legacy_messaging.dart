@@ -109,10 +109,15 @@ class LegacyMessaging {
     // await _showLocalNotification(title, body, data);
   }
 
-  static Future<void> handleMessage(RemoteMessage message, {bool force = false}) async {
+  static Future<void> handleMessage(
+    RemoteMessage message, {
+    bool force = false,
+  }) async {
     final data = message.data;
     if (!force && data['appVersion'] == 'serverpod') {
-      debugPrint('Messaging (Legacy): Skipping serverpod message (use force: true to override)');
+      debugPrint(
+        'Messaging (Legacy): Skipping serverpod message (use force: true to override)',
+      );
       return;
     }
 
@@ -242,7 +247,9 @@ class LegacyMessaging {
                 as Map<String, dynamic>;
 
         if (data['appVersion'] == 'serverpod') {
-          debugPrint('Messaging (Legacy): Initial route is for Serverpod, skipping');
+          debugPrint(
+            'Messaging (Legacy): Initial route is for Serverpod, skipping',
+          );
           return null;
         }
 

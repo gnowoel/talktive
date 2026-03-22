@@ -34,13 +34,13 @@ class LoungesScreen extends ConsumerWidget {
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-            IconButton(
-              icon: const Icon(Icons.search, size: 28, color: Colors.white),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                context.push('/discovery/lounges');
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.search, size: 28, color: Colors.white),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.push('/discovery/lounges');
+            },
+          ),
           DuoRefreshButton(
             color: Colors.white,
             onRefresh: () async => ref.invalidate(loungeListProvider),
@@ -58,12 +58,12 @@ class LoungesScreen extends ConsumerWidget {
         data: (lounges) => _buildLoungeList(context, ref, lounges),
         loading: () => const DuoLoadingIndicator(),
         error: (error, _) => DuoEmptyState(
-        emoji: '🔇',
-        title: 'Connection Lost',
-        subtitle: 'The clubhouse door is stuck. Try again?',
-        onButtonPressed: () => ref.invalidate(loungeListProvider),
-        buttonText: 'Retry',
-      ),
+          emoji: '🔇',
+          title: 'Connection Lost',
+          subtitle: 'The clubhouse door is stuck. Try again?',
+          onButtonPressed: () => ref.invalidate(loungeListProvider),
+          buttonText: 'Retry',
+        ),
       ),
     );
   }
@@ -101,9 +101,12 @@ class LoungesScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         children: [
-
           if (pending.isNotEmpty) ...[
-            _buildSectionHeader(context, 'The Doorstep', icon: Icons.confirmation_number),
+            _buildSectionHeader(
+              context,
+              'The Doorstep',
+              icon: Icons.confirmation_number,
+            ),
             ...pending.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -111,7 +114,11 @@ class LoungesScreen extends ConsumerWidget {
           ],
 
           if (joined.isNotEmpty) ...[
-            _buildSectionHeader(context, 'My Lounges', icon: Icons.meeting_room),
+            _buildSectionHeader(
+              context,
+              'My Lounges',
+              icon: Icons.meeting_room,
+            ),
             ...joined.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -123,7 +130,11 @@ class LoungesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, {IconData? icon}) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title, {
+    IconData? icon,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4, top: 4),
       child: Row(
@@ -183,7 +194,10 @@ class LoungesScreen extends ConsumerWidget {
               children: [
                 if (loungeWithMembership.unreadCount > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
                       color: AppTheme.duoRed,
@@ -291,9 +305,11 @@ class LoungesScreen extends ConsumerWidget {
     HapticFeedback.lightImpact();
 
     Resident? currentResident = ref.read(currentResidentProvider).value;
-    
+
     if (currentResident == null) {
-      debugPrint('LoungesScreen: currentResident is null, waiting for future...');
+      debugPrint(
+        'LoungesScreen: currentResident is null, waiting for future...',
+      );
       try {
         currentResident = await ref.read(currentResidentProvider.future);
       } catch (e) {

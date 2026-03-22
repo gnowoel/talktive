@@ -46,7 +46,7 @@ class UserProfile extends _$UserProfile {
     } else {
       await blockedNotifier.block(userId);
     }
-    
+
     // The provider will automatically rebuild because it watches blockedUsersProvider
   }
 
@@ -61,7 +61,7 @@ class UserProfile extends _$UserProfile {
     } else {
       await likesNotifier.likeUser(userId);
     }
-    
+
     // The provider will automatically rebuild because it watches userLikesProvider
   }
 }

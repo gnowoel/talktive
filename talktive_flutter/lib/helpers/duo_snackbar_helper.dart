@@ -44,8 +44,8 @@ class DuoSnackBarHelper {
     } else if (error is ServerpodClientException) {
       message =
           (error.message == 'Internal server error' && error.statusCode == 500)
-              ? 'Something went wrong on our end. Please try again later.'
-              : error.message;
+          ? 'Something went wrong on our end. Please try again later.'
+          : error.message;
     } else {
       final errorStr = error.toString();
       message = errorStr.contains('Exception: ')
@@ -86,7 +86,8 @@ class DuoSnackBarHelper {
       SnackBar(
         content: Row(
           children: [
-            if (emoji != null) Text('$emoji ', style: const TextStyle(fontSize: 18)),
+            if (emoji != null)
+              Text('$emoji ', style: const TextStyle(fontSize: 18)),
             Expanded(
               child: Text(
                 message,

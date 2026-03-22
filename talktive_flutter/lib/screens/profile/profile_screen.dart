@@ -28,10 +28,7 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(
           'Profile',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -70,7 +67,11 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppTheme.errorColor,
+                ),
                 const SizedBox(height: AppTheme.duoSpacingMedium),
                 const Text(
                   'Error loading profile',
@@ -102,18 +103,18 @@ class ProfileScreen extends ConsumerWidget {
             child: Stack(
               children: [
                 DuoAvatar(
-                  imageUrl: resident?.customAvatarUrl ?? resident?.avatar,
-                  placeholderEmoji: resident?.avatar,
-                  size: 110,
-                  floorLevel: resident != null
-                      ? DuoFloorHelper.computeFloor(resident!)
-                      : null,
-                  mood: resident?.mood,
-                  trustScore: resident?.trustScore,
-                  showRing: true,
-                  showFloor: true,
-                  showMood: true,
-                )
+                      imageUrl: resident?.customAvatarUrl ?? resident?.avatar,
+                      placeholderEmoji: resident?.avatar,
+                      size: 110,
+                      floorLevel: resident != null
+                          ? DuoFloorHelper.computeFloor(resident!)
+                          : null,
+                      mood: resident?.mood,
+                      trustScore: resident?.trustScore,
+                      showRing: true,
+                      showFloor: true,
+                      showMood: true,
+                    )
                     .animate()
                     .fadeIn(delay: 100.ms)
                     .scale(begin: const Offset(0.8, 0.8)),
@@ -168,7 +169,8 @@ class ProfileScreen extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (resident.mood != null) Text(resident.mood!, style: const TextStyle(fontSize: 24)),
+                  if (resident.mood != null)
+                    Text(resident.mood!, style: const TextStyle(fontSize: 24)),
                   const SizedBox(width: 8),
                   Text(
                     'Current Mood',
@@ -264,8 +266,10 @@ class ProfileScreen extends ConsumerWidget {
   ) {
     if (resident == null) return const SizedBox();
 
-    final profileAsync = ref.watch(userProfileProvider(resident.userInfoId.toString()));
-    
+    final profileAsync = ref.watch(
+      userProfileProvider(resident.userInfoId.toString()),
+    );
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppTheme.duoSpacingLarge,
@@ -289,42 +293,53 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               // Trust Score
               DuoStatCard(
-                icon: Icons.shield,
-                value: '$trustScore',
-                label: 'Trust Score',
-                gradientColors: [
-                  DuoFloorHelper.getTrustColor(trustScore),
-                  DuoFloorHelper.getTrustColor(trustScore).withValues(alpha: 0.7),
-                ],
-              ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
-              
+                    icon: Icons.shield,
+                    value: '$trustScore',
+                    label: 'Trust Score',
+                    gradientColors: [
+                      DuoFloorHelper.getTrustColor(trustScore),
+                      DuoFloorHelper.getTrustColor(
+                        trustScore,
+                      ).withValues(alpha: 0.7),
+                    ],
+                  )
+                  .animate()
+                  .fadeIn(delay: 300.ms)
+                  .scale(begin: const Offset(0.8, 0.8)),
+
               // XP (Experience Points)
               _buildXPCard(context, profile)
                   .animate()
                   .fadeIn(delay: 350.ms)
                   .scale(begin: const Offset(0.8, 0.8)),
-              
+
               // Floor (Computed from XP and Trust)
               DuoStatCard(
-                icon: Icons.apartment,
-                value: '$floor',
-                label: 'Floor',
-                gradientColors: [
-                  AppTheme.primaryColor,
-                  AppTheme.primaryColor.withValues(alpha: 0.7),
-                ],
-              ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
-              
+                    icon: Icons.apartment,
+                    value: '$floor',
+                    label: 'Floor',
+                    gradientColors: [
+                      AppTheme.primaryColor,
+                      AppTheme.primaryColor.withValues(alpha: 0.7),
+                    ],
+                  )
+                  .animate()
+                  .fadeIn(delay: 400.ms)
+                  .scale(begin: const Offset(0.8, 0.8)),
+
               // Messages
               DuoStatCard(
-                icon: Icons.message,
-                value: '$messages',
-                label: 'Messages',
-                gradientColors: [
-                  AppTheme.accentColor,
-                  AppTheme.accentColor.withValues(alpha: 0.7),
-                ],
-              ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
+                    icon: Icons.chat_bubble_outline,
+                    value: '$messages',
+                    label: 'Messages',
+                    gradientColors: [
+                      AppTheme.accentColor,
+                      AppTheme.accentColor.withValues(alpha: 0.7),
+                    ],
+                  )
+                  .animate()
+                  .fadeIn(delay: 450.ms)
+                  .scale(begin: const Offset(0.8, 0.8)),
             ],
           );
         },
@@ -481,8 +496,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
     ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1, end: 0);
   }
-
-
 
   Widget _buildBlockedUsersButton(BuildContext context) {
     return Padding(

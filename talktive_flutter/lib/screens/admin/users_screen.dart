@@ -49,7 +49,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final users = await client.admin.searchUsers(query: query, limit: 20, offset: 0);
+      final users = await client.admin.searchUsers(
+        query: query,
+        limit: 20,
+        offset: 0,
+      );
 
       if (mounted) {
         setState(() {
@@ -179,7 +183,8 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     style: const TextStyle(fontSize: 24),
                   ),
                   title: Text(
-                      isModerator ? 'Remove Moderator' : 'Promote to Moderator'),
+                    isModerator ? 'Remove Moderator' : 'Promote to Moderator',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     if (isModerator) {
@@ -535,7 +540,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                    child: Text(
+                  child: Text(
                     userName.isNotEmpty ? userName[0].toUpperCase() : '?',
                     style: const TextStyle(
                       fontSize: 24,
@@ -571,12 +576,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: (isAdmin
-                                      ? AppTheme.primaryColor
-                                      : AppTheme.secondaryColor)
-                                  .withValues(
-                                alpha: 0.1,
-                              ),
+                              color:
+                                  (isAdmin
+                                          ? AppTheme.primaryColor
+                                          : AppTheme.secondaryColor)
+                                      .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(

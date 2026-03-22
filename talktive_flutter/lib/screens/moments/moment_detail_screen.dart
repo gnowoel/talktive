@@ -238,27 +238,36 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: Text(
-              isLiked ? '❤️' : '🤍',
-              style: const TextStyle(fontSize: 24),
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border,
+              color: isLiked ? AppTheme.duoRed : AppTheme.textSecondary,
+              size: 28,
             ),
             onPressed: _isLiking ? null : _toggleLike,
           ),
           Text(
-            '${widget.moment.likesCount} likes',
+            '${widget.moment.likesCount}',
             style: const TextStyle(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppTheme.textSecondary,
+              fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(width: AppTheme.duoSpacingMedium),
-          const Text('💬', style: TextStyle(fontSize: 24)),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
+          const Icon(
+            Icons.chat_bubble_outline,
+            color: AppTheme.textSecondary,
+            size: 24,
+          ),
+          const SizedBox(width: 8),
           Text(
-            '${widget.moment.commentsCount} comments',
+            '${widget.moment.commentsCount}',
             style: const TextStyle(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppTheme.textSecondary,
+              fontFamily: 'Poppins',
             ),
           ),
         ],
@@ -270,14 +279,9 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     return commentsAsync.when(
       data: (comments) {
         if (comments.isEmpty) {
-          return const SliverFillRemaining(
+          return SliverFillRemaining(
             hasScrollBody: false,
-            child: Center(
-              child: Text(
-                'No comments yet. Be the first! 💬',
-                style: TextStyle(color: AppTheme.textSecondary),
-              ),
-            ),
+            child: _buildCommentPlaceholder(),
           );
         }
         return SliverList(
@@ -336,6 +340,33 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       error: (e, _) => SliverFillRemaining(
         hasScrollBody: false,
         child: Center(child: Text('Error loading comments: $e')),
+      ),
+    );
+  }
+
+  Widget _buildCommentPlaceholder() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.chat_bubble_outline,
+              size: 48,
+              color: AppTheme.textLight,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'No comments yet. Be the first!',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontFamily: 'Rubik',
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

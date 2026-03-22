@@ -2,8 +2,8 @@ class MentionHelper {
   /// Check if a message mentions a specific user (case insensitive)
   static bool containsMention(String messageContent, String displayName) {
     if (displayName.isEmpty || messageContent.isEmpty) return false;
-    
-    // Regular expression to match @DisplayName specifically, 
+
+    // Regular expression to match @DisplayName specifically,
     // ensuring it's not part of another word.
     final pattern = RegExp(
       '@${RegExp.escape(displayName)}(?=\\s|\$|[^\\w])',

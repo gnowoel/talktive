@@ -139,7 +139,11 @@ class PeepholeScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.stars, size: 18, color: AppTheme.duoYellow),
+                            const Icon(
+                              Icons.stars,
+                              size: 18,
+                              color: AppTheme.duoYellow,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Trust: ${otherResident.trustScore}',
@@ -164,7 +168,11 @@ class PeepholeScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.auto_awesome, size: 18, color: AppTheme.duoBlue),
+                            const Icon(
+                              Icons.auto_awesome,
+                              size: 18,
+                              color: AppTheme.duoBlue,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Level ${otherResident.level}',
@@ -389,12 +397,15 @@ class PeepholeScreen extends ConsumerWidget {
                           }
                         } catch (e) {
                           if (context.mounted) {
-                            DuoSnackBarHelper.showError(context, 'Action failed: $e');
+                            DuoSnackBarHelper.showError(
+                              context,
+                              'Action failed: $e',
+                            );
                           }
                         }
                       }
                     },
-                      icon: const Icon(Icons.security, color: AppTheme.duoRed),
+                    icon: const Icon(Icons.security, color: AppTheme.duoRed),
                     label: const Text(
                       'Block & Decline',
                       style: TextStyle(

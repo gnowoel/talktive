@@ -28,7 +28,8 @@ class UnreadCounts {
           activity == other.activity;
 
   @override
-  int get hashCode => privateChats.hashCode ^ lounges.hashCode ^ activity.hashCode;
+  int get hashCode =>
+      privateChats.hashCode ^ lounges.hashCode ^ activity.hashCode;
 }
 
 @riverpod

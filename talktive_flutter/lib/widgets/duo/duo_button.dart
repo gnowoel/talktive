@@ -55,7 +55,7 @@ class _DuoButtonState extends State<DuoButton> {
 
   Color _getContrastColor(Color color, bool forWhiteBackground) {
     if (!forWhiteBackground) return Colors.white;
-    
+
     final hsl = HSLColor.fromColor(color);
     // If color is too light, darken it for better contrast on white background
     if (hsl.lightness > 0.6) {
@@ -75,9 +75,11 @@ class _DuoButtonState extends State<DuoButton> {
 
     final isGhost = widget.variant == DuoButtonVariant.ghost;
     final isSecondary = widget.variant == DuoButtonVariant.secondary;
-    
+
     final textColor = (isSecondary || isGhost)
-        ? (isDisabled ? Colors.grey : _getContrastColor(buttonColor, isSecondary))
+        ? (isDisabled
+              ? Colors.grey
+              : _getContrastColor(buttonColor, isSecondary))
         : Colors.white;
 
     // Size settings
@@ -173,11 +175,7 @@ class _DuoButtonState extends State<DuoButton> {
                   children: [
                     if (widget.icon != null || widget.emoji != null) ...[
                       widget.icon != null
-                          ? Icon(
-                              widget.icon,
-                              color: textColor,
-                              size: iconSize,
-                            )
+                          ? Icon(widget.icon, color: textColor, size: iconSize)
                           : Text(
                               widget.emoji!,
                               style: TextStyle(fontSize: iconSize, height: 1.0),
@@ -197,7 +195,9 @@ class _DuoButtonState extends State<DuoButton> {
                       const SizedBox(width: 8),
                       Icon(
                             widget.secondaryIcon,
-                            color: textColor.withValues(alpha: (isSecondary || isGhost) ? 1.0 : 0.9),
+                            color: textColor.withValues(
+                              alpha: (isSecondary || isGhost) ? 1.0 : 0.9,
+                            ),
                             size: iconSize * 0.9,
                           )
                           .animate(

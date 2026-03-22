@@ -21,13 +21,15 @@ class FCMManager extends _$FCMManager {
   @override
   FutureOr<String?> build() async {
     final authState = ref.watch(authProvider);
-    
+
     // We only trigger FCM initialization if the user selects the serverpod version
     // and is authenticated.
     return authState.when(
       data: (auth) async {
         if (auth is Authenticated) {
-          debugPrint('FCMManager: User authenticated (${auth.userName}), initializing FCM...');
+          debugPrint(
+            'FCMManager: User authenticated (${auth.userName}), initializing FCM...',
+          );
           return await initialize();
         } else if (auth is Unauthenticated) {
           debugPrint('FCMManager: User unauthenticated, cleaning up FCM...');
@@ -73,7 +75,7 @@ class FCMManager extends _$FCMManager {
         debugPrint('FCM Token refreshed: $newToken');
         _registerToken(newToken);
       });
-      
+
       ref.onDispose(() {
         streamSubscription.cancel();
       });
@@ -112,7 +114,9 @@ class FCMManager extends _$FCMManager {
   Future<void> _registerToken(String token) async {
     try {
       if (!sessionManager.isAuthenticated) {
-        debugPrint('FCM DEBUG: Skipping token registration, sessionManager.isAuthenticated is false');
+        debugPrint(
+          'FCM DEBUG: Skipping token registration, sessionManager.isAuthenticated is false',
+        );
         return;
       }
 

@@ -17,6 +17,7 @@ import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../widgets/duo/duo_streak_card.dart';
 import '../../widgets/duo/duo_badge.dart';
+import '../../widgets/duo/duo_stat_card.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 
@@ -34,8 +35,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   @override
   void initState() {
     super.initState();
-    _confettiController =
-        ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
   }
 
   @override
@@ -116,7 +118,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     );
   }
 
-  Widget _buildHeaderIcon(BuildContext context, {required IconData icon, required VoidCallback onTap}) {
+  Widget _buildHeaderIcon(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -128,11 +134,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           color: Colors.white.withValues(alpha: 0.2),
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 22,
-        ),
+        child: Icon(icon, color: Colors.white, size: 22),
       ),
     );
   }
@@ -179,14 +181,22 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     Text(
                       'Recent Updates',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
                     ),
                     if (notifications.any((n) => !n.read))
                       IconButton(
-                        onPressed: () => _showMarkAllAsReadConfirmation(context, ref, notifications),
-                        icon: const Icon(Icons.done_all, size: 24, color: AppTheme.duoGreen),
+                        onPressed: () => _showMarkAllAsReadConfirmation(
+                          context,
+                          ref,
+                          notifications,
+                        ),
+                        icon: const Icon(
+                          Icons.done_all,
+                          size: 24,
+                          color: AppTheme.duoGreen,
+                        ),
                         tooltip: 'Mark all as read',
                       ),
                   ],
@@ -202,21 +212,20 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingMedium),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.duoSpacingMedium,
+              ),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final notification = notifications[index];
-                    return _buildNotificationCard(context, ref, notification)
-                        .animate(delay: Duration(milliseconds: 50 * index))
-                        .fadeIn(duration: 300.ms)
-                        .slideX(begin: 0.1, end: 0);
-                  },
-                  childCount: notifications.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final notification = notifications[index];
+                  return _buildNotificationCard(context, ref, notification)
+                      .animate(delay: Duration(milliseconds: 50 * index))
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.1, end: 0);
+                }, childCount: notifications.length),
               ),
             ),
-            
+
           const SliverToBoxAdapter(
             child: SizedBox(height: AppTheme.contentBottomPadding),
           ),
@@ -262,20 +271,26 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatCard(
+                  child: DuoStatCard(
                     label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
-                    icon: Icons.layers,
-                    color: AppTheme.duoPurple,
+                    icon: Icons.apartment,
+                    gradientColors: [
+                      AppTheme.duoPurple,
+                      AppTheme.duoPurple.withValues(alpha: 0.7),
+                    ],
                   ),
                 ),
                 const SizedBox(width: AppTheme.duoSpacingSmall),
                 Expanded(
-                  child: _buildStatCard(
+                  child: DuoStatCard(
                     label: 'Experience',
                     value: '${resident.xp}',
-                    icon: Icons.auto_awesome,
-                    color: AppTheme.duoYellow,
+                    icon: Icons.stars,
+                    gradientColors: [
+                      AppTheme.duoYellow,
+                      AppTheme.duoOrange,
+                    ],
                   ),
                 ),
               ],
@@ -295,7 +310,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   ) {
     return gamificationAsync.when(
       data: (data) {
-        if (data == null || data.achievements.isEmpty) return const SizedBox.shrink();
+        if (data == null || data.achievements.isEmpty)
+          return const SizedBox.shrink();
 
         final achievements = data.achievements;
         final unlocked = achievements.where((a) => a.unlocked).toList();
@@ -351,7 +367,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
                     return Padding(
                       padding: EdgeInsets.only(
-                        right: index == achievements.length - 1 ? 0 : AppTheme.duoSpacingSmall,
+                        right: index == achievements.length - 1
+                            ? 0
+                            : AppTheme.duoSpacingSmall,
                       ),
                       child: DuoBadge(
                         emoji: achievementData.emoji,
@@ -375,44 +393,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       error: (_, _) => const SizedBox.shrink(),
     );
   }
-  Widget _buildStatCard({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return DuoCard(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      borderWidth: 2,
-      child: Row(
-        children: [
-          Icon(icon, size: 28, color: color),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[600],
-                  fontFamily: 'Rubik',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
@@ -424,14 +404,16 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           Text(
             'No activity yet',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[700],
-                ),
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+            ),
           ),
           const SizedBox(height: AppTheme.duoSpacingSmall),
           Text(
             'Meaningful events will appear here',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
           ),
         ],
       ).animate().fadeIn().slideY(begin: 0.2),
@@ -451,8 +433,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         onTap: () {
           HapticFeedback.lightImpact();
           // Always play confetti for celebratory types on tap, even if already read
-          if (notification.type == 'level_up' || 
-              notification.type == 'achievement' || 
+          if (notification.type == 'level_up' ||
+              notification.type == 'achievement' ||
               notification.type == 'streak') {
             _confettiController.play();
           }
@@ -463,8 +445,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             ]);
 
             // Refresh stats to ensure UI reflects new level/floor immediately on first read
-            if (notification.type == 'level_up' || 
-                notification.type == 'achievement' || 
+            if (notification.type == 'level_up' ||
+                notification.type == 'achievement' ||
                 notification.type == 'streak') {
               ref.read(gamificationProvider.notifier).refresh();
             }
@@ -475,7 +457,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               final data =
                   jsonDecode(notification.data!) as Map<String, dynamic>;
               final route = data['route'] as String?;
-              
+
               // Skip redundant navigation if we're already on the activity screen
               if (route != null && route != '/activity') {
                 context.push(route);
@@ -485,15 +467,15 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             }
           }
         },
-      child: DuoCard(
-        color: notification.read
-            ? Colors.white
-            : Colors.grey[50], // Very subtle highlight
-        borderWidth: 2,
-        borderColor: notification.read 
-            ? Colors.grey[200]! 
-            : Colors.grey[300]!, // Subtler border
-        child: Padding(
+        child: DuoCard(
+          color: notification.read
+              ? Colors.white
+              : Colors.grey[50], // Very subtle highlight
+          borderWidth: 2,
+          borderColor: notification.read
+              ? Colors.grey[200]!
+              : Colors.grey[300]!, // Subtler border
+          child: Padding(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -513,7 +495,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     ],
                   ),
                   child: Center(
-                    child: Icon(iconData, size: 26, color: notification.read ? Colors.grey : AppTheme.primaryColor),
+                    child: Icon(
+                      iconData,
+                      size: 26,
+                      color: notification.read
+                          ? Colors.grey
+                          : AppTheme.primaryColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
@@ -528,7 +516,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                           Expanded(
                             child: Text(
                               notification.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
                                     fontWeight: notification.read
                                         ? FontWeight.w600
                                         : FontWeight.w800,
@@ -539,8 +528,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                             ),
                           ),
                           Text(
-                            timeago.format(notification.createdAt, locale: 'en_short'),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            timeago.format(
+                              notification.createdAt,
+                              locale: 'en_short',
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
                                   color: Colors.grey[500],
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -551,9 +544,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                       Text(
                         notification.body,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[700],
-                              height: 1.3,
-                            ),
+                          color: Colors.grey[700],
+                          height: 1.3,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -562,15 +555,21 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 ),
                 if (!notification.read)
                   Container(
-                    width: 10,
-                    height: 10,
-                    margin: const EdgeInsets.only(left: 8),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.duoRed, // Changed from Green to Red for unread indicator
-                      shape: BoxShape.circle,
-                    ),
-                  ).animate(onPlay: (c) => c.repeat(reverse: true))
-                   .scale(duration: 1000.ms, begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2)),
+                        width: 10,
+                        height: 10,
+                        margin: const EdgeInsets.only(left: 8),
+                        decoration: const BoxDecoration(
+                          color: AppTheme
+                              .duoRed, // Changed from Green to Red for unread indicator
+                          shape: BoxShape.circle,
+                        ),
+                      )
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .scale(
+                        duration: 1000.ms,
+                        begin: const Offset(0.8, 0.8),
+                        end: const Offset(1.2, 1.2),
+                      ),
               ],
             ),
           ),
@@ -620,12 +619,14 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           const SizedBox(height: AppTheme.duoSpacingSmall),
           DuoRefreshButton(
             color: AppTheme.duoGreen,
-            onRefresh: () async => ref.read(activityHistoryProvider.notifier).refresh(),
+            onRefresh: () async =>
+                ref.read(activityHistoryProvider.notifier).refresh(),
           ),
         ],
       ),
     );
   }
+
   void _showMarkAllAsReadConfirmation(
     BuildContext context,
     WidgetRef ref,
@@ -647,7 +648,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           TextButton(
@@ -657,13 +661,18 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   .map((n) => n.id!)
                   .toList();
               if (unreadIds.isNotEmpty) {
-                ref.read(activityHistoryProvider.notifier).markAsRead(unreadIds);
+                ref
+                    .read(activityHistoryProvider.notifier)
+                    .markAsRead(unreadIds);
               }
               Navigator.pop(context);
             },
             child: const Text(
               'Confirm',
-              style: TextStyle(color: AppTheme.duoGreen, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: AppTheme.duoGreen,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

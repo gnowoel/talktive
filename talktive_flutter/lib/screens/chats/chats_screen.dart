@@ -31,8 +31,12 @@ class ChatsScreen extends ConsumerWidget {
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (ref.watch(currentResidentProvider).value?.isPremium == true && 
-              (ref.watch(currentResidentProvider).value?.showNeighborsDiscovery ?? true))
+          if (ref.watch(currentResidentProvider).value?.isPremium == true &&
+              (ref
+                      .watch(currentResidentProvider)
+                      .value
+                      ?.showNeighborsDiscovery ??
+                  true))
             IconButton(
               icon: const Icon(Icons.search, size: 28, color: Colors.white),
               onPressed: () {
@@ -162,7 +166,12 @@ class ChatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, Color color, IconData icon) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    Color color,
+    IconData icon,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4, top: 4),
       child: Row(
@@ -188,7 +197,7 @@ class ChatsScreen extends ConsumerWidget {
     if (lastMsg != null && lastMsg.isNotEmpty) {
       return lastMsg;
     }
-    
+
     final lastAt = chatItem.chat.lastMessageAt;
     if (lastAt != null) {
       return 'Activity: ${formatTimestamp(lastAt)}';
@@ -227,11 +236,20 @@ class ChatsScreen extends ConsumerWidget {
               mood: chatItem.otherUserMood,
               showRing: true,
               floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
-              isOnline: (ref.watch(currentResidentProvider).value?.isPremium ?? false) &&
-                  (ref.watch(currentResidentProvider).value?.showOthersOnlineStatus ?? true) &&
+              isOnline:
+                  (ref.watch(currentResidentProvider).value?.isPremium ??
+                      false) &&
+                  (ref
+                          .watch(currentResidentProvider)
+                          .value
+                          ?.showOthersOnlineStatus ??
+                      true) &&
                   chatItem.otherResident.showOnlineStatus &&
                   chatItem.otherResident.lastSeen != null &&
-                  DateTime.now().difference(chatItem.otherResident.lastSeen!).inMinutes < 5,
+                  DateTime.now()
+                          .difference(chatItem.otherResident.lastSeen!)
+                          .inMinutes <
+                      5,
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),
             Expanded(
@@ -259,9 +277,7 @@ class ChatsScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     _getLastMessagePreview(chatItem),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: chatItem.unreadCount > 0
                           ? AppTheme.textPrimary
                           : Colors.grey[500],
@@ -367,7 +383,11 @@ class ChatsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.visibility, size: 20, color: AppTheme.duoOrange),
+                child: Icon(
+                  Icons.visibility,
+                  size: 20,
+                  color: AppTheme.duoOrange,
+                ),
               ),
             ),
           ],

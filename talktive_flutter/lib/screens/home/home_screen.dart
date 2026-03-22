@@ -128,21 +128,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           clipBehavior: Clip.none,
                           children: [
                             AnimatedOpacity(
-                              duration: 150.ms,
-                              opacity: isSelected ? 1.0 : 0.5,
-                              child: Text(
-                                item.emoji,
-                                style: const TextStyle(fontSize: 24),
-                              ),
-                            )
-                            .animate(target: isSelected ? 1 : 0)
-                            .scale(
-                              begin: const Offset(0.85, 0.85),
-                              end: const Offset(1.0, 1.0),
-                              duration: 150.ms,
-                              curve: Curves.easeOutBack,
-                            ),
-                            
+                                  duration: 150.ms,
+                                  opacity: isSelected ? 1.0 : 0.5,
+                                  child: Text(
+                                    item.emoji,
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                )
+                                .animate(target: isSelected ? 1 : 0)
+                                .scale(
+                                  begin: const Offset(0.85, 0.85),
+                                  end: const Offset(1.0, 1.0),
+                                  duration: 150.ms,
+                                  curve: Curves.easeOutBack,
+                                ),
+
                             // Badge
                             _DuoBottomNavBadge(index: index),
                           ],
@@ -201,8 +201,8 @@ class _DuoBottomNavBadge extends ConsumerWidget {
     final count = index == 2
         ? unreadCounts.privateChats
         : index == 3
-            ? unreadCounts.lounges
-            : unreadCounts.activity;
+        ? unreadCounts.lounges
+        : unreadCounts.activity;
 
     if (count <= 0) return const SizedBox.shrink();
 

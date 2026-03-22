@@ -24,7 +24,7 @@ class PeopleSearchScreen extends ConsumerStatefulWidget {
 
 class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  
+
   List<protocol.UserSummary>? _searchResults;
   List<protocol.UserSummary>? _suggestedUsers;
   bool _isLoading = false;
@@ -43,7 +43,8 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   }
 
   Future<void> _fetchSuggestions() async {
-    final isPremium = ref.read(currentResidentProvider).value?.isPremium ?? false;
+    final isPremium =
+        ref.read(currentResidentProvider).value?.isPremium ?? false;
     if (!isPremium) return;
 
     setState(() => _isLoading = true);
@@ -119,15 +120,19 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
               iconColor: AppTheme.duoOrange,
               enabled: isPremium,
               onChanged: (val) => _performSearch(val),
-              suffixIcon: _searchController.text.isNotEmpty 
-                ? IconButton(
-                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
-                    onPressed: () {
-                      _searchController.clear();
-                      _performSearch('');
-                    },
-                  )
-                : null,
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        _searchController.clear();
+                        _performSearch('');
+                      },
+                    )
+                  : null,
             ),
           ),
         ),
@@ -176,15 +181,15 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
       return const Center(child: DuoLoadingIndicator());
     }
 
-    final list = (_searchQuery != null && _searchQuery!.isNotEmpty) 
-        ? _searchResults 
+    final list = (_searchQuery != null && _searchQuery!.isNotEmpty)
+        ? _searchResults
         : _suggestedUsers;
 
     if (list == null || list.isEmpty) {
       if (_searchQuery != null && _searchQuery!.isNotEmpty) {
         return const DuoEmptyState(
-          icon: Icons.people, 
-          title: 'No neighbors found', 
+          icon: Icons.people,
+          title: 'No neighbors found',
           subtitle: 'Try a different name or interest',
         );
       }
@@ -203,11 +208,14 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       onTap: () {
         HapticFeedback.lightImpact();
-        context.push('/user/${user.userId}', extra: {
-          'userName': user.userName,
-          'userAvatar': user.userAvatar,
-          'userFloor': user.floor,
-        });
+        context.push(
+          '/user/${user.userId}',
+          extra: {
+            'userName': user.userName,
+            'userAvatar': user.userAvatar,
+            'userFloor': user.floor,
+          },
+        );
       },
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -226,23 +234,43 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                 children: [
                   Text(
                     user.userName ?? 'Resident',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   if (user.userMood != null)
                     Text(
                       user.userMood!,
-                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                      style: TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 13,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Text('Floor ${user.floor}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.duoBlue)),
+                      Text(
+                        'Floor ${user.floor}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.duoBlue,
+                        ),
+                      ),
                       if (user.matchScore != null) ...[
                         const SizedBox(width: 8),
                         Icon(Icons.bolt, size: 14, color: AppTheme.duoGreen),
-                        Text('${user.matchScore}% Match', style: const TextStyle(fontSize: 12, color: AppTheme.duoGreen, fontWeight: FontWeight.bold)),
+                        Text(
+                          '${user.matchScore}% Match',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.duoGreen,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ],
                   ),

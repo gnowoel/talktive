@@ -58,8 +58,10 @@ class _VersionSelectorState extends State<VersionSelector> {
     // New logic: Check the current Firebase user and their provider.
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
-      final isGoogleUser = currentUser.providerData.any((info) => info.providerId == 'google.com');
-      
+      final isGoogleUser = currentUser.providerData.any(
+        (info) => info.providerId == 'google.com',
+      );
+
       if (isGoogleUser) {
         // If signed in with Google, default to the new Serverpod version.
         await prefs.setString('active_app_version', AppVersion.serverpod.name);
@@ -118,7 +120,9 @@ class _VersionSelectorState extends State<VersionSelector> {
       if (mounted) {
         setState(() => _isProcessing = false);
         DuoSnackBarHelper.showError(
-            context, Exception('Failed to restore account. Please check your token.'));
+          context,
+          Exception('Failed to restore account. Please check your token.'),
+        );
       }
     }
   }
@@ -126,7 +130,7 @@ class _VersionSelectorState extends State<VersionSelector> {
   void _selectVersion(AppVersion version) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('active_app_version', version.name);
-    
+
     if (mounted) {
       setState(() {
         _state = version == AppVersion.firebase
@@ -135,7 +139,6 @@ class _VersionSelectorState extends State<VersionSelector> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -150,13 +153,15 @@ class _VersionSelectorState extends State<VersionSelector> {
       theme: AppTheme.lightTheme,
       home: Scaffold(
         backgroundColor: AppTheme.lightBackground,
-        appBar: _state == SelectorState.enterRecoveryToken || _state == SelectorState.chooseVersion
+        appBar:
+            _state == SelectorState.enterRecoveryToken ||
+                _state == SelectorState.chooseVersion
             ? AppBar(
                 leading: IconButton(
-                  icon: const Text('🔙', style: TextStyle(fontSize: 24)),
-                onPressed: () {
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
                     setState(() => _state = SelectorState.chooseUserType);
-                },
+                  },
                 ),
                 backgroundColor: Colors.transparent,
                 elevation: 0,
@@ -194,14 +199,25 @@ class _VersionSelectorState extends State<VersionSelector> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Spacer(),
-        const Text('💬', style: TextStyle(fontSize: 80, color: AppTheme.primaryColor)),
+        const Text(
+          '💬',
+          style: TextStyle(fontSize: 80, color: AppTheme.primaryColor),
+        ),
         const SizedBox(height: 24),
         const Text(
           'Talktive',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.textPrimary),
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const SizedBox(height: 8),
-        const Text('Anonymous Chat', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
+        const Text(
+          'Anonymous Chat',
+          style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+        ),
         const Spacer(),
         DuoButton(
           text: "I'm a New User",

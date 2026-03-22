@@ -167,7 +167,7 @@ class DuoMomentCard extends StatelessWidget {
                 child: Row(
                   children: [
                     _buildActionButton(
-                      emoji: isLiked ? '❤️' : '🤍',
+                      icon: isLiked ? Icons.favorite : Icons.favorite_border,
                       count: moment.likesCount,
                       isActive: isLiked,
                       onTap: onLike,
@@ -175,11 +175,11 @@ class DuoMomentCard extends StatelessWidget {
                     ),
                     const SizedBox(width: AppTheme.duoSpacingMedium),
                     _buildActionButton(
-                      emoji: '💬',
+                      icon: Icons.chat_bubble_outline,
                       count: moment.commentsCount,
                       isActive: false,
                       onTap: onComment,
-                      color: AppTheme.primaryColor,
+                      color: AppTheme.duoBlue,
                     ),
                   ],
                 ),
@@ -193,7 +193,7 @@ class DuoMomentCard extends StatelessWidget {
   }
 
   Widget _buildActionButton({
-    required String emoji,
+    required IconData icon,
     required int count,
     required bool isActive,
     required VoidCallback onTap,
@@ -206,9 +206,10 @@ class DuoMomentCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           children: [
-            Text(
-              emoji,
-              style: const TextStyle(fontSize: 20),
+            Icon(
+              icon,
+              size: 20,
+              color: isActive ? color : AppTheme.textSecondary,
             ),
             if (count > 0) ...[
               const SizedBox(width: 4),

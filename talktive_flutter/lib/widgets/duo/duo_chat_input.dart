@@ -97,16 +97,17 @@ class _DuoChatInputState extends State<DuoChatInput> {
       final canStart = await widget.onVoiceStart!();
       if (!canStart) return;
     }
-    
+
     try {
       if (await _audioRecorder.hasPermission()) {
         final directory = await getTemporaryDirectory();
-        final path = '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
-        
+        final path =
+            '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
         const config = RecordConfig(); // Default config: m4a/aac
-        
+
         await _audioRecorder.start(config, path: path);
-        
+
         _recordStartTime = DateTime.now();
         _recordTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
           final duration = DateTime.now().difference(_recordStartTime!);
@@ -131,7 +132,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
   Future<void> _stopRecording({bool cancel = false}) async {
     _recordTimer?.cancel();
     final path = await _audioRecorder.stop();
-    
+
     setState(() {
       _isRecording = false;
     });
@@ -150,7 +151,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
   @override
   Widget build(BuildContext context) {
     final themeColor = widget.activeColor ?? AppTheme.primaryColor;
-    final showVoice = widget.controller.text.trim().isEmpty && widget.onVoiceSend != null;
+    final showVoice =
+        widget.controller.text.trim().isEmpty && widget.onVoiceSend != null;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -208,7 +210,12 @@ class _DuoChatInputState extends State<DuoChatInput> {
                 // Image picker button (optional)
                 if (widget.onImagePick != null && !_isRecording)
                   GestureDetector(
-                    onTap: (widget.enabled && !widget.isSending && !widget.isLoading) ? widget.onImagePick : null,
+                    onTap:
+                        (widget.enabled &&
+                            !widget.isSending &&
+                            !widget.isLoading)
+                        ? widget.onImagePick
+                        : null,
                     child: Container(
                       width: 44,
                       height: 44,
@@ -217,13 +224,15 @@ class _DuoChatInputState extends State<DuoChatInput> {
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.grey.shade200),
                       ),
-                      child: Text(
-                        '📷',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: (widget.enabled && !widget.isSending && !widget.isLoading) ? themeColor : AppTheme.textLight,
-                        ),
-                        textAlign: TextAlign.center,
+                      child: Icon(
+                        Icons.image,
+                        size: 20,
+                        color:
+                            (widget.enabled &&
+                                !widget.isSending &&
+                                !widget.isLoading)
+                            ? themeColor
+                            : AppTheme.textLight,
                       ),
                     ),
                   ),
@@ -236,9 +245,13 @@ class _DuoChatInputState extends State<DuoChatInput> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppTheme.lightBackground,
-                      borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.duoRadiusPill,
+                      ),
                       border: Border.all(
-                        color: _isRecording ? AppTheme.duoRed.withValues(alpha: 0.3) : Colors.grey.shade200,
+                        color: _isRecording
+                            ? AppTheme.duoRed.withValues(alpha: 0.3)
+                            : Colors.grey.shade200,
                       ),
                     ),
                     child: _isRecording
@@ -279,7 +292,12 @@ class _DuoChatInputState extends State<DuoChatInput> {
                                 vertical: AppTheme.duoSpacingSmall,
                               ),
                             ),
-                            onSubmitted: (widget.enabled && !widget.isSending && !widget.isLoading) ? (_) => _handleSend() : null,
+                            onSubmitted:
+                                (widget.enabled &&
+                                    !widget.isSending &&
+                                    !widget.isLoading)
+                                ? (_) => _handleSend()
+                                : null,
                           ),
                   ),
                 ),
@@ -288,40 +306,76 @@ class _DuoChatInputState extends State<DuoChatInput> {
 
                 // Send/Voice button
                 GestureDetector(
-                  onTap: (widget.enabled && !widget.isSending && !widget.isLoading && !showVoice) ? _handleSend : null,
-                  onLongPress: (widget.enabled && !widget.isSending && !widget.isLoading && showVoice) ? _startRecording : null,
+                  onTap:
+                      (widget.enabled &&
+                          !widget.isSending &&
+                          !widget.isLoading &&
+                          !showVoice)
+                      ? _handleSend
+                      : null,
+                  onLongPress:
+                      (widget.enabled &&
+                          !widget.isSending &&
+                          !widget.isLoading &&
+                          showVoice)
+                      ? _startRecording
+                      : null,
                   onLongPressUp: _isRecording ? () => _stopRecording() : null,
                   child: Container(
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      gradient: (widget.enabled && !widget.isSending && !widget.isLoading)
+                      gradient:
+                          (widget.enabled &&
+                              !widget.isSending &&
+                              !widget.isLoading)
                           ? LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: _isRecording 
-                                ? [AppTheme.duoRed, AppTheme.duoRed.withValues(alpha: 0.8)]
-                                : [themeColor, themeColor.withValues(alpha: 0.8)],
+                              colors: _isRecording
+                                  ? [
+                                      AppTheme.duoRed,
+                                      AppTheme.duoRed.withValues(alpha: 0.8),
+                                    ]
+                                  : [
+                                      themeColor,
+                                      themeColor.withValues(alpha: 0.8),
+                                    ],
                             )
                           : null,
-                      color: (widget.enabled && !widget.isSending && !widget.isLoading) ? null : Colors.grey.shade300,
+                      color:
+                          (widget.enabled &&
+                              !widget.isSending &&
+                              !widget.isLoading)
+                          ? null
+                          : Colors.grey.shade300,
                       shape: BoxShape.circle,
-                      boxShadow: (widget.enabled && !widget.isSending && !widget.isLoading)
+                      boxShadow:
+                          (widget.enabled &&
+                              !widget.isSending &&
+                              !widget.isLoading)
                           ? [
                               BoxShadow(
-                                color: (_isRecording ? AppTheme.duoRed : themeColor).withValues(alpha: 0.3),
+                                color:
+                                    (_isRecording
+                                            ? AppTheme.duoRed
+                                            : themeColor)
+                                        .withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
                             ]
                           : null,
                     ),
-                      child: Center(
-                        child: Text(
-                          showVoice ? (_isRecording ? '⏹️' : '🎙️') : '🚀', 
-                          style: const TextStyle(color: Colors.white, fontSize: 20),
-                        ),
+                    child: Center(
+                      child: Icon(
+                        showVoice
+                            ? (_isRecording ? Icons.stop : Icons.mic)
+                            : Icons.send,
+                        color: Colors.white,
+                        size: 24,
                       ),
+                    ),
                   ),
                 ),
               ],
@@ -339,7 +393,10 @@ class _DuoChatInputState extends State<DuoChatInput> {
   }
 
   void _handleSend() {
-    if (widget.isSending || widget.isLoading || widget.controller.text.trim().isEmpty) return;
+    if (widget.isSending ||
+        widget.isLoading ||
+        widget.controller.text.trim().isEmpty)
+      return;
     HapticFeedback.lightImpact();
     widget.onSend();
   }

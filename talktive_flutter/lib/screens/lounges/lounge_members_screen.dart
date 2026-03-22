@@ -129,7 +129,11 @@ class LoungeMembersScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, {IconData? icon}) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title, {
+    IconData? icon,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Row(
@@ -289,7 +293,10 @@ class LoungeMembersScreen extends ConsumerWidget {
       ref.invalidate(loungeListProvider);
 
       if (context.mounted) {
-        DuoSnackBarHelper.showSuccess(context, 'Resident removed from clubhouse.');
+        DuoSnackBarHelper.showSuccess(
+          context,
+          'Resident removed from clubhouse.',
+        );
       }
     } catch (e) {
       if (context.mounted) DuoSnackBarHelper.showError(context, e.toString());

@@ -7,10 +7,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// This ensures total separation from the legacy Firebase version.
 class ServerpodNotificationService {
   ServerpodNotificationService._();
-  static final ServerpodNotificationService _instance = ServerpodNotificationService._();
+  static final ServerpodNotificationService _instance =
+      ServerpodNotificationService._();
   factory ServerpodNotificationService() => _instance;
 
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   static const _channelId = 'high_importance_channel';
   static const _channelName = 'High Importance Notifications';
@@ -18,12 +20,14 @@ class ServerpodNotificationService {
   /// Initialization for background/foreground system notifications.
   Future<void> initialize() async {
     try {
-      const initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
-      const initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
-
-      await _notificationsPlugin.initialize(
-        initializationSettings,
+      const initializationSettingsAndroid = AndroidInitializationSettings(
+        'app_icon',
       );
+      const initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+      );
+
+      await _notificationsPlugin.initialize(initializationSettings);
 
       // Create high importance channel
       const androidNotificationChannel = AndroidNotificationChannel(
@@ -36,9 +40,11 @@ class ServerpodNotificationService {
       );
 
       await _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(androidNotificationChannel);
-          
+
       debugPrint('ServerpodNotificationService: Initialized successfully');
     } catch (e) {
       debugPrint('ServerpodNotificationService: Initialization error: $e');
@@ -50,11 +56,14 @@ class ServerpodNotificationService {
   Future<void> showNotification(RemoteMessage message) async {
     final data = message.data;
     if (data['appVersion'] != 'serverpod') {
-      debugPrint('ServerpodNotificationService: Ignoring non-serverpod message');
+      debugPrint(
+        'ServerpodNotificationService: Ignoring non-serverpod message',
+      );
       return;
     }
 
-    final title = data['title'] ?? (message.notification?.title ?? 'Notification');
+    final title =
+        data['title'] ?? (message.notification?.title ?? 'Notification');
     final body = data['body'] ?? (message.notification?.body ?? 'New message');
 
     const androidDetails = AndroidNotificationDetails(
@@ -69,9 +78,7 @@ class ServerpodNotificationService {
       channelShowBadge: true,
     );
 
-    const notificationDetails = NotificationDetails(
-      android: androidDetails,
-    );
+    const notificationDetails = NotificationDetails(android: androidDetails);
 
     try {
       await _notificationsPlugin.show(
@@ -84,7 +91,9 @@ class ServerpodNotificationService {
       );
       debugPrint('ServerpodNotificationService: Notification displayed');
     } catch (e) {
-      debugPrint('ServerpodNotificationService: Error showing notification: $e');
+      debugPrint(
+        'ServerpodNotificationService: Error showing notification: $e',
+      );
     }
   }
 

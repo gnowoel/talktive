@@ -173,7 +173,11 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Text('❌', style: TextStyle(fontSize: 24)),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -189,7 +193,10 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Emoji Section
-                    _buildSectionHeader('Emoji', 'Pick an icon for your lounge'),
+                    _buildSectionHeader(
+                      'Emoji',
+                      'Pick an icon for your lounge',
+                    ),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
                     Center(
                       child: Wrap(
@@ -264,7 +271,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       spacing: 8,
                       runSpacing: 4,
                       children: AppInterests.all.map((interest) {
-                        final isSelected = _selectedInterests.contains(interest);
+                        final isSelected = _selectedInterests.contains(
+                          interest,
+                        );
                         return FilterChip(
                           label: Text(
                             interest,
@@ -347,7 +356,8 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                           Switch(
                             value: _isPublic,
                             activeThumbColor: AppTheme.duoBlue,
-                            onChanged: (_isCreating ||
+                            onChanged:
+                                (_isCreating ||
                                     (widget.existingLounge?.isStaffLocked ??
                                         false))
                                 ? null
@@ -364,10 +374,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                         padding: const EdgeInsets.only(top: 8, left: 4),
                         child: Row(
                           children: [
-                             const Text(
-                              '🛡️',
-                              style: TextStyle(fontSize: 14),
-                            ),
+                            const Text('🛡️', style: TextStyle(fontSize: 14)),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
@@ -431,7 +438,12 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
           ],
         ),
       ),
-    ).animate().slideY(begin: 1.0, end: 0.0, duration: 400.ms, curve: Curves.easeOutCubic);
+    ).animate().slideY(
+      begin: 1.0,
+      end: 0.0,
+      duration: 400.ms,
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Widget _buildSectionHeader(String title, String subtitle) {
@@ -447,13 +459,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
             color: AppTheme.duoBlue,
           ),
         ),
-        Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         const SizedBox(height: 8),
       ],
     );

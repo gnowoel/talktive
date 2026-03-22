@@ -2,6 +2,21 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
+## March 22, 2026 - Unified Iconography & Branding (Phase 8.35) 💎🏠
+
+### Visual Consistency & Professionalism
+- **Global Icon Refinement**: Systematically replaced technical/action emojis with professional **Material Icons** across all screens for core UI elements (Back, Close, Options, Send, Like).
+- **Stat Cards (DuoStatCard)**: 
+  - Unified the "Floor" and "Experience" stats on the **Activity Screen** using the `DuoStatCard` component.
+  - Standardized colors: **Floor (Purple)** and **Experience (Yellow/Orange gradient)** now match across Plaza, Activity, and Profile views.
+  - Unified the "Messages" stat icon to `Icons.chat_bubble_outline` globally.
+- **Moments & Feedback**: 
+  - Replaced heart and comment emojis with `Icons.favorite` and `Icons.chat_bubble_outline` in `MomentDetailScreen`.
+  - Added a dedicated "Empty Comments" placeholder for a more polished feel.
+- **Chat Experience**: Replaced technical error and read-receipt emojis in `MessageBubble` with standard icons (`Icons.error_outline`, `Icons.done_all`).
+- **Help Center**: Added professional Material Icons to all help categories and ensured navigation consistency.
+- **Fixes**: Corrected a `const` evaluation error in `MomentDetailScreen` and fixed a route mismatch for the Global Lounge.
+
 ## March 22, 2026 - Enhanced Welcoming Aesthetic (Phase 8.30) 🎨✨
 
 ### UI/UX Refinement & Consistency

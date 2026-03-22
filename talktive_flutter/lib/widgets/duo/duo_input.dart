@@ -102,12 +102,12 @@ class DuoInput extends StatelessWidget {
                       ),
                     )
                   : (prefixIcon != null
-                      ? Icon(
-                          prefixIcon,
-                          color: iconColor ?? AppTheme.primaryColor,
-                          size: 20,
-                        )
-                      : null),
+                        ? Icon(
+                            prefixIcon,
+                            color: iconColor ?? AppTheme.primaryColor,
+                            size: 20,
+                          )
+                        : null),
               suffixIcon: suffixIcon,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),

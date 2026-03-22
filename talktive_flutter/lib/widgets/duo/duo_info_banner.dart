@@ -31,7 +31,8 @@ class _DuoInfoBannerState extends State<DuoInfoBanner> {
 
   Future<void> _checkDismissedState() async {
     final prefs = await SharedPreferences.getInstance();
-    final dismissed = prefs.getBool('banner_dismissed_${widget.bannerId}') ?? false;
+    final dismissed =
+        prefs.getBool('banner_dismissed_${widget.bannerId}') ?? false;
     if (mounted) {
       setState(() {
         _isDismissed = dismissed;

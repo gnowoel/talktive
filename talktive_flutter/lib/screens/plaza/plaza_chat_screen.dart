@@ -102,10 +102,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       await ref
           .read(realtimeChatProvider(1).notifier)
           .sendMessage(
-            content: content.isEmpty ? null : content, 
+            content: content.isEmpty ? null : content,
             imageUrl: imageUrl,
           );
-      
+
       _messageController.clear();
       HapticFeedback.lightImpact();
 
@@ -150,14 +150,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
-      
+
       if (voiceUrl != null) {
         await ref
             .read(realtimeChatProvider(1).notifier)
-            .sendMessage(
-              mediaUrl: voiceUrl,
-              mediaType: 'voice',
-            );
+            .sendMessage(mediaUrl: voiceUrl, mediaType: 'voice');
         HapticFeedback.lightImpact();
       }
     } catch (e) {
@@ -182,13 +179,15 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     final typingUsers = chatState.value?.typingUsers ?? {};
-    final otherTypingUsers =
-        typingUsers.where((u) => u != currentResident?.userName).toList();
+    final otherTypingUsers = typingUsers
+        .where((u) => u != currentResident?.userName)
+        .toList();
 
     return DuoChatInputLayout(
-      typingIndicator: (currentResident?.isPremium == true && 
-                         currentResident?.showOthersTypingIndicators == true &&
-                         otherTypingUsers.isNotEmpty)
+      typingIndicator:
+          (currentResident?.isPremium == true &&
+              currentResident?.showOthersTypingIndicators == true &&
+              otherTypingUsers.isNotEmpty)
           ? _buildTypingIndicator(otherTypingUsers)
           : null,
       appBar: AppBar(
@@ -196,7 +195,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Text('🔙', style: TextStyle(fontSize: 24)),
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 24),
           onPressed: () {
             HapticFeedback.lightImpact();
             Navigator.pop(context);
@@ -204,7 +203,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         ),
         title: Row(
           children: [
-            const Text('🌍', style: TextStyle(fontSize: 24)),
+            const Icon(Icons.public, color: AppTheme.primaryColor, size: 28),
             const SizedBox(width: AppTheme.duoSpacingSmall),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +246,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
       controller: _messageController,
       onSend: _sendMessage,
-      onVoiceSend: (currentResident?.isPremium == true && currentResident?.showVoiceMessages == true) ? _sendVoiceMessage : null,
+      onVoiceSend:
+          (currentResident?.isPremium == true &&
+              currentResident?.showVoiceMessages == true)
+          ? _sendVoiceMessage
+          : null,
       onVoiceStart: () async {
         final currentResident = ref.read(currentResidentProvider).value;
         if (currentResident == null) return false;
@@ -262,11 +265,16 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         return true;
       },
       onTypingStatusChanged: (isTyping) {
-        if (currentResident?.isPremium == true && currentResident?.showTypingIndicator == true) {
+        if (currentResident?.isPremium == true &&
+            currentResident?.showTypingIndicator == true) {
           ref.read(realtimeChatProvider(1).notifier).setTyping(isTyping);
         }
       },
-      onImagePick: (currentResident?.isPremium == true && currentResident?.showImagesInPlaza == true) ? _pickAndSendImage : null,
+      onImagePick:
+          (currentResident?.isPremium == true &&
+              currentResident?.showImagesInPlaza == true)
+          ? _pickAndSendImage
+          : null,
       enabled: canSend,
       isLoading: currentResidentAsync.isLoading,
       isSending: _isSending,
@@ -314,9 +322,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: 24,
-            child: const Text('✍️', style: TextStyle(fontSize: 14)),
-          )
+                width: 24,
+                child: const Text('✍️', style: TextStyle(fontSize: 14)),
+              )
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .scale(
                 duration: 600.ms,

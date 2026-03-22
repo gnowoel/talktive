@@ -65,7 +65,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     try {
       final client = ref.read(clientProvider);
       final channelId = widget.channelId;
-      client.message.markChannelAsRead(channelId).catchError((e) => debugPrint(e));
+      client.message
+          .markChannelAsRead(channelId)
+          .catchError((e) => debugPrint(e));
     } catch (e) {
       debugPrint('Error in dispose mark read: $e');
     }
@@ -75,7 +77,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     _focusNode.dispose();
     super.dispose();
   }
-
 
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
@@ -181,14 +182,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
-      
+
       if (voiceUrl != null) {
         await ref
             .read(realtimeChatProvider(widget.channelId).notifier)
-            .sendMessage(
-              mediaUrl: voiceUrl,
-              mediaType: 'voice',
-            );
+            .sendMessage(mediaUrl: voiceUrl, mediaType: 'voice');
         HapticFeedback.lightImpact();
       }
     } catch (e) {
@@ -224,7 +222,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final currentResident = currentResidentAsync.value;
     final chatState = ref.watch(realtimeChatProvider(widget.channelId));
 
-
     return chatDetailsAsync.when(
       data: (details) {
         if (details.currentMemberStatus == ChannelMemberStatus.invited) {
@@ -236,7 +233,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               context.push('/chats/peephole', extra: details);
             }
           });
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final otherResident = details.otherResident;
@@ -250,12 +249,15 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
         final typingUsers = chatState.value?.typingUsers ?? {};
         // Filter out ourselves if we are in the list
-        final otherTypingUsers = typingUsers.where((u) => u != currentResident?.userName).toList();
+        final otherTypingUsers = typingUsers
+            .where((u) => u != currentResident?.userName)
+            .toList();
 
         return DuoChatInputLayout(
-          typingIndicator: (currentResident?.isPremium == true && 
-                             currentResident?.showOthersTypingIndicators == true &&
-                             otherTypingUsers.isNotEmpty)
+          typingIndicator:
+              (currentResident?.isPremium == true &&
+                  currentResident?.showOthersTypingIndicators == true &&
+                  otherTypingUsers.isNotEmpty)
               ? _buildTypingIndicator(otherTypingUsers)
               : null,
           appBar: AppBar(
@@ -284,11 +286,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                     children: [
                       Text(
                         otherName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontFamily: 'Poppins',
+                            ),
                       ),
                       Text(
                         otherFloor > 0 ? 'Floor $otherFloor' : 'New Resident',
@@ -369,7 +372,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                           const SizedBox(width: 8),
                           const Text(
                             'Leave Chat',
-                            style: TextStyle(color: AppTheme.duoRed, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: AppTheme.duoRed,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -381,7 +387,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ),
           controller: _messageController,
           onSend: _sendMessage,
-          onVoiceSend: (currentResident?.isPremium ?? false) && (currentResident?.showVoiceMessages ?? true) ? _sendVoiceMessage : null,
+          onVoiceSend:
+              (currentResident?.isPremium ?? false) &&
+                  (currentResident?.showVoiceMessages ?? true)
+              ? _sendVoiceMessage
+              : null,
           onVoiceStart: () async {
             if (currentResident == null) return false;
 
@@ -396,7 +406,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           },
           onTypingStatusChanged: (isTyping) {
             if (currentResident?.showTypingIndicator == true) {
-              ref.read(realtimeChatProvider(widget.channelId).notifier).setTyping(isTyping);
+              ref
+                  .read(realtimeChatProvider(widget.channelId).notifier)
+                  .setTyping(isTyping);
             }
           },
           onImagePick: _pickAndSendImage,
@@ -411,7 +423,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           content: chatState.when(
             data: (state) => state.messages.isEmpty
                 ? _buildEmptyState()
-                : _buildMessagesList(state, otherName, currentResident, details.otherResident.userInfoId.toString()),
+                : _buildMessagesList(
+                    state,
+                    otherName,
+                    currentResident,
+                    details.otherResident.userInfoId.toString(),
+                  ),
             loading: () => const Center(
               child: CircularProgressIndicator(color: AppTheme.primaryColor),
             ),
@@ -517,20 +534,28 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   Widget _buildTypingIndicator(List<String> typingUsers) {
     if (typingUsers.isEmpty) return const SizedBox.shrink();
-    
-    final text = typingUsers.length == 1 
-      ? '${typingUsers[0]} is typing...' 
-      : 'Multiple people are typing...';
+
+    final text = typingUsers.length == 1
+        ? '${typingUsers[0]} is typing...'
+        : 'Multiple people are typing...';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: 4,
+      ),
       child: Row(
         children: [
           SizedBox(
-            width: 24,
-            child: const Text('✍️', style: TextStyle(fontSize: 14)),
-          ).animate(onPlay: (c) => c.repeat(reverse: true))
-           .scale(duration: 600.ms, begin: const Offset(0.8, 0.8), end: const Offset(1.1, 1.1)),
+                width: 24,
+                child: const Text('✍️', style: TextStyle(fontSize: 14)),
+              )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scale(
+                duration: 600.ms,
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1.1, 1.1),
+              ),
           const SizedBox(width: 8),
           Text(
             text,
@@ -546,11 +571,16 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     ).animate().fadeIn().slideY(begin: 0.2, end: 0);
   }
 
-  Widget _buildMessagesList(RealtimeChatState state, String otherName, Resident? currentResident, String otherUserId) {
+  Widget _buildMessagesList(
+    RealtimeChatState state,
+    String otherName,
+    Resident? currentResident,
+    String otherUserId,
+  ) {
     final messages = state.messages;
     final lastReadStatus = state.lastReadStatus;
     final otherLastReadAt = lastReadStatus[otherUserId];
-    
+
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
@@ -576,8 +606,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
           bool isRead = false;
           // Only Premium users can SEE read receipts
-          if (isCurrentUser && 
-              currentResident.isPremium && 
+          if (isCurrentUser &&
+              currentResident.isPremium &&
               currentResident.showOthersReadReceipts &&
               otherLastReadAt != null) {
             isRead = message.createdAt.isBefore(otherLastReadAt);

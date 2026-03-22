@@ -70,9 +70,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           icon: const Icon(Icons.close, size: 24),
           onPressed: () => context.pop(),
         ),
-        actions: [
-          _buildTrailingMenu(isBlocked),
-        ],
+        actions: [_buildTrailingMenu(isBlocked)],
       ),
       body: profileAsync.when(
         data: (profile) => _buildProfileContent(isBlocked, profile),
@@ -85,10 +83,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       ),
       bottomNavigationBar:
           isBlocked || profileAsync.isLoading || profileAsync.hasError
-              ? null
-              : _buildBottomBar(context, ref),
+          ? null
+          : _buildBottomBar(context, ref),
     );
-
   }
 
   Widget _buildErrorState(String error) {
@@ -250,7 +247,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        await ref.read(userProfileProvider(widget.userId).notifier).toggleBlock();
+        await ref
+            .read(userProfileProvider(widget.userId).notifier)
+            .toggleBlock();
         if (context.mounted) {
           DuoSnackBarHelper.showSuccess(
             context,
@@ -308,7 +307,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               fontFamily: 'Poppins',
             ),
           ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
-          
+
           // Premium Feature: Online/Offline Status
           if (ref.watch(currentResidentProvider).value?.isPremium ?? false)
             Padding(
@@ -316,11 +315,13 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Container(
+                  Container(
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: profile?.isOnline == true ? AppTheme.duoGreen : Colors.grey[400],
+                      color: profile?.isOnline == true
+                          ? AppTheme.duoGreen
+                          : Colors.grey[400],
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -330,7 +331,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: profile?.isOnline == true ? AppTheme.duoGreen : Colors.grey[500],
+                      color: profile?.isOnline == true
+                          ? AppTheme.duoGreen
+                          : Colors.grey[500],
                     ),
                   ),
                 ],
@@ -370,9 +373,11 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           // Info cards
           if (gender != null || country != null || mutualLounges > 0)
             _buildInfoCard('About', [
-              if (gender != null) _buildInfoRow(Icons.person_outline, _formatGender(gender)),
+              if (gender != null)
+                _buildInfoRow(Icons.person_outline, _formatGender(gender)),
               if (country != null) _buildInfoRow(Icons.flag, country),
-              if (mutualLounges > 0) _buildInfoRow(Icons.apartment, '$mutualLounges mutual lounges'),
+              if (mutualLounges > 0)
+                _buildInfoRow(Icons.apartment, '$mutualLounges mutual lounges'),
             ]),
 
           if (interests.isNotEmpty) ...[
@@ -467,11 +472,15 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       isSecondary: isLiked,
       width: double.infinity,
       onPressed: () async {
-        await ref.read(userProfileProvider(widget.userId).notifier).toggleLike();
+        await ref
+            .read(userProfileProvider(widget.userId).notifier)
+            .toggleLike();
         if (mounted) {
-           DuoSnackBarHelper.showSuccess(
+          DuoSnackBarHelper.showSuccess(
             context,
-            isLiked ? 'Vouch removed.' : 'Resident vouched! Trust Score increased.',
+            isLiked
+                ? 'Vouch removed.'
+                : 'Resident vouched! Trust Score increased.',
           );
         }
       },
@@ -813,10 +822,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                                 widget.userId,
                               );
                               if (context.mounted) {
-                                  DuoSnackBarHelper.showSuccess(
-                                    context,
-                                    'Flyer slipped under the door!',
-                                  );
+                                DuoSnackBarHelper.showSuccess(
+                                  context,
+                                  'Flyer slipped under the door!',
+                                );
                               }
                             } catch (e) {
                               if (context.mounted) {
@@ -915,13 +924,16 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('🔇 Mute Resident',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          '🔇 Mute Resident',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-                'Temporarily prevent this user from sending messages or moments.'),
+              'Temporarily prevent this user from sending messages or moments.',
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: reasonController,
@@ -960,7 +972,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             color: AppTheme.duoOrange,
             onPressed: () {
               if (reasonController.text.trim().isEmpty) {
-                DuoSnackBarHelper.showError(context, 'Please provide a reason.');
+                DuoSnackBarHelper.showError(
+                  context,
+                  'Please provide a reason.',
+                );
                 return;
               }
               Navigator.pop(ctx, true);
@@ -980,7 +995,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         );
         if (context.mounted) {
           DuoSnackBarHelper.showSuccess(
-              context, 'User muted for $duration hours.');
+            context,
+            'User muted for $duration hours.',
+          );
           ref.invalidate(userProfileProvider(widget.userId));
         }
       } catch (e) {
@@ -997,8 +1014,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('⚖️ Suspend Resident?',
-            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoRed)),
+        title: const Text(
+          '⚖️ Suspend Resident?',
+          style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.duoRed),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1024,7 +1043,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 border: OutlineInputBorder(),
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
             ),
           ],
         ),
@@ -1039,11 +1061,17 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             color: AppTheme.duoRed,
             onPressed: () {
               if (confirmController.text != 'SUSPEND') {
-                DuoSnackBarHelper.showError(context, 'Please type SUSPEND to confirm.');
+                DuoSnackBarHelper.showError(
+                  context,
+                  'Please type SUSPEND to confirm.',
+                );
                 return;
               }
               if (reasonController.text.trim().isEmpty) {
-                DuoSnackBarHelper.showError(context, 'Please provide a reason.');
+                DuoSnackBarHelper.showError(
+                  context,
+                  'Please provide a reason.',
+                );
                 return;
               }
               Navigator.pop(ctx, true);

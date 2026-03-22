@@ -74,12 +74,12 @@ class _DuoStatCardState extends State<DuoStatCard> {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: widget.icon != null 
-                    ? Icon(widget.icon, color: Colors.white, size: 24)
-                    : Text(
-                        widget.emoji ?? '', 
-                        style: const TextStyle(fontSize: 24, height: 1.0),
-                      ),
+                  child: widget.icon != null
+                      ? Icon(widget.icon, color: Colors.white, size: 24)
+                      : Text(
+                          widget.emoji ?? '',
+                          style: const TextStyle(fontSize: 24, height: 1.0),
+                        ),
                 ),
               ),
               const SizedBox(height: AppTheme.duoSpacingSmall),

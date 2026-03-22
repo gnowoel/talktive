@@ -179,7 +179,7 @@ class PlazaScreen extends ConsumerWidget {
                 context,
                 title: 'Global Lounge',
                 subtitle: 'Join the main public chat to talk with everyone in the building.',
-                icon: Icons.language,
+                icon: Icons.chat_bubble_outline,
                 color: AppTheme.primaryColor,
                 onTap: () => context.push('/plaza/chat'),
               ),
@@ -193,16 +193,8 @@ class PlazaScreen extends ConsumerWidget {
                 icon: Icons.help_outline,
                 color: AppTheme.duoGreen,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Help Center is coming soon! 📚'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                      ),
-                      backgroundColor: AppTheme.duoGreen,
-                    ),
-                  );
+                  HapticFeedback.lightImpact();
+                  context.push('/plaza/help');
                 },
               ),
             ),
@@ -263,10 +255,10 @@ class PlazaScreen extends ConsumerWidget {
         const SizedBox(width: AppTheme.duoSpacingMedium),
         Expanded(
           child: _buildSmallCard(
-            icon: Icons.layers,
-            title: 'Floors',
+            icon: Icons.apartment,
+            title: 'Floor',
             subtitle: 'Level up by chatting',
-            color: AppTheme.duoYellow,
+            color: AppTheme.primaryColor,
           ),
         ),
       ],

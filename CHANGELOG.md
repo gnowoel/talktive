@@ -22,6 +22,12 @@ This document tracks the major development milestones and changes made during th
 - **Batched User Block Checks**: Optimized `MessageEndpoint` and `PrivateChatEndpoint` to utilize `ResidentService.getBlocksAgainstUser` for bulk-checking block status. This ensures that even in large lounge chats, block-level message suppression remains performant.
 - **Streamlined Private Chat Retrieval**: Refactored `listPrivateChats` with batch fetching for channel members, unread counts, resident profiles, and user info metadata, resulting in near-instant chat list loading.
 
+### Emoji-First Iconography (Phase 8.25)
+- **Standardized UI Language**: Systematically replaced Material icons with curated emojis across all primary screens (Profile, Activity, Search, Settings) to align with the "Emoji-first" design philosophy.
+- **Consistent Sizing**: Implemented consistent emoji sizing (20-24px) for interactive elements, ensuring they maintain the same visual weight as the previous icon set while looking more playful and modern.
+- **Interactive Refinement**: Updated all action menus (Block, Mute, Report, Knock) and navigation elements (Back, Forward, Close) with their emoji equivalents (🚫, 🔇, 🚩, 🚪, 🔙, ➡️, ❌), creating a unique branding identity for the Serverpod version.
+- **Premium Indicators**: Replaced generic lock icons with the 🔒 emoji to denote Plus-exclusive features in the Settings hub.
+
 ### Serverpod Compatibility & Consolidation ⚙️
 - **Refined Gamification Logic**: Refactored `GamificationService` to resolve naming conflicts and ensure consistent `protocol.` prefixing following the Serverpod 3.4.2 upgrade.
 - **Unread Tracking Correction**: Fixed `ChatService` unread count calculation by switching to `session.db.unsafeQuery` for raw SQL execution.

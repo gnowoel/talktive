@@ -173,7 +173,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: const Text('❌', style: TextStyle(fontSize: 24)),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -317,9 +317,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            _isPublic ? Icons.public : Icons.public_off,
-                            color: _isPublic ? AppTheme.duoBlue : Colors.grey,
+                          Text(
+                            _isPublic ? '🌍' : '🔒',
+                            style: const TextStyle(fontSize: 18),
                           ),
                           const SizedBox(width: AppTheme.duoSpacingMedium),
                           Expanded(
@@ -364,10 +364,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                         padding: const EdgeInsets.only(top: 8, left: 4),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.lock_person,
-                              size: 14,
-                              color: AppTheme.duoRed,
+                             const Text(
+                              '🛡️',
+                              style: TextStyle(fontSize: 14),
                             ),
                             const SizedBox(width: 4),
                             Expanded(
@@ -422,8 +421,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                   text: widget.existingLounge != null
                       ? 'Save Changes'
                       : 'Create Lounge',
-                  icon:
-                      widget.existingLounge != null ? Icons.save : Icons.add_circle,
+                   icon: widget.existingLounge != null ? '💾' : '➕',
                   onPressed: _isCreating ? null : _saveLounge,
                   isLoading: _isCreating,
                   color: AppTheme.duoBlue,

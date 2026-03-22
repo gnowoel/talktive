@@ -36,7 +36,7 @@ class BlockedUsersScreen extends ConsumerWidget {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Text('🔙', style: TextStyle(fontSize: 22)),
           onPressed: () => context.pop(),
         ),
       ),

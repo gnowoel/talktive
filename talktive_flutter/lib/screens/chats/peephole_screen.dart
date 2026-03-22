@@ -232,10 +232,12 @@ class PeepholeScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.message_rounded,
-                              color: AppTheme.primaryColor,
-                              size: 20,
+                            Text(
+                              '✉️',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontSize: 20,
+                              ),
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -392,7 +394,7 @@ class PeepholeScreen extends ConsumerWidget {
                         }
                       }
                     },
-                    icon: const Icon(Icons.shield_outlined, color: AppTheme.duoRed),
+                    icon: const Text('🛡️', style: TextStyle(color: AppTheme.duoRed)),
                     label: const Text(
                       'Block & Decline',
                       style: TextStyle(
@@ -419,7 +421,7 @@ class PeepholeScreen extends ConsumerWidget {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
       text: '📸 Sharing $momentsCount Moments',
-      icon: Icons.auto_awesome,
+      icon: '✨',
       isSecondary: true,
       color: AppTheme.duoBlue.withValues(
         alpha: 0.8,

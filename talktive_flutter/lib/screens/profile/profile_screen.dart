@@ -38,13 +38,13 @@ class ProfileScreen extends ConsumerWidget {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
+          icon: const Text('❌', style: TextStyle(fontSize: 22)),
           onPressed: () => context.pop(),
         ),
         actions: [
           residentAsync.when(
             data: (resident) => IconButton(
-              icon: const Icon(Icons.edit_rounded),
+              icon: const Text('✍️', style: TextStyle(fontSize: 22)),
               tooltip: 'Edit Profile',
               onPressed: () {
                 if (resident != null) {
@@ -70,11 +70,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.error_outline,
-                  color: AppTheme.errorColor,
-                  size: 48,
-                ),
+                const Text('⚠️', style: TextStyle(fontSize: 64)),
                 const SizedBox(height: AppTheme.duoSpacingMedium),
                 const Text(
                   'Error loading profile',
@@ -145,7 +141,7 @@ class ProfileScreen extends ConsumerWidget {
                 resident.bio!,
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppTheme.textSecondary.withValues(alpha: 0.9),
+                  color: AppTheme.textSecondary.withAlpha(0.9),
                   fontFamily: 'Rubik',
                   height: 1.4,
                 ),
@@ -163,7 +159,7 @@ class ProfileScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: Colors.black.withAlpha(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -210,6 +206,26 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildInfoRow(String emoji, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              color: AppTheme.textPrimary,
+              fontFamily: 'Rubik',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildMomentsButton(
     BuildContext context,
@@ -225,7 +241,6 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
       child: DuoButton(
         text: '📸 Sharing $momentsCount Moments',
-        icon: Icons.auto_awesome,
         isSecondary: true,
         color: AppTheme.duoBlue,
         width: double.infinity,
@@ -273,12 +288,12 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               // Trust Score
               DuoStatCard(
-                icon: Icons.shield,
+                emoji: '🛡️',
                 value: '$trustScore',
                 label: 'Trust Score',
                 gradientColors: [
                   DuoFloorHelper.getTrustColor(trustScore),
-                  DuoFloorHelper.getTrustColor(trustScore).withValues(alpha: 0.7),
+                  DuoFloorHelper.getTrustColor(trustScore).withAlpha(0.7),
                 ],
               ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
               
@@ -290,23 +305,23 @@ class ProfileScreen extends ConsumerWidget {
               
               // Floor (Computed from XP and Trust)
               DuoStatCard(
-                icon: Icons.apartment,
+                emoji: '🏢',
                 value: '$floor',
                 label: 'Floor',
                 gradientColors: [
                   AppTheme.primaryColor,
-                  AppTheme.primaryColor.withValues(alpha: 0.7),
+                  AppTheme.primaryColor.withAlpha(0.7),
                 ],
               ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
               
               // Messages
               DuoStatCard(
-                icon: Icons.message,
+                emoji: '💬',
                 value: '$messages',
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,
-                  AppTheme.accentColor.withValues(alpha: 0.7),
+                  AppTheme.accentColor.withAlpha(0.7),
                 ],
               ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
             ],
@@ -331,7 +346,7 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     return DuoStatCard(
-      icon: Icons.stars,
+      emoji: '🌟',
       value: '$xp',
       label: 'XP • $xpDisplay',
       gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
@@ -374,10 +389,10 @@ class ProfileScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.duoGreen.withValues(alpha: 0.1),
+                    color: AppTheme.duoGreen.withAlpha(0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppTheme.duoGreen.withValues(alpha: 0.3),
+                      color: AppTheme.duoGreen.withAlpha(0.3),
                     ),
                   ),
                   child: Row(
@@ -443,10 +458,10 @@ class ProfileScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentColor.withValues(alpha: 0.1),
+                    color: AppTheme.accentColor.withAlpha(0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppTheme.accentColor.withValues(alpha: 0.3),
+                      color: AppTheme.accentColor.withAlpha(0.3),
                     ),
                   ),
                   child: Text(
@@ -475,8 +490,7 @@ class ProfileScreen extends ConsumerWidget {
         vertical: AppTheme.duoSpacingSmall,
       ),
       child: DuoButton(
-        text: 'Blocked Users',
-        icon: Icons.block,
+        text: '🚫 Blocked Users',
         color: AppTheme.textSecondary,
         isSecondary: true,
         width: double.infinity,
@@ -493,8 +507,7 @@ class ProfileScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       child: DuoButton(
-        text: 'Sign Out',
-        icon: Icons.logout,
+        text: '🚪 Sign Out',
         color: AppTheme.duoRed,
         width: double.infinity,
         onPressed: () async {

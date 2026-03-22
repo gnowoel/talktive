@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../config/theme.dart';
 import 'package:go_router/go_router.dart';
 
@@ -77,10 +78,16 @@ class PlazaScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           InkWell(
-            onTap: () {
-               // In a real app we'd use url_launcher
-               // But for now it's just a visual link
-               HapticFeedback.lightImpact();
+            onTap: () async {
+              HapticFeedback.lightImpact();
+              final uri = Uri.parse('https://open.talktive.app/');
+              try {
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+              } catch (_) {
+                // Silently fail or show snackbar if needed
+              }
             },
             child: const Text(
               'https://open.talktive.app/',
@@ -181,11 +188,7 @@ class PlazaScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(
-                        Icons.people,
-                        size: 16,
-                        color: AppTheme.primaryColor,
-                      ),
+                      const Text('👥', style: TextStyle(fontSize: 16)),
                       const SizedBox(width: 6),
                       Text(
                         'Public Chat',
@@ -201,7 +204,7 @@ class PlazaScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingSmall),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 28),
+            const Text('➡️', style: TextStyle(fontSize: 24, color: Colors.grey)),
           ],
         ),
       ),
@@ -211,27 +214,29 @@ class PlazaScreen extends ConsumerWidget {
   Widget _buildInfoCards() {
     return Column(
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _buildSmallCard(
-                emoji: '📜',
-                title: 'Rules',
-                subtitle: 'Be nice and respectful',
-                color: AppTheme.duoBlue,
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildSmallCard(
+                  emoji: '📜',
+                  title: 'Rules',
+                  subtitle: 'Be nice and respectful',
+                  color: AppTheme.duoBlue,
+                ),
               ),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingMedium),
-            Expanded(
-              child: _buildSmallCard(
-                icon: Icons.apartment,
-                title: 'Floors',
-                subtitle: 'Level up by chatting',
-                color: AppTheme.duoYellow,
+              const SizedBox(width: AppTheme.duoSpacingMedium),
+              Expanded(
+                child: _buildSmallCard(
+                  emoji: '🏢',
+                  title: 'Floors',
+                  subtitle: 'Level up by chatting',
+                  color: AppTheme.duoYellow,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -255,9 +260,18 @@ class PlazaScreen extends ConsumerWidget {
               color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
             ),
-            child: icon != null 
-              ? Icon(icon, color: color, size: 24)
-              : Text(emoji ?? '', style: const TextStyle(fontSize: 24)),
+            child: SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(
+                child: icon != null 
+                  ? Icon(icon, color: color, size: 24)
+                  : Text(
+                      emoji ?? '', 
+                      style: const TextStyle(fontSize: 24, height: 1.0),
+                    ),
+              ),
+            ),
           ),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(

@@ -128,7 +128,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               const Divider(height: 1),
 
               ListTile(
-                leading: const Icon(Icons.restore, color: AppTheme.duoOrange),
+                leading: const Text('🧹', style: TextStyle(fontSize: 24)),
                 title: const Text('Reset Trust Score'),
                 subtitle: const Text('Reset trust score to 100'),
                 onTap: () {
@@ -138,9 +138,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               ),
 
               ListTile(
-                leading: Icon(
-                  isBanned ? Icons.check_circle : Icons.block,
-                  color: isBanned ? AppTheme.duoGreen : AppTheme.errorColor,
+                leading: Text(
+                  isBanned ? '✅' : '🚫',
+                  style: const TextStyle(fontSize: 24),
                 ),
                 title: Text(isBanned ? 'Unsuspend User' : 'Suspend User'),
                 subtitle: Text(
@@ -159,9 +159,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               if (isCurrentUserAdmin) ...[
                 const Divider(height: 1),
                 ListTile(
-                  leading: Icon(
-                    isAdmin ? Icons.remove_moderator : Icons.admin_panel_settings,
-                    color: AppTheme.primaryColor,
+                  leading: Text(
+                    isAdmin ? '👤' : '🛡️',
+                    style: const TextStyle(fontSize: 24),
                   ),
                   title: Text(isAdmin ? 'Remove Admin' : 'Promote to Admin'),
                   onTap: () {
@@ -174,11 +174,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                   },
                 ),
                 ListTile(
-                  leading: Icon(
-                    isModerator
-                        ? Icons.person_remove_outlined
-                        : Icons.verified_user_outlined,
-                    color: AppTheme.secondaryColor,
+                  leading: Text(
+                    isModerator ? '👤' : '🛡️',
+                    style: const TextStyle(fontSize: 24),
                   ),
                   title: Text(
                       isModerator ? 'Remove Moderator' : 'Promote to Moderator'),
@@ -460,7 +458,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
             child: DuoInput(
               controller: _searchController,
               hintText: 'Search by name or user ID...',
-              prefixIcon: Icons.search,
+              prefixEmoji: '🔍',
               onChanged: (value) => _searchUsers(value),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(

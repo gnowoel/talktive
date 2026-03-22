@@ -115,13 +115,13 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
             child: DuoInput(
               controller: _searchController,
               hintText: 'Search by name or interests...',
-              prefixIcon: Icons.search,
+              prefixEmoji: '🔍',
               iconColor: AppTheme.duoOrange,
               enabled: isPremium,
               onChanged: (val) => _performSearch(val),
               suffixIcon: _searchController.text.isNotEmpty 
                 ? IconButton(
-                    icon: const Icon(Icons.clear),
+                    icon: const Text('❌', style: TextStyle(fontSize: 18)),
                     onPressed: () {
                       _searchController.clear();
                       _performSearch('');
@@ -143,7 +143,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          const Icon(Icons.lock_person_rounded, size: 80, color: AppTheme.duoOrange),
+          const Text('🔏', style: TextStyle(fontSize: 80)),
           const SizedBox(height: 24),
           const Text(
             'Neighbor Discovery',
@@ -248,7 +248,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            const Text('➡️', style: TextStyle(fontSize: 18)),
           ],
         ),
       ),

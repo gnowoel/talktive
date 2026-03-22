@@ -4,7 +4,8 @@ import '../../config/theme.dart';
 
 /// Duolingo-style stat card with icon, number, and label
 class DuoStatCard extends StatefulWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? emoji;
   final String value;
   final String label;
   final List<Color> gradientColors;
@@ -12,7 +13,8 @@ class DuoStatCard extends StatefulWidget {
 
   const DuoStatCard({
     super.key,
-    required this.icon,
+    this.icon,
+    this.emoji,
     required this.value,
     required this.label,
     required this.gradientColors,
@@ -71,7 +73,14 @@ class _DuoStatCardState extends State<DuoStatCard> {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(widget.icon, color: Colors.white, size: 24),
+                child: Center(
+                  child: widget.icon != null 
+                    ? Icon(widget.icon, color: Colors.white, size: 24)
+                    : Text(
+                        widget.emoji ?? '', 
+                        style: const TextStyle(fontSize: 24, height: 1.0),
+                      ),
+                ),
               ),
               const SizedBox(height: AppTheme.duoSpacingSmall),
               // Value

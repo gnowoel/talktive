@@ -35,7 +35,7 @@ class LoungesScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
             IconButton(
-              icon: const Icon(Icons.search, color: Colors.white, size: 28),
+            icon: const Text('🔍', style: TextStyle(fontSize: 24)),
               onPressed: () {
                 HapticFeedback.lightImpact();
                 context.push('/discovery/lounges');
@@ -52,7 +52,7 @@ class LoungesScreen extends ConsumerWidget {
         onPressed: () => _showCreateDialog(context, ref),
         backgroundColor: AppTheme.duoBlue,
         elevation: 6,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Text('➕', style: TextStyle(fontSize: 28)),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: loungesAsync.when(
         data: (lounges) => _buildLoungeList(context, ref, lounges),
@@ -194,7 +194,7 @@ class LoungesScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                const Icon(Icons.chevron_right, color: Colors.grey),
+                const Text('➡️', style: TextStyle(fontSize: 20, color: Colors.grey)),
               ],
             ),
       bottomActions: isInvite

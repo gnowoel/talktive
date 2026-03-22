@@ -365,15 +365,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                       value: 'leave',
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.exit_to_app,
-                            color: AppTheme.duoRed,
-                            size: 20,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
+                          const Text('🚪', style: TextStyle(fontSize: 20)),
+                          const SizedBox(width: 8),
+                          const Text(
                             'Leave Chat',
-                            style: TextStyle(color: AppTheme.duoRed),
+                            style: TextStyle(color: AppTheme.duoRed, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -445,7 +441,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
+              const Text('⚠️', style: TextStyle(fontSize: 48)),
               const SizedBox(height: 16),
               Text(
                 'Failed to load chat: $e',
@@ -608,7 +604,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
+          const Text('❌', style: TextStyle(fontSize: 64)),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load messages',

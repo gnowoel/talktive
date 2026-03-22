@@ -61,13 +61,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             children: [
               _buildHeaderIcon(
                 context,
-                icon: Icons.person_outline_rounded,
+                emoji: '👤',
                 onTap: () => context.push('/my-profile'),
               ),
               const SizedBox(width: AppTheme.duoSpacingSmall),
               _buildHeaderIcon(
                 context,
-                icon: Icons.settings_outlined,
+                emoji: '⚙️',
                 onTap: () => context.push('/activity/settings'),
               ),
               const SizedBox(width: AppTheme.duoSpacingSmall),
@@ -116,7 +116,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     );
   }
 
-  Widget _buildHeaderIcon(BuildContext context, {required IconData icon, required VoidCallback onTap}) {
+  Widget _buildHeaderIcon(BuildContext context, {required String emoji, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -128,10 +128,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           color: Colors.white.withValues(alpha: 0.2),
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 22,
+        child: Text(
+          emoji,
+          style: const TextStyle(fontSize: 22),
         ),
       ),
     );
@@ -186,11 +185,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     if (notifications.any((n) => !n.read))
                       IconButton(
                         onPressed: () => _showMarkAllAsReadConfirmation(context, ref, notifications),
-                        icon: Icon(
-                          Icons.clear_all_rounded,
-                          color: Colors.grey[600],
-                          size: 24,
-                        ),
+                        icon: const Text('🧹', style: TextStyle(fontSize: 20)),
                         tooltip: 'Mark all as read',
                       ),
                   ],
@@ -270,7 +265,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     context,
                     label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
-                    icon: Icons.apartment,
+                    emoji: '🏢',
                     color: AppTheme.duoPurple,
                   ),
                 ),
@@ -280,7 +275,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     context,
                     label: 'Experience',
                     value: '${resident.xp}',
-                    icon: Icons.stars,
+                    emoji: '🌟',
                     color: AppTheme.duoYellow,
                   ),
                 ),
@@ -382,10 +377,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     );
   }
 
-  Widget _buildMiniStat(BuildContext context, {
     required String label,
     required String value,
-    required IconData icon,
+    required String emoji,
     required Color color,
   }) {
     return DuoCard(
@@ -393,7 +387,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       borderWidth: 2,
       child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
+          Text(emoji, style: const TextStyle(fontSize: 24)),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,7 +610,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
+          const Text('⚠️', style: TextStyle(fontSize: 64)),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load activity',

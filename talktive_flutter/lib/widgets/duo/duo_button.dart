@@ -15,6 +15,7 @@ class DuoButton extends StatefulWidget {
   final DuoButtonVariant variant;
   final DuoButtonSize size;
   final IconData? icon;
+  final String? emoji;
   final IconData? secondaryIcon;
   final Color? color;
   final double? width;
@@ -28,6 +29,7 @@ class DuoButton extends StatefulWidget {
     bool isSecondary = false, // Alias
     this.size = DuoButtonSize.medium,
     this.icon,
+    this.emoji,
     this.secondaryIcon,
     this.color,
     this.width,
@@ -169,12 +171,17 @@ class _DuoButtonState extends State<DuoButton> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (widget.icon != null) ...[
-                      Icon(
-                        widget.icon,
-                        color: textColor,
-                        size: iconSize,
-                      ),
+                    if (widget.icon != null || widget.emoji != null) ...[
+                      widget.icon != null
+                          ? Icon(
+                              widget.icon,
+                              color: textColor,
+                              size: iconSize,
+                            )
+                          : Text(
+                              widget.emoji!,
+                              style: TextStyle(fontSize: iconSize, height: 1.0),
+                            ),
                       const SizedBox(width: 8),
                     ],
                     Text(

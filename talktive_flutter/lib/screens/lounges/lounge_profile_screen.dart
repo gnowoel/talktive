@@ -83,7 +83,7 @@ class LoungeProfileScreen extends ConsumerWidget {
             actions: [
               if (currentResident?.isStaff ?? false)
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.gavel, color: AppTheme.duoRed),
+                  icon: const Text('🔨', style: TextStyle(fontSize: 20)),
                   onSelected: (value) async {
                     if (value == 'admin_private') {
                       _confirmForceAdminPrivate(context, ref, lounge);
@@ -112,7 +112,7 @@ class LoungeProfileScreen extends ConsumerWidget {
                 ),
               if (isCreator)
                 IconButton(
-                  icon: const Icon(Icons.edit),
+                  icon: const Text('📝', style: TextStyle(fontSize: 20)),
                   onPressed: () => _showEditDialog(context, lounge),
                 ),
             ],
@@ -408,7 +408,7 @@ class LoungeProfileScreen extends ConsumerWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.notifications_off_outlined, color: Colors.grey),
+                    Text('🔕', style: TextStyle(fontSize: 24)),
                     SizedBox(width: 12),
                     Text(
                       'Mute Notifications',
@@ -457,7 +457,7 @@ class LoungeProfileScreen extends ConsumerWidget {
         ),
         child: const Row(
           children: [
-            Icon(Icons.hourglass_empty, color: AppTheme.duoBlue),
+            Text('⏳', style: TextStyle(fontSize: 24)),
             SizedBox(width: 12),
             Expanded(
               child: Text(

@@ -196,7 +196,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Text('🔙', style: TextStyle(fontSize: 24)),
           onPressed: () {
             HapticFeedback.lightImpact();
             Navigator.pop(context);

@@ -111,13 +111,13 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             child: DuoInput(
               controller: _searchController,
               hintText: 'Search interest-based community lounges...',
-              prefixIcon: Icons.search,
+              prefixEmoji: '🔍',
               iconColor: AppTheme.duoBlue,
               enabled: true,
               onChanged: (val) => _performSearch(val),
               suffixIcon: _searchController.text.isNotEmpty 
                 ? IconButton(
-                    icon: const Icon(Icons.clear),
+                    icon: const Text('❌', style: TextStyle(fontSize: 18)),
                     onPressed: () {
                       _searchController.clear();
                       _performSearch('');

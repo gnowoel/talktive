@@ -418,7 +418,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.people, color: Colors.black),
+            icon: const Text('👥', style: TextStyle(fontSize: 16)),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push(
@@ -469,16 +469,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                   value: 'profile',
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: AppTheme.duoBlue,
-                        size: 20,
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Lounge Info',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text('ℹ️', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 8),
+                      const Text('Lounge Profile'),
                     ],
                   ),
                 ),
@@ -487,10 +480,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, color: AppTheme.duoBlue, size: 20),
-                        SizedBox(width: 12),
+                        const Text('✏️', style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 8),
                         Text(
-                          'Edit Lounge Info',
+                          'Edit Lounge',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -738,7 +731,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
+          const Text('❌', style: TextStyle(fontSize: 64)),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load messages',

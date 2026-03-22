@@ -153,7 +153,7 @@ class _VersionSelectorState extends State<VersionSelector> {
         appBar: _state == SelectorState.enterRecoveryToken || _state == SelectorState.chooseVersion
             ? AppBar(
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Text('🔙', style: TextStyle(fontSize: 24)),
                 onPressed: () {
                     setState(() => _state = SelectorState.chooseUserType);
                 },
@@ -194,7 +194,7 @@ class _VersionSelectorState extends State<VersionSelector> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Spacer(),
-        const Icon(Icons.chat_bubble_outline_rounded, size: 80, color: AppTheme.primaryColor),
+        const Text('💬', style: TextStyle(fontSize: 80, color: AppTheme.primaryColor)),
         const SizedBox(height: 24),
         const Text(
           'Talktive',
@@ -267,7 +267,7 @@ class _VersionSelectorState extends State<VersionSelector> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.verified_user, size: 80, color: Colors.green),
+        const Text('✅', style: TextStyle(fontSize: 80)),
         const SizedBox(height: 32),
         const Text(
           'Account Found',

@@ -33,7 +33,7 @@ class SettingsScreen extends ConsumerWidget {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
+          icon: const Text('❌', style: TextStyle(fontSize: 22)),
           onPressed: () => context.pop(),
         ),
       ),
@@ -190,7 +190,7 @@ class SettingsScreen extends ConsumerWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text('Manage users and community safety'),
-                    trailing: Icon(Icons.chevron_right_rounded),
+                    trailing: const Text('➡️', style: TextStyle(fontSize: 18)),
                   ),
                 ),
               ],
@@ -399,7 +399,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     if (isLocked) ...[
                       const SizedBox(width: 8),
-                      const Icon(Icons.lock_outline, size: 14, color: Colors.grey),
+                      const Text('🔒', style: TextStyle(fontSize: 12)),
                     ],
                   ],
                 ),

@@ -211,7 +211,9 @@ class MessageBubble extends ConsumerWidget {
                                 width: 200,
                                 height: 200,
                                 color: Colors.grey[200],
-                                child: const Icon(Icons.error),
+                                child: const Center(
+                                  child: Text('❌', style: TextStyle(fontSize: 24)),
+                                ),
                               ),
                               fit: BoxFit.cover,
                               width: 200,
@@ -267,10 +269,9 @@ class MessageBubble extends ConsumerWidget {
                         ),
                         if (isRead && isCurrentUser) ...[
                           const SizedBox(width: 4),
-                          const Icon(
-                            Icons.done_all_rounded,
-                            size: 14,
-                            color: Colors.white,
+                          const Text(
+                            '✔️',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ],
                       ],
@@ -324,7 +325,7 @@ class MessageBubble extends ConsumerWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.block, color: AppTheme.errorColor),
+              leading: const Text('⛔', style: TextStyle(fontSize: 24)),
               title: Text(
                 'Block $senderName',
                 style: const TextStyle(
@@ -379,8 +380,7 @@ class MessageBubble extends ConsumerWidget {
             if (currentResident?.isStaff ?? false) ...[
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.delete_outline,
-                    color: AppTheme.errorColor),
+                  leading: const Text('🗑️', style: TextStyle(fontSize: 24)),
                 title: const Text(
                   'Delete Message (Staff)',
                   style: TextStyle(

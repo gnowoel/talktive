@@ -18,6 +18,7 @@ class DuoInput extends StatelessWidget {
   final Color? iconColor;
   final FocusNode? focusNode;
   final bool autofocus;
+  final String? prefixEmoji;
 
   const DuoInput({
     super.key,
@@ -25,6 +26,7 @@ class DuoInput extends StatelessWidget {
     this.hintText,
     this.labelText,
     this.prefixIcon,
+    this.prefixEmoji,
     this.suffixIcon,
     this.obscureText = false,
     this.keyboardType,
@@ -62,7 +64,7 @@ class DuoInput extends StatelessWidget {
             boxShadow: enabled
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -91,13 +93,21 @@ class DuoInput extends StatelessWidget {
                 color: AppTheme.textLight,
                 fontFamily: 'Rubik',
               ),
-              prefixIcon: prefixIcon != null
-                  ? Icon(
-                      prefixIcon,
-                      color: iconColor ?? AppTheme.primaryColor,
-                      size: 20,
+              prefixIcon: prefixEmoji != null
+                  ? Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        prefixEmoji!,
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     )
-                  : null,
+                  : (prefixIcon != null
+                      ? Icon(
+                          prefixIcon,
+                          color: iconColor ?? AppTheme.primaryColor,
+                          size: 20,
+                        )
+                      : null),
               suffixIcon: suffixIcon,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),

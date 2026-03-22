@@ -238,9 +238,9 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
-              isLiked ? Icons.favorite : Icons.favorite_border,
-              color: isLiked ? AppTheme.duoRed : AppTheme.textSecondary,
+            icon: Text(
+              isLiked ? '❤️' : '🤍',
+              style: const TextStyle(fontSize: 24),
             ),
             onPressed: _isLiking ? null : _toggleLike,
           ),
@@ -252,7 +252,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
             ),
           ),
           const SizedBox(width: AppTheme.duoSpacingMedium),
-          const Icon(Icons.chat_bubble_outline, color: AppTheme.textSecondary),
+          const Text('💬', style: TextStyle(fontSize: 24)),
           const SizedBox(width: 4),
           Text(
             '${widget.moment.commentsCount} comments',

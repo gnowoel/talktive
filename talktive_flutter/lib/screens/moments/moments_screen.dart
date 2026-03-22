@@ -291,11 +291,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.add_a_photo,
-                                      size: 48,
-                                      color: Colors.grey[400],
-                                    ),
+                                    const Text('📷', style: TextStyle(fontSize: 48)),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Select photo',
@@ -336,8 +332,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                   top: false,
                   child: DuoButton(
                     text: 'Post Moment',
-                    icon: Icons.send,
-                    secondaryIcon: Icons.auto_awesome,
+                    emoji: '📫',
+                    secondaryEmoji: '✨',
                     width: double.infinity,
                     isLoading: _isUploading,
                     onPressed: () => _postMoment(setModalState),
@@ -374,7 +370,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         onPressed: _handleCreatePressed,
         backgroundColor: AppTheme.secondaryColor,
         elevation: 6,
-        child: const Icon(Icons.add_a_photo, color: Colors.white),
+        child: const Text('📷', style: TextStyle(fontSize: 24)),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: _buildBody(),
     );

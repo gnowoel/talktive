@@ -217,10 +217,13 @@ class _DuoChatInputState extends State<DuoChatInput> {
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.grey.shade200),
                       ),
-                      child: Icon(
-                        Icons.add_a_photo,
-                        size: 20,
-                        color: (widget.enabled && !widget.isSending && !widget.isLoading) ? themeColor : AppTheme.textLight,
+                      child: Text(
+                        '📷',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: (widget.enabled && !widget.isSending && !widget.isLoading) ? themeColor : AppTheme.textLight,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -313,11 +316,12 @@ class _DuoChatInputState extends State<DuoChatInput> {
                             ]
                           : null,
                     ),
-                    child: Icon(
-                      showVoice ? (_isRecording ? Icons.stop : Icons.mic) : Icons.send, 
-                      color: Colors.white, 
-                      size: 20,
-                    ),
+                      child: Center(
+                        child: Text(
+                          showVoice ? (_isRecording ? '⏹️' : '🎙️') : '🚀', 
+                          style: const TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ),
                   ),
                 ),
               ],

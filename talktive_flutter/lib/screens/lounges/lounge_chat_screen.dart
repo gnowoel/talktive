@@ -45,8 +45,9 @@ class _LoungeChatLoaderState extends ConsumerState<LoungeChatLoader> {
 
   Future<void> _loadLounge() async {
     try {
-      final membership =
-          await ref.read(loungeWithMembershipProvider(widget.loungeId).future);
+      final membership = await ref.read(
+        loungeWithMembershipProvider(widget.loungeId).future,
+      );
       if (mounted) {
         setState(() {
           _membership = membership;
@@ -176,14 +177,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
-      
+
       if (voiceUrl != null) {
         await ref
             .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-            .sendMessage(
-              mediaUrl: voiceUrl,
-              mediaType: 'voice',
-            );
+            .sendMessage(mediaUrl: voiceUrl, mediaType: 'voice');
         HapticFeedback.lightImpact();
       }
     } catch (e) {
@@ -205,13 +203,13 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
 
   Future<void> _markAsRead() async {
     if (!mounted || _hasMarkedAsRead) return;
-    
+
     try {
       final client = ref.read(clientProvider);
       final channelId = widget.lounge.channelId;
-      
+
       await client.message.markChannelAsRead(channelId);
-      
+
       if (mounted) {
         _hasMarkedAsRead = true;
         // Invalidate lists to update unread counts
@@ -230,7 +228,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       final client = ref.read(clientProvider);
       final channelId = widget.lounge.channelId;
       // Fire and forget, no longer using 'ref' inside the async part
-      client.message.markChannelAsRead(channelId).catchError((e) => debugPrint(e));
+      client.message
+          .markChannelAsRead(channelId)
+          .catchError((e) => debugPrint(e));
     } catch (e) {
       debugPrint('Error in dispose mark read: $e');
     }
@@ -279,7 +279,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       await ref
           .read(realtimeChatProvider(widget.lounge.channelId).notifier)
           .sendMessage(
-            content: content.isEmpty ? null : content, 
+            content: content.isEmpty ? null : content,
             imageUrl: imageUrl,
           );
 
@@ -331,7 +331,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         final prevLength = previous.value?.messages.length ?? 0;
         final nextLength = next.value?.messages.length ?? 0;
         if (nextLength > prevLength) {
-          _hasMarkedAsRead = false; // Reset to allow marking new messages as read
+          _hasMarkedAsRead =
+              false; // Reset to allow marking new messages as read
           _markAsRead();
         }
       }
@@ -344,11 +345,13 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     final typingUsers = chatState.value?.typingUsers ?? {};
-    final otherTypingUsers =
-        typingUsers.where((u) => u != currentResident?.userName).toList();
+    final otherTypingUsers = typingUsers
+        .where((u) => u != currentResident?.userName)
+        .toList();
 
     return DuoChatInputLayout(
-      typingIndicator: (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+      typingIndicator:
+          (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
           ? _buildTypingIndicator(otherTypingUsers)
           : null,
       appBar: AppBar(
@@ -418,7 +421,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.people_rounded, size: 24, color: Colors.black),
+            icon: const Icon(
+              Icons.people_rounded,
+              size: 24,
+              color: Colors.black,
+            ),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push(
@@ -465,11 +472,17 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
               final isCreator =
                   currentResident?.userInfoId == widget.lounge.creatorId;
               return [
+                const PopupMenuItem(
+                  value: 'profile',
                   child: Row(
                     children: [
-                      const Icon(Icons.info_rounded, size: 20, color: AppTheme.textPrimary),
-                      const SizedBox(width: 12),
-                      const Text('Lounge Profile'),
+                      Icon(
+                        Icons.info_rounded,
+                        size: 20,
+                        color: AppTheme.textPrimary,
+                      ),
+                      SizedBox(width: 12),
+                      Text('Lounge Profile'),
                     ],
                   ),
                 ),
@@ -478,7 +491,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        const Icon(Icons.edit_rounded, size: 20, color: AppTheme.textPrimary),
+                        const Icon(
+                          Icons.edit_rounded,
+                          size: 20,
+                          color: AppTheme.textPrimary,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           'Edit Lounge',
@@ -533,7 +550,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                   const PopupMenuDivider(),
                   PopupMenuItem(
                     value: 'admin_private',
-                    enabled: widget.lounge.isPublic && !widget.lounge.isStaffLocked,
+                    enabled:
+                        widget.lounge.isPublic && !widget.lounge.isStaffLocked,
                     child: Row(
                       children: [
                         Icon(
@@ -643,9 +661,13 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: 24,
-            child: const Icon(Icons.edit_rounded, size: 16, color: AppTheme.textSecondary),
-          )
+                width: 24,
+                child: const Icon(
+                  Icons.edit_rounded,
+                  size: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              )
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .scale(
                 duration: 600.ms,
@@ -729,7 +751,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.duoRed),
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 64,
+            color: AppTheme.duoRed,
+          ),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load messages',
@@ -753,11 +779,14 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
-    
+
     // Get member names for mention highlighting
     final membersAsync = ref.watch(loungeMembersProvider(widget.lounge.id!));
     final memberNames = membersAsync.when(
-      data: (members) => members.map((m) => m.userName ?? '').where((n) => n.isNotEmpty).toList(),
+      data: (members) => members
+          .map((m) => m.userName ?? '')
+          .where((n) => n.isNotEmpty)
+          .toList(),
       loading: () => <String>[],
       error: (_, _) => <String>[],
     );
@@ -822,7 +851,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     if (confirmed == true && context.mounted) {
       HapticFeedback.mediumImpact();
       try {
-        await ref.read(loungeListProvider.notifier).leaveLounge(widget.lounge.id!);
+        await ref
+            .read(loungeListProvider.notifier)
+            .leaveLounge(widget.lounge.id!);
         if (context.mounted) {
           Navigator.pop(context); // Go back to Lounges screen
           DuoSnackBarHelper.showSuccess(context, 'You left the lounge.');
@@ -868,7 +899,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         if (context.mounted) {
           ref.invalidate(loungeListProvider);
           Navigator.pop(context);
-          DuoSnackBarHelper.showSuccess(context, 'The lounge has been disbanded.');
+          DuoSnackBarHelper.showSuccess(
+            context,
+            'The lounge has been disbanded.',
+          );
         }
       } catch (e) {
         if (context.mounted) {
@@ -877,6 +911,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       }
     }
   }
+
   void _confirmForcePrivate(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,

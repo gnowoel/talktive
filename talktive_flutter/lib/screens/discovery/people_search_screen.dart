@@ -115,13 +115,13 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
             child: DuoInput(
               controller: _searchController,
               hintText: 'Search by name or interests...',
-              prefixEmoji: '🔍',
+              prefixIcon: Icons.search_rounded,
               iconColor: AppTheme.duoOrange,
               enabled: isPremium,
               onChanged: (val) => _performSearch(val),
               suffixIcon: _searchController.text.isNotEmpty 
                 ? IconButton(
-                    icon: const Text('❌', style: TextStyle(fontSize: 18)),
+                    icon: const Icon(Icons.close_rounded, size: 20, color: Colors.grey),
                     onPressed: () {
                       _searchController.clear();
                       _performSearch('');
@@ -143,7 +143,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          const Text('🔏', style: TextStyle(fontSize: 80)),
+          const Icon(Icons.lock_person_rounded, size: 80, color: AppTheme.duoOrange),
           const SizedBox(height: 24),
           const Text(
             'Neighbor Discovery',
@@ -183,7 +183,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     if (list == null || list.isEmpty) {
       if (_searchQuery != null && _searchQuery!.isNotEmpty) {
         return const DuoEmptyState(
-          emoji: '👥', 
+          icon: Icons.groups_rounded, 
           title: 'No neighbors found', 
           subtitle: 'Try a different name or interest',
         );
@@ -241,14 +241,15 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                       Text('Floor ${user.floor}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.duoBlue)),
                       if (user.matchScore != null) ...[
                         const SizedBox(width: 8),
-                        Text('⚡ ${user.matchScore}% Match', style: const TextStyle(fontSize: 12, color: AppTheme.duoGreen, fontWeight: FontWeight.bold)),
+                        Icon(Icons.bolt_rounded, size: 14, color: AppTheme.duoGreen),
+                        Text('${user.matchScore}% Match', style: const TextStyle(fontSize: 12, color: AppTheme.duoGreen, fontWeight: FontWeight.bold)),
                       ],
                     ],
                   ),
                 ],
               ),
             ),
-            const Text('➡️', style: TextStyle(fontSize: 18)),
+            const Icon(Icons.chevron_right_rounded, size: 24, color: Colors.grey),
           ],
         ),
       ),

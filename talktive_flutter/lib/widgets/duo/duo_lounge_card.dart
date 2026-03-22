@@ -103,7 +103,7 @@ class DuoLoungeCard extends StatelessWidget {
         const SizedBox(height: 4),
         Row(
           children: [
-            Icon(Icons.people, size: 16, color: Colors.grey[600]),
+            Icon(Icons.people_rounded, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text(
               '${lounge.memberCount}/${lounge.maxMembers}',
@@ -113,7 +113,7 @@ class DuoLoungeCard extends StatelessWidget {
             ),
             if (lounge.lastMessageAt != null) ...[
               const SizedBox(width: 8),
-              Icon(Icons.access_time, size: 14, color: Colors.grey[400]),
+              Icon(Icons.schedule_rounded, size: 14, color: Colors.grey[400]),
               const SizedBox(width: 2),
               Text(
                 formatTimestamp(lounge.lastMessageAt!),
@@ -128,7 +128,7 @@ class DuoLoungeCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.chat_bubble_outline, size: 14, color: AppTheme.duoBlue),
+              Icon(Icons.chat_bubble_outline_rounded, size: 14, color: AppTheme.duoBlue),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(

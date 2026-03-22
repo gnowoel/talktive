@@ -4,14 +4,16 @@ import '../../config/theme.dart';
 
 /// Duolingo-style screen header with emoji and title
 class DuoHeader extends StatelessWidget {
-  final String emoji;
+  final String? emoji;
+  final IconData? icon;
   final String title;
   final String? subtitle;
   final Widget? trailing;
 
   const DuoHeader({
     super.key,
-    required this.emoji,
+    this.emoji,
+    this.icon,
     required this.title,
     this.subtitle,
     this.trailing,
@@ -47,11 +49,18 @@ class DuoHeader extends StatelessWidget {
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),
           ],
-          // Emoji icon
-          Text(
-            emoji,
-            style: const TextStyle(fontSize: 32),
-          ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
+          // Icon or Emoji
+          if (icon != null)
+            Icon(
+              icon,
+              size: 32,
+              color: textColor,
+            ).animate().scale(duration: 300.ms, curve: Curves.elasticOut)
+          else if (emoji != null)
+            Text(
+              emoji!,
+              style: const TextStyle(fontSize: 32),
+            ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
           const SizedBox(width: AppTheme.duoSpacingMedium),
           // Title and subtitle
           Expanded(

@@ -48,7 +48,7 @@ class LoungeProfileScreen extends ConsumerWidget {
             ),
             body: const Center(
               child: DuoEmptyState(
-                emoji: '🕵️',
+                icon: Icons.search_off_rounded,
                 title: 'Lounge Not Found',
                 subtitle: 'This lounge might have been disbanded.',
               ),
@@ -83,7 +83,7 @@ class LoungeProfileScreen extends ConsumerWidget {
             actions: [
               if (currentResident?.isStaff ?? false)
                 PopupMenuButton<String>(
-                  icon: const Text('🔨', style: TextStyle(fontSize: 20)),
+                  icon: const Icon(Icons.gavel_rounded, size: 24, color: AppTheme.textPrimary),
                   onSelected: (value) async {
                     if (value == 'admin_private') {
                       _confirmForceAdminPrivate(context, ref, lounge);
@@ -112,7 +112,7 @@ class LoungeProfileScreen extends ConsumerWidget {
                 ),
               if (isCreator)
                 IconButton(
-                  icon: const Text('📝', style: TextStyle(fontSize: 20)),
+                  icon: const Icon(Icons.edit_rounded, size: 24, color: AppTheme.textPrimary),
                   onPressed: () => _showEditDialog(context, lounge),
                 ),
             ],
@@ -218,7 +218,7 @@ class LoungeProfileScreen extends ConsumerWidget {
         ),
         body: Center(
           child: DuoEmptyState(
-            emoji: '🔥',
+            icon: Icons.error_outline_rounded,
             title: 'Lounge Trouble',
             subtitle: err.toString(),
             buttonText: 'Retry',
@@ -275,7 +275,11 @@ class LoungeProfileScreen extends ConsumerWidget {
           Container(width: 1, height: 40, color: Colors.grey[200]),
           _buildStatItem(context, lounge.maxMembers.toString(), 'Capacity'),
           Container(width: 1, height: 40, color: Colors.grey[200]),
-          _buildStatItem(context, lounge.isPublic ? '🔓' : '🔒', 'Access'),
+          _buildStatItem(
+            context,
+            lounge.isPublic ? Icons.lock_open_rounded : Icons.lock_rounded,
+            'Access',
+          ),
         ],
       ),
     );
@@ -283,20 +287,23 @@ class LoungeProfileScreen extends ConsumerWidget {
 
   Widget _buildStatItem(
     BuildContext context,
-    String value,
+    dynamic value, // String or IconData
     String label, {
     VoidCallback? onTap,
   }) {
     final content = Column(
       children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.duoBlue,
+        if (value is IconData)
+          Icon(value, size: 24, color: AppTheme.duoBlue)
+        else
+          Text(
+            value.toString(),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.duoBlue,
+            ),
           ),
-        ),
         Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
@@ -408,7 +415,7 @@ class LoungeProfileScreen extends ConsumerWidget {
               children: [
                 const Row(
                   children: [
-                    Text('🔕', style: TextStyle(fontSize: 24)),
+                    Icon(Icons.notifications_off_rounded, size: 24, color: AppTheme.duoPurple),
                     SizedBox(width: 12),
                     Text(
                       'Mute Notifications',
@@ -457,7 +464,7 @@ class LoungeProfileScreen extends ConsumerWidget {
         ),
         child: const Row(
           children: [
-            Text('⏳', style: TextStyle(fontSize: 24)),
+            Icon(Icons.hourglass_empty_rounded, size: 24, color: AppTheme.duoBlue),
             SizedBox(width: 12),
             Expanded(
               child: Text(

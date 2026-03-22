@@ -27,7 +27,7 @@ class LoungesScreen extends ConsumerWidget {
     final loungesAsync = ref.watch(loungeListProvider);
 
     return DuoPageScaffold(
-      emoji: '🏘️',
+      icon: Icons.meeting_room_rounded,
       title: 'Lounges',
       subtitle: 'Join the community clubhouse',
       gradient: AppTheme.duoBlueGradient,
@@ -35,7 +35,7 @@ class LoungesScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
             IconButton(
-            icon: const Text('🔍', style: TextStyle(fontSize: 24)),
+              icon: const Icon(Icons.search_rounded, size: 28, color: Colors.white),
               onPressed: () {
                 HapticFeedback.lightImpact();
                 context.push('/discovery/lounges');
@@ -52,13 +52,13 @@ class LoungesScreen extends ConsumerWidget {
         onPressed: () => _showCreateDialog(context, ref),
         backgroundColor: AppTheme.duoBlue,
         elevation: 6,
-        child: const Text('➕', style: TextStyle(fontSize: 28)),
+        child: const Icon(Icons.add_rounded, size: 32, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: loungesAsync.when(
         data: (lounges) => _buildLoungeList(context, ref, lounges),
         loading: () => const DuoLoadingIndicator(),
         error: (error, _) => DuoEmptyState(
-          emoji: '🔇',
+          icon: Icons.cloud_off_rounded,
           title: 'Connection Lost',
           subtitle: 'The clubhouse door is stuck. Try again?',
           onActionPressed: () => ref.invalidate(loungeListProvider),
@@ -75,7 +75,7 @@ class LoungesScreen extends ConsumerWidget {
   ) {
     if (lounges.isEmpty) {
       return DuoEmptyState(
-        emoji: '🏢',
+        icon: Icons.apartment_rounded,
         title: 'Empty Clubhouse',
         subtitle: 'No lounges yet. Why not create one?',
         onActionPressed: () => _showCreateDialog(context, ref),
@@ -103,7 +103,7 @@ class LoungesScreen extends ConsumerWidget {
         children: [
 
           if (pending.isNotEmpty) ...[
-            _buildSectionHeader(context, '🎫 The Doorstep'),
+            _buildSectionHeader(context, 'The Doorstep', icon: Icons.confirmation_number_rounded),
             ...pending.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -111,7 +111,7 @@ class LoungesScreen extends ConsumerWidget {
           ],
 
           if (joined.isNotEmpty) ...[
-            _buildSectionHeader(context, '🛋️ My Lounges'),
+            _buildSectionHeader(context, 'My Lounges', icon: Icons.meeting_room_rounded),
             ...joined.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -123,20 +123,24 @@ class LoungesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
+  Widget _buildSectionHeader(BuildContext context, String title, {IconData? icon}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4, top: 4),
       child: Row(
         children: [
-          Container(
-            width: 4,
-            height: 16,
-            decoration: BoxDecoration(
-              color: AppTheme.duoBlue,
-              borderRadius: BorderRadius.circular(2),
+          if (icon != null) ...[
+            Icon(icon, size: 18, color: AppTheme.duoBlue),
+            const SizedBox(width: 8),
+          ] else
+            Container(
+              width: 4,
+              height: 16,
+              decoration: BoxDecoration(
+                color: AppTheme.duoBlue,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
+          if (icon == null) const SizedBox(width: 8),
           Text(
             title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -194,7 +198,7 @@ class LoungesScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                const Text('➡️', style: TextStyle(fontSize: 20, color: Colors.grey)),
+                const Icon(Icons.chevron_right_rounded, color: Colors.grey),
               ],
             ),
       bottomActions: isInvite

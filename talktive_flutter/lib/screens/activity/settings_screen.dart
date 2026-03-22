@@ -33,7 +33,7 @@ class SettingsScreen extends ConsumerWidget {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         leading: IconButton(
-          icon: const Text('❌', style: TextStyle(fontSize: 22)),
+          icon: const Icon(Icons.close_rounded),
           onPressed: () => context.pop(),
         ),
       ),
@@ -44,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
-              _buildSectionHeader(context, 'Privacy 🛡️'),
+              _buildSectionHeader(context, 'Privacy'),
               DuoCard(
                 child: Column(
                   children: [
@@ -106,12 +106,12 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
-              _buildSectionHeader(context, 'Premium Features ✨'),
+              _buildSectionHeader(context, 'Premium Features'),
               _buildPremiumCard(context, ref, resident.isPremium),
               const SizedBox(height: AppTheme.duoSpacingMedium),
               _buildFeatureRow(
                 context,
-                icon: '🖼️',
+                icon: Icons.account_circle_rounded,
                 title: 'Custom Avatar',
                 description: 'Upload your own image to use as an avatar.',
                 isLocked: !resident.isPremium,
@@ -122,7 +122,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
-                icon: '🎙️',
+                icon: Icons.mic_rounded,
                 title: 'Voice Messages',
                 description: 'Send audio messages in any chat thread.',
                 isLocked: !resident.isPremium,
@@ -133,7 +133,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
-                icon: '🔍',
+                icon: Icons.person_search_rounded,
                 title: 'Neighbors Discovery',
                 description: 'Search for any resident in the building.',
                 isLocked: !resident.isPremium,
@@ -144,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
-                icon: '🟢',
+                icon: Icons.online_prediction_rounded,
                 title: 'Online Indicator',
                 description: 'See when your friends are active in real-time.',
                 isLocked: !resident.isPremium,
@@ -155,7 +155,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
-                icon: '✔️',
+                icon: Icons.done_all_rounded,
                 title: 'Read Receipts',
                 description: 'See when others have read your messages.',
                 isLocked: !resident.isPremium,
@@ -166,7 +166,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
-                icon: '✍️',
+                icon: Icons.edit_rounded,
                 title: 'Typing Indicators',
                 description: 'See when someone is replying to you.',
                 isLocked: !resident.isPremium,
@@ -177,20 +177,20 @@ class SettingsScreen extends ConsumerWidget {
               ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
-                _buildSectionHeader(context, 'Staff Tools 🛠️'),
+                _buildSectionHeader(context, 'Staff Tools'),
                 DuoCard(
                   onTap: () {
                     HapticFeedback.mediumImpact();
                     context.push('/admin/dashboard');
                   },
                   child: const ListTile(
-                    leading: Text('👨‍💼', style: TextStyle(fontSize: 24)),
+                    leading: Icon(Icons.admin_panel_settings_rounded, size: 28, color: AppTheme.duoPurple),
                     title: Text(
                       'Admin Dashboard',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text('Manage users and community safety'),
-                    trailing: const Text('➡️', style: TextStyle(fontSize: 18)),
+                    trailing: const Icon(Icons.chevron_right_rounded, size: 24, color: AppTheme.textSecondary),
                   ),
                 ),
               ],
@@ -295,17 +295,20 @@ class SettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
           child: Column(
             children: [
+              const Icon(Icons.stars_rounded, size: 40, color: AppTheme.primaryColor),
+              const SizedBox(height: 12),
               const Text(
-                '🌟 YOU ARE PREMIUM',
+                'TALKTIVE PLUS UNLOCKED',
                 style: TextStyle(
                   color: AppTheme.primaryColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 16,
+                  letterSpacing: 1.1,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Thank you for supporting Talktive! All extra features are unlocked.',
+                'Thank you for supporting the community! Enjoy your premium experience.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[700]),
               ),
@@ -357,7 +360,7 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildFeatureRow(
     BuildContext context, {
-    required String icon,
+    required IconData icon,
     required String title,
     required String description,
     required bool isLocked,
@@ -376,9 +379,10 @@ class SettingsScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text(
+              child: Icon(
                 icon,
-                style: const TextStyle(fontSize: 24),
+                size: 24,
+                color: isLocked ? Colors.grey[400] : AppTheme.primaryColor,
               ),
             ),
           ),
@@ -399,7 +403,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     if (isLocked) ...[
                       const SizedBox(width: 8),
-                      const Text('🔒', style: TextStyle(fontSize: 12)),
+                      Icon(Icons.lock_rounded, size: 14, color: Colors.grey[400]),
                     ],
                   ],
                 ),

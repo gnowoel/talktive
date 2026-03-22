@@ -25,7 +25,7 @@ class ChatsScreen extends ConsumerWidget {
     final chatsState = ref.watch(privateChatListProvider);
 
     return DuoPageScaffold(
-      emoji: '💬',
+      icon: Icons.chat_bubble_rounded,
       title: 'Chats',
       subtitle: 'Private conversations',
       trailingHeader: Row(
@@ -34,7 +34,7 @@ class ChatsScreen extends ConsumerWidget {
           if (ref.watch(currentResidentProvider).value?.isPremium == true && 
               (ref.watch(currentResidentProvider).value?.showNeighborsDiscovery ?? true))
             IconButton(
-              icon: const Text('🔍', style: TextStyle(fontSize: 24)),
+              icon: const Icon(Icons.person_search_rounded, size: 28, color: Colors.white),
               onPressed: () {
                 HapticFeedback.lightImpact();
                 context.push('/discovery/people');
@@ -81,8 +81,9 @@ class ChatsScreen extends ConsumerWidget {
                 if (pendingChats.isNotEmpty) ...[
                   _buildSectionHeader(
                     context,
-                    '🚪  ${pendingChats.length} ${pendingChats.length == 1 ? 'Person is' : 'People are'} Knocking...',
+                    '${pendingChats.length} ${pendingChats.length == 1 ? 'Person is' : 'People are'} Knocking...',
                     AppTheme.duoOrange,
+                    Icons.door_front_door_rounded,
                   ),
                   ...pendingChats.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -96,8 +97,9 @@ class ChatsScreen extends ConsumerWidget {
                   if (activeChats.isNotEmpty)
                     _buildSectionHeader(
                       context,
-                      '📬  Active Chats',
+                      'Active Chats',
                       AppTheme.textSecondary,
+                      Icons.all_inbox_rounded,
                     ),
                   const SizedBox(height: AppTheme.duoSpacingSmall),
                 ],
@@ -135,7 +137,7 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: DuoEmptyState(
-        emoji: '👋',
+        icon: Icons.chat_bubble_outline_rounded,
         title: 'No chats yet',
         subtitle: 'Start a conversation with someone in the Plaza!',
         buttonText: 'Go to Plaza',
@@ -149,7 +151,7 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
     return Center(
       child: DuoEmptyState(
-        emoji: '😕',
+        icon: Icons.error_outline_rounded,
         title: 'Something went wrong',
         subtitle: 'We couldn\'t load your chats. Please try again.',
         buttonText: 'Retry',
@@ -160,19 +162,12 @@ class ChatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, Color color) {
+  Widget _buildSectionHeader(BuildContext context, String title, Color color, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4, top: 4),
       child: Row(
         children: [
-          Container(
-            width: 4,
-            height: 16,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
+          Icon(icon, size: 18, color: color),
           const SizedBox(width: 8),
           Text(
             title,
@@ -198,7 +193,7 @@ class ChatsScreen extends ConsumerWidget {
     if (lastAt != null) {
       return 'Activity: ${formatTimestamp(lastAt)}';
     }
-    return 'Start chatting! 👋';
+    return 'Start chatting!';
   }
 
   Widget _buildChatCard(
@@ -297,7 +292,7 @@ class ChatsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
           ],
         ),
       ),
@@ -372,7 +367,7 @@ class ChatsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Text('👁️', style: TextStyle(fontSize: 20)),
+                child: Icon(Icons.visibility_rounded, size: 20, color: AppTheme.duoOrange),
               ),
             ),
           ],

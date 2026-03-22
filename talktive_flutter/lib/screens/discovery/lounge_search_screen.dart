@@ -111,13 +111,13 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             child: DuoInput(
               controller: _searchController,
               hintText: 'Search interest-based community lounges...',
-              prefixEmoji: '🔍',
+              prefixIcon: Icons.search_rounded,
               iconColor: AppTheme.duoBlue,
               enabled: true,
               onChanged: (val) => _performSearch(val),
               suffixIcon: _searchController.text.isNotEmpty 
                 ? IconButton(
-                    icon: const Text('❌', style: TextStyle(fontSize: 18)),
+                    icon: const Icon(Icons.close_rounded, size: 20, color: Colors.grey),
                     onPressed: () {
                       _searchController.clear();
                       _performSearch('');
@@ -142,7 +142,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
     if (_searchQuery != null && _searchQuery!.isNotEmpty) {
       final lounges = _searchResults ?? [];
-      if (lounges.isEmpty) return const DuoEmptyState(emoji: '🏘️', title: 'No lounges found', subtitle: 'Try searching for different interests');
+      if (lounges.isEmpty) return const DuoEmptyState(icon: Icons.groups_rounded, title: 'No lounges found', subtitle: 'Try searching for different interests');
       return _buildLoungeList(lounges);
     }
 
@@ -153,31 +153,37 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         if (recommended.isNotEmpty) ...[
-          _buildSectionHeader('💡 RECOMMENDED FOR YOU'),
+          _buildSectionHeader('RECOMMENDED FOR YOU', Icons.tips_and_updates_rounded),
           ...recommended.asMap().entries.map((e) => _buildLoungeCard(e.value, e.key)),
           const SizedBox(height: 24),
         ],
         if (popular.isNotEmpty) ...[
-          _buildSectionHeader('🔥 POPULAR LOUNGES'),
+          _buildSectionHeader('POPULAR LOUNGES', Icons.whatshot_rounded),
           ...popular.asMap().entries.map((e) => _buildLoungeCard(e.value, e.key + 10)),
         ],
         if (recommended.isEmpty && popular.isEmpty)
-          const DuoEmptyState(emoji: '🔭', title: 'Waiting for recommendation', subtitle: 'Update your interests to find best lounges!'),
+          const DuoEmptyState(icon: Icons.search_rounded, title: 'Waiting for recommendation', subtitle: 'Update your interests to find best lounges!'),
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-          color: AppTheme.duoBlue,
-          fontSize: 12,
-        ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppTheme.duoBlue),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: AppTheme.duoBlue,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }

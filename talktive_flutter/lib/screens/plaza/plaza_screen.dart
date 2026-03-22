@@ -16,7 +16,7 @@ class PlazaScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DuoPageScaffold(
-      emoji: '🏛️',
+      icon: Icons.apartment_rounded,
       title: 'The Plaza',
       subtitle: 'Your digital apartment lobby',
       gradient: AppTheme.primaryGradient,
@@ -106,7 +106,11 @@ class PlazaScreen extends ConsumerWidget {
   Widget _buildWelcomeBanner() {
     return Row(
       children: [
-        const Text('👋', style: TextStyle(fontSize: 48)),
+        const Icon(
+          Icons.waving_hand_rounded,
+          size: 48,
+          color: AppTheme.duoOrange,
+        ),
         const SizedBox(width: AppTheme.duoSpacingMedium),
         Expanded(
           child: Column(
@@ -159,7 +163,7 @@ class PlazaScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
               ),
               child: const Center(
-                child: Text('🌍', style: TextStyle(fontSize: 36)),
+                child: Icon(Icons.public_rounded, size: 36, color: Colors.white),
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingLarge),
@@ -188,7 +192,7 @@ class PlazaScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Text('👥', style: TextStyle(fontSize: 16)),
+                      const Icon(Icons.groups_rounded, size: 20, color: AppTheme.primaryColor),
                       const SizedBox(width: 6),
                       Text(
                         'Public Chat',
@@ -204,7 +208,7 @@ class PlazaScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingSmall),
-            const Text('➡️', style: TextStyle(fontSize: 24, color: Colors.grey)),
+            const Icon(Icons.chevron_right_rounded, size: 32, color: Colors.grey),
           ],
         ),
       ),
@@ -220,7 +224,7 @@ class PlazaScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _buildSmallCard(
-                  emoji: '📜',
+                  icon: Icons.description_rounded,
                   title: 'Rules',
                   subtitle: 'Be nice and respectful',
                   color: AppTheme.duoBlue,
@@ -229,7 +233,7 @@ class PlazaScreen extends ConsumerWidget {
               const SizedBox(width: AppTheme.duoSpacingMedium),
               Expanded(
                 child: _buildSmallCard(
-                  emoji: '🏢',
+                  icon: Icons.layers_rounded,
                   title: 'Floors',
                   subtitle: 'Level up by chatting',
                   color: AppTheme.duoYellow,

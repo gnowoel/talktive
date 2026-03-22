@@ -49,7 +49,7 @@ class PeepholeScreen extends ConsumerWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text(
-          '🚪 Someone is knocking',
+          'Someone is knocking',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -139,7 +139,7 @@ class PeepholeScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text('⭐', style: TextStyle(fontSize: 18)),
+                            const Icon(Icons.stars_rounded, size: 18, color: AppTheme.duoYellow),
                             const SizedBox(width: 8),
                             Text(
                               'Trust: ${otherResident.trustScore}',
@@ -164,7 +164,7 @@ class PeepholeScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text('✨', style: TextStyle(fontSize: 18)),
+                            const Icon(Icons.auto_awesome_rounded, size: 18, color: AppTheme.duoBlue),
                             const SizedBox(width: 8),
                             Text(
                               'Level ${otherResident.level}',
@@ -232,12 +232,10 @@ class PeepholeScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              '✉️',
-                              style: TextStyle(
-                                color: AppTheme.primaryColor,
-                                fontSize: 20,
-                              ),
+                            const Icon(
+                              Icons.mail_rounded,
+                              color: AppTheme.primaryColor,
+                              size: 20,
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -297,7 +295,8 @@ class PeepholeScreen extends ConsumerWidget {
 
                   // Actions
                   DuoButton(
-                    text: '🔓 Open the Door',
+                    text: 'Open the Door',
+                    icon: Icons.lock_open_rounded,
                     color: AppTheme.duoGreen,
                     onPressed: () async {
                       HapticFeedback.mediumImpact();
@@ -320,7 +319,8 @@ class PeepholeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppTheme.duoSpacingMedium),
                   DuoButton(
-                    text: '🔒 Keep it Locked',
+                    text: 'Keep it Locked',
+                    icon: Icons.lock_rounded,
                     color: AppTheme.duoRed,
                     onPressed: () async {
                       HapticFeedback.mediumImpact();
@@ -349,7 +349,7 @@ class PeepholeScreen extends ConsumerWidget {
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: const Text(
-                            '🛡️ Block & Decline',
+                            'Block & Decline',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           content: Text(
@@ -394,7 +394,7 @@ class PeepholeScreen extends ConsumerWidget {
                         }
                       }
                     },
-                    icon: const Text('🛡️', style: TextStyle(color: AppTheme.duoRed)),
+                      icon: const Icon(Icons.security_rounded, color: AppTheme.duoRed),
                     label: const Text(
                       'Block & Decline',
                       style: TextStyle(
@@ -420,8 +420,8 @@ class PeepholeScreen extends ConsumerWidget {
   ) {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
-      text: '📸 Sharing $momentsCount Moments',
-      emoji: '✨',
+      text: 'Sharing $momentsCount Moments',
+      icon: Icons.photo_library_rounded,
       isSecondary: true,
       color: AppTheme.duoBlue.withValues(
         alpha: 0.8,

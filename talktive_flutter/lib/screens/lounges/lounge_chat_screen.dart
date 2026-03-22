@@ -418,7 +418,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Text('👥', style: TextStyle(fontSize: 16)),
+            icon: const Icon(Icons.people_rounded, size: 24, color: Colors.black),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push(
@@ -465,12 +465,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
               final isCreator =
                   currentResident?.userInfoId == widget.lounge.creatorId;
               return [
-                const PopupMenuItem(
-                  value: 'profile',
                   child: Row(
                     children: [
-                      const Text('ℹ️', style: TextStyle(fontSize: 20)),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.info_rounded, size: 20, color: AppTheme.textPrimary),
+                      const SizedBox(width: 12),
                       const Text('Lounge Profile'),
                     ],
                   ),
@@ -480,8 +478,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        const Text('✏️', style: TextStyle(fontSize: 20)),
-                        const SizedBox(width: 8),
+                        const Icon(Icons.edit_rounded, size: 20, color: AppTheme.textPrimary),
+                        const SizedBox(width: 12),
                         Text(
                           'Edit Lounge',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -495,7 +493,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.exit_to_app,
+                          Icons.exit_to_app_rounded,
                           color: AppTheme.duoRed,
                           size: 20,
                         ),
@@ -516,7 +514,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.delete_forever,
+                          Icons.delete_forever_rounded,
                           color: AppTheme.duoRed,
                           size: 20,
                         ),
@@ -539,7 +537,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.gavel,
+                          Icons.gavel_rounded,
                           color: widget.lounge.isStaffLocked
                               ? Colors.grey
                               : AppTheme.duoPurple,
@@ -646,7 +644,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         children: [
           SizedBox(
             width: 24,
-            child: const Text('✍️', style: TextStyle(fontSize: 14)),
+            child: const Icon(Icons.edit_rounded, size: 16, color: AppTheme.textSecondary),
           )
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .scale(
@@ -731,7 +729,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('❌', style: TextStyle(fontSize: 64)),
+          const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.duoRed),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load messages',

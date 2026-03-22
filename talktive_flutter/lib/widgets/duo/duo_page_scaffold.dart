@@ -10,7 +10,8 @@ import 'duo_header.dart';
 /// - White content container with rounded top corners.
 /// - Consistent header placement.
 class DuoPageScaffold extends StatelessWidget {
-  final String emoji;
+  final String? emoji;
+  final IconData? icon;
   final String title;
   final String? subtitle;
   final Widget body;
@@ -24,7 +25,8 @@ class DuoPageScaffold extends StatelessWidget {
 
   const DuoPageScaffold({
     super.key,
-    required this.emoji,
+    this.emoji,
+    this.icon,
     required this.title,
     required this.body,
     required this.gradient,
@@ -76,6 +78,7 @@ class DuoPageScaffold extends StatelessWidget {
                   bottom: false,
                   child: DuoHeader(
                     emoji: emoji,
+                    icon: icon,
                     title: title,
                     subtitle: subtitle,
                     trailing: trailingHeader,

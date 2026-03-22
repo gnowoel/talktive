@@ -101,7 +101,8 @@ class LoungeMembersScreen extends ConsumerWidget {
           if (isCreator && pending.isNotEmpty) ...[
             _buildSectionHeader(
               context,
-              '🎫 Pending Applications (${pending.length})',
+              'Pending Applications (${pending.length})',
+              icon: Icons.confirmation_number_rounded,
             ),
             ...pending.map(
               (m) => _buildMemberCard(
@@ -115,7 +116,11 @@ class LoungeMembersScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppTheme.duoSpacingLarge),
           ],
-          _buildSectionHeader(context, '👥 Residents (${members.length})'),
+          _buildSectionHeader(
+            context,
+            'Residents (${members.length})',
+            icon: Icons.people_rounded,
+          ),
           ...members.map(
             (m) => _buildMemberCard(context, ref, m, isCreator, lounge),
           ),
@@ -124,16 +129,24 @@ class LoungeMembersScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
+  Widget _buildSectionHeader(BuildContext context, String title, {IconData? icon}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: Colors.grey[600],
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-        ),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 18, color: Colors.grey[600]),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            title,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -290,7 +303,7 @@ class LoungeMembersScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
+            const Icon(Icons.error_outline_rounded, color: AppTheme.duoRed, size: 48),
             const SizedBox(height: 16),
             Text('Error: $error', textAlign: TextAlign.center),
           ],

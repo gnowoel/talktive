@@ -5,7 +5,8 @@ import 'duo_button.dart';
 
 /// Duolingo-style empty state with emoji, title, subtitle, and optional CTA
 class DuoEmptyState extends StatelessWidget {
-  final String emoji;
+  final String? emoji;
+  final IconData? icon;
   final String title;
   final String subtitle;
   final String? buttonText;
@@ -13,7 +14,8 @@ class DuoEmptyState extends StatelessWidget {
 
   const DuoEmptyState({
     super.key,
-    required this.emoji,
+    this.emoji,
+    this.icon,
     required this.title,
     String? subtitle,
     String? message, // Alias for subtitle
@@ -49,7 +51,9 @@ class DuoEmptyState extends StatelessWidget {
                     ),
                   ),
                   child: Center(
-                    child: Text(emoji, style: const TextStyle(fontSize: 64)),
+                    child: icon != null
+                      ? Icon(icon, size: 64, color: AppTheme.primaryColor)
+                      : Text(emoji ?? '', style: const TextStyle(fontSize: 64)),
                   ),
                 )
                 .animate(

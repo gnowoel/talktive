@@ -67,7 +67,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, size: 24),
+          icon: const Icon(Icons.close, size: 24),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -96,7 +96,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.errorColor),
+          const Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
           const SizedBox(height: 16),
           const Text(
             'Could not load profile',
@@ -128,7 +128,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   Widget _buildTrailingMenu(bool isBlocked) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_horiz_rounded, size: 24, color: Colors.black),
+      icon: const Icon(Icons.more_horiz, size: 24, color: Colors.black),
       onSelected: (value) async {
         if (value == 'block') {
           await _confirmBlock(context, isBlocked);
@@ -146,7 +146,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           child: Row(
             children: [
               Icon(
-                isBlocked ? Icons.person_outline_rounded : Icons.block_rounded,
+                isBlocked ? Icons.person_outline : Icons.block,
                 size: 20,
                 color: isBlocked ? AppTheme.duoGreen : AppTheme.errorColor,
               ),
@@ -166,7 +166,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             value: 'report',
             child: Row(
               children: [
-                Icon(Icons.flag_rounded, size: 20, color: AppTheme.errorColor),
+                Icon(Icons.flag, size: 20, color: AppTheme.errorColor),
                 SizedBox(width: 12),
                 Text(
                   'Report resident',
@@ -184,7 +184,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             value: 'admin_mute',
             child: Row(
               children: [
-                Icon(Icons.volume_off_rounded, size: 20, color: AppTheme.duoOrange),
+                Icon(Icons.volume_off, size: 20, color: AppTheme.duoOrange),
                 SizedBox(width: 12),
                 Text(
                   'Staff: Mute Resident',
@@ -200,7 +200,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             value: 'admin_suspend',
             child: Row(
               children: [
-                Icon(Icons.gavel_rounded, size: 20, color: AppTheme.duoRed),
+                Icon(Icons.gavel, size: 20, color: AppTheme.duoRed),
                 SizedBox(width: 12),
                 Text(
                   'Staff: Suspend Resident',
@@ -370,9 +370,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           // Info cards
           if (gender != null || country != null || mutualLounges > 0)
             _buildInfoCard('About', [
-              if (gender != null) _buildInfoRow(Icons.person_outline_rounded, _formatGender(gender)),
-              if (country != null) _buildInfoRow(Icons.flag_rounded, country),
-              if (mutualLounges > 0) _buildInfoRow(Icons.apartment_rounded, '$mutualLounges mutual lounges'),
+              if (gender != null) _buildInfoRow(Icons.person_outline, _formatGender(gender)),
+              if (country != null) _buildInfoRow(Icons.flag, country),
+              if (mutualLounges > 0) _buildInfoRow(Icons.apartment, '$mutualLounges mutual lounges'),
             ]),
 
           if (interests.isNotEmpty) ...[
@@ -443,7 +443,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
       text: 'Sharing $momentsCount Moments',
-      icon: Icons.photo_library_rounded,
+      icon: Icons.photo_library,
       isSecondary: true,
       color: AppTheme.duoBlue,
       width: double.infinity,
@@ -462,7 +462,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
     return DuoButton(
       text: isLiked ? 'Vouched' : 'Vouch for Resident',
-      icon: isLiked ? Icons.verified_user_rounded : Icons.favorite_rounded,
+      icon: isLiked ? Icons.verified_user : Icons.favorite,
       color: isLiked ? AppTheme.duoGreen : AppTheme.secondaryColor,
       isSecondary: isLiked,
       width: double.infinity,
@@ -492,7 +492,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       childAspectRatio: 1.1,
       children: [
         DuoStatCard(
-          icon: Icons.verified_user_rounded,
+          icon: Icons.verified_user,
           value: '$actualTrustScore',
           label: 'Trust Score',
           gradientColors: [
@@ -504,7 +504,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           profile,
         ).animate().fadeIn(delay: 350.ms).scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
-          icon: Icons.apartment_rounded,
+          icon: Icons.apartment,
           value: '$floor',
           label: 'Floor',
           gradientColors: [
@@ -513,7 +513,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           ],
         ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
-          icon: Icons.chat_bubble_outline_rounded,
+          icon: Icons.chat_bubble_outline,
           value: '$messages',
           label: 'Messages',
           gradientColors: [
@@ -540,7 +540,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     }
 
     return DuoStatCard(
-      icon: Icons.stars_rounded,
+      icon: Icons.stars,
       value: '$xp',
       label: 'XP • $xpDisplay',
       gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
@@ -625,7 +625,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               flex: 2,
               child: DuoButton(
                 text: 'Knock',
-                icon: Icons.meeting_room_rounded,
+                icon: Icons.meeting_room,
                 onPressed: () => _knockOnDoor(context, ref),
               ),
             ),
@@ -634,7 +634,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               flex: 3,
               child: DuoButton(
                 text: 'Lounge Invite',
-                icon: Icons.local_activity_rounded,
+                icon: Icons.local_activity,
                 color: AppTheme.duoYellow,
                 onPressed: () => _showInviteBottomSheet(context, ref),
               ),

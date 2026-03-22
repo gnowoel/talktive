@@ -54,20 +54,20 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         DuoPageScaffold(
           title: 'Activity',
           subtitle: 'Progress & Updates',
-          icon: Icons.local_activity_rounded,
+          icon: Icons.local_activity,
           gradient: AppTheme.duoGreenGradient,
           trailingHeader: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildHeaderIcon(
                 context,
-                icon: Icons.person_rounded,
+                icon: Icons.person,
                 onTap: () => context.push('/my-profile'),
               ),
               const SizedBox(width: AppTheme.duoSpacingSmall),
               _buildHeaderIcon(
                 context,
-                icon: Icons.settings_rounded,
+                icon: Icons.settings,
                 onTap: () => context.push('/activity/settings'),
               ),
               const SizedBox(width: AppTheme.duoSpacingSmall),
@@ -186,7 +186,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     if (notifications.any((n) => !n.read))
                       IconButton(
                         onPressed: () => _showMarkAllAsReadConfirmation(context, ref, notifications),
-                        icon: const Icon(Icons.done_all_rounded, size: 24, color: AppTheme.duoGreen),
+                        icon: const Icon(Icons.done_all, size: 24, color: AppTheme.duoGreen),
                         tooltip: 'Mark all as read',
                       ),
                   ],
@@ -265,7 +265,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   child: _buildStatCard(
                     label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
-                    icon: Icons.layers_rounded,
+                    icon: Icons.layers,
                     color: AppTheme.duoPurple,
                   ),
                 ),
@@ -274,7 +274,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   child: _buildStatCard(
                     label: 'Experience',
                     value: '${resident.xp}',
-                    icon: Icons.auto_awesome_rounded,
+                    icon: Icons.auto_awesome,
                     color: AppTheme.duoYellow,
                   ),
                 ),
@@ -419,7 +419,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inbox_rounded, size: 64, color: Colors.grey),
+          const Icon(Icons.inbox, size: 64, color: Colors.grey),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'No activity yet',
@@ -582,25 +582,25 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   IconData _getIconForType(String type) {
     switch (type) {
       case 'message':
-        return Icons.chat_bubble_rounded;
+        return Icons.chat_bubble;
       case 'moment_like':
-        return Icons.favorite_rounded;
+        return Icons.favorite;
       case 'moment_comment':
-        return Icons.comment_rounded;
+        return Icons.comment;
       case 'achievement':
-        return Icons.emoji_events_rounded;
+        return Icons.emoji_events;
       case 'streak':
-        return Icons.whatshot_rounded;
+        return Icons.whatshot;
       case 'lounge_invite':
-        return Icons.confirmation_number_rounded;
+        return Icons.confirmation_number;
       case 'mention':
-        return Icons.alternate_email_rounded;
+        return Icons.alternate_email;
       case 'chat_invite':
-        return Icons.meeting_room_rounded;
+        return Icons.meeting_room;
       case 'level_up':
-        return Icons.upgrade_rounded;
+        return Icons.upgrade;
       default:
-        return Icons.notifications_rounded;
+        return Icons.notifications;
     }
   }
 
@@ -609,7 +609,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.duoRed),
+          const Icon(Icons.error_outline, size: 64, color: AppTheme.duoRed),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'Failed to load activity',

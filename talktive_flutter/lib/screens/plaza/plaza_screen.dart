@@ -2,244 +2,217 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../config/theme.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../providers/current_resident_provider.dart';
+import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
+import '../../widgets/duo/duo_button.dart';
 
-/// Duolingo-style Plaza screen - entry point for public areas
+/// The Plaza (Home) screen - The building's social heart.
 class PlazaScreen extends ConsumerWidget {
   const PlazaScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DuoPageScaffold(
-      icon: Icons.apartment_rounded,
-      title: 'The Plaza',
+      icon: Icons.apartment,
+      title: 'Plaza',
       subtitle: 'Your digital apartment lobby',
       gradient: AppTheme.primaryGradient,
       trailingHeader: const SizedBox.shrink(),
-      body: ListView(
-        padding: const EdgeInsets.only(
-          left: AppTheme.duoSpacingMedium,
-          right: AppTheme.duoSpacingMedium,
-          bottom: AppTheme.contentBottomPadding,
-          top: AppTheme.duoSpacingLarge,
-        ),
-        children: [
-          _buildWelcomeBanner()
-              .animate()
-              .fadeIn(delay: 100.ms)
-              .slideX(begin: -0.1, end: 0),
-          const SizedBox(height: AppTheme.duoSpacingLarge),
-          
-          // Recommending Global Lounge
-          _buildLoungeCard(context)
-              .animate()
-              .fadeIn(delay: 200.ms)
-              .slideX(begin: -0.1, end: 0),
-          
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          _buildInfoCards()
-              .animate()
-              .fadeIn(delay: 300.ms)
-              .slideX(begin: -0.1, end: 0),
-          
-          const SizedBox(height: AppTheme.duoSpacingLarge),
-          _buildOldVersionInfo()
-              .animate()
-              .fadeIn(delay: 400.ms)
-              .slideX(begin: -0.1, end: 0),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOldVersionInfo() {
-    return DuoCard(
-      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-      child: Column(
-        children: [
-          const Text(
-            'Still need the old version?',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              fontFamily: 'Poppins',
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'You can visit the web version here:',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, fontFamily: 'Rubik'),
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () async {
-              HapticFeedback.lightImpact();
-              final uri = Uri.parse('https://open.talktive.app/');
-              try {
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              } catch (_) {
-                // Silently fail or show snackbar if needed
-              }
-            },
-            child: const Text(
-              'https://open.talktive.app/',
-              style: TextStyle(
-                color: AppTheme.primaryColor,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWelcomeBanner() {
-    return Row(
-      children: [
-        const Icon(
-          Icons.waving_hand_rounded,
-          size: 48,
-          color: AppTheme.duoOrange,
-        ),
-        const SizedBox(width: AppTheme.duoSpacingMedium),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Welcome home!',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'We recommend starting in the Global Lounge to meet your neighbors.',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Rubik',
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLoungeCard(BuildContext context) {
-    return DuoCard(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push('/plaza/chat');
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-        child: Row(
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: AppTheme.primaryGradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-              ),
-              child: const Center(
-                child: Icon(Icons.public_rounded, size: 36, color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingLarge),
-            Expanded(
+            // Welcome Header
+            _buildWelcomeBanner(context, ref),
+            
+            // Feature Cards
+            Padding(
+              padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Global Lounge',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Poppins',
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Join the main public chat to talk with everyone in the building.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Rubik',
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.groups_rounded, size: 20, color: AppTheme.primaryColor),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Public Chat',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildQuickActions(context),
+                  const SizedBox(height: AppTheme.duoSpacingMedium),
+                  _buildInfoCards(),
+                  const SizedBox(height: AppTheme.duoSpacingMedium),
+                  _buildOldVersionInfo(context),
                 ],
               ),
             ),
-            const SizedBox(width: AppTheme.duoSpacingSmall),
-            const Icon(Icons.chevron_right_rounded, size: 32, color: Colors.grey),
+            
+            // Padding for FAB if needed
+            const SizedBox(height: AppTheme.contentBottomPadding),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoCards() {
-    return Column(
-      children: [
-        IntrinsicHeight(
+  Widget _buildWelcomeBanner(BuildContext context, WidgetRef ref) {
+    final residentAsync = ref.watch(currentResidentProvider);
+
+    return residentAsync.when(
+      data: (resident) {
+        if (resident == null) return const SizedBox.shrink();
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+          padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+            border: Border.all(color: Colors.grey[200]!, width: 2),
+            boxShadow: AppTheme.duoCardShadow,
+          ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: _buildSmallCard(
-                  icon: Icons.description_rounded,
-                  title: 'Rules',
-                  subtitle: 'Be nice and respectful',
-                  color: AppTheme.duoBlue,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome Home,',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        fontFamily: 'Rubik',
+                      ),
+                    ),
+                    Text(
+                      resident.userName ?? 'Resident',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: AppTheme.duoSpacingMedium),
-              Expanded(
-                child: _buildSmallCard(
-                  icon: Icons.layers_rounded,
-                  title: 'Floors',
-                  subtitle: 'Level up by chatting',
-                  color: AppTheme.duoYellow,
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-              ),
+                child: const Icon(
+                  Icons.waving_hand,
+                  color: AppTheme.primaryColor,
+                  size: 32,
+                ),
+              ).animate(onPlay: (c) => c.repeat(reverse: true))
+               .shake(duration: 1500.ms, hz: 2),
             ],
+          ),
+        ).animate().fadeIn().slideY(begin: 0.2);
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
+            'Explore',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                context,
+                title: 'Global Chat',
+                subtitle: 'Chat with everyone',
+                icon: Icons.language,
+                color: AppTheme.primaryColor,
+                onTap: () => context.push('/plaza/global'),
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingMedium),
+            Expanded(
+              child: _buildActionCard(
+                context,
+                title: 'Help Center',
+                subtitle: 'Get assistance',
+                icon: Icons.help_outline,
+                color: AppTheme.duoGreen,
+                onTap: () => context.push('/plaza/support'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return DuoCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontFamily: 'Rubik',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCards() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildSmallCard(
+            icon: Icons.article,
+            title: 'Rules',
+            subtitle: 'Be nice and respectful',
+            color: AppTheme.duoBlue,
+          ),
+        ),
+        const SizedBox(width: AppTheme.duoSpacingMedium),
+        Expanded(
+          child: _buildSmallCard(
+            icon: Icons.apartment,
+            title: 'Floors',
+            subtitle: 'Level up by chatting',
+            color: AppTheme.duoYellow,
           ),
         ),
       ],
@@ -247,54 +220,80 @@ class PlazaScreen extends ConsumerWidget {
   }
 
   Widget _buildSmallCard({
-    String? emoji,
-    IconData? icon,
+    required IconData icon,
     required String title,
     required String subtitle,
     required Color color,
   }) {
     return DuoCard(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
-            ),
-            child: SizedBox(
-              width: 32,
-              height: 32,
-              child: Center(
-                child: icon != null 
-                  ? Icon(icon, color: color, size: 24)
-                  : Text(
-                      emoji ?? '', 
-                      style: const TextStyle(fontSize: 24, height: 1.0),
-                    ),
-              ),
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontFamily: 'Rubik',
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOldVersionInfo(BuildContext context) {
+    return DuoCard(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+      color: Colors.grey[50],
+      child: Column(
+        children: [
+          const Icon(Icons.history, color: Colors.grey, size: 32),
+          const SizedBox(height: 12),
+          const Text(
+            'Looking for the old version?',
+            style: TextStyle(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
               fontFamily: 'Poppins',
-              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            subtitle,
+          const Text(
+            'The legacy Firebase version is still available via web.',
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
+              color: Colors.grey,
               fontFamily: 'Rubik',
-              color: AppTheme.textSecondary,
             ),
+          ),
+          const SizedBox(height: 16),
+          DuoButton(
+            text: 'Open Web App',
+            onPressed: () async {
+              final url = Uri.parse('https://open.talktive.app/');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
           ),
         ],
       ),

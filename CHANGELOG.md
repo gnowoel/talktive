@@ -2,6 +2,22 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
+## March 22, 2026 - Restored Welcoming Iconography & Inviting Labels (Phase 8.28) 🎨🏠
+
+### Restoration of Inviting Aesthetic
+- **Welcoming Labels**: Reverted header subtitles to their more inviting and friendly versions across all main screens.
+  - **Plaza**: Restored "Your digital apartment lobby".
+  - **Chats**: Restored "Private conversations".
+  - **Lounges**: Restored "Join the community clubhouse".
+  - **Moments**: Restored "Share your day".
+- **Iconography Balance**: Reverted UI elements to use traditional Material Design icons (non-rounded) for better clarity and professionalism, as requested. Emojis have been retained for bottom navigation and avatars to maintain the app's playful character while ensuring UI contrast.
+- **Consistency Refinement**: Performed a global audit and cleanup of rounded icons, standardizing on the classic Material Design set for all headers, buttons, and system cards.
+
+### Build & Documentation
+- **Commit Amendment**: Updated project documentation to accurately reflect the current design philosophy and iconography choices.
+- **Validation**: Verified that the restored labels and icons render correctly on both Web and Android platforms.
+
+
 ## March 22, 2026 - Professional Iconography & Build Validation (Phase 8.27) 🏛️✨
 
 ### Professional Iconography Standardization

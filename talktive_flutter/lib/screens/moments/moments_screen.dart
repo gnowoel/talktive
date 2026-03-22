@@ -227,7 +227,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                   bottom: false,
                   child: Row(
                     children: [
-                      const Icon(Icons.camera_alt_rounded, size: 28, color: Colors.white),
+                      const Icon(Icons.camera_alt, size: 28, color: Colors.white),
                       const SizedBox(width: AppTheme.duoSpacingSmall),
                       const Expanded(
                         child: Text(
@@ -291,7 +291,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.add_a_photo_rounded, size: 48, color: Colors.grey),
+                                    const Icon(Icons.add_a_photo, size: 48, color: Colors.grey),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Select photo',
@@ -332,7 +332,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                   top: false,
                   child: DuoButton(
                     text: 'Post Moment',
-                    icon: Icons.send_rounded,
+                    icon: Icons.send,
                     width: double.infinity,
                     isLoading: _isUploading,
                     onPressed: () => _postMoment(setModalState),
@@ -349,7 +349,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   @override
   Widget build(BuildContext context) {
     return DuoPageScaffold(
-      icon: Icons.camera_alt_rounded,
+      icon: Icons.photo_library,
       title: 'Moments',
       subtitle: 'Share your day',
       trailingHeader: Row(
@@ -369,7 +369,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         onPressed: _handleCreatePressed,
         backgroundColor: AppTheme.secondaryColor,
         elevation: 6,
-        child: const Icon(Icons.add_a_photo_rounded, color: Colors.white),
+        child: const Icon(Icons.add_a_photo, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: _buildBody(),
     );
@@ -384,7 +384,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       data: (moments) {
         if (moments.isEmpty) {
           return DuoEmptyState(
-            icon: Icons.camera_alt_rounded,
+            icon: Icons.camera_alt,
             title: 'No moments yet',
             subtitle: 'Share your first photo!',
             buttonText: 'Create Moment',
@@ -398,7 +398,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
         if (filteredMoments.isEmpty && moments.isNotEmpty) {
           return const DuoEmptyState(
-            icon: Icons.visibility_off_rounded,
+            icon: Icons.visibility_off,
             title: 'No moments to show',
             subtitle:
                 'The only moments available are from users you have blocked.',

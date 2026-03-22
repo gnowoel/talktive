@@ -466,7 +466,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                                       ),
                                     )
                                     : const Icon(
-                                      Icons.camera_alt_rounded,
+                                      Icons.camera_alt,
                                       color: Colors.white,
                                       size: 20,
                                     ),

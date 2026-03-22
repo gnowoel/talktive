@@ -422,7 +422,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.people_rounded,
+              Icons.people,
               size: 24,
               color: Colors.black,
             ),
@@ -477,7 +477,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.info_rounded,
+                        Icons.info,
                         size: 20,
                         color: AppTheme.textPrimary,
                       ),
@@ -492,7 +492,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         const Icon(
-                          Icons.edit_rounded,
+                          Icons.edit,
                           size: 20,
                           color: AppTheme.textPrimary,
                         ),
@@ -510,7 +510,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.exit_to_app_rounded,
+                          Icons.exit_to_app,
                           color: AppTheme.duoRed,
                           size: 20,
                         ),
@@ -531,7 +531,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.delete_forever_rounded,
+                          Icons.delete_forever,
                           color: AppTheme.duoRed,
                           size: 20,
                         ),
@@ -555,7 +555,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.gavel_rounded,
+                          Icons.gavel,
                           color: widget.lounge.isStaffLocked
                               ? Colors.grey
                               : AppTheme.duoPurple,
@@ -581,7 +581,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.gavel_rounded,
+                          Icons.gavel,
                           color: AppTheme.duoRed,
                           size: 20,
                         ),
@@ -663,7 +663,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
           SizedBox(
                 width: 24,
                 child: const Icon(
-                  Icons.edit_rounded,
+                  Icons.edit,
                   size: 16,
                   color: AppTheme.textSecondary,
                 ),
@@ -752,7 +752,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
-            Icons.error_outline_rounded,
+            Icons.error_outline,
             size: 64,
             color: AppTheme.duoRed,
           ),

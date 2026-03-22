@@ -38,13 +38,13 @@ class ProfileScreen extends ConsumerWidget {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, size: 24),
+          icon: const Icon(Icons.close, size: 24),
           onPressed: () => context.pop(),
         ),
         actions: [
           residentAsync.when(
             data: (resident) => IconButton(
-              icon: const Icon(Icons.edit_rounded, size: 24),
+              icon: const Icon(Icons.edit, size: 24),
               tooltip: 'Edit Profile',
               onPressed: () {
                 if (resident != null) {
@@ -70,7 +70,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.errorColor),
+                const Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
                 const SizedBox(height: AppTheme.duoSpacingMedium),
                 const Text(
                   'Error loading profile',
@@ -241,7 +241,7 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
       child: DuoButton(
         text: 'Sharing $momentsCount Moments',
-        icon: Icons.photo_library_rounded,
+        icon: Icons.photo_library,
         isSecondary: true,
         color: AppTheme.duoBlue,
         width: double.infinity,
@@ -289,7 +289,7 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               // Trust Score
               DuoStatCard(
-                icon: Icons.verified_user_rounded,
+                icon: Icons.shield,
                 value: '$trustScore',
                 label: 'Trust Score',
                 gradientColors: [
@@ -306,7 +306,7 @@ class ProfileScreen extends ConsumerWidget {
               
               // Floor (Computed from XP and Trust)
               DuoStatCard(
-                icon: Icons.apartment_rounded,
+                icon: Icons.apartment,
                 value: '$floor',
                 label: 'Floor',
                 gradientColors: [
@@ -317,7 +317,7 @@ class ProfileScreen extends ConsumerWidget {
               
               // Messages
               DuoStatCard(
-                icon: Icons.chat_bubble_outline_rounded,
+                icon: Icons.message,
                 value: '$messages',
                 label: 'Messages',
                 gradientColors: [
@@ -347,7 +347,7 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     return DuoStatCard(
-      icon: Icons.stars_rounded,
+      icon: Icons.stars,
       value: '$xp',
       label: 'XP • $xpDisplay',
       gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
@@ -492,7 +492,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
       child: DuoButton(
         text: 'Blocked Users',
-        icon: Icons.block_rounded,
+        icon: Icons.block,
         color: AppTheme.textSecondary,
         isSecondary: true,
         width: double.infinity,
@@ -510,7 +510,7 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       child: DuoButton(
         text: 'Sign Out',
-        icon: Icons.logout_rounded,
+        icon: Icons.logout,
         color: AppTheme.duoRed,
         width: double.infinity,
         onPressed: () async {

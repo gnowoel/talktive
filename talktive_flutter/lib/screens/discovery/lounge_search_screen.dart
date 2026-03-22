@@ -91,8 +91,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentResident = ref.watch(currentResidentProvider).value;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -111,13 +109,13 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             child: DuoInput(
               controller: _searchController,
               hintText: 'Search interest-based community lounges...',
-              prefixIcon: Icons.search_rounded,
+              prefixIcon: Icons.search,
               iconColor: AppTheme.duoBlue,
               enabled: true,
               onChanged: (val) => _performSearch(val),
               suffixIcon: _searchController.text.isNotEmpty 
                 ? IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 20, color: Colors.grey),
+                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
                     onPressed: () {
                       _searchController.clear();
                       _performSearch('');
@@ -132,9 +130,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
     );
   }
 
-  // _buildLockedState is no longer used but we can keep it as a helper or remove it. 
-  // I will remove it to keep the file clean as per user's "essential for all" request.
-
   Widget _buildContent() {
     if (_isLoading && (_searchQuery != null || (_recommendedLounges == null && _popularLounges == null))) {
       return const Center(child: DuoLoadingIndicator());
@@ -142,7 +137,13 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
     if (_searchQuery != null && _searchQuery!.isNotEmpty) {
       final lounges = _searchResults ?? [];
-      if (lounges.isEmpty) return const DuoEmptyState(icon: Icons.groups_rounded, title: 'No lounges found', subtitle: 'Try searching for different interests');
+      if (lounges.isEmpty) {
+        return const DuoEmptyState(
+          icon: Icons.groups, 
+          title: 'No lounges found', 
+          subtitle: 'Try searching for different interests'
+        );
+      }
       return _buildLoungeList(lounges);
     }
 
@@ -153,16 +154,20 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         if (recommended.isNotEmpty) ...[
-          _buildSectionHeader('RECOMMENDED FOR YOU', Icons.tips_and_updates_rounded),
+          _buildSectionHeader('RECOMMENDED FOR YOU', Icons.tips_and_updates),
           ...recommended.asMap().entries.map((e) => _buildLoungeCard(e.value, e.key)),
           const SizedBox(height: 24),
         ],
         if (popular.isNotEmpty) ...[
-          _buildSectionHeader('POPULAR LOUNGES', Icons.whatshot_rounded),
+          _buildSectionHeader('POPULAR LOUNGES', Icons.whatshot),
           ...popular.asMap().entries.map((e) => _buildLoungeCard(e.value, e.key + 10)),
         ],
         if (recommended.isEmpty && popular.isEmpty)
-          const DuoEmptyState(icon: Icons.search_rounded, title: 'Waiting for recommendation', subtitle: 'Update your interests to find best lounges!'),
+          const DuoEmptyState(
+            icon: Icons.search, 
+            title: 'Waiting for recommendation', 
+            subtitle: 'Update your interests to find best lounges!'
+          ),
       ],
     );
   }

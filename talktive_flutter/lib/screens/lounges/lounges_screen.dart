@@ -27,7 +27,7 @@ class LoungesScreen extends ConsumerWidget {
     final loungesAsync = ref.watch(loungeListProvider);
 
     return DuoPageScaffold(
-      icon: Icons.meeting_room_rounded,
+      icon: Icons.groups,
       title: 'Lounges',
       subtitle: 'Join the community clubhouse',
       gradient: AppTheme.duoBlueGradient,
@@ -35,7 +35,7 @@ class LoungesScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
             IconButton(
-              icon: const Icon(Icons.search_rounded, size: 28, color: Colors.white),
+              icon: const Icon(Icons.search, size: 28, color: Colors.white),
               onPressed: () {
                 HapticFeedback.lightImpact();
                 context.push('/discovery/lounges');
@@ -52,18 +52,18 @@ class LoungesScreen extends ConsumerWidget {
         onPressed: () => _showCreateDialog(context, ref),
         backgroundColor: AppTheme.duoBlue,
         elevation: 6,
-        child: const Icon(Icons.add_rounded, size: 32, color: Colors.white),
+        child: const Icon(Icons.add, size: 32, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: loungesAsync.when(
         data: (lounges) => _buildLoungeList(context, ref, lounges),
         loading: () => const DuoLoadingIndicator(),
         error: (error, _) => DuoEmptyState(
-          icon: Icons.cloud_off_rounded,
-          title: 'Connection Lost',
-          subtitle: 'The clubhouse door is stuck. Try again?',
-          onActionPressed: () => ref.invalidate(loungeListProvider),
-          actionLabel: 'Retry',
-        ),
+        emoji: '🔇',
+        title: 'Connection Lost',
+        subtitle: 'The clubhouse door is stuck. Try again?',
+        onButtonPressed: () => ref.invalidate(loungeListProvider),
+        buttonText: 'Retry',
+      ),
       ),
     );
   }
@@ -75,11 +75,11 @@ class LoungesScreen extends ConsumerWidget {
   ) {
     if (lounges.isEmpty) {
       return DuoEmptyState(
-        icon: Icons.apartment_rounded,
+        emoji: '🏢',
         title: 'Empty Clubhouse',
         subtitle: 'No lounges yet. Why not create one?',
-        onActionPressed: () => _showCreateDialog(context, ref),
-        actionLabel: 'Open a Lounge',
+        onButtonPressed: () => _showCreateDialog(context, ref),
+        buttonText: 'Open a Lounge',
       );
     }
 
@@ -103,7 +103,7 @@ class LoungesScreen extends ConsumerWidget {
         children: [
 
           if (pending.isNotEmpty) ...[
-            _buildSectionHeader(context, 'The Doorstep', icon: Icons.confirmation_number_rounded),
+            _buildSectionHeader(context, 'The Doorstep', icon: Icons.confirmation_number),
             ...pending.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -111,7 +111,7 @@ class LoungesScreen extends ConsumerWidget {
           ],
 
           if (joined.isNotEmpty) ...[
-            _buildSectionHeader(context, 'My Lounges', icon: Icons.meeting_room_rounded),
+            _buildSectionHeader(context, 'My Lounges', icon: Icons.meeting_room),
             ...joined.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -198,7 +198,7 @@ class LoungesScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                const Icon(Icons.chevron_right, color: Colors.grey),
               ],
             ),
       bottomActions: isInvite

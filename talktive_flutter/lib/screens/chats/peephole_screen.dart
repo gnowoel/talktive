@@ -139,7 +139,7 @@ class PeepholeScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.stars_rounded, size: 18, color: AppTheme.duoYellow),
+                            const Icon(Icons.stars, size: 18, color: AppTheme.duoYellow),
                             const SizedBox(width: 8),
                             Text(
                               'Trust: ${otherResident.trustScore}',
@@ -164,7 +164,7 @@ class PeepholeScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.auto_awesome_rounded, size: 18, color: AppTheme.duoBlue),
+                            const Icon(Icons.auto_awesome, size: 18, color: AppTheme.duoBlue),
                             const SizedBox(width: 8),
                             Text(
                               'Level ${otherResident.level}',
@@ -233,7 +233,7 @@ class PeepholeScreen extends ConsumerWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.mail_rounded,
+                              Icons.mail,
                               color: AppTheme.primaryColor,
                               size: 20,
                             ),
@@ -296,7 +296,7 @@ class PeepholeScreen extends ConsumerWidget {
                   // Actions
                   DuoButton(
                     text: 'Open the Door',
-                    icon: Icons.lock_open_rounded,
+                    icon: Icons.lock_open,
                     color: AppTheme.duoGreen,
                     onPressed: () async {
                       HapticFeedback.mediumImpact();
@@ -320,7 +320,7 @@ class PeepholeScreen extends ConsumerWidget {
                   const SizedBox(height: AppTheme.duoSpacingMedium),
                   DuoButton(
                     text: 'Keep it Locked',
-                    icon: Icons.lock_rounded,
+                    icon: Icons.lock,
                     color: AppTheme.duoRed,
                     onPressed: () async {
                       HapticFeedback.mediumImpact();
@@ -394,7 +394,7 @@ class PeepholeScreen extends ConsumerWidget {
                         }
                       }
                     },
-                      icon: const Icon(Icons.security_rounded, color: AppTheme.duoRed),
+                      icon: const Icon(Icons.security, color: AppTheme.duoRed),
                     label: const Text(
                       'Block & Decline',
                       style: TextStyle(
@@ -421,7 +421,7 @@ class PeepholeScreen extends ConsumerWidget {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
       text: 'Sharing $momentsCount Moments',
-      icon: Icons.photo_library_rounded,
+      icon: Icons.photo_library,
       isSecondary: true,
       color: AppTheme.duoBlue.withValues(
         alpha: 0.8,

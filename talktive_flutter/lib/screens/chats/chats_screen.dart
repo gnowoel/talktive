@@ -25,7 +25,7 @@ class ChatsScreen extends ConsumerWidget {
     final chatsState = ref.watch(privateChatListProvider);
 
     return DuoPageScaffold(
-      icon: Icons.chat_bubble_rounded,
+      icon: Icons.chat,
       title: 'Chats',
       subtitle: 'Private conversations',
       trailingHeader: Row(
@@ -34,7 +34,7 @@ class ChatsScreen extends ConsumerWidget {
           if (ref.watch(currentResidentProvider).value?.isPremium == true && 
               (ref.watch(currentResidentProvider).value?.showNeighborsDiscovery ?? true))
             IconButton(
-              icon: const Icon(Icons.person_search_rounded, size: 28, color: Colors.white),
+              icon: const Icon(Icons.search, size: 28, color: Colors.white),
               onPressed: () {
                 HapticFeedback.lightImpact();
                 context.push('/discovery/people');
@@ -83,7 +83,7 @@ class ChatsScreen extends ConsumerWidget {
                     context,
                     '${pendingChats.length} ${pendingChats.length == 1 ? 'Person is' : 'People are'} Knocking...',
                     AppTheme.duoOrange,
-                    Icons.door_front_door_rounded,
+                    Icons.door_front_door,
                   ),
                   ...pendingChats.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -99,7 +99,7 @@ class ChatsScreen extends ConsumerWidget {
                       context,
                       'Active Chats',
                       AppTheme.textSecondary,
-                      Icons.all_inbox_rounded,
+                      Icons.all_inbox,
                     ),
                   const SizedBox(height: AppTheme.duoSpacingSmall),
                 ],
@@ -137,7 +137,7 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: DuoEmptyState(
-        icon: Icons.chat_bubble_outline_rounded,
+        icon: Icons.chat_bubble_outline,
         title: 'No chats yet',
         subtitle: 'Start a conversation with someone in the Plaza!',
         buttonText: 'Go to Plaza',
@@ -151,7 +151,7 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
     return Center(
       child: DuoEmptyState(
-        icon: Icons.error_outline_rounded,
+        icon: Icons.error_outline,
         title: 'Something went wrong',
         subtitle: 'We couldn\'t load your chats. Please try again.',
         buttonText: 'Retry',
@@ -292,7 +292,7 @@ class ChatsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+            const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),
       ),
@@ -367,7 +367,7 @@ class ChatsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.visibility_rounded, size: 20, color: AppTheme.duoOrange),
+                child: Icon(Icons.visibility, size: 20, color: AppTheme.duoOrange),
               ),
             ),
           ],

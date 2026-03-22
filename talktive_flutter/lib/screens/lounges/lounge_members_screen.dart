@@ -102,7 +102,7 @@ class LoungeMembersScreen extends ConsumerWidget {
             _buildSectionHeader(
               context,
               'Pending Applications (${pending.length})',
-              icon: Icons.confirmation_number_rounded,
+              icon: Icons.confirmation_number,
             ),
             ...pending.map(
               (m) => _buildMemberCard(
@@ -119,7 +119,7 @@ class LoungeMembersScreen extends ConsumerWidget {
           _buildSectionHeader(
             context,
             'Residents (${members.length})',
-            icon: Icons.people_rounded,
+            icon: Icons.people,
           ),
           ...members.map(
             (m) => _buildMemberCard(context, ref, m, isCreator, lounge),
@@ -303,7 +303,7 @@ class LoungeMembersScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded, color: AppTheme.duoRed, size: 48),
+            const Icon(Icons.error_outline, color: AppTheme.duoRed, size: 48),
             const SizedBox(height: 16),
             Text('Error: $error', textAlign: TextAlign.center),
           ],

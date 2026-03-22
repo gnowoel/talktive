@@ -47,11 +47,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ];
 
   final List<_NavItem> _navItems = const [
-    _NavItem(icon: Icons.explore_rounded, label: 'Plaza', color: AppTheme.primaryColor),
-    _NavItem(icon: Icons.photo_library_rounded, label: 'Moments', color: AppTheme.secondaryColor),
-    _NavItem(icon: Icons.chat_bubble_rounded, label: 'Chats', color: AppTheme.duoOrange),
-    _NavItem(icon: Icons.groups_rounded, label: 'Lounges', color: AppTheme.duoBlue),
-    _NavItem(icon: Icons.local_activity_rounded, label: 'Activity', color: AppTheme.duoGreen),
+    _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
+    _NavItem(emoji: '📸', label: 'Moments', color: AppTheme.secondaryColor),
+    _NavItem(emoji: '💬', label: 'Chats', color: AppTheme.duoOrange),
+    _NavItem(emoji: '🏘️', label: 'Lounges', color: AppTheme.duoBlue),
+    _NavItem(emoji: '🏆', label: 'Activity', color: AppTheme.duoGreen),
   ];
 
   @override
@@ -130,10 +130,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             AnimatedOpacity(
                               duration: 150.ms,
                               opacity: isSelected ? 1.0 : 0.5,
-                              child: Icon(
-                                item.icon,
-                                size: 28,
-                                color: isSelected ? item.color : Colors.grey,
+                              child: Text(
+                                item.emoji,
+                                style: const TextStyle(fontSize: 24),
                               ),
                             )
                             .animate(target: isSelected ? 1 : 0)
@@ -177,12 +176,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _NavItem {
-  final IconData icon;
+  final String emoji;
   final String label;
   final Color color;
 
   const _NavItem({
-    required this.icon,
+    required this.emoji,
     required this.label,
     required this.color,
   });

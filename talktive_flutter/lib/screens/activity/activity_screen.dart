@@ -53,7 +53,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       children: [
         DuoPageScaffold(
           title: 'Activity',
-          subtitle: 'Progress & Updates',
+          subtitle: 'Your building journey',
           icon: Icons.emoji_events,
           gradient: AppTheme.duoGreenGradient,
           trailingHeader: Row(

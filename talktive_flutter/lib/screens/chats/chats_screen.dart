@@ -25,9 +25,9 @@ class ChatsScreen extends ConsumerWidget {
     final chatsState = ref.watch(privateChatListProvider);
 
     return DuoPageScaffold(
-      icon: Icons.chat,
+      icon: Icons.chat_bubble,
       title: 'Chats',
-      subtitle: 'Private conversations',
+      subtitle: 'Connect with your neighbors',
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

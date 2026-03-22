@@ -2,6 +2,21 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
+## March 22, 2026 - Enhanced Welcoming Aesthetic (Phase 8.30) 🎨✨
+
+### UI/UX Refinement & Consistency
+- **Plaza Screen Enhancements**:
+  - Restored inviting labels: "We recommend starting in the Global Lounge to meet your neighbors" and "Join the main public chat to talk with everyone in the building."
+  - Updated iconography: Changed the Plaza header icon to `Icons.account_balance` for a more "civic/building" feel that aligns with the 🏛️ emoji.
+  - Renamed "Global Chat" to "Global Lounge" on action cards for better terminology consistency.
+  - Removed "Firebase" from the legacy version label to keep the tone focused on the experience rather than the tech stack.
+  - Added a placeholder Help Center SnackBar for immediate feedback.
+- **Screen-Specific Refinement**:
+  - **Moments**: Updated header icon to `Icons.photo_camera` (matching 📸) and subtitle to "Stories from the building".
+  - **Chats**: Updated header icon to `Icons.chat_bubble` (matching 💬) and subtitle to "Connect with your neighbors".
+  - **Activity**: Updated subtitle to "Your building journey".
+- **Design Stability**: Fixed a syntax error in the Plaza welcome banner and verified the complete build stack (Serverpod + Web + Android).
+
 ## March 22, 2026 - Restored Welcoming Iconography & Inviting Labels (Phase 8.28) 🎨🏠
 
 ### Restoration of Inviting Aesthetic

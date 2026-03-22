@@ -74,6 +74,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
 - **Architectural Polish**: Query optimizations, batch database operations, reactive profile providers, and dedicated search screens.
 - **Privacy & Premium Control**: Restored universal privacy toggles and granular premium feature switches.
+- **Welcoming Aesthetic**: Restored inviting labels and unified iconography across all core screens.
 
 *For detailed historical sub-phase notes (8.1 – 8.23), see [CHANGELOG.md](./CHANGELOG.md).*
 
@@ -139,6 +140,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Session Persistence (Mar 2026)**: Updated `AuthProvider.signOut` to maintain the `active_app_version` preference, ensuring that users remain on their chosen version (Serverpod) even after logging out.
 - **Iconography Balance**: Systematically uses traditional Material icons (non-rounded) for functional UI elements (headers, cards, inputs, empty states) while retaining emojis for bottom navigation and avatars. Established conceptual consistency (one icon per idea) across all screens (e.g., `Icons.groups` for Lounges, `Icons.chat` for Chats). 
 - **Inviting Labels**: Restored welcoming subtitles like "Your digital apartment lobby" and "Join the community clubhouse" to ensure the app feels like a friendly home.
+- **Enhanced Welcoming Aesthetic (Mar 2026)**: Restored inviting labels and unified iconography across all core screens (Plaza, Moments, Chats, Activity). Renamed "Global Chat" to "Global Lounge" for better building-metaphor alignment. Standardized header icons (Plaza: `account_balance`, Moments: `photo_camera`, Chats: `chat_bubble`) to better match their respective emojis and intent.
 
 ## Useful Commands
 

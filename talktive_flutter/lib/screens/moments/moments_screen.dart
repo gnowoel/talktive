@@ -349,9 +349,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   @override
   Widget build(BuildContext context) {
     return DuoPageScaffold(
-      icon: Icons.photo_library,
+      icon: Icons.photo_camera,
       title: 'Moments',
-      subtitle: 'Share your day',
+      subtitle: 'Stories from the building',
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

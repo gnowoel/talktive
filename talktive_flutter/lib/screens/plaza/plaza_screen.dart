@@ -18,7 +18,7 @@ class PlazaScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DuoPageScaffold(
-      icon: Icons.apartment,
+      icon: Icons.account_balance,
       title: 'Plaza',
       subtitle: 'Your digital apartment lobby',
       gradient: AppTheme.primaryGradient,
@@ -67,45 +67,88 @@ class PlazaScreen extends ConsumerWidget {
             border: Border.all(color: Colors.grey[200]!, width: 2),
             boxShadow: AppTheme.duoCardShadow,
           ),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome Home,',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                        fontFamily: 'Rubik',
-                      ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome Home,',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                            fontFamily: 'Rubik',
+                          ),
+                        ),
+                        Text(
+                          resident.userName ?? 'Resident',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      resident.userName ?? 'Resident',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
-                        fontFamily: 'Poppins',
-                      ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
-                  ],
-                ),
+                    child: const Icon(
+                      Icons.waving_hand,
+                      color: AppTheme.primaryColor,
+                      size: 32,
+                    ),
+                  ).animate(onPlay: (c) => c.repeat(reverse: true))
+                   .shake(duration: 1500.ms, hz: 2),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.waving_hand,
-                  color: AppTheme.primaryColor,
-                  size: 32,
-                ),
-              ).animate(onPlay: (c) => c.repeat(reverse: true))
-               .shake(duration: 1500.ms, hz: 2),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.duoBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.lightbulb_outline, size: 14, color: AppTheme.duoBlue),
+                        SizedBox(width: 4),
+                        Text(
+                          'PRO TIP',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.duoBlue,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'We recommend starting in the Global Lounge to meet your neighbors.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                        fontFamily: 'Rubik',
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ).animate().fadeIn().slideY(begin: 0.2);
@@ -134,11 +177,11 @@ class PlazaScreen extends ConsumerWidget {
             Expanded(
               child: _buildActionCard(
                 context,
-                title: 'Global Chat',
-                subtitle: 'Chat with everyone',
+                title: 'Global Lounge',
+                subtitle: 'Join the main public chat to talk with everyone in the building.',
                 icon: Icons.language,
                 color: AppTheme.primaryColor,
-                onTap: () => context.push('/plaza/global'),
+                onTap: () => context.push('/plaza/chat'),
               ),
             ),
             const SizedBox(width: AppTheme.duoSpacingMedium),
@@ -149,7 +192,18 @@ class PlazaScreen extends ConsumerWidget {
                 subtitle: 'Get assistance',
                 icon: Icons.help_outline,
                 color: AppTheme.duoGreen,
-                onTap: () => context.push('/plaza/support'),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Help Center is coming soon! 📚'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                      ),
+                      backgroundColor: AppTheme.duoGreen,
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -277,7 +331,7 @@ class PlazaScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            'The legacy Firebase version is still available via web.',
+            'The legacy version is still available via web.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,

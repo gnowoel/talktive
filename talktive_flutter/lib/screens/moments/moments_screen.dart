@@ -333,7 +333,6 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                   child: DuoButton(
                     text: 'Post Moment',
                     emoji: '📫',
-                    secondaryEmoji: '✨',
                     width: double.infinity,
                     isLoading: _isUploading,
                     onPressed: () => _postMoment(setModalState),

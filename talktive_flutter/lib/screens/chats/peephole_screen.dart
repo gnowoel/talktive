@@ -421,7 +421,7 @@ class PeepholeScreen extends ConsumerWidget {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
       text: '📸 Sharing $momentsCount Moments',
-      icon: '✨',
+      emoji: '✨',
       isSecondary: true,
       color: AppTheme.duoBlue.withValues(
         alpha: 0.8,

@@ -421,7 +421,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                   text: widget.existingLounge != null
                       ? 'Save Changes'
                       : 'Create Lounge',
-                   icon: widget.existingLounge != null ? '💾' : '➕',
+                  emoji: widget.existingLounge != null ? '💾' : '➕',
                   onPressed: _isCreating ? null : _saveLounge,
                   isLoading: _isCreating,
                   color: AppTheme.duoBlue,

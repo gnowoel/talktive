@@ -367,12 +367,11 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Info cards
-          if (gender != null || country != null)
-              if (gender != null)
-                _buildInfoRow('👤', _formatGender(gender)),
+          if (gender != null || country != null || mutualLounges > 0)
+            _buildInfoCard('About', [
+              if (gender != null) _buildInfoRow('👤', _formatGender(gender)),
               if (country != null) _buildInfoRow('🏁', country),
-              if (mutualLounges > 0)
-                _buildInfoRow('🏘️', '$mutualLounges mutual lounges'),
+              if (mutualLounges > 0) _buildInfoRow('🏘️', '$mutualLounges mutual lounges'),
             ]),
 
           if (interests.isNotEmpty) ...[

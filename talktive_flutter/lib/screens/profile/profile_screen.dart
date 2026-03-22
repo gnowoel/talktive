@@ -141,7 +141,7 @@ class ProfileScreen extends ConsumerWidget {
                 resident.bio!,
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppTheme.textSecondary.withAlpha(0.9),
+                  color: AppTheme.textSecondary.withOpacity(0.9),
                   fontFamily: 'Rubik',
                   height: 1.4,
                 ),
@@ -159,7 +159,7 @@ class ProfileScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(0.05),
+                    color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -293,7 +293,7 @@ class ProfileScreen extends ConsumerWidget {
                 label: 'Trust Score',
                 gradientColors: [
                   DuoFloorHelper.getTrustColor(trustScore),
-                  DuoFloorHelper.getTrustColor(trustScore).withAlpha(0.7),
+                  DuoFloorHelper.getTrustColor(trustScore).withOpacity(0.7),
                 ],
               ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.8, 0.8)),
               
@@ -310,7 +310,7 @@ class ProfileScreen extends ConsumerWidget {
                 label: 'Floor',
                 gradientColors: [
                   AppTheme.primaryColor,
-                  AppTheme.primaryColor.withAlpha(0.7),
+                  AppTheme.primaryColor.withOpacity(0.7),
                 ],
               ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
               
@@ -321,7 +321,7 @@ class ProfileScreen extends ConsumerWidget {
                 label: 'Messages',
                 gradientColors: [
                   AppTheme.accentColor,
-                  AppTheme.accentColor.withAlpha(0.7),
+                  AppTheme.accentColor.withOpacity(0.7),
                 ],
               ).animate().fadeIn(delay: 450.ms).scale(begin: const Offset(0.8, 0.8)),
             ],
@@ -389,10 +389,10 @@ class ProfileScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.duoGreen.withAlpha(0.1),
+                    color: AppTheme.duoGreen.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppTheme.duoGreen.withAlpha(0.3),
+                      color: AppTheme.duoGreen.withOpacity(0.3),
                     ),
                   ),
                   child: Row(
@@ -458,10 +458,10 @@ class ProfileScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentColor.withAlpha(0.1),
+                    color: AppTheme.accentColor.withAlpha(25),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppTheme.accentColor.withAlpha(0.3),
+                      color: AppTheme.accentColor.withAlpha(76),
                     ),
                   ),
                   child: Text(

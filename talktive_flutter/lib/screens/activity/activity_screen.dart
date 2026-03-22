@@ -261,8 +261,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildMiniStat(
-                    context,
+                  child: _buildStatCard(
                     label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
                     emoji: '🏢',
@@ -271,8 +270,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 ),
                 const SizedBox(width: AppTheme.duoSpacingSmall),
                 Expanded(
-                  child: _buildMiniStat(
-                    context,
+                  child: _buildStatCard(
                     label: 'Experience',
                     value: '${resident.xp}',
                     emoji: '🌟',
@@ -376,7 +374,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       error: (_, _) => const SizedBox.shrink(),
     );
   }
-
+  Widget _buildStatCard({
     required String label,
     required String value,
     required String emoji,

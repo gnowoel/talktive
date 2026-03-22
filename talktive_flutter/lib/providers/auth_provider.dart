@@ -54,7 +54,7 @@ class Auth extends _$Auth {
           if (idToken != null) {
             debugPrint('Auth: Attempting auto-login to Serverpod with existing Firebase user');
             final authResponse = await client.firebaseIdp.login(idToken: idToken);
-            if (authResponse != null && authResponse.success) {
+            if (authResponse != null) {
               await sessionManager.updateSignedInUser(authResponse);
               return await _refreshAuthState();
             }
@@ -284,7 +284,9 @@ class Auth extends _$Auth {
       debugPrint("SignOut error: $e");
     }
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('user_name');
+    await prefs.remove('user_id');
+    await prefs.remove('onboarding_completed');
     state = const AsyncValue.data(Unauthenticated());
   }
 }

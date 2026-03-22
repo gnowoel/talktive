@@ -7,19 +7,16 @@ import 'providers/router_provider.dart';
 import 'providers/fcm_provider.dart';
 
 class ServerpodApp extends StatelessWidget {
-  final VoidCallback onExit;
-
-  const ServerpodApp({super.key, required this.onExit});
+  const ServerpodApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(child: _ServerpodAppContent(onExit: onExit));
+    return const ProviderScope(child: _ServerpodAppContent());
   }
 }
 
 class _ServerpodAppContent extends ConsumerWidget {
-  final VoidCallback onExit;
-  const _ServerpodAppContent({required this.onExit});
+  const _ServerpodAppContent();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

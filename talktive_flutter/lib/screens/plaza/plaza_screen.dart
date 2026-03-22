@@ -45,6 +45,52 @@ class PlazaScreen extends ConsumerWidget {
               .animate()
               .fadeIn(delay: 300.ms)
               .slideX(begin: -0.1, end: 0),
+          
+          const SizedBox(height: AppTheme.duoSpacingLarge),
+          _buildOldVersionInfo()
+              .animate()
+              .fadeIn(delay: 400.ms)
+              .slideX(begin: -0.1, end: 0),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOldVersionInfo() {
+    return DuoCard(
+      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+      child: Column(
+        children: [
+          const Text(
+            'Still need the old version?',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'You can visit the web version here:',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, fontFamily: 'Rubik'),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () {
+               // In a real app we'd use url_launcher
+               // But for now it's just a visual link
+               HapticFeedback.lightImpact();
+            },
+            child: const Text(
+              'https://open.talktive.app/',
+              style: TextStyle(
+                color: AppTheme.primaryColor,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
         ],
       ),
     );

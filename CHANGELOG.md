@@ -6,6 +6,9 @@ This document tracks the major development milestones and changes made during th
 
 ### Seamless Authentication (Phase 8.24)
 - **Smart Version Selector**: Upgraded the `VersionSelector` to automatically detect persistent Google Sign-In sessions via `FirebaseAuth.instance.currentUser`. Logged-in users now skip the version selection screen and are directed straight to the Serverpod version, optimizing entry for returning residents.
+- **One-Way Migration Policy**: Enforced a strict one-way transition to Serverpod. Once a user chooses the modern version, the choice is persisted, and the "exit" or "reset" transitions are removed to ensure a stable, forward-focused user base.
+- **Legacy Version Fallback**: Added a dedicated info section at the bottom of the **Plaza** screen with a direct link to the legacy web app (`https://open.talktive.app/`), providing a safety net for users who still need access to the old platform.
+- **Improved Selection UX**: Added "Go Back" functionality to the Recovery and Version Selection screens, allowing users to navigate back to the initial choice without restarts.
 - **Serverpod Auto-Login**: Implemented proactive authentication in `AuthProvider`'s `build()` method. If a Firebase session exists but the Serverpod session is stale, the app now automatically exchanges the Firebase ID token for a new Serverpod session, providing a zero-click login experience.
 - **Auth State Robustness**: Refined `_refreshAuthState` and auto-login logic to explicitly handle unauthenticated states and verify session success flags, ensuring UI routes are always accurate following session establishment.
 

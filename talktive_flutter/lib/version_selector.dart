@@ -55,14 +55,22 @@ class _VersionSelectorState extends State<VersionSelector> {
       return;
     }
 
-    // New logic: If the user is already signed in with Google (from a previous session or installation),
-    // skip the version selection and default to the new Serverpod version. 
-    // This resolves the confusion where logged-in users felt forced to choose "New User" or "Existing User".
+    // New logic: Check the current Firebase user and their provider.
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
-      await prefs.setString('active_app_version', AppVersion.serverpod.name);
-      if (mounted) {
-        setState(() => _state = SelectorState.runAppServerpod);
+      final isGoogleUser = currentUser.providerData.any((info) => info.providerId == 'google.com');
+      
+      if (isGoogleUser) {
+        // If signed in with Google, default to the new Serverpod version.
+        await prefs.setString('active_app_version', AppVersion.serverpod.name);
+        if (mounted) {
+          setState(() => _state = SelectorState.runAppServerpod);
+        }
+      } else {
+        // If signed in anonymously or with email (Existing User), offer to choose version.
+        if (mounted) {
+          setState(() => _state = SelectorState.chooseVersion);
+        }
       }
       return;
     }
@@ -128,22 +136,13 @@ class _VersionSelectorState extends State<VersionSelector> {
     }
   }
 
-  void _reset() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('active_app_version');
-    if (mounted) {
-      setState(() {
-        _state = SelectorState.chooseUserType;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     if (_state == SelectorState.runAppFirebase) {
       return const App();
     } else if (_state == SelectorState.runAppServerpod) {
-      return ServerpodApp(onExit: _reset);
+      return const ServerpodApp();
     }
 
     return MaterialApp(
@@ -155,13 +154,9 @@ class _VersionSelectorState extends State<VersionSelector> {
             ? AppBar(
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    if (_state == SelectorState.chooseVersion) {
-                        setState(() => _state = SelectorState.chooseUserType);
-                    } else if (_state == SelectorState.enterRecoveryToken) {
-                        setState(() => _state = SelectorState.chooseUserType);
-                    }
-                  },
+                onPressed: () {
+                    setState(() => _state = SelectorState.chooseUserType);
+                },
                 ),
                 backgroundColor: Colors.transparent,
                 elevation: 0,

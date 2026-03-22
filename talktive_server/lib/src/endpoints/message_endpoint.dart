@@ -409,6 +409,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final content = message.content;
     if (content == null || content.isEmpty) return;
 
+    final isPlaza = channel.type == protocol.ChannelType.plaza;
     final channelId = channel.id!;
     final senderUuid = sender.userInfoId;
     final senderName = sender.userName ?? 'Resident';

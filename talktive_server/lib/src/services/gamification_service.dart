@@ -1,7 +1,7 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:math';
-import 'package:serverpod/serverpod.dart';
-import 'package:talktive_server/src/generated/protocol.dart';
+import 'package:serverpod/serverpod.dart' hide protocol;
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
 import 'notification_service.dart';
 
@@ -24,7 +24,7 @@ class GamificationService {
   /// Award XP to a resident and update their level/floor
   static Future<bool> awardXP(
     Session session,
-    Resident resident,
+    protocol.Resident resident,
     int xp,
     String reason, {
     bool save = true,
@@ -39,7 +39,7 @@ class GamificationService {
 
     // Save if required
     if (save) {
-      await Resident.db.updateRow(session, resident);
+      await protocol.Resident.db.updateRow(session, resident);
     }
 
     // Log level up
@@ -64,11 +64,11 @@ class GamificationService {
   }
 
   /// Fetch all residents starting with top XP
-  static Future<List<Resident>> getLeaderboard(
+  static Future<List<protocol.Resident>> getLeaderboard(
     Session session, {
     int limit = 100,
   }) async {
-    return await Resident.db.find(
+    return await protocol.Resident.db.find(
       session,
       limit: limit,
       orderByList: (t) => [
@@ -89,7 +89,7 @@ class GamificationService {
   /// Check and award daily login bonus. Returns true if changes were made to resident.
   static Future<bool> checkDailyLogin(
     Session session,
-    Resident resident, {
+    protocol.Resident resident, {
     bool save = true,
   }) async {
     final now = DateTime.now();
@@ -118,7 +118,7 @@ class GamificationService {
       );
 
       if (save) {
-        await Resident.db.updateRow(session, resident);
+        await protocol.Resident.db.updateRow(session, resident);
       }
       return true;
     }
@@ -128,7 +128,7 @@ class GamificationService {
   /// Internal streak update logic (no save)
   static Future<void> _updateStreakInternal(
     Session session,
-    Resident resident,
+    protocol.Resident resident,
     DateTime? lastLogin,
     DateTime today,
   ) async {
@@ -175,27 +175,27 @@ class GamificationService {
   /// Update login streak (Public version with save)
   static Future<void> updateLoginStreak(
     Session session,
-    Resident resident, {
+    protocol.Resident resident, {
     bool save = true,
   }) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     await _updateStreakInternal(session, resident, resident.lastLoginDate, today);
     if (save) {
-      await Resident.db.updateRow(session, resident);
+      await protocol.Resident.db.updateRow(session, resident);
     }
   }
 
   /// Update message streak
   static Future<void> updateMessageStreak(
     Session session,
-    Resident resident, {
+    protocol.Resident resident, {
     bool save = true,
   }) async {
     final now = DateTime.now();
     resident.lastMessageDate = now;
     if (save) {
-      await Resident.db.updateRow(session, resident);
+      await protocol.Resident.db.updateRow(session, resident);
     }
   }
 
@@ -209,7 +209,7 @@ class GamificationService {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    final todayReward = await DailyReward.db.findFirstRow(
+    final todayReward = await protocol.DailyReward.db.findFirstRow(
       session,
       where: (t) => t.userId.equals(userId) & t.claimedDate.equals(today),
     );
@@ -218,9 +218,9 @@ class GamificationService {
   }
 
   /// Claims daily reward based on streak.
-  static Future<DailyReward> claimDailyReward(
+  static Future<protocol.DailyReward> claimDailyReward(
     Session session,
-    Resident resident,
+    protocol.Resident resident,
   ) async {
     final userId = resident.userInfoId;
     final canClaim = await canClaimDailyReward(session, userId);
@@ -240,7 +240,7 @@ class GamificationService {
     final bonus = (resident.currentStreak - 1).clamp(0, 6) * 2;
     final rewardAmount = 10 + bonus;
 
-    final reward = DailyReward(
+    final reward = protocol.DailyReward(
       userId: userId,
       claimedDate: today,
       rewardType: 'credits',
@@ -248,7 +248,7 @@ class GamificationService {
       streakDay: resident.currentStreak,
     );
 
-    final savedReward = await DailyReward.db.insertRow(session, reward);
+    final savedReward = await protocol.DailyReward.db.insertRow(session, reward);
 
     // Award trustScore and XP to resident (daily reward)
     resident.trustScore = (resident.trustScore + rewardAmount).clamp(0, 1000);
@@ -259,7 +259,7 @@ class GamificationService {
       'Daily reward claimed',
       save: false,
     );
-    await Resident.db.updateRow(session, resident);
+    await protocol.Resident.db.updateRow(session, resident);
 
     return savedReward;
   }
@@ -269,7 +269,7 @@ class GamificationService {
   /// Seeds the database with predefined achievements.
   static Future<void> seedAchievements(Session session) async {
     final achievements = [
-      Achievement(
+      protocol.Achievement(
         key: 'first_message',
         name: 'First Steps',
         description: 'Send your first message',
@@ -278,7 +278,7 @@ class GamificationService {
         targetValue: 1,
         points: 10,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'conversationalist',
         name: 'Conversationalist',
         description: 'Send 100 messages',
@@ -287,7 +287,7 @@ class GamificationService {
         targetValue: 100,
         points: 50,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'chatterbox',
         name: 'Chatterbox',
         description: 'Send 1000 messages',
@@ -296,7 +296,7 @@ class GamificationService {
         targetValue: 1000,
         points: 200,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'social_butterfly',
         name: 'Social Butterfly',
         description: 'Join 5 lounges',
@@ -305,7 +305,7 @@ class GamificationService {
         targetValue: 5,
         points: 30,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'community_builder',
         name: 'Community Builder',
         description: 'Create your first lounge',
@@ -314,7 +314,7 @@ class GamificationService {
         targetValue: 1,
         points: 25,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'private_chat',
         name: 'Making Friends',
         description: 'Start a private chat',
@@ -323,7 +323,7 @@ class GamificationService {
         targetValue: 1,
         points: 15,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'first_moment',
         name: 'Moment Maker',
         description: 'Post your first moment',
@@ -332,7 +332,7 @@ class GamificationService {
         targetValue: 1,
         points: 15,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'photographer',
         name: 'Photographer',
         description: 'Post 10 moments',
@@ -341,7 +341,7 @@ class GamificationService {
         targetValue: 10,
         points: 50,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'influencer',
         name: 'Influencer',
         description: 'Post 50 moments',
@@ -350,7 +350,7 @@ class GamificationService {
         targetValue: 50,
         points: 150,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'rising_star',
         name: 'Rising Star',
         description: 'Reach Floor 1',
@@ -359,7 +359,7 @@ class GamificationService {
         targetValue: 1,
         points: 20,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'high_rise',
         name: 'High Rise',
         description: 'Reach Floor 2',
@@ -368,7 +368,7 @@ class GamificationService {
         targetValue: 2,
         points: 50,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'penthouse',
         name: 'Penthouse',
         description: 'Reach Floor 3',
@@ -377,7 +377,7 @@ class GamificationService {
         targetValue: 3,
         points: 100,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'helpful',
         name: 'Helpful',
         description: 'Report 5 violations',
@@ -386,7 +386,7 @@ class GamificationService {
         targetValue: 5,
         points: 30,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'trusted',
         name: 'Trusted',
         description: 'Maintain 100 credit score for 7 days',
@@ -396,7 +396,7 @@ class GamificationService {
         points: 75,
         isSecret: true,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'night_owl',
         name: 'Night Owl',
         description: 'Send a message at 3 AM',
@@ -406,7 +406,7 @@ class GamificationService {
         points: 15,
         isSecret: true,
       ),
-      Achievement(
+      protocol.Achievement(
         key: 'early_bird',
         name: 'Early Bird',
         description: 'Send a message at 6 AM',
@@ -419,19 +419,19 @@ class GamificationService {
     ];
 
     for (final achievement in achievements) {
-      final existing = await Achievement.db.findFirstRow(
+      final existing = await protocol.Achievement.db.findFirstRow(
         session,
         where: (t) => t.key.equals(achievement.key),
       );
 
       if (existing == null) {
-        await Achievement.db.insertRow(session, achievement);
+        await protocol.Achievement.db.insertRow(session, achievement);
       }
     }
   }
 
   /// Tracks progress for a specific achievement.
-  static Future<UserAchievement?> trackProgress(
+  static Future<protocol.UserAchievement?> trackProgress(
     Session session,
     UuidValue userId,
     String achievementKey, {
@@ -447,16 +447,16 @@ class GamificationService {
   }
 
   /// Tracks progress for multiple achievements in a single database round-trip.
-  static Future<List<UserAchievement>> trackMultipleProgress(
+  static Future<List<protocol.UserAchievement>> trackMultipleProgress(
     Session session,
     UuidValue userId,
     List<String> achievementKeys, {
     int increment = 1,
   }) async {
-    final result = <UserAchievement>[];
+    final result = <protocol.UserAchievement>[];
     if (achievementKeys.isEmpty) return result;
 
-    final achievements = await Achievement.db.find(
+    final achievements = await protocol.Achievement.db.find(
       session,
       where: (t) => t.key.inSet(achievementKeys.toSet()),
     );
@@ -465,7 +465,7 @@ class GamificationService {
 
     final achievementIds = achievements.map((a) => a.id!).toList();
 
-    final existingProgress = await UserAchievement.db.find(
+    final existingProgress = await protocol.UserAchievement.db.find(
       session,
       where: (t) =>
           t.userId.equals(userId) &
@@ -475,14 +475,14 @@ class GamificationService {
     final progressMap = {for (var p in existingProgress) p.achievementId: p};
     final now = DateTime.now();
 
-    final toInsert = <UserAchievement>[];
-    final toUpdate = <UserAchievement>[];
+    final toInsert = <protocol.UserAchievement>[];
+    final toUpdate = <protocol.UserAchievement>[];
 
     for (final achievement in achievements) {
       var userAchievement = progressMap[achievement.id!];
 
       if (userAchievement == null) {
-        userAchievement = UserAchievement(
+        userAchievement = protocol.UserAchievement(
           userId: userId,
           achievementId: achievement.id!,
           progress: increment,
@@ -536,8 +536,8 @@ class GamificationService {
       }
     }
 
-    if (toInsert.isNotEmpty) await UserAchievement.db.insert(session, toInsert);
-    if (toUpdate.isNotEmpty) await UserAchievement.db.update(session, toUpdate);
+    if (toInsert.isNotEmpty) await protocol.UserAchievement.db.insert(session, toInsert);
+    if (toUpdate.isNotEmpty) await protocol.UserAchievement.db.update(session, toUpdate);
 
     return result;
   }
@@ -545,7 +545,7 @@ class GamificationService {
   /// Checks and awards floor-based achievements.
   static Future<void> checkFloorAchievements(
     Session session,
-    Resident resident,
+    protocol.Resident resident,
   ) async {
     final rep = ApartmentService.computeEffectiveFloor(resident);
     if (rep >= 1) await trackProgress(session, resident.userInfoId, 'rising_star');
@@ -635,7 +635,7 @@ class GamificationService {
   ) async {
     if (achievementIds.isEmpty) return;
 
-    final userAchievements = await UserAchievement.db.find(
+    final userAchievements = await protocol.UserAchievement.db.find(
       session,
       where: (t) =>
           t.userId.equals(userId) & t.achievementId.inSet(achievementIds.toSet()),
@@ -650,7 +650,7 @@ class GamificationService {
     }
 
     if (toUpdate.isNotEmpty) {
-      await UserAchievement.db.update(session, toUpdate);
+      await protocol.UserAchievement.db.update(session, toUpdate);
     }
   }
 
@@ -662,7 +662,7 @@ class GamificationService {
   }
 
   /// Get progress to next floor (0.0 to 1.0)
-  static double levelProgress(Resident resident) {
+  static double levelProgress(protocol.Resident resident) {
     if (resident.level >= 50) return 1.0;
     final currentFloorXP = xpForBaseFloor(resident.level);
     final nextFloorXP = xpForBaseFloor(resident.level + 1);

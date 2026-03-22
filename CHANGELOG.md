@@ -14,6 +14,12 @@ This document tracks the major development milestones and changes made during th
 - **Batched User Block Checks**: Optimized `MessageEndpoint` and `PrivateChatEndpoint` to utilize `ResidentService.getBlocksAgainstUser` for bulk-checking block status. This ensures that even in large lounge chats, block-level message suppression remains performant.
 - **Streamlined Private Chat Retrieval**: Refactored `listPrivateChats` with batch fetching for channel members, unread counts, resident profiles, and user info metadata, resulting in near-instant chat list loading.
 
+### Serverpod Compatibility & Consolidation ⚙️
+- **Refined Gamification Logic**: Refactored `GamificationService` to resolve naming conflicts and ensure consistent `protocol.` prefixing following the Serverpod 3.4.2 upgrade.
+- **Unread Tracking Correction**: Fixed `ChatService` unread count calculation by switching to `session.db.unsafeQuery` for raw SQL execution.
+- **Service-Level Refinement**: Corrected parameter signatures and missing variable definitions in `MessageEndpoint` and `NotificationService`, ensuring a clean build.
+- **Verification**: Successfully validated concurrent execution of the Serverpod server, Flutter Web application, and Android Emulator on ARM64.
+
 ---
 
 

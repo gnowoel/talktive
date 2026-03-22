@@ -94,9 +94,9 @@ class NotificationService {
     String senderName,
     String messagePreview,
     int channelId,
-    String channelType, // 'private', 'lounge', 'plaza'
-    {int? loungeId},
-  ) async {
+    String channelType, {
+    int? loungeId,
+  }) async {
     int? resolvedRouteId = loungeId ?? channelId;
     if (loungeId == null && channelType == 'lounge') {
       final lounge = await protocol.Lounge.db.findFirstRow(

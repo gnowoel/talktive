@@ -141,7 +141,7 @@ class ChatService {
     ''';
 
     try {
-      final unreadCounts = await session.db.query(sql);
+      final unreadCounts = await session.db.unsafeQuery(sql);
       for (final row in unreadCounts) {
         if (row.length >= 2) {
           result[row[0] as int] = row[1] as int;

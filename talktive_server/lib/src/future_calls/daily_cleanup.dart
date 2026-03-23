@@ -17,7 +17,7 @@ class DailyCleanupCall extends FutureCall {
     } catch (e, stack) {
       session.log('TALKTIVE: Error during daily cleanup: $e\n$stack', level: LogLevel.error);
     } finally {
-      // 2. Schedule the NEXT cleanup for 3 AM Eastern (07:00 UTC) tomorrow
+      // 2. Schedule the NEXT cleanup for 5 AM Eastern (09:00 UTC) tomorrow
       final nextRun = getNextCleanupTime();
       await session.serverpod.futureCall(
         'dailyCleanup',
@@ -28,11 +28,11 @@ class DailyCleanupCall extends FutureCall {
     }
   }
 
-  /// Calculates the next occurrence of 7:00 AM UTC (3:00 AM EDT).
+  /// Calculates the next occurrence of 9:00 AM UTC (5:00 AM EDT).
   static DateTime getNextCleanupTime() {
     final now = DateTime.now().toUtc();
-    // Start with 7 AM UTC today
-    var next = DateTime.utc(now.year, now.month, now.day, 7, 0);
+    // Start with 9 AM UTC today
+    var next = DateTime.utc(now.year, now.month, now.day, 9, 0);
     
     // If we've already passed 7 AM UTC today, schedule it for tomorrow
     if (now.isAfter(next)) {

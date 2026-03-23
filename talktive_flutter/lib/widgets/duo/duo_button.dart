@@ -17,6 +17,7 @@ class DuoButton extends StatefulWidget {
   final IconData? icon;
   final String? emoji;
   final IconData? secondaryIcon;
+  final String? secondaryEmoji;
   final Color? color;
   final double? width;
 
@@ -31,6 +32,7 @@ class DuoButton extends StatefulWidget {
     this.icon,
     this.emoji,
     this.secondaryIcon,
+    this.secondaryEmoji,
     this.color,
     this.width,
   }) : variant =
@@ -191,15 +193,20 @@ class _DuoButtonState extends State<DuoButton> {
                         fontFamily: 'Poppins',
                       ),
                     ),
-                    if (widget.secondaryIcon != null) ...[
+                    if (widget.secondaryIcon != null || widget.secondaryEmoji != null) ...[
                       const SizedBox(width: 8),
-                      Icon(
-                            widget.secondaryIcon,
-                            color: textColor.withValues(
-                              alpha: (isSecondary || isGhost) ? 1.0 : 0.9,
-                            ),
-                            size: iconSize * 0.9,
-                          )
+                      (widget.secondaryIcon != null
+                              ? Icon(
+                                  widget.secondaryIcon,
+                                  color: textColor.withValues(
+                                    alpha: (isSecondary || isGhost) ? 1.0 : 0.9,
+                                  ),
+                                  size: iconSize * 0.9,
+                                )
+                              : Text(
+                                  widget.secondaryEmoji!,
+                                  style: TextStyle(fontSize: iconSize * 0.9),
+                                ))
                           .animate(
                             onPlay: (controller) =>
                                 controller.repeat(reverse: true),

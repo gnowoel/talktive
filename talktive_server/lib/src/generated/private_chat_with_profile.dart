@@ -14,7 +14,8 @@ import 'package:serverpod/serverpod.dart' as _i1;
 import 'private_chat.dart' as _i2;
 import 'resident.dart' as _i3;
 import 'channel_member_status.dart' as _i4;
-import 'package:talktive_server/src/generated/protocol.dart' as _i5;
+import 'channel.dart' as _i5;
+import 'package:talktive_server/src/generated/protocol.dart' as _i6;
 
 abstract class PrivateChatWithProfile
     implements _i1.SerializableModel, _i1.ProtocolSerialization {
@@ -28,6 +29,7 @@ abstract class PrivateChatWithProfile
     this.otherMemberStatus,
     this.otherUserLastReadAt,
     int? unreadCount,
+    this.channel,
   }) : unreadCount = unreadCount ?? 0;
 
   factory PrivateChatWithProfile({
@@ -40,16 +42,17 @@ abstract class PrivateChatWithProfile
     _i4.ChannelMemberStatus? otherMemberStatus,
     DateTime? otherUserLastReadAt,
     int? unreadCount,
+    _i5.Channel? channel,
   }) = _PrivateChatWithProfileImpl;
 
   factory PrivateChatWithProfile.fromJson(
     Map<String, dynamic> jsonSerialization,
   ) {
     return PrivateChatWithProfile(
-      chat: _i5.Protocol().deserialize<_i2.PrivateChat>(
+      chat: _i6.Protocol().deserialize<_i2.PrivateChat>(
         jsonSerialization['chat'],
       ),
-      otherResident: _i5.Protocol().deserialize<_i3.Resident>(
+      otherResident: _i6.Protocol().deserialize<_i3.Resident>(
         jsonSerialization['otherResident'],
       ),
       otherUserName: jsonSerialization['otherUserName'] as String?,
@@ -71,6 +74,11 @@ abstract class PrivateChatWithProfile
               jsonSerialization['otherUserLastReadAt'],
             ),
       unreadCount: jsonSerialization['unreadCount'] as int?,
+      channel: jsonSerialization['channel'] == null
+          ? null
+          : _i6.Protocol().deserialize<_i5.Channel>(
+              jsonSerialization['channel'],
+            ),
     );
   }
 
@@ -92,6 +100,8 @@ abstract class PrivateChatWithProfile
 
   int unreadCount;
 
+  _i5.Channel? channel;
+
   /// Returns a shallow copy of this [PrivateChatWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -105,6 +115,7 @@ abstract class PrivateChatWithProfile
     _i4.ChannelMemberStatus? otherMemberStatus,
     DateTime? otherUserLastReadAt,
     int? unreadCount,
+    _i5.Channel? channel,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -122,6 +133,7 @@ abstract class PrivateChatWithProfile
       if (otherUserLastReadAt != null)
         'otherUserLastReadAt': otherUserLastReadAt?.toJson(),
       'unreadCount': unreadCount,
+      if (channel != null) 'channel': channel?.toJson(),
     };
   }
 
@@ -141,6 +153,7 @@ abstract class PrivateChatWithProfile
       if (otherUserLastReadAt != null)
         'otherUserLastReadAt': otherUserLastReadAt?.toJson(),
       'unreadCount': unreadCount,
+      if (channel != null) 'channel': channel?.toJsonForProtocol(),
     };
   }
 
@@ -163,6 +176,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     _i4.ChannelMemberStatus? otherMemberStatus,
     DateTime? otherUserLastReadAt,
     int? unreadCount,
+    _i5.Channel? channel,
   }) : super._(
          chat: chat,
          otherResident: otherResident,
@@ -173,6 +187,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
          otherMemberStatus: otherMemberStatus,
          otherUserLastReadAt: otherUserLastReadAt,
          unreadCount: unreadCount,
+         channel: channel,
        );
 
   /// Returns a shallow copy of this [PrivateChatWithProfile]
@@ -189,6 +204,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     Object? otherMemberStatus = _Undefined,
     Object? otherUserLastReadAt = _Undefined,
     int? unreadCount,
+    Object? channel = _Undefined,
   }) {
     return PrivateChatWithProfile(
       chat: chat ?? this.chat.copyWith(),
@@ -212,6 +228,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
           ? otherUserLastReadAt
           : this.otherUserLastReadAt,
       unreadCount: unreadCount ?? this.unreadCount,
+      channel: channel is _i5.Channel? ? channel : this.channel?.copyWith(),
     );
   }
 }

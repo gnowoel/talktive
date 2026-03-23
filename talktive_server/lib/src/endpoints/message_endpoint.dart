@@ -498,4 +498,46 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       if (bulkMemberFuture != null) bulkMemberFuture,
     ]);
   }
+
+  /// Updates the persistence setting of a channel.
+  Future<protocol.Channel> updateChannelPersistence(
+    Session session,
+    int channelId,
+    bool isPersistent,
+  ) async {
+    final channel = await protocol.Channel.db.findById(session, channelId);
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    final userUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, userUuid);
+
+    if (!resident.isPremium) {
+      throw protocol.TalktiveException(
+        message: 'Chat persistence is a Premium feature.',
+        code: 'PREMIUM_REQUIRED',
+      );
+    }
+
+    // Verify membership for private/lounge channels
+    if (channel.type != protocol.ChannelType.plaza) {
+      final membership = await protocol.ChannelMember.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(userUuid),
+      );
+      if (membership == null) {
+        throw protocol.TalktiveException(
+          message: 'Access denied: Not a member of this channel.',
+          code: 'ACCESS_DENIED',
+        );
+      }
+    }
+
+    channel.isPersistent = isPersistent;
+    return await protocol.Channel.db.updateRow(session, channel);
+  }
 }

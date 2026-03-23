@@ -5,3 +5,4 @@ fields:
   name: String?
   createdAt: DateTime
   lastMessageAt: DateTime?
+  isPersistent: bool, default=false

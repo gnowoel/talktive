@@ -23,7 +23,7 @@ class DuoRefreshButton extends StatelessWidget {
     }
 
     return IconButton(
-      icon: const Text('🔄', style: TextStyle(fontSize: 20)),
+      icon: Icon(Icons.refresh, color: color, size: 22),
       onPressed: onRefresh,
       tooltip: 'Refresh',
     );

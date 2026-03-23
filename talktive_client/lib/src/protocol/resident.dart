@@ -51,6 +51,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -70,7 +71,8 @@ abstract class Resident implements _i1.SerializableModel {
        showImagesInPlaza = showImagesInPlaza ?? true,
        showOthersOnlineStatus = showOthersOnlineStatus ?? true,
        showOthersReadReceipts = showOthersReadReceipts ?? true,
-       showOthersTypingIndicators = showOthersTypingIndicators ?? true;
+       showOthersTypingIndicators = showOthersTypingIndicators ?? true,
+       keepPrivateChats = keepPrivateChats ?? false;
 
   factory Resident({
     int? id,
@@ -108,6 +110,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -228,6 +231,11 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOthersTypingIndicators'],
             ),
+      keepPrivateChats: jsonSerialization['keepPrivateChats'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['keepPrivateChats'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -305,6 +313,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showOthersTypingIndicators;
 
+  bool keepPrivateChats;
+
   String? customAvatarUrl;
 
   /// Returns a shallow copy of this [Resident]
@@ -346,6 +356,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     String? customAvatarUrl,
   });
   @override
@@ -388,6 +399,7 @@ abstract class Resident implements _i1.SerializableModel {
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
+      'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -437,6 +449,7 @@ class _ResidentImpl extends Resident {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -474,6 +487,7 @@ class _ResidentImpl extends Resident {
          showOthersOnlineStatus: showOthersOnlineStatus,
          showOthersReadReceipts: showOthersReadReceipts,
          showOthersTypingIndicators: showOthersTypingIndicators,
+         keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -517,6 +531,7 @@ class _ResidentImpl extends Resident {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -570,6 +585,7 @@ class _ResidentImpl extends Resident {
           showOthersReadReceipts ?? this.showOthersReadReceipts,
       showOthersTypingIndicators:
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
+      keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,

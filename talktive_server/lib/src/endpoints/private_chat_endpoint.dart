@@ -273,6 +273,12 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     final allMembers = results[0] as List<protocol.ChannelMember>;
     final unreadCounts = results[1] as Map<int, int>;
 
+    final channels = await protocol.Channel.db.find(
+      session,
+      where: (t) => t.id.inSet(channelIds.toSet()),
+    );
+    final channelMap = {for (var c in channels) c.id: c};
+
     final membersByChannel = <int, List<protocol.ChannelMember>>{};
     for (var m in allMembers) {
       membersByChannel.putIfAbsent(m.channelId, () => []).add(m);
@@ -328,6 +334,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
             otherMemberStatus: otherMember?.status,
             otherUserLastReadAt: otherResident.showReadReceipts ? otherMember?.lastReadAt : null,
             unreadCount: unreadCounts[chat.channelId] ?? 0,
+            channel: channelMap[chat.channelId],
           ),
         );
       }
@@ -395,6 +402,8 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
           t.userInfoId.equals(otherUserId),
     );
 
+    final channel = await protocol.Channel.db.findById(session, privateChat.channelId);
+
     return protocol.PrivateChatWithProfile(
       chat: privateChat,
       otherResident: otherResident,
@@ -409,6 +418,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
         privateChat.channelId,
         currentUserId,
       ),
+      channel: channel,
     );
   }
 

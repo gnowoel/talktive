@@ -9,3 +9,4 @@ fields:
   otherMemberStatus: ChannelMemberStatus?
   otherUserLastReadAt: DateTime?
   unreadCount: int, default=0
+  channel: Channel?

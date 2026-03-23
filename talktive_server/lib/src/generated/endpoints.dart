@@ -33,6 +33,8 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i20;
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i21;
+import 'package:talktive_server/src/generated/future_calls.dart' as _i22;
+export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -1573,6 +1575,31 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['isTyping'],
                   ),
         ),
+        'updateChannelPersistence': _i1.MethodConnector(
+          name: 'updateChannelPersistence',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'isPersistent': _i1.ParameterDescription(
+              name: 'isPersistent',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['message'] as _i9.MessageEndpoint)
+                  .updateChannelPersistence(
+                    session,
+                    params['channelId'],
+                    params['isPersistent'],
+                  ),
+        ),
         'subscribe': _i1.MethodStreamConnector(
           name: 'subscribe',
           params: {
@@ -2593,6 +2620,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
+            'keepPrivateChats': _i1.ParameterDescription(
+              name: 'keepPrivateChats',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -2610,6 +2642,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     showOthersReadReceipts: params['showOthersReadReceipts'],
                     showOthersTypingIndicators:
                         params['showOthersTypingIndicators'],
+                    keepPrivateChats: params['keepPrivateChats'],
                   ),
         ),
       },
@@ -2837,5 +2870,10 @@ class Endpoints extends _i1.EndpointDispatch {
     modules['serverpod_auth_core'] = _i20.Endpoints()
       ..initializeEndpoints(server);
     modules['serverpod_auth'] = _i21.Endpoints()..initializeEndpoints(server);
+  }
+
+  @override
+  _i1.FutureCallDispatch? get futureCalls {
+    return _i22.FutureCalls();
   }
 }

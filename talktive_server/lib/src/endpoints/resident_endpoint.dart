@@ -293,6 +293,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
   }) async {
     final resident = await getAuthenticatedResident(session);
 
@@ -304,6 +305,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
     if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
     if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
+    if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
     
     return await protocol.Resident.db.updateRow(session, resident);
   }

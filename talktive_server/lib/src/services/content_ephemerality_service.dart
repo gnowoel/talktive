@@ -70,10 +70,10 @@ class ContentEphemeralityService {
   static Future<int> _cleanupLoungeMessages(Session session) async {
     final cutoff = DateTime.now().subtract(loungeMessageLifetime);
     
-    // Get all Lounge Channel IDs (excluding Plaza and Private)
+    // Get all Lounge Channel IDs (excluding persistent ones)
     final loungeChannels = await protocol.Channel.db.find(
       session,
-      where: (t) => t.type.equals(protocol.ChannelType.lounge),
+      where: (t) => t.type.equals(protocol.ChannelType.lounge) & t.isPersistent.equals(false),
     );
     
     if (loungeChannels.isEmpty) return 0;
@@ -90,18 +90,46 @@ class ContentEphemeralityService {
   static Future<int> _cleanupPrivateMessages(Session session) async {
     final cutoff = DateTime.now().subtract(privateChatMessageLifetime);
     
-    // Get all Private Chat IDs
+    // 1. Get all non-persistent Private Channels
     final privateChannels = await protocol.Channel.db.find(
       session,
-      where: (t) => t.type.equals(protocol.ChannelType.private),
+      where: (t) => t.type.equals(protocol.ChannelType.private) & t.isPersistent.equals(false),
     );
     
     if (privateChannels.isEmpty) return 0;
     
-    final ids = privateChannels.map((c) => c.id!).toSet();
+    final candidateIds = privateChannels.map((c) => c.id!).toSet();
+
+    // 2. Identify which ones should be kept due to Resident.keepPrivateChats == true
+    final memberships = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) => t.channelId.inSet(candidateIds),
+    );
+
+    final userUuids = memberships.map((m) => m.userInfoId).toSet();
+    final residentsWithPersistence = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(userUuids) & t.keepPrivateChats.equals(true),
+    );
+
+    final persistentUserIds = residentsWithPersistence.map((r) => r.userInfoId).toSet();
+    
+    // Map channels to their members' persistence status
+    final channelIdsWithPersistence = <int>{};
+    for (final m in memberships) {
+      if (persistentUserIds.contains(m.userInfoId)) {
+        channelIdsWithPersistence.add(m.channelId);
+      }
+    }
+
+    // 3. Final cleanup set: candidates MINUS those with persistence
+    final cleanupSet = candidateIds.where((id) => !channelIdsWithPersistence.contains(id)).toSet();
+
+    if (cleanupSet.isEmpty) return 0;
+
     final deleted = await protocol.Message.db.deleteWhere(
       session,
-      where: (t) => (t.channelId.inSet(ids)) & (t.createdAt < cutoff),
+      where: (t) => (t.channelId.inSet(cleanupSet)) & (t.createdAt < cutoff),
     );
 
     return deleted.length;

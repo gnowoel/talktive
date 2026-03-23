@@ -14,7 +14,8 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'private_chat.dart' as _i2;
 import 'resident.dart' as _i3;
 import 'channel_member_status.dart' as _i4;
-import 'package:talktive_client/src/protocol/protocol.dart' as _i5;
+import 'channel.dart' as _i5;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i6;
 
 abstract class PrivateChatWithProfile implements _i1.SerializableModel {
   PrivateChatWithProfile._({
@@ -27,6 +28,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     this.otherMemberStatus,
     this.otherUserLastReadAt,
     int? unreadCount,
+    this.channel,
   }) : unreadCount = unreadCount ?? 0;
 
   factory PrivateChatWithProfile({
@@ -39,16 +41,17 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     _i4.ChannelMemberStatus? otherMemberStatus,
     DateTime? otherUserLastReadAt,
     int? unreadCount,
+    _i5.Channel? channel,
   }) = _PrivateChatWithProfileImpl;
 
   factory PrivateChatWithProfile.fromJson(
     Map<String, dynamic> jsonSerialization,
   ) {
     return PrivateChatWithProfile(
-      chat: _i5.Protocol().deserialize<_i2.PrivateChat>(
+      chat: _i6.Protocol().deserialize<_i2.PrivateChat>(
         jsonSerialization['chat'],
       ),
-      otherResident: _i5.Protocol().deserialize<_i3.Resident>(
+      otherResident: _i6.Protocol().deserialize<_i3.Resident>(
         jsonSerialization['otherResident'],
       ),
       otherUserName: jsonSerialization['otherUserName'] as String?,
@@ -70,6 +73,11 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
               jsonSerialization['otherUserLastReadAt'],
             ),
       unreadCount: jsonSerialization['unreadCount'] as int?,
+      channel: jsonSerialization['channel'] == null
+          ? null
+          : _i6.Protocol().deserialize<_i5.Channel>(
+              jsonSerialization['channel'],
+            ),
     );
   }
 
@@ -91,6 +99,8 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
 
   int unreadCount;
 
+  _i5.Channel? channel;
+
   /// Returns a shallow copy of this [PrivateChatWithProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -104,6 +114,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
     _i4.ChannelMemberStatus? otherMemberStatus,
     DateTime? otherUserLastReadAt,
     int? unreadCount,
+    _i5.Channel? channel,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -121,6 +132,7 @@ abstract class PrivateChatWithProfile implements _i1.SerializableModel {
       if (otherUserLastReadAt != null)
         'otherUserLastReadAt': otherUserLastReadAt?.toJson(),
       'unreadCount': unreadCount,
+      if (channel != null) 'channel': channel?.toJson(),
     };
   }
 
@@ -143,6 +155,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     _i4.ChannelMemberStatus? otherMemberStatus,
     DateTime? otherUserLastReadAt,
     int? unreadCount,
+    _i5.Channel? channel,
   }) : super._(
          chat: chat,
          otherResident: otherResident,
@@ -153,6 +166,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
          otherMemberStatus: otherMemberStatus,
          otherUserLastReadAt: otherUserLastReadAt,
          unreadCount: unreadCount,
+         channel: channel,
        );
 
   /// Returns a shallow copy of this [PrivateChatWithProfile]
@@ -169,6 +183,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
     Object? otherMemberStatus = _Undefined,
     Object? otherUserLastReadAt = _Undefined,
     int? unreadCount,
+    Object? channel = _Undefined,
   }) {
     return PrivateChatWithProfile(
       chat: chat ?? this.chat.copyWith(),
@@ -192,6 +207,7 @@ class _PrivateChatWithProfileImpl extends PrivateChatWithProfile {
           ? otherUserLastReadAt
           : this.otherUserLastReadAt,
       unreadCount: unreadCount ?? this.unreadCount,
+      channel: channel is _i5.Channel? ? channel : this.channel?.copyWith(),
     );
   }
 }

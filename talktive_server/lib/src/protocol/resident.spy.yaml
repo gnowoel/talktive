@@ -50,6 +50,7 @@ fields:
   showOthersOnlineStatus: bool, default=true
   showOthersReadReceipts: bool, default=true
   showOthersTypingIndicators: bool, default=true
+  keepPrivateChats: bool, default=false
   customAvatarUrl: String?
   
 indexes:

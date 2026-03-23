@@ -360,6 +360,42 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         }
                       }
                     }
+                  } else if (value == 'persistence') {
+                    if (currentResident?.isPremium != true) {
+                      DuoSnackBarHelper.showError(
+                        context,
+                        'Persistence is a Premium feature! 💎 Upgrade in Settings.',
+                      );
+                      return;
+                    }
+
+                    try {
+                      final client = ref.read(clientProvider);
+                      final isPersistent = details.channel?.isPersistent ?? false;
+                      await client.message.updateChannelPersistence(
+                        widget.channelId,
+                        !isPersistent,
+                      );
+                      
+                      if (context.mounted) {
+                        HapticFeedback.mediumImpact();
+                        DuoSnackBarHelper.showSuccess(
+                          context,
+                          !isPersistent 
+                            ? 'Chat will be kept permanently! 📌' 
+                            : 'Chat ephemerality restored. 📍',
+                        );
+                        // Invalidate to refresh the Details (specifically the channel object)
+                        ref.invalidate(privateChatDetailsProvider(widget.channelId));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showError(
+                          context,
+                          'Failed to update persistence',
+                        );
+                      }
+                    }
                   }
                 },
                 itemBuilder: (BuildContext context) {
@@ -377,6 +413,46 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'persistence',
+                      child: Row(
+                        children: [
+                          Text(
+                            details.channel?.isPersistent == true ? '📌' : '📍',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  details.channel?.isPersistent == true
+                                      ? 'Unkeep Chat'
+                                      : 'Keep Chat',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                if (currentResident?.isPremium != true)
+                                  const Text(
+                                    'Premium Feature',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppTheme.duoOrange,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (currentResident?.isPremium != true)
+                            const Icon(Icons.lock, size: 14, color: AppTheme.duoOrange),
                         ],
                       ),
                     ),

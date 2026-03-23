@@ -206,6 +206,30 @@ class SettingsScreen extends ConsumerWidget {
                       )
                     : null,
               ),
+              _buildFeatureRow(
+                context,
+                icon: Icons.history,
+                title: 'Keep Private Chats',
+                description: 'Prevent your private chats from being deleted.',
+                isLocked: !resident.isPremium,
+                value: resident.keepPrivateChats,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        keepPrivateChats: val,
+                      )
+                    : null,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: Icons.block,
+                title: 'No Ads',
+                description: 'A completely ad-free experience (Coming Soon).',
+                isLocked: !resident.isPremium,
+                value: resident.isPremium,
+                onChanged: null,
+              ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools'),
@@ -291,6 +315,7 @@ class SettingsScreen extends ConsumerWidget {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
   }) async {
     HapticFeedback.selectionClick();
     final resident = ref.read(currentResidentProvider).value;
@@ -311,6 +336,7 @@ class SettingsScreen extends ConsumerWidget {
             showOthersReadReceipts ?? resident.showOthersReadReceipts,
         showOthersTypingIndicators:
             showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
+        keepPrivateChats: keepPrivateChats ?? resident.keepPrivateChats,
       );
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;

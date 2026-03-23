@@ -20,7 +20,8 @@ abstract class Channel implements _i1.SerializableModel {
     this.name,
     required this.createdAt,
     this.lastMessageAt,
-  });
+    bool? isPersistent,
+  }) : isPersistent = isPersistent ?? false;
 
   factory Channel({
     int? id,
@@ -28,6 +29,7 @@ abstract class Channel implements _i1.SerializableModel {
     String? name,
     required DateTime createdAt,
     DateTime? lastMessageAt,
+    bool? isPersistent,
   }) = _ChannelImpl;
 
   factory Channel.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -43,6 +45,9 @@ abstract class Channel implements _i1.SerializableModel {
           : _i1.DateTimeJsonExtension.fromJson(
               jsonSerialization['lastMessageAt'],
             ),
+      isPersistent: jsonSerialization['isPersistent'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPersistent']),
     );
   }
 
@@ -59,6 +64,8 @@ abstract class Channel implements _i1.SerializableModel {
 
   DateTime? lastMessageAt;
 
+  bool isPersistent;
+
   /// Returns a shallow copy of this [Channel]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -68,6 +75,7 @@ abstract class Channel implements _i1.SerializableModel {
     String? name,
     DateTime? createdAt,
     DateTime? lastMessageAt,
+    bool? isPersistent,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -78,6 +86,7 @@ abstract class Channel implements _i1.SerializableModel {
       if (name != null) 'name': name,
       'createdAt': createdAt.toJson(),
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
+      'isPersistent': isPersistent,
     };
   }
 
@@ -96,12 +105,14 @@ class _ChannelImpl extends Channel {
     String? name,
     required DateTime createdAt,
     DateTime? lastMessageAt,
+    bool? isPersistent,
   }) : super._(
          id: id,
          type: type,
          name: name,
          createdAt: createdAt,
          lastMessageAt: lastMessageAt,
+         isPersistent: isPersistent,
        );
 
   /// Returns a shallow copy of this [Channel]
@@ -114,6 +125,7 @@ class _ChannelImpl extends Channel {
     Object? name = _Undefined,
     DateTime? createdAt,
     Object? lastMessageAt = _Undefined,
+    bool? isPersistent,
   }) {
     return Channel(
       id: id is int? ? id : this.id,
@@ -123,6 +135,7 @@ class _ChannelImpl extends Channel {
       lastMessageAt: lastMessageAt is DateTime?
           ? lastMessageAt
           : this.lastMessageAt,
+      isPersistent: isPersistent ?? this.isPersistent,
     );
   }
 }

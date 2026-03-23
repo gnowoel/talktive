@@ -52,6 +52,7 @@ abstract class Resident
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -71,7 +72,8 @@ abstract class Resident
        showImagesInPlaza = showImagesInPlaza ?? true,
        showOthersOnlineStatus = showOthersOnlineStatus ?? true,
        showOthersReadReceipts = showOthersReadReceipts ?? true,
-       showOthersTypingIndicators = showOthersTypingIndicators ?? true;
+       showOthersTypingIndicators = showOthersTypingIndicators ?? true,
+       keepPrivateChats = keepPrivateChats ?? false;
 
   factory Resident({
     int? id,
@@ -109,6 +111,7 @@ abstract class Resident
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -229,6 +232,11 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOthersTypingIndicators'],
             ),
+      keepPrivateChats: jsonSerialization['keepPrivateChats'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['keepPrivateChats'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -308,6 +316,8 @@ abstract class Resident
 
   bool showOthersTypingIndicators;
 
+  bool keepPrivateChats;
+
   String? customAvatarUrl;
 
   @override
@@ -352,6 +362,7 @@ abstract class Resident
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     String? customAvatarUrl,
   });
   @override
@@ -394,6 +405,7 @@ abstract class Resident
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
+      'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -438,6 +450,7 @@ abstract class Resident
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
+      'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -511,6 +524,7 @@ class _ResidentImpl extends Resident {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -548,6 +562,7 @@ class _ResidentImpl extends Resident {
          showOthersOnlineStatus: showOthersOnlineStatus,
          showOthersReadReceipts: showOthersReadReceipts,
          showOthersTypingIndicators: showOthersTypingIndicators,
+         keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -591,6 +606,7 @@ class _ResidentImpl extends Resident {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -644,6 +660,7 @@ class _ResidentImpl extends Resident {
           showOthersReadReceipts ?? this.showOthersReadReceipts,
       showOthersTypingIndicators:
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
+      keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
@@ -842,6 +859,11 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         value,
       );
 
+  _i1.ColumnValue<bool, bool> keepPrivateChats(bool value) => _i1.ColumnValue(
+    table.keepPrivateChats,
+    value,
+  );
+
   _i1.ColumnValue<String, String> customAvatarUrl(String? value) =>
       _i1.ColumnValue(
         table.customAvatarUrl,
@@ -1008,6 +1030,11 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    keepPrivateChats = _i1.ColumnBool(
+      'keepPrivateChats',
+      this,
+      hasDefault: true,
+    );
     customAvatarUrl = _i1.ColumnString(
       'customAvatarUrl',
       this,
@@ -1084,6 +1111,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showOthersTypingIndicators;
 
+  late final _i1.ColumnBool keepPrivateChats;
+
   late final _i1.ColumnString customAvatarUrl;
 
   @override
@@ -1123,6 +1152,7 @@ class ResidentTable extends _i1.Table<int?> {
     showOthersOnlineStatus,
     showOthersReadReceipts,
     showOthersTypingIndicators,
+    keepPrivateChats,
     customAvatarUrl,
   ];
 }

@@ -75,6 +75,7 @@ message:
   - listMessages:
   - markChannelAsRead:
   - sendTypingIndicator:
+  - updateChannelPersistence:
 moment:
   - postMoment:
   - listMoments:

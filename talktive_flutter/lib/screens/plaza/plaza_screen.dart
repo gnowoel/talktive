@@ -182,6 +182,7 @@ class PlazaScreen extends ConsumerWidget {
                   subtitle: 'Join the main public chat to talk with everyone in the building.',
                   emoji: '🌏',
                   color: AppTheme.primaryColor,
+                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                   onTap: () => context.push('/plaza/chat'),
                 ),
               ),
@@ -214,9 +215,11 @@ class PlazaScreen extends ConsumerWidget {
     String? emoji,
     required Color color,
     required VoidCallback onTap,
+    Color? backgroundColor,
   }) {
     return DuoCard(
       onTap: onTap,
+      color: backgroundColor,
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

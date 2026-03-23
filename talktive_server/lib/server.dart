@@ -11,7 +11,7 @@ import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
-import 'src/future_calls/message_cleanup.dart';
+import 'src/future_calls/daily_cleanup.dart';
 import 'src/future_calls/credit_restoration.dart';
 import 'src/services/fcm_service.dart';
 import 'src/services/emulator_auth_service.dart';
@@ -22,7 +22,7 @@ void run(List<String> args) async {
   final pod = Serverpod(args, Protocol(), Endpoints());
 
   // Register Future Calls
-  pod.registerFutureCall(MessageCleanupCall(), 'messageCleanup');
+  pod.registerFutureCall(DailyCleanupCall(), 'dailyCleanup');
   pod.registerFutureCall(CreditRestorationCall(), 'creditRestoration');
 
   // Initialize authentication services for the server.
@@ -134,6 +134,15 @@ void run(List<String> args) async {
 
   // Initialize FCM for push notifications
   await FCMService.initialize();
+
+  // Schedule first cleanup call for 1 minute from now to ensure ephemerality chain begins.
+  // The DailyCleanupCall will reschedule itself every 24 hours.
+  // We use try/catch to ensure server starts even if scheduling fails.
+  try {
+    await pod.futureCall('dailyCleanup', null, at: DateTime.now().add(const Duration(minutes: 1)));
+  } catch (e) {
+    print('Notification: Daily cleanup already scheduled or failed to schedule: $e');
+  }
 
   // Start the server.
   await pod.start();

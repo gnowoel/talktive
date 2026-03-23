@@ -1,7 +1,7 @@
 import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/cache_service.dart';
-import '../services/data_archival_service.dart';
+import '../services/content_ephemerality_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
 import '../services/report_service.dart';
@@ -776,15 +776,15 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Run data archival tasks (admin only).
+  /// Run data cleanup/ephemerality tasks (admin only).
   Future<Map<String, int>> runArchival(Session session) async {
     await getAdminProfile(session);
-    return await DataArchivalService.runArchivalTasks(session);
+    return await ContentEphemeralityService.runCleanup(session);
   }
 
-  /// Get archival statistics (admin only).
+  /// Get cleanup/ephemerality statistics (admin only).
   Future<Map<String, int>> getArchivalStats(Session session) async {
     await getAdminProfile(session);
-    return await DataArchivalService.getArchivalStats(session);
+    return await ContentEphemeralityService.getCleanupStats(session);
   }
 }

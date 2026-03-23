@@ -22,6 +22,22 @@ Our discovery system follows the **"Ephemeral First"** philosophy. We prioritize
 *   **Privacy-Tiers**: Public spaces (Lounges) are easily discoverable to encourage community, while Resident profiles are protected behind a **Premium Discovery** wall. 
 *   **The Global Lobby**: New residents are always guided back to the **Plaza** and the **Global Lounge**—the digital "front door" where the community meets.
 
+### Tiered Content Ephemerality
+To ensure the building remains fresh and private, we follow a strict tiered ephemerality policy:
+- **Plaza (Public)**: 24-hour lifespan to keep the social heart energetic.
+- **Lounges (Clubhouse)**: 14-day lifespan for interest-based hangouts.
+- **Private Chats (Units)**: 30-day lifespan for personal security.
+- **Moments (Bulletin Board)**: 7-day lifespan for ephemeral snapshots.
+
+---
+
+### Tiered Content Ephemerality
+To ensure the building remains fresh and private, we follow a strict tiered ephemerality policy:
+- **Plaza (Public)**: 24-hour lifespan to keep the social heart energetic.
+- **Lounges (Clubhouse)**: 14-day lifespan for interest-based hangouts.
+- **Private Chats (Units)**: 30-day lifespan for personal security.
+- **Moments (Bulletin Board)**: 7-day lifespan for ephemeral snapshots.
+
 ---
 
 ## 🎨 Visual Identity: Duolingo-Inspired UX

@@ -3,6 +3,19 @@
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
 
+## March 23, 2026 - Robust Content Ephemerality System (Phase 8.37) 🏛️⏳
+
+### Automated Content Lifecycle
+- **Tiered Lifespan Policy**: Implemented a robust content management solution that automatically prunes user-generated content based on context:
+  - **Plaza Messages**: 24 hours (The Lobby's social heart).
+  - **Lounge Messages**: 14 days (The Community Clubhouse).
+  - **Private Chat Messages**: 30 days (Personal Units).
+  - **Moments**: 7 days (The Community Bulletin Board).
+  - **Notifications & Reports**: Aggressive cleanup of read notifications (24h) and resolved reports (30d).
+- **Ephemerality Engine**: Created the `ContentEphemeralityService` to handle batch-deletion across all core tables, including linked media cleanup (likes/comments).
+- **Autonomous Orchestration**: Implemented `DailyCleanupCall` using Serverpod's `FutureCall` feature. The system now automatically reschedules itself every 24 hours to ensure continuous privacy protection.
+- **Admin Visibility**: Updated the Admin dashboard and `AdminEndpoint` to provide real-time statistics on upcoming content deletions and manual cleanup triggers.
+
 ## March 23, 2026 - Emoji-First UI Transformation (Phase 8.36) 🎨✨
 
 ### Playful & Dynamic UI

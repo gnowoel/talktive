@@ -73,7 +73,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 ### Completed (Phase 8 Refinement)
 - **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
 - **Architectural Polish**: Query optimizations, batch database operations, reactive profile providers, and dedicated search screens.
-- **Privacy & Premium Control**: Restored universal privacy toggles and granular premium feature switches.
+- **Privacy & Content Management**: Implemented a tiered content ephemerality system (Plaza: 24h, Lounge: 14d, Private: 30d).
 - **Welcoming Aesthetic**: Restored inviting labels and unified iconography across all core screens.
 
 *For detailed historical sub-phase notes (8.1 – 8.23), see [CHANGELOG.md](./CHANGELOG.md).*
@@ -140,6 +140,12 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Session Persistence (Mar 2026)**: Updated `AuthProvider.signOut` to maintain the `active_app_version` preference, ensuring that users remain on their chosen version (Serverpod) even after logging out.
 - **Iconography Balance**: Systematically uses traditional Material icons (non-rounded) for functional UI elements (headers, cards, inputs, empty states) while retaining emojis for bottom navigation and avatars. Established conceptual consistency (one icon per idea) across all screens (e.g., `Icons.groups` for Lounges, `Icons.chat` for Chats). 
 - **Inviting Labels**: Restored welcoming subtitles like "Your digital apartment lobby" and "Join the community clubhouse" to ensure the app feels like a friendly home.
+- **Content Ephemerality System (Mar 2026)**: Implemented a robust, tiered content lifespan policy across the entire platform.
+  - **Plaza Messages**: 24 hours (Lobby).
+  - **Lounge Messages**: 14 days (Clubhouse).
+  - **Private Chat Messages**: 30 days (Unit).
+  - **Moments**: 7 days (Bulletin Board).
+  - **Technical**: Orchestrated via `ContentEphemeralityService` and automated daily `FutureCall` cycles.
 - **Unified Iconography & Branding (Mar 2026)**: Systematically replaced action emojis with professional Material Icons (Back, Close, Like, Comment, Send) across all screens. Standardized the `DuoStatCard` implementation for "Floor" (Purple) and "Experience" (Yellow/Orange) stats to ensure visual consistency between the Plaza, Activity, and Profile screens. Unified the "Messages" icon to `Icons.chat_bubble_outline` globally.
 - **Enhanced Welcoming Aesthetic (Mar 2026)**: Restored inviting labels and unified iconography across all core screens (Plaza, Moments, Chats, Activity). Renamed "Global Chat" to "Global Lounge" for better building-metaphor alignment. Standardized header icons (Plaza: `account_balance`, Moments: `photo_camera`, Chats: `chat_bubble`) to better match their respective emojis and intent.
 - **Emoji-First UI Transformation (Mar 2026)**: Systematically replaced "dull" Material Icons with vibrant emojis across core navigation, onboarding, and profile screens. This creates a more dynamic, entertainment-focused experience that aligns with the Duolingo-inspired playful aesthetic. Re-introducedEmojis for discovery cards, stat widgets, and UI empty states while maintaining Material Icons for critical system actions (Back, Close, Send). Expanded `DuoButton` to support `secondaryEmoji` for celebrating user progress.

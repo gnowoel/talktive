@@ -36,7 +36,7 @@ class DuoCard extends StatelessWidget {
         ),
         border: borderWidth != null
             ? Border.all(
-                color: borderColor ?? Colors.grey[200]!,
+                color: borderColor ?? AppTheme.duoBorder,
                 width: borderWidth!,
               )
             : null,

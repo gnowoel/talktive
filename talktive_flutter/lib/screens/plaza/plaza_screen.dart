@@ -64,7 +64,6 @@ class PlazaScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
-            border: Border.all(color: Colors.grey[200]!, width: 2),
             boxShadow: AppTheme.duoCardShadow,
           ),
           child: Column(
@@ -171,33 +170,36 @@ class PlazaScreen extends ConsumerWidget {
             ),
           ),
         ),
-        Row(
-          children: [
-            Expanded(
-              child: _buildActionCard(
-                context,
-                title: 'Global Lounge',
-                subtitle: 'Join the main public chat to talk with everyone in the building.',
-                emoji: '🌏',
-                color: AppTheme.primaryColor,
-                onTap: () => context.push('/plaza/chat'),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  context,
+                  title: 'Global Lounge',
+                  subtitle: 'Join the main public chat to talk with everyone in the building.',
+                  emoji: '🌏',
+                  color: AppTheme.primaryColor,
+                  onTap: () => context.push('/plaza/chat'),
+                ),
               ),
-            ),
-            const SizedBox(width: AppTheme.duoSpacingMedium),
-            Expanded(
-              child: _buildActionCard(
-                context,
-                title: 'Help Center',
-                subtitle: 'Get assistance',
-                emoji: '❓',
-                color: AppTheme.duoGreen,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  context.push('/plaza/help');
-                },
+              const SizedBox(width: AppTheme.duoSpacingMedium),
+              Expanded(
+                child: _buildActionCard(
+                  context,
+                  title: 'Help Center',
+                  subtitle: 'Get assistance',
+                  emoji: '❓',
+                  color: AppTheme.duoGreen,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    context.push('/plaza/help');
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -231,6 +233,7 @@ class PlazaScreen extends ConsumerWidget {
               fontFamily: 'Poppins',
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             subtitle,
             style: TextStyle(
@@ -245,26 +248,29 @@ class PlazaScreen extends ConsumerWidget {
   }
 
   Widget _buildInfoCards() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildSmallCard(
-            emoji: '📜',
-            title: 'Rules',
-            subtitle: 'Be nice and respectful',
-            color: AppTheme.duoBlue,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _buildSmallCard(
+              emoji: '📜',
+              title: 'Rules',
+              subtitle: 'Be nice and respectful',
+              color: AppTheme.duoBlue,
+            ),
           ),
-        ),
-        const SizedBox(width: AppTheme.duoSpacingMedium),
-        Expanded(
-          child: _buildSmallCard(
-            emoji: '🏢',
-            title: 'Floor',
-            subtitle: 'Level up by chatting',
-            color: AppTheme.primaryColor,
+          const SizedBox(width: AppTheme.duoSpacingMedium),
+          Expanded(
+            child: _buildSmallCard(
+              emoji: '🏢',
+              title: 'Floor',
+              subtitle: 'Level up by chatting',
+              color: AppTheme.primaryColor,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -296,6 +302,7 @@ class PlazaScreen extends ConsumerWidget {
                     fontFamily: 'Poppins',
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: TextStyle(

@@ -64,6 +64,7 @@ class PlazaScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+            border: Border.all(color: AppTheme.duoBorder, width: 2),
             boxShadow: AppTheme.duoCardShadow,
           ),
           child: Column(

@@ -51,9 +51,9 @@ class HelpCenterScreen extends StatelessWidget {
             const SizedBox(height: AppTheme.duoSpacingMedium),
             _buildHelpCard(
               emoji: '🏢',
-              title: 'How do Floors work?',
+              title: 'The Reputation System',
               description:
-                  'Your Floor represents your level in our digital apartment building. Earn XP by chatting and sharing moments to climb higher. Higher floors unlock more influence and cooler features!',
+                  'Your Floor represents your standing in our digital apartment building. Earn XP by chatting and sharing moments to climb higher. Higher floors unlock more influence and cooler features!',
               color: AppTheme.duoYellow,
             ),
             const SizedBox(height: AppTheme.duoSpacingMedium),
@@ -61,7 +61,7 @@ class HelpCenterScreen extends StatelessWidget {
               emoji: '🛡️',
               title: 'Safety & Privacy',
               description:
-                  'We value your privacy highly. To keep our community safe and friendly for all residents, please note that we do not encrypt chats. This allows our building managers to ensure everyone follows the community rules.',
+                  'Talktive is a safe and welcoming neighborhood. To protect your privacy and keep the community fresh, all user-generated content is ephemeral and automatically deleted after a certain period. This ensures your real identity remains your private sanctuary.',
               color: AppTheme.duoRed,
             ),
             const SizedBox(height: AppTheme.duoSpacingMedium),
@@ -69,7 +69,7 @@ class HelpCenterScreen extends StatelessWidget {
               emoji: '🌟',
               title: 'Talktive Plus',
               description:
-                  'Unlock premium benefits like custom avatars, voice messages, and exclusive badges to make your stay in the apartment even more special.',
+                  'Become a premium resident! Unlock exclusive benefits like custom emojis, voice messages, and an ad-free experience to make your stay in the apartment truly unique.',
               color: AppTheme.duoBlue,
             ),
             const SizedBox(height: AppTheme.duoSpacingXXLarge),
@@ -77,19 +77,19 @@ class HelpCenterScreen extends StatelessWidget {
             // Footer: Contact Info
             Column(
               children: [
-                const Text('📬', style: TextStyle(fontSize: 48)).animate(onPlay: (c) => c.repeat(reverse: true)).shake(duration: 2000.ms, hz: 2),
+                const Text('🛎️', style: TextStyle(fontSize: 48)).animate(onPlay: (c) => c.repeat(reverse: true)).shake(duration: 2500.ms, hz: 1.5),
                 const SizedBox(height: 16),
                 const Text(
                   'Still need a hand?',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: 20,
                     fontFamily: 'Poppins',
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Our building manager is always on duty!',
+                  'The building manager is always on duty!',
                   style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: 'Rubik'),
                 ),
                 const SizedBox(height: 4),
@@ -100,11 +100,16 @@ class HelpCenterScreen extends StatelessWidget {
                     style: TextStyle(
                       color: AppTheme.primaryColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 18,
                       fontFamily: 'Poppins',
                       decoration: TextDecoration.underline,
                     ),
                   ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Copyright © 2026 Talktive Community',
+                  style: TextStyle(fontSize: 10, color: Colors.grey),
                 ),
               ],
             ),
@@ -124,7 +129,7 @@ class HelpCenterScreen extends StatelessWidget {
           const Text('🏢', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 16),
           const Text(
-            'The Apartment Building',
+            'Welcome Home!',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -134,7 +139,7 @@ class HelpCenterScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Imagine living in a vibrant apartment building. We each have our own private rooms where we rest, but the magic happens when we step out. We meet in the Lobby (Plaza) for quick hellos, share updates on the Bulletin Board (Moments), and hang out in the Clubhouse (Lounges) based on what we love.',
+            'Imagine living in a vibrant apartment building. Your room is your sanctuary, but the magic happens when you step out. Meeting in the Lobby (Plaza), updating the Bulletin Board (Moments), or hanging out in the Clubhouse (Lounges) with people who share your interests.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -145,7 +150,7 @@ class HelpCenterScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Talktive is designed to bring back the warmth of neighborhood living, where we live in separate spaces but are part of one big community.',
+            'Talktive is designed for genuine connections. We prioritize your privacy so you can speak your mind and enjoy your neighborhood stay.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,

@@ -138,12 +138,15 @@ void run(List<String> args) async {
   // Schedule first cleanup call for 3 AM Eastern (07:00 UTC).
   // The DailyCleanupCall will reschedule itself every 24 hours at the target time.
   // We use try/catch to ensure server starts even if scheduling fails.
+  // Start the server.
+  await pod.start();
+
+  // Schedule first cleanup call for 5 AM Eastern (09:00 UTC).
+  // The DailyCleanupCall will reschedule itself every 24 hours at the target time.
+  // We use try/catch to ensure server continues even if scheduling fails.
   try {
-    await pod.futureCall('dailyCleanup', null, at: DailyCleanupCall.getNextCleanupTime());
+    await pod.futureCalls.callAtTime(DailyCleanupCall.getNextCleanupTime()).dailyCleanupCall.invoke(null);
   } catch (e) {
     print('Notification: Daily cleanup already scheduled or failed to schedule: $e');
   }
-
-  // Start the server.
-  await pod.start();
 }

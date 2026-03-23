@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/services/content_ephemerality_service.dart';
+import 'package:talktive_server/src/generated/future_calls.dart';
 
 /// Periodic task for cleaning up ephemeral content (messages, moments, notifications, etc.).
 /// This is scheduled to run every 24 hours at approximately 5 AM Eastern Time (09:00 UTC).
@@ -19,11 +20,10 @@ class DailyCleanupCall extends FutureCall {
     } finally {
       // 2. Schedule the NEXT cleanup for 5 AM Eastern (09:00 UTC) tomorrow
       final nextRun = DailyCleanupCall.getNextCleanupTime();
-      await (session.serverpod as dynamic).futureCall(
-        'dailyCleanup',
-        null,
-        at: nextRun,
-      );
+      await session.serverpod.futureCalls
+          .callAtTime(nextRun)
+          .dailyCleanupCall
+          .invoke(null);
       session.log('TALKTIVE: Next cleanup scheduled for: $nextRun', level: LogLevel.info);
     }
   }

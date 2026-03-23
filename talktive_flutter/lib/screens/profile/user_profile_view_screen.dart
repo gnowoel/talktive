@@ -374,10 +374,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           if (gender != null || country != null || mutualLounges > 0)
             _buildInfoCard('About', [
               if (gender != null)
-                _buildInfoRow(Icons.person_outline, _formatGender(gender)),
-              if (country != null) _buildInfoRow(Icons.flag, country),
+                _buildInfoRow(emoji: '👤', text: _formatGender(gender)),
+              if (country != null) _buildInfoRow(emoji: '🚩', text: country),
               if (mutualLounges > 0)
-                _buildInfoRow(Icons.apartment, '$mutualLounges mutual lounges'),
+                _buildInfoRow(emoji: '🏢', text: '$mutualLounges mutual lounges'),
             ]),
 
           if (interests.isNotEmpty) ...[
@@ -448,7 +448,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final momentsCount = profile?.totalMoments ?? 0;
     return DuoButton(
       text: 'Sharing $momentsCount Moments',
-      icon: Icons.photo_library,
+      emoji: '🖼️',
       isSecondary: true,
       color: AppTheme.duoBlue,
       width: double.infinity,
@@ -467,7 +467,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
     return DuoButton(
       text: isLiked ? 'Vouched' : 'Vouch for Resident',
-      icon: isLiked ? Icons.verified_user : Icons.favorite,
+      emoji: isLiked ? '✅' : '❤️',
       color: isLiked ? AppTheme.duoGreen : AppTheme.secondaryColor,
       isSecondary: isLiked,
       width: double.infinity,
@@ -501,7 +501,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       childAspectRatio: 1.1,
       children: [
         DuoStatCard(
-          icon: Icons.verified_user,
+          emoji: '🛡️',
           value: '$actualTrustScore',
           label: 'Trust Score',
           gradientColors: [
@@ -513,7 +513,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           profile,
         ).animate().fadeIn(delay: 350.ms).scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
-          icon: Icons.apartment,
+          emoji: '🏢',
           value: '$floor',
           label: 'Floor',
           gradientColors: [
@@ -522,7 +522,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           ],
         ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
         DuoStatCard(
-          icon: Icons.chat_bubble_outline,
+          emoji: '💬',
           value: '$messages',
           label: 'Messages',
           gradientColors: [
@@ -549,7 +549,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     }
 
     return DuoStatCard(
-      icon: Icons.stars,
+      emoji: '🌟',
       value: '$xp',
       label: 'XP • $xpDisplay',
       gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
@@ -584,12 +584,20 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildInfoRow({
+    required String text,
+    IconData? icon,
+    String? emoji,
+    Color color = AppTheme.textSecondary,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppTheme.textSecondary),
+          if (emoji != null)
+            Text(emoji, style: const TextStyle(fontSize: 20))
+          else if (icon != null)
+            Icon(icon, size: 20, color: color),
           const SizedBox(width: 12),
           Text(
             text,
@@ -634,7 +642,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               flex: 2,
               child: DuoButton(
                 text: 'Knock',
-                icon: Icons.meeting_room,
+                emoji: '🚪',
                 onPressed: () => _knockOnDoor(context, ref),
               ),
             ),
@@ -643,7 +651,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               flex: 3,
               child: DuoButton(
                 text: 'Lounge Invite',
-                icon: Icons.local_activity,
+                emoji: '🎟️',
                 color: AppTheme.duoYellow,
                 onPressed: () => _showInviteBottomSheet(context, ref),
               ),

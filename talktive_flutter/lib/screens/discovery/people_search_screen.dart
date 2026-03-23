@@ -148,7 +148,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          const Icon(Icons.lock, size: 80, color: AppTheme.duoOrange),
+          const Text('🔒', style: TextStyle(fontSize: 80)),
           const SizedBox(height: 24),
           const Text(
             'Neighbor Discovery',
@@ -188,7 +188,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     if (list == null || list.isEmpty) {
       if (_searchQuery != null && _searchQuery!.isNotEmpty) {
         return const DuoEmptyState(
-          icon: Icons.people,
+          emoji: '👥',
           title: 'No neighbors found',
           subtitle: 'Try a different name or interest',
         );
@@ -262,7 +262,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                       ),
                       if (user.matchScore != null) ...[
                         const SizedBox(width: 8),
-                        Icon(Icons.bolt, size: 14, color: AppTheme.duoGreen),
+                        const Text('⚡', style: TextStyle(fontSize: 14)),
                         Text(
                           '${user.matchScore}% Match',
                           style: const TextStyle(

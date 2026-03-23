@@ -363,7 +363,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
   @override
   Widget build(BuildContext context) {
     return DuoPageScaffold(
-      icon: Icons.photo_camera,
+      emoji: '📸',
       title: 'Moments',
       subtitle: 'Stories from the building',
       trailingHeader: Row(

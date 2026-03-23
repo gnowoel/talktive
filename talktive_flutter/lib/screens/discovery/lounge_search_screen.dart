@@ -145,7 +145,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       final lounges = _searchResults ?? [];
       if (lounges.isEmpty) {
         return const DuoEmptyState(
-          icon: Icons.groups,
+          emoji: '🏘️',
           title: 'No lounges found',
           subtitle: 'Try searching for different interests',
         );
@@ -160,21 +160,21 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         if (recommended.isNotEmpty) ...[
-          _buildSectionHeader('RECOMMENDED FOR YOU', Icons.tips_and_updates),
+          _buildSectionHeader('RECOMMENDED FOR YOU', emoji: '✨'),
           ...recommended.asMap().entries.map(
             (e) => _buildLoungeCard(e.value, e.key),
           ),
           const SizedBox(height: 24),
         ],
         if (popular.isNotEmpty) ...[
-          _buildSectionHeader('POPULAR LOUNGES', Icons.whatshot),
+          _buildSectionHeader('POPULAR LOUNGES', emoji: '🔥'),
           ...popular.asMap().entries.map(
             (e) => _buildLoungeCard(e.value, e.key + 10),
           ),
         ],
         if (recommended.isEmpty && popular.isEmpty)
           const DuoEmptyState(
-            icon: Icons.search,
+            emoji: '🔍',
             title: 'Waiting for recommendation',
             subtitle: 'Update your interests to find best lounges!',
           ),
@@ -182,12 +182,15 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
+  Widget _buildSectionHeader(String title, {IconData? icon, String? emoji}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppTheme.duoBlue),
+          if (emoji != null)
+            Text(emoji, style: const TextStyle(fontSize: 16))
+          else if (icon != null)
+            Icon(icon, size: 16, color: AppTheme.duoBlue),
           const SizedBox(width: 8),
           Text(
             title,

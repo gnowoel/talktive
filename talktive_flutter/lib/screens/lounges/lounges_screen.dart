@@ -27,7 +27,7 @@ class LoungesScreen extends ConsumerWidget {
     final loungesAsync = ref.watch(loungeListProvider);
 
     return DuoPageScaffold(
-      icon: Icons.groups,
+      emoji: '🏘️',
       title: 'Lounges',
       subtitle: 'Join the community clubhouse',
       gradient: AppTheme.duoBlueGradient,
@@ -58,7 +58,7 @@ class LoungesScreen extends ConsumerWidget {
         data: (lounges) => _buildLoungeList(context, ref, lounges),
         loading: () => const DuoLoadingIndicator(),
         error: (error, _) => DuoEmptyState(
-          emoji: '🔇',
+          emoji: '🔌',
           title: 'Connection Lost',
           subtitle: 'The clubhouse door is stuck. Try again?',
           onButtonPressed: () => ref.invalidate(loungeListProvider),
@@ -105,7 +105,7 @@ class LoungesScreen extends ConsumerWidget {
             _buildSectionHeader(
               context,
               'The Doorstep',
-              icon: Icons.confirmation_number,
+              emoji: '🎟️',
             ),
             ...pending.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
@@ -117,7 +117,7 @@ class LoungesScreen extends ConsumerWidget {
             _buildSectionHeader(
               context,
               'My Lounges',
-              icon: Icons.meeting_room,
+              emoji: '🏠',
             ),
             ...joined.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
@@ -134,6 +134,7 @@ class LoungesScreen extends ConsumerWidget {
     BuildContext context,
     String title, {
     IconData? icon,
+    String? emoji,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4, top: 4),
@@ -141,6 +142,9 @@ class LoungesScreen extends ConsumerWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 18, color: AppTheme.duoBlue),
+            const SizedBox(width: 8),
+          ] else if (emoji != null) ...[
+            Text(emoji, style: const TextStyle(fontSize: 18)),
             const SizedBox(width: 8),
           ] else
             Container(

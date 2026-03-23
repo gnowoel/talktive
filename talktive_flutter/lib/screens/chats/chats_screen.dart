@@ -25,7 +25,7 @@ class ChatsScreen extends ConsumerWidget {
     final chatsState = ref.watch(privateChatListProvider);
 
     return DuoPageScaffold(
-      icon: Icons.chat_bubble,
+      emoji: '💬',
       title: 'Chats',
       subtitle: 'Connect with your neighbors',
       trailingHeader: Row(
@@ -87,7 +87,7 @@ class ChatsScreen extends ConsumerWidget {
                     context,
                     '${pendingChats.length} ${pendingChats.length == 1 ? 'Person is' : 'People are'} Knocking...',
                     AppTheme.duoOrange,
-                    Icons.door_front_door,
+                    emoji: '🚪',
                   ),
                   ...pendingChats.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -103,7 +103,7 @@ class ChatsScreen extends ConsumerWidget {
                       context,
                       'Active Chats',
                       AppTheme.textSecondary,
-                      Icons.all_inbox,
+                      emoji: '📥',
                     ),
                   const SizedBox(height: AppTheme.duoSpacingSmall),
                 ],
@@ -141,7 +141,7 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: DuoEmptyState(
-        icon: Icons.chat,
+        emoji: '🤫',
         title: 'Your door is quiet',
         subtitle: 'Start a conversation with someone in the Plaza!',
         buttonText: 'Go to Plaza',
@@ -169,14 +169,18 @@ class ChatsScreen extends ConsumerWidget {
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
-    Color color,
-    IconData icon,
-  ) {
+    Color color, {
+    IconData? icon,
+    String? emoji,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4, top: 4),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: color),
+          if (emoji != null)
+            Text(emoji, style: const TextStyle(fontSize: 18))
+          else if (icon != null)
+            Icon(icon, size: 18, color: color),
           const SizedBox(width: 8),
           Text(
             title,
@@ -383,10 +387,9 @@ class ChatsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(
-                  Icons.visibility,
-                  size: 20,
-                  color: AppTheme.duoOrange,
+                child: Text(
+                  '👁️',
+                  style: TextStyle(fontSize: 20),
                 ),
               ),
             ),

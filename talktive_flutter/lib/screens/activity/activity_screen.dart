@@ -56,7 +56,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         DuoPageScaffold(
           title: 'Activity',
           subtitle: 'Your building journey',
-          icon: Icons.emoji_events,
+          emoji: '🏆',
           gradient: AppTheme.duoGreenGradient,
           trailingHeader: Row(
             mainAxisSize: MainAxisSize.min,
@@ -274,7 +274,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   child: DuoStatCard(
                     label: 'Floor',
                     value: '${DuoFloorHelper.computeFloor(resident)}',
-                    icon: Icons.apartment,
+                    emoji: '🏢',
                     gradientColors: [
                       AppTheme.duoPurple,
                       AppTheme.duoPurple.withValues(alpha: 0.7),
@@ -286,7 +286,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   child: DuoStatCard(
                     label: 'Experience',
                     value: '${resident.xp}',
-                    icon: Icons.stars,
+                    emoji: '🌟',
                     gradientColors: [
                       AppTheme.duoYellow,
                       AppTheme.duoOrange,
@@ -399,7 +399,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inbox, size: 64, color: Colors.grey),
+          const Text('📬', style: TextStyle(fontSize: 64)),
           const SizedBox(height: AppTheme.duoSpacingMedium),
           Text(
             'No activity yet',
@@ -425,7 +425,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     WidgetRef ref,
     UserNotification notification,
   ) {
-    final iconData = _getIconForType(notification.type);
+    final iconWidget = _getIconWidgetForType(notification.type, notification.read);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
@@ -495,13 +495,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     ],
                   ),
                   child: Center(
-                    child: Icon(
-                      iconData,
-                      size: 26,
-                      color: notification.read
-                          ? Colors.grey
-                          : AppTheme.primaryColor,
-                    ),
+                    child: iconWidget,
                   ),
                 ),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
@@ -578,28 +572,31 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     );
   }
 
-  IconData _getIconForType(String type) {
+  Widget _getIconWidgetForType(String type, bool isRead) {
+    final color = isRead ? Colors.grey : AppTheme.primaryColor;
+    const double size = 26;
+
     switch (type) {
       case 'message':
-        return Icons.chat;
+        return Icon(Icons.chat_bubble_outline, size: size, color: color);
       case 'moment_like':
-        return Icons.favorite;
+        return const Text('❤️', style: TextStyle(fontSize: size));
       case 'moment_comment':
-        return Icons.comment;
+        return Icon(Icons.comment_outlined, size: size, color: color);
       case 'achievement':
-        return Icons.emoji_events;
+        return const Text('🎖️', style: TextStyle(fontSize: size));
       case 'streak':
-        return Icons.whatshot;
+        return const Text('🔥', style: TextStyle(fontSize: size));
       case 'lounge_invite':
-        return Icons.confirmation_number;
+        return const Text('✉️', style: TextStyle(fontSize: size));
       case 'mention':
-        return Icons.alternate_email;
+        return Icon(Icons.alternate_email, size: size, color: color);
       case 'chat_invite':
-        return Icons.meeting_room;
+        return const Text('👋', style: TextStyle(fontSize: size));
       case 'level_up':
-        return Icons.upgrade;
+        return const Text('🏆', style: TextStyle(fontSize: size));
       default:
-        return Icons.notifications;
+        return Icon(Icons.notifications_none, size: size, color: color);
     }
   }
 

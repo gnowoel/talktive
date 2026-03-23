@@ -48,7 +48,7 @@ class LoungeProfileScreen extends ConsumerWidget {
             ),
             body: const Center(
               child: DuoEmptyState(
-                icon: Icons.search_off,
+                emoji: '🕵️‍♂️',
                 title: 'Lounge Not Found',
                 subtitle: 'This lounge might have been disbanded.',
               ),
@@ -227,7 +227,7 @@ class LoungeProfileScreen extends ConsumerWidget {
         ),
         body: Center(
           child: DuoEmptyState(
-            icon: Icons.error_outline,
+            emoji: '⚠️',
             title: 'Lounge Trouble',
             subtitle: err.toString(),
             buttonText: 'Retry',
@@ -289,7 +289,7 @@ class LoungeProfileScreen extends ConsumerWidget {
           Container(width: 1, height: 40, color: Colors.grey[200]),
           _buildStatItem(
             context,
-            lounge.isPublic ? Icons.lock_open : Icons.lock,
+            lounge.isPublic ? '🔓' : '🔒',
             'Access',
           ),
         ],
@@ -427,10 +427,9 @@ class LoungeProfileScreen extends ConsumerWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(
-                      Icons.notifications_off,
-                      size: 24,
-                      color: AppTheme.duoPurple,
+                    Text(
+                      '🔕',
+                      style: TextStyle(fontSize: 24),
                     ),
                     SizedBox(width: 12),
                     Text(
@@ -480,7 +479,7 @@ class LoungeProfileScreen extends ConsumerWidget {
         ),
         child: const Row(
           children: [
-            Icon(Icons.hourglass_empty, size: 24, color: AppTheme.duoBlue),
+            Text('⏳', style: TextStyle(fontSize: 24)),
             SizedBox(width: 12),
             Expanded(
               child: Text(

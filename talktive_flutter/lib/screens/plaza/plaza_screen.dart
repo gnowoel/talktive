@@ -18,7 +18,7 @@ class PlazaScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DuoPageScaffold(
-      icon: Icons.account_balance,
+      emoji: '🏛️',
       title: 'Plaza',
       subtitle: 'Your digital apartment lobby',
       gradient: AppTheme.primaryGradient,
@@ -101,13 +101,12 @@ class PlazaScreen extends ConsumerWidget {
                       color: AppTheme.primaryColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.waving_hand,
-                      color: AppTheme.primaryColor,
-                      size: 32,
+                    child: const Text(
+                      '👋',
+                      style: TextStyle(fontSize: 32),
                     ),
                   ).animate(onPlay: (c) => c.repeat(reverse: true))
-                   .shake(duration: 1500.ms, hz: 2),
+                   .shake(duration: 1500.ms, hz: 4),
                 ],
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
@@ -179,7 +178,7 @@ class PlazaScreen extends ConsumerWidget {
                 context,
                 title: 'Global Lounge',
                 subtitle: 'Join the main public chat to talk with everyone in the building.',
-                icon: Icons.chat_bubble_outline,
+                emoji: '🌏',
                 color: AppTheme.primaryColor,
                 onTap: () => context.push('/plaza/chat'),
               ),
@@ -190,7 +189,7 @@ class PlazaScreen extends ConsumerWidget {
                 context,
                 title: 'Help Center',
                 subtitle: 'Get assistance',
-                icon: Icons.help_outline,
+                emoji: '❓',
                 color: AppTheme.duoGreen,
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -208,7 +207,8 @@ class PlazaScreen extends ConsumerWidget {
     BuildContext context, {
     required String title,
     required String subtitle,
-    required IconData icon,
+    IconData? icon,
+    String? emoji,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -218,7 +218,10 @@ class PlazaScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 32),
+          if (icon != null)
+            Icon(icon, color: color, size: 32)
+          else if (emoji != null)
+            Text(emoji, style: const TextStyle(fontSize: 32)),
           const SizedBox(height: 12),
           Text(
             title,
@@ -246,7 +249,7 @@ class PlazaScreen extends ConsumerWidget {
       children: [
         Expanded(
           child: _buildSmallCard(
-            icon: Icons.article,
+            emoji: '📜',
             title: 'Rules',
             subtitle: 'Be nice and respectful',
             color: AppTheme.duoBlue,
@@ -255,7 +258,7 @@ class PlazaScreen extends ConsumerWidget {
         const SizedBox(width: AppTheme.duoSpacingMedium),
         Expanded(
           child: _buildSmallCard(
-            icon: Icons.apartment,
+            emoji: '🏢',
             title: 'Floor',
             subtitle: 'Level up by chatting',
             color: AppTheme.primaryColor,
@@ -266,7 +269,8 @@ class PlazaScreen extends ConsumerWidget {
   }
 
   Widget _buildSmallCard({
-    required IconData icon,
+    IconData? icon,
+    String? emoji,
     required String title,
     required String subtitle,
     required Color color,
@@ -275,7 +279,10 @@ class PlazaScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
+          if (icon != null)
+            Icon(icon, color: color, size: 24)
+          else if (emoji != null)
+            Text(emoji, style: const TextStyle(fontSize: 24)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -311,7 +318,7 @@ class PlazaScreen extends ConsumerWidget {
       color: Colors.grey[50],
       child: Column(
         children: [
-          const Icon(Icons.history, color: Colors.grey, size: 32),
+          const Text('🕰️', style: TextStyle(fontSize: 32)),
           const SizedBox(height: 12),
           const Text(
             'Looking for the old version?',

@@ -243,7 +243,7 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.duoSpacingLarge),
       child: DuoButton(
         text: 'Sharing $momentsCount Moments',
-        icon: Icons.photo_library,
+        emoji: '🖼️',
         isSecondary: true,
         color: AppTheme.duoBlue,
         width: double.infinity,
@@ -293,7 +293,7 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               // Trust Score
               DuoStatCard(
-                    icon: Icons.shield,
+                    emoji: '🛡️',
                     value: '$trustScore',
                     label: 'Trust Score',
                     gradientColors: [
@@ -315,7 +315,7 @@ class ProfileScreen extends ConsumerWidget {
 
               // Floor (Computed from XP and Trust)
               DuoStatCard(
-                    icon: Icons.apartment,
+                    emoji: '🏢',
                     value: '$floor',
                     label: 'Floor',
                     gradientColors: [
@@ -329,7 +329,7 @@ class ProfileScreen extends ConsumerWidget {
 
               // Messages
               DuoStatCard(
-                    icon: Icons.chat_bubble_outline,
+                    emoji: '💬',
                     value: '$messages',
                     label: 'Messages',
                     gradientColors: [
@@ -362,7 +362,7 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     return DuoStatCard(
-      icon: Icons.stars,
+      emoji: '🌟',
       value: '$xp',
       label: 'XP • $xpDisplay',
       gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
@@ -505,7 +505,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
       child: DuoButton(
         text: 'Blocked Users',
-        icon: Icons.block,
+        emoji: '🚫',
         color: AppTheme.textSecondary,
         isSecondary: true,
         width: double.infinity,
@@ -523,7 +523,7 @@ class ProfileScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
       child: DuoButton(
         text: 'Sign Out',
-        icon: Icons.logout,
+        emoji: '🚪',
         color: AppTheme.duoRed,
         width: double.infinity,
         onPressed: () async {

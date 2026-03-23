@@ -469,10 +469,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 20,
+                                    : const Text(
+                                        '📸',
+                                        style: TextStyle(fontSize: 20),
                                       ),
                               ),
                             ),
@@ -548,7 +547,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   const SizedBox(height: 16),
                   DuoButton(
                     onPressed: _showEmojiPicker,
-                    icon: Icons.add_reaction_outlined,
+                    emoji: '➕',
                     text: 'Choose Custom Emoji',
                     variant: DuoButtonVariant.ghost,
                     size: DuoButtonSize.small,
@@ -1329,7 +1328,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                 onPressed: _isLoading ? null : _nextStep,
                 isLoading: _isLoading,
                 variant: DuoButtonVariant.primary,
-                secondaryIcon: _currentStep < 6 ? null : Icons.celebration,
+                secondaryEmoji: _currentStep < 6 ? null : '🎉',
               ),
             ),
           ],
@@ -1365,7 +1364,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
+                    icon: const Text('❌', style: TextStyle(fontSize: 18)),
                   ),
                 ],
               ),
@@ -1444,7 +1443,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         inputDecoration: InputDecoration(
           labelText: 'Search',
           hintText: 'Start typing to search',
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Center(
+            widthFactor: 1.0,
+            heightFactor: 1.0,
+            child: Text('🔍', style: TextStyle(fontSize: 16)),
+          ),
           border: OutlineInputBorder(
             borderSide: BorderSide(
               color: const Color(0xFF8C98A8).withValues(alpha: 0.2),

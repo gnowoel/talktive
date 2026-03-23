@@ -135,11 +135,11 @@ void run(List<String> args) async {
   // Initialize FCM for push notifications
   await FCMService.initialize();
 
-  // Schedule first cleanup call for 1 minute from now to ensure ephemerality chain begins.
-  // The DailyCleanupCall will reschedule itself every 24 hours.
+  // Schedule first cleanup call for 3 AM Eastern (07:00 UTC).
+  // The DailyCleanupCall will reschedule itself every 24 hours at the target time.
   // We use try/catch to ensure server starts even if scheduling fails.
   try {
-    await pod.futureCall('dailyCleanup', null, at: DateTime.now().add(const Duration(minutes: 1)));
+    await pod.futureCall('dailyCleanup', null, at: DailyCleanupCall.getNextCleanupTime());
   } catch (e) {
     print('Notification: Daily cleanup already scheduled or failed to schedule: $e');
   }

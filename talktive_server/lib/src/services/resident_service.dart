@@ -620,8 +620,51 @@ class ResidentService {
     if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
     if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
     if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
+    final bool oldKeepPrivateChats = resident.keepPrivateChats;
     if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
 
-    return await protocol.Resident.db.updateRow(session, resident);
+    final updatedResident = await protocol.Resident.db.updateRow(session, resident);
+
+    // If transitioned from true to false, unkeep all private chats for this user.
+    if (oldKeepPrivateChats && keepPrivateChats == false) {
+      await _unkeepAllPrivateChats(session, updatedResident.userInfoId);
+    }
+
+    return updatedResident;
+  }
+
+  /// Removes persistence for all private channels where the user is a member.
+  static Future<void> _unkeepAllPrivateChats(
+    Session session,
+    UuidValue userId,
+  ) async {
+    try {
+      // 1. Find all channel IDs where the user is a member
+      final memberOf = await protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.userInfoId.equals(userId),
+      );
+
+      final channelIds = memberOf.map((m) => m.channelId).toSet();
+      if (channelIds.isEmpty) return;
+
+      // 2. Find private channels that are currently persistent
+      final privateChannels = await protocol.Channel.db.find(
+        session,
+        where: (t) => t.id.inSet(channelIds) & 
+                     t.type.equals(protocol.ChannelType.private) & 
+                     t.isPersistent.equals(true),
+      );
+
+      if (privateChannels.isEmpty) return;
+
+      // 3. Clear isPersistent flag for those channels
+      for (final channel in privateChannels) {
+        channel.isPersistent = false;
+        await protocol.Channel.db.updateRow(session, channel);
+      }
+    } catch (e) {
+      session.log('Failed to unkeep private chats for $userId: $e', level: LogLevel.error);
+    }
   }
 }

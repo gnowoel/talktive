@@ -416,46 +416,47 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         ],
                       ),
                     ),
-                    PopupMenuItem<String>(
-                      value: 'persistence',
-                      child: Row(
-                        children: [
-                          Text(
-                            details.channel?.isPersistent == true ? '📌' : '📍',
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  details.channel?.isPersistent == true
-                                      ? 'Unkeep Chat'
-                                      : 'Keep Chat',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                if (currentResident?.isPremium != true)
-                                  const Text(
-                                    'Premium Feature',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppTheme.duoOrange,
+                    if (currentResident?.keepPrivateChats == true)
+                      PopupMenuItem<String>(
+                        value: 'persistence',
+                        child: Row(
+                          children: [
+                            Text(
+                              details.channel?.isPersistent == true ? '📌' : '📍',
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    details.channel?.isPersistent == true
+                                        ? 'Unkeep Chat'
+                                        : 'Keep Chat',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.black,
                                     ),
                                   ),
-                              ],
+                                  if (currentResident?.isPremium != true)
+                                    const Text(
+                                      'Premium Feature',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: AppTheme.duoOrange,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                          if (currentResident?.isPremium != true)
-                            const Icon(Icons.lock, size: 14, color: AppTheme.duoOrange),
-                        ],
+                            if (currentResident?.isPremium != true)
+                              const Icon(Icons.lock, size: 14, color: AppTheme.duoOrange),
+                          ],
+                        ),
                       ),
-                    ),
                   ];
                 },
               ),

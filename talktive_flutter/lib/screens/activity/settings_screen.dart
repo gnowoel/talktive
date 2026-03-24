@@ -118,6 +118,15 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppTheme.duoSpacingMedium),
               _buildFeatureRow(
                 context,
+                icon: Icons.block,
+                title: 'No Ads',
+                description: 'A completely ad-free experience (Coming Soon).',
+                isLocked: !resident.isPremium,
+                value: resident.isPremium,
+                onChanged: null,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: Icons.account_circle,
                 title: 'Custom Avatar',
                 description: 'Upload your own image to use as an avatar.',
@@ -143,7 +152,7 @@ class SettingsScreen extends ConsumerWidget {
                         context,
                         ref,
                         showVoiceMessages: val,
-                      )
+                       )
                     : null,
               ),
               _buildFeatureRow(
@@ -220,15 +229,6 @@ class SettingsScreen extends ConsumerWidget {
                         keepPrivateChats: val,
                       )
                     : null,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: Icons.block,
-                title: 'No Ads',
-                description: 'A completely ad-free experience (Coming Soon).',
-                isLocked: !resident.isPremium,
-                value: resident.isPremium,
-                onChanged: null,
               ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),

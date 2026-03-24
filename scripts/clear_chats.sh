@@ -17,8 +17,9 @@ echo "🗑️  Deleting chat data..."
 docker exec talktive_server-postgres-1 psql -U postgres -d talktive -c "
 DELETE FROM message;
 DELETE FROM private_chat;
-DELETE FROM groups;
+DELETE FROM lounge;
 DELETE FROM channel_member;
+DELETE FROM user_notifications;
 DELETE FROM channel WHERE id != 1;
 "
 

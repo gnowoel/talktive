@@ -73,7 +73,7 @@ abstract class Resident
        showOthersOnlineStatus = showOthersOnlineStatus ?? true,
        showOthersReadReceipts = showOthersReadReceipts ?? true,
        showOthersTypingIndicators = showOthersTypingIndicators ?? true,
-       keepPrivateChats = keepPrivateChats ?? false;
+       keepPrivateChats = keepPrivateChats ?? true;
 
   factory Resident({
     int? id,

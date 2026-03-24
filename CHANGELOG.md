@@ -2,7 +2,16 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
+## March 25, 2026 - Enhanced Chat Persistence & Premium Polish (Phase 8.39) 📌💎
 
+### Chat Persistence Improvements
+- **Default Persistence**: Set `keepPrivateChats` to `enabled` by default in the `Resident` protocol, ensuring new users benefit from chat history immediately.
+- **Global Unkeep Logic**: Implemented automatic unkeeping of all persistent private chats in `ResidentService` when a user disables the "Keep Private Chats" global setting. This ensures data privacy and consistent behavior with the platform's ephemeral philosophy.
+- **Conditional UI Rendering**: Automatically hides the "Keep Chat" option in the private message dropdown menu if the global setting is disabled, preventing UI confusion.
+
+### Premium Experience Refinement
+- **Feature Prioritization**: Reordered the premium feature list on the `SettingsScreen` to place "No Ads" at the top, emphasizing the most requested benefit for Plus users.
+- **Unified Settings Toggle**: Standardized the `keepPrivateChats` toggle behavior within the `SettingsScreen`, ensuring seamless updates and haptic feedback.
 
 ## March 24, 2026 - Endpoint Refactoring & API Reconciliation (Phase 8.38) 🏗️🛡️
 
